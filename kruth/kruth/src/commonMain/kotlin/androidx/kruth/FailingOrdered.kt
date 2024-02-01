@@ -16,8 +16,6 @@
 
 package androidx.kruth
 
-import androidx.kruth.Fact.Companion.simpleFact
-
 /**
  * Always fails with the provided error message.
  */
@@ -27,6 +25,6 @@ internal class FailingOrdered(
 ) : Ordered {
 
     override fun inOrder() {
-        metadata.fail(simpleFact(message()))
+        metadata.fail(message())
     }
 }

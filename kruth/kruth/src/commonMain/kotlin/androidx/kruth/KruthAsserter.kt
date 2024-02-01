@@ -18,43 +18,32 @@ package androidx.kruth
 
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
-import kotlin.jvm.JvmStatic
 
 @OptIn(ExperimentalContracts::class)
-data class FailureMetadata internal constructor(
-    val failureStrategy: FailureStrategy = FailureStrategy { failure -> throw failure },
-    val messagesToPrepend: List<String> = emptyList(),
+internal class KruthAsserter(
+    private val formatMessage: (String?) -> String?,
 ) {
-    companion object {
-        @JvmStatic
-        fun forFailureStrategy(failureStrategy: FailureStrategy): FailureMetadata {
-            return FailureMetadata(
-                failureStrategy
-            )
-        }
+
+    /**
+     * Fails the current test with the specified message and cause exception.
+     *
+     * @param message the message to report.
+     * @param cause the exception to set as the root cause of the reported failure.
+     */
+    fun fail(message: String? = null, cause: Throwable? = null): Nothing {
+        kotlin.test.fail(message = formatMessage(message), cause = cause)
     }
-
-    internal fun fail(message: String? = null): Nothing {
-        // TODO: change to AssertionError that takes in a cause when upgraded to 1.9.20
-        failureStrategy.fail(AssertionError(formatMessage(message)))
-    }
-
-    internal fun withMessage(messageToPrepend: String): FailureMetadata =
-        copy(messagesToPrepend = messagesToPrepend + messageToPrepend)
-
-    internal fun formatMessage(vararg messages: String?): String =
-        (messagesToPrepend + messages.filterNotNull()).joinToString(separator = "\n")
 
     /**
      * Asserts that the specified value is `true`.
      *
      * @param message the message to report if the assertion fails.
      */
-    internal inline fun assertTrue(actual: Boolean, message: () -> String? = { null }) {
+    fun assertTrue(actual: Boolean, message: String? = null) {
         contract { returns() implies actual }
 
         if (!actual) {
-            fail(message())
+            fail(message)
         }
     }
 
@@ -63,11 +52,11 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal inline fun assertFalse(actual: Boolean, message: () -> String? = { null }) {
+    fun assertFalse(actual: Boolean, message: String? = null) {
         contract { returns() implies !actual }
 
         if (actual) {
-            fail(message())
+            fail(message)
         }
     }
 
@@ -76,11 +65,7 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal inline fun assertEquals(
-        expected: Any?,
-        actual: Any?,
-        message: () -> String? = { null },
-    ) {
+    fun assertEquals(expected: Any?, actual: Any?, message: String? = null) {
         assertTrue(expected == actual, message)
     }
 
@@ -89,7 +74,7 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun assertNotEquals(illegal: Any?, actual: Any?, message: () -> String? = { null }) {
+    fun assertNotEquals(illegal: Any?, actual: Any?, message: String? = null) {
         assertFalse(illegal == actual, message)
     }
 
@@ -98,7 +83,7 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun assertNull(actual: Any?, message: () -> String? = { null }) {
+    fun assertNull(actual: Any?, message: String? = null) {
         contract { returns() implies (actual == null) }
         assertTrue(actual == null, message)
     }
@@ -108,7 +93,7 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun <T : Any> assertNotNull(actual: T?, message: () -> String? = { null }): T {
+    fun <T : Any> assertNotNull(actual: T?, message: String? = null): T {
         contract { returns() implies (actual != null) }
         assertFalse(actual == null, message)
 

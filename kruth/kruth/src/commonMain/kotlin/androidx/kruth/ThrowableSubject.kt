@@ -37,16 +37,10 @@ class ThrowableSubject<out T : Throwable> internal constructor(
      * `assertThat(e).hasCauseThat().hasCauseThat()....` to assert on a particular indirect cause.
      */
     fun hasCauseThat(): ThrowableSubject<Throwable> {
-        // provides a more helpful error message if hasCauseThat() methods are chained too deep
-        // e.g. assertThat(new Exception()).hCT().hCT()....
-        // TODO(diamondm) in keeping with other subjects' behavior this should still NPE if the subject
-        //  *itself* is null, since there's no context to lose. See also b/37645583
         if (actual == null) {
-            check("cause")
-                .withMessage("Causal chain is not deep enough - add a .isNotNull() check?")
-                .fail()
+            metadata.fail("Causal chain is not deep enough - add a .isNotNull() check?")
         }
 
-        return check("cause").that(actual.cause)
+        return ThrowableSubject(actual = actual.cause, metadata = metadata)
     }
 }

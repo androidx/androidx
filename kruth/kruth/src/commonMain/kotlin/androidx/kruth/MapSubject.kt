@@ -26,41 +26,51 @@ class MapSubject<K, V> internal constructor(
 
     /** Fails if the map is not empty. */
     fun isEmpty() {
-        requireNonNull(actual)
+        requireNonNull(actual) { "Expected to be empty, but was null" }
+
         if (actual.isNotEmpty()) {
-            failWithActual(simpleFact("expected to be empty"))
+            metadata.fail("Expected to be empty, but was $actual")
         }
     }
 
     /** Fails if the map is empty. */
     fun isNotEmpty() {
-        requireNonNull(actual)
+        requireNonNull(actual) { "Expected to be not empty, but was null" }
+
         if (actual.isEmpty()) {
-            failWithoutActual(simpleFact("expected not to be empty"))
+            metadata.fail("Expected to be not empty, but was $actual")
         }
     }
 
     /** Fails if expected size of map is not equal to actual. */
     fun hasSize(expectedSize: Int) {
-        require(expectedSize >= 0) { "expectedSize ($expectedSize) must be >= 0" }
-        check("size").that(requireNonNull(actual).size).isEqualTo(expectedSize)
+        require(expectedSize >= 0) { "expectedSize must be >= 0, but was $expectedSize" }
+        requireNonNull(actual) { "Expected to be empty, but was null" }
+        metadata.assertEquals(expectedSize, actual.size)
     }
 
     /** Fails if the map does not contain the given key. */
     fun containsKey(key: Any?) {
-        check("keys").that(requireNonNull(actual).keys).contains(key)
+        requireNonNull(actual) { "Expected to contain $key, but was null" }
+
+        if (!actual.containsKey(key)) {
+            metadata.fail("Expected to contain $key, but was ${actual.keys}")
+        }
     }
 
     /** Fails if the map contains the given key.  */
     fun doesNotContainKey(key: Any?) {
-        check("keys").that(requireNonNull(actual).keys).doesNotContain(key)
+        requireNonNull(actual) { "Expected not to contain $key, but was null" }
+        if (key in actual) {
+            failWithoutActual(fact("Expected not to contain", key), fact("but was", actual.keys))
+        }
     }
 
     /** Fails if the map does not contain the given entry.  */
     fun containsEntry(key: K, value: V) {
         val entry = key to value
 
-        requireNonNull(actual)
+        requireNonNull(actual) { "Expected to contain $entry, but was null" }
 
         if (actual.entries.any { (k, v) -> (k == key) && (v == value) }) {
             return
@@ -80,7 +90,7 @@ class MapSubject<K, V> internal constructor(
             if ((value == null) || (actualValue == null)) {
                 failWithActual(
                     fact("Expected to contain entry", entry),
-                    simpleFact("key is present but with a different value"),
+                    fact("key is present but with a different value"),
                 )
             } else {
                 failWithActual(fact("Expected to contain entry", entry))
@@ -127,7 +137,7 @@ class MapSubject<K, V> internal constructor(
     fun doesNotContainEntry(key: K, value: V) {
         val entry = key to value
 
-        requireNonNull(actual)
+        requireNonNull(actual) { "Expected not to contain $entry, but was null" }
 
         if (actual.entries.any { (k, v) -> (k == key) && (v == value) }) {
             failWithActual(fact("Expected not to contain", entry))

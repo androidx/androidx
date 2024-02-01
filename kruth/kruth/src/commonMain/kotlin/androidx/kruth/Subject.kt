@@ -17,8 +17,7 @@
 package androidx.kruth
 
 import androidx.kruth.Fact.Companion.fact
-import androidx.kruth.Fact.Companion.simpleFact
-import androidx.kruth.OldAndNewValuesAreSimilar.DIFFERENT
+import kotlin.jvm.JvmOverloads
 import kotlin.reflect.typeOf
 
 // As opposed to Truth, which limits visibility on `actual` and the generic type, we purposely make
@@ -33,9 +32,8 @@ import kotlin.reflect.typeOf
  */
 open class Subject<out T>(
     val actual: T?,
-    metadata: FailureMetadata = FailureMetadata(),
+    val metadata: FailureMetadata = FailureMetadata(),
 ) {
-    val metadata: FailureMetadata by lazy { metadata.updateForSubject(this) }
 
     protected fun check(): StandardSubjectBuilder = StandardSubjectBuilder(metadata = metadata)
 
@@ -89,13 +87,8 @@ open class Subject<out T>(
     open fun isSameInstanceAs(expected: Any?) {
         if (actual !== expected) {
             metadata.fail(
-                listOf(
-                    // TODO(dustinlam): This error string does not match the one from Truth.
-                    simpleFact(
-                        "Expected ${actual.toStringForAssert()} to be the same instance  as " +
-                            "${expected.toStringForAssert()}, but was not"
-                    )
-                )
+                "Expected ${actual.toStringForAssert()} to be the same instance as " +
+                    "${expected.toStringForAssert()}, but was not"
             )
         }
     }
@@ -103,8 +96,8 @@ open class Subject<out T>(
     /** Fails if the subject is the same instance as the given object.  */
     open fun isNotSameInstanceAs(unexpected: Any?) {
         if (actual === unexpected) {
-            failWithoutActual(
-                fact("expected not to be specific instance", actual)
+            metadata.fail(
+                "Expected ${actual.toStringForAssert()} not to be specific instance, but it was"
             )
         }
     }
@@ -112,26 +105,18 @@ open class Subject<out T>(
     /**
      * Fails if the subject is not an instance of the given class.
      */
-    // TODO(dustinlam): Add a JVM-only non inline version for compatibility and java users.
     inline fun <reified V> isInstanceOf() {
         if (actual !is V) {
-            doFail(
-                fact("expected instance of", typeOf<V>()),
-                fact("but was", actual.toString())
-            )
+            doFail("Expected $actual to be an instance of ${typeOf<V>()} but it was not")
         }
     }
 
     /**
      * Fails if the subject is an instance of the given class.
      */
-    // TODO(dustinlam): Add a JVM-only non inline version for compatibility and java users.
     inline fun <reified V> isNotInstanceOf() {
         if (actual is V) {
-            doFail(
-                fact("expected not to be an instance of", typeOf<V>()),
-                fact("but was", actual.toString())
-            )
+            doFail("Expected $actual to be not an instance of ${typeOf<V>()} but it was")
         }
     }
 
@@ -143,106 +128,53 @@ open class Subject<out T>(
 
     // TODO(KT-20427): Only needed to enable extensions in internal sources.
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun failWithActualInternal(fact: Fact, vararg facts: Fact): Nothing {
-        failWithActual(fact, *facts)
+    internal inline fun failWithActualInternal(vararg facts: Fact): Nothing {
+        failWithActual(*facts)
     }
 
-    /**
-     * Fails, reporting a message with two "[facts][Fact]":
-     *  * _key_: _value_
-     *  * but was: _actual value_.
-     *
-     * This is the simplest failure API. For more advanced needs, see
-     * `failWithActual(Fact, Fact...)` the other overload, and `failWithoutActual(Fact, Fact...)`.
-     *
-     * Example usage: The check `contains(String)` calls
-     * `failWithActual("expected to contain", string)`.
-     */
-    protected fun failWithActual(key: String, value: Any?): Nothing {
+    @JvmOverloads
+    protected fun failWithActual(key: String, value: Any? = null): Nothing {
         failWithActual(fact(key, value))
     }
 
-    /**
-     * Fails, reporting a message with the given facts, followed by an automatically added fact of
-     * the form:
-     *  * but was: _actual value_.
-     *
-     * If you have only one fact to report (and it's a key-value [Fact]), prefer
-     * `failWithActual(String, Any?)`, the simpler overload).
-     *
-     * Example usage: The check `isEmpty()` calls
-     * `failWithActual(simpleFact("expected to be empty"))`.
-     */
-    protected fun failWithActual(first: Fact, vararg rest: Fact): Nothing {
+    protected fun failWithActual(vararg facts: Fact): Nothing {
         metadata.fail(
-            listOf(
-                first,
-                *rest,
-                fact("but was", actual)
+            Fact.makeMessage(
+                emptyList(),
+                facts.asList() + fact("but was", actual.toString()),
             )
         )
     }
 
     // TODO(KT-20427): Only needed to enable extensions in internal sources.
-    internal fun failWithoutActualInternal(first: Fact, vararg rest: Fact): Nothing {
-        failWithoutActual(first, *rest)
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun failWithoutActualInternal(vararg facts: Fact): Nothing {
+        failWithoutActual(*facts)
     }
 
-    /**
-     * Assembles a failure message without a given subject and passes it to the FailureStrategy
-     *
-     * @param check the check being asserted
-     */
-    @Deprecated(
-        "Prefer to construct Fact-style methods, typically by using " +
-            "failWithoutActual(Fact, Fact...). However, if you want to preserve your exact " +
-            "failure message as a migration aid, you can inline this method (and then inline the " +
-            "resulting method call, as well).",
-        ReplaceWith(
-            "failWithoutActual(simpleFact(\"Not true that the subject \$check\"))",
-            "androidx.kruth.Fact.Companion.simpleFact"
-        )
-    )
-    internal fun failWithoutActual(check: String): Nothing {
-        failWithoutActual(simpleFact("Not true that the subject $check"))
+    @JvmOverloads
+    protected fun failWithoutActual(key: String, value: Any? = null): Nothing {
+        failWithoutActual(fact(key, value))
     }
 
-    /**
-     * Fails, reporting a message with the given facts, _without automatically adding the actual
-     * value._
-     *
-     * Most failure messages should report the actual value, so most checks should call
-     * `failWithActual(Fact, Fact...)` instead. However, [failWithoutActual] is useful in some
-     * cases:
-     *  * when the actual value is obvious from the rest of the message. For example, `isNotEmpty()`
-     *    calls `failWithoutActual(simpleFact("expected not to be empty")`.
-     *  * when the actual value shouldn't come last or should have a different key than the default
-     *    of "but was." For example, `isNotWithin(...).of(...)` calls `failWithoutActual` so that it
-     *    can put the expected and actual values together, followed by the tolerance.
-     *
-     * Example usage: The check `isEmpty()` calls
-     * `failWithActual(simpleFact("expected to be empty"))`.
-     */
-    protected fun failWithoutActual(first: Fact, vararg rest: Fact): Nothing {
+    protected fun failWithoutActual(vararg facts: Fact): Nothing {
         metadata.fail(
-            buildList {
-                add(first)
-                addAll(rest)
-            }
+            Fact.makeMessage(
+                emptyList(),
+                facts.asList(),
+            )
         )
     }
 
-    @PublishedApi // Required to allow isInstanceOf to be implemented via inline reified type.
-    internal fun doFail(vararg facts: Fact): Nothing {
-        metadata.fail(facts.asList())
+    @PublishedApi
+    internal fun doFail(message: String) {
+        metadata.fail(message = message)
     }
 
     /** Fails unless the subject is equal to any element in the given [iterable]. */
     open fun isIn(iterable: Iterable<*>?) {
         if (actual !in requireNonNull(iterable)) {
-            metadata.fail(
-                listOf(simpleFact("Expected $actual to be in $iterable, but was not"))
-            )
+            metadata.fail("Expected $actual to be in $iterable, but was not")
         }
     }
 
@@ -254,7 +186,7 @@ open class Subject<out T>(
     /** Fails if the subject is equal to any element in the given [iterable]. */
     open fun isNotIn(iterable: Iterable<*>?) {
         if (actual in requireNonNull(iterable)) {
-            failWithActual(fact("expected not to be any of", iterable))
+            metadata.fail("Expected $actual not to be in $iterable, but it was")
         }
     }
 
@@ -270,11 +202,9 @@ open class Subject<out T>(
     }
 
     private fun Any?.standardIsNotEqualTo(unexpected: Any?) {
-        if (compareForEquality(unexpected)) {
-            failWithoutActual(
-                fact("expected not to be", unexpected),
-                fact("but was; string representation of actual value", actual)
-            )
+        metadata.assertFalse(compareForEquality(unexpected)) {
+            "expected ${toStringForAssert()} not be equal to ${unexpected.toStringForAssert()}, " +
+                "but it was"
         }
     }
 
@@ -319,57 +249,13 @@ open class Subject<out T>(
     private fun Any?.integralValue(): Long = when (this) {
         is Char -> code.toLong()
         is Number -> toLong()
-        else -> throw AssertionError("$this must be either a Char or a Number.")
+        else -> metadata.fail("$this must be either a Char or a Number.")
     }
 
     private fun Any?.toStringForAssert(): String = when {
         this == null -> toString()
         isIntegralBoxedPrimitive() -> "${this::class.qualifiedName}<$this>"
         else -> toString()
-    }
-
-    /**
-     * Returns a builder for creating a derived subject.
-     *
-     * Derived subjects retain the [FailureStrategy] and [StandardSubjectBuilder.withMessage] of the
-     * current subject, and in some cases, they automatically supplement their failure message with
-     * information about the original subject.
-     *
-     * For example, [ThrowableSubject.hasMessageThat], which returns a [StringSubject],
-     * is implemented with `check("getMessage()").that(actual.getMessage())`.
-     *
-     * The arguments to [check] describe how the new subject was derived from the old,
-     * formatted like a chained method call. This allows Truth to include that information in its
-     * failure messages. For example, `assertThat(caught).hasCauseThat().hasMessageThat()` will
-     * produce a failure message that includes the string "throwable.getCause().getMessage()," thanks
-     * to internal [check] calls that supplied "getCause()" and "getMessage()" as arguments.
-     *
-     * If the method you're delegating to accepts parameters, you can pass [check] a format
-     * string. For example, [MultimapSubject.valuesForKey] calls `check("valuesForKey(%s)", key)`.
-     *
-     * If you aren't really delegating to an instance method on the actual value -- maybe you're
-     * calling a static method, or you're calling a chain of several methods -- you can supply
-     * whatever string will be most useful to users. For example, if you're delegating to
-     * `getOnlyElement(actual.colors())`, you might call `check("onlyColor()")`.
-     *
-     * @param format a template with `%s` placeholders
-     * @param args the arguments to be inserted into those placeholders
-     */
-    protected fun check(format: String, vararg args: Any): StandardSubjectBuilder {
-        return doCheck(DIFFERENT, format, args)
-    }
-
-    private fun doCheck(
-        valuesAreSimilar: OldAndNewValuesAreSimilar,
-        format: String,
-        args: Array<out Any>?
-    ): StandardSubjectBuilder {
-        val message: String by lazy { lenientFormat(format, args) }
-        return StandardSubjectBuilder(
-            metadata.updateForCheckCall(valuesAreSimilar) { input: String? ->
-                "$input.$message"
-            }
-        )
     }
 
     /**
@@ -387,38 +273,5 @@ open class Subject<out T>(
      */
     fun interface Factory<out SubjectT : Subject<ActualT>, ActualT> {
         fun createSubject(metadata: FailureMetadata, actual: ActualT): SubjectT
-    }
-}
-
-private fun lenientFormat(template: String, vararg args: Any?): String {
-    val argsToLenientStrings = args.map {
-        if (it == null) {
-            return@map "null"
-        }
-
-        try {
-            it.toString()
-        } catch (e: Exception) {
-            // Default toString() behavior - see Object.toString()
-            val className = it::class.simpleName
-            val exceptionClassName = e::class.simpleName
-            val hashCodeHexString = it.hashCode().toUInt().toString(16)
-            "<$$className@$hashCodeHexString threw $exceptionClassName>"
-        }
-    }
-
-    var i = 0
-    val formattedString = template.replace(Regex("%s")) { matchResult ->
-        val result = when {
-            i <= argsToLenientStrings.lastIndex -> argsToLenientStrings[i]
-            else -> matchResult.value
-        }
-        i++
-        return@replace result
-    }
-
-    return when {
-        i >= argsToLenientStrings.size -> formattedString
-        else -> "$formattedString [${argsToLenientStrings.subList(i, argsToLenientStrings.size)}]"
     }
 }
