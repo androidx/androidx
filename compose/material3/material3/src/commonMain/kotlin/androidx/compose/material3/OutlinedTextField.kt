@@ -694,9 +694,10 @@ private class OutlinedTextFieldMeasurePolicy(
         )
         val labelPlaceable =
             measurables.fastFirstOrNull { it.layoutId == LabelId }?.measure(labelConstraints)
-        labelPlaceable?.let {
-            onLabelMeasured(Size(it.width.toFloat(), it.height.toFloat()))
-        }
+        val labelSize = labelPlaceable?.let {
+            Size(it.width.toFloat(), it.height.toFloat())
+        } ?: Size.Zero
+        onLabelMeasured(labelSize)
 
         // supporting text must be measured after other elements, but we
         // reserve space for it using its intrinsic height as a heuristic
