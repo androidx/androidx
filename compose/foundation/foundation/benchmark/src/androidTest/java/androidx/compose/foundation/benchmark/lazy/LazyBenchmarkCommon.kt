@@ -105,16 +105,22 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(
         measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 assertNoPendingRecompositionMeasureOrLayout()
-                getTestCase().beforeToggle()
+                getTestCase().setUp()
+            }
+
+            runWithTimingDisabled {
                 if (hasPendingChanges() || hasPendingMeasureOrLayout()) {
                     doFrame()
                 }
                 assertNoPendingRecompositionMeasureOrLayout()
+                getTestCase().beforeToggleCheck()
             }
-            performToggle(getTestCase())
+
+            performToggle(getTestCase()) // move
+
             runWithTimingDisabled {
-                assertNoPendingRecompositionMeasureOrLayout()
-                getTestCase().afterToggle()
+                getTestCase().afterToggleCheck()
+                getTestCase().tearDown()
                 assertNoPendingRecompositionMeasureOrLayout()
             }
         }
@@ -159,7 +165,8 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
         measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 // reset the state and draw
-                getTestCase().beforeToggle()
+                getTestCase().setUp()
+                getTestCase().beforeToggleCheck()
                 measure()
                 layout()
                 drawPrepare()
@@ -173,7 +180,8 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
             }
             draw()
             runWithTimingDisabled {
-                getTestCase().afterToggle()
+                getTestCase().afterToggleCheck()
+                getTestCase().tearDown()
                 drawFinish()
             }
         }
@@ -187,20 +195,8 @@ abstract class LazyBenchmarkTestCase(
 
     lateinit var scrollingHelper: ScrollingHelper
 
-    fun beforeToggle() {
-        setUp()
-        scrollingHelper.onBeforeScroll()
-        beforeToggleCheck()
-    }
-
     fun toggle() {
         scrollingHelper.onScroll()
-    }
-
-    fun afterToggle() {
-        afterToggleCheck()
-        scrollingHelper.onAfterScroll()
-        tearDown()
     }
 
     @Composable
@@ -241,25 +237,18 @@ class ScrollingHelper(
     private val programmaticScroll: suspend (scrollAmount: Int) -> Unit
 ) {
 
-    fun onBeforeScroll() {
-        if (!usePointerInput) return
-        val size = if (isVertical) view.measuredHeight else view.measuredWidth
-        motionEventHelper.sendEvent(MotionEvent.ACTION_DOWN, (size / 2f).toSingleAxisOffset())
-        motionEventHelper.sendEvent(MotionEvent.ACTION_MOVE, touchSlop.toSingleAxisOffset())
-    }
-
     fun onScroll() {
         if (usePointerInput) {
+            // perform complete scroll movement
+            val size = if (isVertical) view.measuredHeight else view.measuredWidth
+            motionEventHelper.sendEvent(MotionEvent.ACTION_DOWN, (size / 2f).toSingleAxisOffset())
+            motionEventHelper.sendEvent(MotionEvent.ACTION_MOVE, touchSlop.toSingleAxisOffset())
             motionEventHelper
                 .sendEvent(MotionEvent.ACTION_MOVE, -scrollAmount.toFloat().toSingleAxisOffset())
+            motionEventHelper.sendEvent(MotionEvent.ACTION_UP, Offset.Zero)
         } else {
             runBlocking { programmaticScroll.invoke(scrollAmount) }
         }
-    }
-
-    fun onAfterScroll() {
-        if (!usePointerInput) return
-        motionEventHelper.sendEvent(MotionEvent.ACTION_UP, Offset.Zero)
     }
 
     private fun Float.toSingleAxisOffset(): Offset =
