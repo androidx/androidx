@@ -63,10 +63,10 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
-    object Profile : Screen("profile", R.string.profile)
-    object Dashboard : Screen("dashboard", R.string.dashboard)
-    object Scrollable : Screen("scrollable", R.string.scrollable)
-    object Dialog : Screen("dialog", R.string.dialog)
+    data object Profile : Screen("profile", R.string.profile)
+    data object Dashboard : Screen("dashboard", R.string.dashboard)
+    data object Scrollable : Screen("scrollable", R.string.scrollable)
+    data object Dialog : Screen("dialog", R.string.dialog)
 }
 
 @Composable
