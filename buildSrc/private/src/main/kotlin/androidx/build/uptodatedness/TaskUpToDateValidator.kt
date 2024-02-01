@@ -48,11 +48,8 @@ val ALLOW_RERUNNING_TASKS =
     setOf(
         "buildOnServer",
         "checkExternalLicenses",
-        // caching disabled for now while we look for a fix for b/273294710
+        // verifies the existence of some archives to check for caching bugs: http://b/273294710
         "createAllArchives",
-        // https://youtrack.jetbrains.com/issue/KT-52632
-        "commonizeNativeDistribution",
-        "createDiffArchiveForAll",
         "externalNativeBuildDebug",
         "externalNativeBuildRelease",
         "generateDebugUnitTestConfig",
@@ -116,9 +113,6 @@ val ALLOW_RERUNNING_TASKS =
         ":external:libyuv:buildCMakeRelWithDebInfo[x86_64][yuv]",
         ":lint-checks:integration-tests:copyDebugAndroidLintReports",
 
-        // https://youtrack.jetbrains.com/issue/KT-49933
-        "generateProjectStructureMetadata",
-
         // https://github.com/google/protobuf-gradle-plugin/issues/667
         ":appactions:interaction:interaction-service-proto:extractIncludeTestProto",
         ":datastore:datastore-preferences-proto:extractIncludeTestProto",
@@ -155,8 +149,6 @@ val DONT_TRY_RERUNNING_TASKS =
 
 val DONT_TRY_RERUNNING_TASK_TYPES =
     setOf(
-        // TODO(aurimas): add back when upgrading to AGP 8.0.0-beta01
-        "com.android.build.gradle.internal.tasks.BundleLibraryJavaRes_Decorated",
         "com.android.build.gradle.internal.lint.AndroidLintTextOutputTask_Decorated",
         // lint report tasks
         "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated",
@@ -195,11 +187,6 @@ abstract class TaskUpToDateValidator :
                 // null list means the task already failed, so we'll skip emitting our error
                 return
             }
-            if (isCausedByAKlibChange(result)) {
-                // ignore these until this bug in the KMP plugin is fixed.
-                // see the method for details.
-                return
-            }
             if (!isAllowedToRerunTask(name)) {
                 throw GradleException(
                     "Ran two consecutive builds of the same tasks, and in the " +
@@ -217,32 +204,12 @@ abstract class TaskUpToDateValidator :
             return project.providers.gradleProperty(ENABLE_FLAG_NAME).isPresent
         }
 
-        /**
-         * Currently, klibs are not reproducible, which means any task that depends on them might
-         * get invalidated at no fault of their own.
-         *
-         * https://youtrack.jetbrains.com/issue/KT-52741
-         */
-        private fun isCausedByAKlibChange(result: TaskExecutionResult): Boolean {
-            // the actual message looks something like:
-            // Input property 'rootSpec$1$3' file <some-path>.klib has changed
-            return result.executionReasons.orEmpty().any { it.contains(".klib has changed") }
-        }
-
         private fun isAllowedToRerunTask(taskPath: String): Boolean {
             if (ALLOW_RERUNNING_TASKS.contains(taskPath)) {
                 return true
             }
             val taskName = taskPath.substringAfterLast(":")
             if (ALLOW_RERUNNING_TASKS.contains(taskName)) {
-                return true
-            }
-            if (taskName.startsWith("compile") && taskName.endsWith("KotlinMetadata")) {
-                // these tasks' up-to-date checks might flake.
-                // https://youtrack.jetbrains.com/issue/KT-52675
-                // We are not adding the task type to the DONT_TRY_RERUNNING_TASKS list because it
-                // is a common compilation task that is shared w/ other kotlin native compilations.
-                // (e.g. similar to the Exec task in Gradle)
                 return true
             }
             return false
