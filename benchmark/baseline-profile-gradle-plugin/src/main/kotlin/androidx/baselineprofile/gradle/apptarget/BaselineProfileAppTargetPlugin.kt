@@ -31,6 +31,8 @@ import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationVariant
+import com.android.build.api.variant.ApplicationVariantBuilder
+import com.android.build.api.variant.HasUnitTestBuilder
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -121,6 +123,25 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             createBuildTypesWithAgp81AndAbove(extension)
         } else {
             createBuildTypesWithAgp80(extension)
+        }
+    }
+
+    override fun onApplicationBeforeVariants(variantBuilder: ApplicationVariantBuilder) {
+
+        // Process all the extended build types for both baseline profile and benchmark to
+        // disable unit tests.
+        if (variantBuilder.buildType in baselineProfileExtendedToOriginalTypeMap.keys ||
+            variantBuilder.buildType in benchmarkExtendedToOriginalTypeMap.keys
+        ) {
+
+            if (supportsFeature(AgpFeature.APPLICATION_VARIANT_HAS_UNIT_TEST_BUILDER)) {
+                (variantBuilder as? HasUnitTestBuilder)?.enableUnitTest = false
+            } else {
+                @Suppress("deprecation")
+                variantBuilder.enableUnitTest = false
+                @Suppress("deprecation")
+                variantBuilder.unitTestEnabled = false
+            }
         }
     }
 
