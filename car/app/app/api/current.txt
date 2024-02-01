@@ -884,12 +884,6 @@ package androidx.car.app.mediaextensions.analytics {
 
 package androidx.car.app.mediaextensions.analytics.client {
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public abstract class AnalyticsBroadcastReceiver extends android.content.BroadcastReceiver {
-    ctor @MainThread public AnalyticsBroadcastReceiver(androidx.car.app.mediaextensions.analytics.client.AnalyticsCallback);
-    ctor public AnalyticsBroadcastReceiver(java.util.concurrent.Executor, androidx.car.app.mediaextensions.analytics.client.AnalyticsCallback);
-    method public void onReceive(android.content.Context!, android.content.Intent!);
-  }
-
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public interface AnalyticsCallback {
     method public void onBrowseNodeChangeEvent(androidx.car.app.mediaextensions.analytics.event.BrowseChangeEvent);
     method public void onErrorEvent(androidx.car.app.mediaextensions.analytics.event.ErrorEvent);
@@ -901,10 +895,9 @@ package androidx.car.app.mediaextensions.analytics.client {
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class RootHintsPopulator {
     ctor public RootHintsPopulator(android.os.Bundle);
-    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setAnalyticsOptIn(boolean, android.content.ComponentName);
-    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setOemShare(boolean);
-    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setPlatformShare(boolean);
-    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setSessionId(int);
+    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setAnalyticsOptIn(boolean);
+    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setShareOem(boolean);
+    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setSharePlatform(boolean);
   }
 
 }
@@ -915,7 +908,6 @@ package androidx.car.app.mediaextensions.analytics.event {
     method public int getAnalyticsVersion();
     method public String getComponent();
     method public int getEventType();
-    method public int getSessionId();
     method public long getTimestampMillis();
     field public static final int EVENT_TYPE_BROWSE_NODE_CHANGED_EVENT = 3; // 0x3
     field public static final int EVENT_TYPE_ERROR_EVENT = 5; // 0x5
@@ -957,7 +949,8 @@ package androidx.car.app.mediaextensions.analytics.event {
   public class ErrorEvent extends androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent {
     method public int getErrorCode();
     field public static final int ERROR_CODE_INVALID_BUNDLE = 1; // 0x1
-    field public static final int ERROR_CODE_INVALID_INTENT = 0; // 0x0
+    field public static final int ERROR_CODE_INVALID_EVENT = 2; // 0x2
+    field public static final int ERROR_CODE_INVALID_EXTRAS = 0; // 0x0
   }
 
   public class MediaClickedEvent extends androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent {
