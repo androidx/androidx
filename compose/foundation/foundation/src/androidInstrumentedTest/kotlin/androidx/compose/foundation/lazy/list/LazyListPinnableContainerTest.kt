@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -665,6 +666,42 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
             assertThat(parent1Pinned).isFalse()
             assertThat(parent2Pinned).isTrue()
         }
+    }
+
+    @Test
+    fun pinnedItemIsRemovedAfterContainerExitsComposition() {
+        var active by mutableStateOf(true)
+        // Arrange.
+        rule.setContentParameterized {
+            if (active) {
+                LazyColumn(Modifier.size(itemSize * 2)) {
+                    items(3) { colIndex ->
+                        LazyRow {
+                            items(3) { rowIndex ->
+                                if (colIndex == 1 && rowIndex == 1) {
+                                    pinnableContainer = LocalPinnableContainer.current
+                                }
+                                Box(Modifier.size(itemSize).testTag("$colIndex:$rowIndex"))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("1:1")
+            .assertIsPlaced()
+
+        rule.runOnIdle {
+            requireNotNull(pinnableContainer).pin()
+        }
+
+        rule.runOnIdle {
+            active = !active
+        }
+
+        rule.onNodeWithTag("1:1")
+            .assertIsNotPlaced()
     }
 }
 
