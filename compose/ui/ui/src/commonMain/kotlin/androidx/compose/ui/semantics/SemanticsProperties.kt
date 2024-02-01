@@ -341,6 +341,15 @@ object SemanticsActions {
      */
     val OnImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
 
+    // b/322269946
+    @Suppress("unused")
+    @Deprecated(
+        message = "Maintained for binary compatibility. " +
+            "Use `SemanticsActions.OnImeAction` instead.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    val PerformImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
+
     /**
      * @see SemanticsPropertyReceiver.copyText
      */
@@ -1353,6 +1362,20 @@ fun SemanticsPropertyReceiver.onImeAction(
     action: (() -> Boolean)?
 ) {
     this[SemanticsProperties.ImeAction] = imeActionType
+    this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
+}
+
+// b/322269946
+@Suppress("unused")
+@Deprecated(
+    message = "Maintained for binary compatibility. " +
+        "Use `SemanticsPropertyReceiver.onImeAction` instead.",
+    level = DeprecationLevel.HIDDEN,
+)
+fun SemanticsPropertyReceiver.performImeAction(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
     this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
 }
 
