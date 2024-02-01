@@ -264,6 +264,20 @@ class AnnotatedString internal constructor(
     }
 
     /**
+     * Compare the annotations between this and another AnnotatedString.
+     *
+     * This may be used for fast partial equality checks.
+     *
+     * Note that this only checks annotations, and [equals] still may be false if any of
+     * [spanStyles], [paragraphStyles], or [text] are different.
+     *
+     * @param other to compare annotations with
+     * @return true iff this compares equal on annotations with other
+     */
+    fun hasEqualsAnnotations(other: AnnotatedString): Boolean =
+        this.annotations == other.annotations
+
+    /**
      * The information attached on the text such as a [SpanStyle].
      *
      * @param item The object attached to [AnnotatedString]s.
