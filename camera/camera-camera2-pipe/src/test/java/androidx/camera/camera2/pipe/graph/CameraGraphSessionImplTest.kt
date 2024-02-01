@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.TokenLockImpl
+import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
@@ -69,9 +70,15 @@ internal class CameraGraphSessionImplTest {
                 )
             ), graphState3A, listener3A
         )
+    private val frameCaptureQueue = FrameCaptureQueue()
 
     private val session =
-        CameraGraphSessionImpl(tokenLock.acquireOrNull(1, 1)!!, graphProcessor, controller3A)
+        CameraGraphSessionImpl(
+            tokenLock.acquireOrNull(1, 1)!!,
+            graphProcessor,
+            controller3A,
+            frameCaptureQueue
+        )
 
     @Test
     fun createCameraGraphSession() {

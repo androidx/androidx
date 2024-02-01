@@ -33,6 +33,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.TokenLockImpl
 import androidx.camera.camera2.pipe.core.acquire
 import androidx.camera.camera2.pipe.core.acquireOrNull
+import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
+import androidx.camera.camera2.pipe.internal.FrameDistributor
 import androidx.camera.camera2.pipe.internal.GraphLifecycleManager
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
@@ -55,7 +57,9 @@ constructor(
     private val cameraBackend: CameraBackend,
     private val cameraController: CameraController,
     private val graphState3A: GraphState3A,
-    private val listener3A: Listener3A
+    private val listener3A: Listener3A,
+    private val frameDistributor: FrameDistributor,
+    private val frameCaptureQueue: FrameCaptureQueue,
 ) : CameraGraph {
     private val debugId = cameraGraphIds.incrementAndGet()
 
@@ -148,7 +152,7 @@ constructor(
     override suspend fun acquireSession(): CameraGraph.Session {
         Debug.traceStart { "$this#acquireSession" }
         val token = sessionLock.acquire(1)
-        val session = CameraGraphSessionImpl(token, graphProcessor, controller3A)
+        val session = CameraGraphSessionImpl(token, graphProcessor, controller3A, frameCaptureQueue)
         Debug.traceStop()
         return session
     }
@@ -156,7 +160,7 @@ constructor(
     override fun acquireSessionOrNull(): CameraGraph.Session? {
         Debug.traceStart { "$this#acquireSessionOrNull" }
         val token = sessionLock.acquireOrNull(1) ?: return null
-        val session = CameraGraphSessionImpl(token, graphProcessor, controller3A)
+        val session = CameraGraphSessionImpl(token, graphProcessor, controller3A, frameCaptureQueue)
         Debug.traceStop()
         return session
     }
@@ -176,6 +180,8 @@ constructor(
         sessionLock.close()
         graphProcessor.close()
         graphLifecycleManager.monitorAndClose(cameraBackend, cameraController)
+        frameDistributor.close()
+        frameCaptureQueue.close()
         surfaceGraph.close()
         Debug.traceStop()
     }

@@ -16,16 +16,18 @@
 
 package androidx.camera.camera2.pipe.integration.testing
 
-import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.Frame
+import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
+import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
@@ -36,8 +38,10 @@ import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import java.util.concurrent.Semaphore
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 
 @RequiresApi(21)
@@ -121,6 +125,18 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         submittedRequests.addAll(requests)
     }
 
+    override fun capture(request: Request): FrameCapture {
+        val capture = FakeFrameCapture(request)
+        submit(request)
+        return capture
+    }
+
+    override fun capture(requests: List<Request>): List<FrameCapture> {
+        val captures = requests.map { FakeFrameCapture(it) }
+        submit(requests)
+        return captures
+    }
+
     override suspend fun submit3A(
         aeMode: AeMode?,
         afMode: AfMode?,
@@ -158,14 +174,6 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         return CompletableDeferred(Result3A(Result3A.Status.OK))
     }
 
-    // CaptureFailure is package-private so this workaround is used
-    private fun getFakeCaptureFailure(): CaptureFailure {
-        val c = Class.forName("android.hardware.camera2.CaptureFailure")
-        val constructor = c.getDeclaredConstructor()
-        constructor.isAccessible = true // Make the constructor accessible.
-        return (constructor.newInstance() as CaptureFailure)
-    }
-
     private fun MutableList<Request>.notifyLastRequestListeners(
         request: Request,
         status: RequestStatus
@@ -187,6 +195,40 @@ open class FakeCameraGraphSession : CameraGraph.Session {
                 )
 
                 ABORTED -> listener.onRequestSequenceAborted(requestMetadata)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private class FakeFrameCapture(
+        override val request: Request
+    ) : FrameCapture {
+        private val result = CompletableDeferred<Frame?>()
+        private val closed = atomic(false)
+        private val listeners = mutableListOf<Frame.Listener>()
+        override val status: OutputStatus
+            get() {
+                if (closed.value || result.isCancelled) return OutputStatus.UNAVAILABLE
+                if (!result.isCompleted) return OutputStatus.PENDING
+                return OutputStatus.AVAILABLE
+            }
+
+        override suspend fun awaitFrame(): Frame? = result.await()
+
+        override fun getFrame(): Frame? {
+            if (result.isCompleted && !result.isCancelled) {
+                return result.getCompleted()
+            }
+            return null
+        }
+
+        override fun addListener(listener: Frame.Listener) {
+            listeners.add(listener)
+        }
+
+        override fun close() {
+            if (closed.compareAndSet(expect = false, update = true)) {
+                result.cancel()
             }
         }
     }
