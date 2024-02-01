@@ -46,7 +46,7 @@ internal fun TextFieldDelegate.Companion.cupertinoSetCursorOffsetFocused(
     val offset =
         offsetMapping.transformedToOriginal(textLayoutResult.getOffsetForPosition(position))
     val currentValue = editProcessor.toTextFieldValue()
-    val currentText = currentValue.text
+    val currentText = textLayoutResult.value.layoutInput.text.toString()
 
     val cursorDesiredOffset = determineCursorDesiredOffset(
         offset,
@@ -119,6 +119,7 @@ private fun TextLayoutResultProxy.isFirstHalfOfWordTapped(
     currentText: String
 ): Boolean {
     val wordBoundary = value.getWordBoundary(caretOffset)
+    // current text is taken from value.layoutInput.text, so value.getWordBoundary() should work correctly.
     val word = currentText.substring(wordBoundary.start, wordBoundary.end)
     val middleIndex = wordBoundary.start + word.midpointPositionWithUnicodeSymbols()
     return caretOffset < middleIndex
