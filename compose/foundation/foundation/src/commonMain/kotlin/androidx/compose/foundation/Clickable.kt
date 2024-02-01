@@ -895,6 +895,8 @@ internal abstract class AbstractClickableNode(
     protected var onClick = onClick
         private set
 
+    final override val shouldAutoInvalidate: Boolean = false
+
     private val focusableInNonTouchMode: FocusableInNonTouchMode = FocusableInNonTouchMode()
     private val focusableNode: FocusableNode = FocusableNode(interactionSource)
     private var pointerInputNode: SuspendingPointerInputModifierNode? = null
@@ -952,10 +954,17 @@ internal abstract class AbstractClickableNode(
                 undelegate(focusableNode)
                 disposeInteractions()
             }
+            invalidateSemantics()
             this.enabled = enabled
         }
-        this.onClickLabel = onClickLabel
-        this.role = role
+        if (this.onClickLabel != onClickLabel) {
+            this.onClickLabel = onClickLabel
+            invalidateSemantics()
+        }
+        if (this.role != role) {
+            this.role = role
+            invalidateSemantics()
+        }
         this.onClick = onClick
         if (lazilyCreateIndication != shouldLazilyCreateIndication()) {
             lazilyCreateIndication = shouldLazilyCreateIndication()

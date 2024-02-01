@@ -96,6 +96,8 @@ internal class FocusedBoundsNode : Modifier.Node(), ModifierLocalModifierNode,
     GlobalPositionAwareModifierNode {
     private var isFocused: Boolean = false
 
+    override val shouldAutoInvalidate: Boolean = false
+
     private val observer: ((LayoutCoordinates?) -> Unit)?
         get() = if (isAttached) {
             ModifierLocalFocusedBoundsObserver.current
