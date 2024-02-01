@@ -27,6 +27,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -568,6 +571,29 @@ class OutlinedTextFieldScreenshotTest {
         }
 
         assertAgainstGolden("outlinedTextField_errorSupportingText")
+    }
+
+    @Test
+    fun outlinedTextField_labelBecomesNull() {
+        lateinit var makeLabelNull: MutableState<Boolean>
+        rule.setMaterialContent(lightColorScheme()) {
+            makeLabelNull = remember { mutableStateOf(false) }
+            OutlinedTextField(
+                value = "Text",
+                onValueChange = {},
+                modifier = Modifier.width(300.dp).testTag(TextFieldTag),
+                label = if (makeLabelNull.value) {
+                    null
+                } else {
+                    { Text("Label") }
+                },
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+        rule.runOnIdle { makeLabelNull.value = true }
+
+        assertAgainstGolden("outlinedTextField_labelBecomesNull")
     }
 
     @Test
