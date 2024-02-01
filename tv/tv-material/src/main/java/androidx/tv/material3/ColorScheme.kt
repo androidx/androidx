@@ -253,6 +253,8 @@ class ColorScheme(
     var scrim by mutableStateOf(scrim, structuralEqualityPolicy())
         internal set
 
+    internal var defaultCheckboxColorsCached: CheckboxColors? = null
+
     /** Returns a copy of this ColorScheme, optionally overriding some of the values. */
     fun copy(
         primary: Color = this.primary,
