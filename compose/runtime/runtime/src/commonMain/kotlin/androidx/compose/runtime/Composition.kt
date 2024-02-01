@@ -17,6 +17,8 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime
 
+import androidx.collection.MutableScatterSet
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
@@ -1236,7 +1238,7 @@ internal class CompositionImpl(
         private val remembering = mutableListOf<RememberObserver>()
         private val forgetting = mutableListOf<Any>()
         private val sideEffects = mutableListOf<() -> Unit>()
-        private var releasing: MutableList<ComposeNodeLifecycleCallback>? = null
+        private var releasing: MutableScatterSet<ComposeNodeLifecycleCallback>? = null
 
         override fun remembering(instance: RememberObserver) {
             remembering.add(instance)
@@ -1255,15 +1257,18 @@ internal class CompositionImpl(
         }
 
         override fun releasing(instance: ComposeNodeLifecycleCallback) {
-            (releasing ?: mutableListOf<ComposeNodeLifecycleCallback>().also {
-                releasing = it
-            }) += instance
+            val releasing = releasing
+                ?: mutableScatterSetOf<ComposeNodeLifecycleCallback>().also { releasing = it }
+
+            releasing += instance
+            forgetting += instance
         }
 
         fun dispatchRememberObservers() {
             // Send forgets and node deactivations
             if (forgetting.isNotEmpty()) {
                 trace("Compose:onForgotten") {
+                    val releasing = releasing
                     for (i in forgetting.size - 1 downTo 0) {
                         val instance = forgetting[i]
                         abandoning.remove(instance)
@@ -1271,7 +1276,12 @@ internal class CompositionImpl(
                             instance.onForgotten()
                         }
                         if (instance is ComposeNodeLifecycleCallback) {
-                            instance.onDeactivate()
+                            // node callbacks are in the same queue as forgets to ensure ordering
+                            if (releasing != null && instance in releasing) {
+                                instance.onRelease()
+                            } else {
+                                instance.onDeactivate()
+                            }
                         }
                     }
                 }
@@ -1283,17 +1293,6 @@ internal class CompositionImpl(
                     remembering.fastForEach { instance ->
                         abandoning.remove(instance)
                         instance.onRemembered()
-                    }
-                }
-            }
-
-            // Send node releases
-            val releasing = releasing
-            if (!releasing.isNullOrEmpty()) {
-                trace("Compose:releases") {
-                    for (i in releasing.size - 1 downTo 0) {
-                        val instance = releasing[i]
-                        instance.onRelease()
                     }
                 }
             }
