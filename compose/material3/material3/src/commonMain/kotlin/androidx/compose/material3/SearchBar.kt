@@ -29,6 +29,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -52,6 +53,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.SearchBarDefaults.InputFieldHeight
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.material3.tokens.SearchBarTokens
@@ -63,9 +65,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -95,7 +95,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -152,6 +151,7 @@ import kotlinx.coroutines.delay
  * translucent primary color overlay is applied on top of the container. A higher tonal elevation
  * value will result in a darker color in light theme and lighter color in dark theme. See also:
  * [Surface].
+ * @param shadowElevation the elevation for the shadow below the search bar
  * @param windowInsets the window insets that the search bar will respect
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this search bar. You can create and pass in your own `remember`ed instance to observe
@@ -173,7 +173,8 @@ fun SearchBar(
     trailingIcon: @Composable (() -> Unit)? = null,
     shape: Shape = SearchBarDefaults.inputFieldShape,
     colors: SearchBarColors = SearchBarDefaults.colors(),
-    tonalElevation: Dp = SearchBarDefaults.Elevation,
+    tonalElevation: Dp = SearchBarDefaults.TonalElevation,
+    shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
     windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable ColumnScope.() -> Unit,
@@ -224,6 +225,7 @@ fun SearchBar(
         color = colors.containerColor,
         contentColor = contentColorFor(colors.containerColor),
         tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
         modifier = modifier
             .zIndex(1f)
             .onConsumedWindowInsetsChanged { consumedInsets ->
@@ -249,8 +251,8 @@ fun SearchBar(
                     .offset(vertical = -animatedTopPadding))
                 layout(width, height) {
                     placeable.placeRelative(0, animatedTopPadding)
+                }
             }
-        }
     ) {
         Column {
             val animatedInputFieldPadding = remember {
@@ -276,15 +278,17 @@ fun SearchBar(
             }
             if (showResults) {
                 Column(Modifier.graphicsLayer { alpha = animationProgress.value }) {
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                     content()
                 }
             }
         }
     }
 
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val shouldClearFocus = !active && isFocused
     LaunchedEffect(active) {
-        if (!active) {
+        if (shouldClearFocus) {
             // Not strictly needed according to the motion spec, but since the animation already has
             // a delay, this works around b/261632544.
             delay(AnimationDelayMillis.toLong())
@@ -336,6 +340,7 @@ fun SearchBar(
  * translucent primary color overlay is applied on top of the container. A higher tonal elevation
  * value will result in a darker color in light theme and lighter color in dark theme. See also:
  * [Surface].
+ * @param shadowElevation the elevation for the shadow below the search bar
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this search bar. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this search bar in different states.
@@ -356,7 +361,8 @@ fun DockedSearchBar(
     trailingIcon: @Composable (() -> Unit)? = null,
     shape: Shape = SearchBarDefaults.dockedShape,
     colors: SearchBarColors = SearchBarDefaults.colors(),
-    tonalElevation: Dp = SearchBarDefaults.Elevation,
+    tonalElevation: Dp = SearchBarDefaults.TonalElevation,
+    shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -367,6 +373,7 @@ fun DockedSearchBar(
         color = colors.containerColor,
         contentColor = contentColorFor(colors.containerColor),
         tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
         modifier = modifier
             .zIndex(1f)
             .width(SearchBarMinWidth)
@@ -400,15 +407,17 @@ fun DockedSearchBar(
                 }
 
                 Column(Modifier.heightIn(min = minHeight, max = maxHeight)) {
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                     content()
                 }
             }
         }
     }
 
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val shouldClearFocus = !active && isFocused
     LaunchedEffect(active) {
-        if (!active) {
+        if (shouldClearFocus) {
             // Not strictly needed according to the motion spec, but since the animation already has
             // a delay, this works around b/261632544.
             delay(AnimationDelayMillis.toLong())
@@ -512,21 +521,31 @@ private fun SearchBarInputField(
  */
 @ExperimentalMaterial3Api
 object SearchBarDefaults {
-    /** Default elevation for a search bar. */
-    val Elevation: Dp = SearchBarTokens.ContainerElevation
+    /** Default tonal elevation for a search bar. */
+    val TonalElevation: Dp = SearchBarTokens.ContainerElevation
+
+    /** Default shadow elevation for a search bar. */
+    val ShadowElevation: Dp = ElevationTokens.Level0
+
+    @Deprecated(
+        message = "Renamed to TonalElevation. Not to be confused with ShadowElevation.",
+        replaceWith = ReplaceWith("TonalElevation"),
+        level = DeprecationLevel.WARNING,
+    )
+    val Elevation: Dp = TonalElevation
 
     /** Default height for a search bar's input field, or a search bar in the inactive state. */
     val InputFieldHeight: Dp = SearchBarTokens.ContainerHeight
 
     /** Default shape for a search bar's input field, or a search bar in the inactive state. */
-    val inputFieldShape: Shape @Composable get() = SearchBarTokens.ContainerShape.toShape()
+    val inputFieldShape: Shape @Composable get() = SearchBarTokens.ContainerShape.value
 
     /** Default shape for a [SearchBar] in the active state. */
     val fullScreenShape: Shape
-        @Composable get() = SearchViewTokens.FullScreenContainerShape.toShape()
+        @Composable get() = SearchViewTokens.FullScreenContainerShape.value
 
     /** Default shape for a [DockedSearchBar]. */
-    val dockedShape: Shape @Composable get() = SearchViewTokens.DockedContainerShape.toShape()
+    val dockedShape: Shape @Composable get() = SearchViewTokens.DockedContainerShape.value
 
     /** Default window insets for a [SearchBar]. */
     val windowInsets: WindowInsets @Composable get() = WindowInsets.statusBars
@@ -541,8 +560,8 @@ object SearchBarDefaults {
      */
     @Composable
     fun colors(
-        containerColor: Color = SearchBarTokens.ContainerColor.toColor(),
-        dividerColor: Color = SearchViewTokens.DividerColor.toColor(),
+        containerColor: Color = SearchBarTokens.ContainerColor.value,
+        dividerColor: Color = SearchViewTokens.DividerColor.value,
         inputFieldColors: TextFieldColors = inputFieldColors(),
     ): SearchBarColors = SearchBarColors(
         containerColor = containerColor,
@@ -576,23 +595,23 @@ object SearchBarDefaults {
      */
     @Composable
     fun inputFieldColors(
-        focusedTextColor: Color = SearchBarTokens.InputTextColor.toColor(),
-        unfocusedTextColor: Color = SearchBarTokens.InputTextColor.toColor(),
-        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        focusedTextColor: Color = SearchBarTokens.InputTextColor.value,
+        unfocusedTextColor: Color = SearchBarTokens.InputTextColor.value,
+        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        cursorColor: Color = FilledTextFieldTokens.CaretColor.toColor(),
+        cursorColor: Color = FilledTextFieldTokens.CaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.toColor(),
+        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
         disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor
-            .toColor().copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
-        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.toColor(),
+            .value.copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
+        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor
-            .toColor().copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
-        focusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.toColor(),
-        unfocusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.toColor(),
-        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+            .value.copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
+        focusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.value,
+        unfocusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.value,
+        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
     ): TextFieldColors =
         TextFieldDefaults.colors(
@@ -615,21 +634,21 @@ object SearchBarDefaults {
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable
     fun inputFieldColors(
-        textColor: Color = SearchBarTokens.InputTextColor.toColor(),
-        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        textColor: Color = SearchBarTokens.InputTextColor.value,
+        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        cursorColor: Color = FilledTextFieldTokens.CaretColor.toColor(),
+        cursorColor: Color = FilledTextFieldTokens.CaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.toColor(),
+        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
         disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor
-            .toColor().copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
-        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.toColor(),
+            .value.copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
+        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor
-            .toColor().copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
-        placeholderColor: Color = SearchBarTokens.SupportingTextColor.toColor(),
-        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+            .value.copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
+        placeholderColor: Color = SearchBarTokens.SupportingTextColor.value,
+        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
     ) = inputFieldColors(
         focusedTextColor = textColor,
@@ -693,30 +712,6 @@ private class AnimatedPaddingValues(
 
     override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp = 0.dp
     override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp = 0.dp
-}
-
-/**
- * A [WindowInsets] whose values can change without changing the instance. This is useful
- * to avoid recomposition when [WindowInsets] can change.
- *
- * Copied from [androidx.compose.foundation.layout.MutableWindowInsets], which is marked as
- * experimental and thus cannot be used cross-module.
- */
-private class MutableWindowInsets(
-    initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)
-) : WindowInsets {
-    /**
-     * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight],
-     * and [bottom][getBottom] values.
-     */
-    var insets by mutableStateOf(initialInsets)
-
-    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
-        insets.getLeft(density, layoutDirection)
-    override fun getTop(density: Density): Int = insets.getTop(density)
-    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
-        insets.getRight(density, layoutDirection)
-    override fun getBottom(density: Density): Int = insets.getBottom(density)
 }
 
 // Measurement specs

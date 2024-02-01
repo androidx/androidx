@@ -16,19 +16,21 @@
 
 package androidx.compose.material3
 
+import androidx.compose.ui.util.fastForEachIndexed
 import java.text.DateFormat
 import java.text.DateFormatSymbols
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 import java.util.TimeZone
 
 /**
  * A [CalendarModel] implementation for API < 26.
+ *
+ * @param locale a [CalendarLocale] to be used by this model
  */
 @OptIn(ExperimentalMaterial3Api::class)
-internal class LegacyCalendarModelImpl : CalendarModel {
+internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale = locale) {
 
     override val today
         get(): CalendarDate {
@@ -47,23 +49,22 @@ internal class LegacyCalendarModelImpl : CalendarModel {
             )
         }
 
-    override val firstDayOfWeek: Int = dayInISO8601(Calendar.getInstance().firstDayOfWeek)
+    override val firstDayOfWeek: Int =
+        dayInISO8601(Calendar.getInstance(locale).firstDayOfWeek)
 
-    override val weekdayNames: List<Pair<String, String>> = weekdayNames(Locale.getDefault())
-
-    fun weekdayNames(locale: Locale): List<Pair<String, String>> = buildList {
+    override val weekdayNames: List<Pair<String, String>> = buildList {
         val weekdays = DateFormatSymbols(locale).weekdays
         val shortWeekdays = DateFormatSymbols(locale).shortWeekdays
         // Skip the first item, as it's empty, and the second item, as it represents Sunday while it
         // should be last according to ISO-8601.
-        weekdays.drop(2).forEachIndexed { index, day ->
+        weekdays.drop(2).fastForEachIndexed { index, day ->
             add(Pair(day, shortWeekdays[index + 2]))
         }
         // Add Sunday to the end.
         add(Pair(weekdays[1], shortWeekdays[1]))
     }
 
-    override fun getDateInputFormat(locale: Locale): DateInputFormat {
+    override fun getDateInputFormat(locale: CalendarLocale): DateInputFormat {
         return datePatternAsInputFormat(
             (DateFormat.getDateInstance(
                 DateFormat.SHORT,
@@ -131,8 +132,11 @@ internal class LegacyCalendarModelImpl : CalendarModel {
         return getMonth(earlierMonth)
     }
 
-    override fun formatWithPattern(utcTimeMillis: Long, pattern: String, locale: Locale): String =
-        LegacyCalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale)
+    override fun formatWithPattern(
+        utcTimeMillis: Long,
+        pattern: String,
+        locale: CalendarLocale
+    ): String = formatWithPattern(utcTimeMillis, pattern, locale, formatterCache)
 
     override fun parse(date: String, pattern: String): CalendarDate? {
         val dateFormat = SimpleDateFormat(pattern)
@@ -164,11 +168,16 @@ internal class LegacyCalendarModelImpl : CalendarModel {
          *
          * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
          * @param pattern a date format pattern
-         * @param locale the [Locale] to use when formatting the given timestamp
+         * @param locale the [CalendarLocale] to use when formatting the given timestamp
+         * @param cache a [MutableMap] for caching formatter related results for better performance
          */
-        fun formatWithPattern(utcTimeMillis: Long, pattern: String, locale: Locale): String {
-            val dateFormat = SimpleDateFormat(pattern, locale)
-            dateFormat.timeZone = utcTimeZone
+        fun formatWithPattern(
+            utcTimeMillis: Long,
+            pattern: String,
+            locale: CalendarLocale,
+            cache: MutableMap<String, Any>
+        ): String {
+            val dateFormat = getCachedSimpleDateFormat(pattern, locale, cache)
             val calendar = Calendar.getInstance(utcTimeZone)
             calendar.timeInMillis = utcTimeMillis
             return dateFormat.format(calendar.timeInMillis)
@@ -178,6 +187,18 @@ internal class LegacyCalendarModelImpl : CalendarModel {
          * Holds a UTC [TimeZone].
          */
         internal val utcTimeZone: TimeZone = TimeZone.getTimeZone("UTC")
+
+        private fun getCachedSimpleDateFormat(
+            pattern: String,
+            locale: CalendarLocale,
+            cache: MutableMap<String, Any>
+        ): SimpleDateFormat {
+            return cache.getOrPut(pattern + locale.toLanguageTag()) {
+                val dateFormat = SimpleDateFormat(pattern, locale)
+                dateFormat.timeZone = utcTimeZone
+                dateFormat
+            } as SimpleDateFormat
+        }
     }
 
     /**

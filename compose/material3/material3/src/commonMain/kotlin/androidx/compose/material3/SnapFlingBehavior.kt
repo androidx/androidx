@@ -212,7 +212,7 @@ internal class SnapFlingBehavior(
                 }
             }
 
-            return lowerBoundOffset.rangeTo(upperBoundOffset)
+            return lowerBoundOffset..upperBoundOffset
         }
 
         val (lowerBound, upperBound) = calculateSnappingOffsetBounds()

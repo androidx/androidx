@@ -22,15 +22,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Card
-import androidx.compose.material3.DismissValue.Default
-import androidx.compose.material3.DismissValue.DismissedToEnd
-import androidx.compose.material3.DismissValue.DismissedToStart
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -40,31 +38,30 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterial3Api
 fun SwipeToDismissListItems() {
-    val dismissState = rememberDismissState()
-    SwipeToDismiss(
+    val dismissState = rememberSwipeToDismissBoxState()
+    SwipeToDismissBox(
         state = dismissState,
-        background = {
+        backgroundContent = {
             val color by animateColorAsState(
                 when (dismissState.targetValue) {
-                    Default -> Color.LightGray
-                    DismissedToEnd -> Color.Green
-                    DismissedToStart -> Color.Red
+                    SwipeToDismissBoxValue.Settled -> Color.LightGray
+                    SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                    SwipeToDismissBoxValue.EndToStart -> Color.Red
                 }
             )
             Box(Modifier.fillMaxSize().background(color))
-        },
-        dismissContent = {
-            Card {
-                ListItem(
-                    headlineContent = {
-                        Text("Cupcake")
-                    },
-                    supportingContent = { Text("Swipe me left or right!") }
-                )
-                Divider()
-            }
         }
-    )
+    ) {
+        Card {
+            ListItem(
+                headlineContent = {
+                    Text("Cupcake")
+                },
+                supportingContent = { Text("Swipe me left or right!") }
+            )
+            HorizontalDivider()
+        }
+    }
 }

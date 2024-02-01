@@ -16,6 +16,9 @@
 
 package androidx.compose.material3
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+
 /**
  * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
  * the input format, and more.
@@ -31,6 +34,8 @@ expect class CalendarLocale
  * Note: For JVM based platforms, this would be equivalent to [java.util.Locale.getDefault].
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@ReadOnlyComposable
 internal expect fun defaultLocale(): CalendarLocale
 
 /**
@@ -39,8 +44,6 @@ internal expect fun defaultLocale(): CalendarLocale
  * @param minDigits sets the minimum number of digits allowed in the integer portion of a number.
  * If the minDigits value is greater than the [maxDigits] value, then [maxDigits] will also be set
  * to this value.
- *
- *
  */
 internal expect fun Int.toLocalString(
     minDigits: Int = 1,

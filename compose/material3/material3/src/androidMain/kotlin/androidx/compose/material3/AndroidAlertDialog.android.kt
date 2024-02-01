@@ -71,25 +71,30 @@ import androidx.compose.ui.window.DialogProperties
  * overlay is applied on top of the container. A higher tonal elevation value will result in a
  * darker color in light theme and lighter color in dark theme. See also: [Surface].
  * @param properties typically platform specific properties to further configure the dialog.
+ * @see BasicAlertDialog
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun AlertDialog(
+fun AlertDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
-    modifier: Modifier,
-    dismissButton: @Composable (() -> Unit)?,
-    icon: @Composable (() -> Unit)?,
-    title: @Composable (() -> Unit)?,
-    text: @Composable (() -> Unit)?,
-    shape: Shape,
-    containerColor: Color,
-    iconContentColor: Color,
-    titleContentColor: Color,
-    textContentColor: Color,
-    tonalElevation: Dp,
-    properties: DialogProperties
-): Unit = AlertDialog(onDismissRequest = onDismissRequest, modifier = modifier, properties = properties) {
+    modifier: Modifier = Modifier,
+    dismissButton: @Composable (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
+    title: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    shape: Shape = AlertDialogDefaults.shape,
+    containerColor: Color = AlertDialogDefaults.containerColor,
+    iconContentColor: Color = AlertDialogDefaults.iconContentColor,
+    titleContentColor: Color = AlertDialogDefaults.titleContentColor,
+    textContentColor: Color = AlertDialogDefaults.textContentColor,
+    tonalElevation: Dp = AlertDialogDefaults.TonalElevation,
+    properties: DialogProperties = DialogProperties()
+) = BasicAlertDialog(
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    properties = properties
+) {
     AlertDialogContent(
         buttons = {
             AlertDialogFlowRow(
@@ -110,7 +115,7 @@ actual fun AlertDialog(
         // most cases, TextButtons should be used for dismiss and confirm buttons.
         // TextButtons will not consume this provided content color value, and will used their
         // own defined or default colors.
-        buttonContentColor = DialogTokens.ActionLabelTextColor.toColor(),
+        buttonContentColor = DialogTokens.ActionLabelTextColor.value,
         iconContentColor = iconContentColor,
         titleContentColor = titleContentColor,
         textContentColor = textContentColor,
@@ -132,7 +137,8 @@ actual fun AlertDialog(
  * defines. If required, these constraints can be overwritten by providing a `width` or `height`
  * [Modifier]s.
  *
- * @sample androidx.compose.material3.samples.AlertDialogWithCustomContentSample
+ * Basic alert dialog usage with custom content:
+ * @sample androidx.compose.material3.samples.BasicAlertDialogSample
  *
  * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside
  * or pressing the back button. This is not called when the dismiss button is clicked.
@@ -142,10 +148,10 @@ actual fun AlertDialog(
  */
 @ExperimentalMaterial3Api
 @Composable
-actual fun AlertDialog(
+fun BasicAlertDialog(
     onDismissRequest: () -> Unit,
-    modifier: Modifier,
-    properties: DialogProperties,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit
 ) {
     Dialog(
@@ -165,26 +171,65 @@ actual fun AlertDialog(
 }
 
 /**
- * Contains default values used for [AlertDialog]
+ * <a href="https://m3.material.io/components/dialogs/overview" class="external" target="_blank">Basic alert dialog dialog</a>.
+ *
+ * Dialogs provide important prompts in a user flow. They can require an action, communicate
+ * information, or help users accomplish a task.
+ *
+ * ![Basic dialog image](https://developer.android.com/images/reference/androidx/compose/material3/basic-dialog.png)
+ *
+ * This basic alert dialog expects an arbitrary content that is defined by the caller. Note that
+ * your content will need to define its own styling.
+ *
+ * By default, the displayed dialog has the minimum height and width that the Material Design spec
+ * defines. If required, these constraints can be overwritten by providing a `width` or `height`
+ * [Modifier]s.
+ *
+ * Basic alert dialog usage with custom content:
+ * @sample androidx.compose.material3.samples.BasicAlertDialogSample
+ *
+ * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside
+ * or pressing the back button. This is not called when the dismiss button is clicked.
+ * @param modifier the [Modifier] to be applied to this dialog's content.
+ * @param properties typically platform specific properties to further configure the dialog.
+ * @param content the content of the dialog
  */
-actual object AlertDialogDefaults {
+@Deprecated(
+    "Use BasicAlertDialog instead",
+    replaceWith = ReplaceWith(
+        "BasicAlertDialog(onDismissRequest, modifier, properties, content)"
+    )
+)
+@ExperimentalMaterial3Api
+@Composable
+fun AlertDialog(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(),
+    content: @Composable () -> Unit
+) = BasicAlertDialog(onDismissRequest, modifier, properties, content)
+
+/**
+ * Contains default values used for [AlertDialog] and [BasicAlertDialog].
+ */
+object AlertDialogDefaults {
     /** The default shape for alert dialogs */
-    actual val shape: Shape @Composable get() = DialogTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = DialogTokens.ContainerShape.value
 
     /** The default container color for alert dialogs */
-    actual val containerColor: Color @Composable get() = DialogTokens.ContainerColor.toColor()
+    val containerColor: Color @Composable get() = DialogTokens.ContainerColor.value
 
     /** The default icon color for alert dialogs */
-    actual val iconContentColor: Color @Composable get() = DialogTokens.IconColor.toColor()
+    val iconContentColor: Color @Composable get() = DialogTokens.IconColor.value
 
     /** The default title color for alert dialogs */
-    actual val titleContentColor: Color @Composable get() = DialogTokens.HeadlineColor.toColor()
+    val titleContentColor: Color @Composable get() = DialogTokens.HeadlineColor.value
 
     /** The default text color for alert dialogs */
-    actual val textContentColor: Color @Composable get() = DialogTokens.SupportingTextColor.toColor()
+    val textContentColor: Color @Composable get() = DialogTokens.SupportingTextColor.value
 
     /** The default tonal elevation for alert dialogs */
-    actual val TonalElevation: Dp = DialogTokens.ContainerElevation
+    val TonalElevation: Dp = DialogTokens.ContainerElevation
 }
 
 private val ButtonsMainAxisSpacing = 8.dp

@@ -20,8 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -31,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun OneLineListItem() {
     Column {
         ListItem(
@@ -43,14 +41,13 @@ fun OneLineListItem() {
                 )
             }
         )
-        Divider()
+        HorizontalDivider()
     }
 }
 
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun TwoLineListItem() {
     Column {
         ListItem(
@@ -64,15 +61,14 @@ fun TwoLineListItem() {
                 )
             }
         )
-        Divider()
+        HorizontalDivider()
     }
 }
 
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun ThreeLineListItem() {
+fun ThreeLineListItemWithOverlineAndSupporting() {
     Column {
         ListItem(
             headlineContent = { Text("Three line list item") },
@@ -86,6 +82,28 @@ fun ThreeLineListItem() {
             },
             trailingContent = { Text("meta") }
         )
-        Divider()
+        HorizontalDivider()
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun ThreeLineListItemWithExtendedSupporting() {
+    Column {
+        ListItem(
+            headlineContent = { Text("Three line list item") },
+            supportingContent = {
+                Text("Secondary text that is long and perhaps goes onto another line")
+            },
+            leadingContent = {
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Localized description",
+                )
+            },
+            trailingContent = { Text("meta") }
+        )
+        HorizontalDivider()
     }
 }
