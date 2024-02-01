@@ -67,7 +67,7 @@ class StringSubjectTest {
 
     @Test
     fun hasLengthNegative() {
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<AssertionError> {
             assertThat("kurt").hasLength(-1)
         }
     }

@@ -16,8 +16,6 @@
 
 package androidx.kruth
 
-import androidx.kruth.Fact.Companion.simpleFact
-
 internal class HelperArraySubject<out T>(
     actual: T?,
     private val size: (T) -> Int,
@@ -26,17 +24,19 @@ internal class HelperArraySubject<out T>(
 
     /** Fails if the array is not empty (i.e. `array.size > 0`). */
     fun isEmpty() {
-        requireNonNull(actual)
+        metadata.assertNotNull(actual) { "Expected array to be empty, but was null" }
+
         if (size(actual) > 0) {
-            failWithActual(simpleFact("expected to be empty"))
+            failWithActual(Fact.simpleFact("Expected to be empty"))
         }
     }
 
     /** Fails if the array is empty (i.e. `array.size == 0`). */
     fun isNotEmpty() {
-        requireNonNull(actual)
+        metadata.assertNotNull(actual) { "Expected array not to be empty, but was null" }
+
         if (size(actual) == 0) {
-            failWithoutActual(simpleFact("expected not to be empty"))
+            failWithoutActual(Fact.simpleFact("Expected not to be empty"))
         }
     }
 
@@ -46,8 +46,13 @@ internal class HelperArraySubject<out T>(
      * @throws IllegalArgumentException if [length] < 0
      */
     fun hasLength(length: Int) {
-        require(length >= 0) { "length ($length) must be >= 0" }
-        requireNonNull(actual)
-        check("length").that(size(actual)).isEqualTo(length)
+        require(length >= 0) { "length (%d) must be >= 0" }
+
+        metadata.assertNotNull(actual) { "Expected length to be equal to $length, but was null" }
+
+        val actualSize = size(actual)
+        metadata.assertEquals(length, actualSize) {
+            "Expected length to be equal to $length, but was $actualSize"
+        }
     }
 }

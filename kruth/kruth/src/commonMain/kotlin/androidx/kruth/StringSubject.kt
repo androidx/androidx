@@ -32,61 +32,82 @@ class StringSubject internal constructor(
      * Fails if the string does not contain the given sequence.
      */
     fun contains(charSequence: CharSequence) {
-        if (actual == null) {
-            failWithActual("expected a string that contains", charSequence)
-        } else if (!actual.contains(charSequence)) {
-            failWithActual("expected to contain", charSequence)
+        metadata.assertNotNull(actual)
+
+        metadata.assertTrue(actual.contains(charSequence)) {
+            "Expected to contain \"$charSequence\", but was: \"$actual\""
         }
     }
 
     /** Fails if the string does not have the given length.  */
     fun hasLength(expectedLength: Int) {
-        require(expectedLength >= 0) { "expectedLength($expectedLength) must be >= 0" }
-        check("length").that(requireNonNull(actual).length).isEqualTo(expectedLength)
+        metadata.assertNotNull(actual)
+
+        metadata.assertTrue(actual.length == expectedLength) {
+            "Expected to have length $expectedLength, but was: \"$actual\""
+        }
     }
 
     /** Fails if the string is not equal to the zero-length "empty string."  */
     fun isEmpty() {
-        if (actual == null) {
-            failWithActual(simpleFact("expected an empty string"))
-        } else if (actual.isNotEmpty()) {
-            failWithActual(simpleFact("expected to be string"))
+        metadata.assertNotNull(actual)
+        if (actual.isNotEmpty()) {
+            metadata.fail(
+                """
+                    expected to be empty
+                    | but was $actual
+                """.trimMargin()
+            )
         }
     }
 
     /** Fails if the string is equal to the zero-length "empty string."  */
     fun isNotEmpty() {
-        if (actual == null) {
-            failWithActual(simpleFact("expected a non-empty string"))
-        } else if (actual.isEmpty()) {
-            failWithoutActual(simpleFact("expected not to be empty"))
+        metadata.assertNotNull(actual)
+        if (actual.isEmpty()) {
+            metadata.fail("expected not to be empty")
         }
     }
 
     /** Fails if the string contains the given sequence.  */
-    fun doesNotContain(charSequence: CharSequence) {
-        if (actual == null) {
-            failWithActual("expected a string that does not contain", charSequence)
-        } else if (actual.contains(charSequence)) {
-            failWithActual("expected not to contain", charSequence)
+    fun doesNotContain(string: CharSequence) {
+        metadata.assertNotNull(actual) { "expected a string that does not contain $string" }
+
+        if (actual.contains(string)) {
+            metadata.fail(
+                """
+                    expected not to contain $string
+                    | but was $actual
+                """.trimMargin()
+            )
         }
     }
 
     /** Fails if the string does not start with the given string.  */
     fun startsWith(string: String) {
-        if (actual == null) {
-            failWithActual("expected a string that starts with", string)
-        } else if (!actual.startsWith(string)) {
-            failWithActual("expected to start with", string)
+        metadata.assertNotNull(actual) { "expected a string that starts with $string" }
+
+        if (!actual.startsWith(string)) {
+            metadata.fail(
+                """
+                    expected to start with $string
+                    | but was $actual
+                """.trimMargin()
+            )
         }
     }
 
     /** Fails if the string does not end with the given string.  */
     fun endsWith(string: String) {
-        if (actual == null) {
-            failWithActual("expected a string that ends with", string)
-        } else if (!actual.endsWith(string)) {
-            failWithActual("expected to end with", string)
+        metadata.assertNotNull(actual) { "expected a string that ends with $string" }
+
+        if (!actual.endsWith(string)) {
+            metadata.fail(
+                """
+                    expected to end with $string
+                    | but was $actual
+                """.trimMargin()
+            )
         }
     }
 
@@ -133,7 +154,9 @@ class StringSubject internal constructor(
     fun doesNotContainMatch(regex: String) {
         if (actual == null) {
             failWithActual("expected a string that does not contain a match for", regex)
-        } else if (regex.toRegex().containsMatchIn(actual)) {
+        }
+
+        if (regex.toRegex().containsMatchIn(actual)) {
             failWithActual("expected not to contain a match for", regex)
         }
     }
@@ -159,24 +182,22 @@ class StringSubject internal constructor(
          * Example: "abc" is equal to "ABC", but not to "abcd".
          */
         fun isEqualTo(expected: String?) {
-            if ((actual == null) && (expected != null)) {
-                failWithoutActual(
-                    fact("expected a string that is equal to", expected),
-                    fact("but was", actual),
-                    simpleFact("(case is ignored)")
-                )
-            } else if ((expected == null) && (actual != null)) {
-                failWithoutActual(
-                    fact("expected", "null (null reference)"),
-                    fact("but was", actual),
-                    simpleFact("(case is ignored)")
-                )
-            } else if (!actual.equals(expected, ignoreCase = true)) {
-                failWithoutActual(
-                    fact("expected", expected),
-                    fact("but was", actual),
-                    simpleFact("(case is ignored)")
-                )
+            when {
+                (actual == null) && (expected != null) ->
+                    metadata.fail(
+                        "Expected a string equal to \"$expected\" (case is ignored), but was null"
+                    )
+
+                (expected == null) && (actual != null) ->
+                    metadata.fail(
+                        "Expected a string that is null (null reference), but was \"$actual\""
+                    )
+
+                !actual.equals(expected, ignoreCase = true) ->
+                    metadata.fail(
+                        "Expected a string equal to \"$expected\" (case is ignored), " +
+                            "but was \"$actual\""
+                    )
             }
         }
 
@@ -185,17 +206,17 @@ class StringSubject internal constructor(
          * equality is the same as for the [isEqualTo] method.
          */
         fun isNotEqualTo(unexpected: String?) {
-            if ((actual == null) && (unexpected == null)) {
-                failWithoutActual(
-                    fact("expected a string that is not equal to", "null (null reference)"),
-                    simpleFact("(case is ignored)")
-                )
-            } else if (actual.equals(unexpected, ignoreCase = true)) {
-                failWithoutActual(
-                    fact("expected not to be", unexpected),
-                    fact("but was", actual),
-                    simpleFact("(case is ignored)")
-                )
+            when {
+                (actual == null) && (unexpected == null) ->
+                    metadata.fail(
+                        "Expected a string not equal to null (null reference), but it was null"
+                    )
+
+                actual.equals(unexpected, ignoreCase = true) ->
+                    metadata.fail(
+                        "Expected a string not equal to \"$unexpected\" (case is ignored), " +
+                            "but it was equal. Actual string: \"$actual\"."
+                    )
             }
         }
 
@@ -203,35 +224,36 @@ class StringSubject internal constructor(
         fun contains(expected: CharSequence?) {
             requireNonNull(expected)
 
-            if (actual == null) {
-                failWithoutActual(
-                    fact("expected a string that contains", expected),
-                    fact("but was", actual),
-                    simpleFact("(case is ignored)")
-                )
-            } else if (!actual.contains(expected, ignoreCase = true)) {
-                failWithoutActual(
-                    fact("expected to contain", expected),
-                    fact("but was", actual),
-                    simpleFact("(case is ignored)")
-                )
+            when {
+                actual == null ->
+                    metadata.fail(
+                        "Expected a string that contains \"$expected\" (case is ignored), " +
+                            "but was null"
+                    )
+
+                !actual.contains(expected, ignoreCase = true) ->
+                    metadata.fail(
+                        "Expected to contain \"$expected\" (case is ignored), but was \"$actual\""
+                    )
             }
         }
 
         /** Fails if the string contains the given sequence (while ignoring case).  */
-        fun doesNotContain(expected: CharSequence) {
-            if (actual == null) {
-                failWithoutActual(
-                    fact("expected a string that does not contain", expected),
-                    fact("but was", actual),
-                    simpleFact("(case is ignored)")
-                )
-            } else if (actual.contains(expected, ignoreCase = true)) {
-                failWithoutActual(
-                    fact("expected not to contain", expected),
-                    fact("but was", actual),
-                    simpleFact("(case is ignored)")
-                )
+        fun doesNotContain(expected: CharSequence?) {
+            requireNonNull(expected)
+
+            when {
+                actual == null ->
+                    metadata.fail(
+                        "Expected a string that does not contain \"$expected\" " +
+                            "(case is ignored), but was null"
+                    )
+
+                actual.contains(expected, ignoreCase = true) ->
+                    metadata.fail(
+                        "Expected a string that does not contain \"$expected\" " +
+                            "(case is ignored), but it was. Actual string: \"$actual\"."
+                    )
             }
         }
     }
@@ -253,7 +275,7 @@ internal inline fun Subject<String>.matchesImpl(regex: Regex, equalToStringError
             simpleFact(equalToStringErrorMsg()),
         )
     } else {
-        failWithActualInternal("Expected to match", regex)
+        failWithActualInternal("Expected to match", regex);
     }
 }
 
@@ -285,9 +307,9 @@ internal fun Subject<String>.doesNotContainMatchImpl(regex: Regex) {
     val result = regex.find(actual)
     if (result != null) {
         failWithoutActualInternal(
-            fact("expected not to contain a match for", regex),
+            fact("Expected not to contain a match for", regex),
             fact("but contained", result.value),
-            fact("full string", actual)
+            fact("Full string", actual)
         )
     }
 }
