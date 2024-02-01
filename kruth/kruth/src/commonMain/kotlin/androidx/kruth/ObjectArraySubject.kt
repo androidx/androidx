@@ -52,8 +52,7 @@ class ObjectArraySubject<T> internal constructor(
 
     /** Converts this [ObjectArraySubject] to [IterableSubject].*/
     fun asList(): IterableSubject<*> {
-        metadata.assertNotNull(actual)
-
+        requireNonNull(actual)
         return IterableSubject(actual = actual.toList(), metadata = metadata)
     }
 }
