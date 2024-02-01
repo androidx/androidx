@@ -65,6 +65,8 @@ object Arguments {
     val killProcessDelayMillis: Long
     val enableStartupProfiles: Boolean
     val dryRunMode: Boolean
+    val dropShadersEnable: Boolean
+    val dropShadersThrowOnFailure: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -248,6 +250,11 @@ object Arguments {
 
         enableStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
+
+        dropShadersEnable =
+            arguments.getBenchmarkArgument("dropShaders.enable")?.toBoolean() ?: true
+        dropShadersThrowOnFailure =
+            arguments.getBenchmarkArgument("dropShaders.throwOnFailure")?.toBoolean() ?: true
 
         // very relaxed default to start, ideally this would be less than 5 (ANR timeout),
         // but configurability should help experimenting / narrowing over time
