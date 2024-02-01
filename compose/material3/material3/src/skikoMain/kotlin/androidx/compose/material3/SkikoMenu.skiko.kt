@@ -20,19 +20,81 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+
+
+@Deprecated(
+    "Replaced by DropdownMenu with properties parameter",
+    ReplaceWith("DropdownMenu(expanded, onDismissRequest, modifier, offset, " +
+        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+        "content)"),
+    level = DeprecationLevel.HIDDEN
+)
+@Suppress("ModifierParameter")
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    focusable: Boolean = true,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    properties = PopupProperties(focusable = focusable),
+    content = content
+)
+
+// Workaround for `Overload resolution ambiguity` between old and new overload.
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    properties = PopupProperties(focusable = true),
+    content = content
+)
+
 
 /**
  * <a href="https://m3.material.io/components/menus/overview" class="external" target="_blank">Material Design dropdown menu</a>.
@@ -81,13 +143,13 @@ import androidx.compose.ui.window.PopupProperties
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Composable
-fun DropdownMenu(
+actual fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    scrollState: ScrollState = rememberScrollState(),
-    properties: PopupProperties = PopupProperties(focusable = true),
+    modifier: Modifier,
+    offset: DpOffset,
+    scrollState: ScrollState,
+    properties: PopupProperties,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val expandedState = remember { MutableTransitionState(false) }
@@ -105,11 +167,19 @@ fun DropdownMenu(
             }
         }
 
+        var focusManager: FocusManager? by mutableStateOf(null)
+        var inputModeManager: InputModeManager? by mutableStateOf(null)
         Popup(
             onDismissRequest = onDismissRequest,
             popupPositionProvider = popupPositionProvider,
-            properties = properties
+            properties = properties,
+            onKeyEvent = {
+                handlePopupOnKeyEvent(it, focusManager, inputModeManager)
+            },
         ) {
+            focusManager = LocalFocusManager.current
+            inputModeManager = LocalInputModeManager.current
+
             DropdownMenuContent(
                 expandedState = expandedState,
                 transformOriginState = transformOriginState,
@@ -121,6 +191,7 @@ fun DropdownMenu(
     }
 }
 
+@Suppress("ModifierParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
@@ -135,9 +206,9 @@ fun DropdownMenu(
 fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    properties: PopupProperties = PopupProperties(focusable = true),
+    modifier: Modifier,
+    offset: DpOffset,
+    properties: PopupProperties,
     content: @Composable ColumnScope.() -> Unit
 ) = DropdownMenu(
     expanded = expanded,
@@ -177,16 +248,16 @@ fun DropdownMenu(
  * [Interaction]s and customize the appearance / behavior of this menu item in different states.
  */
 @Composable
-fun DropdownMenuItem(
+actual fun DropdownMenuItem(
     text: @Composable () -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.itemColors(),
-    contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    modifier: Modifier,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?,
+    enabled: Boolean,
+    colors: MenuItemColors,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource,
 ) {
     DropdownMenuItemContent(
         text = text,
@@ -199,4 +270,27 @@ fun DropdownMenuItem(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
     )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun handlePopupOnKeyEvent(
+    keyEvent: KeyEvent,
+    focusManager: FocusManager?,
+    inputModeManager: InputModeManager?
+): Boolean = if (keyEvent.type == KeyEventType.KeyDown) {
+    when (keyEvent.key) {
+        Key.DirectionDown -> {
+            inputModeManager?.requestInputMode(InputMode.Keyboard)
+            focusManager?.moveFocus(FocusDirection.Next)
+            true
+        }
+        Key.DirectionUp -> {
+            inputModeManager?.requestInputMode(InputMode.Keyboard)
+            focusManager?.moveFocus(FocusDirection.Previous)
+            true
+        }
+        else -> false
+    }
+} else {
+    false
 }

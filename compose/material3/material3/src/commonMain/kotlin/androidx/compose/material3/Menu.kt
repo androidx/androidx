@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.tokens.MenuTokens
 import androidx.compose.runtime.*
@@ -247,20 +248,29 @@ class MenuItemColors(
  * tap outside the menu, or when the back key is pressed.
  *
  * [DropdownMenu] changes its positioning depending on the available space, always trying to be
- * fully visible. It will try to expand horizontally, depending on layout direction, to the end of
- * its parent, then to the start of its parent, and then screen end-aligned. Vertically, it will
- * try to expand to the bottom of its parent, then from the top of its parent, and then screen
- * top-aligned. An [offset] can be provided to adjust the positioning of the menu for cases when
- * the layout bounds of its parent do not coincide with its visual bounds. Note the offset will
- * be applied in the direction in which the menu will decide to expand.
+ * fully visible. Depending on layout direction, first it will try to align its start to the start
+ * of its parent, then its end to the end of its parent, and then to the edge of the window.
+ * Vertically, it will try to align its top to the bottom of its parent, then its bottom to top of
+ * its parent, and then to the edge of the window.
+ *
+ * An [offset] can be provided to adjust the positioning of the menu for cases when the layout
+ * bounds of its parent do not coincide with its visual bounds.
  *
  * Example usage:
  * @sample androidx.compose.material3.samples.MenuSample
  *
+ * Example usage with a [ScrollState] to control the menu items scroll position:
+ * @sample androidx.compose.material3.samples.MenuWithScrollStateSample
+ *
  * @param expanded whether the menu is expanded or not
  * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
  * outside the menu's bounds
- * @param offset [DpOffset] to be added to the position of the menu
+ * @param modifier [Modifier] to be applied to the menu's content
+ * @param offset [DpOffset] from the original position of the menu. The offset respects the
+ * [LayoutDirection], so the offset's x position will be added in LTR and subtracted in RTL.
+ * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
+ * @param properties [PopupProperties] for further customization of this popup's behavior
+ * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Composable
 expect fun DropdownMenu(
@@ -268,6 +278,7 @@ expect fun DropdownMenu(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
+    scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable ColumnScope.() -> Unit
 )
