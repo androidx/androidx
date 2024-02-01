@@ -18,6 +18,7 @@ package androidx.compose.mpp.demo.components
 
 import androidx.compose.mpp.demo.LazyLayouts
 import androidx.compose.mpp.demo.Screen
+import androidx.compose.mpp.demo.components.dialog.Dialogs
 import androidx.compose.mpp.demo.components.material.AlertDialogExample
 import androidx.compose.mpp.demo.components.material.DropdownMenuExample
 import androidx.compose.mpp.demo.components.material3.AlertDialog3Example
@@ -50,7 +51,7 @@ private val Material3Components = Screen.Selection(
 val Components = Screen.Selection(
     "Components",
     Screen.Example("Popup") { PopupExample() },
-    Screen.Example("Dialog", backgroundColor = Color.Transparent) { DialogExample() },
+    Dialogs,
     TextFields,
     LazyLayouts,
     MaterialComponents,
