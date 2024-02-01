@@ -16,7 +16,7 @@ package androidx.tv.material3 {
     field public static final androidx.tv.material3.AssistChipDefaults INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class Border {
+  @androidx.compose.runtime.Immutable public final class Border {
     ctor public Border(androidx.compose.foundation.BorderStroke border, optional float inset, optional androidx.compose.ui.graphics.Shape shape);
     method public androidx.tv.material3.Border copy(optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.ui.unit.Dp? inset, optional androidx.compose.ui.graphics.Shape? shape);
     method public androidx.compose.foundation.BorderStroke getBorder();
