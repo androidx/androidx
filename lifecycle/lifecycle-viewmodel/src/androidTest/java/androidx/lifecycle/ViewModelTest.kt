@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class ViewModelCoroutineScopeTest {
+class ViewModelTest {
 
     @Test fun testVmScope() {
         val vm = object : ViewModel() {}
