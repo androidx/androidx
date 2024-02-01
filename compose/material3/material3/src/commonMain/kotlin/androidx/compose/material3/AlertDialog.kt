@@ -79,7 +79,9 @@ import kotlin.math.max
  * overlay is applied on top of the container. A higher tonal elevation value will result in a
  * darker color in light theme and lighter color in dark theme. See also: [Surface].
  * @param properties typically platform specific properties to further configure the dialog.
+ * @see BasicAlertDialog
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 expect fun AlertDialog(
     onDismissRequest: () -> Unit,
@@ -113,7 +115,8 @@ expect fun AlertDialog(
  * defines. If required, these constraints can be overwritten by providing a `width` or `height`
  * [Modifier]s.
  *
- * @sample androidx.compose.material3.samples.AlertDialogWithCustomContentSample
+ * Basic alert dialog usage with custom content:
+ * @sample androidx.compose.material3.samples.BasicAlertDialogSample
  *
  * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside
  * or pressing the back button. This is not called when the dismiss button is clicked.
@@ -123,6 +126,45 @@ expect fun AlertDialog(
  */
 @ExperimentalMaterial3Api
 @Composable
+expect fun BasicAlertDialog(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(),
+    content: @Composable () -> Unit
+)
+
+/**
+ * <a href="https://m3.material.io/components/dialogs/overview" class="external" target="_blank">Basic alert dialog dialog</a>.
+ *
+ * Dialogs provide important prompts in a user flow. They can require an action, communicate
+ * information, or help users accomplish a task.
+ *
+ * ![Basic dialog image](https://developer.android.com/images/reference/androidx/compose/material3/basic-dialog.png)
+ *
+ * This basic alert dialog expects an arbitrary content that is defined by the caller. Note that
+ * your content will need to define its own styling.
+ *
+ * By default, the displayed dialog has the minimum height and width that the Material Design spec
+ * defines. If required, these constraints can be overwritten by providing a `width` or `height`
+ * [Modifier]s.
+ *
+ * Basic alert dialog usage with custom content:
+ * @sample androidx.compose.material3.samples.BasicAlertDialogSample
+ *
+ * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside
+ * or pressing the back button. This is not called when the dismiss button is clicked.
+ * @param modifier the [Modifier] to be applied to this dialog's content.
+ * @param properties typically platform specific properties to further configure the dialog.
+ * @param content the content of the dialog
+ */
+@Deprecated(
+    "Use BasicAlertDialog instead",
+    replaceWith = ReplaceWith(
+        "BasicAlertDialog(onDismissRequest, modifier, properties, content)"
+    )
+)
+@ExperimentalMaterial3Api
+@Composable
 expect fun AlertDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -130,25 +172,24 @@ expect fun AlertDialog(
     content: @Composable () -> Unit
 )
 
-
 /**
- * Contains default values used for [AlertDialog]
+ * Contains default values used for [AlertDialog] and [BasicAlertDialog].
  */
 expect object AlertDialogDefaults {
     /** The default shape for alert dialogs */
-    val shape: Shape
+    val shape: Shape @Composable get
 
     /** The default container color for alert dialogs */
-    val containerColor: Color
+    val containerColor: Color @Composable get
 
     /** The default icon color for alert dialogs */
-    val iconContentColor: Color
+    val iconContentColor: Color @Composable get
 
     /** The default title color for alert dialogs */
-    val titleContentColor: Color
+    val titleContentColor: Color @Composable get
 
     /** The default text color for alert dialogs */
-    val textContentColor: Color
+    val textContentColor: Color @Composable get
 
     /** The default tonal elevation for alert dialogs */
     val TonalElevation: Dp
