@@ -29,6 +29,5 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"ທຸງ"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"ບໍ່ມີອີໂມຈິໃຫ້ນຳໃຊ້"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"ທ່ານຍັງບໍ່ໄດ້ໃຊ້ອີໂມຈິໃດເທື່ອ"</string>
-    <!-- no translation found for emoji_bidirectional_switcher_content_desc (5084600168354220605) -->
-    <skip />
+    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"ຕົວສະຫຼັບອີໂມຈິແບບ 2 ທິດທາງ"</string>
 </resources>
