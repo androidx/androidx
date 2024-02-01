@@ -133,10 +133,19 @@ internal class TextAnnotatedStringNode(
      * Element has text parameters to update
      */
     fun updateText(text: AnnotatedString): Boolean {
-        if (this.text == text) return false
-        this.text = text
-        clearSubstitution()
-        return true
+        val charDiff = this.text.text != text.text
+        val spanDiff = this.text.spanStyles != text.spanStyles
+        val paragraphDiff = this.text.paragraphStyles != text.paragraphStyles
+        val annotationDiff = !this.text.hasEqualsAnnotations(text)
+        val anyDiff = charDiff || spanDiff || paragraphDiff || annotationDiff
+
+        if (anyDiff) {
+            this.text = text
+        }
+        if (charDiff) {
+            clearSubstitution()
+        }
+        return anyDiff
     }
 
     /**
@@ -268,9 +277,9 @@ internal class TextAnnotatedStringNode(
         // TODO(b/283944749): add animation
     )
 
-    private var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
+    internal var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
 
-    private fun setSubstitution(updatedText: AnnotatedString): Boolean {
+    internal fun setSubstitution(updatedText: AnnotatedString): Boolean {
         val currentTextSubstitution = textSubstitution
         if (currentTextSubstitution != null) {
             if (updatedText == currentTextSubstitution.substitution) {
@@ -306,7 +315,7 @@ internal class TextAnnotatedStringNode(
         return true
     }
 
-    private fun clearSubstitution() {
+    internal fun clearSubstitution() {
         textSubstitution = null
     }
 
