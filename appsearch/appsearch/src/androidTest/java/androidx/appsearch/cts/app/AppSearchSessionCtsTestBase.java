@@ -66,6 +66,7 @@ import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.collection.ArrayMap;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -470,6 +471,7 @@ public abstract class AppSearchSessionCtsTestBase {
 // @exportToFramework:endStrip()
 
     /** Test indexing maximum properties into a schema. */
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/322356608
     @Test
     public void testSetSchema_maxProperties() throws Exception {
         int maxProperties = mDb1.getFeatures().getMaxIndexedProperties();
