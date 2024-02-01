@@ -33,7 +33,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.viewfinder.impl.surface.DeferredSurface;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -79,7 +78,8 @@ public class ViewfinderSurfaceRequest {
     @Override
     @SuppressWarnings("GenericException") // super.finalize() throws Throwable
     protected void finalize() throws Throwable {
-        mViewfinderSurfaceRequest.getSurface().close();
+        // TODO(b/323226220): Differentiate between surface being released by consumer vs producer
+        mViewfinderSurfaceRequest.markSurfaceSafeToRelease();
         super.finalize();
     }
 
@@ -156,11 +156,6 @@ public class ViewfinderSurfaceRequest {
      */
     public void markSurfaceSafeToRelease() {
         mViewfinderSurfaceRequest.markSurfaceSafeToRelease();
-    }
-
-    @NonNull
-    DeferredSurface getViewfinderSurface() {
-        return mViewfinderSurfaceRequest.getSurface();
     }
 
     @SuppressLint("PairedRegistration")

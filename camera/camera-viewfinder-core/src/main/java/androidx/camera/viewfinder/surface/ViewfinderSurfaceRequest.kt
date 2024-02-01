@@ -28,6 +28,7 @@ import androidx.camera.impl.utils.futures.FutureCallback
 import androidx.camera.impl.utils.futures.Futures
 import androidx.camera.viewfinder.impl.surface.DeferredSurface
 import androidx.concurrent.futures.CallbackToFutureAdapter
+import androidx.concurrent.futures.await
 import androidx.core.util.Consumer
 import androidx.core.util.Preconditions
 import com.google.auto.value.AutoValue
@@ -208,9 +209,34 @@ class ViewfinderSurfaceRequest internal constructor(
         mInternalDeferredSurface.close()
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun getSurface(): DeferredSurface {
-        return mInternalDeferredSurface
+    /**
+     * Retrieves the [Surface] provided to the [ViewfinderSurfaceRequest].
+     *
+     * This can be used to get access to the [Surface] that's provided to the
+     * [ViewfinderSurfaceRequest].
+     *
+     * If the application is shutting down and a [Surface] will never be provided, this will throw
+     * a [kotlinx.coroutines.CancellationException].
+     *
+     * The returned [Surface] must not be used after [markSurfaceSafeToRelease] has been called.
+     */
+    suspend fun getSurface(): Surface {
+        return mInternalDeferredSurface.getSurfaceAsync().await()
+    }
+
+    /**
+     * Retrieves the [Surface] provided to the [ViewfinderSurfaceRequest].
+     *
+     * This can be used to get access to the [Surface] that's provided to the
+     * [ViewfinderSurfaceRequest].
+     *
+     * If the application is shutting down and a [Surface] will never be provided, the
+     * [ListenableFuture] will fail with a [CancellationException].
+     *
+     * The returned [Surface] must not be used after [markSurfaceSafeToRelease] has been called.
+     */
+    fun getSurfaceAsync(): ListenableFuture<Surface> {
+        return mInternalDeferredSurface.getSurfaceAsync()
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
