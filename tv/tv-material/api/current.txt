@@ -344,7 +344,7 @@ package androidx.tv.material3 {
     field public static final androidx.tv.material3.FilterChipDefaults INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class Glow {
+  @androidx.compose.runtime.Immutable public final class Glow {
     ctor public Glow(long elevationColor, float elevation);
     method public androidx.tv.material3.Glow copy(optional androidx.compose.ui.graphics.Color? glowColor, optional androidx.compose.ui.unit.Dp? glowElevation);
     method public float getElevation();
