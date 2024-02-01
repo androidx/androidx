@@ -17,10 +17,12 @@
 package androidx.work.impl
 
 import android.content.Context
+import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
+import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
-import androidx.work.CoroutineWorker
+import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result.Success
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo.State.ENQUEUED
@@ -32,6 +34,7 @@ import androidx.work.impl.testutils.TrackingWorkerFactory
 import androidx.work.testutils.TestEnv
 import androidx.work.worker.CompletableWorker
 import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CountDownLatch
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
@@ -67,9 +70,9 @@ class WorkerWrapperTestKt {
         val workerWrapper = WorkerWrapper(workRequest.workSpec)
         testEnv.taskExecutor.serialTaskExecutor.execute(workerWrapper)
         val worker = factory.await(workRequest.id) as DoWorkAwareWorker
-        worker.doWork.await()
+        worker.doWorkEvent.await()
         assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(RUNNING)
-        worker.result.complete(Success())
+        worker.resultCompleter.set(Success())
         assertThat(workerWrapper.future.await()).isFalse()
     }
 
@@ -80,7 +83,7 @@ class WorkerWrapperTestKt {
         val workerWrapper = WorkerWrapper(workRequest.workSpec)
         testEnv.taskExecutor.serialTaskExecutor.execute(workerWrapper)
         val worker = factory.await(workRequest.id) as DoWorkAwareWorker
-        worker.doWork.await()
+        worker.doWorkEvent.await()
         workerWrapper.interrupt(0)
         assertThat(workerWrapper.future.await()).isTrue()
         assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(ENQUEUED)
@@ -137,11 +140,22 @@ class WorkerWrapperTestKt {
 class DoWorkAwareWorker(
     appContext: Context,
     params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
-    val doWork = CompletableDeferred<Unit>()
-    val result = CompletableDeferred<Result>()
-    override suspend fun doWork(): Result {
-        doWork.complete(Unit)
-        return result.await()
+) : ListenableWorker(appContext, params) {
+    val doWorkEvent = CompletableDeferred<Unit>()
+    lateinit var resultCompleter: Completer<Result>
+    val onStopEvent = CompletableDeferred<Unit>()
+    private val result = getFuture {
+        resultCompleter = it
+        "DoWorkAwareWorker"
+    }
+
+    override fun startWork(): ListenableFuture<Result> {
+        doWorkEvent.complete(Unit)
+        return result
+    }
+
+    override fun onStopped() {
+        super.onStopped()
+        onStopEvent.complete(Unit)
     }
 }
