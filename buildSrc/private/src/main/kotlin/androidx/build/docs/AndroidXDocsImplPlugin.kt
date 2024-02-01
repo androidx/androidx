@@ -690,6 +690,7 @@ private val hiddenPackagesJava =
     setOf(
         "androidx.*compose.*",
         "androidx.*glance.*",
+        "androidx\\.tv\\..*",
     )
 
 // List of annotations which should not be displayed in the docs
