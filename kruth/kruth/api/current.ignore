@@ -103,16 +103,12 @@ RemovedInterface: androidx.kruth.Fact:
     Class androidx.kruth.Fact no longer implements java.io.Serializable
 
 
-RemovedMethod: androidx.kruth.ComparableSubject#ComparableSubject(androidx.kruth.FailureMetadata, T):
-    Removed constructor androidx.kruth.ComparableSubject(androidx.kruth.FailureMetadata,T)
 RemovedMethod: androidx.kruth.ComparableSubject#isIn(com.google.common.collect.Range<T>):
     Removed method androidx.kruth.ComparableSubject.isIn(com.google.common.collect.Range<T>)
 RemovedMethod: androidx.kruth.ComparableSubject#isNotIn(com.google.common.collect.Range<T>):
     Removed method androidx.kruth.ComparableSubject.isNotIn(com.google.common.collect.Range<T>)
 RemovedMethod: androidx.kruth.FailureStrategy#fail(AssertionError):
     Removed method androidx.kruth.FailureStrategy.fail(AssertionError)
-RemovedMethod: androidx.kruth.IntegerSubject#IntegerSubject(androidx.kruth.FailureMetadata, Integer):
-    Removed constructor androidx.kruth.IntegerSubject(androidx.kruth.FailureMetadata,Integer)
 RemovedMethod: androidx.kruth.IterableSubject#IterableSubject(androidx.kruth.FailureMetadata, Iterable<?>):
     Removed constructor androidx.kruth.IterableSubject(androidx.kruth.FailureMetadata,Iterable<?>)
 RemovedMethod: androidx.kruth.IterableSubject#comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>):
@@ -159,8 +155,6 @@ RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.math.BigDecimal):
     Removed method androidx.kruth.StandardSubjectBuilder.that(java.math.BigDecimal)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#withMessage(String, java.lang.Object...):
     Removed method androidx.kruth.StandardSubjectBuilder.withMessage(String,java.lang.Object...)
-RemovedMethod: androidx.kruth.StringSubject#StringSubject(androidx.kruth.FailureMetadata, String):
-    Removed constructor androidx.kruth.StringSubject(androidx.kruth.FailureMetadata,String)
 RemovedMethod: androidx.kruth.StringSubject#containsMatch(java.util.regex.Pattern):
     Removed method androidx.kruth.StringSubject.containsMatch(java.util.regex.Pattern)
 RemovedMethod: androidx.kruth.StringSubject#doesNotContainMatch(java.util.regex.Pattern):

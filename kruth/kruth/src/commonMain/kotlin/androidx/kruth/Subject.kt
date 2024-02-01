@@ -30,11 +30,16 @@ import kotlin.reflect.typeOf
  * contains [isEqualTo] and [isInstanceOf], and [StringSubject] contains [StringSubject.contains]
  *
  * To create a [Subject] instance, most users will call an [assertThat] method.
+ *
+ * @constructor Constructor for use by subclasses. If you want to create an instance of this class
+ * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class Subject<out T>(
+open class Subject<out T> protected constructor(
+    metadata: FailureMetadata,
     val actual: T?,
-    metadata: FailureMetadata = FailureMetadata(),
 ) {
+    internal constructor(actual: T?, metadata: FailureMetadata) : this(metadata, actual)
+
     val metadata: FailureMetadata by lazy { metadata.updateForSubject(this) }
 
     protected fun check(): StandardSubjectBuilder = StandardSubjectBuilder(metadata = metadata)

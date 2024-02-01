@@ -27,7 +27,7 @@ import androidx.kruth.requireNonNull
 class EmployeeSubject(
     metadata: FailureMetadata = FailureMetadata(),
     actual: Employee?,
-) : Subject<Employee>(actual = actual, metadata = metadata) {
+) : Subject<Employee>(actual, metadata = metadata) {
 
     companion object {
         // User-defined entry point

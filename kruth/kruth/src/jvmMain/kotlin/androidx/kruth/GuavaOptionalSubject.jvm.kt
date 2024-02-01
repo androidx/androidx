@@ -26,7 +26,7 @@ import com.google.common.base.Optional
 class GuavaOptionalSubject<T : Any> internal constructor(
     actual: Optional<out T>?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Optional<out T>>(actual = actual, metadata = metadata) {
+) : Subject<Optional<out T>>(actual, metadata = metadata) {
 
     /** Fails if the [Optional]`<T>` is absent or the subject is null. */
     fun isPresent() {
