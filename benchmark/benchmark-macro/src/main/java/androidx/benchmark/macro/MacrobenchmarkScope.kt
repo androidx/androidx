@@ -304,12 +304,20 @@ public class MacrobenchmarkScope(
      * signalled to drop its shader cache.
      */
     public fun dropShaderCache() {
-        Log.d(TAG, "Dropping shader cache for $packageName")
-        val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
-        if (dropError != null && !DeviceInfo.isEmulator) {
-            if (!dropShaderCacheRoot()) {
-                throw IllegalStateException(dropError)
+        if (Arguments.dropShadersEnable) {
+            Log.d(TAG, "Dropping shader cache for $packageName")
+            val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
+            if (dropError != null && !DeviceInfo.isEmulator) {
+                if (!dropShaderCacheRoot()) {
+                    if (Arguments.dropShadersThrowOnFailure) {
+                        throw IllegalStateException(dropError)
+                    } else {
+                        Log.d(TAG, dropError)
+                    }
+                }
             }
+        } else {
+            Log.d(TAG, "Skipping drop shader cache for $packageName")
         }
     }
 
