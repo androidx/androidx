@@ -16,15 +16,10 @@
 
 package androidx.compose.material3
 
-import android.graphics.Rect as ViewRect
-import android.view.View
-import android.view.ViewTreeObserver
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
@@ -32,47 +27,24 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.internal.ExposedDropdownMenuPopup
 import androidx.compose.material3.tokens.FilledAutocompleteTokens
 import androidx.compose.material3.tokens.OutlinedAutocompleteTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.constrainHeight
-import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
-import kotlin.math.max
-import kotlin.math.roundToInt
 
 /**
  * <a href="https://m3.material.io/components/menus/overview" class="external" target="_blank">Material Design Exposed Dropdown Menu</a>.
@@ -108,119 +80,12 @@ import kotlin.math.roundToInt
  */
 @ExperimentalMaterial3Api
 @Composable
-fun ExposedDropdownMenuBox(
+expect fun ExposedDropdownMenuBox(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable ExposedDropdownMenuBoxScope.() -> Unit
-) {
-    val config = LocalConfiguration.current
-    val view = LocalView.current
-    val density = LocalDensity.current
-
-    val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
-
-    var anchorCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    var anchorWidth by remember { mutableIntStateOf(0) }
-    var menuMaxHeight by remember { mutableIntStateOf(0) }
-
-    val focusRequester = remember { FocusRequester() }
-    val expandedDescription = getString(Strings.MenuExpanded)
-    val collapsedDescription = getString(Strings.MenuCollapsed)
-
-    val scope = remember(expanded, onExpandedChange, config, view, density) {
-        object : ExposedDropdownMenuBoxScope() {
-            override fun Modifier.menuAnchor(): Modifier = this
-                .onGloballyPositioned {
-                    anchorCoordinates = it
-                    anchorWidth = it.size.width
-                    menuMaxHeight = calculateMaxHeight(
-                        windowBounds = view.rootView.getWindowBounds(),
-                        anchorBounds = anchorCoordinates.getAnchorBounds(),
-                        verticalMargin = verticalMargin,
-                    )
-                }
-                .expandable(
-                    expanded = expanded,
-                    onExpandedChange = { onExpandedChange(!expanded) },
-                    expandedDescription = expandedDescription,
-                    collapsedDescription = collapsedDescription,
-                )
-                .focusRequester(focusRequester)
-
-            override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier =
-                layout { measurable, constraints ->
-                    val menuWidth = constraints.constrainWidth(anchorWidth)
-                    val menuConstraints = constraints.copy(
-                        maxHeight = constraints.constrainHeight(menuMaxHeight),
-                        minWidth = if (matchTextFieldWidth) menuWidth else constraints.minWidth,
-                        maxWidth = if (matchTextFieldWidth) menuWidth else constraints.maxWidth,
-                    )
-                    val placeable = measurable.measure(menuConstraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
-                    }
-                }
-        }
-    }
-
-    Box(modifier) {
-        scope.content()
-    }
-
-    if (expanded) {
-        SoftKeyboardListener(view, density) {
-            menuMaxHeight = calculateMaxHeight(
-                windowBounds = view.rootView.getWindowBounds(),
-                anchorBounds = anchorCoordinates.getAnchorBounds(),
-                verticalMargin = verticalMargin,
-            )
-        }
-    }
-
-    SideEffect {
-        if (expanded) focusRequester.requestFocus()
-    }
-}
-
-@Composable
-private fun SoftKeyboardListener(
-    view: View,
-    density: Density,
-    onKeyboardVisibilityChange: () -> Unit,
-) {
-    // It would be easier to listen to WindowInsets.ime, but that doesn't work with
-    // `setDecorFitsSystemWindows(window, true)`. Instead, listen to the view tree's global layout.
-    DisposableEffect(view, density) {
-        val listener =
-            object : View.OnAttachStateChangeListener, ViewTreeObserver.OnGlobalLayoutListener {
-                private var isListeningToGlobalLayout = false
-                init {
-                    view.addOnAttachStateChangeListener(this)
-                    registerOnGlobalLayoutListener()
-                }
-                override fun onViewAttachedToWindow(p0: View) = registerOnGlobalLayoutListener()
-                override fun onViewDetachedFromWindow(p0: View) = unregisterOnGlobalLayoutListener()
-                override fun onGlobalLayout() = onKeyboardVisibilityChange()
-                private fun registerOnGlobalLayoutListener() {
-                    if (isListeningToGlobalLayout || !view.isAttachedToWindow) return
-                    view.viewTreeObserver.addOnGlobalLayoutListener(this)
-                    isListeningToGlobalLayout = true
-                }
-                private fun unregisterOnGlobalLayoutListener() {
-                    if (!isListeningToGlobalLayout) return
-                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    isListeningToGlobalLayout = false
-                }
-                fun dispose() {
-                    unregisterOnGlobalLayoutListener()
-                    view.removeOnAttachStateChangeListener(this)
-                }
-            }
-
-        onDispose { listener.dispose() }
-    }
-}
+)
 
 /**
  * Scope for [ExposedDropdownMenuBox].
@@ -259,6 +124,7 @@ abstract class ExposedDropdownMenuBoxScope {
      * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
      * @param content the content of the menu
      */
+    @Suppress("ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE")
     @Composable
     fun ExposedDropdownMenu(
         expanded: Boolean,
@@ -267,45 +133,20 @@ abstract class ExposedDropdownMenuBoxScope {
         scrollState: ScrollState = rememberScrollState(),
         content: @Composable ColumnScope.() -> Unit
     ) {
-        // TODO(b/202810604): use DropdownMenu when PopupProperties constructor is stable
-        // return DropdownMenu(
-        //     expanded = expanded,
-        //     onDismissRequest = onDismissRequest,
-        //     modifier = modifier.exposedDropdownSize(),
-        //     properties = ExposedDropdownMenuDefaults.PopupProperties,
-        //     content = content
-        // )
-
-        val expandedState = remember { MutableTransitionState(false) }
-        expandedState.targetState = expanded
-
-        if (expandedState.currentState || expandedState.targetState) {
-            val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
-            val density = LocalDensity.current
-            val popupPositionProvider = remember(density) {
-                DropdownMenuPositionProvider(
-                    DpOffset.Zero,
-                    density,
-                ) { anchorBounds, menuBounds ->
-                    transformOriginState.value = calculateTransformOrigin(anchorBounds, menuBounds)
-                }
-            }
-
-            ExposedDropdownMenuPopup(
-                onDismissRequest = onDismissRequest,
-                popupPositionProvider = popupPositionProvider
-            ) {
-                DropdownMenuContent(
-                    expandedState = expandedState,
-                    transformOriginState = transformOriginState,
-                    scrollState = scrollState,
-                    modifier = modifier.exposedDropdownSize(),
-                    content = content
-                )
-            }
-        }
+        ExposedDropdownMenuDefaultImpl(
+            expanded, onDismissRequest, modifier, scrollState, content
+        )
     }
 }
+
+@Composable
+internal expect fun ExposedDropdownMenuBoxScope.ExposedDropdownMenuDefaultImpl(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    scrollState: ScrollState,
+    content: @Composable ColumnScope.() -> Unit
+)
 
 /**
  * Contains default values used by Exposed Dropdown Menu.
@@ -1032,7 +873,8 @@ object ExposedDropdownMenuDefaults {
     )
 }
 
-private fun Modifier.expandable(
+@Suppress("ComposableModifierFactory")
+internal fun Modifier.expandable(
     expanded: Boolean,
     onExpandedChange: () -> Unit,
     expandedDescription: String,
@@ -1054,37 +896,6 @@ private fun Modifier.expandable(
         onExpandedChange()
         true
     }
-}
-
-private fun calculateMaxHeight(
-    windowBounds: Rect,
-    anchorBounds: Rect?,
-    verticalMargin: Int,
-): Int {
-    anchorBounds ?: return 0
-
-    val marginedWindowTop = windowBounds.top + verticalMargin
-    val marginedWindowBottom = windowBounds.bottom - verticalMargin
-    val availableHeight =
-        if (anchorBounds.top > windowBounds.bottom || anchorBounds.bottom < windowBounds.top) {
-            (marginedWindowBottom - marginedWindowTop).roundToInt()
-        } else {
-            val heightAbove = anchorBounds.top - marginedWindowTop
-            val heightBelow = marginedWindowBottom - anchorBounds.bottom
-            max(heightAbove, heightBelow).roundToInt()
-        }
-
-    return max(availableHeight, 0)
-}
-
-private fun View.getWindowBounds(): Rect = ViewRect().let {
-    this.getWindowVisibleDisplayFrame(it)
-    it.toComposeRect()
-}
-
-private fun LayoutCoordinates?.getAnchorBounds(): Rect {
-    // Don't use `boundsInWindow()` because it can report 0 when the window is animating/resizing
-    return if (this == null) Rect.Zero else Rect(positionInWindow(), size.toSize())
 }
 
 private val ExposedDropdownMenuItemHorizontalPadding = 16.dp
