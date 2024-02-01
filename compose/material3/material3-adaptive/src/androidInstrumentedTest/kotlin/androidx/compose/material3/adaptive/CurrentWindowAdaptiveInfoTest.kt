@@ -17,8 +17,6 @@
 package androidx.compose.material3.adaptive
 
 import android.content.res.Configuration
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalConfiguration
@@ -29,6 +27,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetricsCalculator
@@ -53,7 +52,6 @@ class CurrentWindowAdaptiveInfoTest {
         testRule = RuleChain.outerRule(layoutInfoRule).around(composeRule)
     }
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @Test
     fun test_currentWindowAdaptiveInfo() {
         lateinit var actualAdaptiveInfo: WindowAdaptiveInfo
@@ -79,10 +77,9 @@ class CurrentWindowAdaptiveInfoTest {
         )
 
         composeRule.runOnIdle {
+            val mockSize = with(MockDensity) { MockWindowSize1.toSize().toDpSize() }
             assertThat(actualAdaptiveInfo.windowSizeClass).isEqualTo(
-                WindowSizeClass.calculateFromSize(
-                    with(MockDensity) { MockWindowSize1.toSize().toDpSize() }
-                )
+                WindowSizeClass(mockSize.width.value.toInt(), mockSize.height.value.toInt())
             )
             assertThat(actualAdaptiveInfo.windowPosture).isEqualTo(
                 calculatePosture(MockFoldingFeatures1)
@@ -95,10 +92,9 @@ class CurrentWindowAdaptiveInfoTest {
         mockWindowSize.value = MockWindowSize2
 
         composeRule.runOnIdle {
+            val mockSize = with(MockDensity) { MockWindowSize2.toSize().toDpSize() }
             assertThat(actualAdaptiveInfo.windowSizeClass).isEqualTo(
-                WindowSizeClass.calculateFromSize(
-                    with(MockDensity) { MockWindowSize2.toSize().toDpSize() }
-                )
+                WindowSizeClass(mockSize.width.value.toInt(), mockSize.height.value.toInt())
             )
             assertThat(actualAdaptiveInfo.windowPosture).isEqualTo(
                 calculatePosture(MockFoldingFeatures2)

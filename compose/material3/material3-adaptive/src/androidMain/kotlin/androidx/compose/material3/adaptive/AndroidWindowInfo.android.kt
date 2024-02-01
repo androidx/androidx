@@ -17,8 +17,6 @@
 package androidx.compose.material3.adaptive
 
 import android.app.Activity
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -28,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
@@ -35,23 +34,22 @@ import kotlinx.coroutines.flow.map
 
 /**
  * Calculates and returns [WindowAdaptiveInfo] of the provided context. It's a convenient function
- * that uses the Material default [WindowSizeClass.calculateFromSize] and [calculatePosture]
+ * that uses the default [WindowSizeClass] constructor and the default [calculatePosture]
  * functions to retrieve [WindowSizeClass] and [Posture].
  *
  * @return [WindowAdaptiveInfo] of the provided context
  */
 @ExperimentalMaterial3AdaptiveApi
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo =
-    WindowAdaptiveInfo(
-        WindowSizeClass.calculateFromSize(
-            with(LocalDensity.current) {
-                currentWindowSize().toSize().toDpSize()
-            }
-        ),
+fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
+    val windowSize = with(LocalDensity.current) {
+        currentWindowSize().toSize().toDpSize()
+    }
+    return WindowAdaptiveInfo(
+        WindowSizeClass(windowSize.width.value.toInt(), windowSize.height.value.toInt()),
         calculatePosture(collectFoldingFeaturesAsState().value)
     )
+}
 
 /**
  * Returns and automatically update the current window size from [WindowMetricsCalculator].
