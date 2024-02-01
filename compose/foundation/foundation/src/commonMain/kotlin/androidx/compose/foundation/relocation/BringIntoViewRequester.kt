@@ -157,6 +157,7 @@ private class BringIntoViewRequesterElement(
 internal class BringIntoViewRequesterNode(
     private var requester: BringIntoViewRequester
 ) : BringIntoViewChildNode() {
+    override val shouldAutoInvalidate: Boolean = false
 
     override fun onAttach() {
         updateRequester(requester)

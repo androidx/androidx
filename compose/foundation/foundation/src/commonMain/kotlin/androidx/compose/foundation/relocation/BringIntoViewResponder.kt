@@ -141,6 +141,7 @@ private class BringIntoViewResponderElement(
 internal class BringIntoViewResponderNode(
     var responder: BringIntoViewResponder
 ) : BringIntoViewChildNode(), BringIntoViewParent {
+    override val shouldAutoInvalidate: Boolean = false
 
     override val providedValues: ModifierLocalMap =
         modifierLocalMapOf(entry = ModifierLocalBringIntoViewParent to this)
