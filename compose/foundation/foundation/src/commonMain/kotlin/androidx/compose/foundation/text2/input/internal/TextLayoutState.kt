@@ -160,7 +160,7 @@ internal class TextLayoutState {
     fun getOffsetForPosition(position: Offset, coerceInVisibleBounds: Boolean = true): Int {
         val layoutResult = layoutResult ?: return -1
         val coercedPosition = if (coerceInVisibleBounds) {
-            position.coercedInVisibleBoundsOfInputText()
+            coercedInVisibleBoundsOfInputText(position)
         } else {
             position
         }
@@ -175,7 +175,7 @@ internal class TextLayoutState {
      */
     fun isPositionOnText(offset: Offset): Boolean {
         val layoutResult = layoutResult ?: return false
-        val relativeOffset = fromDecorationToTextLayout(offset.coercedInVisibleBoundsOfInputText())
+        val relativeOffset = fromDecorationToTextLayout(coercedInVisibleBoundsOfInputText(offset))
         val line = layoutResult.getLineForVerticalPosition(relativeOffset.y)
         return relativeOffset.x >= layoutResult.getLineLeft(line) &&
             relativeOffset.x <= layoutResult.getLineRight(line)
@@ -185,7 +185,7 @@ internal class TextLayoutState {
      * If click on the decoration box happens outside visible inner text field, coerce the click
      * position to the visible edges of the inner text field.
      */
-    private fun Offset.coercedInVisibleBoundsOfInputText(): Offset {
+    internal fun coercedInVisibleBoundsOfInputText(offset: Offset): Offset {
         // If offset is outside visible bounds of the inner text field, use visible bounds edges
         val visibleTextLayoutNodeRect =
             textLayoutNodeCoordinates?.let { textLayoutNodeCoordinates ->
@@ -195,7 +195,7 @@ internal class TextLayoutState {
                     Rect.Zero
                 }
             } ?: Rect.Zero
-        return this.coerceIn(visibleTextLayoutNodeRect)
+        return offset.coerceIn(visibleTextLayoutNodeRect)
     }
 }
 

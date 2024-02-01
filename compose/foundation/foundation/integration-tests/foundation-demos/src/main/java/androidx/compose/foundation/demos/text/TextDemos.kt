@@ -20,6 +20,7 @@ import androidx.compose.foundation.demos.text2.BasicSecureTextFieldDemos
 import androidx.compose.foundation.demos.text2.BasicTextField2CustomPinFieldDemo
 import androidx.compose.foundation.demos.text2.BasicTextField2Demos
 import androidx.compose.foundation.demos.text2.BasicTextField2FilterDemos
+import androidx.compose.foundation.demos.text2.BasicTextField2InScrollableDemo
 import androidx.compose.foundation.demos.text2.BasicTextField2LongTextDemo
 import androidx.compose.foundation.demos.text2.BasicTextField2OutputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextField2ValueCallbackDemo
@@ -164,6 +165,7 @@ val TextDemos = DemoCategory(
                     ComposableDemo("Ltr") { ScrollableDemos() },
                     ComposableDemo("Rtl") { ScrollableDemosRtl() },
                 )),
+                ComposableDemo("Inside Scrollable") { BasicTextField2InScrollableDemo() },
                 ComposableDemo("Filters") { BasicTextField2FilterDemos() },
                 DemoCategory("Receive Content", listOf(
                     ComposableDemo("Basic") { TextFieldReceiveContentDemo() },
