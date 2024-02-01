@@ -22,7 +22,7 @@ import java.util.concurrent.ScheduledExecutorService
 /**
  * Utility class for generating specific implementations of [Executor].
  */
-object CameraExecutors {
+object ViewfinderExecutors {
     /** Returns a cached [ScheduledExecutorService] which posts to the main thread.  */
     @JvmStatic
     fun mainThreadExecutor(): ScheduledExecutorService {

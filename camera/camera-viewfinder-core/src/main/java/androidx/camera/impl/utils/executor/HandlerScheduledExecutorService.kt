@@ -152,7 +152,7 @@ internal class HandlerScheduledExecutorService(private val handler: Handler) :
                             handler.removeCallbacks(this@HandlerScheduledFuture)
                         }
                     },
-                    CameraExecutors.directExecutor()
+                    ViewfinderExecutors.directExecutor()
                 )
                 mCompleter.set(completer)
                 "HandlerScheduledFuture-$mTask"

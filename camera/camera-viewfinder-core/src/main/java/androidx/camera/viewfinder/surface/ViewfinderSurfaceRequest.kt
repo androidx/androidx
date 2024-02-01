@@ -17,13 +17,12 @@
 package androidx.camera.viewfinder.surface
 
 import android.annotation.SuppressLint
-import android.hardware.camera2.CameraMetadata
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.camera.impl.utils.Logger
-import androidx.camera.impl.utils.executor.CameraExecutors
+import androidx.camera.impl.utils.executor.ViewfinderExecutors
 import androidx.camera.impl.utils.futures.FutureCallback
 import androidx.camera.impl.utils.futures.Futures
 import androidx.camera.viewfinder.impl.surface.DeferredSurface
@@ -39,29 +38,26 @@ import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 
 /**
- * The request to get a [Surface] to display camera feed.
+ * The request to get a [Surface] to display viewfinder input.
  *
  *
- * This request contains requirements for the surface resolution and camera
- * device information from [CameraCharacteristics].
+ * This request contains requirements for the surface resolution and viewfinder
+ * input and output information.
  *
- *  Calling [ViewfinderSurfaceRequest.markSurfaceSafeToRelease] will notify the
+ * Calling [ViewfinderSurfaceRequest.markSurfaceSafeToRelease] will notify the
  * surface provider that the surface is not needed and related resources can be released.
  *
- * Creates a new surface request with surface resolution, camera device, lens facing and
- * sensor orientation information.
+ * Creates a new surface request with surface resolution, viewfinder input and output information.
  *
- * @param resolution The requested surface resolution. It is the output surface size
- *                   the camera is configured with, instead of {@link CameraViewfinder}
- *                   view size.
- * @param lensFacing The camera lens facing.
- * @param sensorOrientation THe camera sensor orientation.
+ * @param resolution The requested surface resolution.
+ * @param outputMirrorMode The viewfinder output mirror mode.
+ * @param sourceOrientation The viewfinder source orientation.
  * @param implementationMode The {@link ImplementationMode} to apply to the viewfinder.
  */
 class ViewfinderSurfaceRequest internal constructor(
     val resolution: Size,
-    @LensFacingValue val lensFacing: Int,
-    @SensorOrientationDegreesValue val sensorOrientation: Int,
+    @OutputMirrorMode val outputMirrorMode: Int,
+    @SourceOrientationDegreesValue val sourceOrientation: Int,
     val implementationMode: ImplementationMode?
 ) {
     private val mInternalDeferredSurface: DeferredSurface
@@ -121,7 +117,7 @@ class ViewfinderSurfaceRequest internal constructor(
                     Preconditions.checkState(requestCancellationCompleter.set(null))
                 }
             }
-        }, CameraExecutors.directExecutor())
+        }, ViewfinderExecutors.directExecutor())
 
         // Create the surface future/completer. This will be used to complete the rest of the
         // future chain and can be set externally via SurfaceRequest methods.
@@ -136,7 +132,7 @@ class ViewfinderSurfaceRequest internal constructor(
         surfaceCompleter = Preconditions.checkNotNull(surfaceCompleterRef.get())
 
         // Create the viewfinder surface which will be used for communicating when the
-        // camera and consumer are done using the surface. Note this anonymous inner class holds
+        // producer and consumer are done using the surface. Note this anonymous inner class holds
         // an implicit reference to the ViewfinderSurfaceRequest. This is by design, and ensures the
         // ViewfinderSurfaceRequest and all contained future completers will not be garbage
         // collected as long as the ViewfinderSurface is referenced externally (via
@@ -181,12 +177,12 @@ class ViewfinderSurfaceRequest internal constructor(
                     sessionStatusCompleter.set(null)
                 }
             }
-        }, CameraExecutors.directExecutor())
+        }, ViewfinderExecutors.directExecutor())
 
         // If the viewfinder surface is terminated, there are two cases:
-        // 1. The surface has not yet been provided to the camera (or marked as 'will not
+        // 1. The surface has not yet been provided to the producer (or marked as 'will not
         //    complete'). Treat this as if the surface request has been cancelled.
-        // 2. The surface was already provided to the camera. In this case the camera is now
+        // 2. The surface was already provided to the producer. In this case the producer is now
         //    finished with the surface, so cancelling the surface future below will be a no-op.
         terminationFuture.addListener({
             Logger.d(
@@ -195,7 +191,7 @@ class ViewfinderSurfaceRequest internal constructor(
                     "terminateFuture triggered")
             )
             surfaceFutureAsync.cancel(true)
-        }, CameraExecutors.directExecutor())
+        }, ViewfinderExecutors.directExecutor())
     }
 
     /**
@@ -253,14 +249,14 @@ class ViewfinderSurfaceRequest internal constructor(
      * completed or cancelled.
      *
      *
-     * Once the camera no longer needs the provided surface, the `resultListener` will be
+     * Once the producer no longer needs the provided surface, the `resultListener` will be
      * invoked with a [Result] containing [Result.RESULT_SURFACE_USED_SUCCESSFULLY].
      * At this point it is safe to release the surface and any underlying resources. Releasing
      * the surface before receiving this signal may cause undesired behavior on lower API levels.
      *
      *
-     * If the request is cancelled by the camera before successfully attaching the
-     * provided surface to the camera, then the `resultListener` will be invoked with a
+     * If the request is cancelled by the producer before successfully attaching the
+     * provided surface to the producer, then the `resultListener` will be invoked with a
      * [Result] containing [Result.RESULT_REQUEST_CANCELLED].
      *
      *
@@ -272,12 +268,12 @@ class ViewfinderSurfaceRequest internal constructor(
      * Upon returning from this method, the surface request is guaranteed to be complete.
      * However, only the `resultListener` provided to the first invocation of this method
      * should be used to track when the provided [Surface] is no longer in use by the
-     * camera, as subsequent invocations will always invoke the `resultListener` with a
+     * producer, as subsequent invocations will always invoke the `resultListener` with a
      * [Result] containing [Result.RESULT_SURFACE_ALREADY_PROVIDED].
      *
      * @param surface        The surface which will complete the request.
      * @param executor       Executor used to execute the `resultListener`.
-     * @param resultListener Listener used to track how the surface is used by the camera in
+     * @param resultListener Listener used to track how the surface is used by the producer in
      * response to being provided by this method.
      */
     fun provideSurface(
@@ -300,7 +296,7 @@ class ViewfinderSurfaceRequest internal constructor(
 
                 override fun onFailure(t: Throwable) {
                     Preconditions.checkState(
-                        t is RequestCancelledException, ("Camera " +
+                        t is RequestCancelledException, ("Producer " +
                             "surface session should only fail with request " +
                             "cancellation. Instead failed due to:\n" + t)
                     )
@@ -351,21 +347,21 @@ class ViewfinderSurfaceRequest internal constructor(
      * surface will never be produced to fulfill the request.
      *
      *
-     * This will be called by CameraViewfinder as soon as it is known that the request will not
+     * This will be called by the producer as soon as it is known that the request will not
      * be fulfilled. Failure to complete the SurfaceRequest via `willNotProvideSurface()`
      * or [.provideSurface] may cause long delays in shutting
-     * down the camera.
+     * down the producer.
      *
      *
      * Upon returning from this method, the request is guaranteed to be complete, regardless
      * of the return value. If the request was previously successfully completed by
      * [.provideSurface], invoking this method will return
-     * `false`, and will have no effect on how the surface is used by the camera.
+     * `false`, and will have no effect on how the surface is used by the producer.
      *
      * @return `true` if this call to `willNotProvideSurface()` successfully
      * completes the request, i.e., the request has not already been completed via
      * [.provideSurface] or by a previous call to
-     * `willNotProvideSurface()` and has not already been cancelled by the camera.
+     * `willNotProvideSurface()` and has not already been cancelled by the producer.
      */
     fun willNotProvideSurface(): Boolean {
         return surfaceCompleter.setException(
@@ -381,11 +377,11 @@ class ViewfinderSurfaceRequest internal constructor(
     class Builder {
         private val resolution: Size
 
-        @LensFacingValue
-        private var lensFacing = CameraMetadata.LENS_FACING_BACK
+        @OutputMirrorMode
+        private var outputMirrorMode = MIRROR_MODE_NONE
 
-        @SensorOrientationDegreesValue
-        private var sensorOrientation = 0
+        @SourceOrientationDegreesValue
+        private var sourceOrientation = 0
         private var implementationMode: ImplementationMode? = null
 
         /**
@@ -412,8 +408,8 @@ class ViewfinderSurfaceRequest internal constructor(
         constructor(builder: Builder) {
             resolution = builder.resolution
             implementationMode = builder.implementationMode
-            lensFacing = builder.lensFacing
-            sensorOrientation = builder.sensorOrientation
+            outputMirrorMode = builder.outputMirrorMode
+            sourceOrientation = builder.sourceOrientation
         }
 
         /**
@@ -429,8 +425,8 @@ class ViewfinderSurfaceRequest internal constructor(
         constructor(surfaceRequest: ViewfinderSurfaceRequest) {
             resolution = surfaceRequest.resolution
             implementationMode = surfaceRequest.implementationMode
-            lensFacing = surfaceRequest.lensFacing
-            sensorOrientation = surfaceRequest.sensorOrientation
+            outputMirrorMode = surfaceRequest.outputMirrorMode
+            sourceOrientation = surfaceRequest.sourceOrientation
         }
 
         /**
@@ -451,26 +447,22 @@ class ViewfinderSurfaceRequest internal constructor(
         }
 
         /**
-         * Sets the lens facing.
+         * Sets the output mirror mode.
          *
          *
          * **Possible values:**
          *
-         *  * [FRONT][CameraMetadata.LENS_FACING_FRONT]
-         *  * [BACK][CameraMetadata.LENS_FACING_BACK]
-         *  * [EXTERNAL][CameraMetadata.LENS_FACING_EXTERNAL]
+         *  * [MIRROR_MODE_NONE][MIRROR_MODE_NONE]
+         *  * [MIRROR_MODE_HORIZONTAL][MIRROR_MODE_HORIZONTAL]
          *
          *
+         * If not set, [MIRROR_MODE_NONE] will be used by default.
          *
-         * The value can be retrieved from [CameraCharacteristics] by key
-         * [CameraCharacteristics.LENS_FACING]. If not set,
-         * [CameraMetadata.LENS_FACING_BACK] will be used by default.
-         *
-         * @param lensFacing The lens facing.
+         * @param outputMirrorMode The viewfinder output mirror mode.
          * @return This builder.
          */
-        fun setLensFacing(@LensFacingValue lensFacing: Int): Builder {
-            this.lensFacing = lensFacing
+        fun setOutputMirrorMode(@OutputMirrorMode outputMirrorMode: Int): Builder {
+            this.outputMirrorMode = outputMirrorMode
             return this
         }
 
@@ -482,15 +474,13 @@ class ViewfinderSurfaceRequest internal constructor(
          * 0, 90, 180, 270
          *
          *
-         * The value can be retrieved from [CameraCharacteristics] by key
-         * [CameraCharacteristics.SENSOR_ORIENTATION]. If it is not
-         * set, 0 will be used by default.
+         * If it is not set, 0 will be used by default.
          *
-         * @param sensorOrientation
-         * @return this builder.
+         * @param sourceOrientation The viewfinder source orientation.
+         * @return This builder.
          */
-        fun setSensorOrientation(@SensorOrientationDegreesValue sensorOrientation: Int): Builder {
-            this.sensorOrientation = sensorOrientation
+        fun setSourceOrientation(@SourceOrientationDegreesValue sourceOrientation: Int): Builder {
+            this.sourceOrientation = sourceOrientation
             return this
         }
 
@@ -501,27 +491,26 @@ class ViewfinderSurfaceRequest internal constructor(
          * @throws IllegalArgumentException
          */
         fun build(): ViewfinderSurfaceRequest {
-            if ((lensFacing != CameraMetadata.LENS_FACING_FRONT
-                    ) && (lensFacing != CameraMetadata.LENS_FACING_BACK
-                    ) && (lensFacing != CameraMetadata.LENS_FACING_EXTERNAL)
+            if ((outputMirrorMode != MIRROR_MODE_NONE
+                    ) && (outputMirrorMode != MIRROR_MODE_HORIZONTAL)
             ) {
                 throw IllegalArgumentException(
-                    ("Lens facing value: $lensFacing is invalid")
+                    ("Output mirror mode : $outputMirrorMode is invalid")
                 )
             }
-            if ((sensorOrientation != 0
-                    ) && (sensorOrientation != 90
-                    ) && (sensorOrientation != 180
-                    ) && (sensorOrientation != 270)
+            if ((sourceOrientation != 0
+                    ) && (sourceOrientation != 90
+                    ) && (sourceOrientation != 180
+                    ) && (sourceOrientation != 270)
             ) {
                 throw IllegalArgumentException(
-                    ("Sensor orientation value: $sensorOrientation is invalid")
+                    ("Source orientation value: $sourceOrientation is invalid")
                 )
             }
             return ViewfinderSurfaceRequest(
                 resolution,
-                lensFacing,
-                sensorOrientation,
+                outputMirrorMode,
+                sourceOrientation,
                 implementationMode
             )
         }
@@ -563,8 +552,8 @@ class ViewfinderSurfaceRequest internal constructor(
         annotation class ResultCode()
         companion object {
             /**
-             * Provided surface was successfully used by the camera and eventually detached once no
-             * longer needed by the camera.
+             * Provided surface was successfully used by the producer and eventually detached once
+             * no longer needed by the producer.
              *
              *
              * This result denotes that it is safe to release the [Surface] and any underlying
@@ -578,12 +567,12 @@ class ViewfinderSurfaceRequest internal constructor(
             const val RESULT_SURFACE_USED_SUCCESSFULLY = 0
 
             /**
-             * Provided surface was never attached to the camera due to the
-             * [ViewfinderSurfaceRequest] being cancelled by the camera.
+             * Provided surface was never attached to the producer due to the
+             * [ViewfinderSurfaceRequest] being cancelled by the producer.
              *
              *
              * It is safe to release or reuse [Surface], assuming it was not previously
-             * attached to a camera via [.provideSurface]. If
+             * attached to a producer via [.provideSurface]. If
              * reusing the surface for a future surface request, it should be verified that the
              * surface still matches the resolution specified by
              * [ViewfinderSurfaceRequest.resolution].
@@ -591,7 +580,7 @@ class ViewfinderSurfaceRequest internal constructor(
             const val RESULT_REQUEST_CANCELLED = 1
 
             /**
-             * Provided surface could not be used by the camera.
+             * Provided surface could not be used by the producer.
              *
              *
              * This is likely due to the [Surface] being closed prematurely or the resolution
@@ -601,7 +590,7 @@ class ViewfinderSurfaceRequest internal constructor(
             const val RESULT_INVALID_SURFACE = 2
 
             /**
-             * Surface was not attached to the camera through this invocation of
+             * Surface was not attached to the producer through this invocation of
              * [.provideSurface] due to the
              * [ViewfinderSurfaceRequest] already being complete with a surface.
              *
@@ -611,12 +600,12 @@ class ViewfinderSurfaceRequest internal constructor(
              *
              *
              * It is safe to release or reuse the [Surface], assuming it was not previously
-             * attached to a camera via [.provideSurface].
+             * attached to a producer via [.provideSurface].
              */
             const val RESULT_SURFACE_ALREADY_PROVIDED = 3
 
             /**
-             * Surface was not attached to the camera through this invocation of
+             * Surface was not attached to the producer through this invocation of
              * [.provideSurface] due to the
              * [ViewfinderSurfaceRequest] already being marked as "will not provide surface".
              *
@@ -626,32 +615,43 @@ class ViewfinderSurfaceRequest internal constructor(
              *
              *
              * It is safe to release or reuse the [Surface], assuming it was not previously
-             * attached to a camera via [.provideSurface].
+             * attached to a producer via [.provideSurface].
              */
             const val RESULT_WILL_NOT_PROVIDE_SURFACE = 4
         }
     }
 
     /**
-     * Valid integer sensor orientation degrees values.
+     * Valid integer source orientation degrees values.
      */
     @IntDef(0, 90, 180, 270)
     @Retention(AnnotationRetention.SOURCE)
-    internal annotation class SensorOrientationDegreesValue()
+    private annotation class SourceOrientationDegreesValue
 
     /**
-     * Valid integer sensor orientation degrees values.
+     * Valid integer output mirror mode.
      */
     @IntDef(
-        CameraMetadata.LENS_FACING_FRONT,
-        CameraMetadata.LENS_FACING_BACK,
-        CameraMetadata.LENS_FACING_EXTERNAL
+        MIRROR_MODE_NONE,
+        MIRROR_MODE_HORIZONTAL
     )
     @Retention(
         AnnotationRetention.SOURCE
     )
-    internal annotation class LensFacingValue()
+    private annotation class OutputMirrorMode
     companion object {
         private const val TAG = "SurfaceRequest"
+
+        /**
+         * No mirror transform needs to be applied to the viewfinder output.
+         */
+        const val MIRROR_MODE_NONE = 0
+
+        /**
+         * Horizontal mirror transform needs to be applied to the viewfinder output.
+         *
+         * The mirror transform should be applied in display coordinate.
+         */
+        const val MIRROR_MODE_HORIZONTAL = 1
     }
 }
