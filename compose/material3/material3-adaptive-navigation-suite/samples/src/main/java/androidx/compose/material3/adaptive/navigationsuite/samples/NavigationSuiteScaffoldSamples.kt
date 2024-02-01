@@ -28,7 +28,6 @@ import androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -37,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowWidthSizeClass
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class,
     ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
@@ -80,7 +80,7 @@ fun NavigationSuiteScaffoldCustomConfigSample() {
     val adaptiveInfo = currentWindowAdaptiveInfo()
     // Custom configuration that shows a navigation drawer in large screens.
     val customNavSuiteType = with(adaptiveInfo) {
-        if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
             NavigationSuiteType.NavigationDrawer
         } else {
             NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
