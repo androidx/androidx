@@ -23,6 +23,8 @@ import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.content.internal.dragAndDropRequestPermission
 import androidx.compose.foundation.content.internal.getReceiveContentConfiguration
 import androidx.compose.foundation.content.readPlainText
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.BasicTextField
@@ -43,6 +45,9 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
@@ -60,6 +65,7 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
@@ -88,8 +94,13 @@ import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastFirstOrNull
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -178,24 +189,116 @@ internal class TextFieldDecoratorModifierNode(
     LayoutAwareModifierNode {
 
     private val editable get() = enabled && !readOnly
+    private var _stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
+    private val stylusHandwritingTrigger: MutableSharedFlow<Unit>
+        get() {
+            val handwritingTrigger = _stylusHandwritingTrigger
+            if (handwritingTrigger != null) return handwritingTrigger
+            return MutableSharedFlow<Unit>(
+                replay = 1,
+                onBufferOverflow = BufferOverflow.DROP_LATEST
+            ).also { _stylusHandwritingTrigger = it }
+        }
 
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        with(textFieldSelectionState) {
-            textFieldGestures(
-                requestFocus = {
+        coroutineScope {
+            with(textFieldSelectionState) {
+                val requestFocus = {
                     if (!isFocused) requestFocus()
-                },
-                showKeyboard = {
-                    if (inputSessionJob != null) {
-                        // just reshow the keyboard in existing session
-                        requireKeyboardController().show()
-                    } else {
-                        startInputSession(fromTap = true)
-                    }
                 }
-            )
+
+                launch(start = CoroutineStart.UNDISPATCHED) {
+                    detectTouchMode()
+                }
+                launch(start = CoroutineStart.UNDISPATCHED) {
+                    detectTextFieldTapGestures(
+                        requestFocus = requestFocus,
+                        showKeyboard = {
+                            if (inputSessionJob != null) {
+                                // just reshow the keyboard in existing session
+                                requireKeyboardController().show()
+                            } else {
+                                startInputSession(fromTap = true)
+                            }
+                        })
+                }
+                launch(start = CoroutineStart.UNDISPATCHED) {
+                    detectTextFieldLongPressAndAfterDrag(requestFocus)
+                }
+            }
+            launch(start = CoroutineStart.UNDISPATCHED) {
+                detectStylusHandwriting()
+            }
         }
     })
+
+    private suspend fun PointerInputScope.detectStylusHandwriting() {
+        awaitEachGesture {
+            val firstDown =
+                awaitFirstDown(requireUnconsumed = true, pass = PointerEventPass.Initial)
+
+            val isStylus =
+                firstDown.type == PointerType.Stylus || firstDown.type == PointerType.Eraser
+            if (!editable || !isStylus) {
+                return@awaitEachGesture
+            }
+
+            val viewConfiguration = currentValueOf(LocalViewConfiguration)
+
+            // Await the touch slop before long press timeout.
+            var exceedsTouchSlop: PointerInputChange? = null
+            // The stylus move must exceeds touch slop before long press timeout.
+            while (true) {
+                val pointerEvent = awaitPointerEvent(pass = PointerEventPass.Main)
+                // The tracked pointer is consumed or lifted, stop tracking.
+                val change = pointerEvent.changes.fastFirstOrNull {
+                    !it.isConsumed && it.id == firstDown.id && it.pressed
+                }
+                if (change == null) {
+                    break
+                }
+
+                val time = change.uptimeMillis - firstDown.uptimeMillis
+                if (time >= viewConfiguration.longPressTimeoutMillis) {
+                    break
+                }
+
+                val offset = change.position - firstDown.position
+                if (offset.getDistance() > viewConfiguration.handwritingSlop) {
+                    exceedsTouchSlop = change
+                    break
+                }
+            }
+
+            if (exceedsTouchSlop == null) return@awaitEachGesture
+
+            exceedsTouchSlop.consume()
+
+            if (!isFocused) {
+                requestFocus()
+            }
+
+            // Send the handwriting start signal to platform.
+            // The editor should send the signal when it is focused or is about to gain focused,
+            // Here are more details:
+            //   1) if the editor already has an active input session, the platform handwriting
+            //   service should already listen to this flow and it'll start handwriting right away.
+            //
+            //   2) if the editor is not focused, but it'll be focused and create a new input
+            //   session, one handwriting signal will be replayed when the platform collect this
+            //   flow. And the platform should trigger handwriting accordingly.
+            stylusHandwritingTrigger.tryEmit(Unit)
+
+            // Consume the remaining changes of this pointer.
+            while (true) {
+                val pointerEvent = awaitPointerEvent(pass = PointerEventPass.Initial)
+                val pointerChange = pointerEvent.changes.fastFirstOrNull {
+                    !it.isConsumed && it.id == firstDown.id && it.pressed
+                } ?: return@awaitEachGesture
+                pointerChange.consume()
+            }
+        }
+    }
 
     /**
      * The last enter event that was submitted to [interactionSource] from [dragAndDropNode]. We
@@ -636,15 +739,18 @@ internal class TextFieldDecoratorModifierNode(
                     layoutState = textLayoutState,
                     imeOptions = keyboardOptions.toImeOptions(singleLine),
                     receiveContentConfiguration = receiveContentConfiguration,
-                    onImeAction = onImeActionPerformed
+                    onImeAction = onImeActionPerformed,
+                    stylusHandwritingTrigger = stylusHandwritingTrigger,
                 )
             }
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun disposeInputSession() {
         inputSessionJob?.cancel()
         inputSessionJob = null
+        stylusHandwritingTrigger.resetReplayCache()
     }
 
     private fun startInputSessionOnWindowFocusChange() {
@@ -676,7 +782,8 @@ internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     layoutState: TextLayoutState,
     imeOptions: ImeOptions,
     receiveContentConfiguration: ReceiveContentConfiguration?,
-    onImeAction: ((ImeAction) -> Unit)?
+    onImeAction: ((ImeAction) -> Unit)?,
+    stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
 ): Nothing
 
 /**
