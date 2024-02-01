@@ -82,6 +82,13 @@ internal class ComposeSceneRecomposer(
     }
 
     /**
+     * Perform all scheduled effects.
+     */
+    fun performScheduledEffects() {
+        effectDispatcher.flush()
+    }
+
+    /**
      * Permanently shut down this [Recomposer] for future use.
      *
      * @see Recomposer.cancel
