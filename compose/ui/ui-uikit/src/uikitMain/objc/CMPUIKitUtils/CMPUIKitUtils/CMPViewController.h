@@ -20,7 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface CMPViewController : UIViewController
 
+/// Indicates that view controller is considered alive in terms of structural containment.
+/// Overriding classes should call super.
 - (void)viewControllerDidEnterWindowHierarchy;
+
+/// Indicates that view controller is considered alive in terms of structural containment
+/// Overriding classes should call super.
 - (void)viewControllerDidLeaveWindowHierarchy;
 
 @end

@@ -24,7 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
-import kotlin.jvm.Volatile
+import kotlin.concurrent.Volatile
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Delay
 import kotlinx.coroutines.ExperimentalCoroutinesApi

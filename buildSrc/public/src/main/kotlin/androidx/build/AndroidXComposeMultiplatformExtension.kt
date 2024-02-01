@@ -58,6 +58,4 @@ abstract class AndroidXComposeMultiplatformExtension {
      * Configures native compilation tasks with flags to link required frameworks
      */
     abstract fun configureDarwinFlags(): Unit
-
-    abstract val isKotlinWasmTargetEnabled: Boolean
 }

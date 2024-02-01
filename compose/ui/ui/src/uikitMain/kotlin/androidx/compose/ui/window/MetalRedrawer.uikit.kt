@@ -190,8 +190,7 @@ internal class InflightCommandBuffers(
 
 internal class MetalRedrawer(
     private val metalLayer: CAMetalLayer,
-    private val callbacks: MetalRedrawerCallbacks,
-    private val transparency: Boolean,
+    private val callbacks: MetalRedrawerCallbacks
 ) {
     // Workaround for KN compiler bug
     // Type mismatch: inferred type is objcnames.protocols.MTLDeviceProtocol but platform.Metal.MTLDeviceProtocol was expected
@@ -228,6 +227,13 @@ internal class MetalRedrawer(
             displayLinkConditions.needsToBeProactive = value
         }
 
+    var opaque: Boolean = true
+        set(value) {
+            field = value
+
+            updateLayerOpacity()
+        }
+
     /**
      * `true` if Metal rendering is synchronized with changes of UIKit interop views, `false` otherwise
      */
@@ -237,9 +243,13 @@ internal class MetalRedrawer(
 
             // If active, make metalLayer transparent, opaque otherwise.
             // Rendering into opaque CAMetalLayer allows direct-to-screen optimization.
-            metalLayer.setOpaque(!value && !transparency)
+            updateLayerOpacity()
             metalLayer.drawsAsynchronously = !value
         }
+
+    private fun updateLayerOpacity() {
+        metalLayer.setOpaque(!isInteropActive && opaque)
+    }
 
     /**
      * null after [dispose] call
@@ -283,6 +293,8 @@ internal class MetalRedrawer(
             UIApplication.sharedApplication.applicationState != UIApplicationState.UIApplicationStateBackground
 
         caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoopCommonModes)
+
+        updateLayerOpacity()
     }
 
     fun dispose() {
@@ -337,7 +349,7 @@ internal class MetalRedrawer(
                     height.toFloat()
                 )
             ).also { canvas ->
-                canvas.clear(if (transparency) Color.TRANSPARENT else Color.WHITE)
+                canvas.clear(if (metalLayer.opaque) Color.WHITE else Color.TRANSPARENT)
                 callbacks.render(canvas, lastRenderTimestamp)
             }
 

@@ -225,14 +225,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
-            if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmJsMain {
-                    dependsOn(jsWasmMain)
-                    dependencies {
-                        implementation(libs.kotlinStdlib)
-                        implementation(libs.create("skikoWasm"))
-                        implementation(libs.create("skikoWasmWasm"))
-                    }
+            wasmJsMain {
+                dependsOn(jsWasmMain)
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                    implementation(libs.create("skikoWasm"))
+                    implementation(libs.create("skikoWasmWasm"))
                 }
             }
 

@@ -210,23 +210,11 @@ private suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
 interface TooltipPlacement {
     /**
      * Returns [PopupPositionProvider] implementation.
-     */
-    @Deprecated(
-        message = "Use the overload that takes a cursor position; will be removed in Compose 1.5"
-    )
-    @Composable
-    fun positionProvider(): PopupPositionProvider
-
-    /**
-     * Returns [PopupPositionProvider] implementation.
      *
      * @param cursorPosition The position of the mouse cursor relative to the tooltip area.
      */
-    @Suppress("DEPRECATION")
     @Composable
-    fun positionProvider(cursorPosition: Offset): PopupPositionProvider {
-        return positionProvider()
-    }
+    fun positionProvider(cursorPosition: Offset): PopupPositionProvider
 
     /**
      * [TooltipPlacement] implementation for providing a [PopupPositionProvider] that calculates
@@ -242,15 +230,6 @@ interface TooltipPlacement {
         private val alignment: Alignment = Alignment.BottomEnd,
         private val windowMargin: Dp = 4.dp
     ) : TooltipPlacement {
-
-        @Suppress("OVERRIDE_DEPRECATION")
-        @Composable
-        override fun positionProvider(): PopupPositionProvider = rememberCursorPositionProvider(
-            offset = offset,
-            alignment = alignment,
-            windowMargin = windowMargin
-        )
-
         @OptIn(ExperimentalComposeUiApi::class)
         @Composable
         override fun positionProvider(cursorPosition: Offset) =
@@ -276,12 +255,12 @@ interface TooltipPlacement {
         private val alignment: Alignment = Alignment.BottomCenter,
         private val offset: DpOffset = DpOffset.Zero
     ) : TooltipPlacement {
-        @Suppress("OVERRIDE_DEPRECATION")
         @Composable
-        override fun positionProvider() = rememberComponentRectPositionProvider(
-            anchor,
-            alignment,
-            offset
-        )
+        override fun positionProvider(cursorPosition: Offset) =
+            rememberComponentRectPositionProvider(
+                anchor = anchor,
+                alignment = alignment,
+                offset = offset
+            )
     }
 }

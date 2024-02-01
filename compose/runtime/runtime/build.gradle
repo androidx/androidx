@@ -159,10 +159,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             jsTest.dependsOn(jbTest)
             nativeTest.dependsOn(jbTest)
 
-            if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmJsMain.dependsOn(jsWasmMain)
-                wasmJsTest.dependsOn(jbTest)
-            }
+            wasmJsMain.dependsOn(jsWasmMain)
+            wasmJsTest.dependsOn(jbTest)
 
             nativeMain {
                 dependsOn(jsNativeMain)
