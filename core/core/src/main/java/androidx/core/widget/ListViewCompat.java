@@ -16,17 +16,16 @@
 
 package androidx.core.widget;
 
-import android.os.Build;
-import android.view.View;
 import android.widget.ListView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
- * Helper for accessing features in {@link ListView}
+ * Helper for accessing features in {@link ListView}.
+ *
+ * @deprecated Use {@link ListView} directly.
  */
+@Deprecated
 public final class ListViewCompat {
 
     /**
@@ -34,26 +33,12 @@ public final class ListViewCompat {
      *
      * @param listView the list to scroll
      * @param y the amount of pixels to scroll by vertically
+     * @deprecated Use {@link ListView#scrollListBy(int)} directly.
      */
+    @Deprecated
     public static void scrollListBy(@NonNull ListView listView, int y) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            // Call the framework version directly
-            Api19Impl.scrollListBy(listView, y);
-        } else {
-            // provide backport on earlier versions
-            final int firstPosition = listView.getFirstVisiblePosition();
-            if (firstPosition == ListView.INVALID_POSITION) {
-                return;
-            }
-
-            final View firstView = listView.getChildAt(0);
-            if (firstView == null) {
-                return;
-            }
-
-            final int newTop = firstView.getTop() - y;
-            listView.setSelectionFromTop(firstPosition, newTop);
-        }
+        // Call the framework version directly
+        listView.scrollListBy(y);
     }
 
     /**
@@ -65,48 +50,14 @@ public final class ListViewCompat {
      * @return true if the list can be scrolled in the specified direction,
      *         false otherwise.
      * @see #scrollListBy(ListView, int)
+     * @deprecated Use {@link ListView#canScrollList(int)} directly.
      */
+    @Deprecated
     public static boolean canScrollList(@NonNull ListView listView, int direction) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            // Call the framework version directly
-            return Api19Impl.canScrollList(listView, direction);
-        } else {
-            // provide backport on earlier versions
-            final int childCount = listView.getChildCount();
-            if (childCount == 0) {
-                return false;
-            }
-
-            final int firstPosition = listView.getFirstVisiblePosition();
-            if (direction > 0) {
-                final int lastBottom = listView.getChildAt(childCount - 1).getBottom();
-                final int lastPosition = firstPosition + childCount;
-                return lastPosition < listView.getCount()
-                        || (lastBottom > listView.getHeight() - listView.getListPaddingBottom());
-            } else {
-                final int firstTop = listView.getChildAt(0).getTop();
-                return firstPosition > 0 || firstTop < listView.getListPaddingTop();
-            }
-        }
+        // Call the framework version directly
+        return listView.canScrollList(direction);
     }
 
     private ListViewCompat() {
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void scrollListBy(ListView absListView, int y) {
-            absListView.scrollListBy(y);
-        }
-
-        @DoNotInline
-        static boolean canScrollList(ListView absListView, int direction) {
-            return absListView.canScrollList(direction);
-        }
     }
 }

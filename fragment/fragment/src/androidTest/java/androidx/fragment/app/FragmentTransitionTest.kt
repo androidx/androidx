@@ -273,6 +273,83 @@ class FragmentTransitionTest(
     }
 
     @Test
+    fun sharedElementNoOtherTransition() {
+        val fragmentManager = activityRule.activity.supportFragmentManager
+        val fragment1 = setupInitialFragment()
+
+        fragment1.setEnterTransition(null)
+        fragment1.setExitTransition(null)
+        fragment1.setReenterTransition(null)
+        fragment1.setReturnTransition(null)
+
+        // Now do a transition to scene2
+        val fragment2 = TransitionFragment(R.layout.scene2)
+
+        fragment2.setEnterTransition(null)
+        fragment2.setExitTransition(null)
+        fragment2.setReenterTransition(null)
+        fragment2.setReturnTransition(null)
+
+        val startBlue = activityRule.findBlue()
+
+        fragment2.postponeEnterTransition()
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment2)
+            .addToBackStack(null)
+            .commit()
+
+        activityRule.runOnUiThread {
+            fragment1.view?.visibility = View.INVISIBLE
+            fragment2.startPostponedEnterTransition()
+        }
+
+        activityRule.waitForExecution()
+
+        fragment2.waitForNoTransition()
+
+        verifyNoOtherTransitions(fragment1)
+        verifyNoOtherTransitions(fragment2)
+    }
+
+    @Test
+    fun sharedElementAddNoOtherTransition() {
+        val fragmentManager = activityRule.activity.supportFragmentManager
+        val fragment1 = setupInitialFragment()
+
+        fragment1.setEnterTransition(null)
+        fragment1.setExitTransition(null)
+        fragment1.setReenterTransition(null)
+        fragment1.setReturnTransition(null)
+
+        // Now do a transition to scene2
+        val fragment2 = TransitionFragment(R.layout.scene2)
+
+        fragment2.setEnterTransition(null)
+        fragment2.setExitTransition(null)
+        fragment2.setReenterTransition(null)
+        fragment2.setReturnTransition(null)
+
+        val startBlue = activityRule.findBlue()
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .addSharedElement(startBlue, "blueSquare")
+            .add(R.id.fragmentContainer, fragment2)
+            .addToBackStack(null)
+            .commit()
+
+        activityRule.waitForExecution()
+
+        fragment2.waitForNoTransition()
+
+        verifyNoOtherTransitions(fragment1)
+        verifyNoOtherTransitions(fragment2)
+    }
+
+    @Test
     fun noSharedElementToSharedElement() {
         val fragment1 = setupInitialFragment()
 

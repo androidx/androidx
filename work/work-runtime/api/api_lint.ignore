@@ -55,8 +55,8 @@ AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#getWorkInfos(and
 
 BuilderSetStyle: androidx.work.Data.Builder#putAll(androidx.work.Data):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.work.Data.Builder.putAll(androidx.work.Data)
-BuilderSetStyle: androidx.work.Data.Builder#putAll(java.util.Map<java.lang.String,java.lang.Object>):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.work.Data.Builder.putAll(java.util.Map<java.lang.String,java.lang.Object>)
+BuilderSetStyle: androidx.work.Data.Builder#putAll(java.util.Map<java.lang.String,?>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.work.Data.Builder.putAll(java.util.Map<java.lang.String,?>)
 BuilderSetStyle: androidx.work.Data.Builder#putBoolean(String, boolean):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.work.Data.Builder.putBoolean(String,boolean)
 BuilderSetStyle: androidx.work.Data.Builder#putBooleanArray(String, boolean[]):

@@ -598,6 +598,33 @@ public sealed class ScatterMap<K, V> {
         return s.append('}').toString()
     }
 
+    internal fun asDebugString(): String = buildString {
+        append('{')
+        append("metadata=[")
+        for (i in 0 until capacity) {
+            when (val metadata = readRawMetadata(metadata, i)) {
+                Empty -> append("Empty")
+                Deleted -> append("Deleted")
+                else -> append(metadata)
+            }
+            append(", ")
+        }
+        append("], ")
+        append("keys=[")
+        for (i in keys.indices) {
+            append(keys[i])
+            append(", ")
+        }
+        append("], ")
+        append("values=[")
+        for (i in values.indices) {
+            append(values[i])
+            append(", ")
+        }
+        append("]")
+        append('}')
+    }
+
     /**
      * Scans the hash table to find the index in the backing arrays of the
      * specified [key]. Returns -1 if the key is not present.
@@ -643,15 +670,16 @@ public sealed class ScatterMap<K, V> {
      * [ScatterMap]'s APIs directly. While the [Map] implementation returned by
      * this method tries to be as efficient as possible, the semantics of [Map]
      * may require the allocation of temporary objects for access and iteration.
-     *
-     * **Note**: the semantics of the returned [Map.entries] property is
-     * different from that of a regular [Map] implementation: the [Map.Entry]
-     * returned by the iterator is a single instance that exists for the
-     * lifetime of the iterator, so you can *not* hold on to it after calling
-     * [Iterator.next].</p>
      */
     public fun asMap(): Map<K, V> = MapWrapper()
 
+    // TODO: While not mandatory, it would be pertinent to throw a
+    //       ConcurrentModificationException when the underlying ScatterMap
+    //       is modified while iterating over keys/values/entries. To do
+    //       this we should probably have some kind of generation ID in
+    //       ScatterMap that would be incremented on any add/remove/clear
+    //       or rehash.
+    //
     // TODO: the proliferation of inner classes causes unnecessary code to be
     //       created. For instance, `entries.size` below requires a total of
     //       3 `getfield` to resolve the chain of `this` before getting the
@@ -661,19 +689,21 @@ public sealed class ScatterMap<K, V> {
     //       directly.
     internal open inner class MapWrapper : Map<K, V> {
         override val entries: Set<Map.Entry<K, V>>
-            get() = object : Set<Map.Entry<K, V>>, Map.Entry<K, V> {
-                var current = -1
-
+            get() = object : Set<Map.Entry<K, V>> {
                 override val size: Int get() = this@ScatterMap._size
 
                 override fun isEmpty(): Boolean = this@ScatterMap.isEmpty()
 
                 override fun iterator(): Iterator<Map.Entry<K, V>> {
-                    val set = this
                     return iterator {
                         this@ScatterMap.forEachIndexed { index ->
-                            current = index
-                            yield(set)
+                            @Suppress("UNCHECKED_CAST")
+                            yield(
+                                MapEntry(
+                                    this@ScatterMap.keys[index] as K,
+                                    this@ScatterMap.values[index] as V
+                                )
+                            )
                         }
                     }
                 }
@@ -683,12 +713,6 @@ public sealed class ScatterMap<K, V> {
 
                 override fun contains(element: Map.Entry<K, V>): Boolean =
                     this@ScatterMap[element.key] == element.value
-
-                @Suppress("UNCHECKED_CAST")
-                override val key: K get() = this@ScatterMap.keys[current] as K
-
-                @Suppress("UNCHECKED_CAST")
-                override val value: V get() = this@ScatterMap.values[current] as V
             }
 
         override val keys: Set<K>
@@ -807,8 +831,8 @@ public class MutableScatterMap<K, V>(
         }
         _capacity = newCapacity
         initializeMetadata(newCapacity)
-        keys = arrayOfNulls(newCapacity)
-        values = arrayOfNulls(newCapacity)
+        keys = if (newCapacity == 0) EMPTY_OBJECTS else arrayOfNulls(newCapacity)
+        values = if (newCapacity == 0) EMPTY_OBJECTS else arrayOfNulls(newCapacity)
     }
 
     private fun initializeMetadata(capacity: Int) {
@@ -819,9 +843,9 @@ public class MutableScatterMap<K, V>(
             val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
             LongArray(size).apply {
                 fill(AllEmpty)
+                writeRawMetadata(this, capacity, Sentinel)
             }
         }
-        writeRawMetadata(metadata, capacity, Sentinel)
         initializeGrowth()
     }
 
@@ -1264,12 +1288,6 @@ public class MutableScatterMap<K, V>(
      * implementation returned by this method tries to be as efficient as possible,
      * the semantics of [MutableMap] may require the allocation of temporary
      * objects for access and iteration.
-     *
-     * **Note**: the semantics of the returned [MutableMap.entries] property is
-     * different from that of a regular [MutableMap] implementation: the
-     * [MutableMap.MutableEntry] returned by the iterator is a single instance
-     * that exists for the lifetime of the iterator, so you can *not* hold on to
-     * it after calling [Iterator.next].</p>
      */
     public fun asMutableMap(): MutableMap<K, V> = MutableMapWrapper()
 
@@ -1282,18 +1300,22 @@ public class MutableScatterMap<K, V>(
                 override fun isEmpty(): Boolean = this@MutableScatterMap.isEmpty()
 
                 override fun iterator(): MutableIterator<MutableMap.MutableEntry<K, V>> =
-                    object : MutableIterator<MutableMap.MutableEntry<K, V>>,
-                        MutableMap.MutableEntry<K, V> {
+                    object : MutableIterator<MutableMap.MutableEntry<K, V>> {
 
                         var iterator: Iterator<MutableMap.MutableEntry<K, V>>
                         var current = -1
 
                         init {
-                            val set = this
                             iterator = iterator {
                                 this@MutableScatterMap.forEachIndexed { index ->
                                     current = index
-                                    yield(set)
+                                    yield(
+                                        MutableMapEntry(
+                                            this@MutableScatterMap.keys,
+                                            this@MutableScatterMap.values,
+                                            current
+                                        )
+                                    )
                                 }
                             }
                         }
@@ -1307,19 +1329,6 @@ public class MutableScatterMap<K, V>(
                                 this@MutableScatterMap.removeValueAt(current)
                                 current = -1
                             }
-                        }
-
-                        @Suppress("UNCHECKED_CAST")
-                        override val key: K get() = this@MutableScatterMap.keys[current] as K
-
-                        @Suppress("UNCHECKED_CAST")
-                        override val value: V get() = this@MutableScatterMap.values[current] as V
-
-                        override fun setValue(newValue: V): V {
-                            val oldValue = this@MutableScatterMap.values[current]
-                            this@MutableScatterMap.values[current] = newValue
-                            @Suppress("UNCHECKED_CAST")
-                            return oldValue as V
                         }
                     }
 
@@ -1572,13 +1581,18 @@ public class MutableScatterMap<K, V>(
 }
 
 /**
- * Returns the hash code of [k]. This follows the [HashMap] default behavior on Android
- * of returning [Object.hashcode()] with the higher bits of hash spread to the lower bits.
+ * Returns the hash code of [k]. The hash spreads low bits to to minimize collisions in high
+ * 25-bits that are used for probing.
  */
 internal inline fun hash(k: Any?): Int {
-    val hash = k.hashCode()
-    return hash xor (hash ushr 16)
+    // scramble bits to account for collisions between similar hash values.
+    val hash = k.hashCode() * MurmurHashC1
+    // spread low bits into high bits that are used for probing
+    return hash xor (hash shl 16)
 }
+
+// C1 constant from MurmurHash implementation: https://en.wikipedia.org/wiki/MurmurHash#Algorithm
+internal const val MurmurHashC1: Int = 0xcc9e2d51.toInt()
 
 // Returns the "H1" part of the specified hash code. In our implementation,
 // it is simply the top-most 25 bits
@@ -1736,7 +1750,7 @@ internal inline fun group(metadata: LongArray, offset: Int): Group {
     // |_________Long0_______ _|  |_________Long1_______ _|
     //
     // To retrieve the Group we first find the index of Long0 by taking the
-    // offset divided by 0. Then offset modulo 8 gives us how many bits we
+    // offset divided by 8. Then offset modulo 8 gives us how many bits we
     // need to shift by. With offset = 1:
     //
     // index = offset / 8 == 0
@@ -1794,4 +1808,26 @@ internal inline fun Group.maskEmpty(): Bitmask {
 @PublishedApi
 internal inline fun Group.maskEmptyOrDeleted(): Bitmask {
     return (this and (this.inv() shl 7)) and BitmaskMsb
+}
+
+private class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
+
+private class MutableMapEntry<K, V>(
+    val keys: Array<Any?>,
+    val values: Array<Any?>,
+    val index: Int
+) : MutableMap.MutableEntry<K, V> {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun setValue(newValue: V): V {
+        val oldValue = values[index]
+        values[index] = newValue
+        return oldValue as V
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override val key: K get() = keys[index] as K
+
+    @Suppress("UNCHECKED_CAST")
+    override val value: V get() = values[index] as V
 }

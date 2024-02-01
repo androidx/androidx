@@ -21,6 +21,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -36,7 +37,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.MenuTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -48,17 +48,38 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Contains default values used for [DropdownMenuItem].
+ * Contains default values used for [DropdownMenu] and [DropdownMenuItem].
  */
 object MenuDefaults {
+    /** The default tonal elevation for a menu. */
+    val TonalElevation = MenuTokens.ContainerElevation
+
+    /** The default shadow elevation for a menu. */
+    val ShadowElevation = MenuTokens.ContainerElevation
+
+    /** The default shape for a menu. */
+    val shape @Composable get() = MenuTokens.ContainerShape.value
+
+    /** The default container color for a menu. */
+    val containerColor @Composable get() = MenuTokens.ContainerColor.value
+
+    /**
+     * Creates a [MenuItemColors] that represents the default text and icon colors used in a
+     * [DropdownMenuItemContent].
+     */
+    @Composable
+    fun itemColors() = MaterialTheme.colorScheme.defaultMenuItemColors
 
     /**
      * Creates a [MenuItemColors] that represents the default text and icon colors used in a
@@ -76,17 +97,13 @@ object MenuDefaults {
      */
     @Composable
     fun itemColors(
-        textColor: Color = MenuTokens.ListItemLabelTextColor.value,
-        leadingIconColor: Color = MenuTokens.ListItemLeadingIconColor.value,
-        trailingIconColor: Color = MenuTokens.ListItemTrailingIconColor.value,
-        disabledTextColor: Color =
-            MenuTokens.ListItemDisabledLabelTextColor.value
-                .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = MenuTokens.ListItemDisabledLeadingIconColor.value
-            .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color = MenuTokens.ListItemDisabledTrailingIconColor.value
-            .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
-    ): MenuItemColors = MenuItemColors(
+        textColor: Color = Color.Unspecified,
+        leadingIconColor: Color = Color.Unspecified,
+        trailingIconColor: Color = Color.Unspecified,
+        disabledTextColor: Color = Color.Unspecified,
+        disabledLeadingIconColor: Color = Color.Unspecified,
+        disabledTrailingIconColor: Color = Color.Unspecified,
+    ): MenuItemColors = MaterialTheme.colorScheme.defaultMenuItemColors.copy(
         textColor = textColor,
         leadingIconColor = leadingIconColor,
         trailingIconColor = trailingIconColor,
@@ -94,6 +111,23 @@ object MenuDefaults {
         disabledLeadingIconColor = disabledLeadingIconColor,
         disabledTrailingIconColor = disabledTrailingIconColor,
     )
+
+    internal val ColorScheme.defaultMenuItemColors: MenuItemColors
+        get() {
+            return defaultMenuItemColorsCached ?: MenuItemColors(
+                textColor = fromToken(MenuTokens.ListItemLabelTextColor),
+                leadingIconColor = fromToken(MenuTokens.ListItemLeadingIconColor),
+                trailingIconColor = fromToken(MenuTokens.ListItemTrailingIconColor),
+                disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor)
+                    .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
+                disabledLeadingIconColor = fromToken(MenuTokens.ListItemDisabledLeadingIconColor)
+                    .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
+                disabledTrailingIconColor = fromToken(MenuTokens.ListItemDisabledTrailingIconColor)
+                    .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
+            ).also {
+                defaultMenuItemColorsCached = it
+            }
+        }
 
     /**
      * Default padding used for [DropdownMenuItem].
@@ -129,6 +163,27 @@ class MenuItemColors(
     val disabledLeadingIconColor: Color,
     val disabledTrailingIconColor: Color,
 ) {
+
+    /**
+     * Returns a copy of this MenuItemColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        textColor: Color = this.textColor,
+        leadingIconColor: Color = this.leadingIconColor,
+        trailingIconColor: Color = this.trailingIconColor,
+        disabledTextColor: Color = this.disabledTextColor,
+        disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
+        disabledTrailingIconColor: Color = this.disabledTrailingIconColor,
+    ) = MenuItemColors(
+        textColor.takeOrElse { this.textColor },
+        leadingIconColor.takeOrElse { this.leadingIconColor },
+        trailingIconColor.takeOrElse { this.trailingIconColor },
+        disabledTextColor.takeOrElse { this.disabledTextColor },
+        disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
+        disabledTrailingIconColor.takeOrElse { this.disabledTrailingIconColor },
+    )
+
     /**
      * Represents the text color for a menu item, depending on its [enabled] state.
      *
@@ -184,13 +239,19 @@ class MenuItemColors(
 
 @Composable
 internal fun DropdownMenuContent(
+    modifier: Modifier,
     expandedState: MutableTransitionState<Boolean>,
     transformOriginState: MutableState<TransformOrigin>,
     scrollState: ScrollState,
-    modifier: Modifier = Modifier,
+    shape: Shape,
+    containerColor: Color,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    border: BorderStroke?,
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Menu open/close animation.
+    @Suppress("DEPRECATION")
     val transition = updateTransition(expandedState, "DropDownMenu")
 
     val scale by transition.animateFloat(
@@ -234,10 +295,11 @@ internal fun DropdownMenuContent(
             this.alpha = alpha
             transformOrigin = transformOriginState.value
         },
-        shape = MenuTokens.ContainerShape.value,
-        color = MaterialTheme.colorScheme.fromToken(MenuTokens.ContainerColor),
-        tonalElevation = MenuTokens.ContainerElevation,
-        shadowElevation = MenuTokens.ContainerElevation
+        shape = shape,
+        color = containerColor,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        border = border,
     ) {
         Column(
             modifier = modifier
@@ -259,7 +321,7 @@ internal fun DropdownMenuItemContent(
     enabled: Boolean,
     colors: MenuItemColors,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource
+    interactionSource: MutableInteractionSource?
 ) {
     Row(
         modifier = modifier
@@ -267,7 +329,7 @@ internal fun DropdownMenuItemContent(
                 enabled = enabled,
                 onClick = onClick,
                 interactionSource = interactionSource,
-                indication = rememberRipple(true)
+                indication = rippleOrFallbackImplementation(true)
             )
             .fillMaxWidth()
             // Preferred min and max width used during the intrinsic measurement.

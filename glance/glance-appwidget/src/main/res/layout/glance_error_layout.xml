@@ -20,12 +20,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/error_title_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/glance_error_layout_title" />
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -36,7 +30,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="@string/glance_error_layout_text" />
+            android:text="@string/glance_error_layout_text_v2"
+            android:textColor="@color/glance_colorOnSurface"
+            />
     </FrameLayout>
 
 </LinearLayout>

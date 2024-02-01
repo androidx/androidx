@@ -17,8 +17,11 @@
 package androidx.compose.compiler.plugins.kotlin
 
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
+import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.util.constructedClass
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.hasEqualFqName
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -82,6 +85,10 @@ object ComposeCallableIds {
     val traceEventEnd = topLevelCallableId(KtxNameConventions.TRACE_EVENT_END)
     val traceEventStart = topLevelCallableId(KtxNameConventions.TRACE_EVENT_START)
     val updateChangedFlags = topLevelCallableId(KtxNameConventions.UPDATE_CHANGED_FLAGS)
+    val rememberComposableLambda =
+        internalTopLevelCallableId(KtxNameConventions.REMEMBER_COMPOSABLE_LAMBDA)
+    val rememberComposableLambdaN =
+        internalTopLevelCallableId(KtxNameConventions.REMEMBER_COMPOSABLE_LAMBDAN)
 }
 
 object ComposeFqNames {
@@ -105,8 +112,11 @@ object ComposeFqNames {
     val ReadOnlyComposable = ComposeClassIds.ReadOnlyComposable.asSingleFqName()
     val ExplicitGroupsComposable = fqNameFor("ExplicitGroupsComposable")
     val NonRestartableComposable = fqNameFor("NonRestartableComposable")
+    val NonSkippableComposable = fqNameFor("NonSkippableComposable")
+    val DontMemoize = fqNameFor("DontMemoize")
     val composableLambdaType = ComposeClassIds.ComposableLambda.asSingleFqName()
     val composableLambda = ComposeCallableIds.composableLambda.asSingleFqName()
+    val rememberComposableLambda = ComposeCallableIds.rememberComposableLambda.asSingleFqName()
     val composableLambdaFullName =
         internalFqNameFor("ComposableLambdaKt.composableLambda")
     val remember = ComposeCallableIds.remember.asSingleFqName()
@@ -124,3 +134,6 @@ fun IrType.hasComposableAnnotation(): Boolean =
 
 fun IrAnnotationContainer.hasComposableAnnotation(): Boolean =
     hasAnnotation(ComposeFqNames.Composable)
+
+fun IrConstructorCall.isComposableAnnotation() =
+    symbol.owner.constructedClass.hasEqualFqName(ComposeFqNames.Composable)

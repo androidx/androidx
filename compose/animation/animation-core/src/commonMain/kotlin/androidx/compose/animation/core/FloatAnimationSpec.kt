@@ -18,6 +18,7 @@ package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * [FloatAnimationSpec] interface is similar to [VectorizedAnimationSpec], except it deals
@@ -202,22 +203,24 @@ class FloatTweenSpec(
     val delay: Int = 0,
     private val easing: Easing = FastOutSlowInEasing
 ) : FloatAnimationSpec {
+    private val durationNanos: Long = duration * MillisToNanos
+
+    private val delayNanos: Long = delay * MillisToNanos
+
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
         initialVelocity: Float
     ): Float {
-        // TODO: Properly support Nanos in the impl
-        val playTimeMillis = playTimeNanos / MillisToNanos
-        val clampedPlayTime = clampPlayTime(playTimeMillis)
-        val rawFraction = if (duration == 0) 1f else clampedPlayTime / duration.toFloat()
-        val fraction = easing.transform(rawFraction.coerceIn(0f, 1f))
+        val clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos)
+        val rawFraction = if (duration == 0) 1f else clampedPlayTimeNanos / durationNanos.toFloat()
+        val fraction = easing.transform(rawFraction.fastCoerceIn(0f, 1f))
         return lerp(initialValue, targetValue, fraction)
     }
 
-    private fun clampPlayTime(playTime: Long): Long {
-        return (playTime - delay).coerceIn(0, duration.toLong())
+    private fun clampPlayTimeNanos(playTimeNanos: Long): Long {
+        return (playTimeNanos - delayNanos).coerceIn(0, durationNanos)
     }
 
     @Suppress("MethodNameUnits")
@@ -238,22 +241,20 @@ class FloatTweenSpec(
         targetValue: Float,
         initialVelocity: Float
     ): Float {
-        // TODO: Properly support Nanos in the impl
-        val playTimeMillis = playTimeNanos / MillisToNanos
-        val clampedPlayTime = clampPlayTime(playTimeMillis)
-        if (clampedPlayTime < 0) {
+        val clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos)
+        if (clampedPlayTimeNanos < 0L) {
             return 0f
-        } else if (clampedPlayTime == 0L) {
+        } else if (clampedPlayTimeNanos == 0L) {
             return initialVelocity
         }
         val startNum = getValueFromNanos(
-            (clampedPlayTime - 1) * MillisToNanos,
+            clampedPlayTimeNanos - MillisToNanos,
             initialValue,
             targetValue,
             initialVelocity
         )
         val endNum = getValueFromNanos(
-            clampedPlayTime * MillisToNanos,
+            clampedPlayTimeNanos,
             initialValue,
             targetValue,
             initialVelocity

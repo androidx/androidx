@@ -184,6 +184,7 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
     if (name.startsWith("androidDebug")) return false
     if (name.startsWith("release")) return false
     if (name.startsWith("test")) return false
+    if (name.startsWith("jvmTest")) return false
 
     // Don't check any tooling configurations.
     if (name == "annotationProcessor") return false
@@ -208,6 +209,17 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
     // Don't check Desktop configurations since we don't publish them anyway
     if (name.startsWith("desktop")) return false
     if (name.startsWith("skiko")) return false
+
+    // Doesn't affect the .pom / .module
+    // https://github.com/JetBrains/kotlin/blob/v1.9.10/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/resolvableMetadataConfiguration.kt#L102
+    if (name.endsWith("DependenciesMetadata")) return false
+
+    // don't verify test configurations of KMP projects
+    if (name.contains("JvmTest")) return false
+    if (name.contains("commonTest")) return false
+    if (name.contains("nativeTest")) return false
+    if (name.contains("TestCompilation")) return false
+    if (name.contains("TestCompile")) return false
 
     return true
 }

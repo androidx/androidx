@@ -523,7 +523,7 @@ public final class Action {
                 throw new IllegalStateException("An action must have either an icon or a title");
             }
 
-            if ((mType == TYPE_APP_ICON || mType == TYPE_BACK || mType == TYPE_COMPOSE_MESSAGE)) {
+            if (mType == TYPE_APP_ICON || mType == TYPE_BACK) {
                 if (mOnClickDelegate != null) {
                     throw new IllegalStateException(String.format(
                             "An on-click listener can't be set on an action of type %s", mType));
@@ -540,6 +540,18 @@ public final class Action {
                 if (mOnClickDelegate != null) {
                     throw new IllegalStateException(
                             "An on-click listener can't be set on the pan mode action");
+                }
+            }
+
+            if (mType == TYPE_COMPOSE_MESSAGE) {
+                if (mOnClickDelegate != null) {
+                    throw new IllegalStateException(
+                            "An on-click listener can't be set on the compose action");
+                }
+
+                if (mTitle != null && !TextUtils.isEmpty(mTitle.toString())) {
+                    throw new IllegalStateException(
+                            "A title can't be set on the standard compose action");
                 }
             }
 

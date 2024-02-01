@@ -106,7 +106,9 @@ internal class CommonProcessorDelegate(
                     if (env.config.disableAnnotatedElementValidation) {
                         annotatedElements to emptySet<XElement>()
                     } else {
-                        annotatedElements.partition { it.validate() }
+                        annotatedElements.partition {
+                            it.closestMemberContainer.validate()
+                        }
                     }
                 deferredElements.addAll(invalidElements)
                 (validElements + stepDeferredElementsByAnnotation.getValue(annotation)).let {

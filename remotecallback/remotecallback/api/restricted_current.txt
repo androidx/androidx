@@ -21,11 +21,11 @@ package androidx.remotecallback {
 
   public class CallbackHandlerRegistry {
     ctor public CallbackHandlerRegistry();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.remotecallback.CallbackReceiver> T getAndResetStub(Class<? extends androidx.remotecallback.CallbackReceiver>, android.content.Context, String?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.remotecallback.CallbackReceiver> T getAndResetStub(Class<? extends androidx.remotecallback.CallbackReceiver!>, android.content.Context, String?);
     method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.content.Intent);
     method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.os.Bundle);
     method public static <T extends androidx.remotecallback.CallbackReceiver> void registerCallbackHandler(Class<T!>, String, androidx.remotecallback.CallbackHandlerRegistry.CallbackHandler<T!>?);
-    method public static androidx.remotecallback.RemoteCallback? stubToRemoteCallback(androidx.remotecallback.CallbackReceiver, Class<? extends androidx.remotecallback.CallbackReceiver>, android.os.Bundle, String?);
+    method public static androidx.remotecallback.RemoteCallback? stubToRemoteCallback(androidx.remotecallback.CallbackReceiver, Class<? extends androidx.remotecallback.CallbackReceiver!>, android.os.Bundle, String?);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.remotecallback.CallbackHandlerRegistry! sInstance;
   }
 

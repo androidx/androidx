@@ -25,6 +25,9 @@ import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.media.ImageWrapper
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
@@ -52,12 +55,13 @@ value class RequestNumber(val value: Long)
  * @param streams The list of streams to submit. Each request *must* have 1 or more valid streams.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class Request(
+class Request(
     val streams: List<StreamId>,
     val parameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
     val extras: Map<Metadata.Key<*>, Any> = emptyMap(),
     val listeners: List<Listener> = emptyList(),
-    val template: RequestTemplate? = null
+    val template: RequestTemplate? = null,
+    val inputRequest: InputRequest? = null
 ) {
     operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
     operator fun <T> get(key: Metadata.Key<T>): T? = getUnchecked(key)
@@ -236,6 +240,18 @@ data class Request(
     @Suppress("UNCHECKED_CAST")
     private fun <T> getUnchecked(key: CaptureRequest.Key<T>): T? =
         this.parameters[key] as T?
+
+    override fun toString(): String {
+        val parametersString =
+            if (parameters.isEmpty()) "" else ", parameters=${Debug.formatParameterMap(parameters)}"
+        val extrasString =
+            if (extras.isEmpty()) "" else ", extras=${Debug.formatParameterMap(extras)}"
+        val templateString = if (template == null) "" else ", template=$template"
+        // Ignore listener count, always include stream list (required), and use super.toString to
+        // reference the class name.
+        return "Request@${super.hashCode().toString(16)}(streams=$streams" +
+            "$parametersString$extrasString$templateString)"
+    }
 }
 
 /**
@@ -245,16 +261,22 @@ data class Request(
  * constructor prevents directly creating an instance of it.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface RequestFailure {
+interface RequestFailure : UnsafeWrapper {
+    /** Metadata about the request that has failed. */
     val requestMetadata: RequestMetadata
 
+    /** The Camera [FrameNumber] for the request that has failed. */
     val frameNumber: FrameNumber
 
+    /** Indicates the reason the particular request failed, see [CaptureFailure] for details. */
     val reason: Int
 
+    /**
+     * Indicates if images were still captured for this request. If this is true, the camera should
+     * invoke [Request.Listener.onBufferLost] individually for each output that failed. If this is
+     * false, these outputs will never arrive, and the individual callbacks will not be invoked.
+     */
     val wasImageCaptured: Boolean
-
-    val captureFailure: CaptureFailure?
 }
 
 /**
@@ -277,6 +299,17 @@ value class RequestTemplate(val value: Int) {
             }
         }
 }
+
+/**
+ * The intended use for this class is to submit the input needed for a reprocessing request, the
+ * [ImageWrapper] and [FrameInfo]. Both values are non-nullable because
+ * both values are needed for reprocessing.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+data class InputRequest(
+    val image: ImageWrapper,
+    val frameInfo: FrameInfo
+)
 
 /**
  * RequestMetadata wraps together all of the information about a specific CaptureRequest that was
@@ -348,7 +381,17 @@ fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any?>) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
     if (key != null && key is CaptureRequest.Key<*>) {
-        @Suppress("UNCHECKED_CAST") this.set(key as CaptureRequest.Key<Any>, value)
+        try {
+            @Suppress("UNCHECKED_CAST") this.set(key as CaptureRequest.Key<Any>, value)
+        } catch (e: IllegalArgumentException) {
+            // Setting keys on CaptureRequest.Builder can fail if the key is defined on some
+            // OS versions, but not on others. Log and ignore these kinds of failures.
+            //
+            // See b/309518353 for an example failure.
+            Log.warn(e) {
+                "Failed to set [${key.name}: $value] on CaptureRequest.Builder"
+            }
+        }
     }
 }
 

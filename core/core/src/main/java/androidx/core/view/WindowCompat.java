@@ -118,7 +118,7 @@ public final class WindowCompat {
             final boolean decorFitsSystemWindows) {
         if (Build.VERSION.SDK_INT >= 30) {
             Api30Impl.setDecorFitsSystemWindows(window, decorFitsSystemWindows);
-        } else if (Build.VERSION.SDK_INT >= 16) {
+        } else {
             Api16Impl.setDecorFitsSystemWindows(window, decorFitsSystemWindows);
         }
     }
@@ -136,13 +136,11 @@ public final class WindowCompat {
         return new WindowInsetsControllerCompat(window, view);
     }
 
-    @RequiresApi(16)
     static class Api16Impl {
         private Api16Impl() {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setDecorFitsSystemWindows(@NonNull Window window,
                 final boolean decorFitsSystemWindows) {
             final int decorFitsFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE

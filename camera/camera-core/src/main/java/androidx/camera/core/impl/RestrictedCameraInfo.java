@@ -37,6 +37,8 @@ import androidx.lifecycle.MutableLiveData;
 public class RestrictedCameraInfo extends ForwardingCameraInfo {
     private final CameraInfoInternal mCameraInfo;
     private final RestrictedCameraControl mRestrictedCameraControl;
+    private boolean mIsPostviewSupported = false;
+    private boolean mIsCaptureProcessProgressSupported = false;
 
     public RestrictedCameraInfo(@NonNull CameraInfoInternal cameraInfo,
             @NonNull RestrictedCameraControl restrictedCameraControl) {
@@ -119,5 +121,32 @@ public class RestrictedCameraInfo extends ForwardingCameraInfo {
             return false;
         }
         return mCameraInfo.isFocusMeteringSupported(action);
+    }
+
+    /**
+     * Sets if postview is supported or not.
+     */
+    public void setPostviewSupported(boolean isPostviewSupported) {
+        mIsPostviewSupported = isPostviewSupported;
+    }
+
+    /**
+     * Sets if capture process progress is supported or not.
+     */
+    public void setCaptureProcessProgressSupported(boolean isCaptureProcessProgressSupported) {
+        mIsCaptureProcessProgressSupported = isCaptureProcessProgressSupported;
+    }
+
+    /**
+     * Returns if postview is supported.
+     */
+    @Override
+    public boolean isPostviewSupported() {
+        return mIsPostviewSupported;
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressSupported() {
+        return mIsCaptureProcessProgressSupported;
     }
 }

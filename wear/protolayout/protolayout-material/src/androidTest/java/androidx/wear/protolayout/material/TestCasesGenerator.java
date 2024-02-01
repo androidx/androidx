@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.wear.protolayout.material;
 
 import static androidx.wear.protolayout.ColorBuilders.argb;
@@ -22,22 +21,29 @@ import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_C
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_END;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 import android.content.Context;
 import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.ActionBuilders.LaunchAction;
 import androidx.wear.protolayout.DeviceParametersBuilders;
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
+import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.LayoutElementBuilders.Row;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class TestCasesGenerator {
     private TestCasesGenerator() {}
@@ -51,10 +57,11 @@ public class TestCasesGenerator {
     /**
      * This function will append goldenSuffix on the name of the golden images that should be
      * different for different user font sizes. Note that some of the golden will have the same name
-     * as it should point on the same size independent image.
+     * as it should point on the same size independent image. These test cases are meant to be
+     * tested in RTL and LTR modes.
      */
     @NonNull
-    static Map<String, LayoutElement> generateTestCases(
+    static ImmutableMap<String, Layout> generateTestCases(
             @NonNull Context context,
             @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters,
             @NonNull String goldenSuffix) {
@@ -67,7 +74,6 @@ public class TestCasesGenerator {
         String labelText = "Secondary label";
         String largeChipText = "Action";
         HashMap<String, LayoutElement> testCases = new HashMap<>();
-
         testCases.put(
                 "default_icon_button_golden" + NORMAL_SCALE_SUFFIX,
                 new Button.Builder(context, clickable).setIconContent(ICON_ID).build());
@@ -103,7 +109,6 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_image_button_golden" + NORMAL_SCALE_SUFFIX,
                 new Button.Builder(context, clickable).setImageContent(AVATAR).build());
-
         testCases.put(
                 "default_chip_maintext_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
@@ -156,16 +161,6 @@ public class TestCasesGenerator {
                         .setIconContent(ICON_ID)
                         .build());
         testCases.put(
-                "custom_chip_icon_primary_overflows_golden" + goldenSuffix,
-                new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryLabelContent(mainText)
-                        .setIconContent(ICON_ID)
-                        .setWidth(150)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
-                        .setChipColors(
-                                new ChipColors(Color.YELLOW, Color.GREEN, Color.BLACK, Color.GRAY))
-                        .build());
-        testCases.put(
                 "chip_custom_content_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
@@ -184,7 +179,7 @@ public class TestCasesGenerator {
                         .setChipColors(ChipDefaults.SECONDARY_COLORS)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .setCustomContent(
-                                new LayoutElementBuilders.Row.Builder()
+                                new Row.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "text1")
                                                         .setTypography(Typography.TYPOGRAPHY_TITLE3)
@@ -209,79 +204,58 @@ public class TestCasesGenerator {
         // more than 9, the rest will be deleted.
         testCases.put(
                 "compactchip_default_len2_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "Ab", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
-                        .build());
+                new CompactChip.Builder(context, "Ab", clickable, deviceParameters).build());
         testCases.put(
                 "compactchip_default_len5_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "Abcde", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
-                        .build());
+                new CompactChip.Builder(context, "Abcde", clickable, deviceParameters).build());
         testCases.put(
                 "compactchip_default_len9_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "Abcdefghi", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
-                        .build());
+                new CompactChip.Builder(context, "Abcdefghi", clickable, deviceParameters).build());
         testCases.put(
                 "compactchip_default_toolong_golden" + goldenSuffix,
                 new CompactChip.Builder(
                                 context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_custom_default_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
-                        .setExcludeFontPadding(true)
-                        .build());
-        testCases.put(
-                "compactchip_includepadding_default_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
-                        .setExcludeFontPadding(false)
                         .build());
         testCases.put(
                 "compactchip_icon_default_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_icon_toolong_golden" + goldenSuffix,
                 new CompactChip.Builder(
                                 context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_icon_len2_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Ab", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_icon_custom_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
-                        .setExcludeFontPadding(true)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
                         .build());
 
         testCases.put(
                 "titlechip_default_golden" + goldenSuffix,
-                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
-                        .build());
+                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters).build());
         testCases.put(
                 "titlechip_default_texttoolong_golden" + goldenSuffix,
                 new TitleChip.Builder(context, "abcdeabcdeabcdeEXTRA", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "titlechip_leftalign_secondary_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .setChipColors(ChipDefaults.TITLE_SECONDARY_COLORS)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "titlechip_centered_custom_150_secondary_default_golden" + goldenSuffix,
@@ -289,23 +263,15 @@ public class TestCasesGenerator {
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLUE))
                         .setWidth(150)
-                        .setExcludeFontPadding(true)
-                        .build());
-        testCases.put(
-                "titlechip_includepadding_default_golden" + goldenSuffix,
-                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
-                        .setExcludeFontPadding(false)
                         .build());
         testCases.put(
                 "titlechip_icon_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .setIconContent(ICON_ID)
                         .build());
         testCases.put(
                 "titlechip_icon_default_texttoolong_golden" + goldenSuffix,
                 new TitleChip.Builder(context, "abcdeabcdeabcdeEXTRA", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .setIconContent(ICON_ID)
                         .build());
         testCases.put(
@@ -313,7 +279,6 @@ public class TestCasesGenerator {
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLUE))
                         .setWidth(150)
-                        .setExcludeFontPadding(true)
                         .setIconContent(ICON_ID)
                         .build());
 
@@ -346,46 +311,174 @@ public class TestCasesGenerator {
                         .setCircularProgressIndicatorColors(
                                 new ProgressIndicatorColors(Color.BLUE, Color.YELLOW))
                         .build());
+        testCases.put(
+                "circularprogressindicator_in_smaller_box_with_margins_full_90",
+                new Box.Builder()
+                        .setWidth(dp(50))
+                        .setHeight(dp(50))
+                        .addContent(
+                                new CircularProgressIndicator.Builder().setProgress(0.25f).build())
+                        .build());
+        testCases.put(
+                "circularprogressindicator_in_smaller_box_without_margins_full_90",
+                new Box.Builder()
+                        .setWidth(dp(50))
+                        .setHeight(dp(50))
+                        .addContent(
+                                new CircularProgressIndicator.Builder()
+                                        .setProgress(0.25f)
+                                        .setOuterMarginApplied(false)
+                                        .build())
+                        .build());
 
         testCases.put(
                 "default_text_golden" + goldenSuffix, new Text.Builder(context, "Testing").build());
         testCases.put(
-                "excluded_padding_text_golden" + goldenSuffix,
+                "not_scaled_text_golden" + NORMAL_SCALE_SUFFIX,
+                new Text.Builder(context, "Testing").setIsScalable(false).build());
+        testCases.put(
+                "scaled_with_not_scaled_text_golden" + goldenSuffix,
                 new Row.Builder()
                         .addContent(
-                                new Box.Builder()
-                                        .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
-                                        .addContent(
-                                                new Text.Builder(context, "Inc padd ")
-                                                        .setExcludeFontPadding(false)
-                                                        .setTypography(
-                                                                Typography.TYPOGRAPHY_CAPTION1)
-                                                        .build())
+                                new Text.Builder(context, "Scaled")
+                                        .setIsScalable(true)
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .build())
                         .addContent(
-                                new Box.Builder()
-                                        .setModifiers(buildBackgroundColorModifier(Color.CYAN))
-                                        .addContent(
-                                                new Text.Builder(context, "Excl padd")
-                                                        .setExcludeFontPadding(true)
-                                                        .setTypography(
-                                                                Typography.TYPOGRAPHY_CAPTION1)
-                                                        .build())
+                                new Text.Builder(context, " NotScaled")
+                                        .setIsScalable(false)
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .build())
                         .build());
+
+        return collectTestCases(testCases);
+    }
+
+    /**
+     * Generates test cases for text only material components. The text is provided in English and
+     * suitable for LTR tests. {@code _en} will be appended to the {@code goldenSuffix}.
+     */
+    @NonNull
+    static ImmutableMap<String, Layout> generateTextTestCasesLtrOnly(
+            @NonNull Context context,
+            @NonNull DeviceParameters deviceParameters,
+            @NonNull String goldenSuffix) {
+        return generateTextTestCasesForLanguage(
+                context,
+                deviceParameters,
+                goldenSuffix + "_en",
+                "Primary label",
+                "Testing text.",
+                "Very long text that won't fit in its parent box so it needs to be"
+                        + " ellipsized correctly before its last line");
+    }
+
+    /**
+     * Generates test cases for text only material components. The text is provided in Arabic and
+     * suitable for RTL tests. {@code _ar} will be appended to the {@code goldenSuffix}.
+     */
+    @NonNull
+    static ImmutableMap<String, Layout> generateTextTestCasesRtlOnly(
+            @NonNull Context context,
+            @NonNull DeviceParameters deviceParameters,
+            @NonNull String goldenSuffix) {
+        return generateTextTestCasesForLanguage(
+                context,
+                deviceParameters,
+                goldenSuffix + "_ar",
+                "التسمية الأولية",
+                "نص اختباري.",
+                "نص طويل جدًا لا يمكن احتواؤه في المربع الأصلي الخاص به، لذا يجب تغيير حجمه بشكل"
+                    + " صحيح قبل السطر الأخير");
+    }
+
+    /**
+     * This function will append goldenSuffix on the name of the golden images that should be
+     * different for different user font sizes. Note that some of the golden will have the same name
+     * as it should point on the same size independent image.
+     */
+    @NonNull
+    @SuppressWarnings("deprecation")
+    private static ImmutableMap<String, Layout> generateTextTestCasesForLanguage(
+            @NonNull Context context,
+            @NonNull DeviceParameters deviceParameters,
+            @NonNull String goldenSuffix,
+            @NonNull String primaryLabel,
+            @NonNull String shortText,
+            @NonNull String longText) {
+        HashMap<String, LayoutElement> testCases = new HashMap<>();
+        Clickable clickable =
+                new Clickable.Builder()
+                        .setOnClick(new LaunchAction.Builder().build())
+                        .setId("action_id")
+                        .build();
         testCases.put(
                 "custom_text_golden" + goldenSuffix,
-                new Text.Builder(context, "Testing text.")
+                new Text.Builder(context, shortText)
                         .setItalic(true)
                         .setColor(argb(Color.YELLOW))
                         .setWeight(LayoutElementBuilders.FONT_WEIGHT_BOLD)
                         .setTypography(Typography.TYPOGRAPHY_BODY2)
+                        .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                         .build());
         testCases.put(
                 "overflow_text_golden" + goldenSuffix,
-                new Text.Builder(context, "abcdeabcdeabcde").build());
+                new Text.Builder(context, longText)
+                        .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
+                        .build());
+        testCases.put(
+                "overflow_ellipsize_maxlines_notreached" + goldenSuffix,
+                new Box.Builder()
+                        .setWidth(dp(100))
+                        .setHeight(dp(42))
+                        .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
+                        .addContent(
+                                new Text.Builder(context, longText)
+                                        // Line height = 20sp
+                                        .setTypography(Typography.TYPOGRAPHY_BODY1)
+                                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                                        .setMultilineAlignment(
+                                                LayoutElementBuilders.TEXT_ALIGN_START)
+                                        .setMaxLines(6)
+                                        .build())
+                        .build());
+        testCases.put(
+                "overflow_ellipsize_end_maxlines_notreached" + goldenSuffix,
+                new Box.Builder()
+                        .setWidth(dp(100))
+                        .setHeight(dp(42))
+                        .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
+                        .addContent(
+                                new Text.Builder(context, longText)
+                                        // Line height = 20sp
+                                        .setTypography(Typography.TYPOGRAPHY_BODY1)
+                                        .setOverflow(
+                                                LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
+                                        .setMultilineAlignment(
+                                                LayoutElementBuilders.TEXT_ALIGN_START)
+                                        .setMaxLines(6)
+                                        .build())
+                        .build());
+        testCases.put(
+                "custom_chip_icon_primary_overflows_golden" + goldenSuffix,
+                new Chip.Builder(context, clickable, deviceParameters)
+                        .setPrimaryLabelContent(primaryLabel)
+                        .setIconContent(ICON_ID)
+                        .setWidth(150)
+                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setChipColors(
+                                new ChipColors(Color.YELLOW, Color.GREEN, Color.BLACK, Color.GRAY))
+                        .build());
+        return collectTestCases(testCases);
+    }
 
-        return testCases;
+    private static ImmutableMap<String, Layout> collectTestCases(
+            Map<String, LayoutElement> testCases) {
+        return testCases.entrySet().stream()
+                .collect(
+                        toImmutableMap(
+                                Entry::getKey,
+                                entry -> Layout.fromLayoutElement(entry.getValue())));
     }
 
     private static Modifiers buildBackgroundColorModifier(int color) {

@@ -56,9 +56,9 @@ import androidx.tv.material3.tokens.Elevation
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource a hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states.
  * @param background the background to be applied to the [WideButton]
  * @param scale Defines size of the Button relative to its original size.
  * @param glow Shadow to be shown behind the Button.
@@ -130,9 +130,9 @@ fun WideButton(
  * services.
  * @param icon the leading icon content of the button, typically an [Icon]
  * @param subtitle the subtitle content of the button, typically a [Text]
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource a hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states.
  * @param background the background to be applied to the [WideButton]
  * @param scale Defines size of the Button relative to its original size.
  * @param glow Shadow to be shown behind the Button.
@@ -234,7 +234,7 @@ private fun WideButtonImpl(
     tonalElevation: Dp,
     border: ButtonBorder,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     background: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,

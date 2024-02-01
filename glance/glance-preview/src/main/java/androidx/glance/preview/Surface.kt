@@ -22,7 +22,7 @@ import androidx.annotation.StringDef
 /**
  * The list of glance surfaces that have preview available. The list will grow as more glance
  * surfaces are added and allow the preview functionality. Items should be used as values for
- * surface parameter in [GlancePreview] annotation.
+ * surface parameter in glance [Preview] annotation.
  */
 @ExperimentalGlancePreviewApi
 object Surfaces {
@@ -33,7 +33,7 @@ object Surfaces {
 /**
  * The annotation that ensures that the variable value is strictly a recognized glance surface.
  *
- * @see GlancePreview annotation
+ * @see glance [Preview] annotation
  */
 @Retention(AnnotationRetention.SOURCE)
 @OptIn(ExperimentalGlancePreviewApi::class)

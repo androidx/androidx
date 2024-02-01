@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.triStateToggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -48,6 +47,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
@@ -80,9 +80,10 @@ import kotlin.math.max
  * services.
  * @param colors [CheckboxColors] that will be used to resolve the colors used for this checkbox in
  * different states. See [CheckboxDefaults.colors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this checkbox. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this checkbox in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this checkbox. You can use this to change the checkbox's appearance
+ * or preview the checkbox in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun Checkbox(
@@ -91,7 +92,7 @@ fun Checkbox(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: CheckboxColors = CheckboxDefaults.colors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) {
     TriStateCheckbox(
         state = ToggleableState(checked),
@@ -130,9 +131,10 @@ fun Checkbox(
  * services.
  * @param colors [CheckboxColors] that will be used to resolve the colors used for this checkbox in
  * different states. See [CheckboxDefaults.colors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this checkbox. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this checkbox in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this checkbox. You can use this to change the checkbox's appearance
+ * or preview the checkbox in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun TriStateCheckbox(
@@ -141,7 +143,7 @@ fun TriStateCheckbox(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: CheckboxColors = CheckboxDefaults.colors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) {
     val toggleableModifier =
         if (onClick != null) {
@@ -151,7 +153,7 @@ fun TriStateCheckbox(
                 enabled = enabled,
                 role = Role.Checkbox,
                 interactionSource = interactionSource,
-                indication = rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = CheckboxTokens.StateLayerSize / 2
                 )
@@ -183,6 +185,13 @@ object CheckboxDefaults {
     /**
      * Creates a [CheckboxColors] that will animate between the provided colors according to the
      * Material specification.
+     */
+    @Composable
+    fun colors() = MaterialTheme.colorScheme.defaultCheckboxColors
+
+    /**
+     * Creates a [CheckboxColors] that will animate between the provided colors according to the
+     * Material specification.
      *
      * @param checkedColor the color that will be used for the border and box when checked
      * @param uncheckedColor color that will be used for the border when unchecked. By default, the
@@ -197,15 +206,13 @@ object CheckboxDefaults {
      */
     @Composable
     fun colors(
-        checkedColor: Color = CheckboxTokens.SelectedContainerColor.value,
-        uncheckedColor: Color = CheckboxTokens.UnselectedOutlineColor.value,
-        checkmarkColor: Color = CheckboxTokens.SelectedIconColor.value,
-        disabledCheckedColor: Color = CheckboxTokens.SelectedDisabledContainerColor.value
-            .copy(alpha = CheckboxTokens.SelectedDisabledContainerOpacity),
-        disabledUncheckedColor: Color = CheckboxTokens.UnselectedDisabledOutlineColor.value
-            .copy(alpha = CheckboxTokens.UnselectedDisabledContainerOpacity),
-        disabledIndeterminateColor: Color = disabledCheckedColor
-    ): CheckboxColors = CheckboxColors(
+        checkedColor: Color = Color.Unspecified,
+        uncheckedColor: Color = Color.Unspecified,
+        checkmarkColor: Color = Color.Unspecified,
+        disabledCheckedColor: Color = Color.Unspecified,
+        disabledUncheckedColor: Color = Color.Unspecified,
+        disabledIndeterminateColor: Color = Color.Unspecified
+    ): CheckboxColors = MaterialTheme.colorScheme.defaultCheckboxColors.copy(
         checkedCheckmarkColor = checkmarkColor,
         uncheckedCheckmarkColor = Color.Transparent,
         checkedBoxColor = checkedColor,
@@ -219,6 +226,34 @@ object CheckboxDefaults {
         disabledUncheckedBorderColor = disabledUncheckedColor,
         disabledIndeterminateBorderColor = disabledIndeterminateColor
     )
+
+    internal val ColorScheme.defaultCheckboxColors: CheckboxColors
+        get() {
+            return defaultCheckboxColorsCached ?: CheckboxColors(
+                checkedCheckmarkColor = fromToken(CheckboxTokens.SelectedIconColor),
+                uncheckedCheckmarkColor = Color.Transparent,
+                checkedBoxColor = fromToken(CheckboxTokens.SelectedContainerColor),
+                uncheckedBoxColor = Color.Transparent,
+                disabledCheckedBoxColor = fromToken(CheckboxTokens.SelectedDisabledContainerColor)
+                    .copy(alpha = CheckboxTokens.SelectedDisabledContainerOpacity),
+                disabledUncheckedBoxColor = Color.Transparent,
+                disabledIndeterminateBoxColor =
+                fromToken(CheckboxTokens.SelectedDisabledContainerColor)
+                    .copy(alpha = CheckboxTokens.SelectedDisabledContainerOpacity),
+                checkedBorderColor = fromToken(CheckboxTokens.SelectedContainerColor),
+                uncheckedBorderColor = fromToken(CheckboxTokens.UnselectedOutlineColor),
+                disabledBorderColor = fromToken(CheckboxTokens.SelectedDisabledContainerColor)
+                    .copy(alpha = CheckboxTokens.SelectedDisabledContainerOpacity),
+                disabledUncheckedBorderColor =
+                fromToken(CheckboxTokens.UnselectedDisabledOutlineColor)
+                    .copy(alpha = CheckboxTokens.UnselectedDisabledContainerOpacity),
+                disabledIndeterminateBorderColor =
+                fromToken(CheckboxTokens.SelectedDisabledContainerColor)
+                    .copy(alpha = CheckboxTokens.SelectedDisabledContainerOpacity)
+            ).also {
+                defaultCheckboxColorsCached = it
+            }
+        }
 }
 
 @Composable
@@ -402,6 +437,38 @@ class CheckboxColors constructor(
     val disabledUncheckedBorderColor: Color,
     val disabledIndeterminateBorderColor: Color
 ) {
+    /**
+     * Returns a copy of this CheckboxColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        checkedCheckmarkColor: Color = this.checkedCheckmarkColor,
+        uncheckedCheckmarkColor: Color = this.uncheckedCheckmarkColor,
+        checkedBoxColor: Color = this.checkedBoxColor,
+        uncheckedBoxColor: Color = this.uncheckedBoxColor,
+        disabledCheckedBoxColor: Color = this.disabledCheckedBoxColor,
+        disabledUncheckedBoxColor: Color = this.disabledUncheckedBoxColor,
+        disabledIndeterminateBoxColor: Color = this.disabledIndeterminateBoxColor,
+        checkedBorderColor: Color = this.checkedBorderColor,
+        uncheckedBorderColor: Color = this.uncheckedBorderColor,
+        disabledBorderColor: Color = this.disabledBorderColor,
+        disabledUncheckedBorderColor: Color = this.disabledUncheckedBorderColor,
+        disabledIndeterminateBorderColor: Color = this.disabledIndeterminateBorderColor
+    ) = CheckboxColors(
+        checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
+        uncheckedCheckmarkColor.takeOrElse { this.uncheckedCheckmarkColor },
+        checkedBoxColor.takeOrElse { this.checkedBoxColor },
+        uncheckedBoxColor.takeOrElse { this.uncheckedBoxColor },
+        disabledCheckedBoxColor.takeOrElse { this.disabledCheckedBoxColor },
+        disabledUncheckedBoxColor.takeOrElse { this.disabledUncheckedBoxColor },
+        disabledIndeterminateBoxColor.takeOrElse { this.disabledIndeterminateBoxColor },
+        checkedBorderColor.takeOrElse { this.checkedBorderColor },
+        uncheckedBorderColor.takeOrElse { this.uncheckedBorderColor },
+        disabledBorderColor.takeOrElse { this.disabledBorderColor },
+        disabledUncheckedBorderColor.takeOrElse { this.disabledUncheckedBorderColor },
+        disabledIndeterminateBorderColor.takeOrElse { this.disabledIndeterminateBorderColor },
+    )
+
     /**
      * Represents the color used for the checkmark inside the checkbox, depending on [state].
      *

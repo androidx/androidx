@@ -122,6 +122,12 @@ open class Subject<out T>(
 
     // TODO(KT-20427): Only needed to enable extensions in internal sources.
     @Suppress("NOTHING_TO_INLINE")
+    internal inline fun failWithActualInternal(key: String, value: Any? = null): Nothing {
+        failWithActual(key = key, value = value)
+    }
+
+    // TODO(KT-20427): Only needed to enable extensions in internal sources.
+    @Suppress("NOTHING_TO_INLINE")
     internal inline fun failWithActualInternal(vararg facts: Fact): Nothing {
         failWithActual(*facts)
     }
@@ -190,18 +196,16 @@ open class Subject<out T>(
     }
 
     private fun Any?.standardIsEqualTo(expected: Any?) {
-        metadata.assertTrue(
-            compareForEquality(expected),
-            "expected: ${expected.toStringForAssert()} but was: ${toStringForAssert()}",
-        )
+        metadata.assertTrue(compareForEquality(expected)) {
+            "expected: ${expected.toStringForAssert()} but was: ${toStringForAssert()}"
+        }
     }
 
     private fun Any?.standardIsNotEqualTo(unexpected: Any?) {
-        metadata.assertFalse(
-            compareForEquality(unexpected),
+        metadata.assertFalse(compareForEquality(unexpected)) {
             "expected ${toStringForAssert()} not be equal to ${unexpected.toStringForAssert()}, " +
-                "but it was",
-        )
+                "but it was"
+        }
     }
 
     /**

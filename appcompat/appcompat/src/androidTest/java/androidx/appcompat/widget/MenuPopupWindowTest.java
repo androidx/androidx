@@ -19,11 +19,11 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListView;
 
-import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -52,7 +52,7 @@ public class MenuPopupWindowTest {
         final Resources res = mActivity.getResources();
         final Configuration config = res.getConfiguration();
         if (Build.VERSION.SDK_INT >= 17
-                && ViewCompat.LAYOUT_DIRECTION_RTL == config.getLayoutDirection()) {
+                && View.LAYOUT_DIRECTION_RTL == config.getLayoutDirection()) {
             mRetreatEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT);
         } else {
             mRetreatEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT);

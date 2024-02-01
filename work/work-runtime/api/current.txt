@@ -29,7 +29,9 @@ package androidx.work {
     method public androidx.work.RunnableScheduler getRunnableScheduler();
     method public androidx.core.util.Consumer<java.lang.Throwable>? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
+    method public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? getWorkerExecutionExceptionHandler();
     method public androidx.work.WorkerFactory getWorkerFactory();
+    method public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? getWorkerInitializationExceptionHandler();
     property public final androidx.work.Clock clock;
     property public final int contentUriTriggerWorkersLimit;
     property public final String? defaultProcessName;
@@ -41,7 +43,9 @@ package androidx.work {
     property public final androidx.work.RunnableScheduler runnableScheduler;
     property public final androidx.core.util.Consumer<java.lang.Throwable>? schedulingExceptionHandler;
     property public final java.util.concurrent.Executor taskExecutor;
+    property public final androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerExecutionExceptionHandler;
     property public final androidx.work.WorkerFactory workerFactory;
+    property public final androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerInitializationExceptionHandler;
     field public static final androidx.work.Configuration.Companion Companion;
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
   }
@@ -61,7 +65,9 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler runnableScheduler);
     method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> schedulingExceptionHandler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor taskExecutor);
+    method public androidx.work.Configuration.Builder setWorkerExecutionExceptionHandler(androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo> workerExceptionHandler);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory workerFactory);
+    method public androidx.work.Configuration.Builder setWorkerInitializationExceptionHandler(androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo> workerExceptionHandler);
   }
 
   public static final class Configuration.Companion {
@@ -76,10 +82,11 @@ package androidx.work {
     ctor public Constraints(androidx.work.Constraints other);
     ctor @androidx.room.Ignore public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow);
     ctor @RequiresApi(23) @androidx.room.Ignore public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresDeviceIdle, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow);
-    ctor @RequiresApi(24) public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresDeviceIdle, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow, optional long contentTriggerUpdateDelayMillis, optional long contentTriggerMaxDelayMillis, optional java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers);
+    ctor @RequiresApi(24) @androidx.room.Ignore public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresDeviceIdle, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow, optional long contentTriggerUpdateDelayMillis, optional long contentTriggerMaxDelayMillis, optional java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers);
     method @RequiresApi(24) public long getContentTriggerMaxDelayMillis();
     method @RequiresApi(24) public long getContentTriggerUpdateDelayMillis();
     method @RequiresApi(24) public java.util.Set<androidx.work.Constraints.ContentUriTrigger> getContentUriTriggers();
+    method @RequiresApi(21) public android.net.NetworkRequest? getRequiredNetworkRequest();
     method public androidx.work.NetworkType getRequiredNetworkType();
     method public boolean requiresBatteryNotLow();
     method public boolean requiresCharging();
@@ -88,6 +95,7 @@ package androidx.work {
     property @RequiresApi(24) public final long contentTriggerMaxDelayMillis;
     property @RequiresApi(24) public final long contentTriggerUpdateDelayMillis;
     property @RequiresApi(24) public final java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers;
+    property @RequiresApi(21) public final android.net.NetworkRequest? requiredNetworkRequest;
     property public final androidx.work.NetworkType requiredNetworkType;
     field public static final androidx.work.Constraints.Companion Companion;
     field public static final androidx.work.Constraints NONE;
@@ -97,6 +105,7 @@ package androidx.work {
     ctor public Constraints.Builder();
     method @RequiresApi(24) public androidx.work.Constraints.Builder addContentUriTrigger(android.net.Uri uri, boolean triggerForDescendants);
     method public androidx.work.Constraints build();
+    method @RequiresApi(21) public androidx.work.Constraints.Builder setRequiredNetworkRequest(android.net.NetworkRequest networkRequest, androidx.work.NetworkType networkType);
     method public androidx.work.Constraints.Builder setRequiredNetworkType(androidx.work.NetworkType networkType);
     method public androidx.work.Constraints.Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow);
     method public androidx.work.Constraints.Builder setRequiresCharging(boolean requiresCharging);
@@ -133,25 +142,27 @@ package androidx.work {
   }
 
   public final class Data {
-    ctor public Data(androidx.work.Data);
-    method @androidx.room.TypeConverter public static androidx.work.Data fromByteArray(byte[]);
-    method public boolean getBoolean(String, boolean);
-    method public boolean[]? getBooleanArray(String);
-    method public byte getByte(String, byte);
-    method public byte[]? getByteArray(String);
-    method public double getDouble(String, double);
-    method public double[]? getDoubleArray(String);
-    method public float getFloat(String, float);
-    method public float[]? getFloatArray(String);
-    method public int getInt(String, int);
-    method public int[]? getIntArray(String);
-    method public java.util.Map<java.lang.String!,java.lang.Object!> getKeyValueMap();
-    method public long getLong(String, long);
-    method public long[]? getLongArray(String);
-    method public String? getString(String);
-    method public String![]? getStringArray(String);
-    method public <T> boolean hasKeyWithValueOfType(String, Class<T!>);
+    ctor public Data(androidx.work.Data other);
+    method @androidx.room.TypeConverter public static androidx.work.Data fromByteArray(byte[] bytes);
+    method public boolean getBoolean(String key, boolean defaultValue);
+    method public boolean[]? getBooleanArray(String key);
+    method public byte getByte(String key, byte defaultValue);
+    method public byte[]? getByteArray(String key);
+    method public double getDouble(String key, double defaultValue);
+    method public double[]? getDoubleArray(String key);
+    method public float getFloat(String key, float defaultValue);
+    method public float[]? getFloatArray(String key);
+    method public int getInt(String key, int defaultValue);
+    method public int[]? getIntArray(String key);
+    method public java.util.Map<java.lang.String,java.lang.Object> getKeyValueMap();
+    method public long getLong(String key, long defaultValue);
+    method public long[]? getLongArray(String key);
+    method public String? getString(String key);
+    method public String[]? getStringArray(String key);
+    method public <T> boolean hasKeyWithValueOfType(String key, Class<T> klass);
     method public byte[] toByteArray();
+    property public final java.util.Map<java.lang.String,java.lang.Object> keyValueMap;
+    field public static final androidx.work.Data.Companion Companion;
     field public static final androidx.work.Data EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
   }
@@ -159,22 +170,26 @@ package androidx.work {
   public static final class Data.Builder {
     ctor public Data.Builder();
     method public androidx.work.Data build();
-    method public androidx.work.Data.Builder putAll(androidx.work.Data);
-    method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String!,java.lang.Object!>);
-    method public androidx.work.Data.Builder putBoolean(String, boolean);
-    method public androidx.work.Data.Builder putBooleanArray(String, boolean[]);
-    method public androidx.work.Data.Builder putByte(String, byte);
-    method public androidx.work.Data.Builder putByteArray(String, byte[]);
-    method public androidx.work.Data.Builder putDouble(String, double);
-    method public androidx.work.Data.Builder putDoubleArray(String, double[]);
-    method public androidx.work.Data.Builder putFloat(String, float);
-    method public androidx.work.Data.Builder putFloatArray(String, float[]);
-    method public androidx.work.Data.Builder putInt(String, int);
-    method public androidx.work.Data.Builder putIntArray(String, int[]);
-    method public androidx.work.Data.Builder putLong(String, long);
-    method public androidx.work.Data.Builder putLongArray(String, long[]);
-    method public androidx.work.Data.Builder putString(String, String?);
-    method public androidx.work.Data.Builder putStringArray(String, String![]);
+    method public androidx.work.Data.Builder putAll(androidx.work.Data data);
+    method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String,?> values);
+    method public androidx.work.Data.Builder putBoolean(String key, boolean value);
+    method public androidx.work.Data.Builder putBooleanArray(String key, boolean[] value);
+    method public androidx.work.Data.Builder putByte(String key, byte value);
+    method public androidx.work.Data.Builder putByteArray(String key, byte[] value);
+    method public androidx.work.Data.Builder putDouble(String key, double value);
+    method public androidx.work.Data.Builder putDoubleArray(String key, double[] value);
+    method public androidx.work.Data.Builder putFloat(String key, float value);
+    method public androidx.work.Data.Builder putFloatArray(String key, float[] value);
+    method public androidx.work.Data.Builder putInt(String key, int value);
+    method public androidx.work.Data.Builder putIntArray(String key, int[] value);
+    method public androidx.work.Data.Builder putLong(String key, long value);
+    method public androidx.work.Data.Builder putLongArray(String key, long[] value);
+    method public androidx.work.Data.Builder putString(String key, String? value);
+    method public androidx.work.Data.Builder putStringArray(String key, String?[] value);
+  }
+
+  public static final class Data.Companion {
+    method @androidx.room.TypeConverter public androidx.work.Data fromByteArray(byte[] bytes);
   }
 
   public final class DataKt {
@@ -184,8 +199,8 @@ package androidx.work {
 
   public class DelegatingWorkerFactory extends androidx.work.WorkerFactory {
     ctor public DelegatingWorkerFactory();
-    method public final void addFactory(androidx.work.WorkerFactory);
-    method public final androidx.work.ListenableWorker? createWorker(android.content.Context, String, androidx.work.WorkerParameters);
+    method public final void addFactory(androidx.work.WorkerFactory workerFactory);
+    method public final androidx.work.ListenableWorker? createWorker(android.content.Context appContext, String workerClassName, androidx.work.WorkerParameters workerParameters);
   }
 
   public enum ExistingPeriodicWorkPolicy {
@@ -331,9 +346,9 @@ package androidx.work {
 
   public static final class PeriodicWorkRequest.Builder extends androidx.work.WorkRequest.Builder<androidx.work.PeriodicWorkRequest.Builder,androidx.work.PeriodicWorkRequest> {
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval);
-    ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
-    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
-    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
+    ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
+    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
+    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
     method public androidx.work.PeriodicWorkRequest.Builder clearNextScheduleTimeOverride();
     method public androidx.work.PeriodicWorkRequest.Builder setNextScheduleTimeOverride(long nextScheduleTimeOverrideMillis);
   }
@@ -457,7 +472,7 @@ package androidx.work {
     method public abstract androidx.work.Operation cancelWorkById(java.util.UUID);
     method public abstract android.app.PendingIntent createCancelPendingIntent(java.util.UUID);
     method public final androidx.work.Operation enqueue(androidx.work.WorkRequest);
-    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest>);
+    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest!>);
     method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
     method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
@@ -493,34 +508,58 @@ package androidx.work {
   public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager> {
     ctor public WorkManagerInitializer();
     method public androidx.work.WorkManager create(android.content.Context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>!>!> dependencies();
   }
 
   public final class WorkQuery {
-    method public static androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID!>);
-    method public static androidx.work.WorkQuery fromIds(java.util.UUID!...);
-    method public static androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State!...);
-    method public static androidx.work.WorkQuery fromStates(java.util.List<androidx.work.WorkInfo.State!>);
-    method public static androidx.work.WorkQuery fromTags(java.lang.String!...);
-    method public static androidx.work.WorkQuery fromTags(java.util.List<java.lang.String!>);
-    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.lang.String!...);
-    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.util.List<java.lang.String!>);
-    method public java.util.List<java.util.UUID!> getIds();
-    method public java.util.List<androidx.work.WorkInfo.State!> getStates();
-    method public java.util.List<java.lang.String!> getTags();
-    method public java.util.List<java.lang.String!> getUniqueWorkNames();
+    method public static androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID> ids);
+    method public static androidx.work.WorkQuery fromIds(java.util.UUID... ids);
+    method public static androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State... states);
+    method public static androidx.work.WorkQuery fromStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public static androidx.work.WorkQuery fromTags(java.lang.String... tags);
+    method public static androidx.work.WorkQuery fromTags(java.util.List<java.lang.String> tags);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.lang.String... uniqueWorkNames);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
+    method public java.util.List<java.util.UUID> getIds();
+    method public java.util.List<androidx.work.WorkInfo.State> getStates();
+    method public java.util.List<java.lang.String> getTags();
+    method public java.util.List<java.lang.String> getUniqueWorkNames();
+    property public final java.util.List<java.util.UUID> ids;
+    property public final java.util.List<androidx.work.WorkInfo.State> states;
+    property public final java.util.List<java.lang.String> tags;
+    property public final java.util.List<java.lang.String> uniqueWorkNames;
+    field public static final androidx.work.WorkQuery.Companion Companion;
   }
 
   public static final class WorkQuery.Builder {
-    method public androidx.work.WorkQuery.Builder addIds(java.util.List<java.util.UUID!>);
-    method public androidx.work.WorkQuery.Builder addStates(java.util.List<androidx.work.WorkInfo.State!>);
-    method public androidx.work.WorkQuery.Builder addTags(java.util.List<java.lang.String!>);
-    method public androidx.work.WorkQuery.Builder addUniqueWorkNames(java.util.List<java.lang.String!>);
+    method public androidx.work.WorkQuery.Builder addIds(java.util.List<java.util.UUID> ids);
+    method public androidx.work.WorkQuery.Builder addStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public androidx.work.WorkQuery.Builder addTags(java.util.List<java.lang.String> tags);
+    method public androidx.work.WorkQuery.Builder addUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
     method public androidx.work.WorkQuery build();
-    method public static androidx.work.WorkQuery.Builder fromIds(java.util.List<java.util.UUID!>);
-    method public static androidx.work.WorkQuery.Builder fromStates(java.util.List<androidx.work.WorkInfo.State!>);
-    method public static androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String!>);
-    method public static androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery.Builder fromIds(java.util.List<java.util.UUID> ids);
+    method public static androidx.work.WorkQuery.Builder fromStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public static androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String> tags);
+    method public static androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
+    field public static final androidx.work.WorkQuery.Builder.Companion Companion;
+  }
+
+  public static final class WorkQuery.Builder.Companion {
+    method public androidx.work.WorkQuery.Builder fromIds(java.util.List<java.util.UUID> ids);
+    method public androidx.work.WorkQuery.Builder fromStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String> tags);
+    method public androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
+  }
+
+  public static final class WorkQuery.Companion {
+    method public androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID> ids);
+    method public androidx.work.WorkQuery fromIds(java.util.UUID... ids);
+    method public androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State... states);
+    method public androidx.work.WorkQuery fromStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public androidx.work.WorkQuery fromTags(java.lang.String... tags);
+    method public androidx.work.WorkQuery fromTags(java.util.List<java.lang.String> tags);
+    method public androidx.work.WorkQuery fromUniqueWorkNames(java.lang.String... uniqueWorkNames);
+    method public androidx.work.WorkQuery fromUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
   }
 
   public abstract class WorkRequest {
@@ -551,15 +590,25 @@ package androidx.work {
   }
 
   public abstract class Worker extends androidx.work.ListenableWorker {
-    ctor public Worker(android.content.Context, androidx.work.WorkerParameters);
+    ctor public Worker(android.content.Context context, androidx.work.WorkerParameters workerParams);
     method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
     method @WorkerThread public androidx.work.ForegroundInfo getForegroundInfo();
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
+  }
+
+  public final class WorkerExceptionInfo {
+    ctor public WorkerExceptionInfo(String workerClassName, androidx.work.WorkerParameters workerParameters, Throwable throwable);
+    method public Throwable getThrowable();
+    method public String getWorkerClassName();
+    method public androidx.work.WorkerParameters getWorkerParameters();
+    property public final Throwable throwable;
+    property public final String workerClassName;
+    property public final androidx.work.WorkerParameters workerParameters;
   }
 
   public abstract class WorkerFactory {
     ctor public WorkerFactory();
-    method public abstract androidx.work.ListenableWorker? createWorker(android.content.Context, String, androidx.work.WorkerParameters);
+    method public abstract androidx.work.ListenableWorker? createWorker(android.content.Context appContext, String workerClassName, androidx.work.WorkerParameters workerParameters);
   }
 
   public final class WorkerParameters {

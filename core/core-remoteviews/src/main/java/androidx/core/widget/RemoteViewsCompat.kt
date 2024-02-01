@@ -728,8 +728,7 @@ public object RemoteViewsCompat {
     @JvmStatic
     public fun RemoteViews.setImageViewImageAlpha(@IdRes viewId: Int, alpha: Int) {
         // Note: setImageAlpha was added and is preferred to setAlpha since API 16.
-        val methodName = if (Build.VERSION.SDK_INT >= 16) "setImageAlpha" else "setAlpha"
-        setInt(viewId, methodName, alpha)
+        setInt(viewId, "setImageAlpha", alpha)
     }
 
     /**
@@ -1915,7 +1914,6 @@ public object RemoteViewsCompat {
      * @param format A date/time formatting pattern as described in
      * [android.text.format.DateFormat].
      */
-    @RequiresApi(17)
     @JvmStatic
     public fun RemoteViews.setTextClockFormat12Hour(@IdRes viewId: Int, format: CharSequence?) {
         requireSdk(17, "setFormat12Hour")
@@ -1955,7 +1953,6 @@ public object RemoteViewsCompat {
      * @param format A date/time formatting pattern as described in
      * [android.text.format.DateFormat].
      */
-    @RequiresApi(17)
     @JvmStatic
     public fun RemoteViews.setTextClockFormat24Hour(@IdRes viewId: Int, format: CharSequence?) {
         requireSdk(17, "setFormat24Hour")
@@ -1995,7 +1992,6 @@ public object RemoteViewsCompat {
      * @param timeZone The desired time zone's ID as specified in [java.util.TimeZone] or null to
      * use the time zone specified by the user (system time zone).
      */
-    @RequiresApi(17)
     @JvmStatic
     public fun RemoteViews.setTextClockTimeZone(@IdRes viewId: Int, timeZone: String?) {
         requireSdk(17, "setTimeZone")
@@ -2032,7 +2028,6 @@ public object RemoteViewsCompat {
      * @param viewId The id of the target view
      * @param pad The padding between the compound drawables and the text, in pixels.
      */
-    @RequiresApi(16)
     @JvmStatic
     public fun RemoteViews.setTextViewCompoundDrawablePadding(@IdRes viewId: Int, @Px pad: Int) {
         requireSdk(16, "setCompoundDrawablePadding")
@@ -3362,7 +3357,6 @@ public object RemoteViewsCompat {
      * [android.view.View.LAYOUT_DIRECTION_RTL], [android.view.View.LAYOUT_DIRECTION_INHERIT], or
      * [android.view.View.LAYOUT_DIRECTION_LOCALE].
      */
-    @RequiresApi(17)
     @JvmStatic
     public fun RemoteViews.setViewLayoutDirection(@IdRes viewId: Int, layoutDirection: Int) {
         requireSdk(17, "setLayoutDirection")
@@ -3610,7 +3604,6 @@ public object RemoteViewsCompat {
      * @param inflatedId A positive integer used to identify the inflated view or
      * [android.view.View.NO_ID] if the inflated view should keep its id.
      */
-    @RequiresApi(16)
     @JvmStatic
     public fun RemoteViews.setViewStubInflatedId(@IdRes viewId: Int, inflatedId: Int) {
         requireSdk(16, "setInflatedId")
@@ -3625,7 +3618,6 @@ public object RemoteViewsCompat {
      * @param viewId The id of the target view
      * @param layoutResource A valid layout resource identifier (different from 0).
      */
-    @RequiresApi(16)
     @JvmStatic
     public fun RemoteViews.setViewStubLayoutResource(
         @IdRes viewId: Int,

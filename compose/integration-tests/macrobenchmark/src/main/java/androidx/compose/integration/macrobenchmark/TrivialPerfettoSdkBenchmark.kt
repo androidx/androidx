@@ -50,7 +50,10 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
     @Test
     fun test_composable_names_present_in_trace() {
         val metrics = listOf(
-            TraceSectionMetric("%$PACKAGE_NAME.$composableName %$FILE_NAME:%")
+            TraceSectionMetric(
+                "%$PACKAGE_NAME.$composableName %$FILE_NAME:%",
+                mode = TraceSectionMetric.Mode.First
+            )
         )
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,

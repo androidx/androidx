@@ -16,11 +16,15 @@
 
 package androidx.compose.testutils.benchmark
 
+import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.annotation.UiThread
+import androidx.annotation.WorkerThread
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.benchmark.junit4.measureRepeatedOnMainThread
 import androidx.compose.testutils.ComposeBenchmarkScope
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
@@ -71,28 +75,36 @@ class ComposeBenchmarkRule internal constructor(
     /**
      * Runs benchmark for the given [ComposeTestCase].
      *
-     * Note that benchmark by default runs on the ui thread and disposes composition afterwards.
+     * Note that UI setup and benchmark measurements must be explicitly scheduled to the UI thread,
+     * as the block runs on the current (test) thread.
      *
      * @param givenTestCase The test case to be executed
      * @param block The benchmark instruction to be performed over the given test case
      */
     fun <T : ComposeTestCase> runBenchmarkFor(
         givenTestCase: () -> T,
+        @WorkerThread
         block: ComposeBenchmarkScope<T>.() -> Unit
     ) {
+        check(Looper.myLooper() != Looper.getMainLooper()) {
+            "Cannot invoke runBenchmarkFor from the main thread"
+        }
         require(givenTestCase !is AndroidTestCase) {
             "Expected ${ComposeTestCase::class.simpleName}!"
         }
 
-        activityTestRule.runOnUiThread {
-            // TODO(pavlis): Assert that there is no existing composition before we run benchmark
-            val runner = createAndroidComposeBenchmarkRunner(
+        lateinit var runner: ComposeBenchmarkScope<T>
+        runOnUiThread {
+            runner = createAndroidComposeBenchmarkRunner(
                 givenTestCase,
                 activityTestRule.activity
             )
-            try {
-                block(runner)
-            } finally {
+        }
+
+        try {
+            block(runner)
+        } finally {
+            runOnUiThread {
                 runner.disposeContent()
                 runner.close()
             }
@@ -101,9 +113,25 @@ class ComposeBenchmarkRule internal constructor(
 
     /**
      * Convenience proxy for [BenchmarkRule.measureRepeated].
+     *
+     * Should not be used for UI work.
      */
-    fun measureRepeated(block: BenchmarkRule.Scope.() -> Unit) {
+    fun measureRepeated(
+        @WorkerThread
+        block: BenchmarkRule.Scope.() -> Unit
+    ) {
         benchmarkRule.measureRepeated(block)
+    }
+
+    /**
+     * Convenience proxy for [BenchmarkRule.measureRepeatedOnMainThread].
+     */
+    @WorkerThread
+    fun measureRepeatedOnUiThread(
+        @UiThread
+        block: BenchmarkRule.Scope.() -> Unit
+    ) {
+        benchmarkRule.measureRepeatedOnMainThread(block)
     }
 
     /**

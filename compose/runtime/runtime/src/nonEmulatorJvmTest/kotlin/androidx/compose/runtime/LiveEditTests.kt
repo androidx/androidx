@@ -17,6 +17,8 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.mock.Text
+import androidx.compose.runtime.mock.View
+import androidx.compose.runtime.mock.ViewApplier
 import androidx.compose.runtime.mock.compositionTest
 import org.junit.After
 import org.junit.Assert
@@ -38,11 +40,13 @@ class LiveEditTests {
     }
 
     @Test
-    fun testRestartableFunctionPreservesParentAndSiblingState() = liveEditTest {
+    fun testRestartableFunctionPreservesParentAndSiblingState() = liveEditTest(
+        collectSourceInformation = SourceInfo.Collect
+    ) {
         EnsureStatePreservedAndNotRecomposed("a")
         RestartGroup {
             Text("Hello World")
-            EnsureStatePreservedAndNotRecomposed("b")
+            EnsureStatePreservedButRecomposed("b")
             Target("c")
         }
     }
@@ -60,12 +64,14 @@ class LiveEditTests {
     }
 
     @Test
-    fun testMultipleFunctionPreservesParentAndSiblingState() = liveEditTest {
-        EnsureStatePreservedAndNotRecomposed("a")
+    fun testMultipleFunctionPreservesParentAndSiblingState() = liveEditTest(
+        collectSourceInformation = SourceInfo.Collect
+    ) {
+        EnsureStatePreservedButRecomposed("a")
         Target("b")
         RestartGroup {
             Text("Hello World")
-            EnsureStatePreservedAndNotRecomposed("c")
+            EnsureStatePreservedButRecomposed("c")
             Target("d")
             Target("e")
         }
@@ -73,11 +79,13 @@ class LiveEditTests {
     }
 
     @Test
-    fun testChildGroupStateIsDestroyed() = liveEditTest {
+    fun testChildGroupStateIsDestroyed() = liveEditTest(
+        collectSourceInformation = SourceInfo.Collect
+    ) {
         EnsureStatePreservedAndNotRecomposed("a")
         RestartGroup {
             Text("Hello World")
-            EnsureStatePreservedAndNotRecomposed("b")
+            EnsureStatePreservedButRecomposed("b")
             Target("c") {
                 Text("Hello World")
                 EnsureStateLost("d")
@@ -86,11 +94,13 @@ class LiveEditTests {
     }
 
     @Test
-    fun testTargetWithinTarget() = liveEditTest {
+    fun testTargetWithinTarget() = liveEditTest(
+        collectSourceInformation = SourceInfo.Collect
+    ) {
         EnsureStatePreservedAndNotRecomposed("a")
         RestartGroup {
             Text("Hello World")
-            EnsureStatePreservedAndNotRecomposed("b")
+            EnsureStatePreservedButRecomposed("b")
             Target("c") {
                 Text("Hello World")
                 EnsureStateLost("d")
@@ -105,7 +115,7 @@ class LiveEditTests {
     fun testNonRestartableFunctionPreservesParentAndSiblingState() = liveEditTest(
         collectSourceInformation = SourceInfo.None
     ) {
-        EnsureStatePreservedButRecomposed("a")
+        EnsureStatePreservedAndNotRecomposed("a")
         RestartGroup {
             Text("Hello World")
             EnsureStatePreservedButRecomposed("b")
@@ -453,9 +463,9 @@ class LiveEditTests {
                     recomposeCount++
                     Expect(
                         "movable",
-                        compose = 4,
-                        onRememberd = 3,
-                        onForgotten = 2,
+                        compose = 2,
+                        onRememberd = 1,
+                        onForgotten = 0,
                         onAbandoned = 1
                     )
 
@@ -479,6 +489,50 @@ class LiveEditTests {
                 if (recomposeCount > 0) {
                     content()
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testThrowing_inSubcomposition() {
+        /*
+         * This test verifies that crashing one subcomposition does not affect future invalidation
+         * of others.
+         * We reload two times, invalidating main composition and each subcomposition scopes.
+         * Second subcomposition crashes on reload (recomposeCount == 2), resulting in unapplied
+         * changes. After we reload, we should successfully compose all compositions, as applied
+         * changes were cleared after recompose loop has exited prematurely.
+         */
+
+        var recomposeCount = 0
+        val content: @Composable LiveEditTestScope.() -> Unit = @Composable {
+            MarkAsTarget()
+            remember { Any() }
+        }
+        val crashyContent: @Composable LiveEditTestScope.() -> Unit = @Composable {
+            MarkAsTarget()
+            remember { Any() }
+            if (recomposeCount == 2) {
+                throw IllegalArgumentException("throwInSubcompose")
+            }
+        }
+
+        liveEditTest(
+            reloadCount = 2,
+            collectSourceInformation = SourceInfo.None
+        ) {
+            expectError("throwInSubcompose", 1)
+
+            RestartGroup {
+                MarkAsTarget()
+                recomposeCount++
+            }
+
+            Subcompose {
+                content()
+            }
+            Subcompose {
+                crashyContent()
             }
         }
     }
@@ -581,6 +635,18 @@ fun LiveEditTestScope.Expect(
         onAbandoned = 0,
     )
     content()
+}
+
+@Composable
+fun LiveEditTestScope.Subcompose(
+    content: @Composable () -> Unit
+): Composition {
+    val context = rememberCompositionContext()
+    return remember(context) {
+        Composition(ViewApplier(View()), context).apply {
+            setContent(content)
+        }
+    }
 }
 
 @Composable
@@ -711,7 +777,7 @@ class LiveEditTestScope {
     fun expectLogCount(ref: String, msg: String, expected: Int) {
         addCheck {
             val logs = logs.filter { it.first == ref }.map { it.second }.toList()
-            val actual = logs.filter { m -> m == msg }.count()
+            val actual = logs.count { m -> m == msg }
             Assert.assertEquals(
                 "Ref '$ref' had an unexpected # of '$msg' logs",
                 expected,

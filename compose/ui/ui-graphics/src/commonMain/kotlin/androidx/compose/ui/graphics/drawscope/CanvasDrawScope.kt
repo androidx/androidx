@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQuality
+import androidx.compose.ui.graphics.requirePrecondition
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -738,7 +739,7 @@ private fun DrawContext.asDrawTransform(): DrawTransform = object : DrawTransfor
     override fun inset(left: Float, top: Float, right: Float, bottom: Float) {
         this@asDrawTransform.canvas.let {
             val updatedSize = Size(size.width - (left + right), size.height - (top + bottom))
-            require(updatedSize.width >= 0 && updatedSize.height >= 0) {
+            requirePrecondition(updatedSize.width >= 0 && updatedSize.height >= 0) {
                 "Width and height must be greater than or equal to zero"
             }
             this@asDrawTransform.size = updatedSize

@@ -36,31 +36,29 @@ class SourceJarTaskHelperTest {
         jvmMain.dependsOn(extraMain)
 
         val result = createSourceSetMetadata(extension)
-        assertThat(result).isEqualTo("""
-        {
-          "sourceSets": [
-            {
-              "name": "commonMain",
-              "dependencies": [],
-              "analysisPlatform": "common"
-            },
-            {
-              "name": "extraMain",
-              "dependencies": [
+        assertThat(result).isEqualTo(mapOf(
+          "sourceSets" to listOf(
+            mapOf(
+              "name" to "commonMain",
+              "dependencies" to emptyList<String>(),
+              "analysisPlatform" to "common"
+            ),
+            mapOf(
+              "name" to "extraMain",
+              "dependencies" to listOf(
                 "commonMain"
-              ],
-              "analysisPlatform": "jvm"
-            },
-            {
-              "name": "jvmMain",
-              "dependencies": [
+                ),
+              "analysisPlatform" to "jvm"
+            ),
+            mapOf(
+              "name" to "jvmMain",
+              "dependencies" to listOf(
                 "commonMain",
                 "extraMain"
-              ],
-              "analysisPlatform": "jvm"
-            }
-          ]
-        }
-        """.trimIndent())
+              ),
+              "analysisPlatform" to "jvm"
+            )
+          )
+        ))
     }
 }

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.layout
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
@@ -42,6 +44,7 @@ import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -115,6 +118,8 @@ private class FakeOwner(
 
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
 
+    override val dragAndDropManager: DragAndDropManager get() = TODO("Not yet implemented")
+
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
         TODO("Not yet implemented")
     }
@@ -155,10 +160,24 @@ private class FakeOwner(
         get() = TODO("Not yet implemented")
     override val textInputService: TextInputService
         get() = TODO("Not yet implemented")
+    override val softwareKeyboardController: SoftwareKeyboardController
+        get() = TODO("Not yet implemented")
 
     override suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
     ): Nothing {
+        TODO("Not yet implemented")
+    }
+
+    override fun screenToLocal(positionOnScreen: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localPosition: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localTransform: Matrix) {
         TODO("Not yet implemented")
     }
 
@@ -205,7 +224,6 @@ private class FakeOwner(
     override fun requestFocus() = TODO("Not yet implemented")
     override fun onSemanticsChange() = TODO("Not yet implemented")
     override fun getFocusDirection(keyEvent: KeyEvent) = TODO("Not yet implemented")
-    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean = TODO("Not yet implemented")
 }
 
 internal fun defaultRootConstraints() = Constraints(maxWidth = 100, maxHeight = 100)
@@ -291,6 +309,13 @@ internal fun root(block: LayoutNode.() -> Unit = {}): LayoutNode {
 
 internal fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
     return LayoutNode().apply {
+        measurePolicy = MeasureInMeasureBlock()
+        block.invoke(this)
+    }
+}
+
+internal fun virtualNode(block: LayoutNode.() -> Unit = {}): LayoutNode {
+    return LayoutNode(isVirtual = true).apply {
         measurePolicy = MeasureInMeasureBlock()
         block.invoke(this)
     }

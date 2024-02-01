@@ -812,31 +812,28 @@ public class ConstraintSet {
                 constraint.propertySet.alpha = view.getAlpha();
                 constraint.propertySet.mApply = true;
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (!constraint.transform.mApply) {
+                constraint.transform.mApply = true;
+                constraint.transform.rotation = view.getRotation();
+                constraint.transform.rotationX = view.getRotationX();
+                constraint.transform.rotationY = view.getRotationY();
+                constraint.transform.scaleX = view.getScaleX();
+                constraint.transform.scaleY = view.getScaleY();
 
-                if (!constraint.transform.mApply) {
-                    constraint.transform.mApply = true;
-                    constraint.transform.rotation = view.getRotation();
-                    constraint.transform.rotationX = view.getRotationX();
-                    constraint.transform.rotationY = view.getRotationY();
-                    constraint.transform.scaleX = view.getScaleX();
-                    constraint.transform.scaleY = view.getScaleY();
+                float pivotX = view.getPivotX(); // we assume it is not set if set to 0.0
+                float pivotY = view.getPivotY(); // we assume it is not set if set to 0.0
 
-                    float pivotX = view.getPivotX(); // we assume it is not set if set to 0.0
-                    float pivotY = view.getPivotY(); // we assume it is not set if set to 0.0
+                if (pivotX != 0.0 || pivotY != 0.0) {
+                    constraint.transform.transformPivotX = pivotX;
+                    constraint.transform.transformPivotY = pivotY;
+                }
 
-                    if (pivotX != 0.0 || pivotY != 0.0) {
-                        constraint.transform.transformPivotX = pivotX;
-                        constraint.transform.transformPivotY = pivotY;
-                    }
-
-                    constraint.transform.translationX = view.getTranslationX();
-                    constraint.transform.translationY = view.getTranslationY();
-                    if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-                        constraint.transform.translationZ = view.getTranslationZ();
-                        if (constraint.transform.applyElevation) {
-                            constraint.transform.elevation = view.getElevation();
-                        }
+                constraint.transform.translationX = view.getTranslationX();
+                constraint.transform.translationY = view.getTranslationY();
+                if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+                    constraint.transform.translationZ = view.getTranslationZ();
+                    if (constraint.transform.applyElevation) {
+                        constraint.transform.elevation = view.getElevation();
                     }
                 }
             }
@@ -1657,14 +1654,10 @@ public class ConstraintSet {
                         rightMargin = a.getDimensionPixelSize(attr, rightMargin);
                         break;
                     case START_MARGIN:
-                        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                            startMargin = a.getDimensionPixelSize(attr, startMargin);
-                        }
+                        startMargin = a.getDimensionPixelSize(attr, startMargin);
                         break;
                     case END_MARGIN:
-                        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                            endMargin = a.getDimensionPixelSize(attr, endMargin);
-                        }
+                        endMargin = a.getDimensionPixelSize(attr, endMargin);
                         break;
                     case TOP_MARGIN:
                         topMargin = a.getDimensionPixelSize(attr, topMargin);
@@ -2391,12 +2384,8 @@ public class ConstraintSet {
             layout.goneEndMargin = param.goneEndMargin;
             layout.goneBaselineMargin = param.goneBaselineMargin;
             layout.mWrapBehavior = param.wrapBehaviorInParent;
-
-            int currentApiVersion = android.os.Build.VERSION.SDK_INT;
-            if (currentApiVersion >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                layout.endMargin = param.getMarginEnd();
-                layout.startMargin = param.getMarginStart();
-            }
+            layout.endMargin = param.getMarginEnd();
+            layout.startMargin = param.getMarginStart();
         }
 
         /**
@@ -2467,10 +2456,8 @@ public class ConstraintSet {
             }
             param.wrapBehaviorInParent = layout.mWrapBehavior;
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                param.setMarginStart(layout.startMargin);
-                param.setMarginEnd(layout.endMargin);
-            }
+            param.setMarginStart(layout.startMargin);
+            param.setMarginEnd(layout.endMargin);
 
             param.validate();
         }
@@ -2532,29 +2519,27 @@ public class ConstraintSet {
                     ConstraintAttribute.extractAttributes(mSavedAttributes, view);
             constraint.fillFrom(id, param);
             constraint.propertySet.visibility = view.getVisibility();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                constraint.propertySet.alpha = view.getAlpha();
-                constraint.transform.rotation = view.getRotation();
-                constraint.transform.rotationX = view.getRotationX();
-                constraint.transform.rotationY = view.getRotationY();
-                constraint.transform.scaleX = view.getScaleX();
-                constraint.transform.scaleY = view.getScaleY();
+            constraint.propertySet.alpha = view.getAlpha();
+            constraint.transform.rotation = view.getRotation();
+            constraint.transform.rotationX = view.getRotationX();
+            constraint.transform.rotationY = view.getRotationY();
+            constraint.transform.scaleX = view.getScaleX();
+            constraint.transform.scaleY = view.getScaleY();
 
-                float pivotX = view.getPivotX(); // we assume it is not set if set to 0.0
-                float pivotY = view.getPivotY(); // we assume it is not set if set to 0.0
+            float pivotX = view.getPivotX(); // we assume it is not set if set to 0.0
+            float pivotY = view.getPivotY(); // we assume it is not set if set to 0.0
 
-                if (pivotX != 0.0 || pivotY != 0.0) {
-                    constraint.transform.transformPivotX = pivotX;
-                    constraint.transform.transformPivotY = pivotY;
-                }
+            if (pivotX != 0.0 || pivotY != 0.0) {
+                constraint.transform.transformPivotX = pivotX;
+                constraint.transform.transformPivotY = pivotY;
+            }
 
-                constraint.transform.translationX = view.getTranslationX();
-                constraint.transform.translationY = view.getTranslationY();
-                if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-                    constraint.transform.translationZ = view.getTranslationZ();
-                    if (constraint.transform.applyElevation) {
-                        constraint.transform.elevation = view.getElevation();
-                    }
+            constraint.transform.translationX = view.getTranslationX();
+            constraint.transform.translationY = view.getTranslationY();
+            if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+                constraint.transform.translationZ = view.getTranslationZ();
+                if (constraint.transform.applyElevation) {
+                    constraint.transform.elevation = view.getElevation();
                 }
             }
             if (view instanceof Barrier) {
@@ -2742,43 +2727,41 @@ public class ConstraintSet {
                 if (constraint.propertySet.mVisibilityMode == VISIBILITY_MODE_NORMAL) {
                     view.setVisibility(constraint.propertySet.visibility);
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    view.setAlpha(constraint.propertySet.alpha);
-                    view.setRotation(constraint.transform.rotation);
-                    view.setRotationX(constraint.transform.rotationX);
-                    view.setRotationY(constraint.transform.rotationY);
-                    view.setScaleX(constraint.transform.scaleX);
-                    view.setScaleY(constraint.transform.scaleY);
-                    if (constraint.transform.transformPivotTarget != UNSET) {
-                        View layout = (View) view.getParent();
-                        View center = layout.findViewById(
-                                constraint.transform.transformPivotTarget);
-                        if (center != null) {
-                            float cy = (center.getTop() + center.getBottom()) / 2.0f;
-                            float cx = (center.getLeft() + center.getRight()) / 2.0f;
-                            if (view.getRight() - view.getLeft() > 0
-                                    && view.getBottom() - view.getTop() > 0) {
-                                float px = (cx - view.getLeft());
-                                float py = (cy - view.getTop());
-                                view.setPivotX(px);
-                                view.setPivotY(py);
-                            }
-                        }
-                    } else {
-                        if (!Float.isNaN(constraint.transform.transformPivotX)) {
-                            view.setPivotX(constraint.transform.transformPivotX);
-                        }
-                        if (!Float.isNaN(constraint.transform.transformPivotY)) {
-                            view.setPivotY(constraint.transform.transformPivotY);
+                view.setAlpha(constraint.propertySet.alpha);
+                view.setRotation(constraint.transform.rotation);
+                view.setRotationX(constraint.transform.rotationX);
+                view.setRotationY(constraint.transform.rotationY);
+                view.setScaleX(constraint.transform.scaleX);
+                view.setScaleY(constraint.transform.scaleY);
+                if (constraint.transform.transformPivotTarget != UNSET) {
+                    View layout = (View) view.getParent();
+                    View center = layout.findViewById(
+                            constraint.transform.transformPivotTarget);
+                    if (center != null) {
+                        float cy = (center.getTop() + center.getBottom()) / 2.0f;
+                        float cx = (center.getLeft() + center.getRight()) / 2.0f;
+                        if (view.getRight() - view.getLeft() > 0
+                                && view.getBottom() - view.getTop() > 0) {
+                            float px = (cx - view.getLeft());
+                            float py = (cy - view.getTop());
+                            view.setPivotX(px);
+                            view.setPivotY(py);
                         }
                     }
-                    view.setTranslationX(constraint.transform.translationX);
-                    view.setTranslationY(constraint.transform.translationY);
-                    if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-                        view.setTranslationZ(constraint.transform.translationZ);
-                        if (constraint.transform.applyElevation) {
-                            view.setElevation(constraint.transform.elevation);
-                        }
+                } else {
+                    if (!Float.isNaN(constraint.transform.transformPivotX)) {
+                        view.setPivotX(constraint.transform.transformPivotX);
+                    }
+                    if (!Float.isNaN(constraint.transform.transformPivotY)) {
+                        view.setPivotY(constraint.transform.transformPivotY);
+                    }
+                }
+                view.setTranslationX(constraint.transform.translationX);
+                view.setTranslationY(constraint.transform.translationY);
+                if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+                    view.setTranslationZ(constraint.transform.translationZ);
+                    if (constraint.transform.applyElevation) {
+                        view.setElevation(constraint.transform.elevation);
                     }
                 }
             } else {
@@ -4817,15 +4800,11 @@ public class ConstraintSet {
                     delta.add(RIGHT_MARGIN, a.getDimensionPixelSize(attr, c.layout.rightMargin));
                     break;
                 case START_MARGIN:
-                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                        delta.add(START_MARGIN,
-                                a.getDimensionPixelSize(attr, c.layout.startMargin));
-                    }
+                    delta.add(START_MARGIN,
+                            a.getDimensionPixelSize(attr, c.layout.startMargin));
                     break;
                 case END_MARGIN:
-                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                        delta.add(END_MARGIN, a.getDimensionPixelSize(attr, c.layout.endMargin));
-                    }
+                    delta.add(END_MARGIN, a.getDimensionPixelSize(attr, c.layout.endMargin));
                     break;
                 case TOP_MARGIN:
                     delta.add(TOP_MARGIN, a.getDimensionPixelSize(attr, c.layout.topMargin));
@@ -5533,14 +5512,10 @@ public class ConstraintSet {
                     c.layout.rightMargin = a.getDimensionPixelSize(attr, c.layout.rightMargin);
                     break;
                 case START_MARGIN:
-                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                        c.layout.startMargin = a.getDimensionPixelSize(attr, c.layout.startMargin);
-                    }
+                    c.layout.startMargin = a.getDimensionPixelSize(attr, c.layout.startMargin);
                     break;
                 case END_MARGIN:
-                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                        c.layout.endMargin = a.getDimensionPixelSize(attr, c.layout.endMargin);
-                    }
+                    c.layout.endMargin = a.getDimensionPixelSize(attr, c.layout.endMargin);
                     break;
                 case TOP_MARGIN:
                     c.layout.topMargin = a.getDimensionPixelSize(attr, c.layout.topMargin);

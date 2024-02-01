@@ -78,15 +78,75 @@ class PasswordCredentialEntry internal constructor(
     val icon: Icon,
     val isAutoSelectAllowed: Boolean,
     beginGetPasswordOption: BeginGetPasswordOption,
+    affiliatedDomain: CharSequence? = null,
     private val autoSelectAllowedFromOption: Boolean = false,
-    private val isDefaultIcon: Boolean = false
+    private val isDefaultIcon: Boolean = false,
+
 ) : CredentialEntry(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    beginGetPasswordOption
+    beginGetPasswordOption,
+    affiliatedDomain
 ) {
     init {
         require(username.isNotEmpty()) { "username must not be empty" }
     }
+
+    /**
+     * @constructor constructs an instance of [PasswordCredentialEntry]
+     *
+     * The [affiliatedDomain] parameter is filled if you provide a credential
+     * that is not directly associated with the requesting entity, but rather originates from an
+     * entity that is determined as being associated with the requesting entity through mechanisms
+     * such as digital asset links.
+     *
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param username the username of the account holding the password credential
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
+     * @param beginGetPasswordOption the option from the original [BeginGetCredentialResponse],
+     * for which this credential entry is being added
+     * @param displayName the displayName of the account holding the password credential
+     * @param lastUsedTime the last used time the credential underlying this entry was
+     * used by the user, distinguishable up to the milli second mark only such that if two
+     * entries have the same millisecond precision, they will be considered to have been used at
+     * the same time
+     * @param icon the icon to be displayed with this entry on the selector, if not set, a
+     * default icon representing a password credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto
+     * selected if it is the only one on the UI, only takes effect if the app requesting for
+     * credentials also opts for auto select
+     * @param affiliatedDomain the user visible affiliated domain, a CharSequence
+     * representation of a web domain or an app package name that the given credential in this
+     * entry is associated with when it is different from the requesting entity, default null
+     *
+     * @throws IllegalArgumentException if [username] is empty
+     * @throws NullPointerException If [context], [username], [pendingIntent], or
+     * [beginGetPasswordOption] is null
+     */
+    constructor(
+        context: Context,
+        username: CharSequence,
+        pendingIntent: PendingIntent,
+        beginGetPasswordOption: BeginGetPasswordOption,
+        displayName: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
+        isAutoSelectAllowed: Boolean = false,
+        affiliatedDomain: CharSequence? = null,
+    ) : this(
+        username,
+        displayName,
+        typeDisplayName = context.getString(
+            R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
+        ),
+        pendingIntent,
+        lastUsedTime,
+        icon,
+        isAutoSelectAllowed,
+        beginGetPasswordOption,
+        affiliatedDomain,
+    )
 
     /**
      * @constructor constructs an instance of [PasswordCredentialEntry]
@@ -113,6 +173,7 @@ class PasswordCredentialEntry internal constructor(
      * @throws NullPointerException If [context], [username], [pendingIntent], or
      * [beginGetPasswordOption] is null
      */
+    @Deprecated("The constructor containing the affiliatedDomain bit should be utilized instead.")
     constructor(
         context: Context,
         username: CharSequence,
@@ -121,7 +182,7 @@ class PasswordCredentialEntry internal constructor(
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
         icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
-        isAutoSelectAllowed: Boolean = false
+        isAutoSelectAllowed: Boolean = false,
     ) : this(
         username,
         displayName,
@@ -134,6 +195,16 @@ class PasswordCredentialEntry internal constructor(
         isAutoSelectAllowed,
         beginGetPasswordOption,
     )
+
+    @RequiresApi(34)
+    private object Api34Impl {
+        @JvmStatic
+        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
+            PasswordCredentialEntry? {
+            val slice = credentialEntry.slice
+            return fromSlice(slice)
+        }
+    }
 
     @RequiresApi(28)
     private object Api28Impl {
@@ -151,6 +222,7 @@ class PasswordCredentialEntry internal constructor(
             val icon = entry.icon
             val isAutoSelectAllowed = entry.isAutoSelectAllowed
             val beginGetPasswordCredentialOption = entry.beginGetCredentialOption
+            val affiliatedDomain = entry.affiliatedDomain
 
             val autoSelectAllowed = if (isAutoSelectAllowed) {
                 AUTO_SELECT_TRUE_STRING
@@ -186,6 +258,10 @@ class PasswordCredentialEntry internal constructor(
                 .addIcon(
                     icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON)
+                )
+                .addText(
+                    affiliatedDomain, /*subType=*/null,
+                    listOf(SLICE_HINT_AFFILIATED_DOMAIN)
                 )
             try {
                 if (icon.resId == R.drawable.ic_password) {
@@ -245,6 +321,7 @@ class PasswordCredentialEntry internal constructor(
             var autoSelectAllowedFromOption = false
             var beginGetPasswordOptionId: CharSequence? = null
             var isDefaultIcon = false
+            var affiliatedDomain: CharSequence? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -270,6 +347,8 @@ class PasswordCredentialEntry internal constructor(
                     autoSelectAllowedFromOption = true
                 } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
                     isDefaultIcon = true
+                } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
+                    affiliatedDomain = it.text
                 }
             }
 
@@ -286,6 +365,7 @@ class PasswordCredentialEntry internal constructor(
                         Bundle(),
                         beginGetPasswordOptionId!!.toString()
                     ),
+                    affiliatedDomain,
                     autoSelectAllowedFromOption,
                     isDefaultIcon
                 )
@@ -296,7 +376,7 @@ class PasswordCredentialEntry internal constructor(
         }
     }
 
-    internal companion object {
+    companion object {
         private const val TAG = "PasswordCredentialEntry"
 
         private const val SLICE_HINT_TYPE_DISPLAY_NAME =
@@ -329,6 +409,9 @@ class PasswordCredentialEntry internal constructor(
         private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
 
+        private const val SLICE_HINT_AFFILIATED_DOMAIN =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AFFILIATED_DOMAIN"
+
         private const val AUTO_SELECT_TRUE_STRING = "true"
 
         private const val AUTO_SELECT_FALSE_STRING = "false"
@@ -353,13 +436,32 @@ class PasswordCredentialEntry internal constructor(
             return null
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun fromSlice(
             slice: Slice
         ): PasswordCredentialEntry? {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.fromSlice(slice)
+            }
+            return null
+        }
+
+        /**
+         * Converts a framework [android.service.credentials.CredentialEntry] class to a Jetpack
+         * [PasswordCredentialEntry] class
+         *
+         * Note that this API is not needed in a general credential retrieval flow that is
+         * implemented using this jetpack library, where you are only required to construct
+         * an instance of [CredentialEntry] to populate the [BeginGetCredentialResponse].
+         *
+         * @param credentialEntry the instance of framework class to be converted
+         */
+        @JvmStatic
+        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
+            PasswordCredentialEntry? {
+            if (Build.VERSION.SDK_INT >= 34) {
+                return Api34Impl.fromCredentialEntry(credentialEntry)
             }
             return null
         }
@@ -394,14 +496,15 @@ class PasswordCredentialEntry internal constructor(
         private var lastUsedTime: Instant? = null
         private var icon: Icon? = null
         private var autoSelectAllowed = false
+        private var affiliatedDomain: CharSequence? = null
 
-        /** Sets a displayName to be shown on the UI with this entry */
+        /** Sets a displayName to be shown on the UI with this entry. */
         fun setDisplayName(displayName: CharSequence?): Builder {
             this.displayName = displayName
             return this
         }
 
-        /** Sets the icon to be shown on the UI with this entry */
+        /** Sets the icon to be shown on the UI with this entry. */
         fun setIcon(icon: Icon): Builder {
             this.icon = icon
             return this
@@ -409,11 +512,22 @@ class PasswordCredentialEntry internal constructor(
 
         /**
          * Sets whether the entry should be auto-selected.
-         * The value is false by default
+         * The value is false by default.
          */
         @Suppress("MissingGetterMatchingBuilder")
         fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
             this.autoSelectAllowed = autoSelectAllowed
+            return this
+        }
+
+        /**
+         * Sets whether the entry should have an affiliated domain, a CharSequence
+         * representation of some larger entity that may be used to bind multiple entries together
+         * (e.g. app_one, and app_two may be bound by 'super_app' as the larger affiliation
+         * domain) without length limit, default null.
+         */
+        fun setAffiliatedDomain(affiliatedDomain: CharSequence?): Builder {
+            this.affiliatedDomain = affiliatedDomain
             return this
         }
 
@@ -442,7 +556,8 @@ class PasswordCredentialEntry internal constructor(
                 lastUsedTime,
                 icon!!,
                 autoSelectAllowed,
-                beginGetPasswordOption
+                beginGetPasswordOption,
+                affiliatedDomain
             )
         }
     }

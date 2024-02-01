@@ -45,7 +45,8 @@ internal class TextAnnotatedStringElement(
     private val placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
-    private val color: ColorProducer? = null
+    private val color: ColorProducer? = null,
+    private val onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null
 ) : ModifierNodeElement<TextAnnotatedStringNode>() {
 
     override fun create(): TextAnnotatedStringNode = TextAnnotatedStringNode(
@@ -60,7 +61,8 @@ internal class TextAnnotatedStringElement(
         placeholders,
         onPlaceholderLayout,
         selectionController,
-        color
+        color,
+        onShowTranslation
     )
 
     override fun update(node: TextAnnotatedStringNode) {
@@ -81,7 +83,8 @@ internal class TextAnnotatedStringElement(
             callbacksChanged = node.updateCallbacks(
                 onTextLayout = onTextLayout,
                 onPlaceholderLayout = onPlaceholderLayout,
-                selectionController = selectionController
+                selectionController = selectionController,
+                onShowTranslation = onShowTranslation
             )
         )
     }
@@ -100,6 +103,7 @@ internal class TextAnnotatedStringElement(
         // these are equally unlikely to change
         if (fontFamilyResolver != other.fontFamilyResolver) return false
         if (onTextLayout != other.onTextLayout) return false
+        if (onShowTranslation != other.onShowTranslation) return false
         if (overflow != other.overflow) return false
         if (softWrap != other.softWrap) return false
         if (maxLines != other.maxLines) return false
@@ -125,6 +129,7 @@ internal class TextAnnotatedStringElement(
         result = 31 * result + (onPlaceholderLayout?.hashCode() ?: 0)
         result = 31 * result + (selectionController?.hashCode() ?: 0)
         result = 31 * result + (color?.hashCode() ?: 0)
+        result = 31 * result + (onShowTranslation?.hashCode() ?: 0)
         return result
     }
 

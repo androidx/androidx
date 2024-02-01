@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.core.haptics.VibrationWrapper
+import androidx.core.haptics.device.HapticDeviceProfile
 import androidx.core.haptics.impl.HapticSignalConverter
 
 /**
@@ -67,10 +68,31 @@ class PredefinedEffectSignal private constructor(
         private val HeavyClick = PredefinedEffectSignal(HEAVY_CLICK, Build.VERSION_CODES.Q)
         private val DoubleClick = PredefinedEffectSignal(DOUBLE_CLICK, Build.VERSION_CODES.Q)
 
+        internal val ALL_EFFECTS =
+            listOf(Tick, Click, HeavyClick, DoubleClick)
+
+        /** Returns all [PredefinedEffectSignal] types available at the current SDK level. */
+        @JvmStatic
+        internal fun getSdkAvailableEffects(): List<PredefinedEffectSignal> =
+            ALL_EFFECTS.filter {
+                it.minSdk <= Build.VERSION.SDK_INT
+            }.toList()
+
+        @JvmStatic
+        internal fun typeToString(@Type type: Int): String {
+            return when (type) {
+                TICK -> "Tick"
+                CLICK -> "Click"
+                HEAVY_CLICK -> "HeavyClick"
+                DOUBLE_CLICK -> "DoubleClick"
+                else -> type.toString()
+            }
+        }
+
         /**
          * A standard tick effect.
          *
-         * This effect is less strong than the [predefinedClick()].
+         * This effect is less strong than the [predefinedClick].
          */
         @JvmStatic
         fun predefinedTick() = Tick
@@ -86,7 +108,7 @@ class PredefinedEffectSignal private constructor(
         /**
          * A heavy click effect.
          *
-         * This effect is stronger than the [predefinedClick()].
+         * This effect is stronger than the [predefinedClick].
          */
         @JvmStatic
         fun predefinedHeavyClick() = HeavyClick
@@ -110,14 +132,7 @@ class PredefinedEffectSignal private constructor(
     }
 
     override fun toString(): String {
-        val typeStr = when (type) {
-            TICK -> "Tick"
-            CLICK -> "Click"
-            HEAVY_CLICK -> "HeavyClick"
-            DOUBLE_CLICK -> "DoubleClick"
-            else -> type.toString()
-        }
-        return "PredefinedEffectSignal(type=$typeStr)"
+        return "PredefinedEffectSignal(type=${typeToString(type)})"
     }
 
     /**
@@ -126,4 +141,6 @@ class PredefinedEffectSignal private constructor(
     internal fun minSdk(): Int = minSdk
 
     override fun toVibration(): VibrationWrapper? = HapticSignalConverter.toVibration(this)
+
+    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean = true
 }

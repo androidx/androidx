@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -82,10 +81,10 @@ import kotlinx.coroutines.flow.collectLatest
  * and relies entirely on a higher-level component to control the "checked" state.
  * @param modifier Modifier to be applied to the switch layout
  * @param enabled whether the component is enabled or grayed out
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Switch. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Switch in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this switch. You can use this to change the switch's
+ * appearance or preview the switch in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param colors [SwitchColors] that will be used to determine the color of the thumb and track
  * in different states. See [SwitchDefaults.colors].
  */
@@ -96,9 +95,11 @@ fun Switch(
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     colors: SwitchColors = SwitchDefaults.colors()
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val minBound = 0f
     val maxBound = with(LocalDensity.current) { ThumbPathLength.toPx() }
     // If we reach a bound and settle, we invoke onCheckedChange with the new value. If the user
@@ -165,7 +166,8 @@ fun Switch(
                 orientation = Orientation.Horizontal,
                 enabled = enabled && onCheckedChange != null,
                 reverseDirection = isRtl,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
+                startDragImmediately = false
             )
             .wrapContentSize(Alignment.Center)
             .padding(DefaultSwitchPadding)
@@ -261,7 +263,10 @@ private fun BoxScope.SwitchImpl(
             .offset { IntOffset(thumbValue().roundToInt(), 0) }
             .indication(
                 interactionSource = interactionSource,
-                indication = rememberRipple(bounded = false, radius = ThumbRippleRadius)
+                indication = rippleOrFallbackImplementation(
+                    bounded = false,
+                    radius = ThumbRippleRadius
+                )
             )
             .requiredSize(ThumbDiameter)
             .shadow(elevation, CircleShape, clip = false)

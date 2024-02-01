@@ -20,8 +20,8 @@ import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.HandleState
 import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDragObserver
-import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.UndoManager
 import androidx.compose.foundation.text.ValidatingEmptyOffsetMappingIdentity
 import androidx.compose.foundation.text.detectDownAndDragGesturesWithObserver
@@ -76,9 +76,9 @@ internal class TextFieldSelectionManager(
     internal var onValueChange: (TextFieldValue) -> Unit = {}
 
     /**
-     * The current [TextFieldState].
+     * The current [LegacyTextFieldState].
      */
-    internal var state: TextFieldState? = null
+    internal var state: LegacyTextFieldState? = null
 
     /**
      * The current [TextFieldValue]. This contains the original text, not the transformed text.
@@ -87,7 +87,7 @@ internal class TextFieldSelectionManager(
     internal var value: TextFieldValue by mutableStateOf(TextFieldValue())
 
     /**
-     * The current transformed text from the [TextFieldState].
+     * The current transformed text from the [LegacyTextFieldState].
      * The original text can be found in [value].
      */
     @OptIn(InternalFoundationTextApi::class)
@@ -155,6 +155,9 @@ internal class TextFieldSelectionManager(
     var draggingHandle: Handle? by mutableStateOf(null)
         private set
 
+    /**
+     * The current position of a drag, in decoration box coordinates.
+     */
     var currentDragPosition: Offset? by mutableStateOf(null)
         private set
 
@@ -210,6 +213,7 @@ internal class TextFieldSelectionManager(
                     )
 
                     enterSelectionMode(showFloatingToolbar = false)
+                    setHandleState(HandleState.Cursor)
                     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onValueChange(newValue)
                 }
@@ -299,14 +303,13 @@ internal class TextFieldSelectionManager(
                     )
                 }
             }
-            state?.showFloatingToolbar = false
+            updateFloatingToolbar(show = false)
         }
 
         override fun onStop() {
             draggingHandle = null
             currentDragPosition = null
-            state?.showFloatingToolbar = true
-            if (textToolbar?.status == TextToolbarStatus.Hidden) showSelectionToolbar()
+            updateFloatingToolbar(show = true)
             dragBeginOffsetInText = null
         }
 
@@ -396,27 +399,35 @@ internal class TextFieldSelectionManager(
         object : TextDragObserver {
             override fun onDown(point: Offset) {
                 draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
-                currentDragPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
+
+                // The position of the character where the drag gesture should begin. This is in
+                // the inner text field coordinates.
+                val handleCoordinates = getAdjustedCoordinates(getHandlePosition(isStartHandle))
+
+                // translate to decoration box coordinates
+                val layoutResult = state?.layoutResult ?: return
+                val translatedPosition =
+                    layoutResult.translateInnerToDecorationCoordinates(handleCoordinates)
+
+                dragBeginPosition = translatedPosition
+                currentDragPosition = translatedPosition
+
+                // Zero out the total distance that being dragged.
+                dragTotalDistance = Offset.Zero
+                previousRawDragOffset = -1
+
                 state?.isInTouchMode = true
-                state?.showFloatingToolbar = false
+                updateFloatingToolbar(show = false)
             }
 
             override fun onUp() {
                 draggingHandle = null
                 currentDragPosition = null
-                state?.showFloatingToolbar = true
+                updateFloatingToolbar(show = true)
             }
 
             override fun onStart(startPoint: Offset) {
-                // The position of the character where the drag gesture should begin. This is in
-                // the composable coordinates.
-                dragBeginPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
-                currentDragPosition = dragBeginPosition
-                previousRawDragOffset = -1
-                // Zero out the total distance that being dragged.
-                dragTotalDistance = Offset.Zero
-                draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
-                state?.showFloatingToolbar = false
+                // handled in onDown
             }
 
             override fun onDrag(delta: Offset) {
@@ -431,14 +442,13 @@ internal class TextFieldSelectionManager(
                     adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     isTouchBasedSelection = true, // handle drag infers touch
                 )
-                state?.showFloatingToolbar = false
+                updateFloatingToolbar(show = false)
             }
 
             override fun onStop() {
                 draggingHandle = null
                 currentDragPosition = null
-                state?.showFloatingToolbar = true
-                if (textToolbar?.status == TextToolbarStatus.Hidden) showSelectionToolbar()
+                updateFloatingToolbar(show = true)
             }
 
             override fun onCancel() {}
@@ -449,8 +459,7 @@ internal class TextFieldSelectionManager(
      */
     internal fun cursorDragObserver(): TextDragObserver = object : TextDragObserver {
         override fun onDown(point: Offset) {
-            draggingHandle = Handle.Cursor
-            currentDragPosition = getAdjustedCoordinates(getHandlePosition(true))
+            // Nothing
         }
 
         override fun onUp() {
@@ -460,18 +469,26 @@ internal class TextFieldSelectionManager(
 
         override fun onStart(startPoint: Offset) {
             // The position of the character where the drag gesture should begin. This is in
-            // the composable coordinates.
-            dragBeginPosition = getAdjustedCoordinates(getHandlePosition(true))
-            currentDragPosition = dragBeginPosition
+            // the inner text field coordinates.
+            val handleCoordinates = getAdjustedCoordinates(getHandlePosition(true))
+
+            // translate to decoration box coordinates
+            val layoutResult = state?.layoutResult ?: return
+            val translatedPosition =
+                layoutResult.translateInnerToDecorationCoordinates(handleCoordinates)
+
+            dragBeginPosition = translatedPosition
+            currentDragPosition = translatedPosition
             // Zero out the total distance that being dragged.
             dragTotalDistance = Offset.Zero
             draggingHandle = Handle.Cursor
+            updateFloatingToolbar(show = false)
         }
 
         override fun onDrag(delta: Offset) {
             dragTotalDistance += delta
 
-            state?.layoutResult?.value?.let { layoutResult ->
+            state?.layoutResult?.let { layoutResult ->
                 currentDragPosition = dragBeginPosition + dragTotalDistance
                 val offset = offsetMapping.transformedToOriginal(
                     layoutResult.getOffsetForPosition(currentDragPosition!!)
@@ -515,7 +532,7 @@ internal class TextFieldSelectionManager(
             focusRequester?.requestFocus()
         }
         oldValue = value
-        state?.showFloatingToolbar = showFloatingToolbar
+        updateFloatingToolbar(showFloatingToolbar)
         setHandleState(HandleState.Selection)
     }
 
@@ -525,7 +542,7 @@ internal class TextFieldSelectionManager(
      * Is triggered on accessibility action.
      */
     internal fun exitSelectionMode() {
-        state?.showFloatingToolbar = false
+        updateFloatingToolbar(show = false)
         setHandleState(HandleState.None)
     }
 
@@ -553,7 +570,7 @@ internal class TextFieldSelectionManager(
             HandleState.None
         }
         setHandleState(selectionMode)
-        hideSelectionToolbar()
+        updateFloatingToolbar(show = false)
     }
 
     /**
@@ -645,13 +662,21 @@ internal class TextFieldSelectionManager(
         )
         onValueChange(newValue)
         oldValue = oldValue.copy(selection = newValue.selection)
-        state?.showFloatingToolbar = true
+        enterSelectionMode(showFloatingToolbar = true)
     }
 
     internal fun getHandlePosition(isStartHandle: Boolean): Offset {
+        val textLayoutResult = state?.layoutResult?.value ?: return Offset.Unspecified
+
+        // If layout and value are out of sync, return unspecified.
+        // This will be called again once they are in sync.
+        val transformedText = transformedText ?: return Offset.Unspecified
+        val layoutInputText = textLayoutResult.layoutInput.text.text
+        if (transformedText.text != layoutInputText) return Offset.Unspecified
+
         val offset = if (isStartHandle) value.selection.start else value.selection.end
         return getSelectionHandleCoordinates(
-            textLayoutResult = state?.layoutResult!!.value,
+            textLayoutResult = textLayoutResult,
             offset = offsetMapping.originalToTransformed(offset),
             isStart = isStartHandle,
             areHandlesCrossed = value.selection.reversed
@@ -668,6 +693,19 @@ internal class TextFieldSelectionManager(
             cursorRect.left + DefaultCursorThickness.toPx() / 2
         }
         return Offset(x, cursorRect.bottom)
+    }
+
+    /**
+     * Update the [LegacyTextFieldState.showFloatingToolbar] state and show/hide the toolbar.
+     *
+     * You may want to call [showSelectionToolbar] and [hideSelectionToolbar] directly without
+     * updating the [LegacyTextFieldState.showFloatingToolbar] if you are simply hiding all touch
+     * selection behaviors (toolbar, handles, cursor, magnifier), but want the toolbar to come
+     * back when you un-hide all those behaviors.
+     */
+    private fun updateFloatingToolbar(show: Boolean) {
+        state?.showFloatingToolbar = show
+        if (show) showSelectionToolbar() else hideSelectionToolbar()
     }
 
     /**
@@ -796,7 +834,8 @@ internal class TextFieldSelectionManager(
      * Update the text field's selection based on new offsets.
      *
      * @param value the current [TextFieldValue]
-     * @param currentPosition the current position of the cursor/drag
+     * @param currentPosition the current position of the cursor/drag in the decoration box
+     * coordinates
      * @param isStartOfSelection whether this is the first updateSelection of a selection gesture.
      * If true, will ignore any previous selection context.
      * @param isStartHandle whether the start handle is being updated
@@ -882,6 +921,9 @@ internal class TextFieldSelectionManager(
         )
         onValueChange(newValue)
 
+        val handle = if (newValue.selection.collapsed) HandleState.Cursor else HandleState.Selection
+        setHandleState(handle)
+
         state?.isInTouchMode = isTouchBasedSelection
 
         // showSelectionHandleStart/End might be set to false when scrolled out of the view.
@@ -894,7 +936,7 @@ internal class TextFieldSelectionManager(
     }
 
     private fun setHandleState(handleState: HandleState) {
-        state?.let { it.handleState = handleState }
+        state?.takeUnless { it.handleState == handleState }?.let { it.handleState = handleState }
     }
 
     private fun createTextFieldValue(
@@ -917,17 +959,15 @@ internal fun TextFieldSelectionHandle(
     val observer = remember(isStartHandle, manager) {
         manager.handleDragObserver(isStartHandle)
     }
-    val position = manager.getHandlePosition(isStartHandle)
 
     SelectionHandle(
-        position = position,
+        offsetProvider = { manager.getHandlePosition(isStartHandle) },
         isStartHandle = isStartHandle,
         direction = direction,
         handlesCrossed = manager.value.selection.reversed,
         modifier = Modifier.pointerInput(observer) {
             detectDownAndDragGesturesWithObserver(observer)
         },
-        content = null
     )
 }
 
@@ -954,6 +994,9 @@ internal expect val PointerEvent.isShiftPressed: Boolean
  */
 internal expect fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier
 
+/**
+ * @return the location of the magnifier relative to the inner text field coordinates
+ */
 @OptIn(InternalFoundationTextApi::class)
 internal fun calculateSelectionMagnifierCenterAndroid(
     manager: TextFieldSelectionManager,
@@ -972,14 +1015,16 @@ internal fun calculateSelectionMagnifierCenterAndroid(
         Handle.SelectionEnd -> manager.value.selection.end
     }
     // If the text hasn't been laid out yet, don't show the magnifier.
-    val layoutResult = manager.state?.layoutResult?.value ?: return Offset.Unspecified
+    val textLayoutResultProxy = manager.state?.layoutResult ?: return Offset.Unspecified
     val transformedText = manager.state?.textDelegate?.text ?: return Offset.Unspecified
 
     val textOffset = manager.offsetMapping
         .originalToTransformed(rawTextOffset)
         .coerceIn(0, transformedText.length)
 
-    val dragX = localDragPosition.x
+    val dragX = textLayoutResultProxy.translateDecorationToInnerCoordinates(localDragPosition).x
+
+    val layoutResult = textLayoutResultProxy.value
     val line = layoutResult.getLineForOffset(textOffset)
     val lineStart = layoutResult.getLineLeft(line)
     val lineEnd = layoutResult.getLineRight(line)

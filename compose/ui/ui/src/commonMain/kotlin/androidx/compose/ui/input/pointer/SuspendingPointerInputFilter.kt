@@ -222,6 +222,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -256,6 +261,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -291,6 +301,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     vararg keys: Any?,
@@ -733,6 +748,8 @@ internal class SuspendingPointerInputModifierNodeImpl(
     }
 }
 
+private val EmptyStackTraceElements = emptyArray<StackTraceElement>()
+
 /**
  * An exception thrown from [AwaitPointerEventScope.withTimeout] when the execution time
  * of the coroutine is too long.
@@ -742,7 +759,7 @@ class PointerEventTimeoutCancellationException(
 ) : CancellationException("Timed out waiting for $time ms") {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }
@@ -755,7 +772,7 @@ class PointerEventTimeoutCancellationException(
 private class PointerInputResetException : CancellationException("Pointer input was reset") {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }
@@ -768,7 +785,7 @@ private class PointerInputResetException : CancellationException("Pointer input 
 private object CancelTimeoutCancellationException : CancellationException() {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }

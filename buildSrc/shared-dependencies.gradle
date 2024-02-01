@@ -19,6 +19,11 @@ dependencies {
     implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
     implementation(libs.kotlinGradlePluginz)
     implementation(libs.spdxGradlePluginz)
+    implementation(libs.androidKotlinMultiplatform)
+    implementation(libs.kotlinCompilerEmbeddable) // for clang compiler
+
+    // Force jsoup upgrade on spdx (b/309773103)
+    implementation(libs.jsoup)
 
     // variety of json parsers
     implementation(libs.gson)

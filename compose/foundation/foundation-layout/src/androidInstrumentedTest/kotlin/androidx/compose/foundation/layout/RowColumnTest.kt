@@ -17,7 +17,6 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -37,9 +36,10 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.InspectableValue
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -1953,7 +1953,7 @@ class RowColumnTest : LayoutTest() {
                     Row(horizontalArrangement = Arrangement.spacedBy((0.5).dp)) {
                         Layout { _, constraints ->
                             assertEquals(Constraints(), constraints)
-                            layout(Constraints.Infinity, 100) {
+                            layout(1 shl 23, 100) {
                                 latch.countDown()
                             }
                         }
@@ -3130,7 +3130,9 @@ class RowColumnTest : LayoutTest() {
         val size = sizePx.toDp()
         val latch = CountDownLatch(2)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Column {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(space),
@@ -3699,7 +3701,9 @@ class RowColumnTest : LayoutTest() {
         val size = sizePx.toDp()
         val latch = CountDownLatch(2)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 // Nothing should change compared to the same ltr test. (just the size of the
                 // Column as we are doing fillMaxHeight()).
                 Row {
@@ -4738,7 +4742,9 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(Modifier.fillMaxWidth()) {
                     Container(
                         Modifier.size(sizeDp).onGloballyPositioned { coordinates ->
@@ -4782,7 +4788,9 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -4838,7 +4846,9 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -4893,7 +4903,9 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -4941,7 +4953,9 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -4994,7 +5008,9 @@ class RowColumnTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -5044,7 +5060,9 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -5091,7 +5109,9 @@ class RowColumnTest : LayoutTest() {
         val rowSize = rowSizePx.toDp()
         val latch = CountDownLatch(3)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Column {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(space, Alignment.End),
@@ -5127,7 +5147,9 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Column(Modifier.fillMaxWidth()) {
                     Container(
                         Modifier.size(sizeDp).onGloballyPositioned { coordinates ->
@@ -5172,7 +5194,9 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Column(Modifier.fillMaxWidth()) {
                     Container(
                         Modifier.size(sizeDp)
@@ -5211,7 +5235,9 @@ class RowColumnTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childPosition = arrayOf(Offset.Zero, Offset.Zero)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Column(Modifier.fillMaxWidth()) {
                     Container(
                         Modifier.size(sizeDp)
@@ -5319,7 +5345,9 @@ class RowColumnTest : LayoutTest() {
             arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -5432,7 +5460,9 @@ class RowColumnTest : LayoutTest() {
             arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -5561,7 +5591,9 @@ class RowColumnTest : LayoutTest() {
             arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -5697,7 +5729,9 @@ class RowColumnTest : LayoutTest() {
                 arrayOfNulls<LayoutCoordinates?>(childPosition.size)
             var parentLayoutCoordinates: LayoutCoordinates? = null
             show {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -5829,7 +5863,9 @@ class RowColumnTest : LayoutTest() {
                 arrayOfNulls<LayoutCoordinates?>(childPosition.size)
             var parentLayoutCoordinates: LayoutCoordinates? = null
             show {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -5961,7 +5997,9 @@ class RowColumnTest : LayoutTest() {
                 arrayOfNulls<LayoutCoordinates?>(childPosition.size)
             var parentLayoutCoordinates: LayoutCoordinates? = null
             show {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -6032,7 +6070,9 @@ class RowColumnTest : LayoutTest() {
         val rowSize = rowSizePx.toDp()
         val latch = CountDownLatch(3)
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Column {
                     Row(
                         horizontalArrangement = Arrangement.Absolute.spacedBy(space, Alignment.End),

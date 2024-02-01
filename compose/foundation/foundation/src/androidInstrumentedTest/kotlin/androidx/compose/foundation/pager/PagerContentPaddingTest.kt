@@ -497,7 +497,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun totalPaddingLargerParentSize_initialState() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState() { 4 }
+            state = rememberPagerState { 4 }
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -962,12 +962,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
             animateScrollBy(with(rule.density) { offset.roundToPx().toFloat() }, snap())
         }
-    }
-
-    private fun PagerState.scrollBy(offset: Float) {
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            animateScrollBy(offset, snap())
-        }
+        rule.waitForIdle()
     }
 
     private fun PagerState.runScrollToPage(page: Int) {

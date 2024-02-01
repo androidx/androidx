@@ -21,7 +21,7 @@
     <string name="emoji_category_emotions" msgid="1570830970240985537">"EMOTICONES I EMOCIONS"</string>
     <string name="emoji_category_people" msgid="7968173366822927025">"PERSONES"</string>
     <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ANIMALS I NATURALESA"</string>
-    <string name="emoji_category_food_drink" msgid="1189971856721244395">"MENJAR I BEGUDES"</string>
+    <string name="emoji_category_food_drink" msgid="1189971856721244395">"MENJAR I BEGUDA"</string>
     <string name="emoji_category_travel_places" msgid="8105712773237012672">"VIATGES I LLOCS"</string>
     <string name="emoji_category_activity" msgid="4381135114947330911">"ACTIVITATS I ESDEVENIMENTS"</string>
     <string name="emoji_category_objects" msgid="6106115586332708067">"OBJECTES"</string>
@@ -29,4 +29,6 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"BANDERES"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"No hi ha cap emoji disponible"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Encara no has fet servir cap emoji"</string>
+    <!-- no translation found for emoji_bidirectional_switcher_content_desc (5084600168354220605) -->
+    <skip />
 </resources>

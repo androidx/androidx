@@ -63,7 +63,7 @@ class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
         createPager(
             initialPage = 5,
             modifier = Modifier.crossAxisSize(200.dp),
-            beyondBoundsPageCount = 0,
+            outOfBoundsPageCount = 0,
             pageSize = { pagerMode }
         )
 

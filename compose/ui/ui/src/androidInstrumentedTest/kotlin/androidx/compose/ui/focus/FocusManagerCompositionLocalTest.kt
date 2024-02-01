@@ -18,17 +18,22 @@ package androidx.compose.ui.focus
 
 import android.view.View
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
+import androidx.compose.ui.input.InputMode.Companion.Keyboard
+import androidx.compose.ui.input.InputMode.Companion.Touch
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,24 +44,25 @@ class FocusManagerCompositionLocalTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private lateinit var focusManager: FocusManager
+    private lateinit var inputModeManager: InputModeManager
+    private val focusStates = mutableListOf<FocusState>()
+
     @Test
-    fun clearFocus_singleLayout() {
+    fun clearFocus_singleLayout_focusIsRestoredAfterClear() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
+        rule.setTestContent(extraItemForInitialFocus = false) {
             Box(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .onFocusChanged { focusState = it }
+                    .onFocusChanged { focusStates += it }
                     .focusTarget()
             )
         }
         rule.runOnIdle {
             focusRequester.requestFocus()
-            assertThat(focusState.isFocused).isTrue()
+            focusStates.clear()
         }
 
         // Act.
@@ -64,8 +70,16 @@ class FocusManagerCompositionLocalTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusManager.rootFocusState.isFocused).isTrue()
-            assertThat(focusState.isFocused).isFalse()
+            when (inputModeManager.inputMode) {
+                Keyboard -> {
+                    assertThat(focusStates).containsExactly(Inactive, Active).inOrder()
+                    assertThat(focusManager.rootFocusState.hasFocus).isTrue()
+                }
+                Touch -> {
+                    assertThat(focusStates).containsExactly(Inactive).inOrder()
+                    assertThat(focusManager.rootFocusState.hasFocus).isFalse()
+                }
+            }
         }
     }
 
@@ -77,7 +91,7 @@ class FocusManagerCompositionLocalTest {
         lateinit var parentFocusState: FocusState
         lateinit var grandparentFocusState: FocusState
         val focusRequester = FocusRequester()
-        rule.setFocusableContent {
+        rule.setTestContent {
             focusManager = LocalFocusManager.current
             Box(
                 modifier = Modifier
@@ -119,96 +133,38 @@ class FocusManagerCompositionLocalTest {
     @Test
     fun takeFocus_whenRootIsInactive() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
         lateinit var view: View
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
+        rule.setTestContent(extraItemForInitialFocus = false) {
             view = LocalView.current
             Box(
                 modifier = Modifier
-                    .onFocusChanged { focusState = it }
+                    .onFocusChanged { focusStates += it }
                     .focusTarget()
             )
         }
 
         // Act.
-        rule.runOnIdle { view.requestFocus() }
-
-        // Assert.
         rule.runOnIdle {
-            assertThat(focusManager.rootFocusState).isEqualTo(Active)
-            assertThat(focusState.isFocused).isFalse()
+            focusStates.clear()
+            view.requestFocus()
         }
-    }
-
-    fun takeFocus_whenRootIsActive() {
-        // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
-        lateinit var view: View
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
-            view = LocalView.current
-            Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState = it }
-                    .focusTarget()
-            )
-        }
-        rule.runOnIdle { focusManager.setRootFocusState(Active) }
-
-        // Act.
-        rule.runOnIdle { view.requestFocus() }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(focusManager.rootFocusState).isEqualTo(Active)
-            assertThat(focusState.isFocused).isFalse()
-        }
-    }
-
-    @Test
-    fun takeFocus_whenRootIsActiveParent() {
-        // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
-        lateinit var view: View
-        val focusRequester = FocusRequester()
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
-            view = LocalView.current
-            Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusState = it }
-                    .focusTarget()
-            )
-        }
-        rule.runOnIdle { focusRequester.requestFocus() }
-
-        // Act.
-        rule.runOnIdle { view.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
             assertThat(focusManager.rootFocusState).isEqualTo(ActiveParent)
-            assertThat(focusState.isFocused).isTrue()
+            assertThat(focusStates).containsExactly(Active)
         }
     }
 
     @Test
     fun releaseFocus_whenRootIsInactive() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
         lateinit var view: View
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
+        rule.setTestContent(extraItemForInitialFocus = false) {
             view = LocalView.current
             Box(
                 modifier = Modifier
-                    .onFocusChanged { focusState = it }
+                    .onFocusChanged { focusStates += it }
                     .focusTarget()
             )
         }
@@ -219,55 +175,28 @@ class FocusManagerCompositionLocalTest {
         // Assert.
         rule.runOnIdle {
             assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
-            assertThat(focusState.isFocused).isFalse()
+            assertThat(focusStates).containsExactly(Inactive)
         }
     }
 
-    fun releaseFocus_whenRootIsActive() {
-        // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
-        lateinit var view: View
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
-            view = LocalView.current
-            Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState = it }
-                    .focusTarget()
-            )
-        }
-        rule.runOnIdle { focusManager.setRootFocusState(Active) }
-
-        // Act.
-        rule.runOnIdle { view.clearFocus() }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
-            assertThat(focusState.isFocused).isFalse()
-        }
-    }
-
-    @Ignore("b/257499180")
     @Test
-    fun releaseFocus_whenRootIsActiveParent() {
+    fun releaseFocus_whenOwnerFocusIsCleared() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
         lateinit var view: View
         val focusRequester = FocusRequester()
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
+        rule.setTestContent(extraItemForInitialFocus = false) {
             view = LocalView.current
             Box(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .onFocusChanged { focusState = it }
+                    .onFocusChanged { focusStates += it }
                     .focusTarget()
             )
         }
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            focusStates.clear()
+        }
 
         // Act.
         rule.runOnIdle {
@@ -276,111 +205,107 @@ class FocusManagerCompositionLocalTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
-            assertThat(focusState.isFocused).isFalse()
+            when (inputModeManager.inputMode) {
+                Keyboard -> {
+                    // Focus is re-assigned to the initially focused item (default focus).
+                    assertThat(focusManager.rootFocusState).isEqualTo(ActiveParent)
+                    assertThat(focusStates).containsExactly(Inactive, Active).inOrder()
+                }
+                Touch -> {
+                    assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
+                    assertThat(focusStates).containsExactly(Inactive)
+                }
+                else -> error("Invalid input mode")
+            }
         }
     }
 
     @Test
     fun clearFocus_whenRootIsInactive() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
+        rule.setTestContent {
             Box(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .onFocusChanged { focusState = it }
+                    .onFocusChanged { focusStates += it }
                     .focusTarget()
             )
         }
+        rule.runOnIdle { focusStates.clear() }
 
         // Act.
         rule.runOnIdle { focusManager.clearFocus() }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
-            assertThat(focusState.isFocused).isFalse()
-        }
-    }
-
-    @Ignore("b/257499180")
-    @Test
-    fun clearFocus_whenRootIsActive() {
-        // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
-        val focusRequester = FocusRequester()
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
-            Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusState = it }
-                    .focusTarget()
-            )
-        }
-        rule.runOnIdle { focusManager.setRootFocusState(Active) }
-
-        // Act.
-        rule.runOnIdle { focusManager.clearFocus() }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
-            assertThat(focusState.isFocused).isFalse()
+            when (inputModeManager.inputMode) {
+                Keyboard -> {
+                    assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
+                    assertThat(focusStates).isEmpty()
+                }
+                Touch -> {
+                    assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
+                    assertThat(focusStates).isEmpty()
+                }
+                else -> error("Invalid input mode")
+            }
         }
     }
 
     @Test
     fun clearFocus_whenRootIsActiveParent() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
+        rule.setTestContent(extraItemForInitialFocus = false) {
             Box(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .onFocusChanged { focusState = it }
+                    .onFocusChanged { focusStates += it }
                     .focusTarget()
             )
         }
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            focusStates.clear()
+        }
 
         // Act.
         rule.runOnIdle { focusManager.clearFocus() }
 
         // Assert.
         rule.runOnIdle {
-            // TODO(b/257499180): Compose should not hold focus state when clear focus is requested.
-            assertThat(focusManager.rootFocusState).isEqualTo(Active)
-            assertThat(focusState.isFocused).isFalse()
+            when (inputModeManager.inputMode) {
+                Keyboard -> {
+                    assertThat(focusManager.rootFocusState).isEqualTo(ActiveParent)
+                    assertThat(focusStates).containsExactly(Inactive, Active).inOrder()
+                }
+                Touch -> {
+                    assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
+                    assertThat(focusStates).containsExactly(Inactive)
+                }
+                else -> error("Invalid input mode")
+            }
         }
     }
 
     @Test
     fun clearFocus_whenHierarchyHasCapturedFocus() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
-        rule.setFocusableContent {
+        rule.setTestContent {
             focusManager = LocalFocusManager.current
             Box(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .onFocusChanged { focusState = it }
+                    .onFocusChanged { focusStates += it }
                     .focusTarget()
             )
         }
         rule.runOnIdle {
             focusRequester.requestFocus()
             focusRequester.captureFocus()
+            focusStates.clear()
         }
 
         // Act.
@@ -389,28 +314,27 @@ class FocusManagerCompositionLocalTest {
         // Assert.
         rule.runOnIdle {
             assertThat(focusManager.rootFocusState).isEqualTo(ActiveParent)
-            assertThat(focusState.isFocused).isTrue()
+            assertThat(focusStates).isEmpty()
         }
     }
 
     @Test
     fun clearFocus_forced_whenHierarchyHasCapturedFocus() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
+        rule.setTestContent(extraItemForInitialFocus = false) {
+
             Box(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .onFocusChanged { focusState = it }
+                    .onFocusChanged { focusStates += it }
                     .focusTarget()
             )
         }
         rule.runOnIdle {
             focusRequester.requestFocus()
             focusRequester.captureFocus()
+            focusStates.clear()
         }
 
         // Act.
@@ -418,16 +342,32 @@ class FocusManagerCompositionLocalTest {
 
         // Assert.
         rule.runOnIdle {
-            // TODO(b/257499180): Compose should clear focus and send focus to the root view.
-            assertThat(focusManager.rootFocusState).isEqualTo(Active)
-            assertThat(focusState.isFocused).isFalse()
+            when (inputModeManager.inputMode) {
+                Keyboard -> {
+                    // Focus is re-assigned to the initially focused item (default focus).
+                    assertThat(focusManager.rootFocusState).isEqualTo(ActiveParent)
+                    assertThat(focusStates).containsExactly(Inactive, Active).inOrder()
+                }
+                Touch -> {
+                    assertThat(focusManager.rootFocusState).isEqualTo(Inactive)
+                    assertThat(focusStates).containsExactly(Inactive).inOrder()
+                }
+                else -> error("Invalid input mode")
+            }
         }
     }
 
     private val FocusManager.rootFocusState: FocusState
         get() = (this as FocusOwnerImpl).rootFocusNode.focusState
 
-    private fun FocusManager.setRootFocusState(focusState: FocusStateImpl) {
-        (this as FocusOwnerImpl).rootFocusNode.focusState = focusState
+    private fun ComposeContentTestRule.setTestContent(
+        extraItemForInitialFocus: Boolean = true,
+        content: @Composable () -> Unit
+    ) {
+        setFocusableContent(extraItemForInitialFocus) {
+            focusManager = LocalFocusManager.current
+            inputModeManager = LocalInputModeManager.current
+            content()
+        }
     }
 }

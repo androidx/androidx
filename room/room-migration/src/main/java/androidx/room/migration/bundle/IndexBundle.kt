@@ -21,8 +21,7 @@ import androidx.room.Index
 import com.google.gson.annotations.SerializedName
 
 /**
- * Data class that holds the schema information about a table Index.
- *
+ * Data class that holds the schema information about a table [androidx.room.Index]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class IndexBundle(

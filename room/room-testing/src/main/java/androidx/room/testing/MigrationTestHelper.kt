@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.room.testing
 
-import android.annotation.SuppressLint
 import android.app.Instrumentation
 import android.content.Context
 import android.util.Log
@@ -24,16 +24,10 @@ import androidx.room.DatabaseConfiguration
 import androidx.room.Room
 import androidx.room.Room.getGeneratedImplementation
 import androidx.room.RoomDatabase
-import androidx.room.RoomOpenHelper
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.room.migration.bundle.DatabaseBundle
-import androidx.room.migration.bundle.DatabaseViewBundle
-import androidx.room.migration.bundle.EntityBundle
-import androidx.room.migration.bundle.FieldBundle
-import androidx.room.migration.bundle.ForeignKeyBundle
 import androidx.room.migration.bundle.FtsEntityBundle
-import androidx.room.migration.bundle.IndexBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.migration.bundle.SchemaBundle.Companion.deserialize
 import androidx.room.util.FtsTableInfo
@@ -47,6 +41,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.ref.WeakReference
+import kotlin.reflect.KClass
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
@@ -181,7 +176,6 @@ open class MigrationTestHelper : TestWatcher {
      * @param version The version in which the database should be created.
      * @return A database connection which has the schema in the requested version.
      */
-    @SuppressLint("RestrictedApi")
     @Throws(IOException::class)
     open fun createDatabase(name: String, version: Int): SupportSQLiteDatabase {
         val dbPath: File = instrumentation.targetContext.getDatabasePath(name)
@@ -214,9 +208,12 @@ open class MigrationTestHelper : TestWatcher {
             copyFromInputStream = null,
             prepackagedDatabaseCallback = null,
             typeConverters = emptyList(),
-            autoMigrationSpecs = emptyList()
+            autoMigrationSpecs = emptyList(),
+            allowDestructiveMigrationForAllTables = false,
+            sqliteDriver = null
         )
-        val roomOpenHelper = RoomOpenHelper(
+        @Suppress("DEPRECATION") // Due to RoomOpenHelper
+        val roomOpenHelper = androidx.room.RoomOpenHelper(
             configuration = configuration,
             delegate = CreatingDelegate(schemaBundle.database),
             identityHash = schemaBundle.database.identityHash,
@@ -248,7 +245,6 @@ open class MigrationTestHelper : TestWatcher {
      * @param migrations            The list of available migrations.
      * @throws IllegalArgumentException If the schema validation fails.
      */
-    @SuppressLint("RestrictedApi")
     open fun runMigrationsAndValidate(
         name: String,
         version: Int,
@@ -293,9 +289,12 @@ open class MigrationTestHelper : TestWatcher {
             copyFromInputStream = null,
             prepackagedDatabaseCallback = null,
             typeConverters = emptyList(),
-            autoMigrationSpecs = emptyList()
+            autoMigrationSpecs = emptyList(),
+            allowDestructiveMigrationForAllTables = false,
+            sqliteDriver = null
         )
-        val roomOpenHelper = RoomOpenHelper(
+        @Suppress("DEPRECATION") // Due to RoomOpenHelper
+        val roomOpenHelper = androidx.room.RoomOpenHelper(
             configuration = databaseConfiguration,
             delegate = MigratingDelegate(
                 databaseBundle = schemaBundle.database,
@@ -335,8 +334,8 @@ open class MigrationTestHelper : TestWatcher {
         val db: RoomDatabase = getGeneratedImplementation(
             databaseClass, "_Impl"
         )
-        val requiredAutoMigrationSpecs = db.getRequiredAutoMigrationSpecs()
-        return db.getAutoMigrations(
+        val requiredAutoMigrationSpecs = db.getRequiredAutoMigrationSpecClasses()
+        return db.createAutoMigrations(
             createAutoMigrationSpecMap(requiredAutoMigrationSpecs, userProvidedSpecs)
         )
     }
@@ -345,26 +344,30 @@ open class MigrationTestHelper : TestWatcher {
      * Maps auto migration spec classes to their provided instance.
      */
     private fun createAutoMigrationSpecMap(
-        requiredAutoMigrationSpecs: Set<Class<out AutoMigrationSpec>>,
+        requiredAutoMigrationSpecs: Set<KClass<out AutoMigrationSpec>>,
         userProvidedSpecs: List<AutoMigrationSpec>
-    ): Map<Class<out AutoMigrationSpec>, AutoMigrationSpec> {
+    ): Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec> {
         if (requiredAutoMigrationSpecs.isEmpty()) {
             return emptyMap()
         }
         return buildMap {
             requiredAutoMigrationSpecs.forEach { spec ->
                 val match = userProvidedSpecs.firstOrNull { provided ->
-                    spec.isAssignableFrom(provided.javaClass)
+                    spec.java.isAssignableFrom(provided.javaClass)
                 }
                 require(match != null) {
-                    "A required auto migration spec (${spec.canonicalName}) has not been provided."
+                    "A required auto migration spec (${spec.qualifiedName}) has not been provided."
                 }
                 put(spec, match)
             }
         }
     }
 
-    private fun openDatabase(name: String, roomOpenHelper: RoomOpenHelper): SupportSQLiteDatabase {
+    private fun openDatabase(
+        name: String,
+        @Suppress("DEPRECATION")
+        roomOpenHelper: androidx.room.RoomOpenHelper
+    ): SupportSQLiteDatabase {
         val config = SupportSQLiteOpenHelper.Configuration.builder(instrumentation.targetContext)
             .callback(roomOpenHelper)
             .name(name)
@@ -454,6 +457,7 @@ open class MigrationTestHelper : TestWatcher {
         return deserialize(input)
     }
 
+    @Suppress("DEPRECATION") // Due to RoomOpenHelper
     internal class MigratingDelegate(
         databaseBundle: DatabaseBundle,
         private val mVerifyDroppedTables: Boolean
@@ -467,48 +471,59 @@ open class MigrationTestHelper : TestWatcher {
 
         override fun onValidateSchema(
             db: SupportSQLiteDatabase
-        ): RoomOpenHelper.ValidationResult {
+        ): androidx.room.RoomOpenHelper.ValidationResult {
             val tables = mDatabaseBundle.entitiesByTableName
             tables.values.forEach { entity ->
                 if (entity is FtsEntityBundle) {
-                    val expected = toFtsTableInfo(entity)
+                    val expected = entity.toFtsTableInfo()
                     val found = FtsTableInfo.read(db, entity.tableName)
                     if (expected != found) {
-                        return RoomOpenHelper.ValidationResult(
+                        return androidx.room.RoomOpenHelper.ValidationResult(
                             false,
-                            """
-                                ${expected.name}
-                                Expected: $expected
-                                Found: $found
-                            """.trimIndent()
+                            """ ${expected.name.trimEnd()}
+                                |
+                                |Expected:
+                                |
+                                |$expected
+                                |
+                                |Found:
+                                |
+                                |$found
+                            """.trimMargin()
                         )
                     }
                 } else {
-                    val expected = toTableInfo(entity)
+                    val expected = entity.toTableInfo()
                     val found = TableInfo.read(db, entity.tableName)
                     if (expected != found) {
-                        return RoomOpenHelper.ValidationResult(
+                        return androidx.room.RoomOpenHelper.ValidationResult(
                             false,
-                            """
-                                ${expected.name}
-                                Expected: $expected
-                                found: $found
-                            """.trimIndent()
+                            """ ${expected.name.trimEnd()}
+                                |
+                                |Expected:
+                                |
+                                |$expected
+                                |
+                                |Found:
+                                |
+                                |$found
+                            """.trimMargin()
                         )
                     }
                 }
             }
             mDatabaseBundle.views.forEach { view ->
-                val expected = toViewInfo(view)
+                val expected = view.toViewInfo()
                 val found = ViewInfo.read(db, view.viewName)
                 if (expected != found) {
-                    return RoomOpenHelper.ValidationResult(
+                    return androidx.room.RoomOpenHelper.ValidationResult(
                         false,
-                            """
-                                ${expected.name}
-                                Expected: $expected
-                                Found: $found
-                            """.trimIndent()
+                        """ ${expected.name.trimEnd()}
+                                |
+                                |Expected: $expected
+                                |
+                                |Found: $found
+                            """.trimMargin()
                     )
                 }
             }
@@ -533,17 +548,18 @@ open class MigrationTestHelper : TestWatcher {
                     while (cursor.moveToNext()) {
                         val tableName = cursor.getString(0)
                         if (!expectedTables.contains(tableName)) {
-                            return RoomOpenHelper.ValidationResult(
+                            return androidx.room.RoomOpenHelper.ValidationResult(
                                 false, "Unexpected table $tableName"
                             )
                         }
                     }
                 }
             }
-            return RoomOpenHelper.ValidationResult(true, null)
+            return androidx.room.RoomOpenHelper.ValidationResult(true, null)
         }
     }
 
+    @Suppress("DEPRECATION") // Due to RoomOpenHelper
     internal class CreatingDelegate(
         databaseBundle: DatabaseBundle
     ) : RoomOpenHelperDelegate(databaseBundle) {
@@ -555,16 +571,17 @@ open class MigrationTestHelper : TestWatcher {
 
         override fun onValidateSchema(
             db: SupportSQLiteDatabase
-        ): RoomOpenHelper.ValidationResult {
+        ): androidx.room.RoomOpenHelper.ValidationResult {
             throw UnsupportedOperationException(
                 "This open helper just creates the database but it received a migration request."
             )
         }
     }
 
+    @Suppress("DEPRECATION") // Due to RoomOpenHelper
     internal abstract class RoomOpenHelperDelegate(
         val mDatabaseBundle: DatabaseBundle
-    ) : RoomOpenHelper.Delegate(
+    ) : androidx.room.RoomOpenHelper.Delegate(
             mDatabaseBundle.version
         ) {
         override fun dropAllTables(db: SupportSQLiteDatabase) {
@@ -577,103 +594,5 @@ open class MigrationTestHelper : TestWatcher {
 
     internal companion object {
         private const val TAG = "MigrationTestHelper"
-        @JvmStatic
-        internal fun toTableInfo(entityBundle: EntityBundle): TableInfo {
-            return TableInfo(
-                name = entityBundle.tableName,
-                columns = toColumnMap(entityBundle),
-                foreignKeys = toForeignKeys(entityBundle.foreignKeys),
-                indices = toIndices(entityBundle.indices)
-            )
-        }
-
-        @JvmStatic
-        internal fun toFtsTableInfo(ftsEntityBundle: FtsEntityBundle): FtsTableInfo {
-            return FtsTableInfo(
-                name = ftsEntityBundle.tableName,
-                columns = toColumnNamesSet(ftsEntityBundle),
-                createSql = ftsEntityBundle.createSql
-            )
-        }
-
-        @JvmStatic
-        internal fun toViewInfo(viewBundle: DatabaseViewBundle): ViewInfo {
-            return ViewInfo(
-                name = viewBundle.viewName,
-                sql = viewBundle.createView()
-            )
-        }
-
-        @JvmStatic
-        internal fun toIndices(indices: List<IndexBundle>?): Set<TableInfo.Index> {
-            if (indices == null) {
-                return emptySet()
-            }
-            val result = indices.map { bundle ->
-                TableInfo.Index(
-                    name = bundle.name,
-                    unique = bundle.isUnique,
-                    columns = bundle.columnNames!!,
-                    orders = bundle.orders!!
-                )
-            }.toSet()
-            return result
-        }
-
-        @JvmStatic
-        internal fun toForeignKeys(
-            bundles: List<ForeignKeyBundle>?
-        ): Set<TableInfo.ForeignKey> {
-            if (bundles == null) {
-                return emptySet()
-            }
-            val result = bundles.map { bundle ->
-                TableInfo.ForeignKey(
-                    referenceTable = bundle.table,
-                    onDelete = bundle.onDelete,
-                    onUpdate = bundle.onUpdate,
-                    columnNames = bundle.columns,
-                    referenceColumnNames = bundle.referencedColumns
-                )
-            }.toSet()
-            return result
-        }
-
-        @JvmStatic
-        internal fun toColumnNamesSet(entity: EntityBundle): Set<String> {
-            val result = entity.fields.map { field ->
-                field.columnName
-            }.toSet()
-            return result
-        }
-
-        @JvmStatic
-        internal fun toColumnMap(entity: EntityBundle): Map<String, TableInfo.Column> {
-            val result: MutableMap<String, TableInfo.Column> = HashMap()
-            entity.fields.associateBy { bundle ->
-                val column = toColumn(entity, bundle)
-                result[column.name] = column
-            }
-            return result
-        }
-
-        @JvmStatic
-        internal fun toColumn(entity: EntityBundle, field: FieldBundle): TableInfo.Column {
-            return TableInfo.Column(
-                name = field.columnName,
-                type = field.affinity,
-                notNull = field.isNonNull,
-                primaryKeyPosition = findPrimaryKeyPosition(entity, field),
-                defaultValue = field.defaultValue,
-                createdFrom = TableInfo.CREATED_FROM_ENTITY
-            )
-        }
-
-        @JvmStatic
-        internal fun findPrimaryKeyPosition(entity: EntityBundle, field: FieldBundle): Int {
-            return entity.primaryKey.columnNames.indexOfFirst { columnName ->
-                field.columnName.equals(columnName, ignoreCase = true)
-            } + 1 // Shift by 1 to get primary key position
-        }
     }
 }

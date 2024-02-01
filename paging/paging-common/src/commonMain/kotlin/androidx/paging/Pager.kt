@@ -20,7 +20,17 @@ import kotlin.jvm.JvmOverloads
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Primary entry point into Paging; constructor for a reactive stream of [PagingData].
+ * Primary entry point into Paging; constructor for a reactive stream of [PagingData]. The same
+ * Pager instance should be reused within an instance of ViewModel. For example in your ViewModel:
+ *
+ * ```
+ * // create a Pager instance and store to a variable
+ * val pager = Pager(
+ *      ...
+ *      )
+ *      .flow
+ *      .cachedIn(viewModelScope)
+ * ```
  *
  * Each [PagingData] represents a snapshot of the backing paginated data. Updates to the backing
  * dataset should be represented by a new instance of [PagingData].

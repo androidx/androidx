@@ -16,19 +16,19 @@
 
 package androidx.privacysandbox.ui.client.test
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
-import android.os.Build
 import android.os.IBinder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
@@ -53,12 +53,11 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// TODO(b/268014171): Remove API requirements once S- support is added
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SandboxedSdkViewTest {
@@ -71,9 +70,11 @@ class SandboxedSdkViewTest {
 
     private lateinit var context: Context
     private lateinit var view: SandboxedSdkView
-    private lateinit var layoutParams: ViewGroup.LayoutParams
+    private lateinit var layoutParams: LayoutParams
     private lateinit var testSandboxedUiAdapter: TestSandboxedUiAdapter
     private lateinit var stateChangedListener: StateChangedListener
+    private var mainLayoutWidth = -1
+    private var mainLayoutHeight = -1
 
     @get:Rule
     var activityScenarioRule = ActivityScenarioRule(UiLibActivity::class.java)
@@ -453,6 +454,7 @@ class SandboxedSdkViewTest {
      * Ensures that the input token passed when opening a session is non-null and is the same host
      * token as another [SurfaceView] in the same activity.
      */
+    @SuppressLint("NewApi") // Test runs on U+ devices
     @Test
     fun inputTokenIsCorrect() {
         // Input token is only needed when provider can be located on a separate process.
@@ -500,7 +502,7 @@ class SandboxedSdkViewTest {
         onView(withId(R.id.mainlayout)).check(matches(isDisplayed()))
         activityScenarioRule.withActivity {
             val boundingRect = Rect()
-            assertThat(view.getBoundingParent(boundingRect)).isTrue()
+            assertThat(view.maybeUpdateClippingBounds(boundingRect)).isTrue()
             val rootView: ViewGroup = findViewById(android.R.id.content)
             val rootRect = Rect()
             rootView.getGlobalVisibleRect(rootRect)
@@ -521,7 +523,7 @@ class SandboxedSdkViewTest {
         val scrollViewRect = Rect()
         assertThat(scrollView.getGlobalVisibleRect(scrollViewRect)).isTrue()
         val boundingRect = Rect()
-        assertThat(view.getBoundingParent(boundingRect)).isTrue()
+        assertThat(view.maybeUpdateClippingBounds(boundingRect)).isTrue()
         assertThat(scrollViewRect).isEqualTo(boundingRect)
     }
 
@@ -547,11 +549,85 @@ class SandboxedSdkViewTest {
         assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
 
-    private fun addViewToLayout() {
+    @Ignore("b/307829956")
+    @Test
+    fun requestSizeWithMeasureSpecAtMost_withinParentBounds() {
+        view.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        addViewToLayoutAndWaitToBeActive()
+        requestSizeAndVerifyLayout(
+            /* requestedWidth=*/ mainLayoutWidth - 100,
+            /* requestedHeight=*/ mainLayoutHeight - 100,
+            /* expectedWidth=*/ mainLayoutWidth - 100,
+            /* expectedHeight=*/ mainLayoutHeight - 100)
+    }
+
+    @Test
+    fun requestSizeWithMeasureSpecAtMost_exceedsParentBounds() {
+        view.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        addViewToLayoutAndWaitToBeActive()
+        // the resize is constrained by the parent's size
+        requestSizeAndVerifyLayout(
+            /* requestedWidth=*/ mainLayoutWidth + 100,
+            /* requestedHeight=*/ mainLayoutHeight + 100,
+            /* expectedWidth=*/ mainLayoutWidth,
+            /* expectedHeight=*/ mainLayoutHeight)
+    }
+
+    @Test
+    fun requestSizeWithMeasureSpecExactly() {
+        view.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        addViewToLayoutAndWaitToBeActive()
+        val currentWidth = view.width
+        val currentHeight = view.height
+        // the request is a no-op when the MeasureSpec is EXACTLY
+        requestSizeAndVerifyLayout(
+            /* requestedWidth=*/ currentWidth - 100,
+            /* requestedHeight=*/ currentHeight - 100,
+            /* expectedWidth=*/ currentWidth,
+            /* expectedHeight=*/ currentHeight)
+    }
+
+    private fun addViewToLayout(waitToBeActive: Boolean = false) {
         activityScenarioRule.withActivity {
-            findViewById<LinearLayout>(
-                R.id.mainlayout
-            ).addView(view)
+            val mainLayout: LinearLayout = findViewById(R.id.mainlayout)
+            mainLayoutWidth = mainLayout.width
+            mainLayoutHeight = mainLayout.height
+            mainLayout.addView(view)
         }
+        if (waitToBeActive) {
+            val latch = CountDownLatch(1)
+            view.addStateChangedListener {
+                if (it == SandboxedSdkUiSessionState.Active) {
+                    latch.countDown()
+                }
+            }
+            assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+    }
+
+    private fun addViewToLayoutAndWaitToBeActive() {
+        addViewToLayout(true)
+    }
+
+    private fun requestSizeAndVerifyLayout(
+        requestedWidth: Int,
+        requestedHeight: Int,
+        expectedWidth: Int,
+        expectedHeight: Int
+    ) {
+        val layoutLatch = CountDownLatch(1)
+        var width = -1
+        var height = -1
+        view.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
+            width = right - left
+            height = bottom - top
+            layoutLatch.countDown()
+        }
+        activityScenarioRule.withActivity {
+            view.requestSize(requestedWidth, requestedHeight)
+        }
+        assertThat(layoutLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(width).isEqualTo(expectedWidth)
+        assertThat(height).isEqualTo(expectedHeight)
     }
 }

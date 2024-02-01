@@ -30,6 +30,10 @@ class OrientationConfigChangesOverriddenActivity : CameraActivity() {
     private val mDisplayListener by lazy {
         object : DisplayManager.DisplayListener {
             override fun onDisplayChanged(displayId: Int) {
+                if (!isImageAnalysisInitialized() || !isImageCaptureInitialized()) {
+                    return
+                }
+
                 val display = mDisplayManager.getDisplay(displayId)
                 if (display != null) {
                     val rotation = display.rotation

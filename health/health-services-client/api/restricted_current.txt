@@ -225,6 +225,7 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> DISTANCE_DAILY;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> DISTANCE_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_GAIN;
+    field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_GAIN_DAILY;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> ELEVATION_GAIN_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_LOSS;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> ELEVATION_LOSS_TOTAL;
@@ -260,6 +261,7 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Long>> STEPS_PER_MINUTE_STATS;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> STEPS_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> SWIMMING_LAP_COUNT;
+    field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> SWIMMING_LAP_COUNT_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> SWIMMING_STROKES;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> SWIMMING_STROKES_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> VO2_MAX;
@@ -847,14 +849,14 @@ package androidx.health.services.client.data {
   }
 
   public final class PassiveListenerConfig {
-    ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldUserActivityInfoBeRequested, java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
+    ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldUserActivityInfoBeRequested, java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
     method public static androidx.health.services.client.data.PassiveListenerConfig.Builder builder();
     method public java.util.Set<androidx.health.services.client.data.PassiveGoal> getDailyGoals();
-    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
+    method public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
     method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
-    method public boolean getShouldUserActivityInfoBeRequested();
+    method public boolean shouldUserActivityInfoBeRequested();
     property public final java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
+    property public final java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
     property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
     property public final boolean shouldUserActivityInfoBeRequested;
     field public static final androidx.health.services.client.data.PassiveListenerConfig.Companion Companion;

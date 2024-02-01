@@ -39,7 +39,6 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      */
     private var mPBufferSurface: EGLSurface = EGL14.EGL_NO_SURFACE
     private var mEglContext: EGLContext = EGL14.EGL_NO_CONTEXT
-    private var mWideColorGamutSupport = false
     private var mEglVersion = EGLVersion.Unknown
     private val mEglSpec = eglSpec
     private var mEglExtensions: Set<String>? = null

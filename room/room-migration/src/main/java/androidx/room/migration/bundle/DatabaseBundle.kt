@@ -21,15 +21,12 @@ import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
 import com.google.gson.annotations.SerializedName
 
 /**
- * Data class that holds the schema information for a
- * [androidx.room.Database].
+ * Data class that holds the schema information for a [androidx.room.Database].
  *
- * @constructor Creates a new database
  * @property version Version
  * @property identityHash Identity hash
  * @property entities List of entities
  * @property views List of views
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class DatabaseBundle(

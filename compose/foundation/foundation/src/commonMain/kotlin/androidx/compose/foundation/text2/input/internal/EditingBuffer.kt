@@ -150,7 +150,26 @@ internal class EditingBuffer(
         val min = minOf(start, end)
         val max = maxOf(start, end)
 
-        changeTracker.trackChange(start, end, text.length)
+        // coerce the replacement bounds before tracking change. This is mostly necessary for
+        // composition based typing when each keystroke may trigger a replace function that looks
+        // like "abcd" => "abcde".
+
+        // coerce min
+        var i = 0
+        var cMin = min
+        while (cMin < max && i < text.length && text[i] == gapBuffer[cMin]) {
+            i++
+            cMin++
+        }
+        // coerce max
+        var j = text.length
+        var cMax = max
+        while (cMax > min && j > i && text[j - 1] == gapBuffer[cMax - 1]) {
+            j--
+            cMax--
+        }
+
+        changeTracker.trackChange(cMin, cMax, j - i)
 
         gapBuffer.replace(min, max, text)
 

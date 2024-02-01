@@ -922,6 +922,7 @@ class BasicMarqueeTest {
             focusManager = LocalFocusManager.current
             TestMarqueeContent(
                 Modifier
+                    .focusable() // extra focusable for initial focus.
                     .basicMarqueeWithTestParams(animationMode = WhileFocused)
                     .focusRequester(focusRequester)
                     .focusable()

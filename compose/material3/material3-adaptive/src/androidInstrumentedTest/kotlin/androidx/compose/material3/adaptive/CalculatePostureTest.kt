@@ -88,94 +88,119 @@ class CalculatePostureTest {
     }
 
     @Test
-    fun test_calculatePosture_separatingBounds() {
-        val mockHingeBounds1 = Rect(1, 1, 2, 2)
-        val mockHingeBounds2 = Rect(2, 2, 3, 3)
-        val mockHingeBounds3 = Rect(3, 3, 4, 4)
-        val posture = calculatePosture(
-            listOf(
-                MockFoldingFeature(
-                    isSeparating = false,
-                    occlusionType = FoldingFeature.OcclusionType.FULL,
-                    bounds = mockHingeBounds1
-                ),
-                MockFoldingFeature(
-                    isSeparating = true,
-                    occlusionType = FoldingFeature.OcclusionType.FULL,
-                    bounds = mockHingeBounds2
-                ),
-                MockFoldingFeature(
-                    isSeparating = true,
-                    occlusionType = FoldingFeature.OcclusionType.NONE,
-                    bounds = mockHingeBounds3
-                ),
-            )
-        )
+    fun test_calculatePosture_separatingVerticalBounds() {
+        val posture = calculatePosture(allHinges)
 
-        assertThat(posture.separatingHingeBounds.size).isEqualTo(2)
-        assertThat(posture.separatingHingeBounds[0]).isEqualTo(mockHingeBounds2.toComposeRect())
-        assertThat(posture.separatingHingeBounds[1]).isEqualTo(mockHingeBounds3.toComposeRect())
+        assertThat(posture.separatingVerticalHingeBounds.size).isEqualTo(2)
+        assertThat(
+            posture.separatingVerticalHingeBounds[0]
+        ).isEqualTo(mockHingeBounds2.toComposeRect())
+        assertThat(
+            posture.separatingVerticalHingeBounds[1]
+        ).isEqualTo(mockHingeBounds3.toComposeRect())
     }
 
     @Test
-    fun test_calculatePosture_occludingBounds() {
-        val mockHingeBounds1 = Rect(1, 1, 2, 2)
-        val mockHingeBounds2 = Rect(2, 2, 3, 3)
-        val mockHingeBounds3 = Rect(3, 3, 4, 4)
-        val posture = calculatePosture(
-            listOf(
-                MockFoldingFeature(
-                    isSeparating = false,
-                    occlusionType = FoldingFeature.OcclusionType.FULL,
-                    bounds = mockHingeBounds1
-                ),
-                MockFoldingFeature(
-                    isSeparating = true,
-                    occlusionType = FoldingFeature.OcclusionType.FULL,
-                    bounds = mockHingeBounds2
-                ),
-                MockFoldingFeature(
-                    isSeparating = true,
-                    occlusionType = FoldingFeature.OcclusionType.NONE,
-                    bounds = mockHingeBounds3
-                ),
-            )
-        )
+    fun test_calculatePosture_separatingHorizontalBounds() {
+        val posture = calculatePosture(allHinges)
 
-        assertThat(posture.occludingHingeBounds.size).isEqualTo(2)
-        assertThat(posture.occludingHingeBounds[0]).isEqualTo(mockHingeBounds1.toComposeRect())
-        assertThat(posture.occludingHingeBounds[1]).isEqualTo(mockHingeBounds2.toComposeRect())
+        assertThat(posture.separatingHorizontalHingeBounds.size).isEqualTo(2)
+        assertThat(
+            posture.separatingHorizontalHingeBounds[0]
+        ).isEqualTo(mockHingeBounds5.toComposeRect())
+        assertThat(
+            posture.separatingHorizontalHingeBounds[1]
+        ).isEqualTo(mockHingeBounds6.toComposeRect())
     }
 
     @Test
-    fun test_calculatePosture_allBounds() {
-        val mockHingeBounds1 = Rect(1, 1, 2, 2)
-        val mockHingeBounds2 = Rect(2, 2, 3, 3)
-        val mockHingeBounds3 = Rect(3, 3, 4, 4)
-        val posture = calculatePosture(
-            listOf(
-                MockFoldingFeature(
-                    isSeparating = false,
-                    occlusionType = FoldingFeature.OcclusionType.FULL,
-                    bounds = mockHingeBounds1
-                ),
-                MockFoldingFeature(
-                    isSeparating = true,
-                    occlusionType = FoldingFeature.OcclusionType.FULL,
-                    bounds = mockHingeBounds2
-                ),
-                MockFoldingFeature(
-                    isSeparating = true,
-                    occlusionType = FoldingFeature.OcclusionType.NONE,
-                    bounds = mockHingeBounds3
-                ),
-            )
-        )
+    fun test_calculatePosture_occludingVerticalOBounds() {
+        val posture = calculatePosture(allHinges)
 
-        assertThat(posture.allHingeBounds.size).isEqualTo(3)
-        assertThat(posture.allHingeBounds[0]).isEqualTo(mockHingeBounds1.toComposeRect())
-        assertThat(posture.allHingeBounds[1]).isEqualTo(mockHingeBounds2.toComposeRect())
-        assertThat(posture.allHingeBounds[2]).isEqualTo(mockHingeBounds3.toComposeRect())
+        assertThat(posture.occludingVerticalHingeBounds.size).isEqualTo(2)
+        assertThat(
+            posture.occludingVerticalHingeBounds[0]
+        ).isEqualTo(mockHingeBounds1.toComposeRect())
+        assertThat(
+            posture.occludingVerticalHingeBounds[1]
+        ).isEqualTo(mockHingeBounds2.toComposeRect())
+    }
+
+    @Test
+    fun test_calculatePosture_occludingHorizontalBounds() {
+        val posture = calculatePosture(allHinges)
+
+        assertThat(posture.occludingHorizontalHingeBounds.size).isEqualTo(2)
+        assertThat(
+            posture.occludingHorizontalHingeBounds[0]
+        ).isEqualTo(mockHingeBounds4.toComposeRect())
+        assertThat(
+            posture.occludingHorizontalHingeBounds[1]
+        ).isEqualTo(mockHingeBounds5.toComposeRect())
+    }
+
+    @Test
+    fun test_calculatePosture_allVerticalBounds() {
+        val posture = calculatePosture(allHinges)
+
+        assertThat(posture.allVerticalHingeBounds.size).isEqualTo(3)
+        assertThat(posture.allVerticalHingeBounds[0]).isEqualTo(mockHingeBounds1.toComposeRect())
+        assertThat(posture.allVerticalHingeBounds[1]).isEqualTo(mockHingeBounds2.toComposeRect())
+        assertThat(posture.allVerticalHingeBounds[2]).isEqualTo(mockHingeBounds3.toComposeRect())
+    }
+
+    @Test
+    fun test_calculatePosture_allHorizontalBounds() {
+        val posture = calculatePosture(allHinges)
+
+        assertThat(posture.allHorizontalHingeBounds.size).isEqualTo(3)
+        assertThat(posture.allHorizontalHingeBounds[0]).isEqualTo(mockHingeBounds4.toComposeRect())
+        assertThat(posture.allHorizontalHingeBounds[1]).isEqualTo(mockHingeBounds5.toComposeRect())
+        assertThat(posture.allHorizontalHingeBounds[2]).isEqualTo(mockHingeBounds6.toComposeRect())
+    }
+
+    companion object {
+        private val mockHingeBounds1 = Rect(1, 1, 2, 2)
+        private val mockHingeBounds2 = Rect(2, 2, 3, 3)
+        private val mockHingeBounds3 = Rect(3, 3, 4, 4)
+        private val mockHingeBounds4 = Rect(4, 4, 5, 5)
+        private val mockHingeBounds5 = Rect(5, 5, 6, 6)
+        private val mockHingeBounds6 = Rect(6, 6, 7, 7)
+        private val allHinges = listOf(
+            MockFoldingFeature(
+                isSeparating = false,
+                occlusionType = FoldingFeature.OcclusionType.FULL,
+                bounds = mockHingeBounds1
+            ),
+            MockFoldingFeature(
+                isSeparating = true,
+                occlusionType = FoldingFeature.OcclusionType.FULL,
+                bounds = mockHingeBounds2
+            ),
+            MockFoldingFeature(
+                isSeparating = true,
+                occlusionType = FoldingFeature.OcclusionType.NONE,
+                bounds = mockHingeBounds3
+            ),
+            MockFoldingFeature(
+                isSeparating = false,
+                occlusionType = FoldingFeature.OcclusionType.FULL,
+                orientation = FoldingFeature.Orientation.HORIZONTAL,
+                bounds = mockHingeBounds4
+            ),
+            MockFoldingFeature(
+                isSeparating = true,
+                occlusionType = FoldingFeature.OcclusionType.FULL,
+                orientation = FoldingFeature.Orientation.HORIZONTAL,
+                bounds = mockHingeBounds5
+            ),
+            MockFoldingFeature(
+                isSeparating = true,
+                occlusionType = FoldingFeature.OcclusionType.NONE,
+                orientation = FoldingFeature.Orientation.HORIZONTAL,
+                bounds = mockHingeBounds6
+            ),
+        )
     }
 }
 

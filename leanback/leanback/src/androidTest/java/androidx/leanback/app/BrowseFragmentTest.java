@@ -59,7 +59,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -191,7 +190,6 @@ public class BrowseFragmentTest {
     }
 
     @Test
-    @Ignore("b/281082608")
     public void testPressRightBeforeMainFragmentCreated() throws Throwable {
         final long dataLoadingDelay = 1000;
         Intent intent = new Intent();
@@ -395,16 +393,23 @@ public class BrowseFragmentTest {
             leakDetector.observeObject(gridView.getChildAt(i));
         }
         gridView = null;
-        EmptyFragment emptyFragment = new EmptyFragment();
-        mActivity.getFragmentManager().beginTransaction()
-                .replace(R.id.main_frame, emptyFragment)
-                .addToBackStack("BK")
-                .commit();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mActivity.getFragmentManager().beginTransaction()
+                               .replace(R.id.main_frame, new EmptyFragment())
+                               .addToBackStack("BK")
+                               .commit();
+                    }
+                }
+        );
 
         PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return emptyFragment.isResumed();
+                return mActivity.getFragmentManager()
+                        .findFragmentById(R.id.main_frame).isResumed();
             }
         });
         leakDetector.assertNoLeak();

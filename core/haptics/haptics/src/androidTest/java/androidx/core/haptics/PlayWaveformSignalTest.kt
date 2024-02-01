@@ -37,7 +37,7 @@ import org.junit.runners.JUnit4
 @SmallTest
 class PlayWaveformSignalSdk26AndAboveTest {
     private val fakeVibrator = AmplitudeVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @Test
     fun play_withOneShot_vibratesWithOneShotEffect() {
@@ -120,7 +120,7 @@ class PlayWaveformSignalSdk26AndAboveTest {
 @SmallTest
 class PlayWaveformSignalBelowSdk26Test {
     private val fakeVibrator = PatternVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @Test
     fun play_withOneShot_vibratesWithPatternForDefaultAndMaxAmplitudes() {
@@ -247,7 +247,7 @@ class PlayWaveformSignalBelowSdk26Test {
 @SmallTest
 class PlayWaveformSignalAllSdksTest {
     private val fakeVibrator = AmplitudeVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @Test
     fun play_withZeroDurationSignal_doesNotVibrate() {

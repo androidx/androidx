@@ -14,33 +14,135 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import androidx.build.SdkHelperKt
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+}
+
+def nativeEnabled = KmpPlatformsKt.enableNative(project)
+
+configurations {
+    // Configuration for resolving shared archive file of androidx's SQLite compilation
+    sqliteSharedArchive {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.NATIVE_LINK))
+        }
+    }
+}
+
+androidXMultiplatform {
+    android()
+    androidNative()
+    ios() {
+        // Link to sqlite3 available in iOS
+        binaries.all {
+            linkerOpts += ["-lsqlite3"]
+        }
+    }
+    linux()
+    mac()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                api(project(":annotation:annotation"))
+                api(project(":sqlite:sqlite"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+            }
+        }
+        androidMain {
+            dependsOn(commonMain)
+        }
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+            }
+        }
+        if (nativeEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+            nativeTest {
+                dependsOn(commonTest)
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                def main = target.compilations["main"]
+                main.defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+                // For usage of C interop APIs
+                // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
+                main.compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
+                main.cinterops {
+                    sqlite3 {
+                        def externalSQLiteDir = new File(
+                            SdkHelperKt.getCheckoutRoot(project),
+                            "/external/sqlite/dist/orig/"
+                        )
+                        includeDirs(externalSQLiteDir)
+                    }
+                }
+
+                def test = target.compilations["test"]
+                test.defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+                if (target.konanTarget == KonanTarget.LINUX_X64.INSTANCE) {
+                    // For tests in Linux host, statically include androidx's compiled SQLite
+                    // via a generated C interop definition
+                    createCinteropFromArchiveConfiguration(test, configurations["sqliteSharedArchive"])
+                } else if (
+                    target.konanTarget == KonanTarget.MACOS_X64.INSTANCE ||
+                        target.konanTarget == KonanTarget.MACOS_ARM64.INSTANCE
+                ) {
+                    // For tests in Mac host, link to shared SQLite library included in MacOS
+                    test.kotlinOptions.freeCompilerArgs += [
+                        "-linker-options", "-lsqlite3"
+                    ]
+                }
+            }
+        }
+    }
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0")
-    api(project(":sqlite:sqlite"))
-    implementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner) {
-        exclude module: "support-annotations"
-        exclude module: "hamcrest-core"
-    }
-    androidTestImplementation(libs.truth)
+    sqliteSharedArchive(project(":sqlite:sqlite-bundled"))
 }
 
 androidx {
     name = "SQLite Framework Integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
-    description = "The implementation of Support SQLite library using the framework code."
+    description = "The implementation of SQLite library using the framework code."
     metalavaK2UastEnabled = true
 }
 

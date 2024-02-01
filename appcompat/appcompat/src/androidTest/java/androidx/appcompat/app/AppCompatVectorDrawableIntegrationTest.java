@@ -89,17 +89,13 @@ public class AppCompatVectorDrawableIntegrationTest {
         assertEquals("Left side should be white", Color.red(leftColor), 255);
         assertEquals("Right side should be black", Color.red(rightColor), 0);
 
-        if (Build.VERSION.SDK_INT >= 19) {
-            // setLayoutDirection is only available after API 17. However, it correctly set its
-            // drawable's layout direction until API 19.
-            view1.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-            vectorDrawable.draw(mCanvas);
+        view1.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        vectorDrawable.draw(mCanvas);
 
-            leftColor = mBitmap.getPixel(LEFT_CENTER_X, CENTER_Y);
-            rightColor = mBitmap.getPixel(RIGHT_CENTER_X, CENTER_Y);
+        leftColor = mBitmap.getPixel(LEFT_CENTER_X, CENTER_Y);
+        rightColor = mBitmap.getPixel(RIGHT_CENTER_X, CENTER_Y);
 
-            assertEquals("Left side should be black", Color.red(leftColor), 0);
-            assertEquals("Right side should be white", Color.red(rightColor), 255);
-        }
+        assertEquals("Left side should be black", Color.red(leftColor), 0);
+        assertEquals("Right side should be white", Color.red(rightColor), 255);
     }
 }

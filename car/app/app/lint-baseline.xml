@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="MissingPermission"
@@ -336,7 +336,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            enumName = (String) nameMethod.invoke(obj);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -345,7 +345,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            Object obj = converter.invoke(null, binder);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -354,7 +354,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            return nameMethod.invoke(null, enumName);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -368,6 +368,33 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/messaging/model/PersonsEqualityHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
+        errorLine1="    private final List&lt;CarZone> mCarZones;"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/hardware/common/CarValue.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
+        errorLine1="    private final Badge mBadge;"
+        errorLine2="                  ~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/model/GridItem.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
+        errorLine1="        Badge mBadge;"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/model/GridItem.java"/>
     </issue>
 
     <issue

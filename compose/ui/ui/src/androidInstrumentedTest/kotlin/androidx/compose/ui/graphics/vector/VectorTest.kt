@@ -1108,7 +1108,6 @@ class VectorTest {
         var vectorInCache = false
         rule.setContent {
             val theme = LocalContext.current.theme
-            val density = LocalDensity.current
             val imageVectorCache = LocalImageVectorCache.current
             imageVectorCache.clear()
             Image(
@@ -1116,22 +1115,8 @@ class VectorTest {
                 contentDescription = null
             )
 
-            val key = ImageVectorCache.Key(theme, R.drawable.ic_triangle, density)
-            vectorInCache = imageVectorCache[key] != null
-        }
-
-        assertTrue(vectorInCache)
-    }
-
-    @Test
-    fun testVectorPainterCacheHit() {
-        var vectorInCache = false
-        rule.setContent {
-            // obtaining the same painter resource should return the same instance root
-            // GroupComponent
-            val painter1 = painterResource(R.drawable.ic_triangle) as VectorPainter
-            val painter2 = painterResource(R.drawable.ic_triangle) as VectorPainter
-            vectorInCache = painter1.vector.root === painter2.vector.root
+            vectorInCache =
+                imageVectorCache[ImageVectorCache.Key(theme, R.drawable.ic_triangle)] != null
         }
 
         assertTrue(vectorInCache)
@@ -1143,10 +1128,8 @@ class VectorTest {
         var application: Application? = null
         var theme: Resources.Theme? = null
         var vectorCache: ImageVectorCache? = null
-        var density: Density? = null
         rule.setContent {
             application = LocalContext.current.applicationContext as Application
-            density = LocalDensity.current
             theme = LocalContext.current.theme
             val imageVectorCache = LocalImageVectorCache.current
             imageVectorCache.clear()
@@ -1155,8 +1138,8 @@ class VectorTest {
                 contentDescription = null
             )
 
-            val key = ImageVectorCache.Key(theme!!, R.drawable.ic_triangle, density!!)
-            vectorInCache = imageVectorCache[key] != null
+            vectorInCache =
+                imageVectorCache[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle)] != null
 
             vectorCache = imageVectorCache
         }
@@ -1164,7 +1147,7 @@ class VectorTest {
         application?.onTrimMemory(0)
 
         val cacheCleared = vectorCache?.let {
-            it[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle, density!!)] == null
+            it[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle)] == null
         } ?: false
 
         assertTrue("Vector was not inserted in cache after initial creation", vectorInCache)

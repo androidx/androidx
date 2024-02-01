@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
+import android.service.credentials.CredentialEntry;
 
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
@@ -165,6 +166,20 @@ public class CustomCredentialEntryJavaTest {
 
         Slice slice = CustomCredentialEntry.toSlice(originalEntry);
         CustomCredentialEntry entry = CustomCredentialEntry.fromSlice(slice);
+
+        assertNotNull(entry);
+        assertEntryWithAllParamsFromSlice(entry);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    public void fromCredentialEntry_allParams_success() {
+        CustomCredentialEntry originalEntry = constructEntryWithAllParams();
+        Slice slice = CustomCredentialEntry.toSlice(originalEntry);
+        assertNotNull(slice);
+
+        CustomCredentialEntry entry = CustomCredentialEntry.fromCredentialEntry(
+                new CredentialEntry("id", slice));
 
         assertNotNull(entry);
         assertEntryWithAllParamsFromSlice(entry);

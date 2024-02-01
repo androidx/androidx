@@ -229,7 +229,7 @@ public class DetailsFragment extends BaseFragment {
     @Override
     void createStateMachineTransitions() {
         super.createStateMachineTransitions();
-        /**
+        /*
          * Part 1: Processing enter transitions after fragment.onCreate
          */
         mStateMachine.addTransition(STATE_START, STATE_ENTER_TRANSITION_INIT, EVT_ON_CREATE);
@@ -262,7 +262,7 @@ public class DetailsFragment extends BaseFragment {
         mStateMachine.addTransition(STATE_ENTER_TRANSITION_PENDING, STATE_ENTER_TRANSITION_COMPLETE,
                 EVT_ENTER_TRANSIITON_DONE);
 
-        /**
+        /*
          * Part 2: modification to the entrance transition defined in BaseFragment
          */
         // Must finish enter transition before perform entrance transition.
@@ -281,7 +281,7 @@ public class DetailsFragment extends BaseFragment {
         mStateMachine.addTransition(STATE_ENTRANCE_ON_PREPARED,
                 STATE_SET_ENTRANCE_START_STATE, EVT_ONSTART);
 
-        /**
+        /*
          * Part 3: onSafeStart()
          */
         // for onSafeStart: the condition is onStart called, entrance transition complete

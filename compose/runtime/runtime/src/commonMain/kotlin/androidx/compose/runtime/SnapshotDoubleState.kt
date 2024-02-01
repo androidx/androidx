@@ -24,7 +24,7 @@ import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.StateFactoryMarker
-import androidx.compose.runtime.snapshots.StateObject
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.overwritable
 import androidx.compose.runtime.snapshots.readable
@@ -128,7 +128,7 @@ internal expect fun createSnapshotMutableDoubleState(
  */
 internal open class SnapshotMutableDoubleStateImpl(
     value: Double
-) : StateObject, MutableDoubleState, SnapshotMutableState<Double> {
+) : StateObjectImpl(), MutableDoubleState, SnapshotMutableState<Double> {
 
     private var next = DoubleStateStateRecord(value)
 

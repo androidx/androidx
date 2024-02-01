@@ -29,12 +29,14 @@ import kotlin.math.sqrt
 
 internal fun distance(x: Float, y: Float) = sqrt(x * x + y * y)
 
+internal fun distanceSquared(x: Float, y: Float) = x * x + y * y
+
 /**
  * Returns unit vector representing the direction to this point from (0, 0)
  */
 internal fun directionVector(x: Float, y: Float): Point {
     val d = distance(x, y)
-    require(d > 0f)
+    require(d > 0f) { "Required distance greater than zero" }
     return Point(x / d, y / d)
 }
 
@@ -83,14 +85,14 @@ internal fun findMinimum(
     v0: Float,
     v1: Float,
     tolerance: Float = 1e-3f,
-    f: (Float) -> Float
+    f: FindMinimumFunction
 ): Float {
     var a = v0
     var b = v1
     while (b - a > tolerance) {
         val c1 = (2 * a + b) / 3
         val c2 = (2 * b + a) / 3
-        if (f(c1) < f(c2)) {
+        if (f.invoke(c1) < f.invoke(c2)) {
             b = c2
         } else {
             a = c1
@@ -99,43 +101,11 @@ internal fun findMinimum(
     return (a + b) / 2
 }
 
-internal fun verticesFromNumVerts(
-    numVertices: Int,
-    radius: Float,
-    centerX: Float,
-    centerY: Float
-): FloatArray {
-    val result = FloatArray(numVertices * 2)
-    var arrayIndex = 0
-    for (i in 0 until numVertices) {
-        val vertex = radialToCartesian(radius, (FloatPi / numVertices * 2 * i)) +
-            Point(centerX, centerY)
-        result[arrayIndex++] = vertex.x
-        result[arrayIndex++] = vertex.y
-    }
-    return result
-}
-
-internal fun starVerticesFromNumVerts(
-    numVerticesPerRadius: Int,
-    radius: Float,
-    innerRadius: Float,
-    centerX: Float,
-    centerY: Float
-): FloatArray {
-    val result = FloatArray(numVerticesPerRadius * 4)
-    var arrayIndex = 0
-    for (i in 0 until numVerticesPerRadius) {
-        var vertex = radialToCartesian(radius, (FloatPi / numVerticesPerRadius * 2 * i)) +
-            Point(centerX, centerY)
-        result[arrayIndex++] = vertex.x
-        result[arrayIndex++] = vertex.y
-        vertex = radialToCartesian(innerRadius, (FloatPi / numVerticesPerRadius * (2 * i + 1))) +
-            Point(centerX, centerY)
-        result[arrayIndex++] = vertex.x
-        result[arrayIndex++] = vertex.y
-    }
-    return result
+/**
+ * A functional interface for computing a Float value when finding the minimum at [findMinimum].
+ */
+internal fun interface FindMinimumFunction {
+    fun invoke(value: Float): Float
 }
 
 internal const val DEBUG = false

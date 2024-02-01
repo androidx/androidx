@@ -110,6 +110,7 @@ abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecuto
             generateRestrictToLibraryGroupAPIs,
             levelsArgs,
             k2UastEnabled.get(),
+            kotlinSourceLevel.get(),
             workerExecutor,
             manifestPath.orNull?.asFile?.absolutePath
         )

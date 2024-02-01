@@ -22,7 +22,6 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
@@ -55,7 +54,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -290,7 +288,7 @@ fun SlideIntoContainerSample() {
             // Going from parent menu to child menu, slide towards left
             slideIntoContainer(towards = SlideDirection.Left) togetherWith
                 // Keep exiting content in place while sliding in the incoming content.
-                ExitTransition.Hold
+                ExitTransition.KeepUntilTransitionsFinished
         } else {
             // Going from child menu to parent menu, slide towards right.
             // Slide parent by half amount compared to child menu to create an interesting
@@ -306,30 +304,6 @@ fun SlideIntoContainerSample() {
                 NestedMenuState.Level3 -> 3f
             }
         }
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Suppress("UNUSED_VARIABLE")
-@Sampled
-@Composable
-fun ScaleInToFitContainerSample() {
-    // enum class CartState { Expanded, Collapsed }
-    // This is an example of scaling both the incoming content and outgoing content to fit in the
-    // animating container size while animating alpha.
-    val transitionSpec: AnimatedContentTransitionScope<CartState>.() -> ContentTransform = {
-        // Fade in while scaling the content.
-        fadeIn() + scaleInToFitContainer() togetherWith
-            // Fade out outgoing content while scaling it. It is important
-            // to combine `scaleOutToFitContainer` with another ExitTransition that defines
-            // a timeframe for the exit (such as fade/shrink/slide/Hold).
-            fadeOut() + scaleOutToFitContainer(
-                // Default alignment is the content alignment defined in AnimatedContent
-                Alignment.Center,
-                // Content will be scaled based on the height of the content. Default content
-                // scale is ContentScale.FillWidth.
-                ContentScale.FillHeight
-            )
     }
 }
 

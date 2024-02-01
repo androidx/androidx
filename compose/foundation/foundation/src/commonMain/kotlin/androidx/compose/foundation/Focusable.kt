@@ -51,7 +51,6 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.inspectable
-import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
@@ -130,7 +129,7 @@ internal fun Modifier.focusableInNonTouchMode(
 },
     factory = {
         Modifier
-            .then(FocusableInNonTouchModeElement)
+            .then(if (enabled) FocusableInNonTouchModeElement else Modifier)
             .focusable(enabled, interactionSource)
     })
 
@@ -149,7 +148,7 @@ private val FocusableInNonTouchModeElement =
         }
     }
 
-private class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsumerModifierNode,
+internal class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode {
 
     private val inputModeManager: InputModeManager
@@ -193,14 +192,13 @@ private class FocusableElement(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private class FocusableNode(
+internal class FocusableNode(
     interactionSource: MutableInteractionSource?
 ) : DelegatingNode(), FocusEventModifierNode, LayoutAwareModifierNode, SemanticsModifierNode,
-    GlobalPositionAwareModifierNode {
+    GlobalPositionAwareModifierNode, FocusRequesterModifierNode {
 
     private var focusState: FocusState? = null
 
-    private val focusableSemanticsNode = delegate(FocusableSemanticsNode())
     // (lpf) could we remove this if interactionsource is null?
     private val focusableInteractionNode = delegate(FocusableInteractionNode(interactionSource))
     private val focusablePinnableContainer = delegate(FocusablePinnableContainerNode())
@@ -242,14 +240,15 @@ private class FocusableNode(
             focusableInteractionNode.setFocus(isFocused)
             focusedBoundsNode.setFocus(isFocused)
             focusablePinnableContainer.setFocus(isFocused)
-            focusableSemanticsNode.setFocus(isFocused)
             this.focusState = focusState
         }
     }
 
-    // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun SemanticsPropertyReceiver.applySemantics() {
-        with(focusableSemanticsNode) { applySemantics() }
+        focused = focusState?.isFocused == true
+        requestFocus {
+            this@FocusableNode.requestFocus()
+        }
     }
     // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
@@ -350,24 +349,6 @@ private class FocusablePinnableContainerNode : Modifier.Node(),
         if (isFocused) {
             pinnedHandle?.release()
             pinnedHandle = pinnableContainer?.pin()
-        }
-    }
-}
-
-private class FocusableSemanticsNode : Modifier.Node(), SemanticsModifierNode,
-    FocusRequesterModifierNode {
-    private var semanticsConfigurationCache = SemanticsConfiguration()
-
-    private var isFocused = false
-
-    fun setFocus(focused: Boolean) {
-        this.isFocused = focused
-    }
-
-    override fun SemanticsPropertyReceiver.applySemantics() {
-        focused = isFocused
-        requestFocus {
-            this@FocusableSemanticsNode.requestFocus()
         }
     }
 }

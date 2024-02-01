@@ -22,14 +22,15 @@ import android.hardware.camera2.CameraCharacteristics
 import android.util.Pair
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -58,14 +59,16 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class ImageAnalysisTest(
+    private val implType: ExtensionsTestlibControl.ImplementationType,
     @ExtensionMode.Mode private val extensionMode: Int,
     @CameraSelector.LensFacing private val lensFacing: Int
 ) {
     companion object {
+        val context: Context = ApplicationProvider.getApplicationContext()
         @JvmStatic
-        @get:Parameterized.Parameters(name = "extension = {0}, facing = {1}")
+        @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllExtensionsLensFacingCombinations()
+            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
     }
 
     @get:Rule
@@ -73,7 +76,6 @@ class ImageAnalysisTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
     private lateinit var baseCameraSelector: CameraSelector
@@ -91,6 +93,7 @@ class ImageAnalysisTest(
         )
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -156,8 +159,10 @@ class ImageAnalysisTest(
     }
 
     private fun getOutputSizes(imageFormat: Int): Array<Size> {
-        val map = Camera2CameraInfo.from(camera.cameraInfo)
-            .getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+        val cameraCharacteristics =
+            (camera.cameraInfo as CameraInfoInternal).cameraCharacteristics as CameraCharacteristics
+        val map =
+            cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
         return map.getOutputSizes(imageFormat)
     }
 

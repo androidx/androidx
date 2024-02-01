@@ -1,3 +1,5 @@
 // Baseline format: 1.0
 AcronymName: androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory:
     Acronyms should not be capitalized in class names: was `FrameworkSQLiteOpenHelperFactory`, should this be `FrameworkSqLiteOpenHelperFactory`?
+AcronymName: androidx.sqlite.driver.AndroidSQLiteDriver:
+    Acronyms should not be capitalized in class names: was `AndroidSQLiteDriver`, should this be `AndroidSqLiteDriver`?

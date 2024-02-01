@@ -72,7 +72,7 @@
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"ਚੋਣ ਨੂੰ ਕ੍ਰਮ-ਸੂਚੀ ਵਿੱਚ ਬਦਲਿਆ ਗਿਆ"</string>
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"ਹਾਂ ਬਟਨ ਦਬਾਇਆ ਗਿਆ!"</string>
     <string name="no_action_toast_msg" msgid="6165492423831023809">"ਕੋਈ ਬਟਨ ਨਹੀਂ ਦਬਾਇਆ ਗਿਆ!"</string>
-    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"ਸੁਚੇਤਨਾ ਦਾ ਸਮਾਂ ਸਮਾਪਤ ਹੋਇਆ!"</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"ਅਲਰਟ ਦਾ ਸਮਾਂ ਸਮਾਪਤ ਹੋਇਆ!"</string>
     <string name="first_row_title" msgid="219428344573165351">"ਵੱਡੇ ਚਿੱਤਰ ਅਤੇ ਲੰਮੀ ਲਿਖਤ ਲੰਮੀ ਲਿਖਤ ਲੰਮੀ ਲਿਖਤ ਲੰਮੀ ਲਿਖਤ ਲੰਮੀ ਲਿਖਤ ਵਾਲੀ ਕਤਾਰ"</string>
     <string name="first_row_text" msgid="3887390298628338716">"ਲਿਖਤ ਲਿਖਤ ਲਿਖਤ"</string>
     <string name="other_row_title_prefix" msgid="4702355788835253197">"ਕਤਾਰ ਦਾ ਸਿਰਲੇਖ"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"ਰਸਤੇ ਦੇ ਵਿਕਲਪ"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"ਰਾਜਮਾਰਗਾਂ ਤੋਂ ਬਚੋ"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ਬੇੜੀ ਤੋਂ ਬਚੋ"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"ਨਕਸ਼ੇ ਸੰਬੰਧੀ ਡੈਮੋ"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"ਸਮੱਗਰੀ ਸੰਬੰਧੀ ਡੈਮੋਆਂ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"ਸੁਨੇਹਾ ਟੈਮਪਲੇਟ ਡੈਮੋ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ਗਰਿੱਡ ਟੈਮਪਲੇਟ ਡੈਮੋ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
 </resources>

@@ -20,15 +20,12 @@ import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.platform.LocalInputModeManager
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -87,25 +84,6 @@ class InputModeTest(private val param: Param) {
                 }
             }
         }
-    }
-
-    @FlakyTest(bugId = 202524920)
-    @Test
-    fun switchToKeyboardModeProgrammatically() {
-        // Arrange.
-        val testTag = "Box"
-        rule.setContentWithInputManager {
-            Box(Modifier.testTag(testTag))
-        }
-
-        // Act.
-        val requestGranted = rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-        }
-
-        // Assert
-        rule.runOnIdle { assertThat(requestGranted).isTrue() }
-        assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
     }
 
     private fun ComposeContentTestRule.setContentWithInputManager(

@@ -538,7 +538,7 @@ public class SurfaceEdge {
     /**
      * Gets whether the buffer needs to be horizontally mirrored based on {@link UseCase} config.
      */
-    public boolean getMirroring() {
+    public boolean isMirroring() {
         return mMirroring;
     }
 
@@ -660,6 +660,19 @@ public class SurfaceEdge {
             // When the child is closed, close the parent too to stop rendering.
             provider.getCloseFuture().addListener(onProviderClosed, mainThreadExecutor());
             return true;
+        }
+
+        @Override
+        public void close() {
+            super.close();
+            runOnMain(() -> {
+                if (mProvider == null) {
+                    // This could happen if the edge is connected to VideoCapture and recording is
+                    // not started when the edge is closed. In that case, cancel the completer to
+                    // avoid the "garbage collected" logging.
+                    mCompleter.setCancelled();
+                }
+            });
         }
     }
 }

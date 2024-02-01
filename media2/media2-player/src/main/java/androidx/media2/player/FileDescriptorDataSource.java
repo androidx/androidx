@@ -16,7 +16,6 @@
 
 package androidx.media2.player;
 
-import android.annotation.SuppressLint;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
@@ -36,7 +35,6 @@ import java.io.InputStream;
  * An ExoPayer {@link DataSource} for reading from a file descriptor.
  */
 @SuppressWarnings("unchecked")
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class FileDescriptorDataSource extends BaseDataSource {
 
     /**

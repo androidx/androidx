@@ -76,6 +76,8 @@ public final class VideoConfigUtil {
     private static final Map<String, Map<Integer, VideoEncoderDataSpace>> MIME_TO_DATA_SPACE_MAP =
             new HashMap<>();
 
+    private static final Timebase DEFAULT_TIME_BASE = Timebase.UPTIME;
+
     // Should not be instantiated.
     private VideoConfigUtil() {
     }
@@ -263,7 +265,23 @@ public final class VideoConfigUtil {
         return configSupplier.get();
     }
 
-    static int scaleAndClampBitrate(
+    /**
+     * Scales and clamps the bitrate based on the input conditions.
+     *
+     * @param baseBitrate     the bitrate to be scaled and clamped.
+     * @param actualBitDepth  the actual bit depth.
+     * @param baseBitDepth    the base bit depth.
+     * @param actualFrameRate the actual frame rate.
+     * @param baseFrameRate   the base frame rate.
+     * @param actualWidth     the actual video width.
+     * @param baseWidth       the base video width.
+     * @param actualHeight    the actual video height.
+     * @param baseHeight      the base video height.
+     * @param clampedRange    the range to clamp. Set {@link VideoSpec#BITRATE_RANGE_AUTO} as no
+     *                        clamp required.
+     * @return the scaled and clamped bit rate.
+     */
+    public static int scaleAndClampBitrate(
             int baseBitrate,
             int actualBitDepth, int baseBitDepth,
             int actualFrameRate, int baseFrameRate,
@@ -327,5 +345,18 @@ public final class VideoConfigUtil {
         Logger.w(TAG, String.format("Unsupported mime type %s or profile level %d. Data space is "
                 + "unspecified.", mimeType, codecProfileLevel));
         return ENCODER_DATA_SPACE_UNSPECIFIED;
+    }
+
+    /** Converts a {@link VideoProfileProxy} to a {@link VideoEncoderConfig}. */
+    @NonNull
+    public static VideoEncoderConfig toVideoEncoderConfig(@NonNull VideoProfileProxy videoProfile) {
+        return VideoEncoderConfig.builder()
+                .setMimeType(videoProfile.getMediaType())
+                .setProfile(videoProfile.getProfile())
+                .setResolution(new Size(videoProfile.getWidth(), videoProfile.getHeight()))
+                .setFrameRate(videoProfile.getFrameRate())
+                .setBitrate(videoProfile.getBitrate())
+                .setInputTimebase(DEFAULT_TIME_BASE)
+                .build();
     }
 }

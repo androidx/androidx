@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
@@ -125,10 +126,12 @@ import java.util.concurrent.ExecutionException;
  * {@link Preview} even if the device's hardware level is
  * {@link CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED}.
  *
- * <p><code>CameraX Extensions</code> currently can only support {@link ImageCapture} and
- * {@link Preview}. The {@linkplain androidx.camera.video.VideoCapture} can't be supported yet.
- * If the app binds {@linkplain androidx.camera.video.VideoCapture} and
- * enables any extension mode, an {@link IllegalArgumentException} will be thrown.
+ * <p>While <code>CameraX Extensions</code> dose not directly support
+ * {@linkplain androidx.camera.video.VideoCapture},
+ * {@linkplain androidx.camera.video.VideoCapture} can still be used when any extension mode is
+ * enabled. When the app binds {@linkplain androidx.camera.video.VideoCapture} and enables any
+ * extension mode, {@linkplain androidx.camera.video.VideoCapture} can obtain the shared stream of
+ * {@link Preview} and record it as a video.
  *
  * <p>For some devices, the vendor library implementation might only support a subset of the all
  * supported sizes retrieved by {@link StreamConfigurationMap#getOutputSizes(int)}. <code>CameraX
@@ -433,6 +436,9 @@ public final class ExtensionsManager {
     /**
      * Returns true if the particular extension mode is available for the specified
      * {@link CameraSelector}.
+     *
+     * <p> Note that Extensions are not supported for use with 10-bit capture output (e.g.
+     * setting a dynamic range other than {@link DynamicRange#SDR}).
      *
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
      * @param mode               The target extension mode to support.

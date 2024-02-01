@@ -31,10 +31,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AndroidExternalSurfaceDemo() {
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("ExternalSurface:")
+        Text("AndroidExternalSurface:")
         AndroidExternalSurfaceColors()
         Spacer(Modifier.height(50.dp))
-        Text("EmbeddedExternalSurface:")
+        Text("AndroidEmbeddedExternalSurface:")
         AndroidEmbeddedExternalSurfaceColors()
     }
 }

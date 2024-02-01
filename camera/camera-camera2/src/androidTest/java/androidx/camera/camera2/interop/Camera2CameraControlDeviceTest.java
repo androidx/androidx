@@ -160,6 +160,30 @@ public final class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    public void canSubmitMultipleCaptureRequestOptions() {
+        bindUseCase();
+        ListenableFuture<Void> future = updateCamera2Option(
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
+
+        assertFutureCompletes(future);
+
+        verifyCaptureRequestParameter(mMockCaptureCallback,
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
+
+        future = updateCamera2Option(
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM);
+
+        assertFutureCompletes(future);
+
+        verifyCaptureRequestParameter(mMockCaptureCallback,
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM);
+    }
+
+    @Test
     public void canClearCaptureRequestOptions() {
         bindUseCase();
         CaptureRequestOptions.Builder builder = new CaptureRequestOptions.Builder()

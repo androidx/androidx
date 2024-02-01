@@ -94,7 +94,7 @@ private class DragSourceNodeWithDefaultPainter(
         }
         delegate(
             DragAndDropSourceNode(
-                onDrawDragShadow = {
+                drawDragDecoration = {
                     cacheDrawScopeDragShadowCallback.drawDragShadow(this)
                 },
                 dragAndDropSourceHandler = {

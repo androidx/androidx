@@ -20,6 +20,13 @@ import androidx.compose.foundation.demos.text.SoftwareKeyboardControllerDemo
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.ui.demos.accessibility.LinearProgressIndicatorDemo
+import androidx.compose.ui.demos.accessibility.NestedContainersFalseDemo
+import androidx.compose.ui.demos.accessibility.NestedContainersTrueDemo
+import androidx.compose.ui.demos.accessibility.ScaffoldSampleDemo
+import androidx.compose.ui.demos.accessibility.ScaffoldSampleScrollDemo
+import androidx.compose.ui.demos.accessibility.ScrollingColumnDemo
+import androidx.compose.ui.demos.accessibility.SimpleRtlLayoutDemo
 import androidx.compose.ui.demos.autofill.ExplicitAutofillTypesDemo
 import androidx.compose.ui.demos.focus.AdjacentScrollablesFocusDemo
 import androidx.compose.ui.demos.focus.CancelFocusDemo
@@ -83,6 +90,7 @@ import androidx.compose.ui.demos.viewinterop.ScrollingAndroidViewsDemo
 import androidx.compose.ui.demos.viewinterop.ViewComposeViewNestedScrollInteropDemo
 import androidx.compose.ui.demos.viewinterop.ViewInteropDemo
 import androidx.compose.ui.samples.NestedScrollConnectionSample
+import androidx.compose.ui.samples.TraverseModifierDemo
 
 private val GestureDemos = DemoCategory(
     "Gestures",
@@ -231,19 +239,21 @@ private val ViewInteropDemos = DemoCategory(
 private val ModifierDemos = DemoCategory(
     "Modifiers",
     listOf(
-        ComposableDemo("Inter-Modifier Communication") { CommunicatingModifierDemo() }
+        ComposableDemo("Inter-Modifier Communication") { CommunicatingModifierDemo() },
+        ComposableDemo("Traversing Modifiers") { TraverseModifierDemo() }
     )
 )
 
 val AccessibilityDemos = DemoCategory(
     "Accessibility",
     listOf(
-        ComposableDemo("Scaffold Top Bar") { ScaffoldSample() },
-        ComposableDemo("Scaffold with Scrolling") { ScaffoldSampleScroll() },
+        ComposableDemo("Scaffold Top Bar") { ScaffoldSampleDemo() },
+        ComposableDemo("Scaffold with Scrolling") { ScaffoldSampleScrollDemo() },
         ComposableDemo("Simple Top Bar with Scrolling") { ScrollingColumnDemo() },
         ComposableDemo("Nested Containers—True") { NestedContainersTrueDemo() },
         ComposableDemo("Nested Containers—False") { NestedContainersFalseDemo() },
-        ComposableDemo("Linear Progress Indicator") { LinearProgressIndicatorDemo() }
+        ComposableDemo("Linear Progress Indicator") { LinearProgressIndicatorDemo() },
+        ComposableDemo("Dual LTR and RTL Scene") { SimpleRtlLayoutDemo() }
     )
 )
 
@@ -263,6 +273,9 @@ val CoreDemos = DemoCategory(
         ViewInteropDemos,
         ComposableDemo("Software Keyboard Controller") { SoftwareKeyboardControllerDemo() },
         RecyclerViewDemos,
-        AccessibilityDemos
+        AccessibilityDemos,
+        ComposableDemo("Screen coordinates") { ScreenCoordinatesDemo(it) },
+        ComposableDemo("Clipboard") { ClipboardDemo() },
+        ActivityDemo("Simple chat", SimpleChatActivity::class)
     )
 )

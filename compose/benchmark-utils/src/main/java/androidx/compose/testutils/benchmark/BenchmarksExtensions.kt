@@ -17,51 +17,46 @@
 package androidx.compose.testutils.benchmark
 
 import android.view.View
-import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.testutils.recomposeAssertHadChanges
-import androidx.compose.ui.graphics.Canvas
+import kotlin.math.abs
 
 /**
  * Measures measure and layout performance of the given test case by toggling measure constraints.
  */
 fun ComposeBenchmarkRule.benchmarkLayoutPerf(caseFactory: () -> ComposeTestCase) {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
+        val measureSpecs = arrayOf(0, 1, 2, 3)
 
-        val width = measuredWidth
-        val height = measuredHeight
-        var widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
-        var heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
 
-        requestLayout()
-        measureWithSpec(widthSpec, heightSpec)
-        layout()
+            val width = measuredWidth
+            val height = measuredHeight
 
-        var lastWidth = measuredWidth
-        var lastHeight: Int
-        measureRepeated {
+            measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+            measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+            measureSpecs[2] = View.MeasureSpec.makeMeasureSpec(width - 10, View.MeasureSpec.EXACTLY)
+            measureSpecs[3] =
+                View.MeasureSpec.makeMeasureSpec(height - 10, View.MeasureSpec.EXACTLY)
+
+            requestLayout()
+            measureWithSpec(measureSpecs[0], measureSpecs[1])
+            layout()
+        }
+
+        var offset = 0
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
-                if (lastWidth == width) {
-                    lastWidth = width - 10
-                    lastHeight = height - 10
-                } else {
-
-                    lastWidth = width
-                    lastHeight = height
-                }
-                widthSpec =
-                    View.MeasureSpec.makeMeasureSpec(lastWidth, View.MeasureSpec.EXACTLY)
-                heightSpec =
-                    View.MeasureSpec.makeMeasureSpec(lastHeight, View.MeasureSpec.EXACTLY)
+                // toggle between 0 and 2
+                offset = abs(2 - offset)
                 requestLayout()
             }
-            measureWithSpec(widthSpec, heightSpec)
+            measureWithSpec(measureSpecs[offset], measureSpecs[offset + 1])
             layout()
         }
     }
@@ -69,36 +64,33 @@ fun ComposeBenchmarkRule.benchmarkLayoutPerf(caseFactory: () -> ComposeTestCase)
 
 fun AndroidBenchmarkRule.benchmarkLayoutPerf(caseFactory: () -> AndroidTestCase) {
     runBenchmarkFor(caseFactory) {
-        doFrame()
+        val measureSpecs = arrayOf(0, 1, 2, 3)
 
-        val width = measuredWidth
-        val height = measuredHeight
-        var widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
-        var heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+        runOnUiThread {
+            doFrame()
 
-        requestLayout()
-        measureWithSpec(widthSpec, heightSpec)
-        layout()
+            val width = measuredWidth
+            val height = measuredHeight
 
-        var lastWidth = measuredWidth
-        var lastHeight: Int
-        measureRepeated {
+            measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+            measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+            measureSpecs[2] = View.MeasureSpec.makeMeasureSpec(width - 10, View.MeasureSpec.EXACTLY)
+            measureSpecs[3] =
+                View.MeasureSpec.makeMeasureSpec(height - 10, View.MeasureSpec.EXACTLY)
+
+            requestLayout()
+            measureWithSpec(measureSpecs[0], measureSpecs[1])
+            layout()
+        }
+
+        var offset = 0
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
-                if (lastWidth == width) {
-                    lastWidth = width - 10
-                    lastHeight = height - 10
-                } else {
-
-                    lastWidth = width
-                    lastHeight = height
-                }
-                widthSpec =
-                    View.MeasureSpec.makeMeasureSpec(lastWidth, View.MeasureSpec.EXACTLY)
-                heightSpec =
-                    View.MeasureSpec.makeMeasureSpec(lastHeight, View.MeasureSpec.EXACTLY)
+                // toggle between 0 and 2
+                offset = abs(2 - offset)
                 requestLayout()
             }
-            measureWithSpec(widthSpec, heightSpec)
+            measureWithSpec(measureSpecs[offset], measureSpecs[offset + 1])
             layout()
         }
     }
@@ -109,9 +101,11 @@ fun AndroidBenchmarkRule.benchmarkLayoutPerf(caseFactory: () -> AndroidTestCase)
  */
 fun AndroidBenchmarkRule.benchmarkDrawPerf(caseFactory: () -> AndroidTestCase) {
     runBenchmarkFor(caseFactory) {
-        doFrame()
+        runOnUiThread {
+            doFrame()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 invalidateViews()
                 drawPrepare()
@@ -129,9 +123,11 @@ fun AndroidBenchmarkRule.benchmarkDrawPerf(caseFactory: () -> AndroidTestCase) {
  */
 fun ComposeBenchmarkRule.benchmarkDrawPerf(caseFactory: () -> ComposeTestCase) {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 invalidateViews()
                 drawPrepare()
@@ -158,9 +154,10 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkRecompose(
     requireRecomposition: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
-
-        measureRepeated {
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
             }
@@ -190,9 +187,10 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
     assertOneRecomposition: Boolean = true
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
-
-        measureRepeated {
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
@@ -225,9 +223,11 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
     assertOneRecomposition: Boolean = true
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
@@ -261,9 +261,11 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
     assertOneRecomposition: Boolean = true
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
@@ -292,9 +294,11 @@ fun <T> AndroidBenchmarkRule.toggleStateBenchmarkMeasure(
     caseFactory: () -> T
 ) where T : AndroidTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFrame()
+        runOnUiThread {
+            doFrame()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
             }
@@ -310,9 +314,11 @@ fun <T> AndroidBenchmarkRule.toggleStateBenchmarkLayout(
     caseFactory: () -> T
 ) where T : AndroidTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFrame()
+        runOnUiThread {
+            doFrame()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
                 measure()
@@ -329,9 +335,11 @@ fun <T> AndroidBenchmarkRule.toggleStateBenchmarkDraw(
     caseFactory: () -> T
 ) where T : AndroidTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFrame()
+        runOnUiThread {
+            doFrame()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
                 measure()
@@ -361,9 +369,10 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
     requireRecomposition: Boolean = true
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
-
-        measureRepeated {
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
+        measureRepeatedOnUiThread {
             getTestCase().toggleState()
             if (requireRecomposition) {
                 recomposeAssertHadChanges()
@@ -397,9 +406,11 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
     assertOneRecomposition: Boolean = true
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
                 if (assertOneRecomposition) {
@@ -410,26 +421,6 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
             if (assertOneRecomposition) {
                 assertNoPendingChanges()
             }
-        }
-    }
-}
-
-/**
- *  Benchmark a block of code with paint operations on canvas.
- */
-inline fun <T> BenchmarkRule.measureRepeatedRecordingCanvas(
-    width: Int,
-    height: Int,
-    crossinline block: BenchmarkRule.(Canvas) -> T
-) {
-    val capture = DrawCapture()
-    measureRepeated {
-        val canvas = runWithTimingDisabled {
-            capture.beginRecording(width, height)
-        }
-        block(canvas)
-        runWithTimingDisabled {
-            capture.endRecording()
         }
     }
 }

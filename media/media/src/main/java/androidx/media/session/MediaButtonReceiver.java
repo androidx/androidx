@@ -318,9 +318,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         intent.setComponent(mbrComponent);
         intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-        if (Build.VERSION.SDK_INT >= 16) {
-            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-        }
+        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         return PendingIntent.getBroadcast(context, keyCode, intent,
                 Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
     }

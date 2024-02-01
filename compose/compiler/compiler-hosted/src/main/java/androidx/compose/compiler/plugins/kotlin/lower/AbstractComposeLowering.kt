@@ -16,6 +16,7 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower
 
+import androidx.compose.compiler.plugins.kotlin.ComposeCallableIds
 import androidx.compose.compiler.plugins.kotlin.ComposeClassIds
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.FunctionMetrics
@@ -24,12 +25,15 @@ import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices
 import androidx.compose.compiler.plugins.kotlin.analysis.KnownStableConstructs
 import androidx.compose.compiler.plugins.kotlin.analysis.Stability
+import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
+import androidx.compose.compiler.plugins.kotlin.analysis.isUncertain
 import androidx.compose.compiler.plugins.kotlin.analysis.knownStable
-import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
+import androidx.compose.compiler.plugins.kotlin.analysis.knownUnstable
 import androidx.compose.compiler.plugins.kotlin.irTrace
 import com.intellij.openapi.progress.ProcessCanceledException
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
+import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
@@ -56,11 +60,13 @@ import org.jetbrains.kotlin.ir.declarations.impl.IrExternalPackageFragmentImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.declarations.inlineClassRepresentation
 import org.jetbrains.kotlin.ir.declarations.name
+import org.jetbrains.kotlin.ir.expressions.IrBlock
 import org.jetbrains.kotlin.ir.expressions.IrBranch
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
+import org.jetbrains.kotlin.ir.expressions.IrContainerExpression
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
@@ -101,9 +107,18 @@ import org.jetbrains.kotlin.ir.types.classifierOrFail
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.types.impl.IrStarProjectionImpl
+import org.jetbrains.kotlin.ir.types.isBoolean
+import org.jetbrains.kotlin.ir.types.isByte
+import org.jetbrains.kotlin.ir.types.isChar
+import org.jetbrains.kotlin.ir.types.isDouble
+import org.jetbrains.kotlin.ir.types.isFloat
+import org.jetbrains.kotlin.ir.types.isInt
+import org.jetbrains.kotlin.ir.types.isLong
 import org.jetbrains.kotlin.ir.types.isMarkedNullable
 import org.jetbrains.kotlin.ir.types.isNullable
+import org.jetbrains.kotlin.ir.types.isNullableAny
 import org.jetbrains.kotlin.ir.types.isPrimitiveType
+import org.jetbrains.kotlin.ir.types.isShort
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
@@ -114,7 +129,6 @@ import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.ir.util.isFalseConst
 import org.jetbrains.kotlin.ir.util.isFunction
 import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentAsClass
@@ -137,7 +151,8 @@ import org.jetbrains.kotlin.utils.DFS
 abstract class AbstractComposeLowering(
     val context: IrPluginContext,
     val symbolRemapper: DeepCopySymbolRemapper,
-    val metrics: ModuleMetrics
+    val metrics: ModuleMetrics,
+    val stabilityInferencer: StabilityInferencer
 ) : IrElementTransformerVoid(), ModuleLoweringPass {
     protected val builtIns = context.irBuiltIns
 
@@ -220,6 +235,7 @@ abstract class AbstractComposeLowering(
                 annotations,
                 abbreviation
             )
+
             else -> this
         }
 
@@ -359,6 +375,7 @@ abstract class AbstractComposeLowering(
                 stableField.type
             )
         }
+
         is Stability.Unknown -> null
     }
 
@@ -436,7 +453,9 @@ abstract class AbstractComposeLowering(
         )
     }
 
-    protected fun irOr(lhs: IrExpression, rhs: IrExpression): IrCallImpl {
+    protected fun irOr(lhs: IrExpression, rhs: IrExpression): IrExpression {
+        if (rhs is IrConst<*> && rhs.value == 0) return lhs
+        if (lhs is IrConst<*> && lhs.value == 0) return rhs
         val int = context.irBuiltIns.intType
         return irCall(
             int.binaryOperator(OperatorNameConventions.OR, int),
@@ -555,9 +574,10 @@ abstract class AbstractComposeLowering(
         )
     }
 
+    /** Compare [lhs] and [rhs] using structural equality (`==`). */
     protected fun irEqual(lhs: IrExpression, rhs: IrExpression): IrExpression {
         return irCall(
-            this.context.irBuiltIns.eqeqeqSymbol,
+            context.irBuiltIns.eqeqSymbol,
             null,
             null,
             null,
@@ -573,6 +593,7 @@ abstract class AbstractComposeLowering(
         )
     }
 
+    /** Compare [lhs] and [rhs] using structural inequality (`!=`). */
     protected fun irNotEqual(lhs: IrExpression, rhs: IrExpression): IrExpression {
         return irNot(irEqual(lhs, rhs))
     }
@@ -788,6 +809,7 @@ abstract class AbstractComposeLowering(
         origin,
         branches
     )
+
     protected fun irBranch(
         condition: IrExpression,
         result: IrExpression
@@ -886,8 +908,9 @@ abstract class AbstractComposeLowering(
             // type of that object is Stable. (`Modifier` for instance is a common example)
             is IrGetObjectValue -> {
                 if (symbol.owner.isCompanion) true
-                else stabilityOf(type).knownStable()
+                else stabilityInferencer.stabilityOf(type).knownStable()
             }
+
             is IrConstructorCall -> isStatic()
             is IrCall -> isStatic()
             is IrGetValue -> {
@@ -897,15 +920,24 @@ abstract class AbstractComposeLowering(
                         // then we can determine that the variable reference is also static.
                         !owner.isVar && owner.initializer?.isStatic() == true
                     }
+
                     else -> false
                 }
             }
+
             is IrFunctionExpression,
             is IrTypeOperatorCall ->
                 context.irTrace[ComposeWritableSlices.IS_STATIC_FUNCTION_EXPRESSION, this] ?: false
+
             is IrGetField ->
                 // K2 sometimes produces `IrGetField` for reads from constant properties
                 symbol.owner.correspondingPropertySymbol?.owner?.isConst == true
+
+            is IrBlock -> {
+                // Check the slice in case the block was generated as expression
+                // (e.g. inlined intrinsic remember call)
+                context.irTrace[ComposeWritableSlices.IS_STATIC_EXPRESSION, this] ?: false
+            }
             else -> false
         }
     }
@@ -914,7 +946,7 @@ abstract class AbstractComposeLowering(
         // special case constructors of inline classes as static if their underlying
         // value is static.
         if (type.isInlineClassType()) {
-            return stabilityOf(type.unboxInlineClass()).knownStable() &&
+            return stabilityInferencer.stabilityOf(type.unboxInlineClass()).knownStable() &&
                 getValueArgument(0)?.isStatic() == true
         }
 
@@ -939,7 +971,7 @@ abstract class AbstractComposeLowering(
                 // if the property is a top level constant, then it is static.
                 if (prop.isConst) return true
 
-                val typeIsStable = stabilityOf(type).knownStable()
+                val typeIsStable = stabilityInferencer.stabilityOf(type).knownStable()
                 val dispatchReceiverIsStatic = dispatchReceiver?.isStatic() != false
                 val extensionReceiverIsStatic = extensionReceiver?.isStatic() != false
 
@@ -968,6 +1000,7 @@ abstract class AbstractComposeLowering(
 
                 false
             }
+
             is IrStatementOrigin.PLUS,
             is IrStatementOrigin.MUL,
             is IrStatementOrigin.MINUS,
@@ -987,7 +1020,7 @@ abstract class AbstractComposeLowering(
                 val isStableOperator = fqName.topLevelName() == "kotlin" ||
                     function.hasAnnotation(ComposeFqNames.Stable)
 
-                val typeIsStable = stabilityOf(type).knownStable()
+                val typeIsStable = stabilityInferencer.stabilityOf(type).knownStable()
                 if (!typeIsStable) return false
 
                 if (!isStableOperator) {
@@ -996,6 +1029,7 @@ abstract class AbstractComposeLowering(
 
                 getArgumentsWithIr().all { it.second.isStatic() }
             }
+
             null -> {
                 if (fqName == ComposeFqNames.remember) {
                     // if it is a call to remember with 0 input arguments, then we can
@@ -1005,17 +1039,14 @@ abstract class AbstractComposeLowering(
                     val expectedArgumentsCount = 1 + syntheticRememberParams // 1 for lambda
                     if (
                         valueArgumentsCount == expectedArgumentsCount &&
-                        stabilityOf(type).knownStable()
+                        stabilityInferencer.stabilityOf(type).knownStable()
                     ) {
                         return true
                     }
-                } else if (fqName == ComposeFqNames.cache) {
-                    // If it is a call to cache then it is a transformed intrinsic call to
-                    // remember and we need to
-                    return valueArgumentsCount == 2 &&
-                        getValueArgument(0)?.isFalseConst() == true &&
-                        stabilityOf(type).knownStable()
-                } else if (fqName == ComposeFqNames.composableLambda) {
+                } else if (
+                    fqName == ComposeFqNames.composableLambda ||
+                    fqName == ComposeFqNames.rememberComposableLambda
+                ) {
                     // calls to this function are generated by the compiler, and this
                     // function behaves similar to a remember call in that the result will
                     // _always_ be the same and the resulting type is _always_ stable, so
@@ -1034,12 +1065,13 @@ abstract class AbstractComposeLowering(
                     val isStable = symbol.owner.hasAnnotation(ComposeFqNames.Stable)
                     if (!isStable) return false
 
-                    val typeIsStable = stabilityOf(type).knownStable()
+                    val typeIsStable = stabilityInferencer.stabilityOf(type).knownStable()
                     if (!typeIsStable) return false
                 }
 
                 areAllArgumentsStatic()
             }
+
             else -> false
         }
     }
@@ -1058,6 +1090,7 @@ abstract class AbstractComposeLowering(
                 is IrVararg -> argExpression.elements.all { varargElement ->
                     (varargElement as? IrExpression)?.isStatic() ?: false
                 }
+
                 else -> argExpression.isStatic()
             }
         }
@@ -1141,6 +1174,207 @@ abstract class AbstractComposeLowering(
                 val target = callStatement?.symbol?.owner
                 target?.hasComposableAnnotation()
             } == true
+
+    private val cacheFunction by guardedLazy {
+        getTopLevelFunctions(ComposeCallableIds.cache).first {
+            it.owner.valueParameters.size == 2 && it.owner.extensionReceiverParameter != null
+        }.owner
+    }
+
+    fun irCache(
+        currentComposer: IrExpression,
+        startOffset: Int,
+        endOffset: Int,
+        returnType: IrType,
+        invalid: IrExpression,
+        calculation: IrExpression
+    ): IrCall {
+        val symbol = referenceFunction(cacheFunction.symbol)
+        return IrCallImpl(
+            startOffset,
+            endOffset,
+            returnType,
+            symbol as IrSimpleFunctionSymbol,
+            symbol.owner.typeParameters.size,
+            symbol.owner.valueParameters.size
+        ).apply {
+            extensionReceiver = currentComposer
+            putValueArgument(0, invalid)
+            putValueArgument(1, calculation)
+            putTypeArgument(0, returnType)
+        }
+    }
+
+    fun irChanged(
+        currentComposer: IrExpression,
+        value: IrExpression,
+        inferredStable: Boolean,
+        compareInstanceForFunctionTypes: Boolean,
+        compareInstanceForUnstableValues: Boolean
+    ): IrExpression {
+        // compose has a unique opportunity to avoid inline class boxing for changed calls, since
+        // we know that the only thing that we are detecting here is "changed or not", we can
+        // just as easily pass in the underlying value, which will avoid boxing to check for
+        // equality on recompositions. As a result here we want to pass in the underlying
+        // property value for inline classes, not the instance itself. The inline class lowering
+        // will turn this into just passing the wrapped value later on. If the type is already
+        // boxed, then we don't want to unnecessarily _unbox_ it. Note that if Kotlin allows for
+        // an overridden equals method of inline classes in the future, we may have to avoid the
+        // boxing in a different way.
+        val expr = value.unboxValueIfInline()
+        val type = expr.type
+        val stability = stabilityInferencer.stabilityOf(value)
+
+        val primitiveDescriptor = type.toPrimitiveType()
+            .let { changedPrimitiveFunctions[it] }
+
+        return if (!compareInstanceForUnstableValues) {
+            val descriptor = primitiveDescriptor
+                ?: if (type.isFunction() && compareInstanceForFunctionTypes) {
+                    changedInstanceFunction
+                } else {
+                    changedFunction
+                }
+            irMethodCall(currentComposer, descriptor).also {
+                it.putValueArgument(0, expr)
+            }
+        } else {
+            val descriptor = when {
+                primitiveDescriptor != null -> primitiveDescriptor
+                compareInstanceForFunctionTypes && type.isFunction() -> changedInstanceFunction
+                stability.knownStable() -> changedFunction
+                inferredStable -> changedFunction
+                stability.knownUnstable() -> changedInstanceFunction
+                stability.isUncertain() -> changedInstanceFunction
+                else -> error("Cannot determine descriptor for irChanged")
+            }
+            irMethodCall(currentComposer, descriptor).also {
+                it.putValueArgument(0, expr)
+            }
+        }
+    }
+
+    fun irStartReplaceableGroup(
+        currentComposer: IrExpression,
+        key: IrExpression,
+        startOffset: Int = UNDEFINED_OFFSET,
+        endOffset: Int = UNDEFINED_OFFSET
+    ): IrExpression {
+        return irMethodCall(
+            currentComposer,
+            startReplaceableFunction,
+            startOffset,
+            endOffset
+        ).also {
+            it.putValueArgument(0, key)
+        }
+    }
+
+    fun irEndReplaceableGroup(
+        currentComposer: IrExpression,
+        startOffset: Int = UNDEFINED_OFFSET,
+        endOffset: Int = UNDEFINED_OFFSET,
+    ): IrExpression {
+        return irMethodCall(
+            currentComposer,
+            endReplaceableFunction,
+            startOffset,
+            endOffset
+        )
+    }
+
+    fun IrStatement.wrap(
+        startOffset: Int = this.startOffset,
+        endOffset: Int = this.endOffset,
+        type: IrType,
+        before: List<IrStatement> = emptyList(),
+        after: List<IrStatement> = emptyList()
+    ): IrContainerExpression {
+        return IrBlockImpl(
+            startOffset,
+            endOffset,
+            type,
+            null,
+            before + this + after
+        )
+    }
+
+    private val changedFunction = composerIrClass.functions
+        .first {
+            it.name.identifier == "changed" && it.valueParameters.first().type.isNullableAny()
+        }
+
+    private val changedInstanceFunction = composerIrClass.functions
+        .firstOrNull {
+            it.name.identifier == "changedInstance" &&
+                it.valueParameters.first().type.isNullableAny()
+        } ?: changedFunction
+
+    val startReplaceableFunction by guardedLazy {
+        composerIrClass.functions
+            .first {
+                it.name.identifier == "startReplaceableGroup" && it.valueParameters.size == 1
+            }
+    }
+
+    val endReplaceableFunction by guardedLazy {
+        composerIrClass.functions
+            .first {
+                it.name.identifier == "endReplaceableGroup" && it.valueParameters.size == 0
+            }
+    }
+
+    private fun IrType.toPrimitiveType(): PrimitiveType? = when {
+        isInt() -> PrimitiveType.INT
+        isBoolean() -> PrimitiveType.BOOLEAN
+        isFloat() -> PrimitiveType.FLOAT
+        isLong() -> PrimitiveType.LONG
+        isDouble() -> PrimitiveType.DOUBLE
+        isByte() -> PrimitiveType.BYTE
+        isChar() -> PrimitiveType.CHAR
+        isShort() -> PrimitiveType.SHORT
+        else -> null
+    }
+
+    private val changedPrimitiveFunctions by guardedLazy {
+        composerIrClass
+            .functions
+            .filter { it.name.identifier == "changed" }
+            .mapNotNull { f ->
+                f.valueParameters.first().type.toPrimitiveType()?.let { primitive ->
+                    primitive to f
+                }
+            }
+            .toMap()
+    }
+
+    fun irMethodCall(
+        target: IrExpression,
+        function: IrFunction,
+        startOffset: Int = UNDEFINED_OFFSET,
+        endOffset: Int = UNDEFINED_OFFSET
+    ): IrCall {
+        return irCall(function, startOffset, endOffset).apply {
+            dispatchReceiver = target
+        }
+    }
+
+    fun irCall(
+        function: IrFunction,
+        startOffset: Int = UNDEFINED_OFFSET,
+        endOffset: Int = UNDEFINED_OFFSET
+    ): IrCall {
+        val type = function.returnType
+        val symbol = referenceFunction(function.symbol)
+        return IrCallImpl(
+            startOffset,
+            endOffset,
+            type,
+            symbol as IrSimpleFunctionSymbol,
+            symbol.owner.typeParameters.size,
+            symbol.owner.valueParameters.size
+        )
+    }
 }
 
 private val unsafeSymbolsRegex = "[ <>]".toRegex()
@@ -1170,8 +1404,8 @@ fun IrAnnotationContainer.hasAnnotationSafe(fqName: FqName): Boolean =
     }
 
 // workaround for KT-45361
-val IrConstructorCall.annotationClass get() =
-        type.classOrNull
+val IrConstructorCall.annotationClass
+    get() = type.classOrNull
 
 inline fun <T> includeFileNameInExceptionTrace(file: IrFile, body: () -> T): T {
     try {

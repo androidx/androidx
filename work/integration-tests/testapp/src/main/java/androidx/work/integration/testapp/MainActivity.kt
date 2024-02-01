@@ -21,6 +21,8 @@ import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Intent
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -254,6 +256,25 @@ class MainActivity : AppCompatActivity() {
             lastForegroundWorkRequest = request
             workManager.enqueue(request)
         }
+        findViewById<View>(R.id.run_foreground_worker_network_request).setOnClickListener {
+            lastNotificationId += 1
+            val inputData = workDataOf(ForegroundWorker.InputNotificationId to lastNotificationId)
+            val networkRequest = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build()
+            val constraints = Constraints.Builder().setRequiredNetworkRequest(
+                networkRequest, NetworkType.CONNECTED
+            ).build()
+
+            val request =
+                OneTimeWorkRequest.Builder(ForegroundWorker::class.java).setInputData(inputData)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .setConstraints(constraints)
+                    .build()
+            lastForegroundWorkRequest = request
+            workManager.enqueue(request)
+        }
         findViewById<View>(R.id.cancel_foreground_worker).setOnClickListener {
             if (lastForegroundWorkRequest != null) {
                 workManager.cancelWorkById(lastForegroundWorkRequest!!.id)
@@ -318,6 +339,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.enqueue_infinite_work_charging).setOnClickListener {
             queueLotsOfWorkers(workManager)
         }
+        findViewById<View>(R.id.enqueue_network_request).setOnClickListener {
+            enqueueWithNetworkRequest(workManager)
+        }
         val hundredJobExceptionButton = findViewById<Button>(R.id.create_hundred_job_exception)
         // 100 Job limits are only enforced on API 24+.
         if (Build.VERSION.SDK_INT >= 24) {
@@ -352,6 +376,25 @@ class MainActivity : AppCompatActivity() {
         return OneTimeWorkRequest.Builder(RemoteWorker::class.java).setInputData(data)
             .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED)).build()
     }
+}
+
+@SuppressLint("ClassVerificationFailure")
+private fun enqueueWithNetworkRequest(workManager: WorkManager) {
+    if (Build.VERSION.SDK_INT < 21) {
+        Log.w(TAG, "Ignoring enqueueWithNetworkRequest on old API levels")
+        return
+    }
+    val networkRequest = NetworkRequest.Builder()
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        .build()
+    val constraints = Constraints.Builder().setRequiredNetworkRequest(
+        networkRequest, NetworkType.UNMETERED
+    ).build()
+    val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+        .setConstraints(constraints)
+        .build()
+    workManager.enqueue(request)
 }
 
 private const val PACKAGE_NAME = "androidx.work.integration.testapp"

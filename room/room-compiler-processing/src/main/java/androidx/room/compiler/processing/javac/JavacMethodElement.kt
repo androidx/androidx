@@ -122,7 +122,7 @@ internal class JavacMethodElement(
 
     override fun isJavaDefault() = element.modifiers.contains(Modifier.DEFAULT)
 
-    override fun isSuspendFunction() = kotlinMetadata?.isSuspend() == true
+    override fun isSuspendFunction() = kotlinMetadata?.isSuspend == true
 
     override fun isExtensionFunction() = kotlinMetadata?.isExtension() == true
 

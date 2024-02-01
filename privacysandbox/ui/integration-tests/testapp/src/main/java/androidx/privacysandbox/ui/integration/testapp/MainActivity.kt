@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mSandboxedSdkView1: SandboxedSdkView
     private lateinit var mSandboxedSdkView2: SandboxedSdkView
-    private lateinit var mSandboxedSdkView3: SandboxedSdkView
+    private lateinit var resizableSandboxedSdkView: SandboxedSdkView
     private lateinit var mNewAdButton: Button
     private lateinit var mResizeButton: Button
     private lateinit var mResizeSdkButton: Button
@@ -92,32 +92,35 @@ class MainActivity : AppCompatActivity() {
             sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Hey!", /*withSlowDraw*/ false)
         ))
 
-        mSandboxedSdkView3 = findViewById(R.id.new_ad_view)
-        mSandboxedSdkView3.addStateChangedListener(StateChangeListener(mSandboxedSdkView3))
+        resizableSandboxedSdkView = findViewById(R.id.new_ad_view)
+        resizableSandboxedSdkView.addStateChangedListener(
+            StateChangeListener(resizableSandboxedSdkView))
 
         mNewAdButton = findViewById(R.id.new_ad_button)
 
-        mSandboxedSdkView3.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+        resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
             sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Resize view",
                 /*withSlowDraw*/ true)))
 
         var count = 1
         mNewAdButton.setOnClickListener {
-            mSandboxedSdkView3.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
                 sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Ad #$count",
                     /*withSlowDraw*/ true)))
             count++
         }
 
+        val maxWidthPixels = 1000
+        val maxHeightPixels = 1000
+        val newSize = { currentSize: Int, maxSize: Int ->
+            (currentSize + (100..200).random()) % maxSize
+        }
+
         mResizeButton = findViewById(R.id.resize_button)
-        var widthIncrementPixels: Int
-        var heightIncrementPixels: Int
         mResizeButton.setOnClickListener {
-            widthIncrementPixels = (1..255).random()
-            heightIncrementPixels = (1..255).random()
-            var newWidth = (mSandboxedSdkView3.width + widthIncrementPixels) % 1000
-            var newHeight = (mSandboxedSdkView3.height + heightIncrementPixels) % 1000
-            mSandboxedSdkView3.layoutParams = mSandboxedSdkView3.layoutParams.apply {
+            val newWidth = newSize(resizableSandboxedSdkView.width, maxWidthPixels)
+            val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
+            resizableSandboxedSdkView.layoutParams = resizableSandboxedSdkView.layoutParams.apply {
                 width = newWidth
                 height = newHeight
             }
@@ -125,10 +128,8 @@ class MainActivity : AppCompatActivity() {
 
         mResizeSdkButton = findViewById(R.id.resize_sdk_button)
         mResizeSdkButton.setOnClickListener {
-            widthIncrementPixels = (1..255).random()
-            heightIncrementPixels = (1..255).random()
-            var newHeight = (mSandboxedSdkView3.height + widthIncrementPixels) % 1000
-            var newWidth = (mSandboxedSdkView3.width + heightIncrementPixels) % 1000
+            val newWidth = newSize(resizableSandboxedSdkView.width, maxWidthPixels)
+            val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
             sdkApi.requestResize(newWidth, newHeight)
         }
     }

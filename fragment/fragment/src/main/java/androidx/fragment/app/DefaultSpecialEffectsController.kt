@@ -30,7 +30,6 @@ import androidx.activity.BackEventCompat
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.collection.ArrayMap
-import androidx.core.os.CancellationSignal
 import androidx.core.view.OneShotPreDrawListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
@@ -344,6 +343,11 @@ internal class DefaultSpecialEffectsController(
                     sharedElementLastInViews.clear()
                 }
             }
+        }
+
+        if (sharedElementTransition == null && filteredInfos.all { it.transition == null }) {
+            // Return without creating a TransitionEffect since there are no Transitions to run
+            return
         }
 
         val transitionEffect = TransitionEffect(
@@ -701,7 +705,8 @@ internal class DefaultSpecialEffectsController(
         val lastInViews: ArrayMap<String, View>,
         val isPop: Boolean
     ) : Effect() {
-        val transitionSignal = CancellationSignal()
+        @Suppress("DEPRECATION")
+        val transitionSignal = androidx.core.os.CancellationSignal()
 
         var controller: Any? = null
 
@@ -721,7 +726,7 @@ internal class DefaultSpecialEffectsController(
         override fun onStart(container: ViewGroup) {
             // If the container has never been laid out, transitions will not start so
             // so lets instantly complete them.
-            if (!ViewCompat.isLaidOut(container)) {
+            if (!container.isLaidOut()) {
                 transitionInfos.forEach { transitionInfo: TransitionInfo ->
                     val operation: Operation = transitionInfo.operation
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -779,9 +784,6 @@ internal class DefaultSpecialEffectsController(
                                     operation.finalState.applyState(view, container)
                                 }
                             }
-                            transitionInfos.map { it.operation }.forEach { operation ->
-                                operation.completeEffect(this)
-                            }
                         }
                     }
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -799,7 +801,7 @@ internal class DefaultSpecialEffectsController(
         override fun onCommit(container: ViewGroup) {
             // If the container has never been laid out, transitions will not start so
             // so lets instantly complete them.
-            if (!ViewCompat.isLaidOut(container)) {
+            if (!container.isLaidOut()) {
                 transitionInfos.forEach { transitionInfo: TransitionInfo ->
                     val operation: Operation = transitionInfo.operation
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {

@@ -23,6 +23,10 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
 import androidx.core.uwb.RangingCapabilities
+import androidx.core.uwb.RangingParameters.Companion.CONFIG_MULTICAST_DS_TWR
+import androidx.core.uwb.RangingParameters.Companion.CONFIG_PROVISIONED_MULTICAST_DS_TWR
+import androidx.core.uwb.RangingParameters.Companion.CONFIG_PROVISIONED_UNICAST_DS_TWR
+import androidx.core.uwb.RangingParameters.Companion.CONFIG_UNICAST_DS_TWR
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbComplexChannel
@@ -30,6 +34,7 @@ import androidx.core.uwb.UwbControleeSessionScope
 import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbManager
 import androidx.core.uwb.backend.IUwb
+import androidx.core.uwb.exceptions.UwbServiceNotAvailableException
 import androidx.core.uwb.helper.checkSystemFeature
 import androidx.core.uwb.helper.handleApiException
 import com.google.android.gms.common.ConnectionResult
@@ -41,6 +46,12 @@ import kotlinx.coroutines.tasks.await
 internal class UwbManagerImpl(private val context: Context) : UwbManager {
     companion object {
         const val TAG = "UwbMangerImpl"
+        val PUBLIC_AVAILABLE_CONFIG_IDS = setOf(
+            CONFIG_UNICAST_DS_TWR,
+            CONFIG_MULTICAST_DS_TWR,
+            CONFIG_PROVISIONED_UNICAST_DS_TWR,
+            CONFIG_PROVISIONED_MULTICAST_DS_TWR
+        )
         var iUwb: IUwb? = null
     }
 
@@ -88,19 +99,27 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             Nearby.getUwbControllerClient(context) else Nearby.getUwbControleeClient(context)
         if (!uwbClient.isAvailable().await()) {
             Log.e(TAG, "Uwb availability : false")
-            throw RuntimeException("Cannot start a ranging session when UWB is unavailable")
+            throw UwbServiceNotAvailableException("Cannot start a ranging session when UWB is " +
+                "unavailable")
         }
         try {
             val nearbyLocalAddress = uwbClient.localAddress.await()
             val nearbyRangingCapabilities = uwbClient.rangingCapabilities.await()
             val localAddress = UwbAddress(nearbyLocalAddress.address)
+            val supportedConfigIds = nearbyRangingCapabilities.supportedConfigIds.toMutableList()
+            supportedConfigIds.retainAll(PUBLIC_AVAILABLE_CONFIG_IDS)
             val rangingCapabilities = RangingCapabilities(
                 nearbyRangingCapabilities.supportsDistance(),
                 nearbyRangingCapabilities.supportsAzimuthalAngle(),
                 nearbyRangingCapabilities.supportsElevationAngle(),
-                nearbyRangingCapabilities.getMinRangingInterval(),
-                nearbyRangingCapabilities.getSupportedChannels().toSet(),
-                nearbyRangingCapabilities.getSupportedConfigIds().toSet())
+                nearbyRangingCapabilities.minRangingInterval,
+                nearbyRangingCapabilities.supportedChannels.toSet(),
+                nearbyRangingCapabilities.supportedNtfConfigs.toSet(),
+                supportedConfigIds.toSet(),
+                nearbyRangingCapabilities.supportedSlotDurations.toSet(),
+                nearbyRangingCapabilities.supportedRangingUpdateRates.toSet(),
+                nearbyRangingCapabilities.supportsRangingIntervalReconfigure(),
+                nearbyRangingCapabilities.hasBackgroundRangingSupport())
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel.await()
                 UwbControllerSessionScopeImpl(
@@ -141,7 +160,13 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     it.supportsElevationAngle,
                     it.minRangingInterval,
                     it.supportedChannels.toSet(),
-                    it.supportedConfigIds.toSet())
+                    it.supportedNtfConfigs.toSet(),
+                    it.supportedConfigIds.toMutableList()
+                        .filter { it in PUBLIC_AVAILABLE_CONFIG_IDS }.toSet(),
+                    it.supportedSlotDurations.toSet(),
+                    it.supportedRangingUpdateRates.toSet(),
+                    it.supportsRangingIntervalReconfigure,
+                    it.hasBackgroundRangingSupport)
             }
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel

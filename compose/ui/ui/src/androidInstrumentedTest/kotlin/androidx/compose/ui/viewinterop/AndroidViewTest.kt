@@ -31,7 +31,6 @@ import android.view.View.OnAttachStateChangeListener
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.accessibility.AccessibilityNodeInfo
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -60,13 +59,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
@@ -86,6 +88,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -111,7 +114,6 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.Visibility
@@ -123,13 +125,16 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -877,10 +882,9 @@ class AndroidViewTest {
                 if (currentScreen == "screen1") {
                     AndroidView({
                         StateSavingView(
-                            "testKey",
-                            "testValue",
-                            { restoredValue -> result = restoredValue },
-                            it
+                            context = it,
+                            value = "testValue",
+                            onRestoredValue = { restoredValue -> result = restoredValue }
                         )
                     })
                 } else {
@@ -1395,10 +1399,24 @@ class AndroidViewTest {
         var attached by mutableStateOf(true)
         rule.setContent {
             ReusableContentHost(attached) {
-                ReusableAndroidViewWithLifecycleTracking(
-                    factory = { TextView(it).apply { text = "Test" } },
-                    onLifecycleEvent = lifecycleEvents::add
-                )
+                val content = @Composable {
+                    ReusableAndroidViewWithLifecycleTracking(
+                        factory = { TextView(it).apply { text = "Test" } },
+                        onLifecycleEvent = lifecycleEvents::add
+                    )
+                }
+
+                // Placing items when they are in reused state is not supported for now.
+                // Reusing only happens in SubcomposeLayout atm which never places reused nodes
+                Layout(content) { measurables, constraints ->
+                    val placeables = measurables.map { it.measure(constraints) }
+                    val firstPlaceable = placeables.first()
+                    layout(firstPlaceable.width, firstPlaceable.height) {
+                        if (attached) {
+                            placeables.forEach { it.place(IntOffset.Zero) }
+                        }
+                    }
+                }
             }
         }
 
@@ -1470,8 +1488,8 @@ class AndroidViewTest {
             val movableContext = remember {
                 movableContentOf {
                     ReusableAndroidViewWithLifecycleTracking(
-                        factory = {
-                            EditText(it).apply { id = R.id.testContentViewId }
+                        factory = { context ->
+                            StateSavingView(context, "")
                         },
                         onLifecycleEvent = lifecycleEvents::add
                     )
@@ -1491,9 +1509,15 @@ class AndroidViewTest {
             }
         }
 
-        onView(instanceOf(EditText::class.java))
-            .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
-            .perform(typeText("Input"))
+        rule.activityRule.withActivity {
+            val view = findViewById<StateSavingView>(StateSavingView.ID)
+            assertEquals(
+                "View didn't have the expected initial value",
+                "",
+                view.value
+            )
+            view.value = "Value 1"
+        }
 
         assertEquals(
             "AndroidView did not experience the expected lifecycle when " +
@@ -1511,7 +1535,7 @@ class AndroidViewTest {
         lifecycleEvents.clear()
         slotWithContent++
 
-        rule.runOnIdle { /* Wait for UI to settle */ }
+        rule.waitForIdle()
 
         assertEquals(
             "AndroidView experienced unexpected lifecycle events when " +
@@ -1521,44 +1545,67 @@ class AndroidViewTest {
         )
 
         // Check that the state of the view is retained
-        onView(instanceOf(EditText::class.java))
-            .check(matches(isDisplayed()))
-            .check(matches(withText("Input")))
+        rule.activityRule.withActivity {
+            val view = findViewById<StateSavingView>(StateSavingView.ID)
+            assertEquals(
+                "View didn't retain its state across reuse",
+                "Value 1",
+                view.value
+            )
+        }
     }
 
     @Test
     fun testViewRestoresState_whenRemovedAndRecreatedWithNoReuse() {
-        val lifecycleEvents = mutableListOf<AndroidViewLifecycleEvent>()
         var screen by mutableStateOf("screen1")
         rule.setContent {
             with(rememberSaveableStateHolder()) {
                 if (screen == "screen1") {
                     SaveableStateProvider("screen1") {
-                        ReusableAndroidViewWithLifecycleTracking(
-                            factory = {
-                                EditText(it).apply { id = R.id.testContentViewId }
+                        AndroidView(
+                            factory = { context ->
+                                StateSavingView(context, "screen1 first value")
                             },
-                            onLifecycleEvent = lifecycleEvents::add
+                            update = { },
+                            onReset = { },
+                            onRelease = { }
                         )
                     }
                 }
             }
         }
 
-        onView(instanceOf(EditText::class.java))
-            .check(matches(isDisplayed()))
-            .perform(typeText("User Input"))
+        rule.activityRule.withActivity {
+            val view = findViewById<StateSavingView>(StateSavingView.ID)
+            assertEquals(
+                "View didn't have the expected initial value",
+                "screen1 first value",
+                view.value
+            )
+            view.value = "screen1 new value"
+        }
 
         rule.runOnIdle { screen = "screen2" }
+        rule.waitForIdle()
 
-        onView(instanceOf(EditText::class.java))
-            .check(doesNotExist())
+        rule.activityRule.withActivity {
+            assertNull(
+                findViewById<StateSavingView>(StateSavingView.ID),
+                "StateSavingView should be removed from the hierarchy"
+            )
+        }
 
         rule.runOnIdle { screen = "screen1" }
+        rule.waitForIdle()
 
-        onView(instanceOf(EditText::class.java))
-            .check(matches(isDisplayed()))
-            .check(matches(withText("User Input")))
+        rule.activityRule.withActivity {
+            val view = findViewById<StateSavingView>(StateSavingView.ID)
+            assertEquals(
+                "View did not restore with the correct state",
+                "screen1 new value",
+                view.value
+            )
+        }
     }
 
     @Test
@@ -1667,6 +1714,52 @@ class AndroidViewTest {
             .assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
+    @Test
+    fun updateIsNotCalledOnDeactivatedNode() {
+        var active by mutableStateOf(true)
+        var counter by mutableStateOf(0)
+        val updateCalls = mutableListOf<Int>()
+        rule.setContent {
+            SubcompositionReusableContentHost(active = active) {
+                AndroidView(
+                    modifier = Modifier.size(10.dp),
+                    factory = { View(it) },
+                    update = { updateCalls.add(counter) },
+                    onReset = {
+                        counter++
+                        Snapshot.sendApplyNotifications()
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(updateCalls).isEqualTo(listOf(0))
+            updateCalls.clear()
+
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(updateCalls).isEmpty()
+
+            active = true
+        }
+
+        rule.runOnIdle {
+            // make sure the update is called after reactivation.
+            assertThat(updateCalls).isEqualTo(listOf(1))
+            updateCalls.clear()
+
+            counter++
+        }
+
+        rule.runOnIdle {
+            // make sure the state observation is active after reactivation.
+            assertThat(updateCalls).isEqualTo(listOf(2))
+        }
+    }
+
     @ExperimentalComposeUiApi
     @Composable
     private inline fun <T : View> ReusableAndroidViewWithLifecycleTracking(
@@ -1741,27 +1834,33 @@ class AndroidViewTest {
     }
 
     private class StateSavingView(
-        private val key: String,
-        private val value: String,
-        private val onRestoredValue: (String) -> Unit,
-        context: Context
+        context: Context,
+        var value: String = "",
+        private val onRestoredValue: (String) -> Unit = {}
     ) : View(context) {
         init {
-            id = 73
+            id = ID
         }
 
         override fun onSaveInstanceState(): Parcelable {
             val superState = super.onSaveInstanceState()
             val bundle = Bundle()
             bundle.putParcelable("superState", superState)
-            bundle.putString(key, value)
+            bundle.putString(KEY, value)
             return bundle
         }
 
         @Suppress("DEPRECATION")
         override fun onRestoreInstanceState(state: Parcelable?) {
             super.onRestoreInstanceState((state as Bundle).getParcelable("superState"))
-            onRestoredValue(state.getString(key)!!)
+            val value = state.getString(KEY)!!
+            this.value = value
+            onRestoredValue(value)
+        }
+
+        companion object {
+            const val ID = 73
+            private const val KEY: String = "StateSavingView.Key"
         }
     }
 

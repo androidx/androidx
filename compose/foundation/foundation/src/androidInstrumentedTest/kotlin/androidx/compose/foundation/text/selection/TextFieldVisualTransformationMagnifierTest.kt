@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -53,7 +54,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 internal class TextFieldVisualTransformationMagnifierTest(
     val config: VisualTransformationMagnifierTestConfig
-) {
+) : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -75,7 +76,7 @@ internal class TextFieldVisualTransformationMagnifierTest(
 
     @Test
     fun magnifier_appears_whileHandleTouched() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             TestContent(
                 if (config.layoutDirection == LayoutDirection.Ltr) {
                     "text ".repeat(10)
@@ -108,7 +109,7 @@ internal class TextFieldVisualTransformationMagnifierTest(
         val handle = config.handle
         val layoutDirection = config.layoutDirection
         val dragDistance = Offset(if (layoutDirection == LayoutDirection.Ltr) 1f else -1f, 0f)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             TestContent(
                 if (layoutDirection == LayoutDirection.Ltr) {
                     "text ".repeat(10)

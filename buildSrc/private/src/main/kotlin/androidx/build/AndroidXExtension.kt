@@ -16,8 +16,8 @@
 
 package androidx.build
 
-import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.getFrameworksSupportCommitShaAtHead
 import androidx.build.checkapi.shouldConfigureApiTasks
+import androidx.build.gitclient.getHeadShaProvider
 import androidx.build.transform.configureAarAsJarForConfiguration
 import groovy.lang.Closure
 import java.io.File
@@ -27,6 +27,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Extension for [AndroidXImplPlugin] that's responsible for holding configuration options. */
@@ -38,6 +39,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     val libraryGroupsByGroupId: Map<String, LibraryGroup>
     val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>
+
+    var copySampleSourceJarsTask: TaskProvider<LazyInputsCopyTask>? = null
 
     val mavenGroup: LibraryGroup?
 
@@ -91,6 +94,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
             }
 
         kotlinTarget.set(KotlinTarget.DEFAULT)
+        kotlinTestTarget.set(kotlinTarget)
     }
 
     var name: Property<String?> = project.objects.property(String::class.java)
@@ -410,9 +414,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         configureAarAsJarForConfiguration(project, name)
     }
 
-    fun getReferenceSha(): Provider<String> {
-        return project.providers.provider { project.getFrameworksSupportCommitShaAtHead() }
-    }
+    fun getReferenceSha(): Provider<String> = getHeadShaProvider(project)
 
     /**
      * Specify the version for Kotlin API compatibility mode used during Kotlin compilation.
@@ -430,6 +432,18 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         get() = kotlinTarget.map { project.getVersionByName(it.catalogVersion) }
 
     /**
+     * Specify the version for Kotlin API compatibility mode used during Kotlin compilation of
+     * tests.
+     */
+    abstract val kotlinTestTarget: Property<KotlinTarget>
+
+    override val kotlinTestApiVersion: Provider<KotlinVersion>
+        get() = kotlinTestTarget.map { it.apiVersion }
+
+    override val kotlinTestBomVersion: Provider<String>
+        get() = kotlinTestTarget.map { project.getVersionByName(it.catalogVersion) }
+
+    /**
      * Whether to validate the androidx configuration block using validateProjectParser. This should
      * always be set to true unless we are temporarily working around a bug.
      */
@@ -438,6 +452,12 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     companion object {
         const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
     }
+
+    /**
+     * Used to register a project that will be providing documentation samples for this project.
+     * Can only be called once so only one samples library can exist per library b/318840087.
+     */
+    fun samples(samplesProject: Project) = registerSamplesLibrary(samplesProject)
 }
 
 class License {
@@ -459,4 +479,10 @@ abstract class DeviceTests {
     var enabled = true
     var targetAppProject: Project? = null
     var targetAppVariant = "debug"
+
+    /**
+     * Whether to extract and include APKs from PrivacySandbox SDKs dependencies.
+     * TODO (b/309610890): Replace for dependency on AGP artifact.
+     */
+    var includePrivacySandboxSdks = false
 }

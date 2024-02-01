@@ -210,7 +210,7 @@ class VerityTreeBuilder {
             DataSource dataSource, ByteBuffer dataSink) throws IOException {
         final int chunks = (int) divideRoundup(size, CHUNK_SIZE);
 
-        /** Single IO operation size, in chunks. */
+        /* Single IO operation size, in chunks. */
         final int ioSizeChunks = MAX_PREFETCH_CHUNKS;
 
         final byte[][] hashes = new byte[chunks][];

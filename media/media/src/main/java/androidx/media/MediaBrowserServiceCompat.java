@@ -86,7 +86,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
-import androidx.core.app.BundleCompat;
 import androidx.core.util.Pair;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 
@@ -328,7 +327,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 IMediaSession extraBinder = token.getExtraBinder();
                 if (extraBinder != null) {
                     for (Bundle rootExtras : mRootExtrasList) {
-                        BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
+                        rootExtras.putBinder(EXTRA_SESSION_BINDER,
                                 extraBinder.asBinder());
                     }
                 }
@@ -359,10 +358,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 mMessenger = new Messenger(mHandler);
                 rootExtras = new Bundle();
                 rootExtras.putInt(EXTRA_SERVICE_VERSION, SERVICE_VERSION_CURRENT);
-                BundleCompat.putBinder(rootExtras, EXTRA_MESSENGER_BINDER, mMessenger.getBinder());
+                rootExtras.putBinder(EXTRA_MESSENGER_BINDER, mMessenger.getBinder());
                 if (mSession != null) {
                     IMediaSession extraBinder = mSession.getExtraBinder();
-                    BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
+                    rootExtras.putBinder(EXTRA_SESSION_BINDER,
                             extraBinder == null ? null : extraBinder.asBinder());
                 } else {
                     mRootExtrasList.add(rootExtras);
@@ -402,8 +401,20 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                         @Override
                         void onResultSent(@Nullable List<MediaBrowserCompat.MediaItem> list) {
-                            List<Parcel> parcelList = null;
-                            if (list != null) {
+                            List<Parcel> parcelList;
+                            if (list == null) {
+                                // A null children list here indicates that the requested parentId
+                                // is invalid. Unfortunately before API 24 the platform
+                                // MediaBrowserService's implementation of Result inside
+                                // performLoadChildren (invoked below) throws an exception if
+                                // given a null list  (b/19127753). This means there's no clear
+                                // way to communicate an invalid parentId, so in order to avoid
+                                // an exception below API 24 we transform null to an empty list
+                                // here (meaning it looks like parentId is valid but has no
+                                // children).
+                                parcelList = Build.VERSION.SDK_INT >= 24
+                                        ? null : Collections.emptyList();
+                            } else {
                                 parcelList = new ArrayList<>(list.size());
                                 for (MediaBrowserCompat.MediaItem item : list) {
                                     Parcel parcel = Parcel.obtain();
@@ -1357,7 +1368,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @param id id
      * @param option option
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void onSubscribe(String id, Bundle option) {
     }
 
@@ -1366,7 +1377,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *
      * @param id
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void onUnsubscribe(String id) {
     }
 
@@ -1592,7 +1603,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
                 mServiceBinderImpl.addSubscription(
                         data.getString(DATA_MEDIA_ITEM_ID),
-                        BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
+                        data.getBinder(DATA_CALLBACK_TOKEN),
                         options,
                         new ServiceCallbacksCompat(msg.replyTo));
                 break;
@@ -1600,7 +1611,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             case CLIENT_MSG_REMOVE_SUBSCRIPTION:
                 mServiceBinderImpl.removeSubscription(
                         data.getString(DATA_MEDIA_ITEM_ID),
-                        BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
+                        data.getBinder(DATA_CALLBACK_TOKEN),
                         new ServiceCallbacksCompat(msg.replyTo));
                 break;
             case CLIENT_MSG_GET_MEDIA_ITEM:

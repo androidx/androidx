@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.triStateToggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -75,10 +74,10 @@ import kotlin.math.max
  * and relies entirely on a higher-level component to control the "checked" state.
  * @param modifier Modifier to be applied to the layout of the checkbox
  * @param enabled whether the component is enabled or grayed out
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Checkbox. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Checkbox in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this checkbox. You can use this to change the checkbox's
+ * appearance or preview the checkbox in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param colors [CheckboxColors] that will be used to determine the color of the checkmark / box
  * / border in different states. See [CheckboxDefaults.colors].
  */
@@ -88,7 +87,7 @@ fun Checkbox(
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     colors: CheckboxColors = CheckboxDefaults.colors()
 ) {
     TriStateCheckbox(
@@ -121,10 +120,10 @@ fun Checkbox(
  * and relies entirely on a higher-level component to control the state.
  * @param modifier Modifier to be applied to the layout of the checkbox
  * @param enabled whether the component is enabled or grayed out
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this TriStateCheckbox. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this TriStateCheckbox in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this checkbox. You can use this to change the checkbox's
+ * appearance or preview the checkbox in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param colors [CheckboxColors] that will be used to determine the color of the checkmark / box
  * / border in different states. See [CheckboxDefaults.colors].
  */
@@ -134,7 +133,7 @@ fun TriStateCheckbox(
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     colors: CheckboxColors = CheckboxDefaults.colors()
 ) {
     val toggleableModifier =
@@ -145,7 +144,7 @@ fun TriStateCheckbox(
                 enabled = enabled,
                 role = Role.Checkbox,
                 interactionSource = interactionSource,
-                indication = rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = CheckboxRippleRadius
                 )

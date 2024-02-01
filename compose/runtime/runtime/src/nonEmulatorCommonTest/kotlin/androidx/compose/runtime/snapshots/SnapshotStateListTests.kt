@@ -798,6 +798,28 @@ class SnapshotStateListTests {
         }
     }
 
+    @Test
+    fun toStringOfSnapshotStateListDoesNotTriggerReadObserver() {
+        val state = mutableStateListOf<Int>(0)
+        val normalReads = readsOf {
+            state.readable
+        }
+        assertEquals(1, normalReads)
+        val toStringReads = readsOf {
+            state.toString()
+        }
+        assertEquals(0, toStringReads)
+    }
+
+    @Test
+    fun testValueOfStateListToString() {
+        val state = mutableStateListOf(0, 1, 2)
+        assertEquals(
+            "SnapshotStateList(value=[0, 1, 2])@${state.hashCode()}",
+            state.toString()
+        )
+    }
+
     private fun <T> validate(list: MutableList<T>, block: (list: MutableList<T>) -> Unit) {
         val normalList = list.toMutableList()
         block(normalList)

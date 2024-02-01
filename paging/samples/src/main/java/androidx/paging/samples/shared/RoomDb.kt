@@ -29,6 +29,7 @@ import androidx.room.RoomDatabase
 abstract class RoomDb : RoomDatabase() {
     companion object {
         fun create(context: Context): RoomDb {
+            @Suppress("DEPRECATION")
             return Room.databaseBuilder(context, RoomDb::class.java, "user.db")
                 .fallbackToDestructiveMigration()
                 .build()

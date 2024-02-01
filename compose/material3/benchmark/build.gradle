@@ -26,7 +26,7 @@ dependencies {
 
     androidTestImplementation(project(":compose:material:material-icons-core"))
     androidTestImplementation(project(":compose:material3:material3"))
-    androidTestImplementation(project(":compose:material3:material3-adaptive"))
+    androidTestImplementation(project(":compose:material3:material3-adaptive-navigation-suite"))
     androidTestImplementation(project(":compose:material3:material3-window-size-class"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:runtime:runtime"))

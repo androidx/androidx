@@ -16,6 +16,12 @@
 
 package androidx.privacysandbox.ads.adservices.common
 
+import android.annotation.SuppressLint
+import android.os.Build
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
+import androidx.annotation.RestrictTo
+
 /**
  * This class holds JSON that will be passed into a JavaScript function during ad selection. Its
  * contents are not used by <a
@@ -24,6 +30,7 @@ package androidx.privacysandbox.ads.adservices.common
  * function.
  * @param signals Any valid JSON string to create the AdSelectionSignals with.
  */
+@SuppressLint("ClassVerificationFailure")
 class AdSelectionSignals public constructor(val signals: String) {
     /**
      * Compares this AdSelectionSignals to the specified object. The result is true if and only if
@@ -58,5 +65,12 @@ class AdSelectionSignals public constructor(val signals: String) {
      */
     override fun toString(): String {
         return "AdSelectionSignals: $signals"
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
+    internal fun convertToAdServices(): android.adservices.common.AdSelectionSignals {
+        return android.adservices.common.AdSelectionSignals.fromString(signals)
     }
 }

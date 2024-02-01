@@ -83,6 +83,8 @@ internal object WorkDatabaseVersions {
     const val VERSION_19 = 19
     // default value of last_enqueue_time changed to -1
     const val VERSION_20 = 20
+    // added NetworkRequest to Constraints
+    const val VERSION_21 = 21
 }
 
 private const val CREATE_SYSTEM_ID_INFO =

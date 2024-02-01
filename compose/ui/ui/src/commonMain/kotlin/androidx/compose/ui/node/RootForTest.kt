@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.node
 
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -40,6 +42,7 @@ interface RootForTest {
     /**
      * The service handling text input.
      */
+    @Deprecated("Use PlatformTextInputModifierNode instead.")
     val textInputService: TextInputService
 
     /**
@@ -48,6 +51,23 @@ interface RootForTest {
      * @return true if the event was consumed. False otherwise.
      */
     fun sendKeyEvent(keyEvent: KeyEvent): Boolean
+
+    /**
+     * Force accessibility to be enabled for testing.
+     */
+    @ExperimentalComposeUiApi
+    fun forceAccessibilityForTesting()
+
+    /**
+     * Set the time interval between sending accessibility events in milliseconds.
+     *
+     * This is the delay before dispatching a recurring accessibility event in milliseconds. It
+     * delays the loop that sends events to the accessibility and content capture framework
+     * in batches. A recurring event will be sent at most once during the
+     * [accessibilityInterval] timeframe. The default time delay is 100 milliseconds.
+     */
+    @ExperimentalComposeUiApi
+    fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long)
 
     /**
      * Requests another layout (measure + placement) pass be performed for any nodes that need it.

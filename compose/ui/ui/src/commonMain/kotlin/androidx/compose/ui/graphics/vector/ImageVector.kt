@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -77,7 +78,13 @@ class ImageVector internal constructor(
     /**
      * Determines if the vector asset should automatically be mirrored for right to left locales
      */
-    val autoMirror: Boolean
+    val autoMirror: Boolean,
+
+    /**
+     * Identifier used to disambiguate between different ImageVector instances in a more efficient
+     * manner than equality. This can be used as a key for caching instances of ImageVectors.
+     */
+    internal val genId: Int = generateImageVectorId(),
 ) {
     /**
      * Builder used to construct a Vector graphic tree.
@@ -358,7 +365,7 @@ class ImageVector internal constructor(
          * Throws IllegalStateException if the ImageVector.Builder has already been consumed
          */
         private fun ensureNotConsumed() {
-            check(!isConsumed) {
+            checkPrecondition(!isConsumed) {
                 "ImageVector.Builder is single use, create a new instance " +
                     "to create a new ImageVector"
             }
@@ -401,10 +408,15 @@ class ImageVector internal constructor(
         )
     }
 
-    /**
-     * Provide an empty companion object to hang platform-specific companion extensions onto.
-     */
-    companion object { } // ktlint-disable no-empty-class-body
+    companion object {
+        private var imageVectorCount = 0
+
+        internal fun generateImageVectorId(): Int {
+            synchronized(this) {
+                return imageVectorCount++
+            }
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

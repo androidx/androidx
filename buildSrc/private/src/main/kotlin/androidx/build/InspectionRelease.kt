@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.inspection.gradle.InspectionExtension
 import androidx.inspection.gradle.InspectionPlugin
 import androidx.inspection.gradle.createConsumeInspectionConfiguration
 import androidx.inspection.gradle.createConsumeNonDexedInspectionConfiguration
@@ -56,10 +57,9 @@ internal fun Project.publishInspectionConfiguration(
             it.sourceFile = project.provider {
                 project.files(configuration).singleFile
             }
-            it.destinationFile = File(
-                File(getDistributionDirectory(), dirName),
-                "${project.name}.jar"
-            )
+            val extension = project.extensions.getByType(InspectionExtension::class.java)
+            val fileName = extension.name ?: "${project.name}.jar"
+            it.destinationFile = File(File(getDistributionDirectory(), dirName), fileName)
         }
     addToBuildOnServer(sync)
 }

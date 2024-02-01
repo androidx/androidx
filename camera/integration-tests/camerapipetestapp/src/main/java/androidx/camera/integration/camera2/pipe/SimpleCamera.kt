@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.camera2.pipe
 
+import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.hardware.HardwareBuffer
 import android.hardware.camera2.CameraCharacteristics
@@ -52,6 +53,7 @@ private const val highSpeedHeight = 720
 private const val highSpeedArea = highSpeedWidth * highSpeedHeight
 private const val highSpeedAspectRatio = highSpeedWidth.toDouble() / highSpeedHeight.toDouble()
 
+@SuppressLint("RestrictedApiAndroidX")
 class SimpleCamera(
     private val cameraConfig: CameraGraph.Config,
     private val cameraGraph: CameraGraph,
@@ -163,7 +165,7 @@ class SimpleCamera(
 
             val cameraGraph = cameraPipe.create(config)
 
-            val viewfinderStream = cameraGraph.streams[privateStreamConfig]!!
+            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!
             val viewfinderOutput = viewfinderStream.outputs.single()
 
             viewfinder.configure(

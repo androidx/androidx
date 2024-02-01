@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
+import static androidx.wear.protolayout.renderer.inflater.WearCurvedLineView.getSignForClockwise;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -28,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection;
 import androidx.wear.protolayout.renderer.R;
 import androidx.wear.widget.ArcLayout;
 
@@ -42,6 +45,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
     private static final float DEFAULT_SWEEP_ANGLE_DEGREES = 0;
+    @NonNull private ArcDirection mArcDirection = ArcDirection.ARC_DIRECTION_CLOCKWISE;
 
     private float mSweepAngleDegrees;
 
@@ -114,6 +118,14 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
                         DEFAULT_SWEEP_ANGLE_DEGREES);
 
         a.recycle();
+    }
+
+    /**
+     * Sets the arc direction for this container. This controls what is considered START or END for
+     * alignment.
+     */
+    void setArcDirection(@NonNull ArcDirection arcDirection) {
+        mArcDirection = arcDirection;
     }
 
     @Override
@@ -232,12 +244,14 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
         float childSweep = ((ArcLayout.Widget) child).getSweepAngleDegrees();
         float offsetDegrees = (mSweepAngleDegrees - childSweep) / 2;
 
+        int sign = getSignForClockwise(mArcDirection, /* defaultValue= */ 1);
+
         switch (alignment) {
             case LayoutParams.ANGULAR_ALIGNMENT_START:
-                canvas.rotate(-offsetDegrees, centerX, centerY);
+                canvas.rotate(-1 * sign * offsetDegrees, centerX, centerY);
                 return super.drawChild(canvas, child, drawingTime);
             case LayoutParams.ANGULAR_ALIGNMENT_END:
-                canvas.rotate(offsetDegrees, centerX, centerY);
+                canvas.rotate(sign * offsetDegrees, centerX, centerY);
                 return super.drawChild(canvas, child, drawingTime);
             default:
                 return super.drawChild(canvas, child, drawingTime);

@@ -1,6 +1,6 @@
 package com.sdkwithvalues
 
-import androidx.privacysandbox.ui.core.SdkActivityLauncher
+import androidx.privacysandbox.activity.core.SdkActivityLauncher
 
 public data class SdkRequest(
     public val id: Long,

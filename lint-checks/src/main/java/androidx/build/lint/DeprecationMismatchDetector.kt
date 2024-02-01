@@ -86,8 +86,7 @@ class DeprecationMismatchDetector : Detector(), Detector.UastScanner {
             } else {
                 val fix = fix()
                     .name("Annotate with @Deprecated")
-                    .annotate(DEPRECATED_ANNOTATION)
-                    .range(context.getLocation(node, LocationType.ALL))
+                    .annotate(DEPRECATED_ANNOTATION, context, node)
                     .autoFix()
                     .build()
 

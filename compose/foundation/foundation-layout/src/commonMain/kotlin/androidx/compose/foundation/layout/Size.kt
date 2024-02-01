@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Declare the preferred width of the content to be exactly [width]dp. The incoming measurement
@@ -677,7 +677,7 @@ private class FillNode(
         val minWidth: Int
         val maxWidth: Int
         if (constraints.hasBoundedWidth && direction != Direction.Vertical) {
-            val width = (constraints.maxWidth * fraction).roundToInt()
+            val width = (constraints.maxWidth * fraction).fastRoundToInt()
                 .coerceIn(constraints.minWidth, constraints.maxWidth)
             minWidth = width
             maxWidth = width
@@ -688,7 +688,7 @@ private class FillNode(
         val minHeight: Int
         val maxHeight: Int
         if (constraints.hasBoundedHeight && direction != Direction.Horizontal) {
-            val height = (constraints.maxHeight * fraction).roundToInt()
+            val height = (constraints.maxHeight * fraction).fastRoundToInt()
                 .coerceIn(constraints.minHeight, constraints.maxHeight)
             minHeight = height
             maxHeight = height

@@ -34,10 +34,11 @@ import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import kotlinx.coroutines.withContext
 
 internal fun Modifier.cursor(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     value: TextFieldValue,
     offsetMapping: OffsetMapping,
     cursorBrush: Brush,
@@ -57,7 +58,7 @@ internal fun Modifier.cursor(
         }
         drawWithContent {
             this.drawContent()
-            val cursorAlphaValue = cursorAlpha.value.coerceIn(0f, 1f)
+            val cursorAlphaValue = cursorAlpha.value.fastCoerceIn(0f, 1f)
             if (cursorAlphaValue != 0f) {
                 val transformedOffset = offsetMapping
                     .originalToTransformed(value.selection.start)

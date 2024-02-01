@@ -24,7 +24,6 @@ import androidx.compose.foundation.text2.input.internal.commitText
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.intl.Locale
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -237,7 +236,6 @@ class TextUndoTest {
         assertThat(state.text.toString()).isEqualTo("")
     }
 
-    @Ignore("Enable after EditingBuffer reverse range replace is fixed")
     @Test
     fun undoRecoversSelectionState() {
         val state = TextFieldState("abc")
@@ -252,7 +250,6 @@ class TextUndoTest {
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(2, 0))
     }
 
-    @Ignore("Enable after EditingBuffer reverse range replace is fixed")
     @Test
     fun redoDoesNotRecoverSelectionState() {
         val state = TextFieldState("abc")
@@ -271,7 +268,6 @@ class TextUndoTest {
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 4))
     }
 
-    @Ignore("Enable after allCapsTransformation is fixed")
     @Test
     fun undoHistoryIncludesInputTransformation() {
         val allCapsTransformation = InputTransformation.allCaps(Locale.current)

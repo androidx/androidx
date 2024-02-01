@@ -296,11 +296,14 @@ package androidx.wear.watchface {
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList, optional int[] eglContextAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
+    ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, java.util.List<int[]> eglConfigAttribListList, int[] eglSurfaceAttribList, int[] eglContextAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     method @WorkerThread protected abstract suspend Object? createSharedAssets(kotlin.coroutines.Continuation<? super SharedAssetsT>);
+    method public final int getSelectedEglConfigAttribListIndex();
     method public final void render(java.time.ZonedDateTime zonedDateTime);
     method @UiThread public abstract void render(java.time.ZonedDateTime zonedDateTime, SharedAssetsT sharedAssets);
     method public final void renderHighlightLayer(java.time.ZonedDateTime zonedDateTime);
     method @UiThread public abstract void renderHighlightLayer(java.time.ZonedDateTime zonedDateTime, SharedAssetsT sharedAssets);
+    property public final int selectedEglConfigAttribListIndex;
   }
 
   public static interface Renderer.SharedAssets {
@@ -309,6 +312,34 @@ package androidx.wear.watchface {
 
   public final class RoundRectComplicationTapFilter implements androidx.wear.watchface.ComplicationTapFilter {
     ctor public RoundRectComplicationTapFilter();
+  }
+
+  public abstract class StatefulWatchFaceRuntimeService<Extra> extends androidx.wear.watchface.WatchFaceService {
+    ctor public StatefulWatchFaceRuntimeService();
+    method protected final androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread protected abstract androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, Extra extra);
+    method protected abstract Extra createExtra();
+    method protected final androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
+    method @WorkerThread protected abstract androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, String resourceOnlyWatchFacePackageName, Extra extra);
+    method protected final androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
+    method @WorkerThread protected abstract androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema(String resourceOnlyWatchFacePackageName, Extra extra);
+    method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+  }
+
+  public abstract class StatefulWatchFaceService<Extra> extends androidx.wear.watchface.WatchFaceService {
+    ctor public StatefulWatchFaceService();
+    method protected final androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra);
+    method protected abstract Extra createExtra();
+    method protected final androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
+    method @WorkerThread protected androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, Extra extra);
+    method protected final androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
+    method @WorkerThread protected androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema(Extra extra);
+    method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method protected final androidx.wear.watchface.ComplicationSlotInflationFactory getComplicationSlotInflationFactory(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory getComplicationSlotInflationFactory(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra);
   }
 
   public final class TapEvent {
@@ -344,7 +375,6 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     method public void setWatchFaceType(int);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
-    property @Deprecated public final androidx.wear.watchface.WatchFace.OverlayStyle overlayStyle;
     property public final java.time.Instant? overridePreviewReferenceInstant;
     property public final androidx.wear.watchface.Renderer renderer;
     property public final int watchFaceType;
@@ -431,29 +461,29 @@ package androidx.wear.watchface {
   }
 
   public final class WatchState {
-    ctor @Deprecated public WatchState(kotlinx.coroutines.flow.StateFlow<java.lang.Integer> interruptionFilter, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isAmbient, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isBatteryLowAndNotCharging, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis, int chinHeight, boolean isHeadless);
-    ctor public WatchState(kotlinx.coroutines.flow.StateFlow<java.lang.Integer> interruptionFilter, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isAmbient, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isBatteryLowAndNotCharging, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis, @Px int chinHeight, boolean isHeadless, kotlinx.coroutines.flow.StateFlow<java.lang.String> watchFaceInstanceId);
+    ctor @Deprecated public WatchState(kotlinx.coroutines.flow.StateFlow<java.lang.Integer?> interruptionFilter, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isAmbient, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isBatteryLowAndNotCharging, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis, int chinHeight, boolean isHeadless);
+    ctor public WatchState(kotlinx.coroutines.flow.StateFlow<java.lang.Integer?> interruptionFilter, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isAmbient, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isBatteryLowAndNotCharging, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis, @Px int chinHeight, boolean isHeadless, kotlinx.coroutines.flow.StateFlow<java.lang.String> watchFaceInstanceId);
     method public long getAnalogPreviewReferenceTimeMillis();
     method @Px public int getChinHeight();
     method public long getDigitalPreviewReferenceTimeMillis();
-    method public kotlinx.coroutines.flow.StateFlow<java.lang.Integer> getInterruptionFilter();
+    method public kotlinx.coroutines.flow.StateFlow<java.lang.Integer?> getInterruptionFilter();
     method public kotlinx.coroutines.flow.StateFlow<java.lang.String> getWatchFaceInstanceId();
     method public boolean hasBurnInProtection();
     method public boolean hasLowBitAmbient();
-    method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isAmbient();
-    method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isBatteryLowAndNotCharging();
+    method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isAmbient();
+    method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isBatteryLowAndNotCharging();
     method public boolean isHeadless();
-    method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isVisible();
+    method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isVisible();
     property public final long analogPreviewReferenceTimeMillis;
     property @Px public final int chinHeight;
     property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Integer> interruptionFilter;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isAmbient;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isBatteryLowAndNotCharging;
+    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Integer?> interruptionFilter;
+    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isAmbient;
+    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isBatteryLowAndNotCharging;
     property public final boolean isHeadless;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isVisible;
+    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isVisible;
     property public final kotlinx.coroutines.flow.StateFlow<java.lang.String> watchFaceInstanceId;
   }
 

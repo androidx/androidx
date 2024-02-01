@@ -16,6 +16,7 @@
   -->
 <resources>
     <string name="app_name">Haptic Demos</string>
+    <string name="no_vibrator_message">This device does not have a vibrator</string>
     <string name="standard_click">Standard Click</string>
     <string name="scaled_click">Scaled Click</string>
     <string name="on_off_pattern">On/Off Notification Pattern</string>

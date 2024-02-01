@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,7 +34,8 @@ import android.os.Build;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureCallbacks;
 import androidx.camera.core.impl.CameraCaptureResult;
-import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.MutableTagBundle;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,12 +53,16 @@ public final class CaptureCallbackConverterTest {
     private CameraCaptureSession mCameraCaptureSession;
     private CaptureRequest mCaptureRequest;
     private TotalCaptureResult mCaptureResult;
+    private static final int CAPTURE_CONFIG_ID = 100;
+
 
     @Before
     public void setUp() {
         mCameraCaptureSession = mock(CameraCaptureSession.class);
         mCaptureRequest = mock(CaptureRequest.class);
-        when(mCaptureRequest.getTag()).thenReturn(TagBundle.emptyBundle());
+        MutableTagBundle tagBundle = MutableTagBundle.create();
+        tagBundle.putTag(CaptureConfig.CAPTURE_CONFIG_ID_TAG_KEY, CAPTURE_CONFIG_ID);
+        when(mCaptureRequest.getTag()).thenReturn(tagBundle);
         mCaptureResult = mock(TotalCaptureResult.class);
     }
 
@@ -65,7 +71,8 @@ public final class CaptureCallbackConverterTest {
         CameraCaptureCallback cameraCallback = Mockito.mock(CameraCaptureCallback.class);
         CaptureCallback callback = CaptureCallbackConverter.toCaptureCallback(cameraCallback);
         callback.onCaptureCompleted(mCameraCaptureSession, mCaptureRequest, mCaptureResult);
-        verify(cameraCallback, times(1)).onCaptureCompleted(any(CameraCaptureResult.class));
+        verify(cameraCallback, times(1))
+                .onCaptureCompleted(eq(CAPTURE_CONFIG_ID), any(CameraCaptureResult.class));
     }
 
     @Test
@@ -102,9 +109,14 @@ public final class CaptureCallbackConverterTest {
                                         CaptureCallbackContainer.create(cameraCallback3))));
 
         callback.onCaptureCompleted(mCameraCaptureSession, mCaptureRequest, mCaptureResult);
-        verify(cameraCallback1, times(1)).onCaptureCompleted(any(CameraCaptureResult.class));
-        verify(cameraCallback2, times(1)).onCaptureCompleted(any(CameraCaptureResult.class));
-        verify(cameraCallback3, times(1)).onCaptureCompleted(any(CameraCaptureSession.class), any(
-                CaptureRequest.class), any(TotalCaptureResult.class));
+        verify(cameraCallback1, times(1)).onCaptureCompleted(
+                eq(CAPTURE_CONFIG_ID),
+                any(CameraCaptureResult.class));
+        verify(cameraCallback2, times(1)).onCaptureCompleted(
+                eq(CAPTURE_CONFIG_ID),
+                any(CameraCaptureResult.class));
+        verify(cameraCallback3, times(1))
+                .onCaptureCompleted(any(CameraCaptureSession.class),
+                        any(CaptureRequest.class), any(TotalCaptureResult.class));
     }
 }

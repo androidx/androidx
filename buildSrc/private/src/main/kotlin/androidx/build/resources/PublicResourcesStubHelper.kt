@@ -22,7 +22,7 @@ import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 
-fun Project.configurePublicResourcesStub(extension: LibraryExtension) {
+fun Project.configurePublicResourcesStub(libraryExtension: LibraryExtension) {
     val targetRes = project.layout.buildDirectory.dir("generated/res/public-stub")
 
     val generatePublicResourcesTask =
@@ -31,7 +31,7 @@ fun Project.configurePublicResourcesStub(extension: LibraryExtension) {
             task.into(targetRes)
         }
 
-    extension.libraryVariants.all { variant ->
+    libraryExtension.libraryVariants.all { variant ->
         variant.registerGeneratedResFolders(
             project.files(targetRes).builtBy(generatePublicResourcesTask)
         )

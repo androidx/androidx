@@ -73,7 +73,7 @@ object Utils {
     }
 
     @OptIn(UiToolingDataApi::class)
-    internal fun ComposeContentTestRule.searchForAnimation(
+    internal fun ComposeContentTestRule.addAnimations(
         search: AnimationSearch.Search<*>,
         additionalSearch: AnimationSearch.Search<*>? = null,
         content: @Composable () -> Unit
@@ -94,10 +94,30 @@ object Utils {
     }
 
     @OptIn(UiToolingDataApi::class)
-    internal fun ComposeContentTestRule.searchAndTrackAllAnimations(
-        search: AnimationSearch,
+    internal fun ComposeContentTestRule.hasAnimations(
+        search: AnimationSearch.Search<*>,
+        content: @Composable () -> Unit
+    ): Boolean {
+        val slotTableRecord = CompositionDataRecord.create()
+        this.setContent {
+            Inspectable(slotTableRecord) {
+                content()
+            }
+        }
+        return this.runOnIdle {
+            val groups = slotTableRecord.store.map {
+                it.asTree()
+            }.flatMap { tree -> tree.findAll { true } }
+            search.hasAnimations(groups)
+        }
+    }
+
+    @OptIn(UiToolingDataApi::class)
+    internal fun ComposeContentTestRule.attachAllAnimations(
+        clock: PreviewAnimationClock,
         content: @Composable () -> Unit
     ) {
+        val search = AnimationSearch({ clock }) { }
         val slotTableRecord = CompositionDataRecord.create()
         this.setContent {
             Inspectable(slotTableRecord) {
@@ -106,9 +126,8 @@ object Utils {
         }
         this.runOnUiThread {
             val groups = slotTableRecord.store.map { it.asTree() }
-                .flatMap { tree -> tree.findAll { it.location != null } }
-            search.findAll(groups)
-            search.trackAll()
+                .flatMap { tree -> tree.findAll { true } }
+            search.attachAllAnimations(groups)
         }
     }
 

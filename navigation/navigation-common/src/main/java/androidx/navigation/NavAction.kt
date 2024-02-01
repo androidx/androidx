@@ -50,4 +50,41 @@ public class NavAction @JvmOverloads constructor(
      * @return bundle of default argument values
      */
     public var defaultArguments: Bundle? = null
-)
+) {
+
+    @Suppress("DEPRECATION")
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is NavAction) return false
+        return destinationId == other.destinationId &&
+            navOptions == other.navOptions &&
+            (
+                defaultArguments == other.defaultArguments ||
+                    defaultArguments?.keySet()?.all {
+                        defaultArguments?.get(it) == other.defaultArguments?.get(it)
+                    } == true
+                )
+    }
+
+    @Suppress("DEPRECATION")
+    override fun hashCode(): Int {
+        var result = destinationId.hashCode()
+        result = 31 * result + navOptions.hashCode()
+        defaultArguments?.keySet()?.forEach {
+            result = 31 * result + defaultArguments?.get(it).hashCode()
+        }
+        return result
+    }
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append(javaClass.simpleName)
+        sb.append("(0x")
+        sb.append(Integer.toHexString(destinationId))
+        sb.append(")")
+        if (navOptions != null) {
+            sb.append(" navOptions=")
+            sb.append(navOptions)
+        }
+        return sb.toString()
+    }
+}

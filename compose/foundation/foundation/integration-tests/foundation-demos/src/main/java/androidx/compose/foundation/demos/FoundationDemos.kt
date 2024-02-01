@@ -18,6 +18,7 @@ package androidx.compose.foundation.demos
 
 import androidx.compose.foundation.demos.draganddrop.DragAndDropMultiAppDemo
 import androidx.compose.foundation.demos.draganddrop.DragAndDropNestedDemo
+import androidx.compose.foundation.demos.focus.FocusGroupDemo
 import androidx.compose.foundation.demos.pager.PagerDemos
 import androidx.compose.foundation.demos.relocation.BringIntoViewAndroidInteropDemo
 import androidx.compose.foundation.demos.relocation.BringIntoViewDemo
@@ -67,14 +68,14 @@ private val DragAndDropDemos = listOf(
 val FoundationDemos = DemoCategory(
     "Foundation",
     listOf(
-        DemoCategory("High-level Gesures", GestureDemos),
+        DemoCategory("High-level Gestures", GestureDemos),
         DemoCategory("Drag and drop", DragAndDropDemos),
         ComposableDemo("Overscroll") { OverscrollDemo() },
         ComposableDemo("Can scroll forward / backward") { CanScrollSample() },
         ComposableDemo("Vertical scroll") { VerticalScrollExample() },
         ComposableDemo("Controlled Scrollable Row") { ControlledScrollableRowSample() },
         ComposableDemo("Draw Modifiers") { DrawModifiersDemo() },
-        ComposableDemo("Graphics Surfaces") { AndroidExternalSurfaceDemo() },
+        ComposableDemo("External Surfaces") { AndroidExternalSurfaceDemo() },
         DemoCategory("Lazy lists", LazyListDemos),
         DemoCategory("Snapping", SnappingDemos),
         DemoCategory("Pagers", PagerDemos),

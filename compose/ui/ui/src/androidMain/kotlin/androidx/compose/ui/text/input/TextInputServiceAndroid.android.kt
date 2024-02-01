@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTextApi::class)
+@file:Suppress("DEPRECATION")
 
 package androidx.compose.ui.text.input
 
@@ -31,7 +31,6 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.input.pointer.PositionCalculator
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.HideKeyboard
@@ -52,6 +51,10 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
  * @param inputCommandProcessorExecutor [Executor] used to schedule the [processInputCommands]
  * function when a input command is first requested for a frame.
  */
+@Deprecated(
+    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
+        "code. A copy of this class in foundation is used by the legacy BasicTextField."
+)
 internal class TextInputServiceAndroid(
     val view: View,
     rootPositionCalculator: PositionCalculator,
@@ -264,19 +267,6 @@ internal class TextInputServiceAndroid(
     }
 
     private fun processInputCommands() {
-        // When focus changes to a non-Compose view, the system will take care of managing the
-        // keyboard (via ImeFocusController) so we don't need to do anything. This can happen
-        // when a Compose text field is focused, then the user taps on an EditText view.
-        // And any commands that come in while we're not focused should also just be ignored,
-        // since no unfocused view should be messing with the keyboard.
-        // TODO(b/215761849) When focus moves to a different ComposeView than this one, this
-        //  logic doesn't work and the keyboard is not hidden.
-        if (!view.isFocused) {
-            // All queued commands should be ignored.
-            textInputCommandQueue.clear()
-            return
-        }
-
         // Multiple commands may have been queued up in the channel while this function was
         // waiting to be resumed. We don't execute the commands as they come in because making a
         // bunch of calls to change the actual IME quickly can result in flickers. Instead, we
@@ -504,7 +494,7 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
         ImeAction.Done -> EditorInfo.IME_ACTION_DONE
         else -> error("invalid ImeAction")
     }
-    (imeOptions.platformImeOptions as? AndroidImeOptions)?.privateImeOptions?.let {
+    imeOptions.platformImeOptions?.privateImeOptions?.let {
         privateImeOptions = it
     }
     when (imeOptions.keyboardType) {

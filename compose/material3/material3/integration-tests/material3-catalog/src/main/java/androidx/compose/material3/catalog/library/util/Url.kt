@@ -26,6 +26,7 @@ fun Context.openUrl(url: String) {
 }
 
 const val GuidelinesUrl = "https://m3.material.io"
+const val AdaptiveGuidelinesUrl = "https://m3.material.io/foundations/layout"
 const val ComponentGuidelinesUrl = "https://m3.material.io/components"
 const val StyleGuidelinesUrl = "https://m3.material.io/styles"
 const val ReleasesUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
@@ -40,12 +41,18 @@ const val Material3SourceUrl = "https://cs.android.com/androidx/platform/framewo
 const val SampleSourceUrl = "https://cs.android.com/androidx/platform/frameworks/support/+/" +
     "androidx-main:compose/material3/" +
     "material3/samples/src/main/java/androidx/compose/material3/samples"
-const val AdaptiveMaterial3SourceUrl = "https://cs.android.com/androidx/platform/frameworks/" +
-    "support/+/androidx-main:compose/material3/" +
-    "material3-adaptive/src/commonMain/kotlin/androidx/compose/material3/adaptive"
+const val AdaptiveSourceUrl = "https://cs.android.com/androidx/platform/" +
+    "frameworks/support/+/androidx-main:compose/material3/material3-adaptive/" +
+    "src/commonMain/kotlin/androidx/compose/material3/adaptive"
 const val AdaptiveSampleSourceUrl = "https://cs.android.com/androidx/platform/frameworks/" +
-    "support/+/androidx-main:compose/material3/material3-adaptive" +
-    "samples/src/main/java/androidx/compose/material3-adaptive/samples"
+    "support/+/androidx-main:compose/material3/material3-adaptive/" +
+    "samples/src/main/java/androidx/compose/material3/samples"
+const val AdaptiveNavigationSuiteMaterial3SourceUrl = "https://cs.android.com/androidx/platform/" +
+    "frameworks/support/+/androidx-main:compose/material3/material3-adaptive-navigation-suite/" +
+    "src/commonMain/kotlin/androidx/compose/material3/adaptive/navigation-suite"
+const val AdaptiveNavigationSuiteSampleSourceUrl = "https://cs.android.com/androidx/platform/" +
+    "frameworks/support/+/androidx-main:compose/material3/material3-adaptive-navigation-suite" +
+    "samples/src/main/java/androidx/compose/material3-adaptive-navigation-suite/samples"
 const val IssueUrl = "https://issuetracker.google.com/issues/new?component=742043"
 const val TermsUrl = "https://policies.google.com/terms"
 const val PrivacyUrl = "https://policies.google.com/privacy"

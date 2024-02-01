@@ -22,16 +22,23 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.demos.text.fontSize8
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.material.Button
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -42,7 +49,7 @@ import androidx.compose.ui.unit.dp
 @Preview
 @Composable
 fun KeyboardOptionsDemos() {
-    LazyColumn {
+    LazyColumn(Modifier.imePadding()) {
         item { Item(KeyboardType.Text) }
         item { Item(KeyboardType.Ascii) }
         item { Item(KeyboardType.Number) }
@@ -51,6 +58,8 @@ fun KeyboardOptionsDemos() {
         item { Item(KeyboardType.Email) }
         item { Item(KeyboardType.Password) }
         item { Item(KeyboardType.NumberPassword) }
+        item { ShowKeyboardOnFocus(true) }
+        item { ShowKeyboardOnFocus(false) }
     }
 }
 
@@ -76,6 +85,26 @@ private fun EditLine(
         ),
         textStyle = TextStyle(fontSize = fontSize8),
     )
+}
+
+@Composable
+private fun ShowKeyboardOnFocus(showKeyboardOnFocus: Boolean) {
+    Column {
+        TagLine(tag = "showKeyboardOnFocus: $showKeyboardOnFocus")
+
+        val state = remember { TextFieldState("") }
+        val focusRequester = remember { FocusRequester() }
+        BasicTextField2(
+            modifier = demoTextFieldModifiers.focusRequester(focusRequester),
+            state = state,
+            keyboardOptions = KeyboardOptions(
+                shouldShowKeyboardOnFocus = showKeyboardOnFocus
+            )
+        )
+        Button(onClick = { focusRequester.requestFocus() }) {
+            BasicText("Focus me", style = LocalTextStyle.current)
+        }
+    }
 }
 
 val demoTextFieldModifiers = Modifier

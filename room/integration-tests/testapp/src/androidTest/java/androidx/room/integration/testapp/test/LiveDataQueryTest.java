@@ -361,7 +361,6 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void withFtsTable() throws ExecutionException, InterruptedException, TimeoutException {
         final Context context = ApplicationProvider.getApplicationContext();
         final FtsTestDatabase db = Room.inMemoryDatabaseBuilder(context, FtsTestDatabase.class)
@@ -383,7 +382,6 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void withExternalContentFtsTable()
             throws ExecutionException, InterruptedException, TimeoutException {
         final Context context = ApplicationProvider.getApplicationContext();

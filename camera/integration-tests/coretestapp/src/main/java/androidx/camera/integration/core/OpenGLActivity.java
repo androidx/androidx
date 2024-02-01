@@ -16,11 +16,18 @@
 
 package androidx.camera.integration.core;
 
+import static android.view.Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION;
+import static android.view.Display.HdrCapabilities.HDR_TYPE_HDR10;
+import static android.view.Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS;
+import static android.view.Display.HdrCapabilities.HDR_TYPE_HLG;
+
 import android.Manifest;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,19 +43,28 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /** Activity which runs the camera preview with opengl processing */
 public class OpenGLActivity extends AppCompatActivity {
@@ -79,10 +95,27 @@ public class OpenGLActivity extends AppCompatActivity {
      * {@link OpenGLActivity#INTENT_EXTRA_RENDER_SURFACE_TYPE}. This type will NOT
      * block the main thread while detaching it's {@link Surface} from the OpenGL
      * renderer, but some devices may crash due to their OpenGL/EGL implementation not being
-     * thread-safe.
+     * thread-safe. On API 30+, {@link android.view.SurfaceControl} is used to allow releasing of
+     * the surface off the main thread.
      */
     public static final String RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING =
             "surfaceview_nonblocking";
+
+    private static final String DEFAULT_RENDER_SURFACE_TYPE;
+
+    static {
+        // By default we choose TextureView to maximize compatibility. On devices that are API
+        // level 33 and above, we choose SurfaceView by default since SurfaceView has been proven
+        // to be stable on this API level, and we are able to push releasing of the surface off
+        // the main thread via SurfaceControl.
+        if (Build.VERSION.SDK_INT >= 33) {
+            DEFAULT_RENDER_SURFACE_TYPE = RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING;
+        } else {
+            DEFAULT_RENDER_SURFACE_TYPE = RENDER_SURFACE_TYPE_TEXTUREVIEW;
+        }
+
+    }
+
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
                     Manifest.permission.CAMERA,
@@ -99,7 +132,12 @@ public class OpenGLActivity extends AppCompatActivity {
 
         setContentView(R.layout.opengl_activity);
 
-        OpenGLRenderer renderer = mRenderer = new OpenGLRenderer();
+        Display display = null;
+        if (Build.VERSION.SDK_INT >= 30) {
+            display = Api30Impl.getDisplay(this);
+        }
+        OpenGLRenderer renderer = mRenderer = new OpenGLRenderer(
+                getHighDynamicRangesSupportedByDisplay(display));
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         View viewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 renderer);
@@ -199,14 +237,15 @@ public class OpenGLActivity extends AppCompatActivity {
      *                       viewfinder.
      * @return The inflated viewfinder View.
      */
+    @NonNull
     public static View chooseViewFinder(@Nullable Bundle intentExtras,
             @NonNull ViewStub viewFinderStub,
             @NonNull OpenGLRenderer renderer) {
-        // By default we choose TextureView to maximize compatibility.
-        String renderSurfaceType = OpenGLActivity.RENDER_SURFACE_TYPE_TEXTUREVIEW;
+
+        String renderSurfaceType = DEFAULT_RENDER_SURFACE_TYPE;
         if (intentExtras != null) {
             renderSurfaceType = intentExtras.getString(INTENT_EXTRA_RENDER_SURFACE_TYPE,
-                    RENDER_SURFACE_TYPE_TEXTUREVIEW);
+                    DEFAULT_RENDER_SURFACE_TYPE);
         }
 
         switch (renderSurfaceType) {
@@ -225,6 +264,24 @@ public class OpenGLActivity extends AppCompatActivity {
                         renderSurfaceType, RENDER_SURFACE_TYPE_TEXTUREVIEW,
                         RENDER_SURFACE_TYPE_SURFACEVIEW,
                         RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING));
+        }
+    }
+
+    /**
+     * Returns a list of HDR dynamic ranges supported by the display.
+     *
+     * <p>The returned HDR dynamic ranges are constants defined by the {@code DynamicRange} class.
+     * The returned list will never contain {@link DynamicRange#SDR}.
+     *
+     * <p>The list may be empty if the display does not support HDR, such as on pre-API 24 devices.
+     */
+    @NonNull
+    public static Set<DynamicRange> getHighDynamicRangesSupportedByDisplay(
+            @Nullable Display display) {
+        if (display != null && Build.VERSION.SDK_INT >= 24) {
+            return Api24Impl.getHighDynamicRangesSupportedByDisplay(display);
+        } else {
+            return Collections.emptySet();
         }
     }
 
@@ -275,4 +332,51 @@ public class OpenGLActivity extends AppCompatActivity {
         return true;
     }
     // **************************** Permission handling code end *********************************//
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private static final Map<Integer, Set<DynamicRange>> DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE =
+                new HashMap<>();
+
+        static {
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE.put(HDR_TYPE_HLG,
+                    Collections.singleton(DynamicRange.HLG_10_BIT));
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE.put(HDR_TYPE_HDR10,
+                    Collections.singleton(DynamicRange.HDR10_10_BIT));
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE.put(HDR_TYPE_HDR10_PLUS,
+                    Collections.singleton(DynamicRange.HDR10_PLUS_10_BIT));
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE.put(HDR_TYPE_DOLBY_VISION,
+                    new HashSet<>(Arrays.asList(
+                            DynamicRange.DOLBY_VISION_8_BIT, DynamicRange.DOLBY_VISION_10_BIT)));
+        }
+
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Set<DynamicRange> getHighDynamicRangesSupportedByDisplay(
+                @NonNull Display display) {
+            return Arrays.stream(display.getHdrCapabilities().getSupportedHdrTypes())
+                    .boxed()
+                    .map(DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE::get)
+                    .flatMap(set -> Objects.requireNonNull(set).stream())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+        }
+
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Display getDisplay(ContextWrapper contextWrapper) {
+            return contextWrapper.getDisplay();
+        }
+
+    }
 }

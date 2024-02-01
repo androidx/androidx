@@ -18,15 +18,12 @@
 
 package androidx.core.view
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewParent
-import androidx.annotation.DoNotInline
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
 
 /**
@@ -65,7 +62,7 @@ public inline fun View.doOnNextLayout(crossinline action: (view: View) -> Unit) 
  * @see doOnNextLayout
  */
 public inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
-    if (ViewCompat.isLaidOut(this) && !isLayoutRequested) {
+    if (isLaidOut && !isLayoutRequested) {
         action(this)
     } else {
         doOnNextLayout {
@@ -93,7 +90,7 @@ public inline fun View.doOnPreDraw(
  * @see doOnDetach
  */
 public inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
-    if (ViewCompat.isAttachedToWindow(this)) {
+    if (isAttachedToWindow) {
         action(this)
     } else {
         addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -117,7 +114,7 @@ public inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
  * @see doOnAttach
  */
 public inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
-    if (!ViewCompat.isAttachedToWindow(this)) {
+    if (!isAttachedToWindow) {
         action(this)
     } else {
         addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -142,8 +139,6 @@ public inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
  *
  * @see View.setPaddingRelative
  */
-@SuppressLint("ClassVerificationFailure") // Can't work around this for default arguments.
-@RequiresApi(17)
 public inline fun View.updatePaddingRelative(
     @Px start: Int = paddingStart,
     @Px top: Int = paddingTop,
@@ -207,13 +202,12 @@ public inline fun View.postDelayed(delayInMillis: Long, crossinline action: () -
  *
  * @return the created Runnable
  */
-@RequiresApi(16)
 public fun View.postOnAnimationDelayed(
     delayInMillis: Long,
     action: () -> Unit
 ): Runnable {
     val runnable = Runnable { action() }
-    Api16Impl.postOnAnimationDelayed(this, runnable, delayInMillis)
+    postOnAnimationDelayed(runnable, delayInMillis)
     return runnable
 }
 
@@ -232,7 +226,7 @@ public fun View.postOnAnimationDelayed(
  * @param config Bitmap config of the desired bitmap. Defaults to [Bitmap.Config.ARGB_8888].
  */
 public fun View.drawToBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
-    if (!ViewCompat.isLaidOut(this)) {
+    if (!isLaidOut) {
         throw IllegalStateException("View needs to be laid out before calling drawToBitmap()")
     }
     return Bitmap.createBitmap(width, height, config).applyCanvas {
@@ -416,16 +410,3 @@ public val View.allViews: Sequence<View>
             yieldAll(this@allViews.descendants)
         }
     }
-
-@RequiresApi(16)
-private object Api16Impl {
-    @JvmStatic
-    @DoNotInline
-    fun postOnAnimationDelayed(
-        view: View,
-        action: Runnable,
-        delayInMillis: Long
-    ) {
-        view.postOnAnimationDelayed(action, delayInMillis)
-    }
-}

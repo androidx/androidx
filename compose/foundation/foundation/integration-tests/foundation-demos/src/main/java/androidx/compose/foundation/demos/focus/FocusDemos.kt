@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.demos
+package androidx.compose.foundation.demos.focus
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.samples.FocusGroupSample

@@ -36,6 +36,7 @@ import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.R8Utils
 import androidx.baselineprofile.gradle.utils.RELEASE
 import androidx.baselineprofile.gradle.utils.camelCase
+import androidx.baselineprofile.gradle.utils.namedOrNull
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.ApplicationVariant
@@ -93,6 +94,13 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
     private val Variant.benchmarkVariantName: String
         get() {
             val parts = listOfNotNull(flavorName, BUILD_TYPE_BENCHMARK_PREFIX, buildType)
+                .filter { it.isNotBlank() }
+            return camelCase(*parts.toTypedArray())
+        }
+
+    private val Variant.benchmarkBuildType: String
+        get() {
+            val parts = listOfNotNull(BUILD_TYPE_BENCHMARK_PREFIX, buildType)
                 .filter { it.isNotBlank() }
             return camelCase(*parts.toTypedArray())
         }
@@ -202,7 +210,19 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // artifact per task, specific for that variant.
         // When mergeIntoMain is not specified, it's by default true for libraries and false
         // for apps.
-        val mergeIntoMain = variantConfiguration.mergeIntoMain ?: isLibraryModule()
+
+        // Warning: support for baseline profile source sets in library module was added with
+        // agp 8.3.0 alpha 15 (b/309858620). Therefore, before then, we can only always merge into
+        // main and always output only in src/main/baseline-prof.txt.
+        val forceOutputInSrcMain =
+            isLibraryModule() &&
+                !supportsFeature(AgpFeature.LIBRARY_MODULE_SUPPORTS_BASELINE_PROFILE_SOURCE_SETS)
+
+        val mergeIntoMain = if (forceOutputInSrcMain) {
+            true
+        } else {
+            variantConfiguration.mergeIntoMain ?: isLibraryModule()
+        }
 
         // Determines the target name for the Android target in kotlin multiplatform projects.
         // Note that KotlinMultiPlatformUtils references the kmp extension that exists only if the
@@ -276,13 +296,21 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // of the merge task in the src folder.
         val lastTaskProvider = if (variantConfiguration.saveInSrc) {
 
-            val baselineProfileOutputDir = perVariantBaselineProfileExtensionManager
-                .variant(variant)
-                .baselineProfileOutputDir
-            val srcOutputDir = project
+            // Here we determine where the final baseline profile file should be placed.
+            // Before AGP 8.3.0 alpha 15, libraries don't support source sets so we can only
+            // output in src/main/baseline-prof.txt. Variable `shouldOutputInSrcMain` defined
+            // above, controls this behavior. Note that `mergeAwareVariantOutput` is always `main`
+            // when `shouldOutputInSrcMain` is true
+            var srcOutputDir = project
                 .layout
                 .projectDirectory
-                .dir("src/$mergeAwareVariantOutput/$baselineProfileOutputDir/")
+                .dir("src/$mergeAwareVariantOutput/")
+            if (!forceOutputInSrcMain) {
+                val baselineProfileOutputDir = perVariantBaselineProfileExtensionManager
+                    .variant(variant)
+                    .baselineProfileOutputDir
+                srcOutputDir = srcOutputDir.dir("$baselineProfileOutputDir/")
+            }
 
             // This task copies the baseline profile generated from the merge task.
             // Note that we're reutilizing the [MergeBaselineProfileTask] because
@@ -299,12 +327,15 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                 isLastTask = true
             )
 
-            // Applies the source path for this variant
-            srcOutputDir.asFile.apply {
-                mkdirs()
-                variant
-                    .sources
-                    .baselineProfiles?.addStaticSourceDirectory(absolutePath)
+            // Applies the source path for this variant. Note that this doesn't apply when the
+            // output is src/main/baseline-prof.txt.
+            if (!forceOutputInSrcMain) {
+                srcOutputDir.asFile.apply {
+                    mkdirs()
+                    variant
+                        .sources
+                        .baselineProfiles?.addStaticSourceDirectory(absolutePath)
+                }
             }
 
             // If this is an application, we need to ensure that:
@@ -322,19 +353,27 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             // trigger a circular task dependency since the library would require
             // the profile in order to build the aar for the sample app and generate
             // the profile.
+
+            val automaticGeneration = perVariantBaselineProfileExtensionManager
+                .variant(variant)
+                .automaticGenerationDuringBuild
+
+            if (automaticGeneration && isLibraryModule() && !isGradleSyncRunning()) {
+                throw IllegalStateException(
+                    "The flag `automaticGenerationDuringBuild` is not compatible with library " +
+                        "modules. Please remove the flag `automaticGenerationDuringBuild` in " +
+                        "your com.android.library module ${project.name}."
+                )
+            }
+
             if (isApplicationModule()) {
-
-                // Sets the task dependency according to the configuration flag.
-                val automaticGeneration = perVariantBaselineProfileExtensionManager
-                    .variant(variant)
-                    .automaticGenerationDuringBuild
-
                 // Defines a function to apply the baseline profile source sets to a variant.
-                val applySourceSetsFunc: (String) -> (Unit) = { variantName ->
+                fun applySourceSets(variantName: String, variantBuildType: String?) {
+                    val taskName = camelCase("merge", variantName, "artProfile")
                     project
                         .tasks
-                        .named(camelCase("merge", variantName, "artProfile"))
-                        .configure { t ->
+                        .namedOrNull<Task>(taskName)
+                        ?.configure { t ->
 
                             // TODO: this causes a circular task dependency when the producer points
                             //  to a consumer that does not have the appTarget plugin. (b/272851616)
@@ -344,16 +383,31 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                                 t.mustRunAfter(copyTaskProvider)
                             }
                         }
+                        ?: throw IllegalStateException(
+                            "The task `$taskName` doesn't exist. This may be related to a " +
+                                "`beforeVariants` block filtering variants and disabling" +
+                                "`$variantName`. Please check your gradle configuration and make " +
+                                "sure variants with build type `$variantBuildType` are " +
+                                "enabled. For more information on variant filters check out the " +
+                                "docs at https://developer.android.com/build/build-variants#" +
+                                "filter-variants."
+                        )
                 }
 
                 afterVariants {
 
                     // Apply the source sets to the variant.
-                    applySourceSetsFunc(variant.name)
+                    applySourceSets(
+                        variant.name,
+                        variant.buildType
+                    )
 
                     // Apply the source sets to the benchmark variant if supported.
                     if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
-                        applySourceSetsFunc(variant.benchmarkVariantName)
+                        applySourceSets(
+                            variant.benchmarkVariantName,
+                            variant.benchmarkBuildType
+                        )
                     }
                 }
             }
@@ -370,7 +424,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                 // on the merge or prepare art profile task.
 
                 // Defines a function to apply the baseline profile source sets to a variant.
-                val applySourceSetsFunc: (Variant) -> (Unit) = { v ->
+                fun applySourceSets(v: Variant) {
                     v.sources.baselineProfiles?.addGeneratedSourceDirectory(
                         taskProvider = mergeTaskProvider,
                         wiredWith = MergeBaselineProfileTask::baselineProfileDir
@@ -378,7 +432,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                 }
 
                 // Apply the source sets to the variant.
-                applySourceSetsFunc(variant)
+                applySourceSets(variant)
 
                 // Apply the source sets to the benchmark variant if supported and this the
                 // consumer is an app (libraries don't have benchmark type).
@@ -391,7 +445,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                     // because the benchmark build type is created after the baseline profile
                     // build type, its variants will also come after the ones for baseline profile.
                     onVariant(variant.benchmarkVariantName) { v: ApplicationVariant ->
-                        applySourceSetsFunc(v)
+                        applySourceSets(v)
                     }
                 }
             } else {

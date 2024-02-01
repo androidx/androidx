@@ -282,7 +282,7 @@ class TransitionTest {
         var playTime by mutableStateOf(0L)
         var floatAnim: State<Float>? = null
         rule.setContent {
-            val transition = updateTransition(target)
+            val transition = rememberTransition(target)
             floatAnim = transition.animateFloat(
                 transitionSpec = { tween(800) }
             ) {
@@ -310,7 +310,7 @@ class TransitionTest {
         rule.setContent {
             var target by remember { mutableStateOf(MutableTransitionState(AnimStates.From)) }
             target.targetState = AnimStates.To
-            val transition = updateTransition(target)
+            val transition = rememberTransition(target)
             val floatAnim = transition.animateFloat(
                 transitionSpec = { tween(800) }
             ) {
@@ -349,7 +349,7 @@ class TransitionTest {
         val mutableTransitionState = MutableTransitionState(false)
         var transition: Transition<Boolean>? = null
         rule.setContent {
-            transition = updateTransition(mutableTransitionState).apply {
+            transition = rememberTransition(mutableTransitionState).apply {
                 animateFloat {
                     if (it) 1f else 0f
                 }

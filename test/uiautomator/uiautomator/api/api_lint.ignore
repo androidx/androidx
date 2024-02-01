@@ -35,6 +35,8 @@ MissingNullability: androidx.test.uiautomator.UiObject2#getText():
     Missing nullability on method `getText` return
 
 
+PercentageInt: androidx.test.uiautomator.UiObject2#setGestureMarginPercentage(float):
+    Percentage must use ints, was `float` in `setGestureMarginPercentage`
 PercentageInt: androidx.test.uiautomator.UiScrollable#getSwipeDeadZonePercentage():
     Percentage must use ints, was `double` in `getSwipeDeadZonePercentage`
 

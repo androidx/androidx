@@ -1080,7 +1080,6 @@ public class WebViewCompat {
      * <li> This should be only called if WebView is to use a Profile other than the default.
      * <li> This method will create the profile if it doesn't exist.
      * </ul>
-     * This method must be called on the UI thread.
      *
      * @param webView the WebView to modify.
      * @param profileName the name of the profile to use in the passed {@code webView}.
@@ -1092,6 +1091,7 @@ public class WebViewCompat {
      * called on the WebView before this method.
      * @throws IllegalStateException if the WebView has previously navigated to a web page.
      */
+    @UiThread
     @RequiresFeature(
             name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -1111,12 +1111,12 @@ public class WebViewCompat {
      * Gets the profile object set on this WebView using
      * {@link WebViewCompat#setProfile(WebView, String)}, or the default profile if it has not
      * been changed.
-     * <p> This method must be called on the UI thread.
      *
      * @param webView the WebView to get the profile object associated with.
      * @return the profile object set to this WebView.
      * @throws IllegalStateException if the WebView has been destroyed.
      */
+    @UiThread
     @NonNull
     @RequiresFeature(
             name = WebViewFeature.MULTI_PROFILE,

@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -39,7 +38,6 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
@@ -402,7 +400,6 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
     /**
      * Handles playback of a single media item using MediaPlayer in SurfaceView
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public static class SurfaceViewPlayer extends LocalPlayer implements SurfaceHolder.Callback {
         private static final String TAG = "SurfaceViewPlayer";
         private RouteInfo mRoute;
@@ -429,9 +426,7 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
 
         @Override
         public void release() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                releasePresentation();
-            }
+            releasePresentation();
 
             // remove surface holder callback
             SurfaceHolder holder = mSurfaceView.getHolder();
@@ -444,7 +439,6 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
             super.release();
         }
 
-        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         @Override
         public void updatePresentation() {
             // Get the current route and its presentation display.
@@ -507,8 +501,7 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
             int width = getVideoWidth();
             int height = getVideoHeight();
             if (width > 0 && height > 0) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
-                        && mPresentation != null) {
+                if (mPresentation != null) {
                     mPresentation.updateSize(width, height);
                 } else {
                     int surfaceWidth = mLayout.getWidth();
@@ -558,7 +551,6 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
                     }
                 };
 
-        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         private void releasePresentation() {
             // dismiss presentation display
             if (mPresentation != null) {
@@ -569,7 +561,6 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
         }
 
         // Presentation
-        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         private final class DemoPresentation extends Presentation {
             private SurfaceView mPresentationSurfaceView;
 

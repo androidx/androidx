@@ -16,4 +16,9 @@
 
 package androidx.compose.ui.platform
 
-internal expect class PlatformClipboardManager() : ClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+
+internal expect class PlatformClipboardManager() : ClipboardManager {
+    override fun getText(): AnnotatedString?
+    override fun setText(annotatedString: AnnotatedString)
+}

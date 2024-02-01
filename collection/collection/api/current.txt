@@ -11,7 +11,7 @@ package androidx.collection {
     method public java.util.Set<java.util.Map.Entry<K!,V!>!> entrySet();
     method public V! get(Object?);
     method public java.util.Set<K!> keySet();
-    method public void putAll(java.util.Map<? extends K,? extends V>);
+    method public void putAll(java.util.Map<? extends K!,? extends V!>);
     method public V! remove(Object?);
     method public boolean removeAll(java.util.Collection<?>);
     method public boolean retainAll(java.util.Collection<?>);
@@ -24,9 +24,9 @@ package androidx.collection {
   }
 
   public final class ArraySet<E> implements java.util.Collection<E> kotlin.jvm.internal.markers.KMutableCollection kotlin.jvm.internal.markers.KMutableSet java.util.Set<E> {
-    ctor public ArraySet();
     ctor public ArraySet(androidx.collection.ArraySet<? extends E>? set);
-    ctor public ArraySet(E![]? array);
+    ctor public ArraySet(E[]? array);
+    ctor public ArraySet();
     ctor public ArraySet(optional int capacity);
     ctor public ArraySet(java.util.Collection<? extends E>? set);
     method public boolean add(E element);
@@ -34,7 +34,7 @@ package androidx.collection {
     method public boolean addAll(java.util.Collection<? extends E> elements);
     method public void clear();
     method public operator boolean contains(E element);
-    method public boolean containsAll(java.util.Collection<E!> elements);
+    method public boolean containsAll(java.util.Collection<E> elements);
     method public void ensureCapacity(int minimumCapacity);
     method public int getSize();
     method public int indexOf(Object? key);
@@ -42,11 +42,11 @@ package androidx.collection {
     method public java.util.Iterator<E> iterator();
     method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ArraySet<? extends E> array);
-    method public boolean removeAll(java.util.Collection<E!> elements);
+    method public boolean removeAll(java.util.Collection<E> elements);
     method public E removeAt(int index);
-    method public boolean retainAll(java.util.Collection<E!> elements);
-    method public Object![] toArray();
-    method public <T> T![] toArray(T![] array);
+    method public boolean retainAll(java.util.Collection<E> elements);
+    method public Object?[] toArray();
+    method public <T> T[] toArray(T[] array);
     method public E valueAt(int index);
     property public int size;
   }
@@ -92,6 +92,70 @@ package androidx.collection {
     method public int size();
     property public final int first;
     property public final int last;
+  }
+
+  public abstract sealed class DoubleList {
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final operator boolean contains(double element);
+    method public final boolean containsAll(androidx.collection.DoubleList elements);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final double elementAt(@IntRange(from=0L) int index);
+    method public final inline double elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Double> defaultValue);
+    method public final double first();
+    method public final inline double first(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final inline <R> R fold(R initial, kotlin.jvm.functions.Function2<? super R,? super java.lang.Double,? extends R> operation);
+    method public final inline <R> R foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super java.lang.Double,? extends R> operation);
+    method public final inline <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super java.lang.Double,? super R,? extends R> operation);
+    method public final inline <R> R foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Double,? super R,? extends R> operation);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Double,kotlin.Unit> block);
+    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Double,kotlin.Unit> block);
+    method public final inline void forEachReversed(kotlin.jvm.functions.Function1<? super java.lang.Double,kotlin.Unit> block);
+    method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Double,kotlin.Unit> block);
+    method public final operator double get(@IntRange(from=0L) int index);
+    method public final inline kotlin.ranges.IntRange getIndices();
+    method @IntRange(from=-1L) public final inline int getLastIndex();
+    method @IntRange(from=0L) public final int getSize();
+    method public final int indexOf(double element);
+    method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final double last();
+    method public final inline double last(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final int lastIndexOf(double element);
+    method public final boolean none();
+    method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    property public final inline kotlin.ranges.IntRange indices;
+    property @IntRange(from=-1L) public final inline int lastIndex;
+    property @IntRange(from=0L) public final int size;
+  }
+
+  public final class DoubleListKt {
+    method public static androidx.collection.DoubleList doubleListOf();
+    method public static androidx.collection.DoubleList doubleListOf(double element1);
+    method public static androidx.collection.DoubleList doubleListOf(double element1, double element2);
+    method public static androidx.collection.DoubleList doubleListOf(double element1, double element2, double element3);
+    method public static androidx.collection.DoubleList doubleListOf(double... elements);
+    method public static androidx.collection.DoubleList emptyDoubleList();
+    method public static inline androidx.collection.MutableDoubleList mutableDoubleListOf();
+    method public static androidx.collection.MutableDoubleList mutableDoubleListOf(double element1);
+    method public static androidx.collection.MutableDoubleList mutableDoubleListOf(double element1, double element2);
+    method public static androidx.collection.MutableDoubleList mutableDoubleListOf(double element1, double element2, double element3);
+    method public static inline androidx.collection.MutableDoubleList mutableDoubleListOf(double... elements);
   }
 
   public abstract sealed class FloatFloatMap {
@@ -1139,7 +1203,38 @@ package androidx.collection {
   }
 
   public final class LruCacheKt {
-    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved);
+    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V?,kotlin.Unit> onEntryRemoved);
+  }
+
+  public final class MutableDoubleList extends androidx.collection.DoubleList {
+    ctor public MutableDoubleList(optional int initialCapacity);
+    method public boolean add(double element);
+    method public void add(@IntRange(from=0L) int index, double element);
+    method public boolean addAll(androidx.collection.DoubleList elements);
+    method public boolean addAll(double[] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.DoubleList elements);
+    method public boolean addAll(@IntRange(from=0L) int index, double[] elements);
+    method public void clear();
+    method public void ensureCapacity(int capacity);
+    method public inline int getCapacity();
+    method public operator void minusAssign(androidx.collection.DoubleList elements);
+    method public inline operator void minusAssign(double element);
+    method public operator void minusAssign(double[] elements);
+    method public operator void plusAssign(androidx.collection.DoubleList elements);
+    method public inline operator void plusAssign(double element);
+    method public operator void plusAssign(double[] elements);
+    method public boolean remove(double element);
+    method public boolean removeAll(androidx.collection.DoubleList elements);
+    method public boolean removeAll(double[] elements);
+    method public double removeAt(@IntRange(from=0L) int index);
+    method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
+    method public boolean retainAll(androidx.collection.DoubleList elements);
+    method public boolean retainAll(double[] elements);
+    method public operator double set(@IntRange(from=0L) int index, double element);
+    method public void sort();
+    method public void sortDescending();
+    method public void trim(optional int minCapacity);
+    property public final inline int capacity;
   }
 
   public final class MutableFloatFloatMap extends androidx.collection.FloatFloatMap {
@@ -1521,7 +1616,7 @@ package androidx.collection {
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
-    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(K[] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectFloatMap<K> from);
     method public void put(K key, float value);
@@ -1541,7 +1636,7 @@ package androidx.collection {
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
-    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(K[] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectIntMap<K> from);
     method public void put(K key, int value);
@@ -1560,9 +1655,9 @@ package androidx.collection {
     method public void add(@IntRange(from=0L) int index, E element);
     method public boolean addAll(androidx.collection.ObjectList<E> elements);
     method public boolean addAll(androidx.collection.ScatterSet<E> elements);
-    method public boolean addAll(E![] elements);
+    method public boolean addAll(E[] elements);
     method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.ObjectList<E> elements);
-    method public boolean addAll(@IntRange(from=0L) int index, E![] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, E[] elements);
     method public boolean addAll(@IntRange(from=0L) int index, java.util.Collection<? extends E> elements);
     method public boolean addAll(Iterable<? extends E> elements);
     method public boolean addAll(java.util.List<? extends E> elements);
@@ -1575,21 +1670,21 @@ package androidx.collection {
     method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
     method public inline operator void minusAssign(E element);
-    method public operator void minusAssign(E![] elements);
+    method public operator void minusAssign(E[] elements);
     method public operator void minusAssign(Iterable<? extends E> elements);
     method public operator void minusAssign(java.util.List<? extends E> elements);
     method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
     method public inline operator void plusAssign(E element);
-    method public operator void plusAssign(E![] elements);
+    method public operator void plusAssign(E[] elements);
     method public operator void plusAssign(Iterable<? extends E> elements);
     method public operator void plusAssign(java.util.List<? extends E> elements);
     method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ObjectList<E> elements);
     method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
-    method public boolean removeAll(E![] elements);
+    method public boolean removeAll(E[] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
     method public boolean removeAll(java.util.List<? extends E> elements);
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
@@ -1597,7 +1692,7 @@ package androidx.collection {
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
     method public boolean retainAll(androidx.collection.ObjectList<E> elements);
-    method public boolean retainAll(E![] elements);
+    method public boolean retainAll(E[] elements);
     method public boolean retainAll(Iterable<? extends E> elements);
     method public boolean retainAll(java.util.Collection<? extends E> elements);
     method public boolean retainAll(kotlin.sequences.Sequence<? extends E> elements);
@@ -1613,7 +1708,7 @@ package androidx.collection {
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
-    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(K[] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectLongMap<K> from);
     method public void put(K key, long value);
@@ -1630,25 +1725,25 @@ package androidx.collection {
     ctor public MutableScatterMap(optional int initialCapacity);
     method public java.util.Map<K,V> asMutableMap();
     method public void clear();
-    method public inline V compute(K key, kotlin.jvm.functions.Function2<? super K,? super V,? extends V> computeBlock);
+    method public inline V compute(K key, kotlin.jvm.functions.Function2<? super K,? super V?,? extends V> computeBlock);
     method public inline V getOrPut(K key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ObjectList<K> keys);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
-    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(K[] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ScatterMap<K,V> from);
     method public inline operator void plusAssign(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public inline operator void plusAssign(java.util.Map<K,? extends V> from);
     method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V> pair);
-    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V>![] pairs);
+    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V>[] pairs);
     method public inline operator void plusAssign(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public V? put(K key, V value);
     method public void putAll(androidx.collection.ScatterMap<K,V> from);
     method public void putAll(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public void putAll(java.util.Map<K,? extends V> from);
-    method public void putAll(kotlin.Pair<? extends K,? extends V>![] pairs);
+    method public void putAll(kotlin.Pair<? extends K,? extends V>[] pairs);
     method public void putAll(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public V? remove(K key);
     method public boolean remove(K key, V value);
@@ -1662,7 +1757,7 @@ package androidx.collection {
     method public boolean add(E element);
     method public boolean addAll(androidx.collection.ObjectList<E> elements);
     method public boolean addAll(androidx.collection.ScatterSet<E> elements);
-    method public boolean addAll(E![] elements);
+    method public boolean addAll(E[] elements);
     method public boolean addAll(Iterable<? extends E> elements);
     method public boolean addAll(kotlin.sequences.Sequence<? extends E> elements);
     method public java.util.Set<E> asMutableSet();
@@ -1670,19 +1765,19 @@ package androidx.collection {
     method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
     method public operator void minusAssign(E element);
-    method public operator void minusAssign(E![] elements);
+    method public operator void minusAssign(E[] elements);
     method public operator void minusAssign(Iterable<? extends E> elements);
     method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
     method public operator void plusAssign(E element);
-    method public operator void plusAssign(E![] elements);
+    method public operator void plusAssign(E[] elements);
     method public operator void plusAssign(Iterable<? extends E> elements);
     method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ObjectList<E> elements);
     method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
-    method public boolean removeAll(E![] elements);
+    method public boolean removeAll(E[] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
@@ -1799,7 +1894,7 @@ package androidx.collection {
     method public abstract java.util.List<E> asList();
     method public final operator boolean contains(E element);
     method public final boolean containsAll(androidx.collection.ObjectList<E> elements);
-    method public final boolean containsAll(E![] elements);
+    method public final boolean containsAll(E[] elements);
     method public final boolean containsAll(Iterable<? extends E> elements);
     method public final boolean containsAll(java.util.List<? extends E> elements);
     method public final int count();

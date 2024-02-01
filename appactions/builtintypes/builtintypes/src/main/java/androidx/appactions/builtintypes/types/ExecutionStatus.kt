@@ -49,7 +49,7 @@ import kotlin.jvm.JvmStatic
 )
 public interface ExecutionStatus : Intangible {
   /** Converts this [ExecutionStatus] to its builder with all the properties copied over. */
-  public override fun toBuilder(): Builder<*>
+  override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder]. */
@@ -66,7 +66,7 @@ public interface ExecutionStatus : Intangible {
    */
   public interface Builder<Self : Builder<Self>> : Intangible.Builder<Self> {
     /** Returns a built [ExecutionStatus]. */
-    public override fun build(): ExecutionStatus
+    override fun build(): ExecutionStatus
   }
 }
 
@@ -81,8 +81,8 @@ public interface ExecutionStatus : Intangible {
  * )
  * class MyExecutionStatus internal constructor(
  *   executionStatus: ExecutionStatus,
- *   val foo: String,
- *   val bars: List<Int>,
+ *   @Document.StringProperty val foo: String,
+ *   @Document.LongProperty val bars: List<Int>,
  * ) : AbstractExecutionStatus<
  *   MyExecutionStatus,
  *   MyExecutionStatus.Builder
@@ -102,6 +102,7 @@ public interface ExecutionStatus : Intangible {
  *       .addBars(bars)
  *   }
  *
+ *   @Document.BuilderProducer
  *   class Builder :
  *     AbstractExecutionStatus.Builder<
  *       Builder,
@@ -113,13 +114,13 @@ public interface ExecutionStatus : Intangible {
  */
 @Suppress("UNCHECKED_CAST")
 public abstract class AbstractExecutionStatus<
-    Self : AbstractExecutionStatus<Self, Builder>,
-    Builder : AbstractExecutionStatus.Builder<Builder, Self>
-    >
+  Self : AbstractExecutionStatus<Self, Builder>,
+  Builder : AbstractExecutionStatus.Builder<Builder, Self>
+>
 internal constructor(
-  public final override val namespace: String,
-  public final override val identifier: String,
-  public final override val name: Name?,
+  final override val namespace: String,
+  final override val identifier: String,
+  final override val name: Name?,
 ) : ExecutionStatus {
   /**
    * Human readable name for the concrete [Self] class.
@@ -145,13 +146,13 @@ internal constructor(
    */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
-  public final override fun toBuilder(): Builder =
+  final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
       .setNamespace(namespace)
       .setIdentifier(identifier)
       .setName(name)
 
-  public final override fun equals(other: Any?): Boolean {
+  final override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
@@ -162,10 +163,10 @@ internal constructor(
     return true
   }
 
-  public final override fun hashCode(): Int =
+  final override fun hashCode(): Int =
     Objects.hash(namespace, identifier, name, additionalProperties)
 
-  public final override fun toString(): String {
+  final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
     if (namespace.isNotEmpty()) {
       attributes["namespace"] = namespace
@@ -186,11 +187,13 @@ internal constructor(
    *
    * Allows for extension like:
    * ```kt
+   * @Document(...)
    * class MyExecutionStatus :
    *   : AbstractExecutionStatus<
    *     MyExecutionStatus,
    *     MyExecutionStatus.Builder>(...) {
    *
+   *   @Document.BuilderProducer
    *   class Builder
    *   : AbstractExecutionStatus.Builder<
    *       Builder,
@@ -237,9 +240,9 @@ internal constructor(
    */
   @Suppress("StaticFinalBuilder")
   public abstract class Builder<
-      Self : Builder<Self, Built>,
-      Built : AbstractExecutionStatus<Built, Self>
-      > : ExecutionStatus.Builder<Self> {
+    Self : Builder<Self, Built>,
+    Built : AbstractExecutionStatus<Built, Self>
+  > : ExecutionStatus.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -271,26 +274,26 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     protected abstract fun buildFromExecutionStatus(executionStatus: ExecutionStatus): Built
 
-    public final override fun build(): Built =
+    final override fun build(): Built =
       buildFromExecutionStatus(ExecutionStatusImpl(namespace, identifier, name))
 
-    public final override fun setNamespace(namespace: String): Self {
+    final override fun setNamespace(namespace: String): Self {
       this.namespace = namespace
       return this as Self
     }
 
-    public final override fun setIdentifier(text: String): Self {
+    final override fun setIdentifier(text: String): Self {
       this.identifier = text
       return this as Self
     }
 
-    public final override fun setName(name: Name?): Self {
+    final override fun setName(name: Name?): Self {
       this.name = name
       return this as Self
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun equals(other: Any?): Boolean {
+    final override fun equals(other: Any?): Boolean {
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
@@ -302,11 +305,11 @@ internal constructor(
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun hashCode(): Int =
+    final override fun hashCode(): Int =
       Objects.hash(namespace, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
-    public final override fun toString(): String {
+    final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
       if (namespace.isNotEmpty()) {
         attributes["namespace"] = namespace

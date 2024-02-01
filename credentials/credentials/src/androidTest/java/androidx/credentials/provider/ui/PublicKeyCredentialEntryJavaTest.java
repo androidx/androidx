@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 import android.app.PendingIntent;
+import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -145,6 +146,20 @@ public class PublicKeyCredentialEntryJavaTest {
 
         PublicKeyCredentialEntry entry = PublicKeyCredentialEntry.fromSlice(
                 PublicKeyCredentialEntry.toSlice(originalEntry));
+
+        assertNotNull(entry);
+        assertEntryWithRequiredParams(entry);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    public void fromCredentialEntry_success() {
+        PublicKeyCredentialEntry originalEntry = constructWithAllParams();
+        Slice slice = PublicKeyCredentialEntry.toSlice(originalEntry);
+        assertNotNull(slice);
+
+        PublicKeyCredentialEntry entry = PublicKeyCredentialEntry.fromCredentialEntry(
+                new android.service.credentials.CredentialEntry("id", slice));
 
         assertNotNull(entry);
         assertEntryWithRequiredParams(entry);

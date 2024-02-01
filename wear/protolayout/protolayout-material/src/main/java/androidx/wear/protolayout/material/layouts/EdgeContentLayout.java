@@ -78,8 +78,12 @@ import java.util.List;
  * EdgeContentLayout myEcl =
  *   EdgeContentLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @deprecated Please use new version of this layout, {@link EdgeContentLayout2} that ensures that
+ *     tiles in the carousel are consistent and behave correctly on different screen sizes.
  */
 // TODO(b/274916652): Link visuals once they are available.
+@Deprecated
 public class EdgeContentLayout implements LayoutElement {
     /**
      * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a
@@ -251,6 +255,7 @@ public class EdgeContentLayout implements LayoutElement {
                     new Modifiers.Builder()
                             .setPadding(
                                     new Padding.Builder()
+                                            .setRtlAware(true)
                                             .setStart(dp(horizontalPaddingDp))
                                             .setEnd(dp(horizontalPaddingDp))
                                             .build())

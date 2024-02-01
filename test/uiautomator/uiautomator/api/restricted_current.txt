@@ -236,7 +236,7 @@ package androidx.test.uiautomator {
     method public boolean takeScreenshot(java.io.File, float, int);
     method public void unfreezeRotation() throws android.os.RemoteException;
     method @RequiresApi(30) public void unfreezeRotation(int);
-    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiDevice,U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiDevice!,U!>, long);
     method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
     method public void waitForIdle();
     method public void waitForIdle(long);
@@ -342,16 +342,16 @@ package androidx.test.uiautomator {
     method public void recycle();
     method public boolean scroll(androidx.test.uiautomator.Direction, float);
     method public boolean scroll(androidx.test.uiautomator.Direction, float, int);
-    method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>);
+    method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2!,U!>);
     method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.EventCondition<U!>);
     method public void setGestureMargin(int);
-    method public void setGestureMarginPercent(@FloatRange(from=0.0f, to=0.5f) float);
-    method public void setGestureMarginPercent(@FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float);
+    method public void setGestureMarginPercentage(@FloatRange(from=0.0f, to=0.5f) float);
     method public void setGestureMargins(int, int, int, int);
+    method public void setGestureMarginsPercentage(@FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float);
     method public void setText(String?);
     method public void swipe(androidx.test.uiautomator.Direction, float);
     method public void swipe(androidx.test.uiautomator.Direction, float, int);
-    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2!,U!>, long);
     method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
     method public <U> U! wait(androidx.test.uiautomator.UiObject2Condition<U!>, long);
   }

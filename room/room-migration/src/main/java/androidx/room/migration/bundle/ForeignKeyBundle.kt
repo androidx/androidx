@@ -20,15 +20,14 @@ import androidx.annotation.RestrictTo
 import com.google.gson.annotations.SerializedName
 
 /**
- * @constructor Creates a foreign key bundle with the given parameters. Holds the information about
- * a foreign key reference.
+ * Data class that holds the information about a foreign key reference, i.e.
+ * [androidx.room.ForeignKey].
  *
  * @property table             The target table
  * @property onDelete          OnDelete action
  * @property onUpdate          OnUpdate action
  * @property columns           The list of columns in the current table
  * @property referencedColumns The list of columns in the referenced table
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class ForeignKeyBundle(

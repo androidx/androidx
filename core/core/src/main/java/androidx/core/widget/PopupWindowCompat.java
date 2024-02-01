@@ -18,15 +18,12 @@ package androidx.core.widget;
 
 import android.os.Build;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.PopupWindow;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -67,19 +64,7 @@ public final class PopupWindowCompat {
      */
     public static void showAsDropDown(@NonNull PopupWindow popup, @NonNull View anchor,
             int xoff, int yoff, int gravity) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.showAsDropDown(popup, anchor, xoff, yoff, gravity);
-        } else {
-            int xoff1 = xoff;
-            final int hgrav = GravityCompat.getAbsoluteGravity(gravity,
-                    ViewCompat.getLayoutDirection(anchor)) & Gravity.HORIZONTAL_GRAVITY_MASK;
-            if (hgrav == Gravity.RIGHT) {
-                // Flip the location to align the right sides of the popup and
-                // anchor instead of left.
-                xoff1 -= (popup.getWidth() - anchor.getWidth());
-            }
-            popup.showAsDropDown(anchor, xoff1, yoff);
-        }
+        popup.showAsDropDown(anchor, xoff, yoff, gravity);
     }
 
     /**
@@ -234,19 +219,6 @@ public final class PopupWindowCompat {
         @DoNotInline
         static int getWindowLayoutType(PopupWindow popupWindow) {
             return popupWindow.getWindowLayoutType();
-        }
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void showAsDropDown(PopupWindow popupWindow, View anchor, int xoff, int yoff,
-                int gravity) {
-            popupWindow.showAsDropDown(anchor, xoff, yoff, gravity);
         }
     }
 }

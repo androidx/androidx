@@ -23,6 +23,7 @@ import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
 import java.io.File
+import java.lang.reflect.Field
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
@@ -227,18 +228,26 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
     project.tasks.withType<LintModelWriterTask>().configureEach { it.variantInputs.addSourceSets() }
 }
 
+private fun Project.findLintProject(path: String): Project? {
+    return project.rootProject.findProject(path)
+        ?: if (allowMissingLintProject()) {
+            null
+        } else {
+            throw GradleException("Project $path does not exist")
+        }
+}
+
 private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
     val extension = project.androidXExtension
     val isMultiplatform = project.multiplatformExtension != null
-    val lintChecksProject =
-        project.rootProject.findProject(":lint-checks")
-            ?: if (allowMissingLintProject()) {
-                return
-            } else {
-                throw GradleException("Project :lint-checks does not exist")
-            }
-
+    val lintChecksProject = findLintProject(":lint-checks") ?: return
     project.dependencies.add("lintChecks", lintChecksProject)
+
+    if (extension.type == LibraryType.GRADLE_PLUGIN) {
+        project.rootProject.findProject(":lint:lint-gradle")?.let {
+            project.dependencies.add("lintChecks", it)
+        }
+    }
 
     afterEvaluate { addSourceSetsForAndroidMultiplatformAfterEvaluate() }
 
@@ -291,9 +300,6 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
         // Disable a check that's only relevant for apps that ship to Play Store. (b/299278101)
         disable.add("ExpiredTargetSdkVersion")
 
-        // Reenable after b/238892319 is resolved
-        disable.add("NotificationPermission")
-
         // Disable dependency checks that suggest to change them. We want libraries to be
         // intentional with their dependency version bumps.
         disable.add("KtxExtensionAvailable")
@@ -338,6 +344,9 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             disable.add("BanUncheckedReflection")
         }
 
+        // Only show ObsoleteCompatMethod in the IDE.
+        disable.add("ObsoleteCompatMethod")
+
         // Broken in 7.0.0-alpha15 due to b/187343720
         disable.add("UnusedResources")
 
@@ -357,6 +366,9 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
         if (extension.type.checkApi is RunApiTasks.No) {
             disable.add("IllegalExperimentalApiUsage")
         }
+
+        fatal.add("UastImplementation") // go/hide-uast-impl
+        fatal.add("KotlincFE10") // b/239982263
 
         // If the project has not overridden the lint config, set the default one.
         if (lintConfig == null) {
@@ -384,11 +396,33 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
 private fun ConfigurableFileCollection.withChangesAllowed(
     block: ConfigurableFileCollection.() -> Unit
 ) {
-    val disallowChanges = this::class.java.getDeclaredField("disallowChanges")
-    disallowChanges.isAccessible = true
-    disallowChanges.set(this, false)
+    // The `disallowChanges` field is defined on `ConfigurableFileCollection` prior to Gradle 8.6
+    // and on the inner ValueState in later versions.
+    val (target, field) =
+        findDeclaredFieldOnClass("disallowChanges")?.let { field -> Pair(this, field) }
+            ?: findDeclaredFieldOnClass("valueState")?.let { valueState ->
+                valueState.isAccessible = true
+                val target = valueState.get(this)
+                target.findDeclaredFieldOnClass("disallowChanges")?.let { field ->
+                    // For Gradle 8.6 and later,
+                    Pair(target, field)
+                }
+            }
+            ?: throw NoSuchFieldException()
+
+    // Make the field temporarily accessible while we run the `block`.
+    field.isAccessible = true
+    field.set(target, false)
     block()
-    disallowChanges.set(this, true)
+    field.set(target, true)
+}
+
+private fun Any.findDeclaredFieldOnClass(name: String): Field? {
+    try {
+        return this::class.java.getDeclaredField(name)
+    } catch (e: NoSuchFieldException) {
+        return null
+    }
 }
 
 private val Project.lintBaseline: RegularFileProperty

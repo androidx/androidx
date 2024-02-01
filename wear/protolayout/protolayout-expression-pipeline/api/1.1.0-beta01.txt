@@ -1,0 +1,80 @@
+// Signature format: 4.0
+package androidx.wear.protolayout.expression.pipeline {
+
+  public interface BoundDynamicType extends java.lang.AutoCloseable {
+    method @UiThread public void close();
+    method @UiThread public void startEvaluation();
+  }
+
+  public abstract class DynamicTypeBindingRequest {
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicBool(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Boolean!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicColor(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicDuration(androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.time.Duration!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicFloat(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Float!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicInstant(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.time.Instant!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicInt32(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicString(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString, android.icu.util.ULocale, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.String!>);
+  }
+
+  public class DynamicTypeEvaluator {
+    ctor public DynamicTypeEvaluator(androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest) throws androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
+  }
+
+  public static final class DynamicTypeEvaluator.Config {
+    method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getAnimationQuotaManager();
+    method @VisibleForTesting public java.util.function.Supplier<java.time.Instant!>? getClock();
+    method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getDynamicTypesQuotaManager();
+    method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<?>!,androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!> getPlatformDataProviders();
+    method public androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier? getPlatformTimeUpdateNotifier();
+    method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
+  }
+
+  public static final class DynamicTypeEvaluator.Config.Builder {
+    ctor public DynamicTypeEvaluator.Config.Builder();
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config build();
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setAnimationQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
+    method @VisibleForTesting public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setClock(java.util.function.Supplier<java.time.Instant!>);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setDynamicTypesQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setPlatformTimeUpdateNotifier(androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setStateStore(androidx.wear.protolayout.expression.pipeline.StateStore);
+  }
+
+  public static class DynamicTypeEvaluator.EvaluationException extends java.lang.Exception {
+    ctor public DynamicTypeEvaluator.EvaluationException(String);
+  }
+
+  public interface DynamicTypeValueReceiver<T> {
+    method public void onData(T);
+    method public void onInvalidated();
+  }
+
+  public interface PlatformDataProvider {
+    method public void clearReceiver();
+    method public void setReceiver(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
+  }
+
+  public interface PlatformDataReceiver {
+    method public void onData(androidx.wear.protolayout.expression.PlatformDataValues);
+    method public void onInvalidated(java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>);
+  }
+
+  public interface PlatformTimeUpdateNotifier {
+    method public void clearReceiver();
+    method public void setReceiver(java.util.concurrent.Executor, Runnable);
+  }
+
+  public interface QuotaManager {
+    method public void releaseQuota(int);
+    method public boolean tryAcquireQuota(int);
+  }
+
+  public final class StateStore {
+    method public static androidx.wear.protolayout.expression.pipeline.StateStore create(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!>);
+    method public static int getMaxStateEntryCount();
+    method @UiThread public void setAppStateEntryValues(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!>);
+  }
+
+}
+

@@ -913,6 +913,66 @@ class AnchoredDraggableGestureTest {
         assertThat(state.targetValue).isEqualTo(B) // B is the closest now so we should target it
     }
 
+    @Test
+    fun anchoredDraggable_animationNotCancelledByDrag_startDragImmediatelyIsFalse() {
+        rule.mainClock.autoAdvance = false
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 250f
+            C at 500f
+        }
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween(),
+            anchors = anchors
+        )
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            WithTouchSlop(touchSlop = 0f) {
+                scope = rememberCoroutineScope()
+                Box(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier
+                            .requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .anchoredDraggable(
+                                state = state,
+                                orientation = Orientation.Horizontal,
+                                startDragImmediately = false,
+                            )
+                            .offset {
+                                IntOffset(
+                                    state
+                                        .requireOffset()
+                                        .roundToInt(), 0
+                                )
+                            }
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        scope.launch { state.animateTo(C) }
+
+        rule.mainClock.advanceTimeUntil {
+            state.requireOffset() > abs(state.requireOffset() - anchors.positionOf(B))
+        } // Advance until our closest anchor is B
+        assertThat(state.targetValue).isEqualTo(C)
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
+            .performTouchInput {
+                down(Offset.Zero)
+            }
+        rule.waitForIdle()
+
+        assertThat(state.targetValue).isEqualTo(C) // Animation will continue to C
+    }
+
     private val DefaultPositionalThreshold: (totalDistance: Float) -> Float = {
         with(rule.density) { 56.dp.toPx() }
     }

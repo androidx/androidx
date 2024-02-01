@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Resolves the [AndroidOutline] from the [Shape] of an [OwnedLayer].
@@ -78,7 +78,8 @@ internal class OutlineResolver(private var density: Density) {
      * True when there's been an update that caused a change in the path and the Outline
      * has to be reevaluated.
      */
-    private var cacheIsDirty = false
+    internal var cacheIsDirty = false
+        private set
 
     /**
      * True when Outline cannot clip the content and the path should be used instead.
@@ -295,10 +296,10 @@ internal class OutlineResolver(private var density: Density) {
         rectTopLeft = Offset(rect.left, rect.top)
         rectSize = Size(rect.width, rect.height)
         cachedOutline.setRect(
-            rect.left.roundToInt(),
-            rect.top.roundToInt(),
-            rect.right.roundToInt(),
-            rect.bottom.roundToInt()
+            rect.left.fastRoundToInt(),
+            rect.top.fastRoundToInt(),
+            rect.right.fastRoundToInt(),
+            rect.bottom.fastRoundToInt()
         )
     }
 
@@ -308,10 +309,10 @@ internal class OutlineResolver(private var density: Density) {
         rectSize = Size(roundRect.width, roundRect.height)
         if (roundRect.isSimple) {
             cachedOutline.setRoundRect(
-                roundRect.left.roundToInt(),
-                roundRect.top.roundToInt(),
-                roundRect.right.roundToInt(),
-                roundRect.bottom.roundToInt(),
+                roundRect.left.fastRoundToInt(),
+                roundRect.top.fastRoundToInt(),
+                roundRect.right.fastRoundToInt(),
+                roundRect.bottom.fastRoundToInt(),
                 radius
             )
             roundedCornerRadius = radius

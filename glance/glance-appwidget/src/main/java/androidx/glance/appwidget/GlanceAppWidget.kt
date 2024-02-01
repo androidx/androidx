@@ -31,6 +31,7 @@ import androidx.glance.GlanceId
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.session.GlanceSessionManager
 import androidx.glance.session.SessionManager
+import androidx.glance.session.SessionManagerScope
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
@@ -44,8 +45,10 @@ import kotlinx.coroutines.CancellationException
  * When the widget is requested, the composition is run and translated into a [RemoteViews] which is
  * then sent to the [AppWidgetManager].
  *
- * @param errorUiLayout If different from 0 and an error occurs within this GlanceAppWidget,
- * the App Widget is updated with an error UI using this layout resource ID.
+ * @param errorUiLayout Used by [onCompositionError]. When [onCompositionError] is called, it will,
+ * unless overridden, update the appwidget to display error UI using this layout resource ID, unless
+ * [errorUiLayout] is 0, in which case the error will be rethrown. If [onCompositionError] is
+ * overridden, [errorUiLayout] will not be read..
  */
 abstract class GlanceAppWidget(
     @LayoutRes
@@ -107,7 +110,7 @@ abstract class GlanceAppWidget(
         context: Context,
         id: GlanceId
     ) {
-        require(id is AppWidgetId) { "Invalid Glance ID" }
+        require(id is AppWidgetId && id.isRealId) { "Invalid Glance ID" }
         update(context, id.appWidgetId)
     }
 
@@ -118,7 +121,9 @@ abstract class GlanceAppWidget(
      */
     internal suspend fun deleted(context: Context, appWidgetId: Int) {
         val glanceId = AppWidgetId(appWidgetId)
-        sessionManager.closeSession(glanceId.toSessionKey())
+        sessionManager.runWithLock {
+            closeSession(glanceId.toSessionKey())
+        }
         try {
             onDelete(context, glanceId)
         } catch (cancelled: CancellationException) {
@@ -142,10 +147,12 @@ abstract class GlanceAppWidget(
     ) {
         Tracing.beginGlanceAppWidgetUpdate()
         val glanceId = AppWidgetId(appWidgetId)
-        if (!sessionManager.isSessionRunning(context, glanceId.toSessionKey())) {
-            sessionManager.startSession(context, AppWidgetSession(this, glanceId, options))
-        } else {
-            val session = sessionManager.getSession(glanceId.toSessionKey()) as AppWidgetSession
+        sessionManager.runWithLock {
+            if (!isSessionRunning(context, glanceId.toSessionKey())) {
+                startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+                return@runWithLock
+            }
+            val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
             session.updateGlance()
         }
     }
@@ -161,14 +168,9 @@ abstract class GlanceAppWidget(
         options: Bundle? = null,
     ) {
         val glanceId = AppWidgetId(appWidgetId)
-        val session = if (!sessionManager.isSessionRunning(context, glanceId.toSessionKey())) {
-            AppWidgetSession(this, glanceId, options).also { session ->
-                sessionManager.startSession(context, session)
-            }
-        } else {
-            sessionManager.getSession(glanceId.toSessionKey()) as AppWidgetSession
+        sessionManager.getOrCreateAppWidgetSession(context, glanceId, options) { session ->
+            session.runLambda(actionKey)
         }
-        session.runLambda(actionKey)
     }
 
     /**
@@ -187,12 +189,56 @@ abstract class GlanceAppWidget(
             return
         }
         val glanceId = AppWidgetId(appWidgetId)
-        if (!sessionManager.isSessionRunning(context, glanceId.toSessionKey())) {
-            sessionManager.startSession(context, AppWidgetSession(this, glanceId, options))
-        } else {
-            val session = sessionManager.getSession(glanceId.toSessionKey()) as AppWidgetSession
+        sessionManager.getOrCreateAppWidgetSession(context, glanceId, options) { session ->
             session.updateAppWidgetOptions(options)
         }
+    }
+
+    /**
+     * A callback invoked when the [AppWidgetSession] encounters an exception. At this point, the
+     * session will be closed down. The default implementation of this method creates a
+     * [RemoteViews] from [errorUiLayout] and sets this as the widget's content.
+     *
+     * This method should be overridden if you want to log the error, create a custom error layout,
+     * or attempt to recover from or ignore the error by updating the widget's view state and then
+     * restarting composition.
+     *
+     * @param context Context.
+     * @param glanceId The [GlanceId] of the widget experiencing the error.
+     * @param appWidgetId The appWidgetId of the widget experiencing the error. This is provided as
+     * a convenience in addition to [GlanceId].
+     * @param throwable The exception that was caught by [AppWidgetSession]
+     */
+    @Suppress("GenericException")
+    @Throws(Throwable::class)
+    open fun onCompositionError(
+        context: Context,
+        glanceId: GlanceId,
+        appWidgetId: Int,
+        throwable: Throwable
+    ) {
+        if (errorUiLayout == 0) {
+            throw throwable // Maintains consistency with Glance 1.0 behavior.
+        } else {
+            val rv = RemoteViews(
+                context.packageName,
+                errorUiLayout
+            ) // default impl: inflate the error layout
+            AppWidgetManager.getInstance(context).updateAppWidget(appWidgetId, rv)
+        }
+    }
+
+    private suspend fun SessionManager.getOrCreateAppWidgetSession(
+        context: Context,
+        glanceId: AppWidgetId,
+        options: Bundle? = null,
+        block: suspend SessionManagerScope.(AppWidgetSession) -> Unit
+    ) = runWithLock {
+        if (!isSessionRunning(context, glanceId.toSessionKey())) {
+            startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+        }
+        val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
+        block(session)
     }
 }
 
@@ -236,6 +282,8 @@ suspend fun GlanceAppWidget.provideContent(
     content: @Composable @GlanceComposable () -> Unit
 ): Nothing {
     coroutineContext[ContentReceiver]?.provideContent(content)
-        ?: error("provideContent requires a ContentReceiver and should only be called from " +
-            "GlanceAppWidget.provideGlance")
+        ?: error(
+            "provideContent requires a ContentReceiver and should only be called from " +
+                "GlanceAppWidget.provideGlance"
+        )
 }

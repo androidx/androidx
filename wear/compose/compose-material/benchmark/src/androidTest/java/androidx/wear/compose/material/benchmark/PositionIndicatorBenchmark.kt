@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material.benchmark
 
+import androidx.compose.animation.core.snap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
@@ -31,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.PositionIndicatorDefaults
 import androidx.wear.compose.material.PositionIndicatorState
 import androidx.wear.compose.material.PositionIndicatorVisibility
 import kotlinx.coroutines.runBlocking
@@ -43,12 +45,17 @@ import org.junit.runner.RunWith
 class PositionIndicatorBenchmark {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
-    private val defaultPositionIndicatorCaseFactory = { PositionIndicatorBenchmarkTestCase() }
+    private val defaultPositionIndicatorCaseFactory = {
+        PositionIndicatorBenchmarkTestCase(animate = false)
+    }
 
     @Test
     fun changeFraction() {
         benchmarkRule.changePositionBenchmark {
-            PositionIndicatorBenchmarkTestCase(targetFraction = 0.5f)
+            PositionIndicatorBenchmarkTestCase(
+                targetFraction = 0.5f,
+                animate = false
+            )
         }
     }
 
@@ -58,7 +65,8 @@ class PositionIndicatorBenchmark {
             PositionIndicatorBenchmarkTestCase(
                 targetFraction = 0.5f,
                 targetSizeFraction = 0.5f,
-                targetVisibility = PositionIndicatorVisibility.Hide
+                targetVisibility = PositionIndicatorVisibility.Hide,
+                animate = false
             )
         }
     }
@@ -69,7 +77,42 @@ class PositionIndicatorBenchmark {
             PositionIndicatorBenchmarkTestCase(
                 targetFraction = 0.5f,
                 targetSizeFraction = 0.5f,
-                targetVisibility = PositionIndicatorVisibility.AutoHide
+                targetVisibility = PositionIndicatorVisibility.AutoHide,
+                animate = false
+            )
+        }
+    }
+
+    @Test
+    fun changeFraction_withAnimation() {
+        benchmarkRule.changePositionBenchmark {
+            PositionIndicatorBenchmarkTestCase(
+                targetFraction = 0.5f,
+                animate = true
+            )
+        }
+    }
+
+    @Test
+    fun changeFractionAndSizeFraction_hide_withAnimation() {
+        benchmarkRule.changePositionBenchmark {
+            PositionIndicatorBenchmarkTestCase(
+                targetFraction = 0.5f,
+                targetSizeFraction = 0.5f,
+                targetVisibility = PositionIndicatorVisibility.Hide,
+                animate = true
+            )
+        }
+    }
+
+    @Test
+    fun changeFractionAndSizeFraction_autoHide_withAnimation() {
+        benchmarkRule.changePositionBenchmark {
+            PositionIndicatorBenchmarkTestCase(
+                targetFraction = 0.5f,
+                targetSizeFraction = 0.5f,
+                targetVisibility = PositionIndicatorVisibility.AutoHide,
+                animate = true
             )
         }
     }
@@ -83,7 +126,8 @@ class PositionIndicatorBenchmark {
 internal class PositionIndicatorBenchmarkTestCase(
     val targetFraction: Float? = null,
     val targetSizeFraction: Float? = null,
-    val targetVisibility: PositionIndicatorVisibility? = null
+    val targetVisibility: PositionIndicatorVisibility? = null,
+    val animate: Boolean
 ) : LayeredComposeTestCase() {
     private lateinit var positionFraction: MutableState<Float>
     private lateinit var sizeFraction: MutableState<Float>
@@ -114,7 +158,19 @@ internal class PositionIndicatorBenchmarkTestCase(
             state = state,
             indicatorHeight = 50.dp,
             indicatorWidth = 4.dp,
-            paddingHorizontal = 5.dp
+            paddingHorizontal = 5.dp,
+            fadeInAnimationSpec = if (animate)
+                PositionIndicatorDefaults.visibilityAnimationSpec
+            else
+                snap(),
+            fadeOutAnimationSpec = if (animate)
+                PositionIndicatorDefaults.visibilityAnimationSpec
+            else
+                snap(),
+            positionAnimationSpec = if (animate)
+                PositionIndicatorDefaults.positionAnimationSpec
+            else
+                snap()
         )
     }
 
@@ -144,8 +200,10 @@ internal fun ComposeBenchmarkRule.changePositionBenchmark(
     caseFactory: () -> PositionIndicatorBenchmarkTestCase
 ) {
     runBenchmarkFor(caseFactory) {
-        disposeContent()
-        measureRepeated {
+        runOnUiThread {
+            disposeContent()
+        }
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 setupContent()
                 assertNoPendingChanges()

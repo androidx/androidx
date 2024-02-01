@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -91,7 +98,7 @@ androidXMultiplatform {
             dependsOn(commonJvmAndroidTest)
             dependencies {
                 implementation(libs.testRunner)
-                implementation(libs.mockitoAndroid)
+                implementation(libs.mockitoAndroid5)
                 implementation(libs.multidex)
             }
         }
@@ -139,17 +146,12 @@ androidXMultiplatform {
     }
 }
 
-// top level declaration because the KGP sourceSets declaration used by androidXMultiplatform
-// does not support constraints or samples configurations yet
-dependencies {
-    samples(project(":paging:paging-samples"))
-}
-
 androidx {
     name = "Paging-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Paging-Common"
+    samples(project(":paging:paging-samples"))
 }
 
 android {

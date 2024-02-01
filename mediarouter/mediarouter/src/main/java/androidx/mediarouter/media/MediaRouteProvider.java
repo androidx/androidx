@@ -186,7 +186,7 @@ public abstract class MediaRouteProvider {
         }
     }
 
-    void deliverDiscoveryRequestChanged() {
+    /* package */ final void deliverDiscoveryRequestChanged() {
         mPendingDiscoveryRequestChange = false;
         onDiscoveryRequestChanged(mDiscoveryRequest);
     }
@@ -257,7 +257,7 @@ public abstract class MediaRouteProvider {
         }
     }
 
-    void deliverDescriptorChanged() {
+    /* package */ final void deliverDescriptorChanged() {
         mPendingDescriptorChange = false;
 
         if (mCallback != null) {

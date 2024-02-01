@@ -52,6 +52,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -67,6 +68,13 @@ class WindowInsetsDeviceTest {
     @Before
     fun setup() {
         rule.activity.createdLatch.await(1, TimeUnit.SECONDS)
+    }
+
+    @After
+    fun tearDown() {
+        rule.runOnUiThread {
+            rule.activity.finish()
+        }
     }
 
     @OptIn(ExperimentalLayoutApi::class)

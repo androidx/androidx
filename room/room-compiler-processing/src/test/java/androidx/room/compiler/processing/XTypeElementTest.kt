@@ -32,6 +32,8 @@ import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
+import androidx.room.compiler.processing.util.runJavaProcessorTest
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -267,6 +269,38 @@ class XTypeElementTest(
             }
             invocation.processingEnv.requireTypeElement("foo.bar.JavaClassWithInterface").let {
                 assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+        }
+    }
+
+    @Test
+    fun superTypeWithAlias() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "foo.bar.KotlinClass.kt",
+                    """
+                    package foo.bar
+                    class MyClass : MyAliasClass(), MyAliasInterface
+                    typealias MyAliasClass = MyBaseClass
+                    typealias MyAliasInterface = MyBaseInterface
+                    abstract class MyBaseClass
+                    interface MyBaseInterface
+                    """.trimIndent()
+                ),
+            )
+        ) { invocation ->
+            invocation.processingEnv.requireTypeElement("foo.bar.MyClass").let { myClass ->
+                val myBaseClassName = XClassName.get("foo.bar", "MyBaseClass")
+                val myBaseInterfaceName = XClassName.get("foo.bar", "MyBaseInterface")
+                assertThat(myClass.superClass?.asTypeName()).isEqualTo(myBaseClassName)
+                assertThat(myClass.superInterfaces.map { it.asTypeName() }.toList())
+                    .containsExactly(myBaseInterfaceName)
+                assertThat(myClass.getSuperInterfaceElements().map { it.asClassName() }.toList())
+                    .containsExactly(myBaseInterfaceName)
+                assertThat(myClass.type.superTypes.map { it.asTypeName() }.toList())
+                    .containsExactly(myBaseClassName, myBaseInterfaceName)
+                    .inOrder()
             }
         }
     }
@@ -2411,6 +2445,61 @@ class XTypeElementTest(
                 "var3" to listOf("getVar3", "setVar3"),
                 "var4" to listOf("getVar4", "setVar4"),
                 "var5" to listOf("getVar5", "setVar5"),
+            )
+        }
+    }
+
+    @Test
+    fun isRecordClass() {
+        val javaSrc = Source.java(
+            "JavaRecord",
+            """
+            public record JavaRecord(String name) { }
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "KotlinRecord.kt",
+            """
+            @JvmRecord
+            data class KotlinRecord(val name: String)
+            """.trimIndent()
+        )
+        val handler: (XTestInvocation) -> Unit = {
+            val javaElement = it.processingEnv.requireTypeElement("JavaRecord")
+            assertThat(javaElement.isRecordClass())
+            if (it.isKsp) {
+                val kotlinElement = it.processingEnv.requireTypeElement("KotlinRecord")
+                assertThat(kotlinElement.isRecordClass())
+            }
+        }
+        // Run only javac and KSP tests as @JvmRecord is broken with KAPT (KT-44706)
+        if (isPreCompiled) {
+            val compiled = compileFiles(
+                sources = listOf(javaSrc, kotlinSrc),
+                kotlincArguments = listOf("-jvm-target=16")
+            )
+            runJavaProcessorTest(
+                sources = listOf(
+                    Source.java("PlaceholderJava", "public class PlaceholderJava {}")
+                ),
+                classpath = compiled,
+                handler = handler
+            )
+            runKspTest(
+                sources = listOf(Source.kotlin("placeholder.kt", "class PlaceholderKotlin")),
+                kotlincArguments = listOf("-jvm-target=16"),
+                classpath = compiled,
+                handler = handler
+            )
+        } else {
+            runJavaProcessorTest(
+                sources = listOf(javaSrc),
+                handler = handler
+            )
+            runKspTest(
+                sources = listOf(javaSrc, kotlinSrc),
+                kotlincArguments = listOf("-jvm-target=16"),
+                handler = handler
             )
         }
     }

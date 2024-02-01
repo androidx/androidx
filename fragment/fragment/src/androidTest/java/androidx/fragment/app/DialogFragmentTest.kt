@@ -39,9 +39,11 @@ import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @LargeTest
@@ -49,17 +51,12 @@ import org.junit.runner.RunWith
 class DialogFragmentTest {
 
     @Suppress("DEPRECATION")
-    @get:Rule
     val activityTestRule =
         androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
-    // TODO(b/270722758): Add back in leak detection rule chain once leak addressed by platform
-    // Detect leaks BEFORE and AFTER activity is destroyed
-    /*
     @get:Rule
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
         .around(activityTestRule)
-     */
 
     @Test
     fun testDialogFragmentShows() {

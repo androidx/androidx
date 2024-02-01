@@ -14,21 +14,75 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-dependencies {
-    api("androidx.annotation:annotation:1.0.0")
-    implementation(libs.kotlinStdlib)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.truth)
+def nativeEnabled = KmpPlatformsKt.enableNative(project)
+
+androidXMultiplatform {
+    android()
+    androidNative()
+    ios()
+    jvm()
+    linux()
+    mac()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                api(project(":annotation:annotation"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+            }
+        }
+        androidMain {
+            dependsOn(commonMain)
+        }
+        androidUnitTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockitoCore4)
+                implementation(libs.truth)
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+        }
+        if (nativeEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                def main = target.compilations["main"]
+                main.defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
+        }
+    }
 }
 
 android {
@@ -39,6 +93,6 @@ androidx {
     name = "SQLite"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
-    description = "Android DB"
+    description = "SQLite API"
     metalavaK2UastEnabled = true
 }

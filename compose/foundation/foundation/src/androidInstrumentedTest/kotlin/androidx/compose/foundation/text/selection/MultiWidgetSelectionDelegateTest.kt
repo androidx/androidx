@@ -101,7 +101,7 @@ class MultiWidgetSelectionDelegateTest {
         )
 
         // Assert.
-        assertThat(coordinates).isEqualTo(Offset.Zero)
+        assertThat(coordinates).isEqualTo(Offset.Unspecified)
     }
 
     @Test
@@ -150,7 +150,7 @@ class MultiWidgetSelectionDelegateTest {
         )
 
         // Assert.
-        assertThat(coordinates).isEqualTo(Offset.Zero)
+        assertThat(coordinates).isEqualTo(Offset.Unspecified)
     }
 
     @Test

@@ -21,8 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.util.TestCounter
@@ -48,23 +46,18 @@ class PhaseOrderingTest {
             LaunchedEffect(Unit) {
                 counter.expect(2)
                 withFrameNanos {
-                    counter.expect(6)
+                    counter.expect(5)
                     launch {
                         // No continuations resumed during a frame should be dispatched until after
                         // the frame callbacks finish running.
-                        counter.expect(8)
+                        counter.expect(7)
                     }
-                    counter.expect(7)
+                    counter.expect(6)
                 }
-                counter.expect(9)
+                counter.expect(8)
             }
 
-            Layout(
-                content = {},
-                modifier = Modifier.drawBehind {
-                    counter.expect(5)
-                }
-            ) { _, _ ->
+            Layout(content = {}) { _, _ ->
                 counter.expect(3)
                 layout(1, 1) {
                     counter.expect(4)

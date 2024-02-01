@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="PrimitiveInCollection"
@@ -12,9 +12,9 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field idLookup with type IdentityHashMap&lt;Object, Integer>: replace with ObjectIntMap"
-        errorLine1="    private val idLookup = IdentityHashMap&lt;Any, Int>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="field idLookup with type Map&lt;Object, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val idLookup = mutableMapOf&lt;Any, Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/ui/inspection/util/AnchorMap.kt"/>
     </issue>

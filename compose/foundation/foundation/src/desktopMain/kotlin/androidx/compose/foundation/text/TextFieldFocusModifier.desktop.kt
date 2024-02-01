@@ -28,6 +28,6 @@ import androidx.compose.ui.focus.FocusManager
  * TODO: To be implemented if there's any specific handling required for desktop platform
  */
 internal actual fun Modifier.interceptDPadAndMoveFocus(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusManager: FocusManager
 ): Modifier = this

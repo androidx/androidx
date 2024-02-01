@@ -16,13 +16,11 @@
 package androidx.room.integration.kotlintestapp.migration
 
 import android.database.sqlite.SQLiteConstraintException
-import android.os.Build
 import androidx.kruth.assertThat
 import androidx.room.testing.MigrationTestHelper
 import androidx.room.util.TableInfo.Companion.read
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
@@ -33,7 +31,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // Due to FTS table migrations
 class AutoMigrationTest {
     @JvmField
     @Rule
@@ -53,6 +50,7 @@ class AutoMigrationTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun goFromV1ToV2() {
         createFirstVersion()
         val db = helper.runMigrationsAndValidate(
@@ -86,6 +84,7 @@ Violation(s) detected in the following constraint(s):
     }
 
     @Test
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun testAutoMigrationWithNewEmbeddedField() {
         val embeddedHelper = MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),

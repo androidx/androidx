@@ -353,7 +353,7 @@ class IntFloatMapTest {
 
         // Make sure reinserting an entry after filling the table
         // with "Deleted" markers works
-        map[7] = 7f
+        map[1] = 7f
 
         assertEquals(1, map.size)
         assertEquals(capacity, map.capacity)

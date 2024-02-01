@@ -22,9 +22,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.annotation.MainThread
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,10 +52,21 @@ import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.demos.R
@@ -65,7 +78,17 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.recyclerview.widget.RecyclerView
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.viewpager2.widget.ViewPager2
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -79,6 +102,10 @@ val ComposeInAndroidDemos = DemoCategory(
         ActivityDemo(
             "Compose tap in Android tap",
             ComposeTapInAndroidTap::class
+        ),
+        ActivityDemo(
+            "Compose tap (dynamically loaded via window manager) in Android",
+            AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager::class
         ),
         ActivityDemo(
             "Compose tap in Android scroll",
@@ -134,7 +161,10 @@ open class ComposeNothingInAndroidTap : ComponentActivity() {
             container.setBackgroundColor(currentColor.toArgb())
         }
         container.setContent {
-            Box(Modifier.background(color = Color.LightGray).fillMaxSize())
+            Box(
+                Modifier
+                    .background(color = Color.LightGray)
+                    .fillMaxSize())
         }
     }
 }
@@ -180,8 +210,155 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
 
             Column {
                 Box(
-                    tap.then(Modifier.background(color = currentColor.value).fillMaxSize())
+                    tap.then(
+                        Modifier
+                            .background(color = currentColor.value)
+                            .fillMaxSize())
                 )
+            }
+        }
+    }
+}
+
+open class AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager : ComponentActivity() {
+    private var viewLoaded: View? = null
+    private lateinit var myContext: Context
+    private lateinit var button: Button
+
+    @SuppressLint("SetTextI18n")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.compose_in_android_tap_reload)
+
+        myContext = peekAvailableContext()!!
+
+        findViewById<TextView>(R.id.text1).text =
+            "Demonstrates correct interop with simple tapping and a window manager"
+        findViewById<TextView>(R.id.text2).text =
+            "The top/outer text and button are Android, and the button dynamically triggers " +
+                "adding/removing a ComposeView via the WindowManager. The inner ComposeView also " +
+                "contains a button that tracks the number of clicks."
+
+        button = findViewById<Button>(R.id.button)
+        button.setOnClickListener {
+            viewLoaded = if (viewLoaded != null) {
+                myContext.removeWindow(viewLoaded!!)
+                null
+            } else {
+                myContext.addWindow()
+            }
+        }
+    }
+}
+
+private class ComposeViewLifecycleOwner : SavedStateRegistryOwner, ViewModelStoreOwner {
+    private val lifecycleRegistry by lazy { LifecycleRegistry(this) }
+    private val saveStateRegistryOwner by lazy { SavedStateRegistryController.create(this) }
+
+    private val mViewModelStore by lazy { ViewModelStore() }
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
+
+    override val savedStateRegistry: SavedStateRegistry
+        get() = saveStateRegistryOwner.savedStateRegistry
+
+    fun handleLifecycleEvent(event: Lifecycle.Event) {
+        lifecycleRegistry.handleLifecycleEvent(event)
+    }
+
+    @MainThread
+    fun performRestore(savedState: Bundle?) {
+        saveStateRegistryOwner.performRestore(savedState)
+    }
+
+    @MainThread
+    fun performSave(outBundle: Bundle) {
+        saveStateRegistryOwner.performSave(outBundle)
+    }
+
+    override val viewModelStore: ViewModelStore
+        get() = mViewModelStore
+}
+
+private fun Context.buildWindowView(content: @Composable (composeView: View) -> Unit): View {
+    val lifecycleOwner = ComposeViewLifecycleOwner()
+
+    lifecycleOwner.performRestore(null)
+    lifecycleOwner.handleLifecycleEvent(event = Lifecycle.Event.ON_CREATE)
+
+    return ComposeView(this).apply {
+        setContent {
+            content(this)
+        }
+
+        addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(view: View) {
+                lifecycleOwner.handleLifecycleEvent(event = Lifecycle.Event.ON_RESUME)
+            }
+
+            override fun onViewDetachedFromWindow(view: View) {
+                lifecycleOwner.handleLifecycleEvent(event = Lifecycle.Event.ON_PAUSE)
+            }
+        })
+
+        setViewTreeSavedStateRegistryOwner(lifecycleOwner)
+        setViewTreeLifecycleOwner(lifecycleOwner = lifecycleOwner)
+        setViewTreeViewModelStoreOwner(viewModelStoreOwner = lifecycleOwner)
+    }
+}
+
+private fun Context.addWindow(): View {
+    val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val view = buildWindowView { SimpleClickableButton() }
+
+    val layoutParas = WindowManager.LayoutParams()
+
+    layoutParas.width = 1000
+    layoutParas.height = 1000
+    layoutParas.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+
+    windowManager.addView(view, layoutParas)
+
+    return view
+}
+
+private fun Context.removeWindow(view: View) {
+    val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    windowManager.removeView(view)
+}
+
+@Composable
+private fun SimpleClickableButton() {
+    var topBarClickCount by rememberSaveable { mutableIntStateOf(0) }
+    var bodyClickCount by rememberSaveable { mutableIntStateOf(0) }
+
+    MaterialTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = "Top Bar Clicks: $topBarClickCount")
+                            },
+                    navigationIcon = {
+                        IconButton(onClick = { topBarClickCount++ }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .background(Color.Yellow)
+            ) {
+                Button(
+                    modifier = Modifier.padding(5.dp),
+                    onClick = { bodyClickCount++ }
+                ) {
+                    Text(text = "Button Clicks: $bodyClickCount")
+                }
             }
         }
     }

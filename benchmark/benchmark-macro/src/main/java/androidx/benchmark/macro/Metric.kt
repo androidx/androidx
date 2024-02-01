@@ -16,14 +16,13 @@
 
 package androidx.benchmark.macro
 
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
 import androidx.benchmark.macro.PowerMetric.Type
 import androidx.benchmark.macro.PowerRail.hasMetrics
-import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
+import androidx.benchmark.macro.TraceSectionMetric.Mode
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
@@ -128,49 +127,6 @@ sealed class Metric {
 private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
 
 /**
- * Metric which captures information about underruns while playing audio.
- *
- * Each time an instance of [android.media.AudioTrack] is started, the systems repeatedly
- * logs the number of audio frames available for output. This doesn't work when audio offload is
- * enabled. No logs are generated while there is no active track. See
- * [android.media.AudioTrack.Builder.setOffloadedPlayback] for more details.
- *
- * Test fails in case of multiple active tracks during a single iteration.
- *
- * This outputs the following measurements:
- *
- * * `audioTotalMs` - Total duration of played audio captured during the iteration.
- * The test fails if no counters are detected.
- *
- * * `audioUnderrunMs` - Duration of played audio when zero audio frames were available for output.
- * Each single log of zero frames available for output indicates a gap in audio playing.
- */
-@ExperimentalMetricApi
-@Suppress("CanSealedSubClassBeObject")
-class AudioUnderrunMetric : Metric() {
-    override fun configure(packageName: String) {
-    }
-
-    override fun start() {
-    }
-
-    override fun stop() {
-    }
-
-    override fun getResult(
-        captureInfo: CaptureInfo,
-        traceSession: PerfettoTraceProcessor.Session
-    ): List<Measurement> {
-        val subMetrics = AudioUnderrunQuery.getSubMetrics(traceSession)
-
-        return listOf(
-            Measurement("audioTotalMs", subMetrics.totalMs.toDouble()),
-            Measurement("audioUnderrunMs", subMetrics.zeroMs.toDouble())
-        )
-    }
-}
-
-/**
  * Metric which captures timing information from frames produced by a benchmark, such as
  * a scrolling or animation benchmark.
  *
@@ -195,10 +151,10 @@ class FrameTimingMetric : Metric() {
     ): List<Measurement> {
         return FrameTimingQuery.getFrameData(
             session = traceSession,
-            captureApiLevel = Build.VERSION.SDK_INT,
+            captureApiLevel = captureInfo.apiLevel,
             packageName = captureInfo.targetPackageName
         )
-            .getFrameSubMetrics(Build.VERSION.SDK_INT)
+            .getFrameSubMetrics(captureInfo.apiLevel)
             .filterKeys { it == SubMetric.FrameDurationCpuNs || it == SubMetric.FrameOverrunNs }
             .map {
                 Measurement(
@@ -210,6 +166,116 @@ class FrameTimingMetric : Metric() {
                     dataSamples = it.value.map { timeNs -> timeNs.nsToDoubleMs() }
                 )
             }
+    }
+}
+
+/**
+ * Version of FrameTimingMetric based on 'dumpsys gfxinfo' instead of trace data.
+ *
+ * Added for experimentation in contrast to FrameTimingMetric, as the platform accounting of frame
+ * drops currently behaves differently from that of FrameTimingMetric.
+ *
+ * Likely to be removed when differences in jank behavior are reconciled between this class, and
+ * [FrameTimingMetric].
+ *
+ * Note that output metrics do not match perfectly to FrameTimingMetric, as individual frame times
+ * are not available, only high level, millisecond-precision statistics.
+ */
+@ExperimentalMetricApi
+class FrameTimingGfxInfoMetric : Metric() {
+    private lateinit var packageName: String
+    private val helper = JankCollectionHelper()
+    private var metrics = mutableMapOf<String, Double>()
+
+    override fun configure(packageName: String) {
+        this.packageName = packageName
+        helper.addTrackedPackages(packageName)
+    }
+
+    override fun start() {
+        try {
+            helper.startCollecting()
+        } catch (exception: RuntimeException) {
+            // Ignore the exception that might result from trying to clear GfxInfo
+            // The current implementation of JankCollectionHelper throws a RuntimeException
+            // when that happens. This is safe to ignore because the app being benchmarked
+            // is not showing any UI when this happens typically.
+
+            // Once the MacroBenchmarkRule has the ability to setup the app in the right state via
+            // a designated setup block, we can get rid of this.
+            if (!Shell.isPackageAlive(packageName)) {
+                error(exception.message ?: "Assertion error, $packageName not running")
+            }
+        }
+    }
+
+    override fun stop() {
+        helper.stopCollecting()
+
+        // save metrics on stop to attempt to more closely match perfetto based metrics
+        metrics.clear()
+        metrics.putAll(helper.metrics)
+    }
+
+    /**
+     * Used to convert keys from platform to JSON format.
+     *
+     * This both converts `snake_case_format` to `camelCaseFormat`, and renames for clarity.
+     *
+     * Note that these will still output to inst results in snake_case, with `MetricNameUtils`
+     * via [androidx.benchmark.MetricResult.putInBundle].
+     */
+    private val keyRenameMap = mapOf(
+        "frame_render_time_percentile_50" to "gfxFrameTime50thPercentileMs",
+        "frame_render_time_percentile_90" to "gfxFrameTime90thPercentileMs",
+        "frame_render_time_percentile_95" to "gfxFrameTime95thPercentileMs",
+        "frame_render_time_percentile_99" to "gfxFrameTime99thPercentileMs",
+        "gpu_frame_render_time_percentile_50" to "gpuFrameTime50thPercentileMs",
+        "gpu_frame_render_time_percentile_90" to "gpuFrameTime90thPercentileMs",
+        "gpu_frame_render_time_percentile_95" to "gpuFrameTime95thPercentileMs",
+        "gpu_frame_render_time_percentile_99" to "gpuFrameTime99thPercentileMs",
+        "missed_vsync" to "vsyncMissedFrameCount",
+        "deadline_missed" to "deadlineMissedFrameCount",
+        "deadline_missed_legacy" to "deadlineMissedFrameCountLegacy",
+        "janky_frames_count" to "jankyFrameCount",
+        "janky_frames_legacy_count" to "jankyFrameCountLegacy",
+        "high_input_latency" to "highInputLatencyFrameCount",
+        "slow_ui_thread" to "slowUiThreadFrameCount",
+        "slow_bmp_upload" to "slowBitmapUploadFrameCount",
+        "slow_issue_draw_cmds" to "slowIssueDrawCommandsFrameCount",
+        "total_frames" to "gfxFrameTotalCount",
+        "janky_frames_percent" to "gfxFrameJankPercent",
+        "janky_frames_legacy_percent" to "jankyFramePercentLegacy"
+    )
+
+    /**
+     * Filters output to only frameTimeXXthPercentileMs and totalFrameCount
+     */
+    private val keyAllowList = setOf(
+        "gfxFrameTime50thPercentileMs",
+        "gfxFrameTime90thPercentileMs",
+        "gfxFrameTime95thPercentileMs",
+        "gfxFrameTime99thPercentileMs",
+        "gfxFrameTotalCount",
+        "gfxFrameJankPercent",
+    )
+
+    override fun getResult(
+        captureInfo: CaptureInfo,
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
+        return metrics
+            .map {
+                val prefix = "gfxinfo_${packageName}_"
+                val keyWithoutPrefix = it.key.removePrefix(prefix)
+
+                if (keyWithoutPrefix != it.key && keyRenameMap.containsKey(keyWithoutPrefix)) {
+                    Measurement(keyRenameMap[keyWithoutPrefix]!!, it.value)
+                } else {
+                    throw IllegalStateException("Unexpected key ${it.key}")
+                }
+            }
+            .filter { keyAllowList.contains(it.name) }
     }
 }
 
@@ -397,9 +463,14 @@ class TraceSectionMetric(
      */
     private val sectionName: String,
     /**
-     * How should the
+     * Metric label, defaults to [sectionName].
      */
-    private val mode: Mode = Mode.First,
+    private val label: String = sectionName,
+    /**
+     * Defines how slices matching [sectionName] should be confirmed to metrics, by default uses
+     * [Mode.Sum] to count and sum durations of all matching trace sections.
+     */
+    private val mode: Mode = Mode.Sum,
     /**
      * Filter results to trace sections only from the target process, defaults to true.
      */
@@ -420,7 +491,25 @@ class TraceSectionMetric(
          * When this mode is used, a measurement of `0` will be reported if the named section
          * does not appear in the trace
          */
-        Sum
+        Sum,
+
+        /**
+         * Reports the maximum observed duration for a trace section matching `sectionName` in the
+         * trace.
+         *
+         * When this mode is used, no measurement will be reported if the named section does
+         * not appear in the trace.
+         */
+        Min,
+
+        /**
+         * Reports the maximum observed duration for a trace section matching `sectionName` in the
+         * trace.
+         *
+         * When this mode is used, no measurement will be reported if the named section does
+         * not appear in the trace.
+         */
+        Max,
     }
 
     override fun configure(packageName: String) {
@@ -448,22 +537,41 @@ class TraceSectionMetric(
                     emptyList()
                 } else listOf(
                     Measurement(
-                        name = sectionName + "Ms",
+                        name = label + "FirstMs",
                         data = slice.dur / 1_000_000.0
                     )
                 )
             }
-
             Mode.Sum -> {
                 listOf(
                     Measurement(
-                        name = sectionName + "Ms",
+                        name = label + "SumMs",
                         // note, this duration assumes non-reentrant slices
                         data = slices.sumOf { it.dur } / 1_000_000.0
                     ),
                     Measurement(
-                        name = sectionName + "Count",
+                        name = label + "Count",
                         data = slices.size.toDouble()
+                    )
+                )
+            }
+            Mode.Min -> {
+                if (slices.isEmpty()) {
+                    emptyList()
+                } else listOf(
+                    Measurement(
+                        name = label + "MinMs",
+                        data = slices.minOf { it.dur } / 1_000_000.0
+                    )
+                )
+            }
+            Mode.Max -> {
+                if (slices.isEmpty()) {
+                    emptyList()
+                } else listOf(
+                    Measurement(
+                        name = label + "MaxMs",
+                        data = slices.maxOf { it.dur } / 1_000_000.0
                     )
                 )
             }

@@ -24,6 +24,7 @@ import android.view.View
 import android.view.View.MeasureSpec.EXACTLY
 import android.view.View.MeasureSpec.getMode
 import android.view.ViewGroup
+import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 
@@ -44,8 +45,12 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // Layout will be handled by component nodes. However, we act like proper measurement
         // here in case ViewRootImpl did forceLayout().
-        require(getMode(widthMeasureSpec) == EXACTLY) { "widthMeasureSpec should be EXACTLY" }
-        require(getMode(heightMeasureSpec) == EXACTLY) { "heightMeasureSpec should be EXACTLY" }
+        requirePrecondition(getMode(widthMeasureSpec) == EXACTLY) {
+            "widthMeasureSpec should be EXACTLY"
+        }
+        requirePrecondition(getMode(heightMeasureSpec) == EXACTLY) {
+            "heightMeasureSpec should be EXACTLY"
+        }
         setMeasuredDimension(
             MeasureSpec.getSize(widthMeasureSpec),
             MeasureSpec.getSize(heightMeasureSpec)

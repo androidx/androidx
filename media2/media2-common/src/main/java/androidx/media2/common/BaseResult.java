@@ -22,21 +22,27 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
- * Base interface for all result classes in {@link androidx.media2.session.MediaSession},
- * {@link androidx.media2.session.MediaController},
- * and {@link SessionPlayer}, for defining result codes in one place with documentation.
+ * Base interface for all result classes in {@link androidx.media2.session.MediaSession}, {@link
+ * androidx.media2.session.MediaController}, and {@link SessionPlayer}, for defining result codes in
+ * one place with documentation.
+ *
  * <ul>
- *     <li>Error code: Negative integer</li>
- *     <li>Success code: 0</li>
- *     <li>Info code: Positive integer</li>
+ *   <li>Error code: Negative integer
+ *   <li>Success code: 0
+ *   <li>Info code: Positive integer
  * </ul>
+ *
  * <ul>
- *     <li>   0 <  |code| <  100: Session player specific code.</li>
- *     <li> 100 <= |code| <  500: Session/Controller specific code.</li>
- *     <li> 500 <= |code| < 1000: Browser/Library session specific code.</li>
- *     <li>1000 <= |code|       : Custom session player result code.</li>
+ *   <li>0 < |code| < 100: Session player specific code.
+ *   <li>100 <= |code| < 500: Session/Controller specific code.
+ *   <li>500 <= |code| < 1000: Browser/Library session specific code.
+ *   <li>1000 <= |code| : Custom session player result code.
  * </ul>
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @RestrictTo(LIBRARY_GROUP)
 public interface BaseResult {
     /**

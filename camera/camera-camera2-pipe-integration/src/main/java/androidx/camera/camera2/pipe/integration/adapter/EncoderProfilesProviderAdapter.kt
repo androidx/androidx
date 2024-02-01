@@ -19,15 +19,19 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.media.CamcorderProfile
 import android.media.EncoderProfiles
 import android.os.Build
+import android.util.Size
 import androidx.annotation.DoNotInline
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.integration.compat.quirk.CamcorderProfileResolutionQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.InvalidVideoProfilesQuirk
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
+import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.compat.EncoderProfilesProxyCompat
 import javax.inject.Inject
 import javax.inject.Named
@@ -39,6 +43,7 @@ import javax.inject.Named
 @CameraScope
 class EncoderProfilesProviderAdapter @Inject constructor(
     @Named("CameraId") private val cameraIdString: String,
+    @Named("cameraQuirksValues") private val cameraQuirks: Quirks,
 ) : EncoderProfilesProvider {
     private val hasValidCameraId: Boolean
     private val cameraId: Int
@@ -65,10 +70,7 @@ class EncoderProfilesProviderAdapter @Inject constructor(
             return false
         }
 
-        if (!CamcorderProfile.hasProfile(cameraId, quality)) {
-            return false
-        }
-        return true
+        return getAll(quality) != null
     }
 
     override fun getAll(quality: Int): EncoderProfilesProxy? {
@@ -83,7 +85,10 @@ class EncoderProfilesProviderAdapter @Inject constructor(
         return if (mEncoderProfilesCache.containsKey(quality)) {
             mEncoderProfilesCache[quality]
         } else {
-            val profiles = getProfilesInternal(quality)
+            var profiles = getProfilesInternal(quality)
+            if (profiles != null && !isEncoderProfilesResolutionValidInQuirk(profiles)) {
+                profiles = null
+            }
             mEncoderProfilesCache[quality] = profiles
             profiles
         }
@@ -128,6 +133,21 @@ class EncoderProfilesProviderAdapter @Inject constructor(
             Logger.w(TAG, "Unable to get CamcorderProfile by quality: $quality", e)
         }
         return if (profile != null) EncoderProfilesProxyCompat.from(profile) else null
+    }
+
+    private fun isEncoderProfilesResolutionValidInQuirk(profiles: EncoderProfilesProxy): Boolean {
+        val camcorderProfileResolutionQuirk =
+            cameraQuirks[CamcorderProfileResolutionQuirk::class.java] ?: return true
+        val videoProfiles = profiles.videoProfiles
+        if (videoProfiles.isEmpty()) {
+            // Empty video profiles is valid according to the doc.
+            return true
+        }
+        // cts/CamcorderProfileTest.java ensures all video profiles have the same size so we just
+        // need to check the first video profile.
+        val videoProfile = videoProfiles[0]
+        return camcorderProfileResolutionQuirk.getSupportedResolutions()
+            .contains(Size(videoProfile.width, videoProfile.height))
     }
 
     @RequiresApi(31)

@@ -1590,4 +1590,65 @@ class XProcessingStepTest {
             )
         )
     }
+
+    @Test
+    fun validateElement() {
+        var round = 0
+        val processedElementNamesByRound = mutableMapOf<Int, Set<String>>()
+        val processingStep = object : XProcessingStep {
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
+            ): Set<XTypeElement> {
+              processedElementNamesByRound[round++] =
+                  elementsByAnnotation.values.flatten().map { it.name }.toSet()
+              return emptySet()
+            }
+            override fun annotations(): Set<String> {
+                return setOf("foo.bar.SomeAnnotation")
+            }
+        }
+        val someAnnotation = JavaFileObjects.forSourceString(
+            "foo.bar.SomeAnnotation",
+            """
+            package foo.bar;
+
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Retention;
+            import java.lang.annotation.RetentionPolicy;
+            import java.lang.annotation.Target;
+
+            @Target(ElementType.METHOD)
+            @Retention(RetentionPolicy.RUNTIME)
+            public @interface SomeAnnotation {}
+            """.trimIndent()
+        )
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            class Main {
+              @SomeAnnotation
+              SomeType invalidMethod() { return null; }
+              @SomeAnnotation
+              void validMethod() {}
+            }
+            """.trimIndent()
+        )
+
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main, someAnnotation)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(processingStep)
+            }
+        ).failsToCompile()
+
+        assertThat(processedElementNamesByRound).hasSize(1)
+        assertThat(processedElementNamesByRound.values.single())
+            .containsExactly("validMethod", "invalidMethod")
+    }
 }

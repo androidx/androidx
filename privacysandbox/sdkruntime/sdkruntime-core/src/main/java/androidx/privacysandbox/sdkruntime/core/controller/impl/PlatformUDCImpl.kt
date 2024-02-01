@@ -23,26 +23,41 @@ import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
-import android.os.ext.SdkExtensions
 import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
  * Implementation that delegates to platform [SdkSandboxController] for Android U.
  */
-@RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
 @RequiresApi(34)
 internal class PlatformUDCImpl(
     private val controller: SdkSandboxController
-) : PlatformImpl(controller) {
+) : SdkSandboxControllerCompat.SandboxControllerImpl {
+
+    private val appOwnedSdkProvider = AppOwnedSdkProvider.create(controller)
+    private val sdkLoader = PlatformSdkLoader.create(controller)
 
     private val compatToPlatformMap =
         hashMapOf<SdkSandboxActivityHandlerCompat, SdkSandboxActivityHandler>()
+
+    override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat =
+        sdkLoader.loadSdk(sdkName, params)
+
+    override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+        return controller
+            .sandboxedSdks
+            .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
+    }
+
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        appOwnedSdkProvider.getAppOwnedSdkSandboxInterfaces()
 
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat
@@ -142,7 +157,7 @@ internal class PlatformUDCImpl(
     }
 
     companion object {
-        fun from(context: Context): PlatformImpl {
+        fun from(context: Context): PlatformUDCImpl {
             val sdkSandboxController = context.getSystemService(SdkSandboxController::class.java)
             return PlatformUDCImpl(sdkSandboxController)
         }

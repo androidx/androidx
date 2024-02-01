@@ -18,8 +18,8 @@ package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 
-import androidx.core.view.ViewCompat;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.hamcrest.CoreMatchers;
@@ -104,8 +104,8 @@ public class WrappedRecyclerView extends RecyclerView {
             return super.getLayoutDirection();
         }
         //noinspection WrongConstant
-        return Boolean.TRUE.equals(mFakeRTL) ? ViewCompat.LAYOUT_DIRECTION_RTL
-                : ViewCompat.LAYOUT_DIRECTION_LTR;
+        return Boolean.TRUE.equals(mFakeRTL) ? View.LAYOUT_DIRECTION_RTL
+                : View.LAYOUT_DIRECTION_LTR;
     }
 
     @Override

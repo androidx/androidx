@@ -24,13 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.platform.LocalPlatformTextInputMethodOverride
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.PlatformTextInputSessionHandler
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
-import androidx.compose.ui.platform.textInputSession
+import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.test.PlatformTextInputMethodOverride.OverrideSession
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.job
@@ -65,7 +65,7 @@ fun PlatformTextInputMethodTestOverride(
  *
  * Note: This class implements [RememberObserver], and MUST NOT be exposed publicly where it could
  * be remembered externally in a composition. It should ONLY be exposed as the receiver to
- * [PlatformTextInputModifierNode.textInputSession].
+ * [PlatformTextInputModifierNode.establishTextInputSession].
  */
 @OptIn(InternalComposeUiApi::class)
 @Stable

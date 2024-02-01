@@ -763,7 +763,6 @@ class PointerInputChange(
         id: PointerId = this.id,
         currentTime: Long = this.uptimeMillis,
         currentPosition: Offset = this.position,
-        originalEventPosition: Offset = this.originalEventPosition,
         currentPressed: Boolean = this.pressed,
         pressure: Float = this.pressure,
         previousTime: Long = this.previousUptimeMillis,
@@ -785,7 +784,7 @@ class PointerInputChange(
         type,
         historical,
         scrollDelta,
-        originalEventPosition,
+        originalEventPosition = this.originalEventPosition,
     ).also {
         it.consumed = this.consumed
     }

@@ -22,6 +22,12 @@
             android:name="androidx.compose.foundation.TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
         <activity
+            android:name="androidx.compose.foundation.TestActivityWithScreenLayoutConfigChanges"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+            />
+        <activity
             android:name="androidx.fragment.app.FragmentActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
         <!--

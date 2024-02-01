@@ -22,6 +22,7 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.BuiltArtifactsLoader
 import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -110,7 +111,7 @@ abstract class FtlRunner : DefaultTask() {
                 appApk.elements.single().outputFile
             } else {
                 "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
-                    "37728671722adb4f49b23ed2f0edb0b4def51c841b0735fdd1648942ff1e9090.apk"
+                    "d345c82828c355acc1432535153cf1dcf456e559c26f735346bf5f38859e0512.apk"
             }
         try {
             execOperations.exec { it.commandLine("gcloud", "--version") }
@@ -183,6 +184,7 @@ private const val Q2Q = "q2q,version=31"
 
 private val devicesToRunOn =
     listOf(
+        "ftlmediumphoneapi34" to listOf("MediumPhone.arm,version=34"),
         "ftlpixel2api33" to listOf("Pixel2.arm,version=33"),
         "ftlpixel2api30" to listOf("Pixel2.arm,version=30"),
         "ftlpixel2api28" to listOf("Pixel2.arm,version=28"),
@@ -191,8 +193,8 @@ private val devicesToRunOn =
         "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
     )
 
-fun Project.configureFtlRunner() {
-    extensions.getByType(AndroidComponentsExtension::class.java).apply {
+fun Project.configureFtlRunner(androidComponentsExtension: AndroidComponentsExtension<*, *, *>) {
+    androidComponentsExtension.apply {
         onVariants { variant ->
             var name: String? = null
             var artifacts: Artifacts? = null
@@ -219,6 +221,22 @@ fun Project.configureFtlRunner() {
                     task.testFolder.set(artifacts.get(SingleArtifact.APK))
                     task.testLoader.set(artifacts.getBuiltArtifactsLoader())
                 }
+            }
+        }
+    }
+}
+
+fun Project.configureFtlRunner(componentsExtension: KotlinMultiplatformAndroidComponentsExtension) {
+    componentsExtension.onVariant { variant ->
+        val name = variant.androidTest?.name ?: return@onVariant
+        val artifacts = variant.androidTest?.artifacts ?: return@onVariant
+        val apkPackageName = variant.androidTest?.namespace ?: return@onVariant
+        devicesToRunOn.forEach { (taskPrefix, model) ->
+            tasks.register("$taskPrefix$name", FtlRunner::class.java) { task ->
+                task.device.set(model)
+                task.apkPackageName.set(apkPackageName)
+                task.testFolder.set(artifacts.get(SingleArtifact.APK))
+                task.testLoader.set(artifacts.getBuiltArtifactsLoader())
             }
         }
     }

@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.systemjob;
 
+import static androidx.work.impl.background.systemjob.SystemJobInfoConverterExtKt.setRequiredNetworkRequest;
+
 import android.annotation.SuppressLint;
 import android.app.job.JobInfo;
 import android.content.ComponentName;
@@ -78,8 +80,12 @@ class SystemJobInfoConverter {
                 .setRequiresCharging(constraints.requiresCharging())
                 .setRequiresDeviceIdle(constraints.requiresDeviceIdle())
                 .setExtras(extras);
-
-        setRequiredNetwork(builder, constraints.getRequiredNetworkType());
+        NetworkRequest networkRequest = constraints.getRequiredNetworkRequest();
+        if (Build.VERSION.SDK_INT >= 28 && networkRequest != null) {
+            setRequiredNetworkRequest(builder, networkRequest);
+        } else {
+            setRequiredNetwork(builder, constraints.getRequiredNetworkType());
+        }
 
         if (!constraints.requiresDeviceIdle()) {
             // Device Idle and Backoff Criteria cannot be set together

@@ -20,6 +20,8 @@ import android.webkit.WebSettings;
 
 import androidx.annotation.NonNull;
 import androidx.webkit.UserAgentMetadata;
+import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
+
 
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
 
@@ -191,5 +193,26 @@ public class WebSettingsAdapter {
         mBoundaryInterface.setAttributionBehavior(behavior);
     }
 
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, WebViewMediaIntegrityApiStatusConfig)}
+     */
+    public void setWebViewMediaIntegrityApiStatus(
+            @NonNull WebViewMediaIntegrityApiStatusConfig permissionConfig) {
+        mBoundaryInterface.setWebViewMediaIntegrityApiStatus(permissionConfig.getDefaultStatus(),
+                permissionConfig.getOverrideRules());
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getWebViewMediaIntegrityApiStatus(WebSettings)}
+     */
+    @NonNull
+    public WebViewMediaIntegrityApiStatusConfig getWebViewMediaIntegrityApiStatus() {
+        return new WebViewMediaIntegrityApiStatusConfig
+                .Builder(mBoundaryInterface.getWebViewMediaIntegrityApiDefaultStatus())
+                .setOverrideRules(mBoundaryInterface.getWebViewMediaIntegrityApiOverrideRules())
+                .build();
+    }
 
 }

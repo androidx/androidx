@@ -55,7 +55,7 @@ public abstract class PhotoDatabase extends RoomDatabase {
                             }
                         }
                     })
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(false)
                     .build();
         }
         return sInstance;

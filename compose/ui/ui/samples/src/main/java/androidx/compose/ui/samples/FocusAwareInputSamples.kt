@@ -92,10 +92,10 @@ fun KeyEventTypeSample() {
         Modifier
             .onKeyEvent {
                 when (it.type) {
-                    KeyUp -> println(" KeyUp Pressed")
-                    KeyDown -> println(" KeyUp Pressed")
+                    KeyUp -> println("KeyUp Pressed")
+                    KeyDown -> println("KeyUp Pressed")
                     Unknown -> println("Unknown key type")
-                    else -> println("New KeyTpe (For Future Use)")
+                    else -> println("New KeyType (for future use)")
                 }
                 false
             }

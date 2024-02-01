@@ -25,7 +25,6 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
@@ -49,7 +48,6 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
@@ -58,7 +56,7 @@ import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -142,7 +140,7 @@ class ScrollState(initial: Int) : ScrollableState {
         val newValue = absolute.coerceIn(0f, maxValue.toFloat())
         val changed = absolute != newValue
         val consumed = newValue - value
-        val consumedInt = consumed.roundToInt()
+        val consumedInt = consumed.fastRoundToInt()
         value += consumedInt
         accumulator = consumed - consumedInt
 
@@ -270,9 +268,8 @@ private fun Modifier.scroll(
     isVertical: Boolean
 ) = composed(
     factory = {
-        val overscrollEffect = ScrollableDefaults.overscrollEffect()
         val coroutineScope = rememberCoroutineScope()
-        val semantics = Modifier.semantics {
+        semantics {
             isTraversalGroup = true
             val accessibilityScrollState = ScrollAxisRange(
                 value = { state.value.toFloat() },
@@ -300,27 +297,15 @@ private fun Modifier.scroll(
                 )
             }
         }
-        val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
-        val scrolling = Modifier.scrollable(
-            orientation = orientation,
-            reverseDirection = ScrollableDefaults.reverseDirection(
-                LocalLayoutDirection.current,
-                orientation,
-                reverseScrolling
-            ),
-            enabled = isScrollable,
-            interactionSource = state.internalInteractionSource,
-            flingBehavior = flingBehavior,
-            state = state,
-            overscrollEffect = overscrollEffect
-        )
-        val layout =
-            ScrollingLayoutElement(state, reverseScrolling, isVertical)
-        semantics
-            .clipScrollableContainer(orientation)
-            .overscroll(overscrollEffect)
-            .then(scrolling)
-            .then(layout)
+            .scrollingContainer(
+                state = state,
+                orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
+                enabled = isScrollable,
+                reverseScrolling = reverseScrolling,
+                flingBehavior = flingBehavior,
+                interactionSource = state.internalInteractionSource
+            )
+            .then(ScrollingLayoutElement(state, reverseScrolling, isVertical))
     },
     inspectorInfo = debugInspectorInfo {
         name = "scroll"

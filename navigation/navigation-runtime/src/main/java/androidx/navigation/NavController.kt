@@ -682,8 +682,12 @@ public open class NavController(
                 }.forEach { destination ->
                     backStackMap[destination.id] = firstState.id
                 }
-                // And finally, store the actual state itself
-                backStackStates[firstState.id] = savedState
+
+                if (backStackMap.values.contains(firstState.id)) {
+                    // And finally, store the actual state itself if the entry was added
+                    // to backStackMap
+                    backStackStates[firstState.id] = savedState
+                }
             }
         }
         updateOnBackPressedCallbackEnabled()
@@ -1430,6 +1434,7 @@ public open class NavController(
                     }, null
                 )
             }
+            deepLinkHandled = true
             return true
         }
         // Assume we're on another apps' task and only start the final destination

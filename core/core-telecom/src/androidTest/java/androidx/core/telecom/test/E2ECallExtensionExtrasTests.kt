@@ -24,9 +24,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.internal.CallCompat
+import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
+import androidx.core.telecom.test.utils.MockInCallService
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.test.utils.TestUtils.waitOnInCallServiceToReachXCallCompats
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -198,12 +199,12 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
             if (TestUtils.buildIsAtLeastV()) {
                 assertTrue(callDetails.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL))
             } else if (Utils.hasPlatformV2Apis()) {
-                var callCompat: CallCompat?
                 // Wait for capability exchange to complete before verifying the extension level:
                 runBlocking {
-                    callCompat = waitOnInCallServiceToReachXCallCompats(1)
+                    waitOnInCallServiceToReachXCallCompats(1)
                 }
-                assertEquals(CallCompat.CAPABILITY_EXCHANGE, callCompat?.mExtensionLevelSupport)
+                 assertEquals(InCallServiceCompat.CAPABILITY_EXCHANGE,
+                     MockInCallService.getService()?.mExtensionLevelSupport)
             }
         } else {
             val containsBackwardsCompatKey = callDetails.extras != null && callDetails.extras

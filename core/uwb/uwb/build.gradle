@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("androidx.stableaidl")
 }
 
 dependencies {
@@ -30,7 +38,7 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation('com.google.android.gms:play-services-base:18.0.1')
     implementation(libs.kotlinCoroutinesPlayServices)
-    implementation('com.google.android.gms:play-services-nearby:18.5.0', {
+    implementation('com.google.android.gms:play-services-nearby:19.1.0', {
         exclude group: "androidx.core"
     })
 
@@ -54,6 +62,14 @@ androidx {
 
 android {
     namespace "androidx.core.uwb"
+    buildFeatures {
+        aidl = true
+    }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
+    }
     defaultConfig {
         minSdkVersion 23
         multiDexEnabled = true

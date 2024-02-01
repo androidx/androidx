@@ -16,9 +16,7 @@
 
 package androidx.compose.material3.adaptive
 
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toComposeRect
-import androidx.compose.ui.util.fastForEach
 import androidx.window.layout.FoldingFeature
 
 /**
@@ -28,30 +26,19 @@ import androidx.window.layout.FoldingFeature
 @ExperimentalMaterial3AdaptiveApi
 fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
     var isTableTop = false
-    val separatingHingeBounds = mutableListOf<Rect>()
-    val occludingHingeBounds = mutableListOf<Rect>()
-    val allHingeBounds = mutableListOf<Rect>()
-    foldingFeatures.fastForEach {
+    val hingeList = mutableListOf<HingeInfo>()
+    @Suppress("ListIterator")
+    foldingFeatures.forEach {
         if (it.orientation == FoldingFeature.Orientation.HORIZONTAL &&
             it.state == FoldingFeature.State.HALF_OPENED) {
             isTableTop = true
         }
-        val hingeBounds = it.bounds.toComposeRect()
-        // TODO(conradchen): Figure out how to deal with horizontal hinges
-        if (it.orientation == FoldingFeature.Orientation.VERTICAL) {
-            allHingeBounds.add(hingeBounds)
-            if (it.isSeparating) {
-                separatingHingeBounds.add(hingeBounds)
-            }
-            if (it.occlusionType == FoldingFeature.OcclusionType.FULL) {
-                occludingHingeBounds.add(hingeBounds)
-            }
-        }
+        hingeList.add(HingeInfo(
+            bounds = it.bounds.toComposeRect(),
+            isVertical = it.orientation == FoldingFeature.Orientation.VERTICAL,
+            isSeparating = it.isSeparating,
+            isOccluding = it.occlusionType == FoldingFeature.OcclusionType.FULL
+        ))
     }
-    return Posture(
-        isTableTop,
-        separatingHingeBounds,
-        occludingHingeBounds,
-        allHingeBounds
-    )
+    return Posture(isTableTop, hingeList)
 }

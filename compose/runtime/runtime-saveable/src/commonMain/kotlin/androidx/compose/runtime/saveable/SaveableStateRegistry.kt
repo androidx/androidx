@@ -90,6 +90,18 @@ fun SaveableStateRegistry(
  */
 val LocalSaveableStateRegistry = staticCompositionLocalOf<SaveableStateRegistry?> { null }
 
+// CharSequence.isBlank() allocates an iterator because it calls indices.all{}
+private fun CharSequence.fastIsBlank(): Boolean {
+    var blank = true
+    for (i in 0 until length - 1) {
+        if (!this[i].isWhitespace()) {
+            blank = false
+            break
+        }
+    }
+    return blank
+}
+
 private class SaveableStateRegistryImpl(
     restored: Map<String, List<Any?>>?,
     private val canBeSaved: (Any) -> Boolean
@@ -114,7 +126,7 @@ private class SaveableStateRegistryImpl(
     }
 
     override fun registerProvider(key: String, valueProvider: () -> Any?): Entry {
-        require(key.isNotBlank()) { "Registered key is empty or blank" }
+        require(!key.fastIsBlank()) { "Registered key is empty or blank" }
         @Suppress("UNCHECKED_CAST")
         valueProviders.getOrPut(key) { mutableListOf() }.add(valueProvider)
         return object : Entry {

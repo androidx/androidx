@@ -34,6 +34,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
@@ -42,6 +43,7 @@ import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLo
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.node.LayoutNode.UsageByParent
+import androidx.compose.ui.node.checkMeasuredSize
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.platform.createSubcomposition
 import androidx.compose.ui.unit.Constraints
@@ -409,7 +411,7 @@ internal class LayoutNodeSubcompositionsState(
     fun subcompose(slotId: Any?, content: @Composable () -> Unit): List<Measurable> {
         makeSureStateIsConsistent()
         val layoutState = root.layoutState
-        check(
+        checkPrecondition(
             layoutState == LayoutState.Measuring || layoutState == LayoutState.LayingOut ||
                 layoutState == LayoutState.LookaheadMeasuring ||
                 layoutState == LayoutState.LookaheadLayingOut
@@ -421,7 +423,7 @@ internal class LayoutNodeSubcompositionsState(
             val precomposed = precomposeMap.remove(slotId)
             if (precomposed != null) {
                 @Suppress("ExceptionMessage")
-                check(precomposedCount > 0)
+                checkPrecondition(precomposedCount > 0)
                 precomposedCount--
                 precomposed
             } else {
@@ -750,6 +752,11 @@ internal class LayoutNodeSubcompositionsState(
         "intrinsic measurement."
 
     fun precompose(slotId: Any?, content: @Composable () -> Unit): PrecomposedSlotHandle {
+        if (!root.isAttached) {
+            return object : PrecomposedSlotHandle {
+                override fun dispose() {}
+            }
+        }
         makeSureStateIsConsistent()
         if (!slotIdToNode.containsKey(slotId)) {
             // Yield ownership of PrecomposedHandle from postLookahead to the caller of precompose
@@ -869,8 +876,10 @@ internal class LayoutNodeSubcompositionsState(
             width: Int,
             height: Int,
             alignmentLines: Map<AlignmentLine, Int>,
+            rulers: (RulerScope.() -> Unit)?,
             placementBlock: Placeable.PlacementScope.() -> Unit
         ): MeasureResult {
+            checkMeasuredSize(width, height)
             return object : MeasureResult {
                 override val width: Int
                     get() = width
@@ -878,6 +887,8 @@ internal class LayoutNodeSubcompositionsState(
                     get() = height
                 override val alignmentLines: Map<AlignmentLine, Int>
                     get() = alignmentLines
+                override val rulers: (RulerScope.() -> Unit)?
+                    get() = rulers
 
                 override fun placeChildren() {
                     if (isLookingAhead) {

@@ -163,7 +163,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         if (mServiceConnectionRetry < MAX_RETRIES) {
             Log.w(
                     TAG,
-                    "WCS SDK Client '"
+                    "HealthServices SDK Client '"
                             + mConnectionConfiguration.getClientName()
                             + "' disconnected, retrying connection. Retry attempt: "
                             + mServiceConnectionRetry,

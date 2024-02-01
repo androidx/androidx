@@ -16,8 +16,11 @@
 
 package androidx.compose.foundation.text2.input.internal
 
+import android.content.ClipData
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Parcelable
 import android.text.TextUtils
 import android.util.Log
 import android.view.KeyEvent
@@ -27,28 +30,48 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InputConnectionWrapper
 import android.view.inputmethod.InputContentInfo
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.PlatformTransferableContent
+import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.getSelectedText
 import androidx.compose.foundation.text2.input.getTextAfterSelection
 import androidx.compose.foundation.text2.input.getTextBeforeSelection
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.platform.toClipEntry
+import androidx.compose.ui.platform.toClipMetadata
 import androidx.compose.ui.text.input.ImeAction
+import androidx.core.view.inputmethod.EditorInfoCompat
+import androidx.core.view.inputmethod.InputConnectionCompat
+import androidx.core.view.inputmethod.InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
+import androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener
+import androidx.core.view.inputmethod.InputContentInfoCompat
 
 @VisibleForTesting
 internal const val SIC_DEBUG = false
 private const val TAG = "StatelessIC"
 private const val DEBUG_CLASS = "StatelessInputConnection"
 
+private const val EXTRA_INPUT_CONTENT_INFO = "EXTRA_INPUT_CONTENT_INFO"
+
 /**
  * An input connection that delegates its reads and writes to the active text input session.
  * InputConnections are requested and used by framework to create bridge from IME to an active
  * editor.
+ *
+ * @param editorInfo Required to create an InputConnection wrapper to support [commitContent] on
+ * all API levels.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class StatelessInputConnection(private val session: TextInputSession) : InputConnection {
+internal class StatelessInputConnection(
+    private val session: TextInputSession,
+    editorInfo: EditorInfo
+) : InputConnection {
     /**
      * The depth of the batch session. 0 means no session.
      *
@@ -70,6 +93,94 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
      * Recording of editing operations for batch editing
      */
     private val editCommands = mutableVectorOf<EditingBuffer.() -> Unit>()
+
+    /**
+     * Wraps this StatelessInputConnection to halt a possible infinite loop in [commitContent]
+     * chain.
+     *
+     * if [StatelessInputConnection] is wrapped via [InputConnectionCompat] without intervention,
+     * [commitContent] and [performPrivateCommand] delegates back to their super, which would be
+     * this [StatelessInputConnection]. Then, those functions defined here would call the wrapped
+     * helper again, causing an infinite loop. Instead this terminal is introduced as a final
+     * receiver of [commitContent] and [performPrivateCommand] calls to end the chain when there's
+     * no configuration to handle the request.
+     *
+     * Note; Rather than creating an InputConnection with loads of empty or throwing defaults, we
+     * choose to wrap this [StatelessInputConnection] one more time to create this terminal.
+     * [terminalInputConnection] should never receive any call other than [commitContent] or
+     * [performPrivateCommand].
+     *
+     * Pseudo inverted stack trace after IME calls [InputConnection.commitContent].
+     * 1. StatelessInputConnection#commitContent ->
+     * 2. commitContentDelegateInputConnection#commitContent ->
+     * 3. terminalInputConnection#commitContent # ends here.
+     */
+    private val terminalInputConnection =
+        object : InputConnectionWrapper(this, false) {
+            override fun commitContent(
+                inputContentInfo: InputContentInfo,
+                flags: Int,
+                opts: Bundle?
+            ): Boolean {
+                return false
+            }
+
+            override fun performPrivateCommand(action: String?, data: Bundle?): Boolean {
+                // according to docs, return true even if we don't understand the command
+                return true
+            }
+        }
+
+    /**
+     * Compose supports below API 25 where [commitContent] is not defined. Support libraries add
+     * this functionality for IMEs and Editors via [InputConnectionCompat] and [EditorInfoCompat].
+     * To create an InputConnection that supports [commitContent] on all API levels, we need to
+     * wrap [StatelessInputConnection] using [InputConnectionCompat.createWrapper].
+     *
+     * We would like to send [commitContent] calls to the current listener
+     * [TextInputSession.onCommitContent] we have in active input session. It is not possible to
+     * create a wrapper via [InputConnectionCompat] and then update its listener. Therefore, we
+     * cannot simply wrap [StatelessInputConnection] from outside and pass it to the system.
+     * Instead, we create this internal wrapper that helps us delegate the [commitContent] calls to
+     * the active listener in [session].
+     *
+     * @see performPrivateCommand
+     * @see commitContent
+     */
+    @Suppress("DEPRECATION")
+    private val commitContentDelegateInputConnection = InputConnectionCompat.createWrapper(
+        terminalInputConnection,
+        editorInfo,
+        object : OnCommitContentListener {
+            override fun onCommitContent(
+                inputContentInfo: InputContentInfoCompat,
+                flags: Int,
+                opts: Bundle?
+            ): Boolean {
+                // The below code is mostly copied from `InputConnectionCompat.java`
+                var extras: Bundle? = opts
+                if (Build.VERSION.SDK_INT >= 25 &&
+                    (flags and INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
+                ) {
+                    try {
+                        inputContentInfo.requestPermission()
+                    } catch (e: Exception) {
+                        logDebug("Can't insert content from IME; requestPermission() failed, $e")
+                        return false
+                    }
+                    // Permissions granted above are revoked automatically by the platform when the
+                    // corresponding InputContentInfo object is garbage collected. To prevent
+                    // this from happening prematurely (before the receiving app has had a chance
+                    // to process the content), we set the InputContentInfo object into the
+                    // extras of the payload passed to onReceiveContent.
+                    val inputContentInfoFmk = inputContentInfo.unwrap() as Parcelable
+                    extras = if (opts == null) Bundle() else Bundle(opts)
+                    extras.putParcelable(EXTRA_INPUT_CONTENT_INFO, inputContentInfoFmk)
+                }
+                return session.onCommitContent(inputContentInfo.toTransferableContent(extras))
+            }
+        }
+    )
 
     /**
      * Add edit op to internal list with wrapping batch edit. It's not guaranteed by IME that
@@ -219,7 +330,8 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
 
     override fun requestCursorUpdates(cursorUpdateMode: Int): Boolean {
         logDebug("requestCursorUpdates($cursorUpdateMode)")
-        return false
+        session.requestCursorUpdates(cursorUpdateMode)
+        return true
     }
 
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
@@ -246,7 +358,8 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         logDebug("performContextMenuAction($id)")
         when (id) {
             android.R.id.selectAll -> {
-                addEditCommandWithBatch {
+                // no need to batch context menu actions.
+                session.requestEdit(notifyImeOfChanges = true) {
                     setSelection(0, text.length)
                 }
             }
@@ -335,7 +448,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
 
     override fun performPrivateCommand(action: String?, data: Bundle?): Boolean {
         logDebug("performPrivateCommand($action, $data)")
-        return true // API doc says we should return true even if we didn't understand the command.
+        return commitContentDelegateInputConnection.performPrivateCommand(action, data)
     }
 
     override fun commitContent(
@@ -344,8 +457,18 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         opts: Bundle?
     ): Boolean {
         logDebug("commitContent($inputContentInfo, $flags, $opts)")
-        // TODO(halilibo): Support commit content in BasicTextField2
-        return false
+        return if (Build.VERSION.SDK_INT >= 25) {
+            Api25CommitContentImpl.commitContent(
+                inputConnection = commitContentDelegateInputConnection,
+                inputContentInfo = inputContentInfo,
+                flags = flags,
+                opts = opts
+            )
+        } else {
+            // This should never happen. Platform does not know about `commitContent` below API 25
+            // so it cannot be called.
+            false
+        }
     }
 
     // endregion
@@ -354,6 +477,20 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         if (SIC_DEBUG) {
             Log.d(TAG, "$DEBUG_CLASS.$message")
         }
+    }
+}
+
+@RequiresApi(25)
+private object Api25CommitContentImpl {
+
+    @DoNotInline
+    fun commitContent(
+        inputConnection: InputConnection,
+        inputContentInfo: InputContentInfo,
+        flags: Int,
+        opts: Bundle?
+    ): Boolean {
+        return inputConnection.commitContent(inputContentInfo, flags, opts)
     }
 }
 
@@ -368,4 +505,18 @@ private fun TextFieldCharSequence.toExtractedText(): ExtractedText {
     res.selectionEnd = selectionInChars.max
     res.flags = if ('\n' in this) 0 else ExtractedText.FLAG_SINGLE_LINE
     return res
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+internal fun InputContentInfoCompat.toTransferableContent(extras: Bundle?): TransferableContent {
+    val clipData = ClipData(description, ClipData.Item(contentUri))
+    return TransferableContent(
+        clipEntry = clipData.toClipEntry(),
+        source = TransferableContent.Source.Keyboard,
+        clipMetadata = description.toClipMetadata(),
+        platformTransferableContent = PlatformTransferableContent(
+            linkUri = linkUri,
+            extras = extras ?: Bundle.EMPTY
+        )
+    )
 }

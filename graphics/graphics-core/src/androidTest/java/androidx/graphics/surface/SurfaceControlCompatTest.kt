@@ -1482,6 +1482,105 @@ class SurfaceControlCompatTest {
             }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRate120WithDefaultCompatibilityAndAlwaysChangeStrategy() {
+        testFrameRate(
+            120f,
+            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRateNegativeWithDefaultCompatibilityAndAlwaysChangeStrategy() {
+        testFrameRate(
+            -50f,
+            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
+        )
+    }
+
+    @SuppressLint("NewApi")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRateZeroWithDefaultCompatibilityAndAlwaysChangeStrategy() {
+        testFrameRate(
+            0f,
+            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
+        )
+    }
+
+    @SuppressLint("NewApi")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRateInvalidCompatibility() {
+        testFrameRate(
+            120f,
+            42,
+            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
+        )
+    }
+
+    @SuppressLint("NewApi")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRateInvalidStrategy() {
+        testFrameRate(
+            120f,
+            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+            108
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testClearFrameRate() {
+        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+
+                        val surfaceControl = SurfaceControlCompat.Builder()
+                            .setName("testSurfaceControl")
+                            .setParent(it.mSurfaceView)
+                            .build()
+                        SurfaceControlCompat.Transaction()
+                            .clearFrameRate(surfaceControl)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+    }
+
+    private fun testFrameRate(frameRate: Float, compatibility: Int, strategy: Int) {
+        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+
+                        val surfaceControl = SurfaceControlCompat.Builder()
+                            .setName("testSurfaceControl")
+                            .setParent(it.mSurfaceView)
+                            .build()
+                        SurfaceControlCompat.Transaction()
+                            .setFrameRate(surfaceControl, frameRate, compatibility, strategy)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+    }
+
     @SuppressLint("NewApi")
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S_V2)
     @Test
@@ -1626,59 +1725,25 @@ class SurfaceControlCompatTest {
         createTransaction: (SurfaceView) -> SurfaceControlCompat.Transaction,
         verifyOutput: (Bitmap, Rect) -> Boolean
     ) {
-        val transactionLatch = CountDownLatch(1)
-        var surfaceView: SurfaceView? = null
-        val destroyLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                it.setDestroyCallback { destroyLatch.countDown() }
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        surfaceView = it.mSurfaceView
-                        val transaction = createTransaction(surfaceView!!)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            transaction.addTransactionCommittedListener(
-                                executor!!,
-                                object : SurfaceControlCompat.TransactionCommittedListener {
-                                    override fun onTransactionCommitted() {
-                                        transactionLatch.countDown()
-                                    }
-                                }
-                            )
-                        } else {
-                            transactionLatch.countDown()
+        SurfaceControlUtils.surfaceControlTestHelper(
+            { surfaceView, latch ->
+                val transaction = createTransaction(surfaceView)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        executor!!,
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                latch.countDown()
+                            }
                         }
-                        transaction.commit()
-                    }
-                }
-
-                it.addSurface(it.mSurfaceView, callback)
-                surfaceView = it.mSurfaceView
-            }
-
-        scenario.moveToState(Lifecycle.State.RESUMED)
-
-        assertTrue(transactionLatch.await(3000, TimeUnit.MILLISECONDS))
-        val coords = intArrayOf(0, 0)
-        surfaceView!!.getLocationOnScreen(coords)
-        try {
-            SurfaceControlUtils.validateOutput { bitmap ->
-                verifyOutput(
-                    bitmap,
-                    Rect(
-                        coords[0],
-                        coords[1],
-                        coords[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                        coords[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT
                     )
-                )
-            }
-        } finally {
-            scenario.moveToState(Lifecycle.State.DESTROYED)
-            assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
-        }
+                } else {
+                    latch.countDown()
+                }
+                transaction.commit()
+            },
+            verifyOutput
+        )
     }
 
     fun Color.compositeOver(background: Color): Color {

@@ -20,6 +20,7 @@ import android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBU
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.os.LimitExceededException
 import android.util.Log
 import android.view.InputEvent
 import androidx.annotation.RequiresPermission
@@ -34,6 +35,11 @@ abstract class MeasurementManager {
      * Delete previous registrations.
      *
      * @param deletionRequest The request for deleting data.
+     *
+     * @throws SecurityException if the caller is not authorized to call the API.
+     * @throws IllegalStateException if the API is disabled, the caller app is in background or
+     *     user consent hasn't been granted yet.
+     * @throws LimitExceededException if the API invocation rate limit is exceeded.
      */
     abstract suspend fun deleteRegistrations(deletionRequest: DeletionRequest)
 
@@ -44,6 +50,11 @@ abstract class MeasurementManager {
      *     associated with the attribution source.
      * @param inputEvent either an [InputEvent] object (for a click event) or null (for a view
      *     event).
+     *
+     * @throws SecurityException if the caller is not authorized to call the API.
+     * @throws IllegalStateException if the API is disabled or the caller app is in background.
+     * @throws LimitExceededException if the API invocation rate limit is exceeded.
+     * @throws IllegalArgumentException if the API is invoked with invalid arguments.
      */
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun registerSource(attributionSource: Uri, inputEvent: InputEvent?)
@@ -53,6 +64,12 @@ abstract class MeasurementManager {
      *
      * @param trigger the API issues a request to this URI to fetch metadata associated with the
      *     trigger.
+     *
+     * @throws SecurityException if the caller is not authorized to call the API.
+     * @throws IllegalStateException if the API is disabled, the caller app is in background or
+     *     user consent hasn't been granted yet.
+     * @throws LimitExceededException if the API invocation rate limit is exceeded.
+     * @throws IllegalArgumentException if the API is invoked with invalid arguments.
      */
     // TODO(b/258551492): Improve docs.
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
@@ -64,6 +81,11 @@ abstract class MeasurementManager {
      * appDestination or webDestination parameters are required to be provided.
      *
      * @param request source registration request
+     *
+     * @throws SecurityException if the caller is not authorized to call the API.
+     * @throws IllegalStateException if the API is disabled, the caller app is in background or
+     *     user consent hasn't been granted yet.
+     * @throws LimitExceededException if the API invocation rate limit is exceeded.
      */
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun registerWebSource(request: WebSourceRegistrationRequest)
@@ -73,6 +95,11 @@ abstract class MeasurementManager {
      * any redirects, all registration URLs should be supplied with the request.
      *
      * @param request trigger registration request
+     *
+     * @throws SecurityException if the caller is not authorized to call the API.
+     * @throws IllegalStateException if the API is disabled, the caller app is in background or
+     *     user consent hasn't been granted yet.
+     * @throws LimitExceededException if the API invocation rate limit is exceeded.
      */
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun registerWebTrigger(request: WebTriggerRegistrationRequest)
@@ -82,6 +109,11 @@ abstract class MeasurementManager {
      * redirects, all registration URLs should be supplied with the request.
      *
      * @param request source registration request
+     *
+     * @throws SecurityException if the caller is not authorized to call the API.
+     * @throws IllegalStateException if the API is disabled, the caller app is in background or
+     *     user consent hasn't been granted yet.
+     * @throws LimitExceededException if the API invocation rate limit is exceeded.
      */
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     @ExperimentalFeatures.RegisterSourceOptIn
@@ -90,7 +122,7 @@ abstract class MeasurementManager {
     /**
      * Get Measurement API status.
      *
-     * The call returns an integer value (see [MEASUREMENT_API_STATE_DISABLED] and
+     * @return an integer value (see [MEASUREMENT_API_STATE_DISABLED] and
      * [MEASUREMENT_API_STATE_ENABLED] for possible values).
      */
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)

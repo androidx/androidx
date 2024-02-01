@@ -20,6 +20,14 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.compose.ui.R
 
+internal interface RippleHostKey {
+    /**
+     * Called when the [RippleHostView] associated with this RippleHostKey is reset and no longer
+     * associated to this key. Implementers should remove any references to the [RippleHostView].
+     */
+    fun onResetRippleHostView()
+}
+
 /**
  * A root-level container [ViewGroup] that manages creating and assigning [RippleHostView]s used
  * throughout a Compose hierarchy. Each root Compose View that has components that use ripples
@@ -33,14 +41,14 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
     private val MaxRippleHosts = 5
 
     /**
-     * [RippleHostView]s that will be assigned to [AndroidRippleIndicationInstance]s when
+     * [RippleHostView]s that will be assigned to [RippleHostKey]s when
      * necessary.
      */
     private val rippleHosts = mutableListOf<RippleHostView>()
 
     /**
      * [RippleHostView]s that are not currently assigned to any
-     * [AndroidRippleIndicationInstance], so they can be reused without needing to allocate new
+     * [RippleHostKey], so they can be reused without needing to allocate new
      * instances.
      */
     private val unusedRippleHosts = mutableListOf<RippleHostView>()
@@ -80,10 +88,10 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
     }
 
     /**
-     * @return a [RippleHostView] for [this] [AndroidRippleIndicationInstance]. This result will
+     * @return a [RippleHostView] for [this] [RippleHostKey]. This result will
      * be cached if possible, to allow re-using the same [RippleHostView].
      */
-    fun AndroidRippleIndicationInstance.getRippleHostView(): RippleHostView {
+    fun RippleHostKey.getRippleHostView(): RippleHostView {
         val existingRippleHostView = rippleHostMap[this]
         if (existingRippleHostView != null) {
             return existingRippleHostView
@@ -115,7 +123,7 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
                 //  Consider checking to see if the existing ripple is still drawing, and if so,
                 //  create a new RippleHostView one instead of reassigning
                 if (existingInstance != null) {
-                    existingInstance.resetHostView()
+                    existingInstance.onResetRippleHostView()
                     rippleHostMap.remove(existingInstance)
                     host.disposeRipple()
                 }
@@ -136,11 +144,11 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
     }
 
     /**
-     * Unassigns the current [RippleHostView] from [this] [AndroidRippleIndicationInstance] and
-     * resets its state, so it can be used by another [AndroidRippleIndicationInstance].
+     * Unassigns the current [RippleHostView] from [this] [RippleHostKey] and
+     * resets its state, so it can be used by another [RippleHostKey].
      */
-    fun AndroidRippleIndicationInstance.disposeRippleIfNeeded() {
-        resetHostView()
+    fun RippleHostKey.disposeRippleIfNeeded() {
+        onResetRippleHostView()
         val rippleHost = rippleHostMap[this]
 
         if (rippleHost != null) {
@@ -153,31 +161,31 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
 }
 
 /**
- * Simple bidirectional map for [AndroidRippleIndicationInstance] : [RippleHostView].
+ * Simple bidirectional map for [RippleHostKey] : [RippleHostView].
  */
 private class RippleHostMap {
     private val indicationToHostMap =
-        mutableMapOf<AndroidRippleIndicationInstance, RippleHostView>()
+        mutableMapOf<RippleHostKey, RippleHostView>()
     private val hostToIndicationMap =
-        mutableMapOf<RippleHostView, AndroidRippleIndicationInstance>()
+        mutableMapOf<RippleHostView, RippleHostKey>()
 
     operator fun set(
-        indicationInstance: AndroidRippleIndicationInstance,
+        indicationInstance: RippleHostKey,
         rippleHostView: RippleHostView
     ) {
         indicationToHostMap[indicationInstance] = rippleHostView
         hostToIndicationMap[rippleHostView] = indicationInstance
     }
 
-    operator fun get(indicationInstance: AndroidRippleIndicationInstance): RippleHostView? {
+    operator fun get(indicationInstance: RippleHostKey): RippleHostView? {
         return indicationToHostMap[indicationInstance]
     }
 
-    operator fun get(rippleHostView: RippleHostView): AndroidRippleIndicationInstance? {
+    operator fun get(rippleHostView: RippleHostView): RippleHostKey? {
         return hostToIndicationMap[rippleHostView]
     }
 
-    fun remove(indicationInstance: AndroidRippleIndicationInstance) {
+    fun remove(indicationInstance: RippleHostKey) {
         indicationToHostMap[indicationInstance]?.let { hostToIndicationMap.remove(it) }
         indicationToHostMap.remove(indicationInstance)
     }

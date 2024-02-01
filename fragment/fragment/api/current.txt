@@ -58,7 +58,7 @@ package androidx.fragment.app {
     method public Object? getSharedElementEnterTransition();
     method public Object? getSharedElementReturnTransition();
     method public final String getString(@StringRes int);
-    method public final String getString(@StringRes int, java.lang.Object!...);
+    method public final String getString(@StringRes int, java.lang.Object!...?);
     method public final String? getTag();
     method @Deprecated public final androidx.fragment.app.Fragment? getTargetFragment();
     method @Deprecated public final int getTargetRequestCode();
@@ -247,7 +247,7 @@ package androidx.fragment.app {
   public class FragmentFactory {
     ctor public FragmentFactory();
     method public androidx.fragment.app.Fragment instantiate(ClassLoader, String);
-    method public static Class<? extends androidx.fragment.app.Fragment> loadFragmentClass(ClassLoader, String);
+    method public static Class<? extends androidx.fragment.app.Fragment!> loadFragmentClass(ClassLoader, String);
   }
 
   public abstract class FragmentHostCallback<E> extends androidx.fragment.app.FragmentContainer {
@@ -341,7 +341,9 @@ package androidx.fragment.app {
   }
 
   public static interface FragmentManager.OnBackStackChangedListener {
+    method @MainThread public default void onBackStackChangeCancelled();
     method @MainThread public default void onBackStackChangeCommitted(androidx.fragment.app.Fragment, boolean);
+    method @MainThread public default void onBackStackChangeProgressed(androidx.activity.BackEventCompat);
     method @MainThread public default void onBackStackChangeStarted(androidx.fragment.app.Fragment, boolean);
     method @MainThread public void onBackStackChanged();
   }
@@ -397,9 +399,9 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.Fragment, String?);
     method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment, String?);
-    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?);
-    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
-    method public final androidx.fragment.app.FragmentTransaction add(Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?);
+    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction add(Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
     method public androidx.fragment.app.FragmentTransaction addSharedElement(android.view.View, String);
     method public androidx.fragment.app.FragmentTransaction addToBackStack(String?);
     method public androidx.fragment.app.FragmentTransaction attach(androidx.fragment.app.Fragment);
@@ -415,8 +417,8 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction remove(androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment, String?);
-    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?);
-    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?);
+    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
     method public androidx.fragment.app.FragmentTransaction runOnCommit(Runnable);
     method @Deprecated public androidx.fragment.app.FragmentTransaction setAllowOptimization(boolean);
     method @Deprecated public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(@StringRes int);

@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.client.controller
 
+import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
@@ -31,6 +32,9 @@ internal class LocalController(
     private val locallyLoadedSdks: LocallyLoadedSdks,
     private val appOwnedSdkRegistry: AppOwnedSdkRegistry
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
+    override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+        throw UnsupportedOperationException("Shouldn't be called")
+    }
 
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return locallyLoadedSdks.getLoadedSdks()

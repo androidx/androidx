@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.LimitExceededException
 import androidx.annotation.RequiresPermission
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 
 /**
@@ -61,6 +62,44 @@ abstract class CustomAudienceManager internal constructor() {
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract suspend fun joinCustomAudience(request: JoinCustomAudienceRequest)
+
+    /**
+     * Adds the user to the [CustomAudience] fetched from a {@code fetchUri}.
+     *
+     * An attempt to register the user for a custom audience with the same combination of {@code
+     * ownerPackageName}, {@code buyer}, and {@code name} will cause the existing custom audience's
+     * information to be overwritten, including the list of ads data.
+     *
+     * Note that the ads list can be completely overwritten by the daily background fetch job.
+     *
+     * This call fails with an [SecurityException] if
+     *
+     * <ol>
+     *   <li>the {@code ownerPackageName} is not calling app's package name and/or
+     *   <li>the buyer is not authorized to use the API.
+     * </ol>
+     *
+     * This call fails with an [IllegalArgumentException] if
+     *
+     * <ol>
+     *   <li>the storage limit has been exceeded by the calling application and/or
+     *   <li>any URI parameters in the [CustomAudience] given are not authenticated with the
+     *       [CustomAudience] buyer.
+     * </ol>
+     *
+     * This call fails with [LimitExceededException] if the calling package exceeds the
+     * allowed rate limits and is throttled.
+     *
+     * This call fails with an [IllegalStateException] if an internal service error is encountered.
+     *
+     * This call fails with an [UnsupportedOperationException] if the Android API level and
+     * AdServices module versions don't support this API.
+     *
+     * @param request The request to fetch and join custom audience.
+     */
+    @ExperimentalFeatures.Ext10OptIn
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    abstract suspend fun fetchAndJoinCustomAudience(request: FetchAndJoinCustomAudienceRequest)
 
     /**
      * Attempts to remove a user from a custom audience by deleting any existing [CustomAudience]

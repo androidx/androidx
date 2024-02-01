@@ -1599,7 +1599,6 @@ public class MotionController {
         vmat.setTranslationVelocity(osc_x, osc_y, position);
         vmat.setScaleVelocity(osc_sx, osc_sy, position);
         vmat.applyTransform(locationX, locationY, width, height, mAnchorDpDt);
-        return;
     }
 
     /**

@@ -17,14 +17,21 @@
 package androidx.compose.animation.core
 
 import androidx.annotation.IntRange
+import androidx.collection.MutableIntList
+import androidx.collection.MutableIntObjectMap
+import androidx.collection.emptyIntObjectMap
+import androidx.collection.intListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
+import androidx.compose.animation.core.ArcMode.Companion.ArcBelow
+import androidx.compose.animation.core.ArcMode.Companion.ArcLinear
 import androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.abs
-import kotlin.math.roundToInt
 
 object AnimationConstants {
     /**
@@ -161,6 +168,75 @@ private fun <T, V : AnimationVector> TwoWayConverter<T, V>.convert(data: T?): V?
         return null
     } else {
         return convertToVector(data)
+    }
+}
+
+/**
+ * [DurationBasedAnimationSpec] that interpolates 2-dimensional values using arcs of quarter of an
+ * Ellipse.
+ *
+ * To interpolate with [keyframes] use [KeyframesSpecConfig.using] with an [ArcMode].
+ *
+ * &nbsp;
+ *
+ * As such, it's recommended that [ArcAnimationSpec] is only used for positional values such as:
+ * [Offset], [IntOffset] or [androidx.compose.ui.unit.DpOffset].
+ *
+ * &nbsp;
+ *
+ * The orientation of the arc is indicated by the given [mode].
+ *
+ * Do note, that if the target value being animated only changes in one dimension, you'll only be
+ * able to get a linear curve.
+ *
+ * Similarly, one-dimensional values will always only interpolate on a linear curve.
+ *
+ * @param mode Orientation of the arc.
+ * @param durationMillis Duration of the animation. [DefaultDurationMillis] by default.
+ * @param delayMillis Time the animation waits before starting. 0 by default.
+ * @param easing [Easing] applied on the animation curve. [FastOutSlowInEasing] by default.
+ *
+ * @see ArcMode
+ * @see keyframes
+ *
+ * @sample androidx.compose.animation.core.samples.OffsetArcAnimationSpec
+ */
+@ExperimentalAnimationSpecApi
+@Immutable
+class ArcAnimationSpec<T>(
+    val mode: ArcMode = ArcBelow,
+    val durationMillis: Int = DefaultDurationMillis,
+    val delayMillis: Int = 0,
+    val easing: Easing = FastOutSlowInEasing // Same default as tween()
+) : DurationBasedAnimationSpec<T> {
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedDurationBasedAnimationSpec<V> =
+        VectorizedKeyframesSpec(
+            timestamps = intListOf(0, durationMillis),
+            keyframes = emptyIntObjectMap(),
+            durationMillis = durationMillis,
+            delayMillis = delayMillis,
+            defaultEasing = easing,
+            initialArcMode = mode
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ArcAnimationSpec<*>) return false
+
+        if (mode != other.mode) return false
+        if (durationMillis != other.durationMillis) return false
+        if (delayMillis != other.delayMillis) return false
+        return easing == other.easing
+    }
+
+    override fun hashCode(): Int {
+        var result = mode.hashCode()
+        result = 31 * result + durationMillis
+        result = 31 * result + delayMillis
+        result = 31 * result + easing.hashCode()
+        return result
     }
 }
 
@@ -426,7 +502,8 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * a minimum value of `0`.
      * @return an instance of [E] so a custom [Easing] can be added by the [using] method.
      */
-    infix fun T.at(@IntRange(from = 0) timeStamp: Int): E {
+    // needed as `open` to guarantee binary compatibility in KeyframesSpecConfig
+    open infix fun T.at(@IntRange(from = 0) timeStamp: Int): E {
         val entity = createEntityFor(this)
         keyframes[timeStamp] = entity
         return entity
@@ -442,8 +519,9 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      *  @param fraction The fraction when the animation should reach specified value.
      *  @return an instance of [E] so a custom [Easing] can be added by the [using] method
      */
-    infix fun T.atFraction(fraction: Float): E {
-        return at((durationMillis * fraction).roundToInt())
+    // needed as `open` to guarantee binary compatibility in KeyframesSpecConfig
+    open infix fun T.atFraction(fraction: Float): E {
+        return at((durationMillis * fraction).fastRoundToInt())
     }
 
     /**
@@ -484,7 +562,11 @@ sealed class KeyframeBaseEntity<T>(
  * You can also provide a custom [Easing] for the interval with use of [with] function applied
  * for the interval starting keyframe.
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
-
+ *
+ * Values can be animated using arcs of quarter of an Ellipse with [KeyframesSpecConfig.using] and
+ * [ArcMode]:
+ *
+ * @sample androidx.compose.animation.core.samples.OffsetKeyframesWithArcsBuilder
  */
 @Immutable
 class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimationSpec<T> {
@@ -498,7 +580,37 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
      * @see keyframes
      */
     class KeyframesSpecConfig<T> : KeyframesSpecBaseConfig<T, KeyframeEntity<T>>() {
+        @OptIn(ExperimentalAnimationSpecApi::class)
         override fun createEntityFor(value: T): KeyframeEntity<T> = KeyframeEntity(value)
+
+        /**
+         * Adds a keyframe so that animation value will be [this] at time: [timeStamp]. For example:
+         *     0.8f at 150 // ms
+         *
+         * @param timeStamp The time in the during when animation should reach value: [this], with
+         * a minimum value of `0`.
+         * @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method.
+         */
+        // TODO: Need a IntRange equivalent annotation
+        // overrides `at` for binary compatibility. It should explicitly return KeyframeEntity.
+        override infix fun T.at(@IntRange(from = 0) timeStamp: Int): KeyframeEntity<T> {
+            @OptIn(ExperimentalAnimationSpecApi::class)
+            return KeyframeEntity(this).also {
+                keyframes[timeStamp] = it
+            }
+        }
+
+        /**
+         * Adds a keyframe so that the animation value will be the value specified at a fraction of the total
+         * [durationMillis] set. For example:
+         *      0.8f atFraction 0.50f // half of the overall duration set
+         *  @param fraction The fraction when the animation should reach specified value.
+         *  @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method
+         */
+        // overrides `atFraction` for binary compatibility. It should explicitly return KeyframeEntity.
+        override infix fun T.atFraction(fraction: Float): KeyframeEntity<T> {
+            return at((durationMillis * fraction).fastRoundToInt())
+        }
 
         /**
          * Adds an [Easing] for the interval started with the just provided timestamp. For example:
@@ -518,54 +630,136 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
             this.easing = easing
         }
 
-        override fun equals(other: Any?): Boolean {
-            return other is KeyframesSpecConfig<*> && delayMillis == other.delayMillis &&
-                durationMillis == other.durationMillis && keyframes == other.keyframes
+        /**
+         * [ArcMode] applied from this keyframe to the next.
+         *
+         * Note that arc modes are meant for objects with even dimensions (such as [Offset] and its
+         * variants). Where each value pair is animated as an arc. So, if the object has odd
+         * dimensions the last value will always animate linearly.
+         *
+         * &nbsp;
+         *
+         * The order of each value in an object with multiple dimensions is given by the applied
+         * vector converter in [KeyframesSpec.vectorize].
+         *
+         * E.g.: [RectToVector] assigns its values as `[left, top, right, bottom]` so the pairs of
+         * dimensions animated as arcs are: `[left, top]` and `[right, bottom]`.
+         */
+        @ExperimentalAnimationSpecApi
+        infix fun KeyframeEntity<T>.using(arcMode: ArcMode): KeyframeEntity<T> {
+            this.arcMode = arcMode
+            return this
         }
-
-        override fun hashCode(): Int {
-            return (durationMillis * 31 + delayMillis) * 31 + keyframes.hashCode()
-        }
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is KeyframesSpec<*> && config == other.config
-    }
-
-    override fun hashCode(): Int {
-        return config.hashCode()
-    }
-
+    @OptIn(ExperimentalAnimationSpecApi::class)
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedKeyframesSpec<V> {
-        @SuppressWarnings("PrimitiveInCollection") // Consumed by stable public API
-        val vectorizedKeyframes = mutableMapOf<Int, Pair<V, Easing>>()
+        // Max capacity is +2 to account for when the start/end timestamps are not included
+        val timestamps = MutableIntList(config.keyframes.size + 2)
+        val timeToInfoMap =
+            MutableIntObjectMap<VectorizedKeyframeSpecElementInfo<V>>(config.keyframes.size)
         config.keyframes.forEach { key, value ->
-            vectorizedKeyframes[key] = value.toPair(converter.convertToVector)
+            timestamps.add(key)
+            timeToInfoMap[key] = VectorizedKeyframeSpecElementInfo(
+                vectorValue = converter.convertToVector(value.value),
+                easing = value.easing,
+                arcMode = value.arcMode
+            )
         }
+
+        if (!config.keyframes.contains(0)) {
+            timestamps.add(0, 0)
+        }
+        if (!config.keyframes.contains(config.durationMillis)) {
+            timestamps.add(config.durationMillis)
+        }
+        timestamps.sort()
+
         return VectorizedKeyframesSpec(
-            keyframes = vectorizedKeyframes,
+            timestamps = timestamps,
+            keyframes = timeToInfoMap,
             durationMillis = config.durationMillis,
-            delayMillis = config.delayMillis
+            delayMillis = config.delayMillis,
+            defaultEasing = LinearEasing,
+            initialArcMode = ArcLinear
         )
     }
 
     /**
      * Holder class for building a keyframes animation.
      */
+    @OptIn(ExperimentalAnimationSpecApi::class)
     class KeyframeEntity<T> internal constructor(
         value: T,
-        easing: Easing = LinearEasing
+        easing: Easing = LinearEasing,
+        internal var arcMode: ArcMode = ArcMode.Companion.ArcLinear
     ) : KeyframeBaseEntity<T>(value = value, easing = easing) {
 
         override fun equals(other: Any?): Boolean {
-            return other is KeyframeEntity<*> && other.value == value && other.easing == easing
+            if (other === this) return true
+            if (other !is KeyframeEntity<*>) return false
+
+            return other.value == value && other.easing == easing && other.arcMode == arcMode
         }
 
         override fun hashCode(): Int {
-            return value.hashCode() * 31 + easing.hashCode()
+            var result = value?.hashCode() ?: 0
+            result = 31 * result + arcMode.hashCode()
+            result = 31 * result + easing.hashCode()
+            return result
         }
+    }
+}
+
+/**
+ * [KeyframesWithSplineSpec] creates a keyframe based [DurationBasedAnimationSpec] using the
+ * Monotone cubic Hermite spline to interpolate between the values in [config].
+ *
+ * [KeyframesWithSplineSpec] is best used with 2D values such as [Offset]. For example:
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForOffsetWithSplines
+ *
+ * @see keyframesWithSpline
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForIntOffsetWithSplines
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
+ */
+@ExperimentalAnimationSpecApi
+@Immutable
+class KeyframesWithSplineSpec<T>(val config: KeyframesWithSplineSpecConfig<T>) :
+    DurationBasedAnimationSpec<T> {
+
+    @ExperimentalAnimationSpecApi
+    class KeyframesWithSplineSpecConfig<T> :
+        KeyframesSpecBaseConfig<T, KeyframesSpec.KeyframeEntity<T>>() {
+
+        override fun createEntityFor(value: T): KeyframesSpec.KeyframeEntity<T> =
+            KeyframesSpec.KeyframeEntity(value)
+    }
+
+    override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<T, V>):
+        VectorizedDurationBasedAnimationSpec<V> {
+        // Allocate so that we don't resize the list even if the initial/last timestamps are missing
+        val timestamps = MutableIntList(config.keyframes.size + 2)
+        val timeToVectorMap = MutableIntObjectMap<Pair<V, Easing>>(config.keyframes.size)
+        config.keyframes.forEach { key, value ->
+            timestamps.add(key)
+            timeToVectorMap[key] =
+                Pair(converter.convertToVector(value.value), value.easing)
+        }
+        if (!config.keyframes.contains(0)) {
+            timestamps.add(0, 0)
+        }
+        if (!config.keyframes.contains(config.durationMillis)) {
+            timestamps.add(config.durationMillis)
+        }
+        timestamps.sort()
+        return VectorizedMonoSplineKeyframesSpec(
+            timestamps = timestamps,
+            keyframes = timeToVectorMap,
+            durationMillis = config.durationMillis,
+            delayMillis = config.delayMillis
+        )
     }
 }
 
@@ -609,6 +803,11 @@ fun <T> spring(
  *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
  *
+ * Values can be animated using arcs of quarter of an Ellipse with [KeyframesSpecConfig.using] and
+ * [ArcMode]:
+ *
+ * @sample androidx.compose.animation.core.samples.OffsetKeyframesWithArcsBuilder
+ *
  * @param init Initialization function for the [KeyframesSpec] animation
  * @see KeyframesSpec.KeyframesSpecConfig
  */
@@ -618,6 +817,25 @@ fun <T> keyframes(
 ): KeyframesSpec<T> {
     return KeyframesSpec(KeyframesSpec.KeyframesSpecConfig<T>().apply(init))
 }
+
+/**
+ * Creates a [KeyframesWithSplineSpec] animation, initialized with [init]. For example:
+ *
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForOffsetWithSplines
+ *
+ * @param init Initialization function for the [KeyframesWithSplineSpec] animation
+ * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForIntOffsetWithSplines
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
+ */
+@ExperimentalAnimationSpecApi
+@Stable
+fun <T> keyframesWithSpline(
+    init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
+): KeyframesWithSplineSpec<T> =
+    KeyframesWithSplineSpec(
+        config = KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>().apply(init)
+    )
 
 /**
  * Creates a [RepeatableSpec] that plays a [DurationBasedAnimationSpec] (e.g.

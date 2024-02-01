@@ -18,6 +18,8 @@ package androidx.baselineprofile.gradle.consumer.task
 
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.maybeRegister
+import com.android.build.gradle.internal.tasks.BuildAnalyzer
+import com.android.buildanalyzer.common.TaskCategory
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -42,6 +44,7 @@ internal inline fun <reified T : Task> maybeCreateGenerateTask(
 }
 
 @DisableCachingByDefault(because = "Not worth caching.")
+@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 abstract class MainGenerateBaselineProfileTask : DefaultTask() {
 
     init {

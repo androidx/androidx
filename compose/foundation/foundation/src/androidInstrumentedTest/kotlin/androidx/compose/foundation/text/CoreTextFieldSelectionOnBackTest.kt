@@ -16,11 +16,11 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.isSelectionHandle
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -32,30 +32,25 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
-import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-@LargeTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class CoreTextFieldSelectionOnBackTest {
+class CoreTextFieldSelectionOnBackTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -74,72 +69,39 @@ class CoreTextFieldSelectionOnBackTest {
         )
     )
 
-    @FlakyTest(bugId = 209063017)
     @Test
     fun whenBackPressed_andReleased_coreTextFieldClearsSelection() {
-        val results = mutableListOf<TextFieldValue>()
-        rule.setContent {
-            val textFieldValue = remember {
-                mutableStateOf(TextFieldValue("hello", TextRange(0, 0)))
-            }
+        var textFieldValue by mutableStateOf(TextFieldValue("hello"))
+        rule.setTextFieldTestContent {
             BasicTextField(
-                textFieldValue.value,
-                {
-                    results += it
-                    textFieldValue.value = it
-                },
-
-                Modifier.testTag(Tag)
-                    .wrapContentSize()
+                value = textFieldValue,
+                onValueChange = { textFieldValue = it },
+                modifier = Modifier.testTag(Tag)
             )
         }
+
         val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
-        textNode.performTextInputSelection(TextRange(0, 3))
+        val middleCharPosition =
+            textNode.fetchTextLayoutResult().getBoundingBox(2).centerLeft
+
+        textNode.performTouchInput { longClick(middleCharPosition) }
+        rule.waitForIdle()
+        assertThat(textFieldValue.selection).isEqualTo(TextRange(0, 5))
+
         textNode.performKeyPress(backKeyDown)
-        rule.waitUntil { results.any { it.selection == TextRange(0, 3) } }
+        rule.waitForIdle()
+        assertThat(textFieldValue.selection).isEqualTo(TextRange(0, 5))
+
         textNode.performKeyPress(backKeyUp)
-        val expected = TextRange(3, 3)
         rule.waitForIdle()
-        rule.waitUntil { results.last().selection.collapsed }
-        assertThat(results.last().selection).isEqualTo(expected)
-    }
-
-    @Ignore("b/277763474")
-    @Test
-    fun whenBackPressed_coreTextFieldRetainsSelection() {
-        val results = mutableListOf<TextFieldValue>()
-        rule.setContent {
-            val textFieldValue = remember {
-                mutableStateOf(TextFieldValue("hello", TextRange(0, 0)))
-            }
-            BasicTextField(
-                textFieldValue.value,
-                {
-                    results += it
-                    textFieldValue.value = it
-                },
-
-                Modifier.testTag(Tag)
-                    .wrapContentSize()
-            )
-        }
-        val expected = TextRange(0, 3)
-        val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
-        textNode.performTextInputSelection(expected)
-        rule.waitUntil { results.any { it.selection == expected } }
-        // should have no effect
-        textNode.performKeyPress(backKeyDown)
-        rule.waitForIdle()
-        assertThat(results.last().selection).isEqualTo(expected)
+        assertThat(textFieldValue.selection).isEqualTo(TextRange(5, 5))
     }
 
     @Test
     fun whenBackPressed_andReleased_whenCursorHandleShown_doesNotConsumeEvent() {
         var backPressCount = 0
         var softwareKeyboardController: SoftwareKeyboardController? = null
-        rule.setContent {
+        rule.setTextFieldTestContent {
             softwareKeyboardController = LocalSoftwareKeyboardController.current
             BasicTextField(
                 "hello world",

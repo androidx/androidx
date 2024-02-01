@@ -31,7 +31,7 @@ object Stubs {
     val Color: TestFile = bytecodeStub(
         filename = "Color.kt",
         filepath = "androidx/compose/ui/graphics",
-        checksum = 0x2a148ced,
+        checksum = 0x143250ca,
         source = """
             package androidx.compose.ui.graphics
 
@@ -76,113 +76,112 @@ object Stubs {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM3ApcolmZiXUpSfmVKhl5yfW5BfnKqX
-        m1iSWpSZmCPE4Zyfk19U7F3Cpc4li1OZXlp+vhBbSGpxCVihDIbC0ky99KLE
-        gozM5GIhdrCR3iVKDFoMAMec7K6RAAAA
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        TSxJLcpMzBHicM7PyS8q9i7hUueSxalMLy0/X4gtJLW4BKxQBkNhaaZeelFi
+        QUZmcrEQO9hI7xIlBi0GAPW9qnSRAAAA
         """,
         """
         androidx/compose/ui/graphics/Color＄Companion.class:
-        H4sIAAAAAAAAAJWWXVMcRRSG3579ZFiW5TNACBpcI2BgAWOiIUbDYpBkSZQQ
-        YkTFZnaEgdkZanoWkzvKKv0feu+FV6a8sCi883/4NyxP9ywMjl2roYrunvO+
-        Tx+mZ84Z/vjr198AXIPFcJV79cB36s8qlt848IVdaTqVnYAf7DqWqFR91w/K
-        VVK45/heDoyhtMcPecXl3k7l4faebYU5pBiytxzPCW8zpCYmNwrIIGsijRxD
-        Otx1BMNM7WUSLVCaHTtcdLm1Pz1bv7F1f++x2voew/h/b5RDF0MvtyxbiPLp
-        PmXroIBuFEwUUWLoo/gSD/aXA/48TjEQQ6ei4voirp+hm6R/Mj0xc+a/EPmH
-        GPopXHN2dhPQYAydqYq8GJGj0Qk82XVCO6bO3ZNSFPFKRLzKUKT4ml2P/aXY
-        T3Hlfi1yl6P9lwPb9rT7K0URb0TERHTvi27T1t67FJT/zch/lVQKP7Vd1/8m
-        JvpiIpIUU4mY2ShH9Tn3tDmkoPxvRf5r9CdTeJXv2F7IY6Q/Rlqaom5E1Dt0
-        /KSsB9wTBzwgOSaHYvKcruiFiL7FMDdR2/dD1/Eqe4eNiuOFduBxt7Jkf82b
-        blj1PREGTSv0g1V6h+xgYXLDhCGLoa9sxeJWQ6myNl5qNzqRU2DVDnmdh5xi
-        RuMwRUXN5JBhYPsUeubIKzpUoz7H2J/HR/2mMWSYRun4yDTyRnSRH86ffJ8a
-        Oj6aN2bZYi5vnPyYNUrG2mgpNWLMpn9/wY6PaGD0KyWT8NxIOp8pZcmSb2fp
-        UBaznaVTWQrtLF3KUmxn6VaWUjtLj7L0trP0KUt/O8uAsgy2s1xQlqF2lmFl
-        GWlnuagso+0sl0rZk2+NbvkAzUz+5IexWUbry/JhzzN6EZBRbY+h/D9aL71A
-        jHprWhYxTbLOGPKnLZAi0ZRRXYGh46xnMeRaFUb9mXoMQ+e5uiFC9Sn6PkTF
-        TuhZk6cEKvfMfihT+nWyddccz37QbGzbwTrfdinSW/Mt7m7wwJHXrWBhxfPs
-        oOpyIWz6uJiP/GZg2XcdqQ2vNb3QadgbjnDIfMfz/JCHlE9gjqowDflTpBV9
-        o+iUvqCrCs1M1s3UL8j/TAsDX9KYjYLYorHQWnfApLkHnSoi4RlySy39Aj0/
-        JdjsOTZ9xvbq2IEkm9Oygzp2OMnmteyIjr2UZDu07JiOvZxkTS07rmNfT7Kd
-        WvaKjp1MsgUtO6Vjp5Nsl5ad0bFzSbaoZed17NtJtlvLXtex7ybZkpa9qWPf
-        S7I9/2bp36EMbrfYaZqNVjG8L4uBKWAwCraSydUHuENaCl+pBy+hIjYxDK4S
-        fo5tmr+j+CJ5q5tIrWBpBR/SiLtyWF7BR1jZBBO4h/ubGBMwBWoCWYFVgQcC
-        nQIFgYcCHwtMCXwiMC+wJtAr8EhgUGBd4IrAY4ERgQ2B6wJPBMYFPhW4KfBU
-        yD0/E5j5G4ru30HxCgAA
+        H4sIAAAAAAAA/5WW3VfcRBiHf5P9JLvA8lmWtmhxrYCFBaytlloti8Vtl1Yp
+        pVZUHLIRAtmEk8lie8fxHP0/9N4LruzxwsPBO/8oj28mC8E4OdqbmeR93mfe
+        zcc72T//+u13ANfRZLjGnabnWs3nVcNt7bvCrLat6rbH93csQ1Rrru16lRoR
+        7liukwNjKO3yA161ubNdfbS1axp+DimG7G3Lsfw7DKmJyfUiMsjqSCPHkPZ3
+        LMEw03iVQgtUZtv0F21u7E3PNm9uPth9Ipe+zzD+3wvl0M3Qzw3DFKJyuk7F
+        2C+iF0UdPSgxDFB8iXt7yx5/EZUYiqRTKL2B0Btk6CX0T6cvcs7yL4T5IwyD
+        FG5Y2zsxaTiSzqg0L4bmpfAOPN2xfDOyzl2TJNJ4LTReZ+ih+KrZjPJLUT7F
+        ZfYbYXYlXH/ZM01Hub4k0ngrNCbCa1+026by2gMg898O868RpfAz07bd7yJj
+        IDJCJJ1q6MyGNWovuKOsEQCZ/06Yf51+MoVX+Lbp+DxSBiOlw6R1M7Teo9tP
+        ZM3jjtjnHuHIHInMc1zaC6F9m2FuorHn+rblVHcPWlXL8U3P4XZ1yfyWt22/
+        5jrC99qG73or9A6Z3sLkug4taIaBihHBzZakQW+80mp0R06FFdPnTe5zimmt
+        gxQ1NQuGrmAAA9uj+HMrOKM7qzXnGDs6PhzUtRFN10rHh7qW18KTfDl/8mNq
+        5PhwXptli7m8dvJzVitpq+VSalSbTf/xkh0f0sAorJOaG03nM6Us4XwS7pJY
+        T8IFiYtJuFviniTcK3EpCfdJ3J+EByQeTMJDEg8n4QsSjyThssSjSfiixJeS
+        8OVS9uR7raBn8ic/jc0yejBXggc3z4LHmZH7GEPlf+yl9EYw2izTQVfSFDQO
+        Q/50T6NIOGVkmzN0nW1CDLlOy9CGS5sGQ+FcI5AhNx7a8MPuJfVs16YCsvbM
+        nh+UdJuU1tuwHPNhu7Vlemt8y6ZIf8M1uL3OPSs47wSLdccxvZrNhTDpa6E/
+        dtueYd6zAlZebTu+1TLXLWFR8l3HcX3uUz2BOWqrdPCuU19qwUeH7tLXdFYN
+        Xn6aM1O/In9EBxo2acyGQXxDY7Fz3AWd5j4UZCSQZyg7YOmX6Psl5mbPuekz
+        t1/lDsXdnNIdVrnluJtXuqMq93Lc7VK6Yyr3StzVle64yn0z7haU7lWVOxl3
+        i0p3SuVOx91upTujcufibo/SnVe578bdXqV7Q+W+H3dLSveWyv0g7vb926X/
+        Nxnc6bjTNGudZvjwSH4YAmE4DHaKBUcf4S6xFLh88IHUgy9RxpYs+BUMmn+g
+        +CLl1jaQqmOpjo/ruIdlOsQnddRxfwNM4AEaGxgT0AVWBLICDwUeCRQEigKf
+        CnwmMCWwKjAv8FigX2BNYFjgicBVgXWBUYGnAjcEPhcYF3gmcEvgCxGsuSEw
+        8zddh+AewgoAAA==
         """,
         """
         androidx/compose/ui/graphics/Color.class:
-        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
-        UC9ZO4QPAAA=
+        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
         """,
         """
         androidx/compose/ui/graphics/ColorKt.class:
-        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
+        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
+        WZBopE7xb1ipCXciBgAA
         """
     )
 
     val Composable: TestFile = bytecodeStub(
         filename = "Composable.kt",
         filepath = "androidx/compose/runtime",
-        checksum = 0x12c49724,
+        checksum = 0xbcdac3c7,
         source = """
         package androidx.compose.runtime
 
@@ -198,31 +197,30 @@ object Stubs {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM3ApcYlkZiXUpSfmVKhl5yfW5BfnKpX
-        VJpXkpmbKsQVlJqbmpuUWuRdwqXJJYyhrjRTSMgZwk7xzU/JTMsEK+XjYilJ
-        LS4RYgsBkt4lSgxaDACMRj6sewAAAA==
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuaSTMxLKcrPTKnQS0wuySzLLKnU
+        S87PLcgvThViC0ktLvEu4RLl4gYK6aVWJOYW5MCFlRi0GADOEtiIVAAAAA==
         """,
         """
         androidx/compose/runtime/Composable.class:
-        H4sIAAAAAAAAAI1STW/aQBB9ayBQ2ibQT0ia5pu0PdRp1FtPQJwWiS8ZJxLi
-        EG3sVeRg7AivaXLjUKn/qYcK9dgfVXUWVKCSpdaW3s7OvNnZeTs/f337DuA9
-        3jDscd8ZBq5zq9vB4CYIhT6MfOkOhF6d7vmlJ9JgDLlrPuK6x/0rvXV5LWyZ
-        RoJha+Hlvh9ILt3A18tzM40Uw369H0jP9ZcpjSiUFXES2NFA+FI4Hxg2Y2im
-        kBQmi+KpEfciwXAYw1tUXM5YqdSaZbPLsB6TYvHhlZDEWuWeF3wWzswRxt93
-        UWCelzk9a1atWqvJkLS6bYNOUstFu2yWG4ZlmAxrbbPVNkyre/HRsKaenXqs
-        Yn8JsR3PWe6s9A9KO/Bc+06JVq2XOx0lbmzCvJnd+LjhCXUt6+5GKD2prU+t
-        E2p92uhZh3rO/xGrISR3uOTE0wajBA0YU0Dvz/rkunXV7ogs5x1DcTLOZLWC
-        ltVyG5kfX7XCZHysHbHKZKwIxwwH9f8YTCoFhocLx9u+ZMh2gmhoi1PXo2Ep
-        mrOsczd0ibB4xrBElZCk/BWoT8OrKR7iNa1fkKYfyFD8nkAW9/FAleohKbCK
-        NQU5BXkFj/CYuE9m3Kd4hufK7CEhUEBRQV7BOjaQwgvy17BZw0tCbCnYrmEH
-        uz2wEHvY70ELcRCi9BuuoX9IqAMAAA==
+        H4sIAAAAAAAA/41SW28SQRT+ZoFCUVuwXqC19k6tJm5tfPMJ6FY34ZZl24Tw
+        0EzZSbNl2W3YAds3Hkz8Tz4Y4qM/yngGImCyiWaTb7455ztzLnt+/vr2HcB7
+        vGHY477TD1znTu8EvdsgFHp/4Eu3J/Ty5M6vPJEEY8jc8CHXPe5f6/WrG9GR
+        ScQYtuZW7vuB5NINfL04o0kkGPYr3UB6rr8oqQ5CWRKnQWfQE74UzgeGzQiZ
+        JSS5iZE/MeTeQDAcRujmGRcjlkpmrWi1GNYjQmzevxaSVCvc84LPwpkawuh6
+        5wlmcamz81rZNus1hrjdahj0kjouG0WrWDVsw2JYbVj1hmHZrcuPhj2x7FQi
+        J/bXILajNYudFf4haQSe27lXQytXis2mGm5kwKyZ3Wi/4QlVln1/K9Q8qa1P
+        9VNqfdLoeZN6zv4ZVlVI7nDJSaf1hjFaMKZgWQEYWJfsd666HRNz3jHkx6NU
+        WstpaS2zkfrxVcuNRyfaMSuNR0pwwnBQ+Y/tpHz0/KO54W1XMqSbwaDfEWeu
+        RxuTt6ZRF27okmD+L8MCZUKc4pdUlcSPJvgKr+n8giR9QIr8ywJpPMBDlaqN
+        uMAKVhVkFGQVPMYaaZ9MtU/xDM8VbSMmkENeQVbBOjaQwAuym9g08dLEFraJ
+        YsfELvbaYCH2cdCGFqIQ4vA3hGOdXq0DAAA=
         """
     )
 
     val Composables: TestFile = bytecodeStub(
         filename = "Composables.kt",
         filepath = "androidx/compose/runtime",
-        checksum = 0x92d0959f,
+        checksum = 0x8882d27,
         source = """
         package androidx.compose.runtime
 
@@ -251,41 +249,41 @@ object Stubs {
         """,
         """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgMuWSSMxLKcrPTKnQS87PLcgvTtUr
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgMuWSSMxLKcrPTKnQS87PLcgvTtUr
         Ks0rycxNFeJ1BgskJuWkFnuXCHEFpeam5ialFnmXcPFxsZSkFpcIsYUASe8S
-        JQYtBgDjkUhNXwAAAA==
+        JQYtBgAsMUsXXwAAAA==
         """,
         """
         androidx/compose/runtime/ComposablesKt.class:
-        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
+        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
-        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
+        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
-        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
+        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
-        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
+        U0gCtnxawyPi35L1XeruvX2E6rhdh1pHBet1VHGnTn/nd/fBHHyAD/cx72DZ
+        wUcOIj7NO/jYgehg1cGab7nnQPIFxUH0X0eNH/YRCAAA
         """
     )
 
     val Modifier: TestFile = bytecodeStub(
         filename = "Modifier.kt",
         filepath = "androidx/compose/ui",
-        checksum = 0xe49bcfc1,
+        checksum = 0x33b78359,
         source = """
         package androidx.compose.ui
 
@@ -308,113 +306,114 @@ object Stubs {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM3ApcYlkZiXUpSfmVKhl5yfW5BfnKpX
-        VJpXkpmbKsQVlJqbmpuUWuRdwqXJJYyhrjRTSMgZwk7xzU/JTMsEK+XjYilJ
-        LS4RYgsBkt4lSgxaDACMRj6sewAAAA==
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUueSTMxLKcrPTKnQS87PLcgvTtXL
+        TSxJLcpMzBHiCk5OTEvLz0nxLuHi5WJOy88XYgtJLS7xLlFi0GIAADDzNLNQ
+        AAAA
         """,
         """
         androidx/compose/ui/CombinedModifier.class:
-        H4sIAAAAAAAAAKVTWU8TURT+7nRlKFJGyw6iVOmCDCAusQajGJMmBQ0QYoIv
-        t+0FbjudITPThkfiT/EX6AOR+GAIj/4o47ltKVpIeTBNz/Lds58zv37/+Alg
-        Bc8Zktwuu44sH5klp3boeMKsS3PNqRWlLcrrTlnuSeFGwBjiFd7gpsXtffN9
-        sSJKfgQBhsnr/C/9Qgzhl9KW/irDq1Shl3Gu92t6h2G24Lj7ZkX4RZdL2zO5
-        bTs+96VD8objb9QtK8cQcuq+cKPQGaarjm9J26w0aqa0CbW5ZeZt3yVvWfIi
-        iDEkSgeiVG27f+AurwkyZJhLFbo7zv2FbKkg+1RWDLcwqGMAcUotbVulNhgC
-        KfUUwR0dQSSolN7txaBjpA8aRmMwWtI4Q9A/kB7Dw2t9u7eUa9oLm2H1hkmn
-        ez8zpHu9J9+KPV63/Hzt0KIRzjB8+r/N3jSZadzXcQ+zarXUIO1mqNBe7Lrw
-        eZn7nGrWao0AXTVThM6OVQk6kkpbJKm8xLB9dhzTtVGt9Y8GRs+Ol7VF9iZh
-        hOPaOEnEA4qffwlr8eDmrZb28fxzUCH62TFBWhekYi8z9F/Uu1D1GSY267Yv
-        ayJvN6Qni5Z4fXmptKU1pywYBgu0vY16rSjcbU42DEbBKXFrh7tS6W0w2R2r
-        c6P/BNW3nLpbEu+k8hlr++xcyY4luqwg6LMkbqijI3mJhhQm3kfcUOfXhWnE
-        I4gSXyZNEFdjncga/acYmjduE818x3Ame4KxzPwJJr41nR43wwURQ5x+Q0iQ
-        Nk7SCuEzrRCYxBTQlFqlKEkVoOEJyQNau4ILOo275KiqeEEmmqoxkz1F8msn
-        YbgZpJVkuGXRSRLGgyu9qTQR1mn0aZMu4lkzBX16CGFuF4E8UnmkiSKjSDaP
-        eTzaBfOwAHMXIQ9THkY86B4MD9E/kXas0GMFAAA=
+        H4sIAAAAAAAA/6VTWU8TURT+7nRlKFBG2RdBqnRBBhDXGoxiTJoUNECICb7c
+        the47XSGzEwbHok/xV+gD0TigyE8+qOM57ZlsZDyYJqe7Z7znXV+//n5C8Ay
+        sgwJbpdcR5YOzaJTPXA8YdakuepUC9IWpTWnJHelcCNgDPEyr3PT4vae+aFQ
+        FkU/ggDD+E3xl3EhhvAraUt/heF1Mt/JOdv5NbXNMJN33D2zLPyCy6Xtmdy2
+        HZ/70iF53fHXa5ZFLYWcmi/cKHSGyYrjW9I2y/WqKW2y2twyc7bvUrQsehHE
+        GAaK+6JYaYV/5C6vCnJkmE3m2zvOXrFsKpA9KiuGXvTp6EGcUkvbVqkNhkBS
+        PUVwV0cQA1RK5/Zi0DHUBQ3DMRhNaZQh6O9Lj+HhjbHtW8o2/IXNsHLLpFOd
+        nxlSnd4T78Qur1l+rnpg0QinGD7/32Zvm8wk7uuYxoxaLTVIu+nPtxa7Jnxe
+        4j6nmrVqPUBXzRTpUgQMrEL2Q6m0BZJKiwxbp0cxXRvWmv9oYPj0aElbYG8H
+        jHBcGyWJeEDxs69hLR7c6G1qn86+BJVFPz0ik9ZmUthLDLGrk2HoPu9hvuIz
+        jG3UbF9WRc6uS08WLPHm8nppc6tOSTD05Wmj67VqQbhbnHwYjLxT5NY2d6XS
+        W8ZEO9bF3f4DGsupc1y1uOcJUvVNp+YWxXupIEZaENvXisEiHV+Qphcmbqi7
+        JPkxjTBMvIu4oS60zaYRjyBKfJk0QVwNfSxjdJ+gf864QzT9A4PpzDFG0nPH
+        GPveCHrSgAsihjj9+jFA2ihJT8k+1YTAOCbUNklqlqIkVYCGZyT3aK0Kzukk
+        7lGgquIluWiqxnTmBIlvFwnDDZBmksGmx0WSMB5c602libCWEsBzojpp0+Sw
+        iBG8aAAvUTqVkr5WhDC7g0AOyRxSOaSRIRFzOTzC/A6YBxMLOwh5mPAw5EH3
+        YHiI/gWbMWV0lgUAAA==
         """,
         """
         androidx/compose/ui/Modifier＄Companion.class:
-        H4sIAAAAAAAAAI1SXU8TQRQ9s1u6y1JkQYHyIX5QoYCyQHwwlpBgo7GmVCOE
-        xPA03Y4w7XbW7G4bHnnyJ/gD/AUSHzCaGMKjP8p4p1QUTMCHuTP3zDn33rl3
-        fvz8+h3AQ6wwzHBVi0JZ2/f8sPkujIXXkt5GWJNvpYhyRcK4kqGywBjcOm9z
-        L+Bq13tZrQs/sWAyTF4WwUIPQ3pVKpmsMZj5ue0MLNgOUuhlSCV7MmbIl/+v
-        iEJHIRTD2uWSwtzl1wzT5TDa9eoiqUZcqtjjSoUJTyhJ7FXCpNIKAmL1hJQu
-        suEyTDXCJJDKq7ebnlSJiBQPvJJKIlJLP7YwxDDs7wm/0ZW/4hFvCiIyzObL
-        FztX+AvZ1EF2C7o1NzDs4DpGKN9VL7BX/aDTVgeG7qWTy5Uqm1vrleLTDCaQ
-        6SV4kmGw3C18QyS8xhNOUqPZNmn+TBsaD2sQtC+1t0Sn2jLDo+ODjGNkjdNl
-        m/bJezN7fLBiLLEnlm2cfEwbrvFi0DXHCVlJuym9Pz/5kNJ6+lW9ZzNj6Ptd
-        9GIjoQEWw5pgGChLJSqtZlVEW7waEDJUDn0ebPNIar8LTrxuqUQ2RUm1ZSwJ
-        Wv8zJ4bcxduznp+jZUpKiagY8DgW5DqbYSvyxTOpE4x1Q2z/Ex7L1MAU6PeC
-        uVndUeqPSRh9X0LnyfNoZ7qH80dwDulgYIFsugP24T7ZzCmBPC1n6Mc1CqLF
-        q8Q2aLcXhga/YHTh0zl9mvhaP3LK6er1yUWW7h90eQO0L9KyWNexMXZW32hH
-        TKV8g/HmCOOfcfOwA5hUOuAQzaAoeZIsdbLP0aOBx4RPUc23dmCWcLuEO2Rx
-        V5vpEnK4twMWYwazO+iJkYmRjWHH6I/h/gJ6Cp4UWgQAAA==
+        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
         """,
         """
         androidx/compose/ui/Modifier＄DefaultImpls.class:
-        H4sIAAAAAAAAAKVSXU8TQRQ9swW2LUVKEbCCoFKlLcqi8a1GYzAmG9tqrGli
-        9GW6HWDa3RmyO9vwi/TV+KLRxPjsjzLehRUQTX1wk71zz/04M/fj+4/PXwHc
-        w12GGlf9UMv+oePp4EBHwoml09J9uStFWHksdnnsGzc48CMbjKE44CPu+Fzt
-        Oc96A+EZGxmGCbMvFMObanMcW2O8tzbezbDe1OGeMxCmF3KpIocrpQ03UpPe
-        1qYd+37j6C0yyiLLsDrUxpfKGYwCRyojQsV9x1UmpGTpUT15hgVvX3jDNPs5
-        D3kgKJBho9o8X2njjKWTkOw1at0CCpjJYxoXGCY1tSHMosiwMq4UGyWG3A45
-        uKLHM4xvW+UkslHARSzkMI9Fhsrfcii0J5Xon151iWHqvlTSPGB4+H/zoWIv
-        YzmPMlaouf+a1lwzbX9LGN7nhpPNCkYZWjyWiEkGNkwU2h/rUCbaNkPh7MYx
-        TP8i3BoaGu2O7guGmY7h3rDFD17ynk94tkklt+OgJ8LUUmpqj/tdHsoEp8bl
-        F7EyMhCuGslIkunR6f5QO897T5bht7CCq5QId3weRYJgvqPj0BNPZHJBOaXo
-        /kGPO7AwgeSjyWMSU8igRkiQ1aKzUi/lPmF2szSXyA9Yegu7/g6zX1B+Vd/8
-        iCvfMP8+6RXqJG1YS09tWoNNAlNEWSDTLdIXj8mQxerRZRUUSWO4ncbZdG7R
-        P2Ol4Fhm4JDME7KIdIMGvE3YQpXejSOCNYq5+hoZF9dcXCeJdZfYb7i4+RNB
-        PoFzTQQAAA==
+        H4sIAAAAAAAA/6VS308TQRD+9gq9thShVUAE8QcVWqqcP3ir0Zgak4stGjFN
+        jCZme13abe92yd224S/SV+OLRhPjs3+UcQ5OQDTVxIebm/lmdnbnm+/b909f
+        AGxhi6HCVSfUsrPveDrY05FwhtJp6o7clSIsPRS7fOgbN9jzIxuMYbbPR9zx
+        ueo6T9p94RkbKYYJ0xOK4VW5Ma5bbXy2Mj7NsNrQYdfpC9MOuVSRw5XShhup
+        yd/WZnvo+1Q1qekxYQYZhpWBNr5UTn8UOFIZESruO64yIZ2WHg2UY5jzesIb
+        JMef8pAHggoZ1suN06PWTiA7cZNurdLKI4/pHKZwhmF53AA2ZhmydUpwRU9m
+        GE9W6aiylkcRZ7Mo4BxD6U9nqLQtlegcXzXPkL4rlTT3GO7/31ZowvNYzGEB
+        F4jckunJiJj9264KjYT7pjC8ww0nzApGKZIdi002NmBgg9ghCVn7MvZuMqz9
+        Gy021hnyJwXKMPWzbHNgSJV13REM0zuGe4Mm33vO2z7FMw3iansYtEWYIMWG
+        9rjf4qGM4wRcejZURgbCVSMZSYIeHMuN9nA6eySdX8ryrlIirPs8igSFuR09
+        DD3xSMYXLCYtWr+1xy1YmMAhQ1lMIo0UqhS9JtSi/0q1mP2Imep7zL2BvfEW
+        M5+x8GKj+gFLX1F4FzOK62RtWIXHNinnBgVpapYmaJP8+cM2WMbFg2tWkCGP
+        wUnq7HgV9E1bSXBoU/QykBotlKlpEYvkFVCh/23CLWzgzkEzEgjVXnqJlIvL
+        Lq64uIpVFyVcc7H2Ayw1Nq9+BAAA
         """,
         """
         androidx/compose/ui/Modifier＄Element＄DefaultImpls.class:
-        H4sIAAAAAAAAAKVSS2/TQBD+Ni8nqUvTlBRKS3k0tHlATSVuOaECkiU3IIpy
-        gcvG2aab2LuVvYn6szhWHBBnfhRinBpoixQiYcmz8/hmZveb+f7jy1cAL/Cc
-        4YCrQaTl4NzxdXimY+FMpHOkB/JEiqj+OhChUKb+SpzwSWDc8CyILTCGyohP
-        uRNwNXTe9kfCNxayDDlzKhTDoOEtUrUzF9Vpzg8z7Hg6GjojYfoRlyp2uFLa
-        cCM16V1tupMg6MzuJOMiigzbY20CqZzRNHSkMiJSPHBcZSJKlj69q8xQ80+F
-        P06z3/GIh4KADHsN7+aLO1c8x0mRYafZs2FjuYwl3GLIa6IjKqLCsDXvKRaq
-        DM25jF3n/zbDp/kU/x+1NvJYL6OGOwy7i42S2P3XuFa9lP8jYfiAG06+TDjN
-        0iayROQZ2DhRaJEy5zLRaD/ri7S3sMNgXyWJwUpjDEu/4PtjsnKHeiAYVjyp
-        RHcS9kX0gfcD8lQ97fOgxyOZ2Klz8/1EGRkKV01lLMn18s+S0eVuRn9vzDWY
-        7SolosOAx7Egs3ysJ5Ev3sikwUZaovdXeRwggxySj6FEIykgiwZZLvkzdNZa
-        1dIFVtrVVZKtb1hrX+DuZwpk0CRZoDSbElukr18moIiNWcEaKrhH8XaKs+h8
-        Sv9yJjUuZRbPSFZn/ep4Qsl1rGG3UML+rM0eHDq3Cb1J2K2PyLq472KbJB64
-        eIhHLh7/BG04LjBuBAAA
+        H4sIAAAAAAAA/6VSXW8SQRQ9A5QFSqVQW62t9aO0haJdm/jGk0FNNqFoWsOL
+        vgzLFAZ2Z5rdWdKf5WPjg/HZH2W8C6u2NUESH/Z+nHvu3Zkz9/uPL18BvMQL
+        hmOu+oGW/Uvb1f6FDoUdSftE9+W5FEH1jSd8oUz1tTjnkWcc/8ILLTCG1RGf
+        cNvjamC/642EayykGTJmKBRDv9ZeZGpzLqtZn19m2G3rYGCPhOkFXKrQ5kpp
+        w43UFHe06USeR6wlTYcKcsgx7Iy18aSyRxPflsqIQHHPdpQJqFu6dLECw7o7
+        FO44aX/PA+4LIjIc1Nq3r9y8hpzFQwbNereIIlYKWMYdhu15F7CwylCfq9NN
+        1SsMn+YL+3+CFrGEuwWsYZ1Eq5qhDBn2F3tIkvZfj1VuJ+KfCMP73HDCUv4k
+        TXvIYpOPDRjYOA5ol1KXMo5oRYvXdWCoLnIkC1UGK0kYln/Vj8aUZVq6LxhK
+        balEJ/J7IvjAex4hlbZ2udflgYzzBNw6jZSRvnDURIaSoFd/9oxOc7v6e2du
+        0IqOUiJoeTwMBaWFMx0Frngr4x9sJiO6f43HMVLIYKZMnt4nizRqlLUIT5Ev
+        NSr5K5QOv6HcuMLGZ4JSqJPNUkOWWg4p3phRcQ/3p6NKyGGT6o2EZ5F/Rt9K
+        KklmNo3nZB+QX0MZu9SyR34/m6dxe9P8aPq7A9jkd6gr5m59RNrBtoOHDmGP
+        HDzGEwdPfwJuilgecwQAAA==
         """,
         """
         androidx/compose/ui/Modifier＄Element.class:
-        H4sIAAAAAAAAAI1QTU8CMRB9s6ssXyogKqjxRDy6QLx5Mn4km0BMNPHCqbDF
-        VHZbst0lHPldHgxnf5RxNtHEE6HJvL5586ad9uv74xPANc4IHaHDxKhw6U9M
-        PDdW+pnyhyZUUyWTzkMkY6lTD0SovYuF8COh3/yn8bucsOoSzjf1e9gl1Acz
-        k0ZK+0OZilCk4obgxAuXJ6Ac2EIzlpYqz7rMwh6huV4Vy07LyaM4ba1XfadL
-        ea1PuBxsMzRfc7HRyIbeNgd17uVUZFEaxPPIejgkVP8rBO/XSKj89V7NOKsG
-        WsvkLhLWSraVX0yWTOSjiiSh/ZzpVMXyVVk1juSt1iYVqTLaFviV2AGhgHy5
-        aDE2WGtyHKHNWMBxocQMzE9wynuP/fzbKI7gBigFKDOikkM1wB72RyCLA9RG
-        cCzqFo0fJIqRGAUCAAA=
+        H4sIAAAAAAAA/42QTU/CQBCG32mVUkAFRAUlnohHC8SbJ+NH0gRiookXTgtd
+        zEK7Jd2WcOR3eTCc/VHGaaKJJ8JhZ2efeedj5+v74xPADdqEjtBBEqtg5U3i
+        aBEb6WXKG8aBmiqZdB5DGUmdOiBCdSaWwguFfveexzM5YWoT2tvyHewTaoN5
+        nIZKe0OZikCk4pZgRUubJ6DcuLkBgebMVyp/ddkLeoTGZl0sWU0rP8Vpc7Pu
+        W13KY33C1WCXybnX5VYhC5xfLaG3S8nOg5yKLEz9aBEaByeEyn9CKP9lXM+5
+        ZsXXWib3oTBGcrD0GmfJRD6pUBJaL5lOVSTflFHjUN5pHaciVbE2Bf4l9ngr
+        hXw5sNFiW2dmMWkUXJyyd8b0nLmFJi747rGeV47iCLYP10fJR5kHgIsDH4c4
+        GoEMqqiNYBnUDY5/AJ5HRJ4KAgAA
         """,
         """
         androidx/compose/ui/Modifier.class:
-        H4sIAAAAAAAAAIVSS2/TQBD+ZuPESRogoTzSB6XQUBJeLhVcKFSqQhFGbUAU
-        9dLTNtmUbZ115d1EPeZX8D+AGwcUceRHIcZVoRSkYMvzzXwzOzOe2e8/vnwF
-        8Aj3CbPSdJJYd46Cdtw7jK0K+jrYjDu6q1XigwjlfTmQQSTNXvB6d1+1nY8M
-        wXPvlSGs1jfGJVhpjHcTFjbiZC/YV243kdrYQBoTO+l0zHordq1+FHFU/mk7
-        0ka7VUKm3tgmLI5LW2syJw3n8FEkFGu1sLX1bq3VXCeM7/f05EoJJZwrYALn
-        CYXfdAnllBWoECobB7HjtoJN5WRHOsmNit4gw6OlVGQJdMDUkU6tJdY6DwmP
-        R8NSUVRFUZRHw6LIe/ludTSc95bFEj0RXvZVpSymxdJouJwrZ46Vl98+eOnh
-        ZcLc/8YJQjbm1SQEfz1SPWUcoTb2l0/CfNwgNMZGPldd2Y9c2DuMrI8FQulP
-        hjDxK/LBAVededs3TvdUaAba6t1IrZ2ulnv62/tGJrKnnErOhHnNuKO4UGiM
-        SpqRtFYxW9yK+0lbvdAR+6ZOMm3/UyXHU4OXrgNT6d4Yb7OVY/QZBU81y5Y4
-        w9b58+nEyPNbYL3B+iRj+vifcOEzLn48NjK4w3Ka8Sbnmc+lF0ZwrSnUGG8x
-        3k0rYRH3GJ9xikmueWkHmRCXQ1xhiaupqIYcO70DspjB7A5yFtcs5iyyFtct
-        yhbzPwFNAZX3twMAAA==
+        H4sIAAAAAAAA/4VRTW/TQBB94zhxkgZwKB/9orQ0lIaPulRwoVCpCkUYpQFR
+        1EtOm2RbtnXWlXcT9Zhfwf8AbhxQxJEfhRhHhVKQgi3vm3m7+9545vuPL18B
+        PMIqYU7oThKrzknQjrvHsZFBTwU7cUftK5l4IIJ/KPoiiIQ+CF63DmXbesgQ
+        XPteasLmSn2cwEZ1/DZhqR4nB8GhtK1EKG0CoXVshVUxx43YNnpRxKfyT9uR
+        0spuEjIr1T3C8jjZSo05oVnDQ5FQrFTCxu67rUZtmzC+3rObGyWUcKGACVwk
+        FH7TJfgp66BMKNePYstlBTvSio6wggt1uv0Mt5bSpZAuINAR8ycqzdY46jwk
+        PB4OSkVnyik6/nBQdPJufn9qOFhw1501euK42Vdl35lx1oaD9ZyfGQUvv31w
+        08vrhPn/9ZQ9szHPJyF425HsSm0J1bH//Vzui15kw+5xZDzcIpT+ZAiVsbdP
+        TTzcJkz8YleP2HX2bU9b1ZWh7iujWpHcOpsvq/69+0YkoiutTM4dc2txR3JJ
+        odYyqUXCGMlscTfuJW35QkW8N32qtPePS467Bnc0iOl0eIwrnOUYPUaHu5rl
+        zDnHVvnz6DTJ81vg+C7Hk4zp433Cpc+4/HGUZHCP1xnGCdbx2WeJscK4zLiY
+        K+B+6oQ7eMD4jCUm2fNKE5kQV0NcC3EdUxxiOmSV2SbIYA43msgZzBvcNMga
+        LBj4Bos/AU5gqBi8AwAA
         """
     )
 
     val PaddingValues: TestFile = bytecodeStub(
         filename = "Padding.kt",
         filepath = "androidx/compose/foundation/layout",
-        checksum = 0xeedd3f96,
+        checksum = 0x393214e7,
         """
 
             package androidx.compose.foundation.layout
@@ -426,18 +425,18 @@ object Stubs {
         """,
         """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAAAGNgYGBmYGBgBGI2BijgUueSTMxLKcrPTKnQS87PLcgvTtXL
-        TSxJLcpMzBHiCk5OTEvLz0nxLuHi5WJOy88XYgtJLS7xLlFi0GIAACJwI+tQ
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUueSTMxLKcrPTKnQS87PLcgvTtXL
+        TSxJLcpMzBHiCk5OTEvLz0nxLuHi5WJOy88XYgtJLS7xLlFi0GIAADDzNLNQ
         AAAA
         """,
         """
         androidx/compose/foundation/layout/PaddingValues.class:
-        H4sIAAAAAAAAAJVOTUvDQBB9s9Gkxq9ULdQ/YdrizZMXIVBRFHrJaZtsyzbp
-        rnQ3pd76uzxIz/4ocVL9A87Amzfz4L35+v74BHCLHmEgTbmyutykhV2+WafS
-        mW1MKb22Jq3lu218+izLUpv5RNaNchGIkCzkWrJs5unTdKEKHyEgdMeV9bU2
-        6aPyki3kHUEs1wFnUQthCyBQxfeNbrcBs3JI6O22nVj0RSwSZrP+bjsSA2rF
-        EWE0/u+THMw58d/tpvK8vNpmVagHXSvC9UtjvF6qiXZ6Wqt7Y6zfu7mQM3GA
-        3xK43OMFrngO2fKQO8wRZIgydDIcIWaK4wwnOM1BDmc4zyEcEofuD692uKBp
+        H4sIAAAAAAAA/5VOTU/CQBB9syiF+lVUEvwTFog3T15MmmA0mnDpaWkXsrTd
+        NeyWwI3f5cFw9kcZp+gfcCZ582Ze8t58fX98ArhDnzCUJl9ZnW/izFbv1ql4
+        bmuTS6+tiUu5tbWPX2Sea7OYyrJWLgARoqVcS5bNIn6eLVXmA7QIvUlhfalN
+        /KS8ZAt5TxDVusVZ1EC3ARCo4PtGN9uQWT4i9Pe7TigGIhQRs/lgvxuLITXi
+        mDCe/PdJDuac8O92W3he3my9ytSjLhXh5rU2Xldqqp2elerBGOsPbq7NmTjC
+        bwlcHfAS1zxHbHnM3U7RShAk6CToImSKkwSnOEtBDue4SCEcIofeD+cWtEFp
         AQAA
         """
     )
@@ -445,7 +444,7 @@ object Stubs {
     val Remember: TestFile = bytecodeStub(
         filename = "Remember.kt",
         filepath = "androidx/compose/runtime",
-        checksum = 0x736631c7,
+        checksum = 0x715f1bc1,
         source = """
         package androidx.compose.runtime
 
@@ -482,44 +481,44 @@ object Stubs {
         ): V = calculation()
         """,
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuOSSMxLKcrPTKnQS87PLcgvTtUr
-                Ks0rycxNFeIKSs1NzU1KLfIu4eLjYilJLS4RYgsBkt4lSgxaDAC9VMzjUAAA
-                AA==
-                """,
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuOSSMxLKcrPTKnQS87PLcgvTtUr
+        Ks0rycxNFeIKSs1NzU1KLfIu4RLl4gZK66VWJOYW5KQKsYWkFpd4lygxaDEA
+        ALrkMh5XAAAA
+        """,
         """
-                androidx/compose/runtime/RememberKt.class:
-                H4sIAAAAAAAA/61WWXPbVBT+rrzJjhfFWUgcCCFL62yV44YCdeoSAqEe3MDU
-                HsNMnmRbTeVF6kiyKW8ZXvgNvPILeCw8MJnwxo9iOFeWHW9JXdIHXZ17dO53
-                vnO/u+iff//8C8A+vmRYU/SqaWjVV3LFaL40LFU2W7qtNVX5mdpUm2XV/MYO
-                gDFINaWtyA1FP5O/LdfUCnk9DKLpRjHsJ/N1w25oulxrN+XnLb1ia4Zuyceu
-                lcps5ocxMgyHB8WHo/7sm8AOtovFTDazSS3DRv7aKo6cvlJuqBS3ljfMM7mm
-                2mVT0QhN0XXDVjrIJ4Z90mo0KGqqojQqrYbjFxFiWO6joum2aupKQ87ptkkY
-                WsUKIMwwV3mhVuouyHeKqTRVm8/K3eRocX2eAgc5y2yWwogiFkIE0mC+MaUH
-                EGfwa3rbqKsMs8kx0xrGLOamMIN5hsi6tv58/UonlmNYeZNUDMfjiP8fgQvX
-                Cfy28AOSr98kJUngKu6tqz/tMcTHEfvhZmluU7M6ec23mgVeXpqhNhnwu6nt
-                x9vUdutq7zN8nTx9R6UUD0pjS3l7fOJZcniWMs7efNmyLRFJhpkxWAzTXbin
-                qq1UFVshn9Bse+hUZrwReQPaq3VuCPTxlcatFFnVPcZeXJwnQoLoCQkLAr3p
-                kS7OyQiQMR2ijxvUTwhP2KpXvDiXWDosCQkx7o2TK+V5cvmL+PdrdnF++Ztf
-                kLyJvaFgUfIlvAss5U9HRe/1AwOJzLUDRUmcBCKY+GoCCFEKTQI2lXjcAQt3
-                wMLpeSmSCMdFkcWd4ano6ihMeBgmdvmzEAj5xMtf0ynG55s2GCvyM8TVrP+U
-                5BqV6MroXpb36jat0yOjSidzLK/p6kmLu4v8OOIQBt0tJcXUeN91Bgvama7Y
-                LZPspWedayuntzVLo8+HV8canXnDX3v3zEBYqGC0zIp6rHH0RXdMaQQPexDg
-                5esMPizS46feAfWOyC/QO7YVn3qNac/B1h94j+F3vhLxiFo/VS0igCzZ8+Tj
-                9gJBMD4IISTo/diJDuDzXjxwSE+AJgxBMnjGJTfjUwrlyzu23cn4aHtsxoiT
-                cYVCuxkdmljGh04ZndzMzf3+SO6IQJ0PnI3VZbDiMvjenYvYTodBdmcsg1mH
-                wRaFdhl4hhisknU1D4LL5aMRLjOeHpdBRmsuozIN89Fb2u0weuDdHUMpSGVm
-                nX85H9kdSrwOqUdJ6lGSsEGW4FicnMcltz5CbtE7RG6Q4h2XYsGVbW4rvkkU
-                bxIvSiy64kX7xJtDkqYTjtUv3t3x4gV7PAR84bQZWq7AKXm3idnOKTw57OZw
-                LwcZqRyt8XQO97FPARY+xoNTSBZ8Fj6xELLwqQW/hWULn1lYsrBqYcXChoU1
-                Cw8tJB3/nf8A7cabHS4LAAA=
+        androidx/compose/runtime/RememberKt.class:
+        H4sIAAAAAAAA/61WS3PbVBT+rvySHT8U50HiQAh5tM6rctxQoHZdQiDUgxuY
+        2mOYyUq21VR+SB1JNmWXYcNvYMsvYFlYMJmw40cxnCvLjmM7qUu60NW5R+d+
+        5zv3uw/98++ffwHYx5cMa4peMw2t9kquGq2XhqXKZlu3tZYqP1Nbaquimt/Y
+        ATAGqa50FLmp6Kfyt5W6WiWvh0E03SiG/WShYdhNTZfrnZb8vK1Xbc3QLfnI
+        tVKZzcIwRobhIFt6OOrPvQksu10qZXKZTWoZNgrXVnHo9JVKU6W4tYJhnsp1
+        1a6YikZoiq4bttJFPjbs43azSVFTVaVZbTcdv4gQw/IAFU23VVNXmnJet03C
+        0KpWAGGGueoLtdpwQb5TTKWl2nxW7iZHixvwFDnIaWazHEYUsRAikK7mG1N6
+        AHEGv6Z3jIbKMJscM61hzGJuCjOYZ4isa+vP1y91YnmGlTdJxXA0jvj/Ebh4
+        ncBvC39F8vWbpCQJXMW9DfWnPYb4OGI/3CzNbWpWJ6/5VrPAy0sz1CcDfje1
+        /Xib2m5d7X2Gr5Mn76iUUrY8tpS3xyeeZYdnOePszZdt2xKRZJgZg8Uw3YN7
+        qtpKTbEV8gmtjodOZcabIG9Ae7XBDYE+vtK4lSKrtsfYi/OzREgQPSFhQaA3
+        PdL5GRkBMqZD9HGD+gnhCVv1iudnEkuHJSEhxr1xcqU8Ty5+Ef9+zc7PLn7z
+        C5I3sTcULEq+hHeBpfzpqOi9fmAgkbl2oCiJk0AEE19NACFKoUnAphKPu2Dh
+        Llg4PS9FEuG4KLK4MzwVXR2FCQ/DxC5+FgIhn3jxazrF+HzTBmMlfoa4mg2e
+        klyjMl0ZvcvyXsOmdXpo1OhkjhU0XT1uc3eJH0ccwqC7payYGu+7zmBRO9UV
+        u22SvfSse23l9Y5mafT54PJYozNv+Gv/nrkSFioabbOqHmkcfdEdUx7Bwx4E
+        ePk6gw+L9Pipl6XeIfkFese24lOvMe3Jbv2B9xh+5ysRj6j1U9UiAsiRPU8+
+        bi8QBOODEEKC3o+d6AA+78cDB/QEaMIQJINnXHIzPqVQvrxj292Mj7bHZow4
+        GVcotJfRoYllfOiU0c3N3Nzvj+SOCNT5wNlYPQYrLoPv3bmI7XQZ5HbGMph1
+        GGxRaI+BZ4jBKlmX8yC4XD4a4TLj6XO5ymjNZVShYT56S7tdRg+8u2MoBanM
+        nPMv5yO7S4nXIfUpSX1KEjbIEhyLk/O45NZHyC16h8hdpXjHpVh0ZZvbim8S
+        xZvEixKLnnjRAfHmkKTphGMNind3vHjBPg8BXzhthpYrcELebWK2cwJPHrt5
+        3MtDRipPazydx33sU4CFj/HgBJIFn4VPLIQsfGrBb2HZwmcWliysWlixsGFh
+        zcJDC0nHf+c//GYG8S4LAAA=
         """
     )
 
     val StateFactoryMarker: TestFile = bytecodeStub(
         filename = "StateFactoryMarker.kt",
         filepath = "androidx/compose/runtime/snapshots",
-        checksum = 0x79ef0e9d,
+        checksum = 0x2ecf44e1,
         source = """
         package androidx.compose.runtime.snapshots
 
@@ -529,31 +528,31 @@ object Stubs {
         annotation class StateFactoryMarker
         """,
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgMueSSMxLKcrPTKnQS87PLcgvTtUr
-                Ks0rycxNFeIKSs1NzU1KLfIuEeIPzkssKM7ILwkuSSxJ9S7hUuOSwaVRLy0/
-                X4gtJLW4xLtEiUGLAQDM+x9weQAAAA==
-                """,
-                """
-                androidx/compose/runtime/snapshots/StateFactoryMarker.class:
-                H4sIAAAAAAAA/51STW/TQBB965AmBCgpUEhaSj8o6Q2XCsSBU9I2wlI+UJIi
-                oZy29qq4dryRdx2aW278Jw4o4siPQsw2IgnCAglZGr+ZefPxdvf7jy9fAbzE
-                AcMrHnmx9L0r25WDoVTCjpNI+wNhq4gP1Uepld3VXIs6d7WMx00eByLOgTEU
-                L/mI2yGPLuz2+aVwdQ4Zhu1FlEeRpFJfRnZ1DnPIMuw3AqlDP1qmNBOla+JE
-                uslARFp4bxg2Umg9Hl8ITclVHobyk/BmAZXedDF3Xpevn7WOe067xbCVUtER
-                msYTImp2xMNEMBz8tfNyxUrNaVU7Hxh2G6nn8Ju8nXTOcr/KPyjvZOi7Y7Pq
-                caPa7RpJqQVz9Xvp+dNQmLV646EwKpqnvbftE4a1X8KbQnOPa05JazDK0Oth
-                xuSNAQMLKH7lG++QkPeCoTyd5AtWySpYxc38t89WaTo5sg5ZbToxhCOG143/
-                enq0AQ1c/zPxPNAMha5MYlfU/ZCurdyZ9XvvK/88FIsbUxXaATeoz4rZn/Cz
-                a7uPCv0D5OgjcZS/2QcTKOAWbpN3R2AVd1Gk5NrMvYf7eGDgNW8dD/EIWZT6
-                yDgoO9hwsInHBLHl4Am2iaWwg90+LIU9hac/AcQycP6LAwAA
-                """
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuOSSMxLKcrPTKnQS87PLcgvTtUr
+        Ks0rycxNFRL0LS1JTMpJ9cwrCS5JLEn1LhHiD85LLCjOyIcJcOlwKeHSr5eT
+        mVeiV5JaXCLEFgIkvUuUGLQYAH5U0JeGAAAA
+        """,
+        """
+        androidx/compose/runtime/snapshots/StateFactoryMarker.class:
+        H4sIAAAAAAAA/51Sy27TQBQ945AmDVBSoJC0lD4o6Q6XCsSCVdI2wlIeKAlI
+        KKupPSquHU/kGYdmlx3/xAJFLPkoxJ1GJEFYICFL1+fec+5rZr7/+PIVwAsc
+        MrzkkRdL37uyXTkYSiXsOIm0PxC2ivhQfZRa2V3NtahzV8t43ORxIOIcGEPx
+        ko+4HfLowm6fXwpX55Bh2FlEeRRJSvVlZFfnMIcsw0EjkDr0o2VJM1G6Jk6l
+        mwxEpIX3mmEzRdbj8YXQRK7xMJSfhDcLqPSii77zvHz9Xeuk57RbDNspGR2h
+        qT0hkmZHPEwEw+FfKy9nrNScVrXzgWGvkXoOv623m65Zrlf5h+StDH13bEY9
+        aVS7XbNSasJ8+/10/iwUZqzeeCjMFs2z3pv2KcP6r8WbQnOPa06kNRhl6PUw
+        Y1aNAQMLKH7lG++IkPecoTyd5AtWySpYxa38t89WaTo5to5YbToxgmOGV43/
+        eno0ATXc+JN4FmiGQlcmsSvqfkjXVu7M6r33lX8eisWNqQrNgBtUZ8XMT/jp
+        tT1Ahf4BcvQBeeJX+2ACBdzELfJuC6zhDopErs/cu7iH+wZe6zbwAA+RRamP
+        jIOyg00HW3hEENsOHmOHVAq72OvDUthXePITiiesbIsDAAA=
+        """
     )
 
     val SnapshotState: TestFile = bytecodeStub(
         filename = "SnapshotState.kt",
         filepath = "androidx/compose/runtime",
-        checksum = 0xa797b7e1,
+        checksum = 0xe6e3c192,
         source = """
         package androidx.compose.runtime
 
@@ -672,348 +671,347 @@ object Stubs {
             override fun toString() = "NeverEqualPolicy"
         }
         """,
-
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgMueSSMxLKcrPTKnQS87PLcgvTtUr
-                Ks0rycxNFeIKSs1NzU1KLfIuEeIPzkssKM7ILwkuSSxJ9S7hUuOSwaVRLy0/
-                X4gtJLW4xLtEiUGLAQDM+x9weQAAAA==
-                """,
-                """
-                androidx/compose/runtime/DerivedState.class:
-                H4sIAAAAAAAA/4VRTW/TQBB9Yzuxk4bghhbSAG1BQiQccKk4IFJVQnyISKmQ
-                mihCymkbL2Ebx668m6jH/BYO/AgOyOqRH4UYp6hCRIXLzLzZN29Hb378/PYd
-                wHM8IDwScZgmKjwPRsn0LNEySGexUVMZvJGpmsuwZ4SRLohwdNB/2T0VcxFE
-                Ih4HH05O5ci0D1db3Ws1l2IH/X77sE3w/x504RC2/z3sokjwxtIMRDSThI1m
-                a3UBQqHZ4l+Yqa+Ym81VYmtAKDaZmRfr3UliIhUHR9KIUBjB89Z0brNVlAcv
-                DyDQhPvnKkd7XIXPCG+zRbVs1a1ytlgmyyt4n+rZ4onjZQuf9r2aU7Pe0551
-                XPfthvUiW3y8+Fq9+FKsNBzP8QsPHa/ou7nYPuHx9f79eRPejvqE3f+4nZsx
-                v3TA78XiTH9OzPLh6cQQSj01joWZpfxc7iWzdCTfqYjB1vGlyEBpdRLJV3Gc
-                8JBKYs3+WyiwDy4bYPHFPJQYbecIZcZrqFzhG7B/VzZ2lvk+djm/ZkaVVW4O
-                YXfgd7DeQQ23uMRGB5u4PQRp3EF9yCfElkZD467GPZ3DksaaRuUXZ2oGC8cC
-                AAA=
-                """,
-                """
-                androidx/compose/runtime/DerivedStateImpl.class:
-                H4sIAAAAAAAA/41S204TURRd58x0OoylDOWOeEORtgiDxAcDTY2XEJtUTWjT
-                GHk6tBM40M6QOacNj/0KP8Av0ERj4oNpePSjjHvahqg1sS97r71mn732ZX78
-                /PYdwCNsMeRE0IhC2bjw6mHrPFS+F7UDLVu+98KPZMdvVLTQfql13kyCMVQL
-                1d3yqegIrymCY+/N0alf13vFUao8Vt1CtbpX3GNw/36fhMmwNlaNJCwGqyAD
-                qYsMc9nRXnI1SsiSVAyMbK6Wgo1rDhJIMSQ6otn2GTKj71JIY2oCHC6DqU+k
-                YtgYb654XzSWfezr2qD8bDY3KkDq2Rz1RZnqKjNZILz5hGYx+p+my2ehbsrA
-                e+Vr0RBaEMdbHYMuyGJjxwYM7Iz4CxlH24QaDxne9bpphy9yp9ftO25bNl/s
-                dfOm3eu6bMfOmBn+km3zZ5MZyzWW+eNe9/KDxV3zYGUYvr18nybKdbhrL5t2
-                wrVWTTvpmrHCDolWGdbH20l85kogztVJqPvE1plmmKjI40DodkSTm8/DBrmp
-                sgz81+3WkR9VxVGzf5uwLpo1Eck4HpJOJWxHdX9fxsHSwUCxJpWkr0+DICQJ
-                GQYK23TABO2H/l9CdFHyWVoSxxIMwjbiE+eIKZLn5J38V0zmN75g+lM/L0/W
-                okzQ2w2y84MsZDATr57Q71UdQrOYG9b04suQT+Q/Y/rjP8ulBgnDcoMi88Qt
-                XDW2O2zM+m9T1lVTFhb/aMoYIgMP+n4dm+T3KWOZtK8fwihhpYQbJdzELYK4
-                XcIdrB6CKdzFvUNMKMworCncV0irOJxVmFNYUJj6BY25tQRSBAAA
-                """,
-                """
-                androidx/compose/runtime/MutableState.class:
-                H4sIAAAAAAAA/4VR0WoTURA9c3eT3aQxbmOradRaBTHxwa3FBzGlIKIYSBCa
-                EIQ83SZrvM1mt+TeDX3cb/HBj/BBlj76UeJsKkUM1Zc7c+aeOTOc+fHz23cA
-                L/CQ8FhGk0WsJuf+OJ6fxTrwF0lk1Dzwe4mRJ2HQN9IEDojQOxy86p7KpfRD
-                GU39Dyenwdi0j9ZL3Ws1V2KHg0H7qE3w/m50YBN2/93soEhwp4EZyjAJCFvN
-                1voChEKzxVOYqa+Y2811YmtIKDaZmSeb3VlsQhX5vcDIiTSS+8V8abFVlD9u
-                /oBAM66fqxztczZ5TnibpdWyqItylq6CcAvup3qWPrXdLPXowK3ZNfGe9sVx
-                3bMa4mWWfrz4Wr34Uqw0bNf2Co9st+g5udgB4cn1/v15E96OBoS9/7idm7G8
-                dMDrR/JMf47N6uPZzBBKfTWNpEkW/F3ux8liHLxTIYOd40uRodKKJ76Oopib
-                VBxp9l+gwD44bIDgi7koMdrNEcqMN1C5wjdg/c4sPFjF+9jj+IYZVVa5OYLV
-                gdfBZgc13OIUWx1s4/YIpHEH9RGfEDsaDY27Gvd0DksaGxqVX4ySaL/HAgAA
-                """,
-                """
-                androidx/compose/runtime/MutableStateImpl.class:
-                H4sIAAAAAAAA/41S224SURRdZ2YYpiOFKb3XeqvWArWd2vhgWoJRk0YSqkkh
-                xNinU5jQU2Cm4RyaPvIVfoBfoInGxAdD+uhHGfcB0jRiIi97rb1mn32dX79/
-                /ATwDNsMWR7WO5GoX/q1qH0eycDvdEMl2oF/2FX8pBWUFVdBsX3eioMxVPKV
-                vdIZv+B+i4cN/93JWVBT+4VxqTRR3nylsl/YZ/D+fh+HxbA+UY44bAY7L0Kh
-                CgzzmfFeslUKyFApTcxMtpqAg1suYkgwxC54qxswpMffJZBEagoGPAZLnQrJ
-                sDnZXHpfNJbTCFR1mH4ukx0vQNUzWeqLIuV1ZDxPfOsFzWIOPs2UmpFqidA/
-                DBSvc8VJM9oXJl2QaeNoAwbWJP1SaG+HWP0pw4d+L+kaS4bb7w3AcGzHWOr3
-                cpbT73ls10lbaeMN2zFeTadtz1wxnvd7V59sw7OOVkfu+6uPSZI81/CcFcuJ
-                efaa5cQ9S1fYpaIVho3JdqLPXA75uTyN1EDYbiqGqbJohFx1OzS59TqqE6RK
-                IgzedtsnQaeiX+vbRDXeqvKO0P5IdMtRt1MLDoR2lo+GFatCCvr6MgwjKiGi
-                UGKHDhij/dD/S4wuSpihJRlYhkncgT5xlpQCoUHo5r5jOrf5DTNfBnE5sjZF
-                AkvYJLswjEIas3r1xG5mdYnNYX6U09eXIYzlvmLm8z/TJYYBo3TDJAukLV43
-                tjdqzP5vU/Z1UzbpN5syR8zEkwFuYIvwgCJWqPbtY5hFrBZxp4i7uEcU94t4
-                gLVjMImHeHSMKYlZiXWJxxJJqd05iXmJRYnUH5JR7zxSBAAA
-                """,
-                """
-                androidx/compose/runtime/NeverEqualPolicy.class:
-                H4sIAAAAAAAA/5VU3W8bRRD/7Z0/zhcndZyQpmn4KA3UTpqeE8pnTNoSinqR
-                ayJcBUGe1vbibnK+c+/2rCJeIv4Unnmg4qEIJBTBW/8oxOydCcFJUSLLO7Mz
-                s7/5zc7svfjr198B3MZdhir3u2Egu0+dTtAfBJFwwthXsi+cphiK8P6TmHs7
-                gSc73+bBGL5s7PMhdzzu95zP2/uiozYaL0Vo+XwQPQ7Uw1hxJQM/xamfhtjc
-                YCiNW/PIMDgXBM8jx5CrS1+qTQazUt0twkLBRhY2Q0Y9lhHDysspjxdNxGzx
-                JJZD7glfMdyonHEBpyzVrxmWGkHYc/aFaodc+hEV4gcp08hpxp7H254gdMYZ
-                yqcRyNFmsFTQUqH0ewyzleqJqNRKUdf/L0ugdCJ9t+NlWbjMkO2LsCcYts9V
-                0xlVnkW7fsGGLX0qvuGxp9z+wIvyuMrwXeWiE3UutufiX8QVvGpjEa/R5Q9C
-                MZRBTAOT78RhmPQ/zwcDT4ouuesdLxkzG4aeLcttth7da27dL+ItTBbI+DbD
-                dOMgUBTmPBSKd7nidENGf2jS62N6sfQCavYB2Z9KvauR1l1jEEeHi7Yxb6T/
-                0tGhbVhamSBpkpyy/vzemD86XLfLuXJmntWMGvskbxl//JAzSub2YimzYNSy
-                61Ypt5B4Scun2oO5batkkbfwYE4nW2dYu/CVM027eLJ5NGb/xLYoVNw6oPu6
-                +kUK4/pDGUka+Xv/Dii9x62gSwN4qSF90Yz7bRE+0s9Cv4igw71dHkq9HxmX
-                xrF2eMj7QonwP6BF1/dFuOXxKBK0LbRkz+cqDgnBbgVx2BGfSQ13ZQS3e4oY
-                atS9LNVHnzwaCGonyfepNzmScySz5KevCu0+oJ2jG6ity88x8YwUAx+OgoEQ
-                H9FaTANITib9nsIlitKH79JOt90wfxw7GSUn30i9o5Nam0Y58RuYIc3ABumT
-                BplKCXS6zuKVUYLVETuzPP/TWAZ1gps5ynCyTF38Ank0zA4y9KOJXV65ufoL
-                Xh/HSutcTmOO2VrEP2Vr4VrCVmtvkmYeZ9KEdQ0z5lgNpST4+vE9X06OAxO/
-                wfjqOZZ+xo1niSGDOq02hS1Sy94l1h8n7ExsJvI93CHpkr9CPajuwXSx7GLF
-                xU2skopbLjWxtgcWYQ3re7AjTEZ4J8LtCIUIU4kyHWEmwizpfwOnXXg5QAcA
-                AA==
-                """,
-                """
-                androidx/compose/runtime/ProduceStateScope.class:
-                H4sIAAAAAAAA/41T328SQRCeXSgcSPWKv4BWq7ZGJcY7iU9CiEbTFENrI+gL
-                T8tx4MKxS273sI/EP8UH/wbjgyH45h9lnINeG4u1fbid2ZlvvtnZ/e7X7+8/
-                AOAZbBMoMtHxJe8cWo4cjqRyLT8Qmg9d68CXncBxG5ppt+HIkZsEQqBZaT6v
-                99mYWR4TPettu+86ulxdDtXPJN4LNGt7C+JKs1mulgmYp+uTECdw/0IcSUgQ
-                yLBPjOvXXIUwPObD+kBqjwurPx5a3UA4mkuhrJ0jzy5HeUf6MtBcuMp6JZFc
-                BCwElB8tj0Sgex5tJcq/Fxyv5bwulWL1342269LvWX1Xt33GsQETQmq2aLYf
-                eF44PMK2/geTOkQiai06xZ6rWYdphjE6HMdQAyRcjHABAmSA8UMe7mz0Ok9x
-                4OlkI01zND2dHBuTRDtqhhGjm5tOinFjOjFJycjGs3SX2PTNphkrUDteypgr
-                hXnUTtqJ3dnXFz+/kelk9iVBTWP2mcbT1MiH3UoEHp8tmiU14gykSeDBxXSG
-                aBwwJcWxQrLRpZxIAmXYEGykPko9L3oy0FjT4D3BdOBjzfq7BXVNjLniyP3y
-                5L7xzU5nD5jPhq52/b9g6YYMfMfd4R4y5o9qPizxoaYprOChk+Hb4M9gQApi
-                sIk7Cmm4gzaB2Uto7+K3SnGTmT9juEbAGNyb29uwhXYHs6tIerkFsRpcqYFZ
-                gzXIogtXa3ANrreAKLgBN1uQUpBTkFdQUGAoWFewoeDW3En9Ae+dQkpABAAA
-                """,
-                """
-                androidx/compose/runtime/ReferentialEqualityPolicy.class:
-                H4sIAAAAAAAA/5VUW08bRxT+ZteX9WITYygBQq8hiblljUuvuDSUpoqRIShG
-                RC1PY3viDKx3nb1YifqC+lP60L70oVEfUrVShdq3/qiqZ3Zd6hqoQJbnnDnn
-                zHe+M+fM/vnXL78BWMUGQ5k7Lc+VredW0+10XV9YXugEsiOsR+KJ8ATp3L7/
-                LOS2DF7surZsvkiDMTyuHfIet2zutK2HjUPRDNZqF0LVHd71n7rBdhjwQLpO
-                jFM5C7G+xpAftqaRYLCuCJ5GiiFVkY4M1hn04vx+FgYyJpIwGRLBU+kzrF5M
-                +cLqiaEpnoWyx21yM9wpnnMTZyzzXzHM1VyvbR2KoOFx6fhUkePGlH1rJ7Rt
-                3rAFoTPOUDiLQI4GgxG49cCTTpthojg/EBVbKerm/2VxA5WIoqYvrM/AdYZk
-                R3htwbB1qeLOKfc8/pUrtnDuc/GEh3ZQ7XRtP40bDF8Xrzpjl2J7Kf5ZTON1
-                E7N4g7rQ9URPuiGNULoZel40CGne7dpStMhdadrR4JnQ1LQZ1Z363sbO5v0s
-                biGXIeNthrHakRtQmLUtAt7iAacb0jo9nR4mU4uhFlDXj8j+XKpdibTWCoM4
-                OZ41tSkt/udPjk3NUMoISZ3kqPHHN9rUyXHZLKQKiSlW0krss7Sh/f5tSsvr
-                W7P5xIxWSpaNfGom8pKWjrUHk1tG3iBv5sGkSlZmWLnylTNFOzvYPHrU/8TW
-                KVTcPaL7uvEohqk6PelLmv2NfyeVXuim26IBvFaTjtgJOw3h7an3oZ6G2+T2
-                Pvek2veNOYJtHm3zbn8/N4y9yz3eEYHw/pMkW3Uc4W3a3PcFbTN12XZ4EHqE
-                YNbd0GuKL6SCm+7D7Z8hihJ1M0n10keRBoTaS/ID6lWK5CTJJPnpu0O7D2ln
-                qYYq68IrjLwkRcNH/WCA42Nas3EAyVzU/1Fcoyh1eI+kGoORxaXvkE58j4T+
-                A211rMV5MvfYAFojQnsrPtFHU9oYCpF/BOOkaaiQntPIlI/SxesEXusnXe4z
-                1gtTPw7xbQ7w1fsZBktXFzJDHgWziwT9aKoXFpeWf8abw1hx7QtxzClbg/jH
-                bA28HbFV2juk6aeZFGFVw7g+VEM+Cr55evfXo+NU+K/QvnyFuZ9w52VkSOAT
-                Wk0Km6U2vkes1yN2Oj6N5Pu4R7JK/iJd8/wB9CoWqlisYgnLpOJulRpbOgDz
-                sYLyAUwfOR/v+lj1kfExGiljPsZ9TJD+NyU9ROd/BwAA
-                """,
-                """
-                androidx/compose/runtime/SnapshotMutationPolicy＄DefaultImpls.class:
-                H4sIAAAAAAAA/5VSTW/TQBB96yR1GlL6wWcotEADohwwlTiRqBIqQjJKS0Wi
-                Hspp4yzpJvautV5HRfwpzhz4AfwoxKyTCmgQIpY9++bNm5n17H7/8fUbgBd4
-                zNDmamC0HJwHkU5SnYnA5MrKRARdxdPsTNvD3HIrtTrWsYw+NV+LjzyPbZik
-                ceaDMayN+IQHMVfD4F1/JCLro8RQSYQZCobPTzoLdmh1Lhf8L2Z3nmI4bfde
-                zvP7C++p3eu19ltkpu8ufQzNjjbDYCRs33CpsoArpadJWXCUxzHvx4JkO/+S
-                aeuUpKo07ZnMGPYWHhdDNTViInVO6Rt/m4If5cYIZQnxNI2lGDCsd8baxlIF
-                h8LyAbecdF4yKdG9YM5UnQEDGztAB+qdS4eeMwQL7tBHg6H++72hS3Mh7ZJS
-                PBvT3soHekAXZrUjlTjKk74wPTdB90864vEJN9L5M3K5K4eK29wQ3nw/7R+q
-                icwkhV/9GjEd0+XoMTc8EVaYP2T1UClhDmKeZYLcWlfnJhJvpGvWmJU4mSuP
-                PXgoYzqrZVSwRN498t6S73iPfXEWW2SXiANOsU326TSKGq4U2R7qWCniHq4S
-                8gq0SqiE+wX28WBWo0rrQ/pWykXTi6eEHbI14jzcwSYaaBaJd/GI1i3i10iz
-                /gGlEBshroW4jhshbuJWiNs/Ac089AgUBAAA
-                """,
-                """
-                androidx/compose/runtime/SnapshotMutationPolicy.class:
-                H4sIAAAAAAAA/5VTzW7TQBD+1kltx2mLC6WkKeU3NCkHnFYcEK2QEAjhKgXU
-                RBzoaZNswybOOnjtqHDKs/AYHFDEkYdCjJ1WINIDlbzz/83szox//vr2HcBj
-                bDN4XHWjUHZPvU44HIVaeFGiYjkUXlPxkf4YxodJzGMZqndhIDufLTCG2n7r
-                aaPPx9wLuOp5b9t90Yn3ns2bGNx/bRbyDI74lMgxD4SKGaq1eeC8ZfsDQ6HW
-                au3Rl8oLQxH1BMPBf6EvyHfRbZfPCqQ16DBUGmHU8/oibkdcKk3dUuGsHdp7
-                kwQBbweCwlYagzAOpPIORcy7POZkM4bjHHWZpcROCRjYgOynMtXqJHV3GL5M
-                J6uOUTKc6cQxXCIZLzqGbdsnpenkYd6eTly2a9SNg003Vzbq+V3TXSgbT6YT
-                EsxMeL3146tpuNZB1bXL+RKb+QrnQc65UJxFr2XRi+kNdhl2GpfcAXoca7Hs
-                PZxOm8EeRWIsw0QzWJ0kirK5Wnw0CqToMuxfskDlpTjhSRD7w1GgLdxhWPzb
-                Qlt1jmsSTDwaULVCU/YUj5OIdmLjaJbeV2OpJY3o+Z+xUS5fKRG9CLjWglSn
-                GSZRR7ySASHXz5Dv53AmdQsL6Rhh0AaboD8BlVSDTXoBDkkzvYgHxE3yLxLP
-                Y4uoQ9pd8t3D+llUDtWM30eN+BH5lyj/8jFyPq74cH2s4CqJuOZjFdePwTTW
-                cOMYSxoljXWNsoaZ0Q2NmxqWRkFjU+OWxm0N5zfYvY915wMAAA==
-                """,
-                """
-                androidx/compose/runtime/SnapshotStateKt＄produceState＄1.class:
-                H4sIAAAAAAAA/41T0U4TURA9d7ttl7XQUgGhKqJW3RZloZqoKZAYIklj1YSS
-                xoSnZXcpF9q7ZPe24bFf4Qf4BZpoTHwwDY9+lHHutjEoCKbpzLmTmTPn3pn9
-                8fPbdwBP8JjhqSO8MODese0GnaMg8u2wKyTv+HZDOEfRfiAb0pH+K1k8CgOv
-                6/rxsbiSBqPi+oHTc+y2I1r2290D35XV+r/5VOHq9nZ1vcqQ+7swDZ1h/uLi
-                NFIMqVUuuFxnmLbOdi81KcGiHgokrFIzAwNXTCSRYUj2nHbXZ8ifrctgAtkx
-                aMgx6HKfRwzPL7jJhS9DtxsvKo3caTeHHY2WL0dwyiqdbU/arBKpJs2xnawf
-                BrLNhf3al47nSIdiWqeXoKExZQxlwMAOKX7M1WmZkLfCsDboj5uDvqnNaqZm
-                6GU26Bvm7KBfMfJ6Xns26C+zrZmcVlDw3cl7/eRDyjS1XLKgG4mcrkgqDAuX
-                TJHkWP/7OmncY8icfiKGvXNGd05k9AgHvY691xWu5IGI7M0RqlRLl6nM4AEs
-                2rU/FC0dSoaxBm8JR3ZDEqNvBB65bJ0L/023s+uH285uO96TwFUjDLk6j4KZ
-                mhB+uNF2osinLcm+FG47iLho0aj2A4/BbATd0PU3ucqe2xoKavKIU/kLIQLS
-                oO6BFdq2JM2QPiTk1fqRX6RBapilP80Yah8fEtokryJm+SvGy4tfMPkpzntE
-                dgJq+EvQYVP+Ev2AmWE2sV5Va0Jo6hS7SWg6zlHcttoi8snyZ0x+/E2bioN2
-                TJcZJozohiTX6GzH1CxuBsxhmayO+yiNchJ0ReXLqJBfo8w5qirsIFHD9Rpu
-                1HAT8wRxq4YF3N4Bi3AHd3eQihQsRpiIMB1hJkL2F+yJDPSyBAAA
-                """,
-                """
-                androidx/compose/runtime/SnapshotStateKt＄produceState＄2.class:
-                H4sIAAAAAAAA/41TUU8TQRD+9nptj7PQUgEBFVGrXotyUE1UCiSGQNJYNaGk
-                MeFpac+y0O6Ru23DY3+FP8BfoInGxAfT8OiPMs5eG4OiwMPNfDuZ+ebbnbkf
-                P799B/AEjxmectkIfNE4dut++8gPPTfoSCXanluV/Cjc91VVceW9VLmjwG90
-                6l50zBWTYFRcOeBd7ra4bLpv9g68uipV/s+nC1d3dkrrJYbM34VJmAxz5xcn
-                kWBIrAop1DrDpHO2e75GCQ710CDm5GspWLhiI44UQ7zLWx2PIXu2LoUxpEdg
-                IMNgqn0RMjw/5ybnvgzdbjSnNQreqg06Wk1PDeGEkz/bnrQ5eVJNmiM7Xjn0
-                VUtI95WneIMrTjGj3Y3R0Jg2ljZgYIcUPxb6tESoscyw1u+N2v2ebUwbtmGZ
-                BdbvWfZ0v1e0smbWeNbvLbHtqYwxq+Hbk/fmyYeEbRuZ+KxpxTKmJikyzF8w
-                RZLjXPZ1krjHkDr9RAzH/xjdpSLDZznott13HVlXwpehuzVExVL+It0pPIBD
-                2/eHxsVDxTBSFU3JVScgeeaG3yCXrgjpve6097xgh++1os3x63qogdDnYTBV
-                ltILNlo8DD3am/SmrLf8UMgmDW/fbzDYVb8T1L0tobNntgeCaiIUVP5CSp80
-                6HtgmfYvTlOlXwtZvZDkF2i0Bqbpo6lDb+hDQlvkdcQufMVoYeELxj9FeY/I
-                jkGvwwpMlCh/BYt0mhpkE+tVvTiEJk6x24QmoxzN7eq9Ih8vfMb4x9+0iShY
-                iuhSg4Qh3YDkGp3diJpFzYAZLJE1cR/5YU6Mrqh9AUXya5Q5Q1Wzu4iVcb2M
-                G2XcxBxB3CpjHrd3wULcwd1dJEINcyHGQkyGmAqR/gVj7U/wxAQAAA==
-                """,
-                """
-                androidx/compose/runtime/SnapshotStateKt＄produceState＄3.class:
-                H4sIAAAAAAAA/41TXU8TURA9d7v9YF1oqYCAiqhVt0VZKCZqCiSG0KSxakJJ
-                Y9KnpV3Lhe1dsnvb8Nhf4Q/wF2iiMfHBNDz6o4xzt41BQeBhZ87czJw5987s
-                z1/ffwB4ijWGZ45oBT5vHdtNv3Pkh64ddIXkHdeuCeco3PdlTTrSfSVzR4Hf
-                6jbdKMytJcGouHrg9Bzbc0Tbfrt34DZlqfp/PlW4vrtb2iwxZP4tTEJnWLi4
-                OIkEQ2KdCy43Gaats93zdUqwqIcCMStfN5HCNQNxmAzxnuN1XYbs2ToTE0iP
-                QUOGQZf7PGR4ccFNLnwZut14Tmnkjlcfdky1XTmCU1b+bHvSZuVJNWmO7GT1
-                0JceF/ZrVzotRzp0pnV6MRoaUyalDBjYIZ0fcxWtEGqtMmwM+uPGoG9os5qh
-                pfQCG/RTxuygX0xl9az2fNBfYTszGW1ewXcnH/STjwnD0DLxeT0Vy+iKpMiw
-                eMkUSY511ddJ4gGDefqJGNrnjK5xzi6NXuGg17Hfd0VTcl+EdnmEiqX8ZTJN
-                PIJFy/aXpOVDyTBW423hyG5AavQtv0UuXeXCfdPt7LnBrrPnRYviN9UMA67i
-                0aFZEcINtjwnDF1ak/S2aHp+yEWbZrXvtxiMmt8Nmm6Zq+y5naGgOg85lb8U
-                wicN6h5YpXWL0xDpT0JW7R/5JZqkhln6aMhQC/mYUJm8OjEK3zBeWPqKyc9R
-                3hOyE1DT34ZOWWPklymaGWYT63W1J4SmTrEbhKajHMVtqzUiHy98weSnP7SJ
-                6LAc0ZnDhBHdkOQGxXZEzaJmwBxWyOp4iPwoJ0ZXVL6AIvkNypyjqvkGYhXc
-                rOBWBbexQBB3KljE3QZYiHu430AiVDAXYiLEdIiZEOnfCWOj1bMEAAA=
-                """,
-                """
-                androidx/compose/runtime/SnapshotStateKt.class:
-                H4sIAAAAAAAA/91Ya1cb1xXdV4AkZAHjsTEgO0S2IWAwCLCT1IY6dokxCg9T
-                g6mJ6ziDGGCMmFHmjohpm8RNW/f9Th9pkz7Sd5u2br/EqdfqYrnf+lPav9DV
-                9tyrkRBiRiC7WcurH6R758557LPPua/5+7//8lcAJ3GHoVMzF2zLWLiZSFmr
-                GYvrCTtrOsaqnpg2tQxftpxpR3P0MScExqDc0Na0RFozlxIX52/oKRqtYqhf
-                0G1jTV+QkhcXGQY7x0sFB4+N+3p6tkh9kOHC0Mzp7fpnOmdmdmtkiETPkKWn
-                /cW5Gx1PSI0RLeVY9vqEZq/oNmkeHbfspcQN3Zm3NcPkCc00LZIzLOpPWs5k
-                Np0mqWO7QpNczaRDiDAEhwzTcM4wNHrxMxtFFHUR7EE9Q/uuLIegMNSsaems
-                zqBut0mpWc062nxaL6Qm7eHan6V8DUxkc8FPWWkjtV4uDRNF/sj/K/65rNRr
-                Lqm7dJ2vgGBG6obRxNC6Yjlpw0zcWFtNGKaj26aWTiRNx6YEGykeQgtlJrWs
-                p1bcDE9ptraqkyBDhxdtmyPTwsiSzOFBHIoghsfKVUcx0lx1PB5BvHzei3VC
-                OMLQX3HaGA5sLYe2BX1Ry6Ydhtf+F2WRrGjWl1RKM3fsbMrJ2lr6/EtZLW04
-                6zmzDCc6y5jxwRJFBzojCOBYFPvRKHrdNEeK4x83uCOmRO9uzBc0CGrSp6gr
-                MZMv0K7dq4TQx1DVmVsoBiLoxwmGvcURTWgZEVDPrpGQAmG4PjTmEc/sQ8VI
-                lodmxgZnZmWU/lOhVCmED0VwSkQWzdjWQjaVi4xhsfwMzI8UzfHFrJnKrdgj
-                bm+gXD3mC/EfZZasSv0N9fj7myoKbzplZdw1qydvMmXZVtYxTJ0nhi1SMbOy
-                vocKApdpMyGFbg+wO8aZL792f7lh+Sxqi+Tayu2HtFS6YmE3Z3YYZ2n73e3Z
-                oq041W39IXwkgmGxHLaWjyKE81QnYlM1tPRsbhusXtHX+xniO1UCw83dVdQH
-                UWP/qqjG/u+q7gELYyCE8QgmRGGILA8wLHmk8OoHkrF/+mescoePfIIEvTyM
-                Sw+cqhMhzERwWaRqnwc/tFIs6Y47Y1/s3Il+f4JtfTFNz4kxoi2j2444m3p4
-                y/hkbyc6uiUfFbgf6iKSSUkc9p1lg58J42puWZSvw7jGsL/TA2MUV3B9D0bw
-                IkNdm9G22LZJEEvSQb5NmCsajO9csyGhQvYZYv58ETpeMLpchpEt57VKMuJ1
-                12F4ueKUbD/fV5gYcYGkw9My6vbgKFbyRG+G75K8OdCx6+NrC3nUbd0UO1Hp
-                +XXywc+LXlcghgFfvUt+KEKgW0w4OTk9c25ymHbNk/6+fW1QkTrI1oJjjeFt
-                k7b9eEoeBOLzOvW4E3esuGmZPfKVs57R43knva6TXtdJr1+AcWtxZyV3yen1
-                5Zym3U06GRRf5qL4RO5m9kmGRIW8h/AK3bfKzDfvm0sIr9Hlpdw89daTPH+6
-                FrfwOsNbjwDPflczovmzDIqpr+m2fJOveP/z/mSJbAifZ+j256hUXnLzxVp8
-                AV9ieOMR4KY0eOLkK3Qtyy9EE7qjLWiORrM2sLpWBYCJv7D4Ay3tK6IToJc3
-                DdGjG15goZ8F/rNx64XIxq1IoDkQCYSrZVt4rPJ6DITpp4hB0Wku+imBTUFl
-                L7XB/HPsMCnEwmq1GhgN9LEj1eGNW0pgIKhUxWhgNHT/nWBAqY7tV2oKQkFX
-                aDQUiyuhWL0crpX/kb5w7mUtNUyJkEi/sqegGS0xP1AfDih1hdf1rruGmKoo
-                m6OuUmxJ2VsYVDct7ZOWwsr+WHUz62uk3gG316M0xY6FmRpR82ot+X7fwb6Y
-                GlSlXF+z8Bo+NBr62122cUtCeCx2bXfeHsJHa2ylnI8DyuOxqBom2zkL8SMP
-                7fEwEXtkO7GqcnT74EmlTcBwH7sKMCn2djf2iPJELKhSEfV1jN6/HZEuOmND
-                yrEYISlVjHorFiotb6Dr/usBKvZwi5gGA2X335KPxmyG4Xhln3HKrDoeH0nY
-                GP3o3ALxpdWd3MW3yTLOtx3pB4vupz7neRJpzYucv+noJqfBvL+ZdWlD2QKz
-                d8Whg/uwtUDnloZxMjiZXZ3X7RlxShGYrZS4I9uGeHYHa6eNJVOjhZ36By/l
-                0CbNNYMb9Prc5hWf7v+lbwvfRreI1RGS1AoR5jqIJk1Tt4fTGuc6vY5MW1k7
-                pY8Y4l2La3J2mzv0I4BqsUCiDi2oQRBV+CU9PUUtZQDRe9gz1/UeGjaw945Y
-                P/Er+g/Kdyp+LSRycvS0j9rfSJkQfkut+BIYpraWfi3i0yB5ErZHyHZA6Her
-                zXfReg9x4eHwBo5u9RBEq/RwICftehC9JrTR+5yvA9t8/U60Abno06NSi3Y8
-                QX3h+pQbrnKo5tU3EbqLrvGu7rs4nnP8Lv1T2BGJoB5ilzhIKB4j6wcpgh70
-                uuzEJSLaW+6hf+49nLwjnW0yc9jFlvDg4UnJbYmVU2TldKmVdtfK0x5WBjHk
-                sjlF1gRS9bh6TrI5LNh8dgMjpWz2SjbjOWlcKLA5Sr1cPs8iSRo5rx8ueD1T
-                xGuD3FfxTJ5dCeU5F8rzZFqwq/a4UCYElEkPKKcllK6ctCeUi9QLFEBVuaDG
-                PEE1VheB2gptyoU267LU3K1OE7Q8V5cFwNltAKM4X8RVcwFgMy7hYxJg8xau
-                PlqOq9oiQFcw5yb/mluJjV3qxyWgF+i/6kzX+9AYtqKpx2SBrnqaW/NISVyN
-                WIAucTVi0SWukQwvFXA9L3HsqyqgKCZnGYaLZZVEa6ht2oLlqequnveRDuBP
-                BTQiwgZcpjk3KxGdJLUGqspVQiSCaYIJSyJqKiBqchGJnpjB+VTeyKduOzaB
-                LoNOF127DJYWqD/j5Tl1/S4+tYFXS+fKddfqSzITwUKQHV5mPjOnfs7bzLKP
-                mdteZr48p37V20zG00wVfk//MWqH3SAn3Pay2/5Bav0Cf6T2XdL6GvH79auo
-                SuIbSXwziW/h20m8ge8k8V187yoYx/fx5lV0c9Rw/IDjhxwqR5Cjh+Mtjic5
-                3ub4EcePOfZzWBxNHG0cjRy3OQY5dI4LHKMcP+G4yHGW46cc73D8TI78nOM5
-                jiGOS/JxiiPD0cFxhWOR4xrHEsccxzKH8V81aexK6B4AAA==
-                """,
-                """
-                androidx/compose/runtime/SnapshotStateList.class:
-                H4sIAAAAAAAA/41QTUsjQRSs7smXY3YdXT/irruKJzcsOyqCoCKoIARmd8GE
-                XHLqZBptk3TLdEc8zm/xH3gSPMjg0R8lvoleVi9e6r2qLt571Y9Pd/cAtrDC
-                UBc6ToyKr8KeGV4YK8NkpJ0ayrCpxYU9M67phJORsq4MxrC219qJzsWlCAdC
-                n4b/uuey53b330sMwVutjAJDaU9p5fYZvLWf7SpKKPsoosJQcGfKMvyKPn4R
-                LZmO+sYNlA7/SCdi4QRpfHjpUT6WQyUHMLA+6VcqZ+vUxRsUJUurPq9xP0t9
-                HhBkaS1L64VKlgZsk6/zw+LDdYkHXu7fpBEtlk8K/jvjd9/R6UcmlgxTkdLy
-                72jYlUlLdAekzESmJwZtkaicv4oTTXWqhRsl1PtNM0p68ljlD4snL0Hbyipy
-                HmhtaIUy2mIDnH7pNUr+aYRfiYVjDhTrt5i4oYbjG2FpLK5iibD6YoCPSaoe
-                vo9dHn6M6yKWqW6Tp0qeTx14DXxuYKqBANPUYqaBL5jtgFnMYb6DgsWkxYJF
-                zaL8DHqS9VZKAgAA
-                """,
-                """
-                androidx/compose/runtime/SnapshotStateMap.class:
-                H4sIAAAAAAAA/41QyU4bQRB91eONwYGBbCZ7LlEgUgZQTsRCSiJFshgSKY7m
-                4lPb04LGdrc13UYc51vyB5yQOKBRjvmoKDWGS5ZDDvWq6vXr2n78vLwC8AbP
-                CZvSZLnV2Vk8stOZdSrO58brqYr7Rs7csfV9L706lLMmiNDtHuwlJ/JUxhNp
-                juLPwxM18m/Tf3D7f1OE6E+uiRqh0dVG+31C8HIzbaOBZog6WoSaP9aO8Cr5
-                7yG5x1oytn6iTXyovMykl8yJ6WnAG1MFrQpAoDHzZ7rKtjnKdghxWayEoiNC
-                0WKLyiIsi05ZbNVaZRERO4rErtgO3te/f2uIqFZ92+VKB2wpVUWj3wZ6Pfa8
-                xAebKcJqoo36NJ8OVf5VDifMrCd2JCepzHWV35BLfX1kpJ/nHId9O89H6qOu
-                Hja+XK+caqdZ+c4Yyy20NQ47EHyvm62q8zE+5Cxe5EB96wJL5xwIPGJsLMgX
-                eMzYvhYgxDL7AE8WqgBPF/4BnrHfY02bNbcGCHpY6WG1hwhrHGK9h9u4MwA5
-                3MW9AeoOyw73HToOGw7NXygOZ4ZqAgAA
-                """,
-                """
-                androidx/compose/runtime/State.class:
-                H4sIAAAAAAAA/31Qy07jQBCsthPHmJeT5RECQhzDHtaAOKx4SXtBihSERCKE
-                lNOQDGGIM0aZScTR38KBj+CALI77USvaYU+AuHR1VU/3VPfff88vAPaxQdgU
-                ujdKVO8h6ibD+8TIaDTWVg1l1LLCyhKIUD9qHzTvxEREsdD96Pz6Tnbt4cln
-                iRB+1EooEPy+tJciHkvCUn37q75ifbvdZiw3B4mNlY7OpBU9YQVrznDisl3K
-                g58HEGjA+oPK2Q5nvV3CUZYuBE7VCbI0cMI8+K5/U83Sn56fpSFt0Z6z41xU
-                Qrfm/M7Sq9enwuuj59UKfiEs5jP2CFvN78/BbqhNuYHi5H2fsKXFvblN7LT+
-                a2AJMy3V18KOR1wOWsl41JWnKmaydvE+61IZdR3LP1on3KQSbTz+H0VMd+N7
-                eeC7Y42ZAx/u/8xFbYpVrDMe84sZ7gk6cBuYbWCugXkscIrFBkKUOyCDCn50
-                4BksGSwbrBismpyW3gBNs/uhAwIAAA==
-                """,
-                """
-                androidx/compose/runtime/StructuralEqualityPolicy.class:
-                H4sIAAAAAAAA/5VVW08bRxT+ZteX9WLAcVJqCE2ThjbmljWkdygtIVQxciiq
-                I6qWp7E9dcasd53dWStRX1B/Sp/70KgPiVqpQu1bflTVM7suIQYikOU5Z845
-                c+Y7t9mX//7xF4APscmwxL1W4MvWE6fpd3t+KJwg8pTsCqeugqipooC7m48j
-                7kr1dMd3ZfNpFozhu1qH97njcq/tfNPoiKZaqZ3tyeO98JGvHkSKK+l7iZ/V
-                ky7WVhgKw9IsUgzOBZ1nkWHIrEpPqjUGszy7m4eFnI00bIaUeiRDhjtvgHxG
-                8ATQFo8j2eeu8BTDrfIpiTghmf2BYabmB22nI1Qj4NILKSDPTxCHznbkurzh
-                CvJ+bd9XrvScTr/rSE+JwOOuU/VUQGdkM8ziEoPFAxHDyuMyxm0UcYWBcYbi
-                yatJ0aATyq9rF22GK+XZY1aJlKxuvgmerzRCsiqdlRcL0wzprgjagmHrXEk5
-                JU2nwV+9YOVn7okfeeSqarfnUrquM/xUvmhrngvtufDncQ3v2biBm1SEXiD6
-                0o+o87LNKAjiBsryXs+VokXq1aYb96sNQzepVd2uP1zf3tjMYw6jORLOM1yq
-                DfrjgVC8xRWnDBndvknjzPRi6QVU9H2SP5F6VyGutcQgDg+mbaNkJP/C4YFt
-                WJoZIWoSHbP++dkoHR4s28VMMVViFaPC7mYt4+9fMkbB3JoupKaMSnrZKmSm
-                Yi1x2YS7P7FlFSzS5u5P6MuW6Vm5cMqZhp0/Xjx6C/63rZOpuL1P+br6beKm
-                6vVlKGlm1l81Kg32ht+iBhyvSU9sR92GCB7qudKT4Te5u8sDqfcD4cywrx0e
-                8K6goXvNab7qeSLYcHkYCtrm6rLtcZoB8mDX/Shoiq+ldjc5cLd7AhgqVL00
-                xUdvJyZ1OYmuUm0yRK8STZOenifafUE7RxdQS+eeY+QZMQbWBsZAB1/Smk8M
-                iI7G9R7DOFnpw/eI6rJn5hde4K1fh07vx6evJxaD05qbwNuxPoMScQa+In7U
-                IFEhdp+sk5gaXLI4QGgW3/lt6Ab3GD5zcMPxUOmJw7uk0W52kKIfde3c/MLi
-                C8wM+0pinUtsjtBaeH+A1sIHMVrN3SLOPLpJA9YxXDaHYijExuWjXCfHgZE/
-                YXz/HLO/Y+FZLEhhnVabzG5Q2T6n4O/G6ExsxHSFMg1USb9Idbi9B7MKp4pK
-                FUtYJhZ3qvSF/WgPLMTH+GQPdojREJ+G+CxELsRYzEyEKIWYJP4//rdNjpUH
-                AAA=
-                """
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuOSSMxLKcrPTKnQS87PLcgvTtUr
+        Ks0rycxNFRL0LS1JTMpJ9cwrCS5JLEn1LhHiD85LLCjOyIcJcOlwKeHSr5eT
+        mVeiV5JaXCLEFgIkvUuUGLQYAH5U0JeGAAAA
+        """,
+        """
+        androidx/compose/runtime/DerivedState.class:
+        H4sIAAAAAAAA/4VRTW/TQBB9Yzuxk4bghhbSAG1BQiQccKk4IFJVQnyISKmQ
+        mihCymkbL2Ebx668m6jH/BYO/AgOyOqRH4UYp6hCRIXLzLzZN29Hb378/PYd
+        wHM8IDwScZgmKjwPRsn0LNEySGexUVMZvJGpmsuwZ4SRLohwdNB/2T0VcxFE
+        Ih4HH05O5ci0D1db3Ws1l2IH/X77sE3w/x504RC2/z3sokjwxtIMRDSThI1m
+        a3UBQqHZ4l+Yqa+Ym81VYmtAKDaZmRfr3UliIhUHR9KIUBjB89Z0brNVlIdS
+        HkCgCffPVY72uAqfEd5mi2rZqlvlbLFMllfwPtWzxRPHyxY+7Xs1p2a9pz3r
+        uO7bDetFtvh48bV68aVYaTie4xceOl7Rd3OxfcLj6/378ya8HfUJu/9xOzdj
+        fumA34vFmf6cmOXD04khlHpqHAszS/m53Etm6Ui+UxGDreNLkYHS6iSSr+I4
+        4SGVxJr9t1BgH1w2wOKLeSgx2s4RyozXULnCN2D/rmzsLPN97HJ+zYwqq9wc
+        wu7A72C9gxpucYmNDjZxewjSuIP6kE+ILY2Gxl2NezqHJY01jcovIuyLgMcC
+        AAA=
+        """,
+        """
+        androidx/compose/runtime/DerivedStateImpl.class:
+        H4sIAAAAAAAA/41S224SURRdZ2YYhpHClN5rvVVrgdpObXwwLcF4SSMJalII
+        MfbpABN6Wphp5hxIH/kKP8Av0ERj4oMhffSjjHuANCom8rL32mv22Wtf5sfP
+        b98BPMIOQ477zTAQzQu3EXTOA+m5YddXouO5L7xQ9LxmRXHllTrn7TgYQ7VQ
+        3S+f8h5329xvuW/qp15DHRQnqfJUdQvV6kHxgMH5+30cBsPGVDXiMBnMgvCF
+        KjIsZCd7ydUoIUtSEdCzuVoSFq7ZiCHJEOvxdtdjyEy+SyKFdAIaHAZDnQjJ
+        sDXdXNG+aCyr5anaqPx8NjcpQOrZHPVFmfIqM14gvP2EZtGHn2bLZ4FqC999
+        5Sne5IoTp3V6Ol2QRSYRGTCwM+IvRBTtEmo+ZHg36KdsbVmzB/2h0yzT0pYH
+        /bxhDfoO27MyRkZ7yXa1ZzMZ09FXtceD/uUHU3OMo7Vx+PbyfYoox9Yca9Ww
+        Yo65blhxx4gU9ki0yrA53U6iM1d8fi5PAjUkds4UQ6IiWj5X3ZAmN54HTXLp
+        svC9191O3QurvN4e3iZo8HaNhyKKx6RdCbphwzsUUbByNFKsCSno61PfD0hC
+        BL7ELh0wRvuh/5cQXZR8lpakYQU6YQvRiXPEFMlr5O38V8zkt75g9tMwL0/W
+        pEzQ2y2yi6MsZDAXrZ7Q71VtQvNYGNd0o8uQj+U/Y/bjP8slRwnjcqMii8Qt
+        XTW2P27M/G9T5lVTJpb/aEofIx0Phn4T2+QPKWOVtK8fQy9hrYQbJdzELYK4
+        XcIdrB+DSdzFvWMkJOYkNiTuS6RkFM5LLEgsSaR/Aaib5exSBAAA
+        """,
+        """
+        androidx/compose/runtime/MutableState.class:
+        H4sIAAAAAAAA/4VR0WoTURA9c3eT3aQxbmOradRaBTHxwa3FBzGlIKIYSBCa
+        EIQ83SZr3GZzt+TeDX3cb/HBj/BBlj76UeJsKkUM1Zc7c+aeOTOc+fHz23cA
+        L/CQ8FiqySIOJ+f+OJ6fxTrwF4ky4Tzwe4mRJ1HQN9IEDojQOxy86p7KpfQj
+        qab+h5PTYGzaR+ul7rWaK7HDwaB91CZ4fzc6sAm7/252UCS408AMZZQEhK1m
+        a30BQqHZ4inM1FfM7eY6sTUkFJvMzJPN7iw2Uaj8XmDkRBrJ/WK+tNgqyp9S
+        /oBAM66fhzna52zynPA2S6tlURflLF0F4RbcT/UsfWq7WerRgVuza+I97Yvj
+        umc1xMss/XjxtXrxpVhp2K7tFR7ZbtFzcrEDwpPr/fvzJrwdDQh7/3E7N2N5
+        6YDXV/JMf47N6uPZzBBK/XCqpEkW/F3ux8liHLwLIwY7x5ciw1CHPPG1UjE3
+        hbHS7L9AgX1w2ADBF3NRYrSbI5QZb6ByhW/A+p1ZeLCK97HH8Q0zqqxycwSr
+        A6+DzQ5quMUptjrYxu0RSOMO6iM+IXY0Ghp3Ne7pHJY0NjQqvwDJFOU0xwIA
+        AA==
+        """,
+        """
+        androidx/compose/runtime/MutableStateImpl.class:
+        H4sIAAAAAAAA/41S204TURRdZ2Y6nY6lDIVyE28o0hZhkPhgoKlRE2KToglt
+        GiNPh3YCB9oZ0nPa8Niv8AP8Ak00Jj6Yhkc/yrhP2xBiTezLXmuv2Wdf59fv
+        Hz8BPMMWQ46HjXYkGpd+PWpdRDLw251QiVbgH3QUP24GFcVVUGpdNONgDNVC
+        dbd8xrvcb/LwxH93fBbU1V5xXCpPlLdQre4V9xi8v9/HYTGsTZQjDpvBLohQ
+        qCJDJjveS65GAVkqpYmZzdWScHDLRQxJhliXNzsBQ3r8XRIpTCdgwGOw1KmQ
+        DBuTzaX3RWM5J4GqDdPPZXPjBah6Nkd9UaS8jowXiG++oFnMwaeZ8nmkmiL0
+        DwLFG1xx0oxW16QLMm0S2oCBnZN+KbS3TazxlOFDv5dyjUXD7fcGYDi2Yyz2
+        e3nL6fc8tuOkrbTxhm0br6bStmcuG8/7vatPtuFZhysj9/3VxxRJnmt4zrLl
+        xDx71XLinqUr7FDRKsP6ZDvRZ66E/EKeRmogbJ0rhkRFnIRcddo0ufU6ahBM
+        l0UYvO20joN2Vb/Wt4nqvFnjbaH9kehWok67HuwL7SwdDivWhBT09WUYRlRC
+        RKHENh0wRvuh/5cYXZQwS0sysASTuAN94hwpRUKD0M1/x1R+4xtmvgzi8mRt
+        igQWsUF2fhiFNGb16ondzOoSm0NmlNPXlyGM5b9i5vM/0yWHAaN0wyTzpC1c
+        N7Y7asz+b1P2dVM26TebMkfMxJMBrmOTcJ8ilqn27SOYJayUcKeEu7hHFPdL
+        eIDVIzCJh3h0hITErMSaxGOJlNTunERGYkFi+g+3c7/UUgQAAA==
+        """,
+        """
+        androidx/compose/runtime/NeverEqualPolicy.class:
+        H4sIAAAAAAAA/5VU3W8bRRD/7Z0/zhcndZyQpmn4KA3UTpqeE8pnTNoSinqR
+        ayJcBUGe1vbibnK+c+/2rCJeIv4Unnmg4qEIJBTBW/8oxOydCcFJUSLLO7Mz
+        s7/5zc7svfjr198B3MZdhir3u2Egu0+dTtAfBJFwwthXsi+cphiK8P6TmHs7
+        gSc73+bBGL5s7PMhdzzu95zP2/uiozYaL0Vo+XwQPQ7Uw1hxJQM/xamfhtjc
+        YCiNW/PIMDgXBM8jx5CrS1+qTQazUt0twkLBRhY2Q0Y9lhHDysspjxdNxGzx
+        JJZD7glfMdyonHEBpyzVrxmWGkHYc/aFaodc+hEV4gcp08hpxp7H254gdMYZ
+        yqcRyNFmsFTQUqH0ewyzleqJqNRKUdf/L0ugdCJ9t+NlWbjMkO2LsCcYts9V
+        0xlVnkW7fsGGLX0qvuGxp9z+wIvyuMrwXeWiE3UutufiX8QVvGpjEa/R5Q9C
+        MZRBTAOT78RhmPQ/zwcDT4ouuesdLxkzG4aeLcttth7da27dL+ItTBbI+DbD
+        dOMgUBTmPBSKd7nidENGf2jS62N6KegF1OwDsj+VelcjrbvGII4OF21j3kj/
+        paND27C0MkHSJDll/fm9MX90uG6Xc+XMPKsZNfZJ3jL++CFnlMztxVJmwahl
+        161SbiHxkpZPtQdz21bJIm/hwZxOts6wduErZ5p28WTzaMz+iW1RqLh1QPd1
+        9YsUxvWHMpI08vf+HVB6j1tBlwbwUkP6ohn32yJ8pJ+FfhFBh3u7PJR6PzIu
+        jWPt8JD3hRLhf0CLru+LcMvjUSRoW2jJns9VHBKC3QrisCM+kxruyghu9xQx
+        1Kh7WaqPPnk0ENROku9Tb3Ik50hmyU9fFdp9QDtHN1Bbl59j4hkpBj4cBQMh
+        PqK1mAaQnEz6PYVLFKUP36Wdbrth/jh2MkpOvpF6Rye1No1y4jcwQ5qBDdIn
+        DTKVEuh0ncUrowSrI3Zmef6nsQzqBDdzlOFkmbr4BfJomB1k6AdYyys3V3/B
+        6+NYaZ3LacwxW4v4p2wtXEvYau1N0szjTJqwrmHGHKuhlARfP77ny8lxYOI3
+        GF89x9LPuPEsMWRQp9WmsEVq2bvE+uOEnYnNRL6HOyRd8leoB9U9mC6WXay4
+        uIlVUnHLpSbW9sAirGF9D3aEyQjvRLgdoRBhKlGmI8xEmCX9b4SHlftABwAA
+        """,
+        """
+        androidx/compose/runtime/ProduceStateScope.class:
+        H4sIAAAAAAAA/41SW28SQRQ+s1BYkOoWb5TitTUqMe5KfHIJ0WhIMVQbQRPD
+        07AMOLDMkJ1Z7CO/xQd/hA+G9NEfZTwL3TYWa/swc27f+c5cvl+/f/wEgOew
+        Q6BMRS+QvHdge3I8kYrZQSg0HzN7P5C90GMtTTVreXLC0kAItKvtF80hnVLb
+        p2Jgv+8Omafd2mqqeSbxXqhp118SV9ttt+YSsE73pyFJ4MGFONKQIpCjXynX
+        b7iKYHjMR82R1D4X9nA6tvuh8DSXQtn1I89x47onAxlqLpiyX0skFyGNAO7j
+        1SsR6J9HW43rHwXHZzlvSrVc+/egnaYMBvaQ6W5AOQ6gQkhNl8Pehb4fXR5h
+        2/+DSR0hEbURn2KPadqjmmLOGE8TqAESbZloAwJkhPkDHkUOer1nBD7PZ6Ws
+        UTCy89mxsUgcGVaUMfuF+aycNOczi1TMfDJv7BLHeFuyEkXDSVZy1lpxkXXS
+        Tmr38PvLw28pwzKjARUCT87WyYoA8dikTeDhxaSFaLxTRopjUeTjdzhRASqv
+        JehEfZF60fR0pLGnxQeC6jDAnq0PS+qGmHLFkfvVyRPjN52u7tOAjplmwV+w
+        bEuGgcfq3EfGzaOeTyt8KGMD1vDQ6eg7UP8mZCABdzAyIAt30aawegntPVzr
+        Bga5xc9FewxMwP2FvQ3baOtYXUfSyx1INOBKA6wGbEAeXbjagGtwvQNEwQ24
+        2YGMgoKCTQVFBaaCLQUlBbcWTuYPf2PH6TMEAAA=
+        """,
+        """
+        androidx/compose/runtime/ReferentialEqualityPolicy.class:
+        H4sIAAAAAAAA/5VUW08bRxT+ZteX9WITYygBQq8hiblljUuvuDSUpoqRIShG
+        RC1PY3viDKx3nb1YifqC+lP60L70oVEfUrVShdq3/qiqZ3Zd6hqoQJbnnDnn
+        zHe+M+fM/vnXL78BWMUGQ5k7Lc+VredW0+10XV9YXugEsiOsR+KJ8ATp3L7/
+        LOS2DF7surZsvkiDMTyuHfIet2zutK2HjUPRDNZqF0LVHd71n7rBdhjwQLpO
+        jFM5C7G+xpAftqaRYLCuCJ5GiiFVkY4M1hn04vx+FgYyJpIwGRLBU+kzrF5M
+        +cLqiaEpnoWyx21yM9wpnnMTZyzzXzHM1VyvbR2KoOFx6fhUkePGlH1rJ7Rt
+        3rAFoTPOUDiLQI4GgxG49cCTTpthojg/EBVbKerm/2VxA5WIoqYvrM/AdYZk
+        R3htwbB1qeLOKfc8/pUrtnDuc/GEh3ZQ7XRtP40bDF8Xrzpjl2J7Kf5ZTON1
+        E7N4g7rQ9URPuiGNULoZel40CGne7dpStMhdadrR4JnQ1LQZ1Z363sbO5v0s
+        biGXIeNthrHakRtQmLUtAt7iAacb0jo9nR4mU0tGLaCuH5H9uVS7EmmtFQZx
+        cjxralNa/M+fHJuaoZQRkjrJUeOPb7Spk+OyWUgVElOspJXYZ2lD+/3blJbX
+        t2bziRmtlCwb+dRM5CUtHWsPJreMvEHezINJlazMsHLlK2eKdnawefSo/4mt
+        U6i4e0T3deNRDFN1etKXNPsb/04qvdBNt0UDeK0mHbETdhrC21PvQz0Nt8nt
+        fe5Jte8bcwTbPNrm3f5+bhh7l3u8IwLh/SdJtuo4wtu0ue8L2mbqsu3wIPQI
+        way7odcUX0gFN92H2z9DFCXqZpLqpY8iDQi1l+QH1KsUyUmSSfLTd4d2H9LO
+        Ug1V1oVXGHlJioaP+sEAx8e0ZuMAkrmo/6O4RlHq8B5JNQYji0vfIZ34Hgn9
+        B9rqWIvzZO6xAbRGhPZWfKKPprQxFCL/CMZJ01AhPaeRKR+li9cJvNZPutxn
+        rBemfhzi2xzgq/czDJauLmSGPApmFwn6AcbC4tLyz3hzGCuufSGOOWVrEP+Y
+        rYG3I7ZKe4c0/TSTIqxqGNeHashHwTdP7/56dJwK/xXal68w9xPuvIwMCXxC
+        q0lhs9TG94j1esROx6eRfB/3SFbJX6Rrnj+AXsVCFYtVLGGZVNytUmNLB2A+
+        VlA+gOkj5+NdH6s+Mj5GI2XMx7iPCdL/Br5SJwt/BwAA
+        """,
+        """
+        androidx/compose/runtime/SnapshotMutationPolicy＄DefaultImpls.class:
+        H4sIAAAAAAAA/5VSTW/TQBB96yR1E1L6wWcotEADohwwlTiRqBIqQjJKS0Wi
+        Hspp4yzpJvautV5HRfwpzhz4AfwoxKyTCmgQIpY9++bNm5n17H7/8fUbgBd4
+        zNDmamC0HJwHkU5SnYnA5MrKRARdxdPsTNvD3HIrtTrWsYw+NV+LjzyPbZik
+        ceaDMayN+IQHMVfD4F1/JCLro8RQSYQZCobPTzoLdmh1Lhf8L2Z3nmI4bfde
+        zvP7C++p3eu19ltkpu8ufQzNjjbDYCRs33CpsoArpadJWXCUxzHvx4JkO/+S
+        aeuUpKo07ZnMGPYWHhfDcmrEROqc0jf+NgU/yo0RyhLiaRpLMWBY74y1jaUK
+        DoXlA2456bxkUqJ7wZypOgMGNnaADtQ7lw49ZwgW3KGPBkP993tDl+ZC2iWl
+        eDamvZUP9IAuzGpHKnGUJ31hem6C7p90xOMTbqTzZ2S1K4eK29wQ3nw/7R+q
+        icwkhV/9GjEd0+XoMTc8EVaYP2T1UClhDmKeZYLcWlfnJhJvpGvWmJU4mSuP
+        PXgoYzqrKipYIu8eeW/Jd7zHvjiLLbJLxAGn2Cb7dBpFDVeKbA91rBRxD1cJ
+        eQVaJVTC/QL7eDCrsUzrQ/pWykXTi6eEHbI14jzcwSYaaBaJd/GI1i3i10iz
+        /gGlEBshroW4jhshbuJWiNs/AT8TejEUBAAA
+        """,
+        """
+        androidx/compose/runtime/SnapshotMutationPolicy.class:
+        H4sIAAAAAAAA/5VTzW7TQBD+1kltx2mLC6WkKeU3NCkHnFYcEK2QEAjhKgXU
+        RBzoaZNswybOOnjtqHDKs/AYHFDEkYdCjJ1WINIDlbzz/83szox//vr2HcBj
+        bDN4XHWjUHZPvU44HIVaeFGiYjkUXlPxkf4YxodJzGMZqndhIDufLTCG2n7r
+        aaPPx9wLuOp5b9t90Yn3ns2bGNx/bRbyDI74lMgxD4SKGaq1eeC8ZfsDQ6HW
+        au3Rl8oLQxH1BMPBf6EvyHfRbZfPCqQ16DBUGmHU8/oibkdcKk3dUuGsHdp7
+        kwQBbweCwlYagzAOpPIORcy7POZkM4bjHHWZpaSQEjCwAdlPZarVSeruMHyZ
+        TlYdo2Q404ljuEQyXnQM27ZPStPJw7w9nbhs16gbB5turmzU87umu1A2nkwn
+        JJiZ8Hrrx1fTcK2DqmuX8yU28xXOg5xzoTiLXsuiF9Mb7DLsNC65A/Q41mLZ
+        ezidNoM9isRYholmsDpJFGVztfhoFEjRZdi/ZIHKS3HCkyD2h6NAW7jDsPi3
+        hbbqHNckmHg0oGqFpuwpHicR7cTG0Sy9r8ZSSxrR8z9jo1y+UiJ6EXCtBalO
+        M0yijnglA0KunyHfz+FM6hYW0jHCoA02QX8CKqkGm/QCHJJmehEPiJvkXySe
+        xxZRh7S75LuH9bOoHKoZv48a8SPyL1H+5WPkfFzx4fpYwVUScc3HKq4fg2ms
+        4cYxljRKGusaZQ0zoxsaNzUsjYLGpsYtjdsazm99oitP5wMAAA==
+        """,
+        """
+        androidx/compose/runtime/SnapshotStateKt＄produceState＄1.class:
+        H4sIAAAAAAAA/41TbU8TQRB+9np94TxoqYBQFVGrtkU5qCZqCiSGSNJYNaGk
+        MeHT0h5l4bpH7rYNH/sr/AH+Ak00Jn4wDR/9UcbZa2NQEEzTmWcnM888uzP3
+        4+e37wCe4DHDUy5bgS9ax07T7xz5oesEXalEx3Xqkh+F+76qK67cVyp/FPit
+        btONjvmVJBgV1w54jzsel23n7e6B21SV2r/5dOHq9nZlvcKQ+bswCZNh/uLi
+        JBIMiVUhhVpnmC6c7V5sUEKBemgQKxQbNlK4YiEOmyHe417XZcierbMxgfQY
+        DGQYTLUvQobnF9zkwpeh243ntUbBvcawY6rtqhGcKhTPtidthSKpJs2Rnawd
+        +soT0nntKt7iilPM6PRiNDSmzZg2YGCHFD8W+rRMqLXCsDboj1uDvmXMGpaR
+        Mkts0E9Zs4N+OZU1s8azQX+Zbc1kjJyG707emycfEpZlZOI5MxXLmJqkzLBw
+        yRRJTuF/XyeJewz26Sdi2DtndOdERo9w0Os4e13ZVMKXobM5QuVK8TKVNh6g
+        QLv2h6KlQ8UwVhdtyVU3IDHmht8il64J6b7pdnbdYJvvetGe+E09wkDo8yho
+        V6V0gw2Ph6FLW5J+KZueHwrZplHt+y0Gq+53g6a7KXT23NZQUEOEgspfSOmT
+        Bn0PrNC2xWmG9CEhq9eP/CIN0sAs/UF7q/fxIaFN8jpilb5ivLT4BZOforxH
+        ZCegh78EEw7lL9EPmBlmE+tVvSaEpk6xW4SmoxzN7egtIh8vfcbkx9+0iSjo
+        RHT2MGFENyS5RmcnomZRM2AOy2RN3EdxlBOjK2pfQpn8GmXOUVVuB7Eqrldx
+        o4qbmCeIW1Us4PYOWIg7uLuDRKhhPsREiOkQMyHSvwDFJnyjsgQAAA==
+        """,
+        """
+        androidx/compose/runtime/SnapshotStateKt＄produceState＄2.class:
+        H4sIAAAAAAAA/41TXU8TURA9d7v9YF1oqYCAiqhVt0VZqCYqBRJDIGmsmlDS
+        mPC0bNdyob1Ldu82PPZX+AP8BZpoTHwwDY/+KOPcbWNQFHjYmXMnM2fm3jn7
+        4+e37wCe4DHDU0c0A583j23X7xz5oWcHkZC849l14RyF+76sS0d6L2XhKPCb
+        kevFx0I5DUbFtQOn69htR7TsN3sHnisrtf/zqcLVnZ3KeoUh93dhGjrD3PnF
+        aaQYUqtccLnOMGmd7V5sUIJFPRRIWMWGiQyuGEjCZEh2nXbkMeTP1pkYQ3YE
+        GnIMutznIcPzc25y7svQ7UYLakbutBuDjpmWJ4dwwiqebU+zWUWammaO7Xjt
+        0JdtLuxXnnSajnQopnW6CVoaU2ZEGTCwQ4ofc3VaItRcZljr90aNfs/QpjVD
+        y+gl1u9ljOl+r5zJ63ntWb+3xLanctqsgm9P3usnH1KGoeWSs3omkdMVSZlh
+        /oIt0jjWZV8njXsM5uknYjj+x+ouFRk+y0G3Y7+LhCu5L0J7a4jKleJFc5t4
+        AIvU98eMi4eSYaTOW8KRUUDj6Rt+k1y2xoX3OursecGOs9eOleO7aqkBV+dh
+        0KwK4QUbbScMPdJNdlO4bT/kokXL2/ebDEbdjwLX2+Iqe2Z7MFCDh5zKXwjh
+        0wzqHlgm/SVpq/RrIa8ESX6BVqthmj6QkpVCHxLaIq8iRukrRksLXzD+Kc57
+        RHYMSg4r0FGh/BUs0mlqkE2sV5VwCE2cYjcITcY5ittWuiKfLH3G+MfftKk4
+        WInpzEHCkG5Aco3OdkzN4mbADJbI6riP4jAnQVdUvoQy+TXKnKGq2V0kqrhe
+        xY0qbmKOIG5VMY/bu2Ah7uDuLlKhgoUQYyEmQ0yFyP4CSN9ZzcQEAAA=
+        """,
+        """
+        androidx/compose/runtime/SnapshotStateKt＄produceState＄3.class:
+        H4sIAAAAAAAA/41TXU8TQRQ9s91+rQstFRBQEbXqtigLxURNgcQQmjRWTShp
+        TPq0tGsZ2M6S3WnDY3+FP8BfoInGxAfT8OiPMt7ZNgZFwYe9H5N7zz0z9+z3
+        H1+/AXiMdYYnjmgHPm+f2C2/e+yHrh30hORd164L5zg88GVdOtJ9IfPHgd/u
+        tdwoza8nwai5duj0HdtzRMd+vX/otmS59m881bixt1feKjNk/2xMQmdYvLg5
+        iQRDYoMLLrcYZqzz0wsNKrBohgpiVqFhIoUrBuIwGeJ9x+u5DLnzfSYmkUlD
+        Q5ZBlwc8ZHh2wU0ufBm63UReceSO1xhNTHVcOQ6nrcL58cTNKhBr4hzZqdqR
+        Lz0u7JeudNqOdOhM6/ZjtDSmTFoZMLAjOj/hKlulqL3GsDkcTBjDgaHNaYaW
+        0otsOEgZc8NBKZXTc9rT4WCV7c5mtQUVvjl9p5++TxiGlo0v6KlYVlcgJYal
+        S7ZIdKz/fZ0k7jGYZ5+IofOX1TX/oqXxKxz2u/bbnmhJ7ovQroyjUrlwGU0T
+        D2CR2H6jtHIkGdJ13hGO7AXERt/22+QyNS7cV73uvhvsOfteJBS/pXYYcJWP
+        D82qEG6w7Tlh6JJMMjui5fkhFx3a1YHfZjDqfi9ouRWuqud3R4QaPOTU/lwI
+        nzioe2CN5BanJdKfhJzSH/ll2qSGOfpAwlWCfEhRhbw6MYpfMFFc/oypj1Hd
+        I7KTUNvfgU5VafIrlM2Oqgn1qtIJRdNn0A2KZqIahW0rGZGPFz9h6sMv2ER0
+        WIngzFHBGG4Eco1yO4Jm0TBgHqtkddxHYVwToysqX0SJ/CZVzlPXQhOxKq5X
+        caOKm1ikELeqWMLtJliIO7jbRCJUYT7EZIiZELMhMj8ByotGl7MEAAA=
+        """,
+        """
+        androidx/compose/runtime/SnapshotStateKt.class:
+        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
+        ieMmxzLHPMcKh/FftSsUaNEeAAA=
+        """,
+        """
+        androidx/compose/runtime/SnapshotStateList.class:
+        H4sIAAAAAAAA/41QTUsjQRSs7smHGaMZdd2Nun7gSYM4KsKCK8IqCIFRYRNy
+        yamTabRN0i3THfE4v2X/wZ4WPCyDR3/Usm+iF3cvXuq9qi7ee9XPfx5/AzjE
+        BkND6DgxKn4I+2Z0Z6wMk7F2aiTDlhZ39sa4lhNORsq6MhjD1nH7KLoV9yIc
+        Cn0dXvVuZd99PflfYgj+1cooMJSOlVbuhMHb2u5UUULZRxFTDAV3oyzDTvT+
+        i2jJXDQwbqh0eCGdiIUTpPHRvUf5WA6VHMDABqQ/qJztURfvU5Qsrfq8zv0s
+        9XlAkKX1LG0UprI0YAd8j58Wn36UeODl/gMa0Wb5pODNGbsDR6efmVgy1CKl
+        5eV41JNJW/SGpMxHpi+GHZGonL+KlZa61sKNE+r9lhknfXmu8oel7y9BO8oq
+        cn7T2tAKZbTFPjj90muU/NMIl4mFEw4UG79Q+UkNxwphaSJu4jNh9cUAH9NU
+        PaxOXB7WJnUJ61S/kKdKnpkuvCZmm6g1EWCOWsw3sYAPXTCLRXzsomAxbfHJ
+        om5R/gvbVDsvSgIAAA==
+        """,
+        """
+        androidx/compose/runtime/SnapshotStateMap.class:
+        H4sIAAAAAAAA/41QyW4TQRB91eN1YpJJ2Bx2LogEiUkiTsGKBEhIViYgYTQX
+        n9qeVtKx3W1Nt6Mc51v4A05IHNAox3wUosbJheXAoV5VvX5d2+XP7z8AvMJT
+        wpY0WW51dh6P7WxunYrzhfF6puKBkXN3Yv3AS6+O5LwJIvR6h/vJqTyT8VSa
+        4/jj6FSN/ev0H9zB3xQh+pNrokZo9LTR/oAQPN9KO2igGaKOFqHmT7QjvEj+
+        e0jusZ5MrJ9qEx8pLzPpJXNidhbwxlRBuwIQaML8ua6yHY6yXUJcFquh6IpQ
+        tNiisgjLolsW27VWWUTEjiKxJ3aCt/WLLw0R1apve1zpkC2lqmj020AvJ56X
+        eGczRVhLtFEfFrORyj/L0ZSZjcSO5TSVua7ya7I90MdG+kXOcTiwi3ys3uvq
+        YfPT1cqpdpqVb4yx3EJb47ALwfe63qo6H+N9zuJlDtS3v6H9lQOBB4yNJfkM
+        Dxk7VwKEWGEf4NFSFeDx0t/DE/b7rOmw5sYQQR+rfaz1EWGdQ2z0cRO3hiCH
+        27gzRN1hxeGuQ9dh06H5C310h9RqAgAA
+        """,
+        """
+        androidx/compose/runtime/State.class:
+        H4sIAAAAAAAA/31QPU8bQRB9c18+XwKciQHjIERpp8g5KEWUGKQ0SJYcRcIW
+        iuRqsRez+LyHvGuL8n5LivyIFNGJMj8qYs6kShDNvHlvdmbfzO8/P38BeI8D
+        wqHQk0WmJnfJOJvfZkYmi6W2ai6TgRVWVkCEVnf4sX8jViJJhZ4mXy9v5Nh+
+        Ov1fIsT/ahV4hHAq7YVIl5JQb7Wf6vNb7eGQsdafZTZVOvkirZgIK1hz5iuX
+        7VIZqmUAgWas36mSdTibvCN0i3wzchpOVOSRE5chdMOrRpG/CcIij+mIjp2O
+        c74du03nQ5F/u//h3X8PgqYXerFfzjgmHPWfPwe7oSGVBvzV4z7xQItbc53Z
+        df3tzBKqAzXVwi4XXI4G2XIxlmcqZbJ//jjrQhl1mcrPWmfcpDJtAv4fPta7
+        8b0C8N2xz8xBCPdv5qK5xgZeM57wiyr3RCO4Pbzo4WUPG9jkFFs9xKiNQAbb
+        eDVCYFA32DHYNdgzJa08ADaVmL0DAgAA
+        """,
+        """
+        androidx/compose/runtime/StructuralEqualityPolicy.class:
+        H4sIAAAAAAAA/5VVW08bRxT+ZteX9WLAcVJqCE2ThjbmljWkdygtIVQxciiq
+        I6qWp7E9dcasd53dWStRX1B/Sp/70KgPiVqpQu1bflTVM7suIQYikOU5Z845
+        c+Y7t9mX//7xF4APscmwxL1W4MvWE6fpd3t+KJwg8pTsCqeugqipooC7m48j
+        7kr1dMd3ZfNpFozhu1qH97njcq/tfNPoiKZaqZ3tyeO98JGvHkSKK+l7iZ/V
+        ky7WVhgKw9IsUgzOBZ1nkWHIrEpPqjUGszy7m4eFnI00bIaUeiRDhjtvgHxG
+        8ATQFo8j2eeu8BTDrfIpiTghmf2BYabmB22nI1Qj4NILKSDPTxCHznbkurzh
+        CvJ+bd9XrvScTr/rSE+JwOOuU/VUQGdkM8ziEoPFAxHDyuMyxm0UcYWBcYbi
+        yatJ0aATyq9rF22GK+XZY1aJlKxuvgmerzRCsiqdlRcL0wzprgjagmHrXEk5
+        JU2nwV+9YOVn7okfeeSqarfnUrquM/xUvmhrngvtufDncQ3v2biBm1SEXiD6
+        0o+o87LNKAjiBsryXs+VokXq1aYb96sNQzepVd2uP1zf3tjMYw6jORLOM1yq
+        DfrjgVC8xRWnDBndvknjzPSS0wuo6PskfyL1rkJca4lBHB5M20bJSP6FwwPb
+        sDQzQtQkOmb987NROjxYtouZYqrEKkaF3c1axt+/ZIyCuTVdSE0ZlfSyVchM
+        xVrisgl3f2LLKlikzd2f0Jct07Ny4ZQzDTt/vHj0FvxvWydTcXuf8nX128RN
+        1evLUNLMrL9qVBrsDb9FDThek57YjroNETzUc6Unw29yd5cHUu8HwplhXzs8
+        4F1BQ/ea03zV80Sw4fIwFLTN1WXb4zQD5MGu+1HQFF9L7W5y4G73BDBUqHpp
+        io/eTkzqchJdpdpkiF4lmiY9PU+0+4J2ji6gls49x8gzYgysDYyBDr6kNZ8Y
+        EB2N6z2GcbLSh+8R1WXPzC+8wFu/Dp3ej09fTywGpzU3gbdjfQYl4gx8Rfyo
+        QaJC7D5ZJzE1uGRxgNAsvvPb0A3uMXzm4IbjodITh3dJo93sIEU/wJqbX1h8
+        gZlhX0msc4nNEVoL7w/QWvggRqu5W8SZRzdpwDqGy+ZQDIXYuHyU6+Q4MPIn
+        jO+fY/Z3LDyLBSms02qT2Q0q2+cU/N0YnYmNmK5QpoEq6RepDrf3YFbhVFGp
+        YgnLxOJOlb6wH+2BhfgYn+zBDjEa4tMQn4XIhRiLmYkQpRCTxP8H9SluIpUH
+        AAA=
+        """
     )
 
     val Effects: TestFile = bytecodeStub(
         filename = "Effects.kt",
         filepath = "androidx/compose/runtime",
-        checksum = 0xb63b1aec,
+        checksum = 0xade9931f,
         """
             package androidx.compose.runtime
 
@@ -1129,156 +1127,155 @@ object Stubs {
             }
         """,
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgMuSSSMxLKcrPTKnQS87PLcgvTtUr
-                Ks0rycxNFeJ0TUtLTS4p9i4R4gpKzU3NTUot8i7h4uNiKUktLhFiCwGS3iVK
-                DFoMAHVSFrpbAAAA
-                """,
-                """
-                androidx/compose/runtime/DisposableEffectImpl.class:
-                H4sIAAAAAAAA/51TS08UQRD+enbZx4iyLPJGQEFZQJgFvS0hUYRkkxUNS4gJ
-                p2a2gV5me8h0L8Eb0Yu/w3/gwWg8GMLRH2Ws3ocgxgAmM9VV1f1VfV1V/ePn
-                t+8AnuIJwxxXlSiUlWPPD2uHoRZeVFdG1oT3Qmqy+U4gVnd3hW+KtcMgCcaQ
-                qfIj7gVc7Xmvdqq0k0SMIbEklTTLDBO50kFoAqm86lHN260r38hQaW+tpS0U
-                prcYPlx1ammudG1qZT88FIXZ6wM2hK4HprDcoDJRCqM9ryrMTsQlUeBKhYY3
-                6ayHZr0eBAW6n2ggU0gzjF6gLpURkeKBV1QmIrj0dRK3GHr9feEftPCvecRr
-                gg4yTOVKl+tXuOAp2yB7xKsTt3HHRSe6GGI5a3eg20UcWYbxqyrciTTupuGg
-                lyFu9qVm8K5fHdtpuvH7qzp00wb9R38YutssXgrDK9xw8jm1oxgNMLMiZQUY
-                2AH5j6W18qRVFhii05MR1xlwXCdzeuLS19Av/KcnKWfg9GTRybPno9n+jDPU
-                k41nnXy8ITvysbOPCSeVsDKT3Bj71/6bs3dxq1E8m3mRWT7ZNu/zrjDkb1oy
-                hoUbV43ms5179dgIGslQtUlsvm0EdZsAPX9gGNJluae4qUeCYXijGbuojqSW
-                FPnZ+WOgUVoJK3SoqySVWK/XdkS0abPby4Y+D7Z4JK3dck5ejvX7FfwR1C2H
-                9cgXa9JiBluYrb+yI0/jHG+0Omunm6xZshwM4jGtCfKnmoNADyWBGObIKtG+
-                Q2tmNut+RWbmC3pmZj+j71MDOU/yDp1MUAwXQ+ii1SNfXxODfgzY2SLN5mOt
-                fEliAiRZK6GDhYacwSKtK+QdIgLD24gVMVLEvSJGMUYqxou4jwfbYBoTmNxG
-                SmNA46FGWuORxpRGTmNaI/ELZm5MUZ8FAAA=
-                """,
-                """
-                androidx/compose/runtime/DisposableEffectResult.class:
-                H4sIAAAAAAAA/5VPzU4CMRicrwvsuiou/qIPQPTiAjHx4MlEjWswJphw4VTY
-                YgrL1tBCOPJcHgxnH8r4LTyBSTOd+X4605/fr28ANzgjxDJPZ0any3hopp/G
-                qng2z52eqvhBW9ZykKnH0UgNXVfZeeZ8ECEay4WMM5l/xG+DMfd8eAQ/3Wwo
-                gnd51SPUOhPjMp3Hr8rJVDp5RxDThcfWVEBQAAg04fpSF6rJLG0RGutVNRR1
-                EYpovQr5iEgEo/p61RZNegkicSGa3nOjmG4TWp1/foKDsG+4LdnriWPxbuaz
-                oXrSGec/727Xe9pqXr3Pc+Ok0ya3FbZECZvgJUIZFWYCJxs8xinft/y0z52g
-                Dy/BToIwwS72mGI/QRUHfZBFhFofJYtDiyOLMuMfURqWxJYBAAA=
-                """,
-                """
-                androidx/compose/runtime/DisposableEffectScope＄onDispose＄1.class:
-                H4sIAAAAAAAA/8VUXVPTQBQ9mxZaQoHwIQIqVkFtA5Km4hcwzDBYxmpRh2p9
-                4CltQ1mabpgk7fDk9CfpjI6jD06f/VGON0mRjjry8eJD9t69e/bs3bP35vuP
-                r98ALGOVYcUQVcfm1SOtYjcObdfUnKbweMPUnnCX5kbZMnN7e2bFK1bsQ3Pe
-                FmHcnNdjYAzKgdEyNMsQNe1l+YBgMUQYtDOz7phu06JNfQz9a1xwb51hLlWo
-                257FhXbQamh7TVHxuC1cbavrZVbTJYbsaai14/U3RLu6HmxSTi4Qns+QPO2w
-                BGQMDkBCgiGSSpcSiGFYRhQjDFFvn7sMa4WLy0iPEKuGE4bZf+cSwwTpxEXL
-                rhN4IpUu/C4/ZTuJy4O4hCl6hnMqxDB6HNk2PaNqeAbFpEYrQuXC/CHuD2Bg
-                dYofcX/2nryqzpDqtEfkTluWpqTAKJLKOu24PNVpZ6UMexZXpBkpE3k66eOz
-                DPrZNQuLhFKhk5fOp3QMKYaBX3IzFE8vrnMnloCKBQY5DLpLdSortfcYLjzT
-                EYalFe2mUzGfmOVmLXfkmcKlE+lefS3DalJy74rbG696aOTnAYesFpPH3pa8
-                kNSTPZCLV56sFmR9Tl/U9eUVmuRkUqrIa8Lwmg4lE920q2RGClyYL5qNsum8
-                9skYxgp2xbBKhsP9eTeYyAthOpuW4bomdcRITlQs2+WiRpW0b1dJnfDuW9xH
-                T/xNCIbpnTD3Enc5sW4IYXtG8D4MV7predH6YxU6tWeUqqMfTFH8fiVfp+KU
-                MEMfdRjiZLMUWScrkZXVhU8YUj9D+RDg7tFIu9GHYfozgrooQGEUY37Jk9fL
-                OkDeOCFZwPnY7wiyg+pHDH3BNMPbE1I5IFICKp84EUK7xP24H2BYgAKm8YDG
-                KNJYxMOA4y4ekf3PlUFXBOVDr0ACXd1FJI9reczmcR1JcnEjj5uY2wVzMY9b
-                u4i6vnvbxbiLO1ihzb5WS/RpASjzE1u+Yp2EBgAA
-                """,
-                """
-                androidx/compose/runtime/DisposableEffectScope.class:
-                H4sIAAAAAAAA/51UW2/TSBT+xrnYNaVJw603CgsBWgq1E9gLpCBBF7RBoSAC
-                lVCfJs60TOuMkcep+ljxsP9hX/cX7D4VLdIqKm/8KMQZJy3d7kMpljzn/p05
-                c87Mp8///AvgNu4wzHPVjiPZ3vKCqPM20sKLuyqRHeH9KjXJvBWKR6urIkia
-                QfRW2GAMxXW+yb2QqzXvWWudTDYyDPkFqWRynyEzM7s8jBzyLrKwGbLJG6kZ
-                /MbxUtUYhiLVNwmG5kxjI0pCqbz1zY632lVBIiOlvccDzq/NfnuCF0J3w4Qy
-                tI5CXdizv6Liave/K8nlRhSveesiacVcEjhXKkp4P9FSlCx1w5C8CvvF9sMd
-                FBimD+xOqkTEiodeXSUx4chA2xhlOBO8EcHGAOg5j3lHkCPDtZnG4UbVDmia
-                BmStZnp1CqddlHCG4e7xelTe33O5YuMclXp0l9LZGHcxhgkG75inaWOKYaQs
-                y6vlA7PB6gwXj0rMMLrn8lQkvM0TTjqrs5mhu8DM4pgFBLdB+i1pJJ+4doVh
-                pbc94VpjlmsVe9uu5VipYNhUZ431tquWzx7mdv/Mk/hkqpiZsPxsdcTJFnMT
-                Tilbsnzbz/+2+7vz8T3rbe++s2w35+z+UfWZSVFlJnHlO4artFfUwUrdvpOe
-                30jo/i1GbTqkQkMqsdTttET80uCY0Cjg4TKPpZEHyqGmXFM86cbET77oZ6+r
-                TaklmR98nVyG8mHr/uz9x224rpSIF0OutSDRbUbdOBCPpUk2PoBY/h88KrDo
-                +TCfRSdDrwmtPkmeaRDR3PUdOH+n5gqt+VR5AlVah/sOGIJLdJS0wwRlgpeR
-                gWnr6blS8T3OZu59wNjruR1M9nD+r30sl6iDEboWpRTvIsU4hDGNC2Sh6AGy
-                4QpkZbiVxp6kJ7W/kxGiP9Jvs4GQwU8pMKOxN984fk5DPPxCdJH0P9CGL60g
-                U8flOsp1XMFVYnGtjhnMroBpXMfcChwNV+OGRl7jhMZNjYLGPGm+AB149ZDV
-                BQAA
-                """,
-                """
-                androidx/compose/runtime/EffectsKt.class:
-                H4sIAAAAAAAA/+1Y21Mb1xn/Vhe0LALL4q6kjmJIA8JYWnExWBjH5hKrljGV
-                bKhL63QRC16QdhXtSgYnbdxmOtOX/APpQ2f63Je8JG4z43qat/5Rnf7O0UpI
-                aAHBOEwfyoz2fHvOd/l9t3P28O///OM1EU3S7wW6quhbRUPb2o9mjXzBMNVo
-                saRbWl6NLm1vq1nLvG/5SBAosKuUlWhO0XeiDzd3seAjt0BSRttSK4wCDY2k
-                9gwrp+nR3XI+ul3Ss5Zm6GZ02aZiidE1geKncc1V1x/rmpWY50IfpI6FucDf
-                lc2cmgCElFHcie6q1mZR0aBU0XXDUioGVgxrpZTLgatN5YhFkgS6UgdG0y21
-                qCu5aFK3ihDXsqaP/AL1Zp+p2T1bflUpKnkVjAJ9OJI6GpVE3UyGKdkBfj91
-                0SWJOinQaM/BeR8FgU/Ty8aeKlDPyGizBT/1UG8HdVOfQOHTIo7ELWqmHaBW
-                EyXzmP/pNK658eOzctRoJmsU1MRY6wJp1SzlqunvriJZVAtFNatY6hY88+VV
-                01R2EKeB1aJRRiWGFSucUxXTChu6Gt5TDwTy5tSymhNo8KgKeJBiS1DkXUqn
-                H6YFeu8w1slcTt1RchkUj7q0n1ULjN9HV6HoOFvXRRoWSLSMSt6PZs+uBj/9
-                lD6UyEMjyPOchhKfR4GNOJdNhMYkGqJrpyZahhdTTtXYQp6/PrvcxWV++KSG
-                RjfafT/esvZkvpDzUZzFNiTRBE0KNDasDSvD40U1r+Y31eJ4beMbPio8LAsk
-                JAXqhMT2cFVAIA/Sj6VgcyAF+vjkTeIMifrb29B0cak7Q1jjlRBieNKaj+eK
-                3+sfR/f/ZEQnKhHFMD2ycb5w/fkcghcXC+adKdJS9cukZGm56J1iUTnAmf0x
-                9lZoP3i4LdCokxvJUYdJPyXpZxLdo/tnCjV2kHZNL5Qsc1gr46xy0CxQV0pB
-                jJ6pW9UzWGvhdLUZskbRgHu6auJjB6HRS3wDPGSwP5TGmg1XYuXdzBnZPZHS
-                Il0R6LNz7fdvC8vYselujFBln16TaJ1t0aPHpqNRim3QX72lbfJtedwydmx/
-                f/nRtqgL9wZbz+fn20EuHCoK7HJV6QPVUrYUS0HPuvJlN65JAnuI7EE4/fcY
-                4cLivsaoGKgtWXD98ObltPTmpeQKuPgw4Gr48RX2EN0gLldGtiZ62Rh6H4sh
-                V0yI9wdcoe6gJ+iKefjTG3P/669tLrHtni80VmUSA76QZ0CIiSeyTzWzi4H2
-                FgRvnyQoBqQWVMxXVfQFOkL+oCgKQS4U8189VZiNgc5QKtDVAoh3A5dCA9Au
-                BUWuR4gFgm22Lfc93w+vhDcvucLLobsnKGxZTTA006SmZeHu0LItfFxYWlbV
-                Gbpuq2pZpCfUF+jlIn4Ev8rch4D/weVBJQ6yUsYeROxD1u6G+vtF7KxHu0Dy
-                mQ93XJCrtpf2LRV3cEOvgnh0wJWGT9kgEg742UVYsvv/+h6O30j9NlS792eM
-                UjGrLqqbpZ2adXY/LCu5kioIZubBndU6NdJ9rkOKZMJValkaC8vhOpbT/70C
-                iXg4bW9SJ4pUmSATSUnykHxNlidvypI8MRS/KctTUjzGiWkpPsOJG9LEJCdm
-                qjyzNk88ZvPEZZsnHj/0g0fgfM4A2GRsSOZwJmc5MS1NVYgb0vQNTsxIM1Oc
-                mJVmJxkBOHKsQsEdOc4pAFqS8KW3YGzhjn8phUyvlJj/j1jZsCwbWSW3phQ1
-                9m5Ptme0HV2xSkXQ76Qr8JJ6WTM1LN85vD3ianl0tfafnQY26fB/Drj82zJr
-                DvqkSvUsawxGj1MpkUwu3PzZXwcNkpfa8PYcb3OYR+NRVyTY8YouR/5O/QKt
-                f8NOGtrHU8LYRiJ1Ujsd4N1f4cb8AMYXnM9Hn2Fsw4qI8XP8fDiuIEAwNUgh
-                LDFTt8jNhbsrpr6noSfBD76l0e9o/J81e0yLRO/X2erG+/WarXfot9yL3+EX
-                xPq7mPuJSVfoPZXCkDsRSdR2Og8kLBi9YxyJ+5Z7/nuaeDL2HU3V+97H4zQC
-                XSYwjMCeST00yrFFoEDCyjTdgDIRUZ0B5WJKaZZucoy9HLlgI481YetkoZf5
-                4V5FmLAR7kOpl0G4VkE47572MIjXHCHKUGkBgoxgWTAb5xAnsdaBlVsA5sHo
-                5xDdXKoKsY/mQQmcYmBdNti5JrDd7hrYRsi3bchfQnUbxv7xCuRpj3vayzCP
-                O2JOQEEJmBIIaQlzcxzzPFb8sHkHSL3gqGBmueqvYe6vYe6nu6BcnGLo3Tb6
-                j5rQD3qOoG/0YcH24Y922IciwWX4UCmPSOT1K0o9qOXAqUz8UNFLZTTFAsqw
-                TFdpsZaDAaB4wL3oreWgGy20Qg859iFaAkWcqi+YReeCaa9DvurUXJlqcz1y
-                bq6VhuZK1zXXz8/fXKtOzZWpNdc6i9ovmqvgMXQ9B6bHsPcclbDW0FxPTmyu
-                dF2sHp/eXKtOzZU5bK511lwOEJ9C5T4gPEWw9mH2k4bm2mixudJ1zfXLVptr
-                1am5MnXNtc6aywHzM75b+zH2YOwjraG5fn3m5krXNdevztZcq8c3V6apuZzL
-                xE8FxP0FGqmAMnyB5vq0obk+abG56gvm6WnN5aEvOKNJLzH1/++vi//+4ttQ
-                Aen4DfKsbJA7SZtJyiZpi9QkbdNOEvWtbSA5tEt7G9Rv0qBJOZzVJuVN0k0y
-                TCqYNMsn5026a9ISpxdMWjUpbdKnJt02KWFS1KSQSV6TirwuumDVwq/EtZf/
-                C7XJpgW2HAAA
-                """,
-                """
-                androidx/compose/runtime/LaunchedEffectImpl.class:
-                H4sIAAAAAAAA/5VSW08TURD+znbZbleUsgKWi4iCUKiwhfhWQqJETJOKBpSY
-                8HS6Xcppt2fJXhoeG179F/4DH4zEB9Pgmz/KONuLIKiEZPfM5Xwz852Z+fHz
-                6zcAT7HKkOOy4nuicmzZXuPICxzLj2QoGo5V4pG0D53Ki4MDxw6LjSM3CcaQ
-                rvEmt1wuq9brco1ukkgwaOtCinCDYTZbqnuhK6RVazasA0oRCk8G1lZPWy0s
-                7jGI61Dry32A7fleFArpBNamR8xkxGPEOeAdFS5sFHKly8TIGdeaLXl+1ao5
-                YdnngmpwKb2Qd+tte+F25LoFBjXkQV1HimH6AjMhQ8eX3LWKMvQpWNhBErcY
-                Rqkxdr0X/Yb7vOEQkGEhe5XFBc9unKRKrAZxG3cMDGKIIZGN7QEMG1BhMsxc
-                18BBpDCSgoLRmPahCBiWSzcYI722cl37b9r9vzWfYbiPeuWEvMJDTj6l0UzQ
-                8rH40OMDDKxO/mMRW3nSKrSXH9qtCUPJKIaSbrcM+jp6x6ZfV/R2K9NurSl5
-                9nzenEorExmdmYapm6qp5AfyqqmZaoblWT7x/ZS1W2cfNSWt7Sz+D/j+7ETt
-                g1Wqkzw7UUjq4zGlNRYTNfsPOp/GhYH9o1kEMbrdD1bqIUNqV1QlDyPfYZjc
-                6Y6pKJsiEGXXeXa+nTTdTa9CoKES5dyOGmXHf8sJE/PwbO7ucV/Eds85dznX
-                78X8I6mx60W+7WyJOGa8F7N3pTpWacPUznjMeOHIWiRLwTiWSGrk17vDo93V
-                kECOrBLdKyTTOdM4RXrpC+4u5T5j7FMn8gmddwipYQsGXmKI5DL5xroxuIdM
-                vA+kxfVYr14SKySTrFdQgdU5s8iT3CTvBBGY3EeiiKki7hcxjQekYqaIh3i0
-                DxZgFnP70ANkAjwOkAowH2Cho2sBRn4Bxaa1HQ8FAAA=
-                """
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgMuSSSMxLKcrPTKnQS87PLcgvTtUr
+        Ks0rycxNFeJ0TUtLTS4p9i4R4gpKzU3NTUot8i7h4uNiKUktLhFiCwGS3iVK
+        DFoMAGDKMaZbAAAA
+        """,
+        """
+        androidx/compose/runtime/DisposableEffectImpl.class:
+        H4sIAAAAAAAA/51TS08UQRD+enbZx4iyLPJGQEFZQJgFvS0hUYRkkxUNS4gJ
+        p2a2gV5me8h0L8Eb0Yu/w3/gwWg8GMLRH2Ws3ocgxgAmM9VV1f1VfV1V/ePn
+        t+8AnuIJwxxXlSiUlWPPD2uHoRZeVFdG1oT3Qmqy+U4gVnd3hW+KtcMgCcaQ
+        qfIj7gVc7Xmvdqq0k0SMIbEklTTLDBO50kFoAqm86lHN260r38hQaW+tpS0U
+        prcYPlx1ammudG1qZT88FIXZ6wM2hK4HprDcoDJRCqM9ryrMTsQlUeBKhYY3
+        6ayHZr0eBAW6n2ggU0gzjF6gLpURkeKBV1QmIrj0dRK3GHr9feEftPCvecRr
+        gg4yTOVKl+tXuOAp2yB7xKsTt3HHRSe6GGI5a3eg20UcWYbxqyrciTTupuGg
+        lyFu9qVm8K5fHdtpuvH7qzp00wb9R38YutssXgrDK9xw8jm1oxgNMLMibQUY
+        2AH5j6W18qRVFhii05MR1xlwXCdzeuLS19Av/KcnKWfg9GTRybPno9n+jDPU
+        k41nnXy8ITvysbOPCSeVsDKT3Bj71/6bs3dxq1E8m3mRWT7ZNu/zrjDkb1oy
+        hoUbV43ms5179dgIGslQtUlsvm0EdZsAPX9gGNJluae4qUeCYXijGbuojqSW
+        FPnZ+WOgUVoJK3SoqySVWK/XdkS0abPby4Y+D7Z4JK3dck5ejvX7FfwR1C2H
+        9cgXa9JiBluYrb+yI0/jHG+0Omunm6xZshwM4jGtCfKnmoNADyWBGObIKtG+
+        Q2tmNut+RWbmC3pmZj+j71MDOU/yDp1MUAwXQ+ii1SNfXxODfgzY2SLN5mOt
+        fEliAiRZK6GDhYacwSKtK+QdIgLD24gVMVLEvSJGMUYqxou4jwfbYBoTmNxG
+        SmNA46FGWuORxpRGTmNaI/EL6pV/cp8FAAA=
+        """,
+        """
+        androidx/compose/runtime/DisposableEffectResult.class:
+        H4sIAAAAAAAA/5VPzU4CMRicrwssrIqLv+gDEL24QEw8eDJR4xqMCSZcOBW2
+        mMKyJbQQjjyXB8PZhzJ+C09g0kxnvp/O9Of36xvALc4JkcySudHJKhqa6cxY
+        Fc0XmdNTFT1qy1oOUvU0Gqmh6yq7SJ0PIoRjuZRRKrPP6H0w5p4Pj+An2w1F
+        8K6ue4RaZ2JcqrPoTTmZSCfvCWK69NiacqjkAAJNuL7SuWoyS1qExmZdDURd
+        BCLcrAM+IhTlUX2zbosmvZZDcSma3ksjn24TWp1/foKDsG+wK9mbiWPxYRbz
+        oXrWKee/6O7We9pqXn3IMuOk0yazJbZEAdvgBUIRJWYCp1s8wRnfd/y0z51y
+        H16MSowgxh72meIgRhWHfZBFiFofBYsji2OLIuMfte9Y6pYBAAA=
+        """,
+        """
+        androidx/compose/runtime/DisposableEffectScope＄onDispose＄1.class:
+        H4sIAAAAAAAA/8VUXVPTQBQ9mxZKQ4HwIQIqVkFtA5Km4hcwzDBYxmpRh2p9
+        4CltQ1mabpgk7fDk9CfpjI6jD06f/VGON0mRjjry8eJD9t69e/bs3bP35vuP
+        r98ALGOVYcUQVcfm1SOtYjcObdfUnKbweMPUnnCX5kbZMnN7e2bFK1bsQ3Pe
+        FmHcnNdjYAzKgdEyNMsQNe1l+YBgMUQYtDOz7phu06JNfQz9a1xwb51hLlWo
+        257FhXbQamh7TVHxuC1cbavrZVbTJYbsaai14/U3RLu6HmxSTi4Qns+QPO2w
+        BGQMxiEhwRBJpUsJxDAsI4oRhqi3z12GtcLFZaRHiFXDCcPsv3OJYYJ04qJl
+        1wk8kUoXfpefsp3E5UFcwhQ9wzkVYhg9jmybnlE1PINiUqMVoXJh/hD3BzCw
+        OsWPuD97T15VZ0h12iNypy1LU1JgFEllnfaAPNVpZ6UMezagSDNSJvJ00sdn
+        GfSzaxYWCaVCJy+dT+kYUgzxX3IzFE8vrnMnloCKBQY5DLpLdSortfcYLjzT
+        EYalFe2mUzGfmOVmLXfkmcKlE+lefS3DalJy74rbG696aOTnAYesFpPH3pa8
+        kNSTPZCLV56sFmR9Tl/U9eUVmuRkUqrIa8Lwmg4lE920q2RGClyYL5qNsum8
+        9skYxgp2xbBKhsP9eTeYyAthOpuW4bomdcRITlQs2+WiRpW0b1dJnfDuW9xH
+        T/xNCIbpnTD3Enc5sW4IYXtG8D4MV7predH6YxU6tWeUqqMfTFH8fiVfp+KU
+        MEMfdRgGyGYpsk5WIiurC58wpH6G8iHA3aORdqMPw/RnBHVRgMIoxvySJ6+X
+        NU7eOCFZwPnY7wiyg+pHDH3BNMPbE1I5IFICKp84EUK7xP24H2BYgAKm8YDG
+        KNJYxMOA4y4ekf3PlUFXBOVDr0ACXd1FJI9reczmcR1JcnEjj5uY2wVzMY9b
+        u4i6vnvbxbiLO1ihzb5WS/RpASjzE60KhHSEBgAA
+        """,
+        """
+        androidx/compose/runtime/DisposableEffectScope.class:
+        H4sIAAAAAAAA/51UW2/TSBT+xrnYdbtNGm5tYaFAgJZC7YT7hkXaLVsRFAoi
+        UAn1aeJMy7TOuPI4FY8VD/wHXvkF8AQCCUXljR+12jNOWgo8dIslz7l/Z86c
+        M/P134+fAVzFLYY5rtpxJNsvvCDqbERaeHFXJbIjvLtSk8xbofhnZUUESTOI
+        NoQNxlBc45vcC7la9R621shkI8OQvy2VTO4wZKZnlkaQQ95FFjZDNnkuNYPf
+        OFiqGsNQpPomwdCcbqxHSSiVt7bZ8Va6KkhkpLS3MOD82sz/T/BY6G6YUIbW
+        fqi3d+xPqbjanV9KcrYRxavemkhaMZcEzpWKEt5PtBgli90wJK/CbrH9cAcF
+        hpN7didVImLFQ6+ukphwZKBtjDEcCZ6LYH0A9IjHvCPIkeHCdOPHRtX2aJoG
+        ZLVmenUIh12UcIThj4P1qLy753LFxjEqdf8upbMx4WIckwzeAU/TxgmG0bIs
+        r5T3zAarM0ztl5hhbMflgUh4myecdFZnM0N3gZllyCwguHXSv5BG8olrVxiW
+        e1uTrjVuuVaxt+VajpUKhk111nhvq2r57O/c9ps8ifdPFDOTlp+tjjrZYm7S
+        KWVLlm/7+Xvbr5wvH1hva/ulZbs5Z/t11WcmRZWZxJVfGK7STlF7K3X7Tnpu
+        PaH7Nx+16ZAKDanEYrfTEvETg2NCo4CHSzyWRh4oh5pyVfGkGxN//HE/e11t
+        Si3J/Ne3yWUo/2jdnb3v3EbqSol4PuRaCxLdZtSNA7EgTbKJAcTST/CowKLn
+        w3wWnQy9JrT6JHmmQURzF9/DeZeaK7TmU+UwqrSO9B0wBJfoGGlHCMoELyED
+        09bDs6XiBxzN/PkJ489m3+N4D7+/3cVyiToYpWtRSvGmKMYhjJM4RRaKHiAb
+        rkBWhitp7G/0pPZ3Mkr0Gv02GwgZXE+BGY29+SZwIw3xcJPoPOlP04bPLCNT
+        x9k6ynWcw3licaGOacwsg2lcxOwyHA1X45JGXmNY47JGQWOONP8BWe15VNUF
+        AAA=
+        """,
+        """
+        androidx/compose/runtime/EffectsKt.class:
+        H4sIAAAAAAAA/+1Y3VMb1xU/qw+0LALL4ltJHcWQBoSxtOLDYGFcB3CsGmMq
+        2VCX1ukiFryw2lW0KxmctHGn05m+9B9IHjqT5770pUmbGTfTx/5Rnf7u3ZWQ
+        YAHBOEwfCiPds3vPOfd3Pn539+rf//nHGyKapN8JdF0xtsqmtrWfLJjFkmmp
+        yXLFsLWimlza3lYLtvXQDpEgUGRXqSpJXTF2ko83dzERIr9AUl7bUh1FgYZG
+        lvdMW9eM5G61mNyuGAVbMw0red+VUpnRNYHSZ2nN1eafGpqdmedGHyyfCHOB
+        XyubupoBhGWzvJPcVe3NsqLBqWIYpq04C6yY9kpF16HVpnLEIkkCXWsAoxm2
+        WjYUPZk17DLMtYIVorBAvYUXamHPtV9VykpRhaJAH44sH81KpuFOnjnZAf4w
+        ddEViTop0ryeR/AhigKfZlTNPVWgnpHR4yuEqYd6O6ib+gSKn5VxFG5Rs9wE
+        tVoomef8j2dpzY2fXJWji+YLZknNjLVukFOtil4rf3cNyaJaKqsFxVa3EFmo
+        qFqWsoM8DayWzSo6Ma7YcV1VLDtuGmp8Tz0QKKirVVUXaPCoC0SwzKbgKLiU
+        yz3OCfTeYa6zuq7uKHoezaMu7RfUEtMP0XU4OmmtmyINCyTaplP3o9VzuyFM
+        P6YPJQrQCOo8p6HF59FgI95tk6AxiYboxpmFlhHFlFc3tlDnL89vd3mVHz6N
+        0GCjy/vxlr1niyU9RGmW25hEEzQp0NiwNqwMj5fVolrcVMvj9Y1v+KjxsCyQ
+        kBWoExbbwzUDgQIoP6aixxMp0MenbxLnKNRf3oanyyvdOdKadlKI4VlrMV4o
+        f29+GN//kxmdcDKKYXpk42Lp+uoChpeXCxadJdJS7c2kYmt68l65rBzgmf0x
+        9lZ4P3i8LdCoVxjZUY+bYcrSTyV6QA/PlWrsIO2aUarY1rBWxbPKw7NAXcsK
+        cvRC3ao9g7UWnq6uQsEsmwjPUC287CA1RoVvgIcK7ovS2PGFnVwFN3WzsCdS
+        TqRrAn12of3+bWEZO7HczRly9uk1idbZFj16YjmardgG/ae3tE2+rYhbxo7t
+        788/2BZ16dFg6/n8YjvIpUNFg12tOX2k2sqWYivgrK9Y9eOYJLCvdvZFePrv
+        McGHyX2NSSlIW7Lg+/r719PS968lX8THhwFf04fPsC/RD+GqM7I5McjG2PuY
+        jPlSQro/4ot1RwNRXyrAv4Mp/7++bvOJbQ9CsbGakhgJxQIDQko8VX3quLoY
+        aW/B8O5phmJEasHFfM1FX6QjFo6KohDlRqnw9TON2RjpjGUjXS2AeDdyJTYA
+        71JU5H6EVCTa5q7ld31dRUQn+2rFQxTJPOqhFbvu2IJrd1IeWvHSico7XlrR
+        7on1RXq5dhg5run1PQixTsUWQ+w91W32xuND6rxPboHkcz+7cf6trb20b6s4
+        YptGDcSTA+40fgb/Mx742TlXcul9cw9P10TjLlM/1ufNSrmgLqqblZ366uz4
+        V1X0iioIVv7RvdUGN9JD7kNK5OM16b40FpfjDSpn/3oCi3Q85+5Bp5rUlGCT
+        WJbkIfmGLE/eliV5Yih9W5anpHSKC9NSeoYLt6SJSS7M1HRmXZ10ytVJy65O
+        On0YB8/AxYIBsMnUkMzhTM5yYVqacoRb0vQtLsxIM1NcmJVmJ5kAOHLKkRCO
+        nOYSAC1JeJFbMLdwhL+yjEqvVFj8T1jbsCqbBUVfU8oau3Zvtue1HUOxK2XI
+        7+QceFmjqlkapu8dHg5xcjw6W//hpklNOvxJAWd712bNw5/kdM99jcHo8Wol
+        ksmHgz3766BBClIbrl7iag73QTzqSkQ7vqWrib9Tv0Drf2UPEtrHt4SxjUTq
+        pHY6wHXY0cb9AYyvuF6IPsPYhhkR4+f4gNDIB4RB/McwxZa6Q35u3O0s9R0N
+        PYt+8Dca/YbG/1lfj3mR6P2GtbpxfbO+1jv0Gx7Fb/GJYv5d3PuRRdfoPZXi
+        sDsVSdINuggkLBm9YxyJ/45//juaeDb2DU01xt7H8zQCXxYwjGA9i3polGNL
+        wIGEmWm6BWcisjoDycec0izd5hh7OXLBRZ46hq2TpV7mz+4awoyLcB9OgwzC
+        DQfhvH86wCDe8IQow6UNCDKSZWPZNIc4ibkOzNwBsADGMIfo51Y1iH00D0ng
+        EgPrc8HOHQPb7a+DbYZ814X8e7huw9g/7kCeDvingwzzuCfmDBxUgCmDlFZw
+        b45jnsdMGGveA9IgNBzMrFb9dcz9dcz99BEkH5cYer+L/ifH0A8GjqBvjmHB
+        jeEPbtqHEtH7iMFpj0Tizbe0/KheA682CcNFL1VBigW0YZWu02K9BgNA8YhH
+        0VuvQTcotEKPOfYhWoJEXGpsmEXvhmlvQL7qRa58jVxPvMm10kSuXAO5fnZx
+        cq16kStfJ9c6y9rPj3fBU/h6CUxPsd5LdMJaE7menUquXEOunp5NrlUvcuUP
+        ybXOyOUB8Tlc7gPCcyRrH8t+0kSujRbJlWsg1y9aJdeqF7nyDeRaZ+TywPyC
+        79ZhjD0Y+0hrItevzk2uXAO5fnk+cq2eTK78MXJ5t0mYSsj7KxCphDZ8BXJ9
+        2kSuT1okV2PDPD+LXAH6gita9Bq3/v/+dfnvX3wbKqEcv0adlQ3yZ2kzS4Us
+        bZGapW3ayaK/tQ0Uh3Zpb4P6LRq0SMez2qKiRYZFpkUli2b5zXmLPrJoicsL
+        Fq1alLPoU4vuWpSxKGlRzKKgRWXeF11Y1canwr1X/wvUiR6dlRwAAA==
+        """,
+        """
+        androidx/compose/runtime/LaunchedEffectImpl.class:
+        H4sIAAAAAAAA/5VSW08TURD+znbZtitCWQHLRUSLUKiwhfhWQqJETJOKBpSY
+        8HS6Xcppt2fJXhp8a/wp/gMfjMYHQ3j0RxnntEUQVEKyO7f9Zubbmfnx89t3
+        AE+wylDgshb4onZsO37ryA9dO4hlJFquXeGxdA7d2vODA9eJyq0jLwnGkGnw
+        Nrc9Luv2q2qDviSRYDDWhRTRBkMuX2n6kSek3Wi37AMqEQlfhvZW31otLe4x
+        iOtQ68tnAMcP/DgS0g3tTZ+YyZgrxDngLTUubZQKlcvEKKh65Sp+ULcbblQN
+        uKAeXEo/4r1+2360HXteiUGPeNhMIc0wc4GZkJEbSO7ZZRkFlCycMIlbDGM0
+        GKfZz37NA95yCciwkL/K4kJkVxWpE6tB3MaQiUEMMyTyyh/AiAkdFsPsdQMc
+        RBqjaWgYU7QPRciwXLnBGulva9eN/6bT/9vwGUbOUC/diNd4xCmmtdoJOj6m
+        RFoJMLAmxY+F8opk1egu3590Jk0tq5la5qRj0tO1uz69KS110smedNa0InuW
+        s6Yz2mQ2xSzTSlm6pRUHirplWHqWFVkxcfrR0DLGzvz/MO9OP+iE06l6UhFY
+        Y4qWdUb/fPYX1vOP0RDE7M06XGlGDOldUZc8igOXYWqnt5SybItQVD336fkt
+        0i43/RqBhitUcztuVd3gDSeM4uE73NvjgVB+Pzh3udbvM/yjqLnrx4HjbgmV
+        M9HP2bvSHat0T3p3GZY6L/IWydMwgSXSBsVTvVXRpRpIoEBehb5rpDMFy/yK
+        zNIX3FkqfMb4p27mY5JDhDSwBRMvMEx6mWLjvRzcRVZtnyzVj/X7JbFCOsn6
+        DTXYXZlHkfQmRSeJwNQ+EmVMl3GvjBncJxOzZTzAw32wEDnM7SMVIhviUYh0
+        iPkQC13bCDH6C4u/Nd/9BAAA
+        """
     )
 
     val Dp: TestFile = bytecodeStub(
         filename = "Dp.kt",
         filepath = "androidx/compose/ui/unit",
-        checksum = 0x9e27930c,
+        checksum = 0xe65966ab,
         """
             package androidx.compose.ui.unit
 
@@ -1290,65 +1287,65 @@ object Stubs {
             inline val Int.dp: Dp get() = Dp(value = this.toFloat())
         """,
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAAAGNgYGBmYGBgBGJ2KM3ApcAlkZiXUpSfmVKhl5yfW5BfnKpX
-                mqlXmpdZIsTiUuBdosSgxQAA2sByTDoAAAA=
-                """,
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/3XNOwvCQBAE4JUExFUQrhARQbERLGIjWIt26QzYyiVZkoN7
+        hMsG/PmeqFV0YZphPhYAIgAYhIzgc3jAhbSld6p8JIUzjWspkVYZycpZMcuU
+        rTTdpO7o9G1Txj2u/qvQeBKT917mmgI44rwHfGdZGRJ4JUMmJ5+ymGZWNm3t
+        OGPJL7jFZQ92Kqm8bGpVtGJ4dtoFiesfH8Kws4pFfGnCYowxU8siuqe8gR08
+        AekscysQAQAA
+        """,
         """
-                androidx/compose/ui/unit/Dp.class:
-                H4sIAAAAAAAAAH1V3VMbVRT/3c3XZlnKkrZA6KektgGkCVihSsG2UFoQWi2I
-                /dDWJdnCQrKbZjdMxyfGF/0L+uCbPnc6OqOUsTMO0jf/IJ8cx3M2NyENkZnk
-                fpx7Pn7nd869+9e/v/8B4BI2BU6YTr7s2vlnmZxbLLmelanYmYpj+5npUgxC
-                4Ob8urlpZgqms5q5s7Ju5fzxBskUGZllc6VgXZk/xNP45LiA0ewohrDAsVbO
-                YogKqKuWv2wWKpZAKN0/IxDZrO7EjA4NbXEo0AXC/prtCZw6NL5AZy7wbi25
-                Q9nRy9n1x5fIYXpmpn9WoGMfw0zBNQlYQiAmDXQcQ6eGozhOsczyapbsXH/N
-                KtM2TeY6DD5X0CvQ7ruLftl2VofsYqkgcJwUGtiqnhGY7mbZ9YpdyFvlGE4L
-                RK/YhHoyyHpZx1m8o+EM+gTi06V0QMGEinOkZ5ZKlpMXGEofjHEwrAwxruM8
-                LrDHtMDJVvgaFQdYcZAVpw5XHGLFi1S0GgNU2XSL3HVkMcy6IzpO4hTzRoVo
-                XzO9tSk3b0ne1NpexxiSTP7lgA4ie5T3CojENutpxSx40qQrPXOwU/sfCGgV
-                Z8V9Fmjp+Bhxtr5K5Q2YvPOEcb5FQtABhPM6pjjwtMDpDdcv2E5mfbOYsR3f
-                KjtmITPrcEKenfNioN5UqVNuMB6BC+lDr0wdmo5bmNVwE3MCiYMKVOBqgtxG
-                re0nMMnZ3Kl24rKGCLeJkXMdzy9Xcr5bluTwMYOsESFwlpM+7MZw433G3r+g
-                C0cPhd7AdlZeHWJXKQ3zMELdWb9g/wM4uClB8b6mcs03kDq3WZx1aGPxPa0d
-                LFi+mTd9k2RKcTNED5bgIUZwNkj0zOYdIVHyhODv3a2LmtKjaIrRoe1u0RTT
-                FDVCs0pzmOY2+vOBGqXFEZoVde+7qz27WyNqIpxQsrtbWXE9kYgaSq+SDb3Z
-                Ebtbez9Fw2rYiMydNlQSxkeihtbLmrf2niukIfa12gx9rtdop9MjIypphXtE
-                tuPWm+eh4NQwOucMI8E+SCYC2VHjGMmOk6yrLus2eu52VgHQXqVEesNq1Ijt
-                fS+UaqxvFcpDTWoRde/H01nB2RP1oHpMly5u+FRpvjX0os0Tm7crxRWrvMQP
-                KneYmzMLy2bZ5r0Uti/6Zm5jwSzJfXzRXnVMv1KmtbboVso5a8bmg+TdiuPb
-                RWvZ9mzSvOY4rm/6NjUahqmgEUJAXwsk+F2msnSgEyriJHFpl6GZQCIy8Cva
-                X9JCQYnGaFWIpzTqcn2ETEGG9KRK449IW2HtvtQOul40WUcD666qBrqD4Lzq
-                oRUHpYaTfiaknziDIFcnDnMVl0B4VXUV59dKuhojHbZIvsaZ+6+QSry7jf6+
-                bbxn9G8js433f+ZmbcgrKZEJfvykk/OSFJXx7OCDZhu1zsVoPYdUjci+HXz4
-                oskgUg8yRqS1DHKl2WY/CD0l0uYeZcdXKzX4J5QfEAm9GNyFso1rNyjqjXP0
-                38EngTxcpbDMtxJK/B90Kw0cpurlSBGH8wGSBdyWUYYbyzG4g0/3obUqAZkb
-                Cr9I0nxSmmsDr3B3IPUb2n9p2VdVX1rdlxY0KJdzEUvS11lJktL3sokepdrO
-                RhKfY1lqXyBy+Cz+Gsr9vle411y4OO4HRp38sWkuXO0GiBZdn8QDPJQGl2R+
-                OnOeqnLezJCOLyXBOr7irIxreITH0sPVmocBWb5tmM0tH37LW40jXZYrBC/Q
-                D8EPZgcVmr+h1QrNOcKdf4jQLKxZPKERqzyszcLGOqXhYQOFh0h66PBQ9KAF
-                46KHJQ+qh7iHR4Gkx4PhodPDQrCl34SHSQ9jHkY9Ns8GwpMeTv0H1Ho+rbgK
-                AAA=
-                """,
+        androidx/compose/ui/unit/Dp.class:
+        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
+        """,
         """
-                androidx/compose/ui/unit/DpKt.class:
-                H4sIAAAAAAAAAH1Qz0/UQBT+ZtrtlopQUJBdXH9gD0CiXYwHg1yMm00aV02U
-                cNnTbFtx2LbTtFPCccOBP8Q/wDPxYDZw848yviGcmcP3vve9N9/Me3///f4D
-                4A0Chp4okkrJ5CyMVV6qOg0bGTaF1OGg/KjbYAz+iTgVYSaK4/DL5CSNSbUY
-                WsepHpQM9na0M2TYvMOnjTa5xKqoddXEWlUvZV5m5upwZ7iIBXgeXNxj8AIZ
-                fA9ujVnE4Ab6h6yDhNKV0VTpTBbhp1SLRGjxjoHnpxYNwgzQE2xqCCf9TBrW
-                J5bsMezPZ0vefObxDe5x3/W4y7c6/nzW5X22y/v87fUFv75k89nVT8fp2q7l
-                21fn3Ka+jnF4bYB+0BvdMSP9BrSUQflqqmmyDypJGZZHskg/N/kkrQ7FJCNl
-                daRikR2JSpr8VvS+qaaK06E0SedrU2iZp0eyllR9XxRKCy1pedgDhw1zqA0t
-                OBSfUnZAkVN0rYPuxSUWf5kt4Bmhc1NZwHPi68Q4KfexRCp1Y5mY6dy6wSd4
-                QXGfaj55r4xhRViN8IAQDyOsYT3CI2yMwWp6vTtGq8Zmjcc1erXhzn8XAJq+
-                VwIAAA==
-                """
+        androidx/compose/ui/unit/DpKt.class:
+        H4sIAAAAAAAA/31Qy27TQBQ9M04cx5TWLVCalPAoRqJIxSligaAbRBTJIoBE
+        UTdZTWxTprE9lmdcdZlVP4QPYI1YoAh2fBTiTum6m3PPPfc1Z/78/fETwHM8
+        YhiIMq2VTM+iRBWV0lnUyKgppYlG1VvTAWMITsSpiHJRHkcfZidZQqrD0D7O
+        zKhiaD2Od8cM21fs6aBDWxJValM3iVH1niyq3I6Od8cr6ML34eEagx/K8HN4
+        uZjFDF5ovkgdppSuT+bK5LKM3mVGpMKIVwy8OHXICLPQtQAam1vCqXgmLRsS
+        S/cZ9paLVX+58PkW93ng+dzjO5vBctHnQ/aED/mL3+f811fX7bc8J2jZoWcW
+        6PJgcoU3egUdbY+qp3NDjt6oNGNYm8gye98Us6z+JGY5KRsTlYj8SNTS5pei
+        f6iaOsnG0ia9j01pZJEdSS2p+roslRFG0qdhHxwt/LfXQxsuxfuUHVDkFD3n
+        oH/+HSvfrHE8IHQvKl3sEN8kxkm5jlVSqRtrxGznwwu8h5DiS6oFtHt9CifG
+        RowbMW7iVkzjt2NsoTcF0+hje4q2xh2NgcZdbbn7D0kxfkBPAgAA
+        """
     )
 
     val Animatable: TestFile = bytecodeStub(
         filename = "Animatable.kt",
         filepath = "androidx/compose/animation/core",
-        checksum = 0x68ff47da,
+        checksum = 0xb1ce1ffe,
         """
             package androidx.compose.animation.core
 
@@ -1366,81 +1363,85 @@ object Stubs {
             fun Animatable(initialValue: Float): Animatable<Float, Any> = Animatable(initialValue)
         """,
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAAAGNgYGBmYGBgBGJ2KM3Apc8ln5iXUpSfmVKhl5yfW5BfnKqX
-                mJeZm1iSmZ8HFClKFeJxBPMTk3JSvUu4tLkkMDQUleaVZOamCvEH5yUWFGfk
-                lwSXJJYAFSsxaDEAAKFdFhZ2AAAA
-                """,
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/3XLvQvCQAwF8IiiGEThBhERBBfBoS6Cszh2s+KetqE9uI9y
+        TcE/3xN1KgZehsf7AcAQAAYxU/gennBNrgxel8+k8LbxLSfktCXR3qllpl1l
+        +EGm48uvTQWPuP2vYhNYzT57yg1HcMZVD4TOibas8MaWbc4hFbXIHDVt7SUT
+        kjfc46YHO51UgZpaF62aXL3xUeIcR8KtqPE9/lR2cIAXLlZThPEAAAA=
+        """,
         """
-                androidx/compose/animation/core/Animatable.class:
-                H4sIAAAAAAAAAI1VXW8aRxQ9syywrAEv1EkwidvEcRrATtZ20tYNlNZxGgkF
-                ksimqJLzsoaNswZ2rZ0BpS8V6m/oS1/7C1qpUdo+VCiP/VFR7yzEMYZUfti5
-                M/fj3DP33oF/3/79D4C7+JahYLkt33NaL82m1z32uG1artO1hOO5pPFtczs4
-                WgcdOwrGUCrV71WPrL5ldiz30HxycGQ3RbExQ1eeVjEYZ3VRqAyRkuM6osxw
-                MzcdNK3JNxhiuXq9WG8E+5Wq5x+aR7Y48C3H5XQD1xPBFbj5uNfpSPKUO5TL
-                N+KIQNcRxhxDQvxwbO94bt/2he0zpKczxZFAMgYF8wy5qUr5PVc4Xdvcc61j
-                /sITe5TUfkRXSjEku72gaIHuyXOG4oyr5asfxKydCicaH2FBRxoXiLXjElvX
-                6gQmKtm5MS4hI6+yyKCKFw5nWJsO/WDzqX5x2STH6jSsTo8SN87Vq0q17YmO
-                45pH/a75jrr5wH5u9TqCis+F32sKz69Zftv2i6MORXXi+QlNy6Et6pNNWsjl
-                Z81VOJenYWDQKGLMT6rqpLpxrvpE8WkcK1iew03kaFYCtBkFmhVbojxlcr/+
-                f3PoCTmK5JV6V5GaLawWVZd0SrcfohfJ5BJlYG1SvXTkaZ12rQ2Gn4eDjK5k
-                FF3R6DOGA9qoY0U4MxwUVG04MBgJZiibynro/mI6YqhZZWs4SOuaYoSzaoZt
-                sTe/RhQjsrtgRLNaWk1L87r2/ZufktKgDwe7F0556pRpLqtqMUPfTRnxAGzr
-                IRkipEwYuuS2SXTr9NE7BBW9Pyp+4v3k3G4Leq57zqFriZ5Ptsu7oxpW3L7D
-                HfLYfl8nms0dr0VO81XHtR/3uge2X5co8nl6TTl8viPPY+XKWaynlm91bRqV
-                CdAE9anZrlnH4zB9z+v5TfuhIw+LY4zGFBts0ByGqQsKvT36JSBZCk4FfEUy
-                QheOBWd6Wie21RPbGkmVJA00QijT6RnZZVfThdeIF9ZewSis/omLr5D9PYj9
-                WtooRsar0AhdR4r235Dm6igSl3EFCHZLxIgFu9PcNGyTjClyniQ9QxL4mPaS
-                QIlA5IXml8I//oIwqxVW117j6ij7fVpDYNoEjQgBarQmKUkK17A8vopJiDJ5
-                uPAHjN9O2EcCpRYwjo8cxoxH7K5PVC4lnxxpy8Hf0QhQJ8DsX8gznEWNn0LV
-                J1BvEKnRLoSdQBbxgOR35HuLGNzeR6gCs4J1WrEhl80K7uDuPhjHZ/h8H0mO
-                KxxfcGxxfMmxxJHgiHJc4shwXONY5tLnHsfKfxpFtNlABwAA
-                """,
+        androidx/compose/animation/core/Animatable.class:
+        H4sIAAAAAAAA/41VXXPaRhQ9KyQQMtiC2gkmcZs4pAHsRo775Qbq1HHqGaYm
+        ydiU6YwfOjIojoyQPFrBJC8t09/Ql772F7QzzaTtQ4fJY39Up3cl4hhDWj9o
+        9+7d3XPPvfcs/P3Pn38B+Ag7DGXTbfue3X5mtLzuicctw3TtrhnYnkse3zK2
+        wqV56FgJMIZqtXF399jsm4ZjukfGo8NjqxVUmlN8m5MuBv28LwGZIV61XTvY
+        ZLhVnLw06Sk1GZLFRqPSaIZ2Ydfzj4xjKzj0TdvllIHrBWEK3HjYcxxBnmLH
+        iqVmCnFoGhTMMKSD5yfWtuf2LT+wfIbsZKQU0phNQsIcQ3GiUn7PDeyuZey7
+        5gl/6gX7FNT6ilLKMFzq9sKihb5HTwpt64nZcwKG76el+L/Q9V6U0GPPsVvP
+        K7UpRXk7SP0MFUrpHcxryGKBKmC7lLlrOuEWlf/CGJeRE2VZZJCDpzZnWJ28
+        +lYhUS9SouG26TRNp0eBmxfqe2234wWO7RrH/a7xmrrxIKosNZIHfq8VeH7d
+        9DuWX4m6ndCI53ukvCMraIw3fL5YmqZRpVgiYTGodGPET7ga5Lp5ofok8H4K
+        BSzP4BaKpLsQbUqBpt2tUpxNOn7jvzTtBULWdCrzuiJ1KzDbVF3ySd1+jF43
+        E0NSDGBgHfI/s8Vqjaz2HYYfh4OcJuUkTVLp04cDMuSRQ8kNB2VZHQ50RhPT
+        pXVpLXZ/MRvX5by0MRxkNVXSlbycYxvs1c9xSY/vzeuJvJqVs2J7Tf3m1Q+z
+        YkMbDvYWzpzUKNJMXlaTuraX0VMh2MYObcTJmdY1wW2d6Dboo4dNzJV+1IH0
+        G/nc7tAzSu7bR64Z9Hzau7IXFbLm9m1u04mtN8UigW57bTo0t2u71sNe99Dy
+        GwJFvHevJRTo22I9chbOYz02fbNrkV7GQNPUrFanbp6Mrmn7Xs9vWTu2WCyO
+        MJoTbHCHxKhQFyR6gPTTQvPn4aqMTZrjlHAyXNP7Ot1bOd1bpVmmmVSNGO7R
+        6ltCE11dKL9Eqrz6Anp5hSnsd1x6gfyv4fUvaMzSNQEhQ6UAGubJ3iLPtegy
+        ruCqEApZS0SKhdZZeiruCzVJoZiIoS44vEu24FAlEJHT3JLy3U9QWL28svoS
+        16Lo2zTGwNQxGnECVGmcpSAZXMfyKBtDSJVmpfwb9F9O2cdDpxoyTkUHRowj
+        djfGipcRT4+898K/uAhQI8D8HygxnEdNnUHVxlBvEqnIiuFBOFfxJc1f09kP
+        iMHtA8RqMGpYq1Fb18nEhzWK+PEBGMcn+PQAsxxXOTY4PuO4y7HEkeZIcFzm
+        yHFc51jm4kyFo/Avb5BXyJQHAAA=
+        """,
         """
-                androidx/compose/animation/core/AnimatableKt.class:
-                H4sIAAAAAAAAAJVRTW/TQBB9a+eDuqFxw1ebAoVyoRJi08KJIKQKKZKFCRKt
-                eslpE6+iTezdyl5HPeYncUQcUM78KMSsGykSXKi1np33/GY8H79+//gJ4C2O
-                GF4JneRGJdd8YrIrU0gutMqEVUYTk0t+VkExTuUn2wRjCGdiIXgq9JR/Gc/k
-                hFifIdjoGPjLwXH8/4n7DBe3i3gfb4oYpEbYfvx3Vf0PlPZFbPIpn0k7zoXS
-                BSXUxlYZCz40dlimab+FOhoBPGwxtJRWVon0UqQl9cEGDLvx3NhUaf5ZWpHQ
-                7ymtly18GiBzpkmyuXM84q+V83rkJScMb1bLMFgtA2/PC7ywSS+B1bLbpbu7
-                06l1vJ5XWb/HThthrUvYhZ7SWm43PjDc3RCv55ah9tEk1EI7VloOy2ws84ub
-                5XRiM3Ed5srhNbl1rqZa2DIn/+Brqa3KZKQXqlD0+WwzNVr0uSnziRwoF7a/
-                ll7+I8QJTbQG95DMjRg+DghxwlQw6kffEXxzc8Njso2KbOMJ2daNANvkAU8r
-                TROHa9WdCj+rbBfP6X7n2if9zgh+hHaEkCx2I3RwL8J9PBiBFXiIRyPUC3f2
-                CuxXZ/sPX0TSqAsDAAA=
-                """
+        androidx/compose/animation/core/AnimatableKt.class:
+        H4sIAAAAAAAA/5VRy27TQBQ9Y+dB3NC44dW4PNsNSAinhRVBSBVSJAsTJFp1
+        k9UkHkWT2DPIHkdd5pNYIhYoaz4KcceJFAk2VBqf+5hzr+ee++v3j58A3uCE
+        4SVXSa5lch1OdfZVFyLkSmbcSK0ok4vwvAr5JBUfTROMwZ/zJQ9Trmbh58lc
+        TCnrMng7HkP4fPgi/v/GA4bLm1W8i3ePGKaam0H896sG76ntSazzWTgXZpJz
+        qQpqqLSpOhbhSJtRmaaDNupoeHDQYmhLJY3k6RVPS5qDDRkO4oU2qVThJ2F4
+        Qr+ntk62dElAZqFlAcRdWMehy2tpvT55ySnD6/XK99Yrzzl0PMdv0kfBehUE
+        ZIP9bq3r9J0K3T47a/i1gGJbeka7uZmG9Ijbu8SrhWGofdAJzdGJpRKjMpuI
+        /HKzoW6sp3bMXNp4m2xdyJnipszJP/pSKiMzEamlLCRdn++ko21f6DKfiqG0
+        Zb0t9eofIk5J1ho2AvWsznDxkKLQCka2fvwd3jerGx4RNqpkB48J2xsC9sgD
+        nlScJp5uWbeq+FmFRzgm+9aOT/z9MdwInQh+hAN0I9zB3Qj3cH8MVuABDseo
+        F/b0CgTV2fsD4lpb1BADAAA=
+        """
     )
 
     val IntOffset: TestFile = bytecodeStub(
         filename = "IntOffset.kt",
         filepath = "androidx/compose/ui/unit",
-        checksum = 0xfd7af994,
+        checksum = 0xe18c78ef,
         """
             package androidx.compose.ui.unit
 
             class IntOffset(val x: Int, val y: Int)
         """,
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAAAGNgYGBmYGBgBGJ2KM3ApcAlkZiXUpSfmVKhl5yfW5BfnKpX
-                mqlXmpdZIsTiUuBdosSgxQAA2sByTDoAAAA=
-                """,
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/3XLOwvCQBAE4JUI4ioIV4iIINgIFrERrMUynQFb2SRLcnCP
+        cNmAP98TtQoOTDPMBwAJAIxip/ANnnBNrgpeV8+09Lb1HafktCXR3qllrl1t
+        +E6m58tvzQSPuP2v4hJYzT9/KgxHcMbVAITeibas8MaWbcEhE7XIHbVd4yUX
+        kjfc42YAe53WgdpGl52aXL3xUeIMx8KdqOSRyQ4O8AJoAzD57gAAAA==
+        """,
         """
-                androidx/compose/ui/unit/IntOffset.class:
-                H4sIAAAAAAAAAI1QTWsTURQ9781HJuO0mUwbTdOqtVZts3DS4k4RVCgMpBZq
-                CUo2TpJpfU0yI3kvJe7yW1y7ESyCCwku/VHifZMgCAWFmXPvuffcj3d//vr2
-                HcAjPGDYitPeKBO9SdjNhu8zmYRjEY5TocIoVUenpzJRBTAG/zy+iMNBnJ6F
-                R53zpEtRg8F+Ikj6lMHaiaLdFoOxs9vyYKHgwoTDwCb0Rx5cXCuCwyP2wcPy
-                nJUYTPVOSIbt5r/XeEzqs0S9zodEc/KGodzsZ2og0vAwUXEvVjHp+PDCoAcy
-                DQUa2afQRGjWIK+3x/B2Ng1cXuUu92dTlz7uOy53rOpsus8b7HklsH1e4w2D
-                rKntj482963j8jxKzKGqmunYfoGC5t9Bxy/oOfuMdoD35wUP+4rWfpH1EoZS
-                U6TJy/Gwk4xO4s6AIkEz68aDVjwSmi+C7qtsPOomB0KTteNxqsQwaQkpKPss
-                TTMVK5GlEnt0TpPexxHoW5MX6CuTNWgFCzbhFrFDUug7lOpfUayvX2KpvnEJ
-                /3NeepdQC0Gttgk351KUqRlyT7dmuaebc8qsYHXROiSrc1b9C5Y+XdnQmwsW
-                DcuoXFns/08xx70c7+A+2QPKXafcjTaMCNUIa4SoaViPsIGbbTCJW7jdRlEi
-                kNiUcHNclrAlViRWJSq/AaJQvyMZAwAA
-                """
+        androidx/compose/ui/unit/IntOffset.class:
+        H4sIAAAAAAAA/41QTWsTURQ9781HJuO0mUwbTdOqtVZNs3Da4k4RVCgMpBZq
+        CUo2TpJpfU0yI3kvJe7yW1y7ESyCCwku/VHifZMgCAWFmXvvOffcj3d//vr2
+        HcAj1Bm24rQ3ykRvEnaz4ftMJuFYhONUqDBK1dHpqUxUAYzBP48v4nAQp2fh
+        Uec86RJrMNhPBEmfMlj1KNppMRj1nZYHCwUXJhwGNqE/8uDiWhEcHqEPHpbn
+        qMRgqndCMmw3/73GY1KfJep1PiSagzcM5WY/UwORhoeJinuxiknHhxcGPZBp
+        U9QGNLdP/ERotEtRb4/h7WwauLzKXe7Ppi593Hdc7ljV2XSf77LnlcD2eY3v
+        GuRN7X98tLlvHZfnLCGHqmqmY/sFIs2/Sccv6Dn7TE/3/jzjYV/R7i+yXsJQ
+        aoo0eTkedpLRSdwZEBM0s248aMUjofGCdF9l41E3ORAarB2PUyWGSUtIQdln
+        aZqpWIksldijm5r0Po5AH5yiQJ+avEErWLDJ3iV0SAp9h1LjK4qN9UssNTYu
+        4X/OS7fJaiGo1T2ym3MpytQMeaRbszzSzTllVrC6aB3qS5O3Gl+w9OnKht5c
+        sGhYRuXKYv9/ijnu53YLD8gfUO465W60YUSoRliLUMM6hdiIcBO32mASt7HZ
+        RlEikLgj4eZ2WcKWWJFYlaj8BpHq1rYeAwAA
+        """
     )
 }
 

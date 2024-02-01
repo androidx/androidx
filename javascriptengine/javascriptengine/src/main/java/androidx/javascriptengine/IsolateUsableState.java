@@ -393,7 +393,7 @@ final class IsolateUsableState implements IsolateState {
                 completer.setException(terminationInfo.toJavaScriptException());
                 break;
             case IJsSandboxIsolateSyncCallback.FILE_DESCRIPTOR_IO_ERROR:
-                completer.setException(new FileDescriptorIoException(error));
+                completer.setException(new DataInputException(error));
                 break;
             default:
                 completer.setException(new JavaScriptException(

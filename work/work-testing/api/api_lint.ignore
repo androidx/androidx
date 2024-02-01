@@ -17,12 +17,6 @@ MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#
     W does not declare a `getWorkerFactory()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setWorkerFactory(androidx.work.WorkerFactory)
 
 
-MissingNullability: androidx.work.testing.TestListenableWorkerBuilderKt#TestListenableWorkerBuilder(android.content.Context, androidx.work.Data, java.util.List<? extends java.lang.String>, int, java.util.List<? extends android.net.Uri>, java.util.List<? extends java.lang.String>):
-    Missing nullability on method `TestListenableWorkerBuilder` return
-MissingNullability: androidx.work.testing.TestWorkerBuilderKt#TestWorkerBuilder(android.content.Context, java.util.concurrent.Executor, androidx.work.Data, java.util.List<? extends java.lang.String>, int, java.util.List<? extends android.net.Uri>, java.util.List<? extends java.lang.String>):
-    Missing nullability on method `TestWorkerBuilder` return
-
-
 StaticFinalBuilder: androidx.work.testing.TestListenableWorkerBuilder:
     Builder must be final: androidx.work.testing.TestListenableWorkerBuilder
 

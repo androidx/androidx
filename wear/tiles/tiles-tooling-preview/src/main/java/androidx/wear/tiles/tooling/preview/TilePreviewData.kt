@@ -28,7 +28,7 @@ private val defaultResources = Resources.Builder()
 
 /**
  * Container class storing callbacks required to render previews for methods annotated with
- * [TilePreview].
+ * [Preview].
  *
  * @param onTileResourceRequest callback that provides a [Resources]. It will be called before
  * rendering the preview of the [TileBuilders.Tile]. By default, this callback will return a

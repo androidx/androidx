@@ -53,6 +53,7 @@ class CaptureConfigAdapter @Inject constructor(
         captureConfig: CaptureConfig,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
+        additionalListeners: List<Request.Listener> = emptyList(),
     ): Request {
         val surfaces = captureConfig.surfaces
         check(surfaces.isNotEmpty()) {
@@ -96,30 +97,35 @@ class CaptureConfigAdapter @Inject constructor(
 
         return Request(
             streams = streamIdList,
-            listeners = listOf(callbacks),
+            listeners = listOf(callbacks) + additionalListeners,
             parameters = optionBuilder.build().toParameters(),
             extras = mapOf(CAMERAX_TAG_BUNDLE to captureConfig.tagBundle),
-            template = captureConfig.getStillCaptureTemplate(requestTemplate)
+            template = captureConfig.getStillCaptureTemplate(requestTemplate, isLegacyDevice)
         )
     }
 
-    private fun CaptureConfig.getStillCaptureTemplate(
-        sessionTemplate: RequestTemplate,
-    ): RequestTemplate {
-        var templateToModify = CaptureConfig.TEMPLATE_TYPE_NONE
-        if (sessionTemplate == RequestTemplate(CameraDevice.TEMPLATE_RECORD) && !isLegacyDevice) {
-            // Always override template by TEMPLATE_VIDEO_SNAPSHOT when
-            // repeating template is TEMPLATE_RECORD. Note:
-            // TEMPLATE_VIDEO_SNAPSHOT is not supported on legacy device.
-            templateToModify = CameraDevice.TEMPLATE_VIDEO_SNAPSHOT
-        } else if (templateType == CaptureConfig.TEMPLATE_TYPE_NONE) {
-            templateToModify = CameraDevice.TEMPLATE_STILL_CAPTURE
-        }
+    companion object {
+        internal fun CaptureConfig.getStillCaptureTemplate(
+            sessionTemplate: RequestTemplate,
+            isLegacyDevice: Boolean,
+        ): RequestTemplate {
+            var templateToModify = CaptureConfig.TEMPLATE_TYPE_NONE
+            if (sessionTemplate == RequestTemplate(CameraDevice.TEMPLATE_RECORD) &&
+                !isLegacyDevice
+            ) {
+                // Always override template by TEMPLATE_VIDEO_SNAPSHOT when
+                // repeating template is TEMPLATE_RECORD. Note:
+                // TEMPLATE_VIDEO_SNAPSHOT is not supported on legacy device.
+                templateToModify = CameraDevice.TEMPLATE_VIDEO_SNAPSHOT
+            } else if (templateType == CaptureConfig.TEMPLATE_TYPE_NONE) {
+                templateToModify = CameraDevice.TEMPLATE_STILL_CAPTURE
+            }
 
-        return if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
-            RequestTemplate(templateToModify)
-        } else {
-            RequestTemplate(templateType)
+            return if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                RequestTemplate(templateToModify)
+            } else {
+                RequestTemplate(templateType)
+            }
         }
     }
 }

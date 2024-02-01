@@ -127,6 +127,7 @@ package androidx.compose.animation.core {
     method @Deprecated @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.KeyframesSpec<T> keyframes(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T>,kotlin.Unit> init);
+    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
     method @Deprecated @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SnapSpec<T> snap(optional int delayMillis);
@@ -205,6 +206,38 @@ package androidx.compose.animation.core {
     method public static androidx.compose.animation.core.AnimationVector2D AnimationVector(float v1, float v2);
     method public static androidx.compose.animation.core.AnimationVector3D AnimationVector(float v1, float v2, float v3);
     method public static androidx.compose.animation.core.AnimationVector4D AnimationVector(float v1, float v2, float v3, float v4);
+  }
+
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class ArcAnimationSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+    ctor public ArcAnimationSpec(optional androidx.compose.animation.core.ArcMode mode, optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
+    method public int getDelayMillis();
+    method public int getDurationMillis();
+    method public androidx.compose.animation.core.Easing getEasing();
+    method public androidx.compose.animation.core.ArcMode getMode();
+    method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
+    property public final int delayMillis;
+    property public final int durationMillis;
+    property public final androidx.compose.animation.core.Easing easing;
+    property public final androidx.compose.animation.core.ArcMode mode;
+  }
+
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public abstract sealed class ArcMode {
+    field public static final androidx.compose.animation.core.ArcMode.Companion Companion;
+  }
+
+  public static final class ArcMode.Companion {
+  }
+
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class ArcMode.Companion.ArcAbove extends androidx.compose.animation.core.ArcMode {
+    field public static final androidx.compose.animation.core.ArcMode.Companion.ArcAbove INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class ArcMode.Companion.ArcBelow extends androidx.compose.animation.core.ArcMode {
+    field public static final androidx.compose.animation.core.ArcMode.Companion.ArcBelow INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class ArcMode.Companion.ArcLinear extends androidx.compose.animation.core.ArcMode {
+    field public static final androidx.compose.animation.core.ArcMode.Companion.ArcLinear INSTANCE;
   }
 
   @androidx.compose.runtime.Immutable public final class CubicBezierEasing implements androidx.compose.animation.core.Easing {
@@ -333,6 +366,9 @@ package androidx.compose.animation.core {
     property public static final androidx.compose.animation.core.Easing LinearOutSlowInEasing;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for AnimationSpec. " + "It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationSpecApi {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for Transition. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTransitionApi {
   }
 
@@ -453,12 +489,15 @@ package androidx.compose.animation.core {
 
   public static final class KeyframesSpec.KeyframesSpecConfig<T> extends androidx.compose.animation.core.KeyframesSpecBaseConfig<T,androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>> {
     ctor public KeyframesSpec.KeyframesSpecConfig();
+    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> at(T, @IntRange(from=0L) int timeStamp);
+    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> atFraction(T, float fraction);
+    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> using(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.ArcMode arcMode);
     method @Deprecated public infix void with(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.Easing easing);
   }
 
   public abstract sealed class KeyframesSpecBaseConfig<T, E extends androidx.compose.animation.core.KeyframeBaseEntity<T>> {
-    method public final infix E at(T, @IntRange(from=0L) int timeStamp);
-    method public final infix E atFraction(T, float fraction);
+    method public infix E at(T, @IntRange(from=0L) int timeStamp);
+    method public infix E atFraction(T, float fraction);
     method @IntRange(from=0L) public final int getDelayMillis();
     method @IntRange(from=0L) public final int getDurationMillis();
     method public final void setDelayMillis(int);
@@ -468,12 +507,23 @@ package androidx.compose.animation.core {
     property @IntRange(from=0L) public final int durationMillis;
   }
 
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class KeyframesWithSplineSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+    ctor public KeyframesWithSplineSpec(androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> config);
+    method public androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> getConfig();
+    method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
+    property public final androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> config;
+  }
+
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> extends androidx.compose.animation.core.KeyframesSpecBaseConfig<T,androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>> {
+    ctor public KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig();
+  }
+
   public final class MutableTransitionState<S> extends androidx.compose.animation.core.TransitionState<S> {
     ctor public MutableTransitionState(S initialState);
     method public S getCurrentState();
     method public S getTargetState();
     method public boolean isIdle();
-    method public void setTargetState(S!);
+    method public void setTargetState(S);
     property public S currentState;
     property public final boolean isIdle;
     property public S targetState;
@@ -505,14 +555,13 @@ package androidx.compose.animation.core {
     property public final androidx.compose.animation.core.RepeatMode repeatMode;
   }
 
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalTransitionApi public final class SeekableTransitionState<S> extends androidx.compose.animation.core.TransitionState<S> {
-    ctor public SeekableTransitionState(S initialState, S targetState);
-    method public suspend Object? animateToCurrentState(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? animateToTargetState(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  public final class SeekableTransitionState<S> extends androidx.compose.animation.core.TransitionState<S> {
+    ctor public SeekableTransitionState(S initialState);
+    method public suspend Object? animateTo(optional S targetState, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public S getCurrentState();
     method @FloatRange(from=0.0, to=1.0) public float getFraction();
     method public S getTargetState();
-    method public suspend Object? snapToFraction(@FloatRange(from=0.0, to=1.0) float fraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? snapTo(optional S targetState, optional @FloatRange(from=0.0, to=1.0) float fraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public S currentState;
     property @FloatRange(from=0.0, to=1.0) public final float fraction;
     property public S targetState;
@@ -599,6 +648,7 @@ package androidx.compose.animation.core {
   @androidx.compose.runtime.Stable public final class Transition<S> {
     method public java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<?,?>> getAnimations();
     method public S getCurrentState();
+    method @SuppressCompatibility @androidx.compose.animation.core.InternalAnimationApi public boolean getHasInitialValueAnimations();
     method public String? getLabel();
     method public androidx.compose.animation.core.Transition.Segment<S> getSegment();
     method public S getTargetState();
@@ -607,6 +657,7 @@ package androidx.compose.animation.core {
     method public boolean isRunning();
     property public final java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<?,?>> animations;
     property public final S currentState;
+    property @SuppressCompatibility @androidx.compose.animation.core.InternalAnimationApi public final boolean hasInitialValueAnimations;
     property public final boolean isRunning;
     property public final String? label;
     property public final androidx.compose.animation.core.Transition.Segment<S> segment;
@@ -647,8 +698,8 @@ package androidx.compose.animation.core {
     method @androidx.compose.runtime.Composable public static inline <S> androidx.compose.runtime.State<androidx.compose.ui.geometry.Size> animateSize(androidx.compose.animation.core.Transition<S>, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Transition.Segment<S>,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.geometry.Size>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<? super S,androidx.compose.ui.geometry.Size> targetValueByState);
     method @androidx.compose.runtime.Composable public static inline <S, T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValue(androidx.compose.animation.core.Transition<S>, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Transition.Segment<S>,? extends androidx.compose.animation.core.FiniteAnimationSpec<T>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<? super S,? extends T> targetValueByState);
     method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalTransitionApi @androidx.compose.runtime.Composable public static inline <S, T> androidx.compose.animation.core.Transition<T> createChildTransition(androidx.compose.animation.core.Transition<S>, optional String label, kotlin.jvm.functions.Function1<? super S,? extends T> transformToChildState);
-    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalTransitionApi @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T> rememberTransition(androidx.compose.animation.core.TransitionState<T> transitionState, optional String? label);
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T> updateTransition(androidx.compose.animation.core.MutableTransitionState<T> transitionState, optional String? label);
+    method @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T> rememberTransition(androidx.compose.animation.core.TransitionState<T> transitionState, optional String? label);
+    method @Deprecated @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T> updateTransition(androidx.compose.animation.core.MutableTransitionState<T> transitionState, optional String? label);
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T> updateTransition(T targetState, optional String? label);
   }
 

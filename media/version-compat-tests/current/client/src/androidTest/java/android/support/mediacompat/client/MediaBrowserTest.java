@@ -28,6 +28,7 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.SEND_DEL
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEND_DELAYED_NOTIFY_CHILDREN_CHANGED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SET_SESSION_TOKEN;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
+import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaBrowserServiceMethod;
 
@@ -41,6 +42,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -54,6 +56,7 @@ import android.support.mediacompat.testlib.util.PollingCheck;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
@@ -66,9 +69,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test connection between framework {@link MediaBrowser} and
@@ -77,7 +82,7 @@ import java.util.concurrent.TimeUnit;
  * TODO: Lower the minSdkVersion of this test to LOLLIPOP.
  */
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = 21)
 public class MediaBrowserTest {
 
     private static final String TAG = "MediaBrowserTest";
@@ -112,7 +117,6 @@ public class MediaBrowserTest {
     private MediaBrowser mMediaBrowser;
     private StubConnectionCallback mConnectionCallback;
     private StubSubscriptionCallback mSubscriptionCallback;
-    private StubItemCallback mItemCallback;
     private Bundle mRootHints;
 
     @Before
@@ -123,7 +127,6 @@ public class MediaBrowserTest {
 
         mConnectionCallback = new StubConnectionCallback();
         mSubscriptionCallback = new StubSubscriptionCallback();
-        mItemCallback = new StubItemCallback();
 
         mRootHints = new Bundle();
         mRootHints.putBoolean(MediaBrowserService.BrowserRoot.EXTRA_RECENT, true);
@@ -227,6 +230,7 @@ public class MediaBrowserTest {
 
     @Test
     @MediumTest
+    @SdkSuppress(minSdkVersion = 23)
     public void testReconnection() throws Exception {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -247,27 +251,28 @@ public class MediaBrowserTest {
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_ROOT, mSubscriptionCallback);
         mSubscriptionCallback.await(TIME_OUT_MS);
-        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount.get());
         assertEquals(MEDIA_ID_ROOT, mSubscriptionCallback.mLastParentId);
 
-        synchronized (mItemCallback.mWaitLock) {
+        StubItemCallback itemCallback = new StubItemCallback();
+        synchronized (itemCallback.mWaitLock) {
             // Test getItem.
-            mItemCallback.reset();
-            mMediaBrowser.getItem(MEDIA_ID_CHILDREN[0], mItemCallback);
-            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
-            assertEquals(MEDIA_ID_CHILDREN[0], mItemCallback.mLastMediaItem.getMediaId());
+            itemCallback.reset();
+            mMediaBrowser.getItem(MEDIA_ID_CHILDREN[0], itemCallback);
+            itemCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(MEDIA_ID_CHILDREN[0], itemCallback.mLastMediaItem.getMediaId());
         }
 
         // Reconnect after connection was established.
         mMediaBrowser.disconnect();
         connectMediaBrowserService();
 
-        synchronized (mItemCallback.mWaitLock) {
+        synchronized (itemCallback.mWaitLock) {
             // Test getItem.
-            mItemCallback.reset();
-            mMediaBrowser.getItem(MEDIA_ID_CHILDREN[0], mItemCallback);
-            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
-            assertEquals(MEDIA_ID_CHILDREN[0], mItemCallback.mLastMediaItem.getMediaId());
+            itemCallback.reset();
+            mMediaBrowser.getItem(MEDIA_ID_CHILDREN[0], itemCallback);
+            itemCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(MEDIA_ID_CHILDREN[0], itemCallback.mLastMediaItem.getMediaId());
         }
     }
 
@@ -349,7 +354,7 @@ public class MediaBrowserTest {
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_ROOT, mSubscriptionCallback);
         mSubscriptionCallback.await(TIME_OUT_MS);
-        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount.get());
         assertEquals(MEDIA_ID_ROOT, mSubscriptionCallback.mLastParentId);
         assertEquals(MEDIA_ID_CHILDREN.length, mSubscriptionCallback.mLastChildMediaItems.size());
         for (int i = 0; i < MEDIA_ID_CHILDREN.length; ++i) {
@@ -362,7 +367,7 @@ public class MediaBrowserTest {
         callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
                 getApplicationContext());
         mSubscriptionCallback.await(TIME_OUT_MS);
-        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount.get());
 
         // Test unsubscribe.
         mSubscriptionCallback.reset(1);
@@ -375,7 +380,7 @@ public class MediaBrowserTest {
         mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS);
 
         // onChildrenLoaded should not be called.
-        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount.get());
     }
 
     @Test
@@ -393,7 +398,7 @@ public class MediaBrowserTest {
             options.putInt(MediaBrowser.EXTRA_PAGE, page);
             mMediaBrowser.subscribe(MEDIA_ID_ROOT, options, mSubscriptionCallback);
             assertTrue(mSubscriptionCallback.await(TIME_OUT_MS));
-            assertEquals(1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);
+            assertEquals(1, mSubscriptionCallback.mChildrenLoadedWithOptionCount.get());
             assertEquals(MEDIA_ID_ROOT, mSubscriptionCallback.mLastParentId);
             if (page != lastPage) {
                 assertEquals(pageSize, mSubscriptionCallback.mLastChildMediaItems.size());
@@ -412,7 +417,7 @@ public class MediaBrowserTest {
             callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
                     getApplicationContext());
             assertTrue(mSubscriptionCallback.await(TIME_OUT_MS * (page + 1)));
-            assertEquals(page + 1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);
+            assertEquals(page + 1, mSubscriptionCallback.mChildrenLoadedWithOptionCount.get());
         }
 
         // Test unsubscribe with callback argument.
@@ -429,7 +434,7 @@ public class MediaBrowserTest {
             fail("Unexpected InterruptedException occurred.");
         }
         // onChildrenLoaded should not be called.
-        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount.get());
     }
 
     @Test
@@ -440,24 +445,37 @@ public class MediaBrowserTest {
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_CHILDREN_DELAYED, mSubscriptionCallback);
         assertFalse(mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
-        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount.get());
 
         callMediaBrowserServiceMethod(
                 SEND_DELAYED_NOTIFY_CHILDREN_CHANGED, MEDIA_ID_CHILDREN_DELAYED,
                 getApplicationContext());
         assertTrue(mSubscriptionCallback.await(TIME_OUT_MS));
-        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount.get());
     }
 
     @Test
     @SmallTest
+    @SdkSuppress(minSdkVersion = 21)
     public void testSubscribeInvalidItem() throws Exception {
+        // TODO: Remove this when the 'previous' service version contains the fix in
+        //  http://r.android.com/2794937.
+        assumeTrue(Build.VERSION.SDK_INT >= 24 || mServiceVersion.equals(VERSION_TOT));
+
         connectMediaBrowserService();
 
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_INVALID, mSubscriptionCallback);
         mSubscriptionCallback.await(TIME_OUT_MS);
-        assertEquals(MEDIA_ID_INVALID, mSubscriptionCallback.mLastErrorId);
+        if (Build.VERSION.SDK_INT < 24) {
+            // There's no way to communicate an invalid media ID on API < 24 because the documented
+            // way of emitting children = null from MediaBrowserService.onLoadChildren throws an
+            // exception from inside MediaBrowserService (b/19127753). Therefore we return an empty
+            // list of children, which is technically incorrect but avoids the exception.
+            assertEquals(Collections.emptyList(), mSubscriptionCallback.mLastChildMediaItems);
+        } else {
+            assertEquals(MEDIA_ID_INVALID, mSubscriptionCallback.mLastErrorId);
+        }
     }
 
     @Test
@@ -504,7 +522,7 @@ public class MediaBrowserTest {
             callback.await(TIME_OUT_MS);
 
             // Each onChildrenLoaded() must be called.
-            assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+            assertEquals(1, callback.mChildrenLoadedWithOptionCount.get());
         }
 
         // Reset callbacks and unsubscribe.
@@ -525,7 +543,7 @@ public class MediaBrowserTest {
 
         // onChildrenLoaded should not be called.
         for (StubSubscriptionCallback callback : subscriptionCallbacks) {
-            assertEquals(0, callback.mChildrenLoadedWithOptionCount);
+            assertEquals(0, callback.mChildrenLoadedWithOptionCount.get());
         }
     }
 
@@ -550,7 +568,7 @@ public class MediaBrowserTest {
             callback.await(TIME_OUT_MS);
 
             // Each onChildrenLoaded() must be called.
-            assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+            assertEquals(1, callback.mChildrenLoadedWithOptionCount.get());
         }
 
         // Unsubscribe existing subscriptions one-by-one.
@@ -575,7 +593,7 @@ public class MediaBrowserTest {
                 StubSubscriptionCallback callback = subscriptionCallbacks
                         .get(orderOfRemovingCallbacks[j]);
                 assertTrue(callback.await(TIME_OUT_MS * remaining));
-                assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+                assertEquals(1, callback.mChildrenLoadedWithOptionCount.get());
             }
 
             try {
@@ -588,68 +606,78 @@ public class MediaBrowserTest {
             for (int j = 0; j <= i; j++) {
                 StubSubscriptionCallback callback = subscriptionCallbacks
                         .get(orderOfRemovingCallbacks[j]);
-                assertEquals(0, callback.mChildrenLoadedWithOptionCount);
+                assertEquals(0, callback.mChildrenLoadedWithOptionCount.get());
             }
         }
     }
 
     @Test
     @SmallTest
+    @SdkSuppress(minSdkVersion = 23)
     public void testGetItem() throws Exception {
         connectMediaBrowserService();
 
-        synchronized (mItemCallback.mWaitLock) {
-            mMediaBrowser.getItem(MEDIA_ID_CHILDREN[0], mItemCallback);
-            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
-            assertNotNull(mItemCallback.mLastMediaItem);
-            assertEquals(MEDIA_ID_CHILDREN[0], mItemCallback.mLastMediaItem.getMediaId());
+        StubItemCallback itemCallback = new StubItemCallback();
+        synchronized (itemCallback.mWaitLock) {
+            mMediaBrowser.getItem(MEDIA_ID_CHILDREN[0], itemCallback);
+            itemCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertNotNull(itemCallback.mLastMediaItem);
+            assertEquals(MEDIA_ID_CHILDREN[0], itemCallback.mLastMediaItem.getMediaId());
         }
     }
 
     @Test
     @MediumTest
+    @SdkSuppress(minSdkVersion = 23)
     public void testGetItemDelayed() throws Exception {
         connectMediaBrowserService();
 
-        synchronized (mItemCallback.mWaitLock) {
-            mMediaBrowser.getItem(MEDIA_ID_CHILDREN_DELAYED, mItemCallback);
-            mItemCallback.mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
-            assertNull(mItemCallback.mLastMediaItem);
+        StubItemCallback itemCallback = new StubItemCallback();
+        synchronized (itemCallback.mWaitLock) {
+            mMediaBrowser.getItem(MEDIA_ID_CHILDREN_DELAYED, itemCallback);
+            itemCallback.mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertNull(itemCallback.mLastMediaItem);
 
-            mItemCallback.reset();
+            itemCallback.reset();
             callMediaBrowserServiceMethod(SEND_DELAYED_ITEM_LOADED, new Bundle(),
                     getApplicationContext());
-            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
-            assertNotNull(mItemCallback.mLastMediaItem);
-            assertEquals(MEDIA_ID_CHILDREN_DELAYED, mItemCallback.mLastMediaItem.getMediaId());
+            itemCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertNotNull(itemCallback.mLastMediaItem);
+            assertEquals(MEDIA_ID_CHILDREN_DELAYED, itemCallback.mLastMediaItem.getMediaId());
         }
     }
 
     @Test
     @SmallTest
+    @SdkSuppress(minSdkVersion = 23)
     public void testGetItemWhenOnLoadItemIsNotImplemented() throws Exception {
         connectMediaBrowserService();
-        synchronized (mItemCallback.mWaitLock) {
-            mMediaBrowser.getItem(MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED, mItemCallback);
-            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
+        StubItemCallback itemCallback = new StubItemCallback();
+        synchronized (itemCallback.mWaitLock) {
+            mMediaBrowser.getItem(MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED, itemCallback);
+            itemCallback.mWaitLock.wait(TIME_OUT_MS);
             // Limitation: Framework media browser gets onItemLoaded() call with null media item,
             // instead of onError().
-            // assertEquals(MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED, mItemCallback.mLastErrorId);
+            // assertEquals(MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED, itemCallback.mLastErrorId);
         }
     }
 
     @Test
     @SmallTest
+    // TODO: Lower this to 23. This test fails because mLastMediaItem below is not null on API
+    //  levels 23, 24 and 25.
+    @SdkSuppress(minSdkVersion = 26)
     public void testGetItemWhenMediaIdIsInvalid() throws Exception {
-        mItemCallback.mLastMediaItem = new MediaItem(new MediaDescription.Builder()
+        StubItemCallback itemCallback = new StubItemCallback();
+        itemCallback.mLastMediaItem = new MediaItem(new MediaDescription.Builder()
                 .setMediaId("dummy_id").build(), MediaItem.FLAG_BROWSABLE);
 
         connectMediaBrowserService();
-        synchronized (mItemCallback.mWaitLock) {
-            mMediaBrowser.getItem(MEDIA_ID_INVALID, mItemCallback);
-            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
-            assertNull(mItemCallback.mLastMediaItem);
-            assertNull(mItemCallback.mLastErrorId);
+        synchronized (itemCallback.mWaitLock) {
+            mMediaBrowser.getItem(MEDIA_ID_INVALID, itemCallback);
+            itemCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertNull(itemCallback.mLastMediaItem);
+            assertNull(itemCallback.mLastErrorId);
         }
     }
 
@@ -696,7 +724,7 @@ public class MediaBrowserTest {
         }
     }
 
-    private class StubConnectionCallback extends MediaBrowser.ConnectionCallback {
+    private static class StubConnectionCallback extends MediaBrowser.ConnectionCallback {
         final Object mWaitLock = new Object();
         volatile int mConnectedCount;
         volatile int mConnectionFailedCount;
@@ -733,10 +761,10 @@ public class MediaBrowserTest {
         }
     }
 
-    private class StubSubscriptionCallback extends MediaBrowser.SubscriptionCallback {
+    private static class StubSubscriptionCallback extends MediaBrowser.SubscriptionCallback {
+        private final AtomicInteger mChildrenLoadedCount = new AtomicInteger();
+        private final AtomicInteger mChildrenLoadedWithOptionCount = new AtomicInteger();
         private volatile CountDownLatch mLatch;
-        private volatile int mChildrenLoadedCount;
-        private volatile int mChildrenLoadedWithOptionCount;
         private volatile String mLastErrorId;
         private volatile String mLastParentId;
         private volatile Bundle mLastOptions;
@@ -744,8 +772,8 @@ public class MediaBrowserTest {
 
         public void reset(int count) {
             mLatch = new CountDownLatch(count);
-            mChildrenLoadedCount = 0;
-            mChildrenLoadedWithOptionCount = 0;
+            mChildrenLoadedCount.set(0);
+            mChildrenLoadedWithOptionCount.set(0);
             mLastErrorId = null;
             mLastParentId = null;
             mLastOptions = null;
@@ -763,7 +791,7 @@ public class MediaBrowserTest {
 
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
-            mChildrenLoadedCount++;
+            mChildrenLoadedCount.incrementAndGet();
             mLastParentId = parentId;
             mLastChildMediaItems = children;
             mLatch.countDown();
@@ -772,7 +800,7 @@ public class MediaBrowserTest {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children,
                 @NonNull Bundle options) {
-            mChildrenLoadedWithOptionCount++;
+            mChildrenLoadedWithOptionCount.incrementAndGet();
             mLastParentId = parentId;
             mLastOptions = options;
             mLastChildMediaItems = children;
@@ -793,7 +821,8 @@ public class MediaBrowserTest {
         }
     }
 
-    private class StubItemCallback extends MediaBrowser.ItemCallback {
+    @RequiresApi(23)
+    private static class StubItemCallback extends MediaBrowser.ItemCallback {
         final Object mWaitLock = new Object();
         private volatile MediaItem mLastMediaItem;
         private volatile String mLastErrorId;
@@ -820,7 +849,8 @@ public class MediaBrowserTest {
         }
     }
 
-    private class ConnectionCallbackForDelayedMediaSession extends MediaBrowser.ConnectionCallback {
+    private static class ConnectionCallbackForDelayedMediaSession
+            extends MediaBrowser.ConnectionCallback {
         final Object mWaitLock = new Object();
         private int mConnectedCount = 0;
 

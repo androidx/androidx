@@ -16,14 +16,12 @@
 
 package androidx.compose.ui.input.pointer.util
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
@@ -49,8 +47,15 @@ private const val HorizonMilliseconds: Int = 100
  * have been received.
  */
 class VelocityTracker {
-    private val xVelocityTracker = VelocityTracker1D() // non-differential, Lsq2 1D velocity tracker
-    private val yVelocityTracker = VelocityTracker1D() // non-differential, Lsq2 1D velocity tracker
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    private val strategy = if (VelocityTrackerStrategyUseImpulse) {
+        VelocityTracker1D.Strategy.Impulse
+    } else {
+        VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
+    }
+    private val xVelocityTracker = VelocityTracker1D(strategy = strategy)
+    private val yVelocityTracker = VelocityTracker1D(strategy = strategy)
 
     internal var currentPointerPositionAccumulator = Offset.Zero
     internal var lastMoveEventTimeStamp = 0L
@@ -95,7 +100,7 @@ class VelocityTracker {
      * VelocityTracker.
      */
     fun calculateVelocity(maximumVelocity: Velocity): Velocity {
-        check(maximumVelocity.x > 0f && maximumVelocity.y > 0) {
+        checkPrecondition(maximumVelocity.x > 0f && maximumVelocity.y > 0) {
             "maximumVelocity should be a positive value. You specified=$maximumVelocity"
         }
         val velocityX = xVelocityTracker.calculateVelocity(maximumVelocity.x)
@@ -237,7 +242,11 @@ class VelocityTracker1D internal constructor(
             val age: Float = (newestSample.time - sample.time).toFloat()
             val delta: Float =
                 abs(sample.time - previousSample.time).toFloat()
-            previousSample = sample
+            previousSample = if (strategy == Strategy.Lsq2 || isDataDifferential) {
+                sample
+            } else {
+                newestSample
+            }
             if (age > HorizonMilliseconds || delta > AssumePointerMoveStoppedMilliseconds) {
                 break
             }
@@ -280,7 +289,7 @@ class VelocityTracker1D internal constructor(
      * units/second, where `units` is the units of the positions provided to this VelocityTracker.
      */
     fun calculateVelocity(maximumVelocity: Float): Float {
-        check(maximumVelocity > 0f) {
+        checkPrecondition(maximumVelocity > 0f) {
             "maximumVelocity should be a positive value. You specified=$maximumVelocity"
         }
         val velocity = calculateVelocity()
@@ -716,12 +725,28 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
 /**
  * A flag to indicate that we'll use the fix of how we add points to the velocity tracker.
  *
- * This flag will be removed by 1.6 beta01. If you find any issues with the new fix, flip this
- * flag to false to confirm they are newly introduced then file a bug.
+ * This is an experiment flag and will be removed once the experiments with the fix a finished. The
+ * final goal is that we will use the true path once the flag is removed. If you find any issues
+ * with the new fix, flip this flag to false to confirm they are newly introduced then file a bug.
+ * Tracking bug: (b/318621681)
  */
 @Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:Suppress("GetterSetterNames")
 @get:ExperimentalComposeUiApi
 @set:ExperimentalComposeUiApi
 @ExperimentalComposeUiApi
-var VelocityTrackerAddPointsFix: Boolean by mutableStateOf(false)
+var VelocityTrackerAddPointsFix: Boolean = true
+
+/**
+ * Selecting flag to enable impulse strategy for the velocity trackers.
+ * This is an experiment flag and will be removed once the experiments with the fix a finished. The
+ * final goal is that we will use the true path once the flag is removed. If you find any issues
+ * with the new fix, flip this flag to false to confirm they are newly introduced then file a bug.
+ * Tracking bug: (b/318621681)
+ */
+@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:Suppress("GetterSetterNames")
+@get:ExperimentalComposeUiApi
+@set:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+var VelocityTrackerStrategyUseImpulse = false

@@ -19,8 +19,8 @@ package androidx.baselineprofile.gradle.utils
 import com.android.build.api.AndroidPluginVersion
 
 // Minimum AGP version required
-internal val MIN_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 0, 0).beta(1)
-internal val MAX_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 3, 0)
+internal val MIN_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 0, 0)
+internal val MAX_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 4, 0)
 
 // Prefix for the build type baseline profile
 internal const val BUILD_TYPE_BASELINE_PROFILE_PREFIX = "nonMinified"
@@ -55,3 +55,7 @@ internal const val KOTLIN_MULTIPLATFORM_PLUGIN_ID = "org.jetbrains.kotlin.multip
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES = "androidx.benchmark.enabledRules"
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE = "baselineprofile"
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK = "macrobenchmark"
+
+// This should be aligned with `androidx.benchmark.Arguments#targetPackageName`
+internal const val INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME =
+    "androidx.benchmark.targetPackageName"

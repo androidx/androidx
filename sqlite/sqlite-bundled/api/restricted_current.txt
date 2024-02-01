@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.sqlite.driver.bundled {
+
+  public final class BundledSQLiteDriver implements androidx.sqlite.SQLiteDriver {
+    ctor public BundledSQLiteDriver(String filename);
+    method public androidx.sqlite.SQLiteConnection open();
+  }
+
+}
+

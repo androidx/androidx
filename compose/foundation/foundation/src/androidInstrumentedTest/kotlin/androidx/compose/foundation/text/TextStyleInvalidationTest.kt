@@ -47,7 +47,7 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,6 +66,7 @@ class TextStyleInvalidationTest(private val config: Config) {
         val invalidatesMeasure: Boolean = false,
         val invalidatesPlacement: Boolean = false,
         val invalidatesDraw: Boolean = false,
+        val recompose: Boolean = true,
     ) {
         override fun toString(): String = buildString {
             append(description)
@@ -82,7 +83,7 @@ class TextStyleInvalidationTest(private val config: Config) {
         @Parameters(name = "{0}")
         @JvmStatic
         fun parameters() = arrayOf(
-            Config("nothing", { it }),
+            Config("nothing", { it }, recompose = false),
             Config(
                 "color",
                 { it.copy(color = Color.Blue) },
@@ -297,6 +298,7 @@ class TextStyleInvalidationTest(private val config: Config) {
                 textIndent = null,
             ).let(config.initializeStyle)
         )
+        var compositions = 0
         var measures = 0
         var placements = 0
         var draws = 0
@@ -318,30 +320,39 @@ class TextStyleInvalidationTest(private val config: Config) {
                         draws++
                     }
             )
+            compositions++
         }
 
         rule.waitForIdle()
         val initialMeasures = measures
         val initialPlacements = placements
         val initialDraws = draws
+        val initialCompositions = compositions
 
         style = config.updateStyle(style)
 
         rule.runOnIdle {
+            if (config.recompose) {
+                assertWithMessage("recompose").that(compositions).isGreaterThan(initialCompositions)
+            }
+
             if (config.invalidatesMeasure) {
-                assertThat(measures).isGreaterThan(initialMeasures)
+                assertWithMessage("invalidate measure")
+                    .that(measures).isGreaterThan(initialMeasures)
             }
             if (config.invalidatesPlacement) {
-                assertThat(placements).isGreaterThan(initialPlacements)
+                assertWithMessage("invalidate placements")
+                    .that(placements).isGreaterThan(initialPlacements)
 
                 // If measure is invalidated, placement will also always be invalidated, so ensure
                 // that placement was also invalidated separately from measurement.
                 if (config.invalidatesMeasure) {
-                    assertThat(placements).isGreaterThan(measures)
+                    assertWithMessage("invalidate measure")
+                        .that(placements).isGreaterThan(measures)
                 }
             }
             if (config.invalidatesDraw) {
-                assertThat(draws).isGreaterThan(initialDraws)
+                assertWithMessage("invalidate draw").that(draws).isGreaterThan(initialDraws)
             }
         }
     }

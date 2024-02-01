@@ -16,8 +16,11 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
+import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
@@ -30,6 +33,14 @@ internal class LocalImpl(
     private val implFromClient: SdkSandboxControllerCompat.SandboxControllerImpl,
     private val clientVersion: Int
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
+
+    override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+        throw LoadSdkCompatException(
+            LOAD_SDK_NOT_FOUND,
+            "Not supported for locally loaded SDKs yet"
+        )
+    }
+
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return implFromClient.getSandboxedSdks()
     }

@@ -584,6 +584,7 @@ class Counter {
 }
 
 @Composable
+@NonSkippableComposable
 private fun RecomposeTestComponentsA(counter: Counter, triggers: Map<Int, Trigger>) {
     counter.inc("A")
     triggers[99]?.subscribe()
@@ -600,6 +601,7 @@ private fun RecomposeTestComponentsA(counter: Counter, triggers: Map<Int, Trigge
     }
 }
 
+@NonSkippableComposable
 @Composable
 private fun RecomposeTestComponentsB(
     counter: Counter,
@@ -612,6 +614,6 @@ private fun RecomposeTestComponentsB(
 }
 
 @Composable
-private fun Wrapper(content: @Composable () -> Unit) {
+internal fun Wrapper(content: @Composable () -> Unit) {
     content()
 }

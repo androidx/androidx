@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.node
 
 import androidx.annotation.RestrictTo
@@ -21,7 +23,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
@@ -30,12 +32,12 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerIconService
+import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.DelegatingSoftwareKeyboardController
 import androidx.compose.ui.platform.PlatformTextInputSessionHandler
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
@@ -55,7 +57,7 @@ import kotlin.coroutines.CoroutineContext
  * through them.
  */
 @OptIn(InternalComposeUiApi::class)
-internal interface Owner : PlatformTextInputSessionHandler {
+internal interface Owner : PlatformTextInputSessionHandler, PositionCalculator {
 
     /**
      * The root layout node in the component tree.
@@ -120,7 +122,6 @@ internal interface Owner : PlatformTextInputSessionHandler {
     val textInputService: TextInputService
 
     val softwareKeyboardController: SoftwareKeyboardController
-        get() = DelegatingSoftwareKeyboardController(textInputService)
 
     val pointerIconService: PointerIconService
 
@@ -306,13 +307,7 @@ internal interface Owner : PlatformTextInputSessionHandler {
      */
     fun registerOnLayoutCompletedListener(listener: OnLayoutCompletedListener)
 
-    /**
-     * Initiates a drag-and-drop operation containing the data in [DragAndDropInfo].
-     * @return true if the method completes successfully, or false if it fails anywhere.
-     * Returning false means the system was unable to do a drag because of another
-     * ongoing operation or some other reasons.
-     */
-    fun drag(dragAndDropInfo: DragAndDropInfo): Boolean
+    val dragAndDropManager: DragAndDropManager
 
     companion object {
         /**

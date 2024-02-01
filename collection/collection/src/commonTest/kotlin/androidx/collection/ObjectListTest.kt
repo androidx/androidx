@@ -953,6 +953,20 @@ class ObjectListTest {
     }
 
     @Test
+    fun sortList() {
+        val list = mutableObjectListOf("0", "11", "33333", "2222")
+        list.asMutableList().sortWith { o1, o2 -> o1.length - o2.length }
+        assertEquals(objectListOf("0", "11", "2222", "33333"), list)
+    }
+
+    @Test
+    fun sortSubList() {
+        val list = mutableObjectListOf("0", "11", "33333", "2222")
+        list.asMutableList().subList(1, 4).sortWith { o1, o2 -> o1.length - o2.length }
+        assertEquals(objectListOf("0", "11", "2222", "33333"), list)
+    }
+
+    @Test
     fun subList() {
         val l = list.asMutableList().subList(1, 4)
         assertEquals(3, l.size)

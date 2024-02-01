@@ -849,8 +849,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         if (mPositionTargetedByScrollInDirection != INVALID_POSITION) {
             View viewTargetedByScrollInDirection = findViewByPosition(
                     mPositionTargetedByScrollInDirection);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                    && viewTargetedByScrollInDirection != null) {
+            if (viewTargetedByScrollInDirection != null) {
                 // Send event after the scroll associated with ACTION_SCROLL_IN_DIRECTION (see
                 // performAccessibilityAction()) concludes and layout completes. Accessibility
                 // services can listen for this event and change UI state as needed.

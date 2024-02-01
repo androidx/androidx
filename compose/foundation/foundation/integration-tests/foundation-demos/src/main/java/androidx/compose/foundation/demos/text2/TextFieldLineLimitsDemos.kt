@@ -20,10 +20,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -39,7 +42,12 @@ import kotlin.math.roundToInt
 
 @Composable
 fun TextFieldLineLimitsDemos() {
-    Column(Modifier.padding(16.dp)) {
+    Column(
+        Modifier
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
         TagLine(tag = "Default")
         DefaultLineLimits()
 

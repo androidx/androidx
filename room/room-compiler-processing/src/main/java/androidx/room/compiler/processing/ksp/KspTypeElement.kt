@@ -110,7 +110,8 @@ internal sealed class KspTypeElement(
         } else {
             declaration.superTypes
                 .singleOrNull {
-                    (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
+                    val declaration = it.resolve().declaration.replaceTypeAliases()
+                    declaration is KSClassDeclaration && declaration.classKind == ClassKind.CLASS
                 }?.let { env.wrap(it) }
                 ?: env.commonTypes.anyType
         }
@@ -119,7 +120,8 @@ internal sealed class KspTypeElement(
     override val superInterfaces by lazy {
         declaration.superTypes.asSequence()
             .filter {
-                (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.INTERFACE
+                val declaration = it.resolve().declaration.replaceTypeAliases()
+                declaration is KSClassDeclaration && declaration.classKind == ClassKind.INTERFACE
             }.mapTo(mutableListOf()) { env.wrap(it) }
     }
 
@@ -249,6 +251,12 @@ internal sealed class KspTypeElement(
     override fun isFinal(): Boolean {
         // workaround for https://github.com/android/kotlin/issues/128
         return !isInterface() && !declaration.isOpen()
+    }
+
+    override fun isRecordClass(): Boolean {
+        // Need to also check super type since @JvmRecord is @Retention(SOURCE)
+        return hasAnnotation(JvmRecord::class) ||
+            superClass?.isTypeOf(java.lang.Record::class) == true
     }
 
     override fun getDeclaredFields(): List<XFieldElement> {
@@ -383,13 +391,7 @@ internal sealed class KspTypeElement(
         return if (isPreCompiled) constructorEnumeration.reversed() else constructorEnumeration
     }
 
-    override fun getSuperInterfaceElements(): List<XTypeElement> {
-        return declaration.superTypes
-            .mapNotNull { it.resolve().declaration }
-            .filterIsInstance<KSClassDeclaration>()
-            .filter { it.classKind == ClassKind.INTERFACE }
-            .mapTo(mutableListOf()) { env.wrapClassDeclaration(it) }
-    }
+    override fun getSuperInterfaceElements() = superInterfaces.mapNotNull { it.typeElement }
 
     override fun getEnclosedTypeElements(): List<XTypeElement> {
         return declaration.declarations.filterIsInstance<KSClassDeclaration>()

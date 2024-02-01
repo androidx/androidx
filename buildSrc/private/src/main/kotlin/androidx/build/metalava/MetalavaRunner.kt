@@ -34,6 +34,7 @@ import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 // MetalavaRunner stores common configuration for executing Metalava
 
@@ -41,6 +42,7 @@ fun runMetalavaWithArgs(
     metalavaClasspath: FileCollection,
     args: List<String>,
     k2UastEnabled: Boolean,
+    kotlinSourceLevel: KotlinVersion,
     workerExecutor: WorkerExecutor,
 ) {
     val allArgs =
@@ -54,6 +56,9 @@ fun runMetalavaWithArgs(
                 "--error",
                 "UnresolvedImport",
                 "--delete-empty-removed-signatures",
+
+                "--kotlin-source",
+                kotlinSourceLevel.version,
 
                 // Metalava arguments to suppress compatibility checks for experimental API
                 // surfaces.
@@ -112,6 +117,7 @@ fun Project.getMetalavaClasspath(): FileCollection {
         configurations.findByName("metalava")
             ?: configurations.create("metalava") {
                 it.dependencies.add(dependencies.create(getLibraryByName("metalava")))
+                it.isCanBeConsumed = false
             }
     return project.files(configuration)
 }
@@ -166,7 +172,6 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
                     "MethodNameTense",
                     "UseIcu",
                     "NoByteOrShort",
-                    "CommonArgsFirst",
                     "GetterOnBuilder",
                     "CallbackMethodName",
                     "StaticFinalBuilder",
@@ -233,6 +238,7 @@ fun generateApi(
     includeRestrictToLibraryGroupApis: Boolean,
     apiLevelsArgs: List<String>,
     k2UastEnabled: Boolean,
+    kotlinSourceLevel: KotlinVersion,
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null,
 ) {
@@ -257,6 +263,7 @@ fun generateApi(
             apiLintMode,
             apiLevelsArgs,
             k2UastEnabled,
+            kotlinSourceLevel,
             workerExecutor,
             pathToManifest
         )
@@ -277,6 +284,7 @@ private fun generateApi(
     apiLintMode: ApiLintMode,
     apiLevelsArgs: List<String>,
     k2UastEnabled: Boolean,
+    kotlinSourceLevel: KotlinVersion,
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null
 ) {
@@ -291,7 +299,7 @@ private fun generateApi(
             apiLevelsArgs,
             pathToManifest
         )
-    runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, workerExecutor)
+    runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, kotlinSourceLevel, workerExecutor)
 }
 
 /**

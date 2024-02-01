@@ -23,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /** Class to store and retrieve the token was given by the service side. */
-@SuppressWarnings("RestrictedApi") // getSharedPreferences is ok within SDK implementation.
 public final class PermissionTokenManager {
     private static final String PREFERENCES_FILE_NAME = "PermissionTokenManager.healthdata";
     private static final String KEY_TOKEN = "token";

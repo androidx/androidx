@@ -51,7 +51,6 @@ import android.widget.TextView;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.core.motion.utils.KeyCache;
 import androidx.constraintlayout.core.widgets.ConstraintAnchor;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
@@ -68,7 +67,6 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.constraintlayout.widget.Constraints;
 import androidx.constraintlayout.widget.R;
 import androidx.core.view.NestedScrollingParent3;
-import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1517,12 +1515,10 @@ public class MotionLayout extends ConstraintLayout implements
                     mBeginState = mScene.getStartId();
                     mEndState = mScene.getEndId();
                 }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT || isAttachedToWindow()) {
+                if (isAttachedToWindow()) {
                     try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            Display display = getDisplay();
-                            mPreviouseRotation = (display == null) ? 0 : display.getRotation();
-                        }
+                        Display display = getDisplay();
+                        mPreviouseRotation = (display == null) ? 0 : display.getRotation();
 
                         if (mScene != null) {
                             ConstraintSet cSet = mScene.getConstraintSet(mCurrentState);
@@ -1573,17 +1569,6 @@ public class MotionLayout extends ConstraintLayout implements
         } else {
             mScene = null;
         }
-    }
-
-    /**
-     * Returns true if the provided view is currently attached to a window.
-     */
-    @Override
-    public boolean isAttachedToWindow() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return super.isAttachedToWindow();
-        }
-        return getWindowToken() != null;
     }
 
     /**
@@ -2297,7 +2282,6 @@ public class MotionLayout extends ConstraintLayout implements
      * @param id constraintSet
      * @param duration time to take to rotate
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void rotateTo(int id, int duration) {
         mInRotation = true;
         mPreRotateWidth = getWidth();
@@ -2740,11 +2724,7 @@ public class MotionLayout extends ConstraintLayout implements
                 if (DEBUG) {
                     debugLayoutParam(">>>>>>>  " + Debug.getName(view), layoutParams);
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    layoutParams.resolveLayoutDirection(getLayoutDirection());
-                } else {
-                    layoutParams.resolveLayoutDirection(ViewCompat.LAYOUT_DIRECTION_LTR);
-                }
+                layoutParams.resolveLayoutDirection(getLayoutDirection());
                 applyConstraintsFromLayoutParams(false, view, child, layoutParams, mapIdToWidget);
                 if (cSet.getVisibilityMode(view.getId()) == ConstraintSet.VISIBILITY_MODE_IGNORE) {
                     child.setVisibility(view.getVisibility());
@@ -4346,11 +4326,9 @@ public class MotionLayout extends ConstraintLayout implements
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Display display = getDisplay();
-            if (display != null) {
-                mPreviouseRotation = display.getRotation();
-            }
+        Display display = getDisplay();
+        if (display != null) {
+            mPreviouseRotation = display.getRotation();
         }
         if (mScene != null && mCurrentState != UNSET) {
             ConstraintSet cSet = mScene.getConstraintSet(mCurrentState);

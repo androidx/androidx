@@ -22,7 +22,7 @@ import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text2.input.internal.coerceIn
-import androidx.compose.foundation.text2.input.internal.fromInnerToDecoration
+import androidx.compose.foundation.text2.input.internal.fromTextLayoutToCore
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -44,7 +44,7 @@ internal abstract class TextFieldMagnifierNode : DelegatingNode(),
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         textLayoutState: TextLayoutState,
-        isFocused: Boolean
+        visible: Boolean
     )
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {}
@@ -59,7 +59,7 @@ internal expect fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    isFocused: Boolean
+    visible: Boolean
 ): TextFieldMagnifierNode
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -74,11 +74,11 @@ internal fun calculateSelectionMagnifierCenterAndroid(
 
     // Do not show the magnifier if origin position is already Unspecified.
     // Never show the magnifier in an empty text field.
-    if (localDragPosition.isUnspecified || textFieldState.text.isEmpty()) {
+    if (localDragPosition.isUnspecified || textFieldState.visualText.isEmpty()) {
         return Offset.Unspecified
     }
 
-    val selection = textFieldState.text.selectionInChars
+    val selection = textFieldState.visualText.selectionInChars
     val textOffset = when (selectionState.draggingHandle) {
         null -> return Offset.Unspecified
         Handle.Cursor,
@@ -110,8 +110,8 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     val centerY = ((bottom - top) / 2) + top
 
     var offset = Offset(centerX, centerY)
-    textLayoutState.innerTextFieldCoordinates?.takeIf { it.isAttached }?.let { innerCoordinates ->
+    textLayoutState.textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { innerCoordinates ->
         offset = offset.coerceIn(innerCoordinates.visibleBounds())
     }
-    return textLayoutState.fromInnerToDecoration(offset)
+    return textLayoutState.fromTextLayoutToCore(offset)
 }

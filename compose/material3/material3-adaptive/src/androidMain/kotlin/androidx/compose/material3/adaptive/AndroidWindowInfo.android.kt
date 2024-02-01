@@ -17,14 +17,11 @@
 package androidx.compose.material3.adaptive
 
 import android.app.Activity
-import android.content.Context
-import androidx.annotation.UiContext
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -41,57 +38,51 @@ import kotlinx.coroutines.flow.map
  * that uses the Material default [WindowSizeClass.calculateFromSize] and [calculatePosture]
  * functions to retrieve [WindowSizeClass] and [Posture].
  *
- * @param context Optional [UiContext] of the window, defaulted to [LocalContext]'s current value
  * @return [WindowAdaptiveInfo] of the provided context
  */
 @ExperimentalMaterial3AdaptiveApi
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun calculateWindowAdaptiveInfo(
-    @UiContext context: Context = LocalContext.current
-): WindowAdaptiveInfo {
-    return context.windowAdaptiveInfo()
-}
+fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo =
+    WindowAdaptiveInfo(
+        WindowSizeClass.calculateFromSize(
+            with(LocalDensity.current) {
+                currentWindowSize().toSize().toDpSize()
+            }
+        ),
+        calculatePosture(collectFoldingFeaturesAsState().value)
+    )
 
 /**
- * Collects the current window size from [WindowMetricsCalculator] in to a [State].
+ * Returns and automatically update the current window size from [WindowMetricsCalculator].
  *
- * @param context Optional [UiContext] of the window, defaulted to [LocalContext]'s current value.
- * @return a [State] of [IntSize] that represents the current window size.
+ * @return an [IntSize] that represents the current window size.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun windowSizeAsState(@UiContext context: Context = LocalContext.current): State<IntSize> {
-    val size = remember {
-        mutableStateOf(IntSize(0, 0))
-    }
-
+fun currentWindowSize(): IntSize {
     // Observe view configuration changes and recalculate the size class on each change. We can't
     // use Activity#onConfigurationChanged as this will sometimes fail to be called on different
     // API levels, hence why this function needs to be @Composable so we can observe the
     // ComposeView's configuration changes.
-    size.value = remember(context, LocalConfiguration.current) {
-        val windowBounds =
-            WindowMetricsCalculator
-                .getOrCreate()
-                .computeCurrentWindowMetrics(context)
-                .bounds
-        IntSize(windowBounds.width(), windowBounds.height())
-    }
-
-    return size
+    LocalConfiguration.current
+    val windowBounds =
+        WindowMetricsCalculator
+            .getOrCreate()
+            .computeCurrentWindowMetrics(LocalContext.current)
+            .bounds
+   return IntSize(windowBounds.width(), windowBounds.height())
 }
 
 /**
  * Collects the current window folding features from [WindowInfoTracker] in to a [State].
  *
- * @param context Optional [UiContext] of the window, defaulted to [LocalContext]'s current value.
  * @return a [State] of a [FoldingFeature] list.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun foldingFeaturesAsState(
-    @UiContext context: Context = LocalContext.current
-): State<List<FoldingFeature>> {
+fun collectFoldingFeaturesAsState(): State<List<FoldingFeature>> {
+    val context = LocalContext.current
     return remember(context) {
         if (context is Activity) {
             // TODO(b/284347941) remove the instance check after the test bug is fixed.
@@ -105,15 +96,3 @@ fun foldingFeaturesAsState(
         }.map { it.displayFeatures.filterIsInstance<FoldingFeature>() }
     }.collectAsState(emptyList())
 }
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
-@Composable
-internal fun Context.windowAdaptiveInfo() =
-    WindowAdaptiveInfo(
-        WindowSizeClass.calculateFromSize(
-            with(LocalDensity.current) {
-                windowSizeAsState(this@windowAdaptiveInfo).value.toSize().toDpSize()
-            }
-        ),
-        calculatePosture(foldingFeaturesAsState(this).value)
-    )

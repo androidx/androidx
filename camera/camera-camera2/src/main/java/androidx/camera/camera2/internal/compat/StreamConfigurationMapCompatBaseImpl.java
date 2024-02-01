@@ -39,6 +39,12 @@ class StreamConfigurationMapCompatBaseImpl
 
     @Nullable
     @Override
+    public int[] getOutputFormats() {
+        return mStreamConfigurationMap.getOutputFormats();
+    }
+
+    @Nullable
+    @Override
     public Size[] getOutputSizes(int format) {
         Size[] sizes;
         if (format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {

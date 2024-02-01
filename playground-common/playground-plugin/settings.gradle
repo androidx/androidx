@@ -31,10 +31,18 @@ dependencyResolutionManagement {
         gradlePluginPortal().content {
             it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
             it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
+            it.includeModule("org.spdx", "spdx-gradle-plugin")
+            it.includeModule("com.github.johnrengelman.shadow",
+                    "com.github.johnrengelman.shadow.gradle.plugin")
+            it.includeModule("com.github.johnrengelman", "shadow")
         }
     }
 }
 
+System.setProperty(
+        "CHECKOUT_ROOT",
+        buildscript.sourceFile.getParentFile().getParentFile().getParentFile().absolutePath
+)
 System.setProperty("ALLOW_PUBLIC_REPOS", "true")
 rootProject.name = "playground-plugin"
 includeBuild("../../buildSrc") {

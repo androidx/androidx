@@ -185,7 +185,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataResultsFromIntent() throws Throwable {
         Uri uri = Uri.parse("Some Uri");
@@ -198,7 +197,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
         verifyIntentHasDataResults(intent, uri);
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testRemoteInputBuilder_addAndGetTextResultsFromIntent() throws Throwable {
         CharSequence charSequence = "value doesn't matter";
@@ -213,7 +211,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
         verifyIntentHasTextResults(intent, charSequence);
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataAndTextResultsFromIntentDataFirst()
             throws Throwable {
@@ -230,7 +227,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
         verifyIntentHasDataResults(intent, uri);
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataAndTextResultsFromIntentTextFirst()
             throws Throwable {
@@ -254,7 +250,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
         assertEquals(RemoteInput.SOURCE_FREE_FORM_INPUT, RemoteInput.getResultsSource(intent));
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testGetResultsSource_addDataAndTextResults() {
         CharSequence charSequence = "value doesn't matter";
@@ -268,7 +263,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
         assertEquals(RemoteInput.SOURCE_FREE_FORM_INPUT, RemoteInput.getResultsSource(intent));
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testGetResultsSource_setSource() {
         Intent intent = new Intent();
@@ -278,7 +272,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
         assertEquals(RemoteInput.SOURCE_CHOICE, RemoteInput.getResultsSource(intent));
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testGetResultsSource_setSourceAndAddDataAndTextResults() {
         CharSequence charSequence = "value doesn't matter";

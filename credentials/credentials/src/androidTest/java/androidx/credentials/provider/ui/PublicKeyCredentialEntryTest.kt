@@ -21,12 +21,15 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.service.credentials.CredentialEntry
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetPublicKeyCredentialOption
 import androidx.credentials.provider.PublicKeyCredentialEntry
+import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.fromCredentialEntry
 import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.fromSlice
+import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.toSlice
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -34,6 +37,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import junit.framework.TestCase.assertNotNull
+import org.junit.Assert
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,6 +121,18 @@ class PublicKeyCredentialEntryTest {
         entry?.let {
             assertEntryWithRequiredParams(entry)
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun fromCredentialEntry_success() {
+        val originalEntry = constructWithAllParams()
+
+        val entry = toSlice(originalEntry)?.let { CredentialEntry("id", it) }
+            ?.let { fromCredentialEntry(it) }
+
+        Assert.assertNotNull(entry)
+        assertEntryWithRequiredParams(entry!!)
     }
 
     private fun constructWithRequiredParamsOnly(): PublicKeyCredentialEntry {

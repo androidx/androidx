@@ -37,6 +37,7 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.StatefulWatchFaceService
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -63,6 +64,7 @@ import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Compa
 import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService
 import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService.Companion.EXAMPLE_OPENGL_COMPLICATION_ID
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import java.time.ZonedDateTime
@@ -112,6 +114,62 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
                 }
             )
         }
+}
+
+class MyExtra(val data: Int)
+
+internal class StatefulWatchFaceServiceWatchFaceService : StatefulWatchFaceService<MyExtra>() {
+
+    override fun createExtra() = MyExtra(123)
+
+    override fun createUserStyleSchema(extra: MyExtra): UserStyleSchema {
+        require(extra.data == 123)
+        return UserStyleSchema(emptyList())
+    }
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        extra: MyExtra
+    ): ComplicationSlotsManager {
+        require(extra.data == 123)
+        return ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        extra: MyExtra
+    ): WatchFace {
+        require(extra.data == 123)
+        return WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.SOFTWARE,
+                    16
+                ) {
+                override fun render(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                }
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                }
+            }
+        )
+    }
 }
 
 const val TIME_MILLIS: Long = 123456789
@@ -553,5 +611,32 @@ public class WatchFaceControlServiceTest {
                     )
             )
             .isNull()
+    }
+
+    @Test
+    public fun userStyleSchemaWithExtra() {
+        val instanceService =
+            IWatchFaceControlService.Stub.asInterface(
+                WatchFaceControlService()
+                    .apply { setContext(ApplicationProvider.getApplicationContext<Context>()) }
+                    .onBind(Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE))
+            )
+
+        // This shouldn't crash.
+        instance =
+            instanceService.createHeadlessWatchFaceInstance(
+                HeadlessWatchFaceInstanceParams(
+                    ComponentName(
+                        ApplicationProvider.getApplicationContext<Context>(),
+                        StatefulWatchFaceServiceWatchFaceService::class.java
+                    ),
+                    DEVICE_CONFIG,
+                    /* width = */ 100,
+                    /* height = */ 100,
+                    /* instanceId = */ null
+                )
+            )
+
+        assertThat(instance.userStyleSchema.mSchema).isEmpty()
     }
 }

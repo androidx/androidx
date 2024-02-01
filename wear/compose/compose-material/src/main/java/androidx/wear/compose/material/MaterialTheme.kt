@@ -17,14 +17,9 @@ package androidx.wear.compose.material
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.remember
 import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
 import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
 
@@ -66,23 +61,20 @@ public fun MaterialTheme(
     shapes: Shapes = MaterialTheme.shapes,
     content: @Composable () -> Unit
 ) {
-    val rememberedColors = remember {
-        // Explicitly creating a new object here so we don't mutate the initial [colors]
-        // provided, and overwrite the values set in it.
-        colors.copy()
-    }.apply { updateColorsFrom(colors) }
-    val rippleIndication = rememberRipple()
-    val selectionColors = rememberTextSelectionColors(rememberedColors)
+    val rippleIndication = rippleOrFallbackImplementation()
+    val selectionColors = rememberTextSelectionColors(colors)
+    @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
-        LocalColors provides rememberedColors,
+        LocalColors provides colors,
         LocalShapes provides shapes,
         LocalTypography provides typography,
         LocalContentAlpha provides ContentAlpha.high,
         LocalIndication provides rippleIndication,
-        LocalRippleTheme provides MaterialRippleTheme,
+        // TODO: b/304985887 - remove after one stable release
+        androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalTextSelectionColors provides selectionColors,
-        LocalSwipeToDismissBackgroundScrimColor provides rememberedColors.background,
-        LocalSwipeToDismissContentScrimColor provides rememberedColors.background
+        LocalSwipeToDismissBackgroundScrimColor provides colors.background,
+        LocalSwipeToDismissContentScrimColor provides colors.background
     ) {
         ProvideTextStyle(value = typography.body1, content = content)
     }
@@ -103,19 +95,4 @@ public object MaterialTheme {
         @ReadOnlyComposable
         @Composable
         get() = LocalShapes.current
-}
-
-@Immutable
-private object MaterialRippleTheme : RippleTheme {
-    @Composable
-    override fun defaultColor() = RippleTheme.defaultRippleColor(
-        contentColor = LocalContentColor.current,
-        lightTheme = false
-    )
-
-    @Composable
-    override fun rippleAlpha() = RippleTheme.defaultRippleAlpha(
-        contentColor = LocalContentColor.current,
-        lightTheme = false
-    )
 }

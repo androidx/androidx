@@ -30,9 +30,5 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 18
-    }
-
     namespace "androidx.test.uiautomator.testapp"
 }

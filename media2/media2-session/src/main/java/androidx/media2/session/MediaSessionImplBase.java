@@ -322,11 +322,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         });
         mHandler.removeCallbacksAndMessages(null);
         if (mHandlerThread.isAlive()) {
-            if (Build.VERSION.SDK_INT >= 18) {
-                ClassVerificationHelper.HandlerThread.Api18.quitSafely(mHandlerThread);
-            } else {
-                mHandlerThread.quit();
-            }
+            mHandlerThread.quitSafely();
         }
     }
 

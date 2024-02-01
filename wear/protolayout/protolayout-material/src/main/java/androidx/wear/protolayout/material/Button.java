@@ -40,6 +40,7 @@ import android.content.Context;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
@@ -51,6 +52,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.material.Typography.TypographyName;
 import androidx.wear.protolayout.materialcore.Button.Builder.ButtonType;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -106,8 +108,9 @@ public class Button implements LayoutElement {
 
         /**
          * Creates a builder for the {@link Button} from the given content. Custom content should be
-         * later set with one of the following ({@link #setIconContent}, {@link #setTextContent},
-         * {@link #setImageContent}.
+         * later set with one of the following {@link #setIconContent(String)},
+         * {@link #setIconContent(String, DpProp)}, {@link #setTextContent(String)},
+         * {@link #setTextContent(String, int)} or {@link #setImageContent(String)}.
          *
          * @param context The application's context.
          * @param clickable Associated {@link Clickable} for click events. When the Button is
@@ -284,6 +287,7 @@ public class Button implements LayoutElement {
         }
 
         @NonNull
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         private LayoutElement getCorrectContent() {
             LayoutElement.Builder content;
             switch (mType) {

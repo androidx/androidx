@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -35,6 +42,7 @@ dependencies {
     implementation project(":compose:material3:material3")
     implementation project(":compose:material3:material3:material3-samples")
     implementation project(":compose:material3:material3-adaptive:material3-adaptive-samples")
+    implementation project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples")
     implementation project(":datastore:datastore-preferences")
     implementation project(":navigation:navigation-compose")
 }

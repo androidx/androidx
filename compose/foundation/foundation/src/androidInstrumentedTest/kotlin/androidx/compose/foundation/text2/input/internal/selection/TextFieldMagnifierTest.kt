@@ -16,27 +16,43 @@
 
 package androidx.compose.foundation.text2.input.internal.selection
 
+import android.view.DragEvent
+import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.AbstractSelectionMagnifierTests
+import androidx.compose.foundation.text.selection.assertMagnifierExists
+import androidx.compose.foundation.text.selection.assertNoMagnifierExists
 import androidx.compose.foundation.text.selection.getMagnifierCenterOffset
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.internal.DragAndDropTestUtils.makeImageDragEvent
+import androidx.compose.foundation.text2.input.internal.DragAndDropTestUtils.makeTextDragEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInputSelection
@@ -44,12 +60,17 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -137,6 +158,209 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         checkMagnifierStayAtEndWhenDraggedBeyondScroll(Handle.SelectionEnd, LayoutDirection.Rtl)
     }
 
+    @Test
+    fun magnifier_shows_whenTextIsDraggingFromAnotherApp() {
+        val view = setupDragAndDropContent()
+
+        rule.runOnIdle {
+            val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
+            val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
+            val moveEvent = makeTextDragEvent(
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(40f, 10f)
+            )
+
+            view.dispatchDragEvent(startEvent)
+            view.dispatchDragEvent(enterEvent)
+            view.dispatchDragEvent(moveEvent)
+        }
+
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(Offset(40f, 10f))
+    }
+
+    @Test
+    fun magnifier_doesNotShow_ifDraggingItem_doesNotHaveText() {
+        val view = setupDragAndDropContent()
+
+        rule.runOnIdle {
+            val startEvent = makeImageDragEvent(DragEvent.ACTION_DRAG_STARTED)
+            val enterEvent = makeImageDragEvent(DragEvent.ACTION_DRAG_ENTERED)
+            val moveEvent = makeImageDragEvent(
+                DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(40f, 10f)
+            )
+
+            view.dispatchDragEvent(startEvent)
+            view.dispatchDragEvent(enterEvent)
+            view.dispatchDragEvent(moveEvent)
+        }
+
+        assertNoMagnifierExists(rule)
+    }
+
+    @Test
+    fun magnifier_doesNotLinger_whenDraggingItemLeaves() {
+        val view = setupDragAndDropContent()
+
+        rule.runOnIdle {
+            val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
+            val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
+            val moveEvent = makeTextDragEvent(
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(40f, 10f)
+            )
+
+            view.dispatchDragEvent(startEvent)
+            view.dispatchDragEvent(enterEvent)
+            view.dispatchDragEvent(moveEvent)
+        }
+
+        assertMagnifierExists(rule)
+
+        rule.runOnIdle {
+            val moveEvent2 = makeTextDragEvent(
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(40f, 40f) // force it out of BTF2's hit box
+            )
+            view.dispatchDragEvent(moveEvent2)
+        }
+
+        assertNoMagnifierExists(rule)
+    }
+
+    @Test
+    fun magnifier_insideDecorationBox() {
+        val tag = "BasicTextField2"
+        val state = TextFieldState(
+            "aaaa",
+            initialSelectionInChars = TextRange.Zero
+        )
+
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                BasicTextField2(
+                    state = state,
+                    Modifier.testTag(tag),
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    decorator = {
+                        Box(modifier = Modifier.padding(8.dp)) {
+                            it()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            click(topLeft)
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
+            down(center)
+            movePastSlopBy(Offset(-0.1f, 0.1f))
+        }
+
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
+            Offset(0f, 10f) + Offset(8f, 8f)
+        )
+    }
+
+    @Test
+    fun magnifier_insideDecorationBox_scrolledVertically() {
+        val tag = "BasicTextField2"
+        val state = TextFieldState(
+            "aaaa\naaaa\naaaa\n".repeat(5),
+            initialSelectionInChars = TextRange.Zero
+        )
+        val scrollState = ScrollState(0)
+        var coroutineScope: CoroutineScope? = null
+
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                coroutineScope = rememberCoroutineScope()
+                BasicTextField2(
+                    state = state,
+                    Modifier.testTag(tag),
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    lineLimits = TextFieldLineLimits.MultiLine(1, 2),
+                    scrollState = scrollState,
+                    decorator = {
+                        Box(modifier = Modifier.padding(8.dp)) {
+                            it()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        coroutineScope?.launch {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            click(bottomLeft)
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
+            down(center)
+            movePastSlopBy(Offset(0.1f, 0.1f))
+        }
+
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
+            Offset(0f, 30f) + Offset(8f, 8f)
+        )
+    }
+
+    @Test
+    fun magnifier_insideDecorationBox_scrolledHorizontally() {
+        val tag = "BasicTextField2"
+        val state = TextFieldState(
+            "aaaa aaaa aaaa ".repeat(5),
+            initialSelectionInChars = TextRange.Zero
+        )
+        val scrollState = ScrollState(0)
+        var coroutineScope: CoroutineScope? = null
+
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                coroutineScope = rememberCoroutineScope()
+                BasicTextField2(
+                    state = state,
+                    Modifier.testTag(tag).width(100.dp),
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    scrollState = scrollState,
+                    decorator = {
+                        Box(modifier = Modifier.padding(8.dp)) {
+                            it()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        coroutineScope?.launch {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            click(centerRight)
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
+            down(center)
+            movePastSlopBy(Offset(0.1f, 0.1f))
+        }
+
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
+            // x: drag threshold, y: line center(2nd line in view) + x: padding, y: padding
+            Offset(100f - 16f, 10f) + Offset(8f, 8f)
+        )
+    }
+
     @OptIn(ExperimentalTestApi::class, ExperimentalFoundationApi::class)
     private fun checkMagnifierStayAtEndWhenDraggedBeyondScroll(
         handle: Handle,
@@ -156,7 +380,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             initialSelectionInChars = TextRange.Zero
         )
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 BasicTextField2(
                     state = state,
@@ -201,5 +425,30 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
             Offset(x, magnifierInitialPosition.y)
         )
+    }
+
+    private fun setupDragAndDropContent(): View {
+        val state = TextFieldState(
+            "aaaa",
+            initialSelectionInChars = TextRange.Zero
+        )
+        var view: View? = null
+        rule.setContent { // Do not use setTextFieldTestContent for DnD tests.
+            view = LocalView.current
+            CompositionLocalProvider(
+                LocalDensity provides Density(1f, 1f),
+                LocalWindowInfo provides object : WindowInfo {
+                    override val isWindowFocused = false
+                }
+            ) {
+                BasicTextField2(
+                    state = state,
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    lineLimits = TextFieldLineLimits.SingleLine
+                )
+            }
+        }
+
+        return view!!
     }
 }

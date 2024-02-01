@@ -16,8 +16,6 @@
 
 package androidx.appsearch.playservicesstorage;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.Features;
 
@@ -107,7 +105,7 @@ final class FeaturesImpl implements Features {
         }
     }
     @Override
-    public int getMaxIndexedProperties(@NonNull Context unused) {
+    public int getMaxIndexedProperties() {
         // TODO(b/241310816): Update to reflect support in Android U+ once 64 indexable properties
         //  are possible in service-appsearch.
         return 16;

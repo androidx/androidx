@@ -8,9 +8,6 @@ set -e
 
 export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
 
-# disable GCP cache, these machines don't have credentials.
-export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
-
 echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
@@ -18,7 +15,7 @@ cd "$(dirname $0)"
 # Setup simulators
 impl/androidx-native-mac-simulator-setup.sh
 
-impl/build.sh darwinBenchmarkResults allTests \
+impl/build.sh darwinBenchmarkResults allHostTests \
     --no-configuration-cache \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false \

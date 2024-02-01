@@ -21,6 +21,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.service.credentials.CredentialEntry
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.equals
@@ -69,6 +70,7 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun constructor_emptyUsername_throwsIAE() {
         assertThrows(
             "Expected empty username to throw IllegalArgumentException",
@@ -94,6 +96,7 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun constructor_nullTypeDisplayName_defaultDisplayNameSet() {
         val entry = PasswordCredentialEntry(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
@@ -115,12 +118,75 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
+    fun constructor_defaultAffiliatedDomain() {
+        val defaultEntry = constructEntryWithRequiredParamsOnly()
+
+        assertThat(defaultEntry.affiliatedDomain).isNull()
+    }
+
+    @Test
+    fun constructor_nonEmptyAffiliatedDomainSet_nonEmptyAffiliatedDomainRetrieved() {
+        val expectedAffiliatedDomain = "non-empty"
+
+        val entryWithAffiliationType = PasswordCredentialEntry(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION,
+            DISPLAYNAME,
+            LAST_USED_TIME,
+            ICON,
+            affiliatedDomain = expectedAffiliatedDomain
+        )
+
+        assertThat(entryWithAffiliationType.affiliatedDomain).isEqualTo(expectedAffiliatedDomain)
+    }
+
+    @Test
+    fun builder_constructDefault_containsOnlyDefaultValuesForSettableParameters() {
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+
+        assertThat(entry.affiliatedDomain).isNull()
+        assertThat(entry.displayName).isNull()
+        assertThat(entry.lastUsedTime).isNull()
+        assertThat(entry.isAutoSelectAllowed).isFalse()
+    }
+
+    @Test
+    fun builder_setAffiliatedDomainNull_retrieveNullAffiliatedDomain() {
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).setAffiliatedDomain(null).build()
+
+        assertThat(entry.affiliatedDomain).isNull()
+    }
+
+    @Test
+    fun builder_setAffiliatedDomainNonNull_retrieveNonNullAffiliatedDomain() {
+        val expectedAffiliatedDomain = "name"
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).setAffiliatedDomain(expectedAffiliatedDomain).build()
+
+        assertThat(entry.affiliatedDomain).isEqualTo(expectedAffiliatedDomain)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
     fun fromSlice_success() {
         val originalEntry = constructEntryWithAllParams()
-
         val slice = PasswordCredentialEntry.toSlice(originalEntry)
-
         assertNotNull(slice)
 
         val entry = fromSlice(slice!!)
@@ -131,6 +197,27 @@ class PasswordCredentialEntryTest {
         }
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun fromCredentialEntry_success() {
+        val originalEntry = constructEntryWithAllParams()
+        val slice = PasswordCredentialEntry.toSlice(originalEntry)
+
+        assertNotNull(slice)
+
+        val entry = slice?.let { CredentialEntry("id", it) }?.let {
+            PasswordCredentialEntry.fromCredentialEntry(
+                it
+            )
+        }
+
+        assertNotNull(entry)
+        entry?.let {
+            assertEntryWithAllParams(entry)
+        }
+    }
+
+    @Suppress("DEPRECATION")
     private fun constructEntryWithRequiredParamsOnly(): PasswordCredentialEntry {
         return PasswordCredentialEntry(
             mContext,
@@ -148,13 +235,16 @@ class PasswordCredentialEntryTest {
             BEGIN_OPTION,
             DISPLAYNAME,
             LAST_USED_TIME,
-            ICON
+            ICON,
+            IS_AUTO_SELECT_ALLOWED,
+            AFFILIATED_DOMAIN
         )
     }
 
     private fun assertEntryWithRequiredParamsOnly(entry: PasswordCredentialEntry) {
         assertThat(USERNAME == entry.username)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.affiliatedDomain).isNull()
     }
 
     private fun assertEntryWithAllParams(entry: PasswordCredentialEntry) {
@@ -168,6 +258,8 @@ class PasswordCredentialEntryTest {
                 it.toEpochMilli())
         }
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.isAutoSelectAllowed).isEqualTo(IS_AUTO_SELECT_ALLOWED)
+        assertThat(entry.affiliatedDomain).isEqualTo(AFFILIATED_DOMAIN)
     }
 
     companion object {
@@ -183,5 +275,7 @@ class PasswordCredentialEntryTest {
                 100, 100, Bitmap.Config.ARGB_8888
             )
         )
+        private val IS_AUTO_SELECT_ALLOWED = false
+        private val AFFILIATED_DOMAIN = "affiliation-name"
     }
 }

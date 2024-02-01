@@ -21,6 +21,7 @@ import androidx.work.Configuration
 import androidx.work.ListenableWorker
 import androidx.work.Logger
 import androidx.work.WorkInfo
+import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -51,12 +52,22 @@ internal fun RemoteWorkerWrapper(
     taskExecutor.mainThreadExecutor.execute {
         try {
             if (future.isCancelled) return@execute
-            val worker = configuration.workerFactory
-                .createWorkerWithDefaultFallback(context, workerClassName, workerParameters)
-            if (worker == null) {
-                val message = "Unable to create an instance of $workerClassName"
-                Logger.get().error(ListenableWorkerImpl.TAG, message)
-                future.setException(IllegalStateException(message))
+            val worker = try {
+                configuration.workerFactory
+                    .createWorkerWithDefaultFallback(context, workerClassName, workerParameters)
+            } catch (throwable: Throwable) {
+                future.setException(throwable)
+                try {
+                    configuration.workerInitializationExceptionHandler?.let {
+                        taskExecutor.executeOnTaskThread {
+                            it.accept(WorkerExceptionInfo(
+                                workerClassName, workerParameters, throwable))
+                        }
+                    }
+                } catch (exception: Exception) {
+                    val message = "Exception handler threw an exception: $exception"
+                    Logger.get().error(ListenableWorkerImpl.TAG, message)
+                }
                 return@execute
             }
             if (worker !is RemoteListenableWorker) {

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -85,6 +92,8 @@ configurations.all {
                 using project(":lifecycle:lifecycle-runtime")
         substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
                 using project(":lifecycle:lifecycle-viewmodel")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
+                using project(":lifecycle:lifecycle-viewmodel-ktx")
         substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
                 using project(":lifecycle:lifecycle-viewmodel-savedstate")
     }

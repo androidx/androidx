@@ -492,4 +492,8 @@
     <string name="route_options_demo_title">Route options</string>
   <string name="avoid_highways_row_title">Avoid highways</string>
   <string name="avoid_ferries_row_title">Avoid ferry</string>
+  <string name="map_demos_title">Map Demos</string>
+  <string name="map_with_content_demo_title">Map With Content Demos</string>
+  <string name="map_with_message_demo_title">Map With Message Template Demo</string>
+  <string name="map_with_grid_demo_title">Map With Grid Template Demo</string>
 </resources>

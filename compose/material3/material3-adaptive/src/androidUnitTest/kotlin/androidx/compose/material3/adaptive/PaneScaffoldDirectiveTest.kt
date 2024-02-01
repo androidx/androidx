@@ -20,6 +20,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -40,10 +41,16 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(16.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(16.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        ).isEqualTo(16.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
+        ).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
     @Test
@@ -57,10 +64,16 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
     @Test
@@ -74,10 +87,16 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
     @Test
@@ -91,10 +110,16 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(2)
-        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(24.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(24.dp)
     }
 
     @Test
@@ -108,10 +133,16 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(16.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(16.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        ).isEqualTo(16.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
+        ).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
     @Test
@@ -125,10 +156,16 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
     @Test
@@ -142,10 +179,16 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
     @Test
@@ -159,80 +202,63 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(2)
-        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(24.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(
+            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
+        ).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(24.dp)
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_alwaysAvoidHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.AlwaysAvoid
         )
 
-        assertThat(scaffoldDirective.excludedBounds).isEqualTo(allHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.getBounds())
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_avoidOccludingHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.AvoidOccluding
         )
 
-        assertThat(scaffoldDirective.excludedBounds).isEqualTo(occludingHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.subList(0, 2).getBounds())
+    }
+
+    @Test
+    fun test_calculateStandardPaneScaffoldDirective_avoidSeparatingHinge() {
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(hingeList = hingeList)
+            ),
+            HingePolicy.AvoidSeparating
+        )
+
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.subList(2, 3).getBounds())
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_neverAvoidHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.NeverAvoid
         )
@@ -242,76 +268,80 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_alwaysAvoidHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.AlwaysAvoid
         )
 
-        assertThat(scaffoldDirective.excludedBounds).isEqualTo(allHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.getBounds())
     }
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_avoidOccludingHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.AvoidOccluding
         )
 
-        assertThat(scaffoldDirective.excludedBounds).isEqualTo(occludingHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.subList(0, 2).getBounds())
+    }
+
+    @Test
+    fun test_calculateDensePaneScaffoldDirective_avoidSeparatingHinge() {
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(hingeList = hingeList)
+            ),
+            HingePolicy.AvoidSeparating
+        )
+
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.subList(2, 3).getBounds())
     }
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_neverAvoidHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.NeverAvoid
         )
 
         assertThat(scaffoldDirective.excludedBounds).isEmpty()
     }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private val hingeList = listOf(
+    HingeInfo(
+        bounds = Rect(0F, 0F, 1F, 1F),
+        isVertical = true,
+        isSeparating = false,
+        isOccluding = true
+    ),
+    HingeInfo(
+        bounds = Rect(1F, 1F, 2F, 2F),
+        isVertical = true,
+        isSeparating = false,
+        isOccluding = true
+    ),
+    HingeInfo(
+        bounds = Rect(2F, 2F, 3F, 3F),
+        isVertical = true,
+        isSeparating = true,
+        isOccluding = false
+    ),
+)
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun List<HingeInfo>.getBounds(): List<Rect> {
+    return map { it.bounds }
 }

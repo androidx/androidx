@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.SdkResourceGenerator
 
@@ -21,6 +28,14 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
+}
+
+configurations {
+    // Config for plugin classpath to be used during tests
+    testPlugin {
+        canBeConsumed = false
+        canBeResolved = true
+    }
 }
 
 dependencies {
@@ -32,9 +47,16 @@ dependencies {
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.junit)
+    testPlugin("com.android.tools.build:gradle:7.3.0")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043:linux")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043:osx")
+    testPlugin("com.android.tools.lint:lint-gradle:30.3.0")
 }
 
-SdkResourceGenerator.generateForHostTest(project)
+tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
+    it.pluginClasspath.from(configurations.testPlugin)
+}
 
 gradlePlugin {
     plugins {

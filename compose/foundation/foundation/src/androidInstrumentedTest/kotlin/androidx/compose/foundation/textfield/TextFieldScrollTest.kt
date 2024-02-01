@@ -17,7 +17,6 @@
 package androidx.compose.foundation.textfield
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +29,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TextFieldScrollerPosition
 import androidx.compose.foundation.text.TextLayoutResultProxy
@@ -109,8 +109,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
-class TextFieldScrollTest {
+class TextFieldScrollTest : FocusedWindowTest {
 
     private val TextfieldTag = "textField"
 
@@ -219,7 +218,7 @@ class TextFieldScrollTest {
         val tag = "OuterBox"
 
         with(rule.density) {
-            rule.setContent {
+            rule.setTextFieldTestContent {
                 Box(
                     Modifier
                         .size(parentSize.toDp())
@@ -254,7 +253,7 @@ class TextFieldScrollTest {
         val tag = "OuterBox"
 
         with(rule.density) {
-            rule.setContent {
+            rule.setTextFieldTestContent {
                 Box(
                     Modifier
                         .size(parentSize.toDp())
@@ -381,7 +380,7 @@ class TextFieldScrollTest {
     fun textFieldScrollable_testInspectorValue() {
         val position = TextFieldScrollerPosition(Orientation.Vertical, 10f)
         val interactionSource = MutableInteractionSource()
-        rule.setContent {
+        rule.setTextFieldTestContent {
             val modifier =
                 Modifier.textFieldScrollable(position, interactionSource) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("textFieldScrollable")
@@ -409,7 +408,7 @@ class TextFieldScrollTest {
         var touchSlop = 0f
         val height = 60.dp
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             touchSlop = LocalViewConfiguration.current.touchSlop
             Column(
                 Modifier
@@ -459,7 +458,7 @@ class TextFieldScrollTest {
         val width = 500
         val height = 100
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             val textLayoutResultRef: Ref<TextLayoutResultProxy?> = remember { Ref() }
             val density = LocalDensity.current
 
@@ -509,7 +508,7 @@ class TextFieldScrollTest {
         val width = 500
         val height = 100
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             val textLayoutResultRef: Ref<TextLayoutResultProxy?> = remember { Ref() }
             val density = LocalDensity.current
 
@@ -562,7 +561,7 @@ class TextFieldScrollTest {
         val tag = "Text"
 
         with(rule.density) {
-            rule.setContent {
+            rule.setTextFieldTestContent {
                 BasicTextField(
                     value = longText,
                     onValueChange = {},
@@ -606,7 +605,7 @@ class TextFieldScrollTest {
         val tag = "Text"
 
         with(rule.density) {
-            rule.setContent {
+            rule.setTextFieldTestContent {
                 BasicTextField(
                     value = longText,
                     onValueChange = {},

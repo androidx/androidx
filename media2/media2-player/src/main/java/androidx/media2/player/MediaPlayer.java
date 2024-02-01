@@ -76,19 +76,22 @@ import java.util.concurrent.Executors;
 /**
  * A media player which plays {@link MediaItem}s. The details on playback control and player states
  * can be found in the documentation of the base class, {@link SessionPlayer}.
- * <p>
- * Topic covered here:
+ *
+ * <p>Topic covered here:
+ *
  * <ol>
- * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
+ *   <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
  * </ol>
+ *
  * <h3 id="AudioFocusAndNoisyIntent">Audio focus and noisy intent</h3>
- * <p>
- * By default, {@link MediaPlayer} handles audio focus and noisy intent with
- * {@link AudioAttributesCompat} set to this player. You need to call
- * {@link #setAudioAttributes(AudioAttributesCompat)} set the audio attribute while in the
- * {@link #PLAYER_STATE_IDLE}.
- * <p>
- * Here's the table of automatic audio focus behavior with audio attributes.
+ *
+ * <p>By default, {@link MediaPlayer} handles audio focus and noisy intent with {@link
+ * AudioAttributesCompat} set to this player. You need to call {@link
+ * #setAudioAttributes(AudioAttributesCompat)} set the audio attribute while in the {@link
+ * #PLAYER_STATE_IDLE}.
+ *
+ * <p>Here's the table of automatic audio focus behavior with audio attributes.
+ *
  * <table summary="Audio focus handling overview">
  * <tr><th>Audio Attributes</th><th>Audio Focus Gain Type</th><th>Misc</th></tr>
  * <tr><td>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION_SIGNALLING}</td>
@@ -129,15 +132,20 @@ import java.util.concurrent.Executors;
  *     <td>No audio focus handling, and sets the player volume to {@code 0}</td>
  *     <td>This is to handle error</td></tr>
  * </table>
+ *
+ * <p>If an {@link AudioAttributesCompat} is not specified by {@link #setAudioAttributes}, {@link
+ * #getAudioAttributes} will return {@code null} and the default audio focus behavior will follow
+ * the {@code null} case on the table above.
+ *
+ * <p>For more information about the audio focus, take a look at <a
+ * href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
+ *
  * <p>
- * If an {@link AudioAttributesCompat} is not specified by {@link #setAudioAttributes},
- * {@link #getAudioAttributes} will return {@code null} and the default audio focus behavior will
- * follow the {@code null} case on the table above.
- * <p>
- * For more information about the audio focus, take a look at
- * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
- * <p>
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public final class MediaPlayer extends SessionPlayer {
     private static final String TAG = "MediaPlayer";
 
@@ -3479,7 +3487,11 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Interface definition for callbacks to be invoked when the player has the corresponding
      * events.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public abstract static class PlayerCallback extends SessionPlayer.PlayerCallback {
         /**
          * @deprecated Use
@@ -3590,7 +3602,10 @@ public final class MediaPlayer extends SessionPlayer {
      * Class for the player to return each audio/video/subtitle track's metadata.
      *
      * @see #getTracks
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static final class TrackInfo extends SessionPlayer.TrackInfo {
         TrackInfo(SessionPlayer.TrackInfo infoInternal) {
             super(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat(),

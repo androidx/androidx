@@ -125,7 +125,7 @@ fun defaultScrollbarStyle() = ScrollbarStyle(
  * will be at the bottom of the container.
  * It is usually used in pair with `LazyColumn(reverseLayout = true)`
  * @param style [ScrollbarStyle] to define visual style of scrollbar
- * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ * @param interactionSource optional [MutableInteractionSource] that will be used to dispatch
  * [DragInteraction.Start] when this Scrollbar is being dragged.
  */
 @Composable
@@ -134,7 +134,7 @@ fun VerticalScrollbar(
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
     style: ScrollbarStyle = LocalScrollbarStyle.current,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) = Scrollbar(
     adapter,
     modifier,
@@ -171,7 +171,7 @@ fun VerticalScrollbar(
  * will be at the end of the container.
  * It is usually used in pair with `LazyRow(reverseLayout = true)`
  * @param style [ScrollbarStyle] to define visual style of scrollbar
- * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ * @param interactionSource optional [MutableInteractionSource] that will be used to dispatch
  * [DragInteraction.Start] when this Scrollbar is being dragged.
  */
 @Composable
@@ -180,7 +180,7 @@ fun HorizontalScrollbar(
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
     style: ScrollbarStyle = LocalScrollbarStyle.current,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) = Scrollbar(
     adapter,
     modifier,
@@ -197,9 +197,11 @@ private fun Scrollbar(
     modifier: Modifier = Modifier,
     reverseLayout: Boolean,
     style: ScrollbarStyle,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     isVertical: Boolean
 ) = with(LocalDensity.current) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val dragInteraction = remember { mutableStateOf<DragInteraction.Start?>(null) }
     DisposableEffect(interactionSource) {
         onDispose {

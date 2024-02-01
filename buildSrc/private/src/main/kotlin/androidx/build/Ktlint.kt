@@ -58,6 +58,7 @@ private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
                 val dependency = dependencies.create("com.pinterest:ktlint:$version")
                 it.dependencies.add(dependency)
                 it.attributes.attribute(bundlingAttribute, "external")
+                it.isCanBeConsumed = false
             }
     )
 }
@@ -303,7 +304,7 @@ abstract class KtlintCheckFileTask : DefaultTask() {
 
                 ********************************************************************************
                 ${TERMINAL_RED}You can attempt to automatically fix these issues with:
-                ./gradlew :ktlintCheckFile --format ${kotlinFiles.joinToString { "--file $it" }}$TERMINAL_RESET
+                ./gradlew :ktlintCheckFile --format ${kotlinFiles.joinToString(separator = " "){ "--file $it" }}$TERMINAL_RESET
                 ********************************************************************************
                 """
                     .trimIndent()

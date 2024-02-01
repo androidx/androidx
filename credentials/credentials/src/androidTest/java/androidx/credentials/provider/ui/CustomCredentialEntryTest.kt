@@ -21,12 +21,15 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.service.credentials.CredentialEntry
 import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetCredentialOption
 import androidx.credentials.provider.BeginGetCustomCredentialOption
 import androidx.credentials.provider.CustomCredentialEntry
+import androidx.credentials.provider.CustomCredentialEntry.Companion.fromCredentialEntry
 import androidx.credentials.provider.CustomCredentialEntry.Companion.fromSlice
+import androidx.credentials.provider.CustomCredentialEntry.Companion.toSlice
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -142,6 +145,23 @@ class CustomCredentialEntryTest {
         if (entry != null) {
             assertEntryWithAllParamsFromSlice(entry)
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun fromCredentialEntry_allParams_success() {
+        val originalEntry = constructEntryWithAllParams()
+        val slice = toSlice(originalEntry)
+
+        assertNotNull(slice)
+        val entry = slice?.let { CredentialEntry("id", it) }?.let {
+            fromCredentialEntry(
+                it
+            )
+        }
+
+        assertNotNull(entry)
+        assertEntryWithAllParamsFromSlice(entry!!)
     }
 
     private fun constructEntryWithRequiredParams(): CustomCredentialEntry {

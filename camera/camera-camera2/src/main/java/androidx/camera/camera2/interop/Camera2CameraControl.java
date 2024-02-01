@@ -18,6 +18,7 @@ package androidx.camera.camera2.interop;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -27,7 +28,6 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -52,9 +52,6 @@ import java.util.concurrent.Executor;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraControl {
 
-    @RestrictTo(Scope.LIBRARY)
-    public static final String TAG_KEY = "Camera2CameraControl";
-
     private boolean mIsActive = false;
     private boolean mPendingUpdate = false;
     private final Camera2CameraControlImpl mCamera2CameraControlImpl;
@@ -67,26 +64,6 @@ public final class Camera2CameraControl {
     private Camera2ImplConfig.Builder mBuilder = new Camera2ImplConfig.Builder();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     CallbackToFutureAdapter.Completer<Void> mCompleter;
-    private final Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener =
-            (captureResult) -> {
-                CallbackToFutureAdapter.Completer<Void> completerToSet = null;
-                if (mCompleter != null) {
-                    Object tag = captureResult.getRequest().getTag();
-                    if (tag instanceof TagBundle) {
-                        TagBundle tagBundle = (TagBundle) tag;
-                        Integer tagInteger = (Integer) tagBundle.getTag(TAG_KEY);
-                        if (tagInteger != null && tagInteger.equals(mCompleter.hashCode())) {
-                            completerToSet = mCompleter;
-                            mCompleter = null;
-                        }
-                    }
-                }
-                if (completerToSet != null) {
-                    completerToSet.set(null);
-                }
-                // Return false to keep getting captureResult.
-                return false;
-            };
 
     /**
      * Creates a new camera control with Camera2 implementation.
@@ -99,12 +76,6 @@ public final class Camera2CameraControl {
             @NonNull @CameraExecutor Executor executor) {
         mCamera2CameraControlImpl = camera2CameraControlImpl;
         mExecutor = executor;
-    }
-
-    @RestrictTo(Scope.LIBRARY)
-    @NonNull
-    public Camera2CameraControlImpl.CaptureResultListener getCaptureRequestListener() {
-        return mCaptureResultListener;
     }
 
     /**
@@ -159,9 +130,7 @@ public final class Camera2CameraControl {
         addCaptureRequestOptionsInternal(bundle);
 
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(completer -> {
-            mExecutor.execute(() -> {
-                updateConfig(completer);
-            });
+            mExecutor.execute(() -> updateConfig(completer));
             return "setCaptureRequestOptions";
         }));
     }
@@ -191,9 +160,7 @@ public final class Camera2CameraControl {
         addCaptureRequestOptionsInternal(bundle);
 
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(completer -> {
-            mExecutor.execute(() -> {
-                updateConfig(completer);
-            });
+            mExecutor.execute(() -> updateConfig(completer));
             return "addCaptureRequestOptions";
         }));
     }
@@ -227,26 +194,18 @@ public final class Camera2CameraControl {
         clearCaptureRequestOptionsInternal();
 
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(completer -> {
-            mExecutor.execute(() -> {
-                updateConfig(completer);
-            });
+            mExecutor.execute(() -> updateConfig(completer));
             return "clearCaptureRequestOptions";
         }));
     }
 
     /**
-     * Gets the {@link Camera2ImplConfig} that contains the existing capture request options and
-     * a unique tag.
+     * Gets the {@link Camera2ImplConfig} that contains the existing capture request options.
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
     public Camera2ImplConfig getCamera2ImplConfig() {
         synchronized (mLock) {
-            if (mCompleter != null) {
-                mBuilder.getMutableConfig().insertOption(
-                        Camera2ImplConfig.CAPTURE_REQUEST_TAG_OPTION,
-                        mCompleter.hashCode());
-            }
             return mBuilder.build();
         }
     }
@@ -281,31 +240,25 @@ public final class Camera2CameraControl {
     }
 
     @ExecutedBy("mExecutor")
-    private void updateConfig(CallbackToFutureAdapter.Completer<Void> completer) {
+    private void updateConfig(@NonNull CallbackToFutureAdapter.Completer<Void> completer) {
         mPendingUpdate = true;
-        // Complete the future if CaptureResult shows it's submitted successfully.
-        CallbackToFutureAdapter.Completer<Void> completerToCancel = null;
-        if (mCompleter != null) {
-            completerToCancel = mCompleter;
-        }
+        failInFlightUpdate(new CameraControl.OperationCanceledException(
+                "Camera2CameraControl was updated with new options."));
         mCompleter = completer;
         if (mIsActive) {
             updateSession();
-        }
-        if (completerToCancel != null) {
-            completerToCancel.setException(new CameraControl.OperationCanceledException(
-                    "Camera2CameraControl was updated with new options."));
         }
     }
 
     @ExecutedBy("mExecutor")
     private void updateSession() {
-        mCamera2CameraControlImpl.updateSessionConfig();
+        mCamera2CameraControlImpl.updateSessionConfigAsync().addListener(
+                this::completeInFlightUpdate, mExecutor);
         mPendingUpdate = false;
     }
 
     /**
-     * Set current active state.
+     * Sets current active state.
      *
      * <p>When the state changes from active to inactive, the Camera2 options will be cleared.
      * When the state changes from inactive to active, a session update will be issued if there's
@@ -330,11 +283,25 @@ public final class Camera2CameraControl {
                 updateSession();
             }
         } else {
-            if (mCompleter != null) {
-                mCompleter.setException(new CameraControl.OperationCanceledException(
-                        "The camera control has became inactive."));
-                mCompleter = null;
-            }
+            failInFlightUpdate(new CameraControl.OperationCanceledException(
+                    "The camera control has became inactive."));
+        }
+    }
+
+    @ExecutedBy("mExecutor")
+    private void completeInFlightUpdate() {
+        if (mCompleter != null) {
+            mCompleter.set(null);
+            mCompleter = null;
+        }
+    }
+
+    @ExecutedBy("mExecutor")
+    private void failInFlightUpdate(@Nullable Exception exception) {
+        if (mCompleter != null) {
+            mCompleter.setException(exception != null ? exception : new Exception(
+                    "Camera2CameraControl failed with unknown error."));
+            mCompleter = null;
         }
     }
 }

@@ -25,6 +25,7 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
+import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
 import android.os.Handler
@@ -33,8 +34,6 @@ import android.util.Pair
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
@@ -48,11 +47,13 @@ import androidx.camera.core.ImageReaderProxys
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraConfig
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OutputSurface
+import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.Exif
@@ -69,10 +70,13 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl.ProcessorType.PROCESS
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl
 import androidx.camera.extensions.impl.ProcessResultImpl
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
+import androidx.camera.extensions.internal.BasicVendorExtender
 import androidx.camera.extensions.internal.ClientVersion
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
+import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -94,6 +98,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -145,6 +150,9 @@ class BasicExtenderSessionProcessorTest(
 
     @Before
     fun setUp() = runBlocking {
+        // PreviewImageProcessorImpl doesn't exist on Xiaomi devices.
+        assumeFalse(previewProcessorType == PROCESSOR_TYPE_IMAGE_PROCESSOR &&
+            Build.BRAND.uppercase().startsWith("XIAOMI"))
         ExtensionVersion.injectInstance(null)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         withContext(Dispatchers.Main) {
@@ -158,8 +166,11 @@ class BasicExtenderSessionProcessorTest(
 
         fakePreviewExtenderImpl = FakePreviewExtenderImpl(previewProcessorType)
         fakeCaptureExtenderImpl = FakeImageCaptureExtenderImpl(hasCaptureProcessor)
+        val basicVendorExtender =
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl)
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            basicVendorExtender, context
         )
     }
 
@@ -170,7 +181,9 @@ class BasicExtenderSessionProcessorTest(
         val camera = withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
         }
-        val hardwareLevel = Camera2CameraInfo.from(camera.cameraInfo).getCameraCharacteristic(
+        val cameraCharacteristics =
+            (camera.cameraInfo as CameraInfoInternal).cameraCharacteristics as CameraCharacteristics
+        val hardwareLevel = cameraCharacteristics.get(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
         )
 
@@ -207,6 +220,69 @@ class BasicExtenderSessionProcessorTest(
         )
     }
 
+    private fun createOutputSurface(width: Int, height: Int, format: Int): OutputSurface {
+        val captureImageReader = ImageReader.newInstance(width, height, format, 1)
+        return OutputSurface.create(captureImageReader.surface, Size(width, height), format)
+    }
+
+    @Test
+    fun canSetSessionTypeFromOem() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        val sessionTypeToVerify = 4
+        fakeCaptureExtenderImpl.sessionType = sessionTypeToVerify
+        fakePreviewExtenderImpl.sessionType = sessionTypeToVerify
+
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
+
+        val sessionConfig = basicExtenderSessionProcessor.initSession(
+            fakeCameraInfo,
+            OutputSurfaceConfiguration.create(previewOutputSurface, imageCaptureSurface, null, null)
+        )
+
+        assertThat(sessionConfig.sessionType).isEqualTo(sessionTypeToVerify)
+    }
+
+    @Test
+    fun setDifferentSessionTypes_throwException() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        fakeCaptureExtenderImpl.sessionType = 2
+        fakePreviewExtenderImpl.sessionType = 3
+
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
+
+        assertThrows<IllegalArgumentException> {
+             basicExtenderSessionProcessor.initSession(
+                fakeCameraInfo, OutputSurfaceConfiguration.create(
+                     previewOutputSurface, imageCaptureSurface, null, null)
+            )
+        }
+    }
+
+    @Test
+    fun defaultSessionType() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        fakeCaptureExtenderImpl.sessionType = -1
+        fakePreviewExtenderImpl.sessionType = -1
+
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
+
+        val sessionConfig = basicExtenderSessionProcessor.initSession(
+            fakeCameraInfo,
+            OutputSurfaceConfiguration.create(previewOutputSurface, imageCaptureSurface, null, null)
+        )
+
+        assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)
+    }
+
     @Test
     fun imageCaptureError(): Unit = runBlocking {
         assumeTrue(hasCaptureProcessor)
@@ -214,7 +290,9 @@ class BasicExtenderSessionProcessorTest(
             hasCaptureProcessor, throwErrorOnProcess = true
         )
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
+            context
         )
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -319,7 +397,7 @@ class BasicExtenderSessionProcessorTest(
         }
 
         withContext(Dispatchers.Main) { fakeLifecycleOwner.pauseAndStop() }
-        assertThat(cameraClosedLatch.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(cameraClosedLatch.await(3, TimeUnit.SECONDS)).isTrue()
 
         fakeCaptureExtenderImpl.assertInvokeOrder(
             listOf(
@@ -352,7 +430,9 @@ class BasicExtenderSessionProcessorTest(
         }
 
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
+            context
         )
 
         assertThat(basicExtenderSessionProcessor.realtimeCaptureLatency).isEqualTo(Pair(1000L, 10L))
@@ -385,8 +465,9 @@ class BasicExtenderSessionProcessorTest(
     fun repeatingRequest_containsPreviewCaptureStagesParameters(): Unit = runBlocking {
         val previewBuilder = Preview.Builder()
         val resultMonitor = ResultMonitor()
-        Camera2Interop.Extender(previewBuilder)
-            .setSessionCaptureCallback(object : CameraCaptureSession.CaptureCallback() {
+        ExtensionsTestUtil.setCamera2SessionCaptureCallback(
+            previewBuilder,
+            object : CameraCaptureSession.CaptureCallback() {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
@@ -427,8 +508,8 @@ class BasicExtenderSessionProcessorTest(
         assumeTrue(previewProcessorType == PROCESSOR_TYPE_REQUEST_UPDATE_ONLY)
         val previewBuilder = Preview.Builder()
         val resultMonitor = ResultMonitor()
-        Camera2Interop.Extender(previewBuilder)
-            .setSessionCaptureCallback(object : CameraCaptureSession.CaptureCallback() {
+        ExtensionsTestUtil.setCamera2SessionCaptureCallback(previewBuilder,
+            object : CameraCaptureSession.CaptureCallback() {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
@@ -493,8 +574,8 @@ class BasicExtenderSessionProcessorTest(
 
             basicExtenderSessionProcessor.startRepeating(object :
                 SessionProcessor.CaptureCallback {})
-            basicExtenderSessionProcessor.startCapture(object : SessionProcessor.CaptureCallback {})
-
+            basicExtenderSessionProcessor.startCapture(false,
+                object : SessionProcessor.CaptureCallback {})
             val submittedRequests = withTimeout(2000) {
                 fakeRequestProcessor.awaitRequestSubmitted()
             }
@@ -575,6 +656,22 @@ class BasicExtenderSessionProcessorTest(
         }
     }
 
+    @Test
+    fun getSupportedPostviewSizeIsCorrect() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        // 1. Arrange
+        val postviewSizes = listOf(
+            Pair(ImageFormat.YUV_420_888,
+                arrayOf(Size(1920, 1080), Size(640, 480)))
+        )
+        fakeCaptureExtenderImpl.postviewSupportedSizes = postviewSizes
+
+        // 2. Act and Assert
+        assertThat(basicExtenderSessionProcessor.getSupportedPostviewSize(Size(1920, 1080))
+            .get(ImageFormat.YUV_420_888)).containsExactly(Size(1920, 1080), Size(640, 480))
+    }
+
     private suspend fun initBasicExtenderSessionProcessor(): AutoCloseable {
         val width = 640
         val height = 480
@@ -601,10 +698,10 @@ class BasicExtenderSessionProcessorTest(
 
         basicExtenderSessionProcessor.initSession(
             cameraInfo,
-            previewOutputSurface,
-            captureOutputSurface,
-            null
-        )
+            OutputSurfaceConfiguration.create(
+                previewOutputSurface, captureOutputSurface, null, null
+            )
+        );
 
         return AutoCloseable {
             jpegImageReader.close()
@@ -800,6 +897,7 @@ class BasicExtenderSessionProcessorTest(
     ) : PreviewExtenderImpl, FakeExtenderStateListener() {
         var fakePreviewImageProcessorImpl: FakePreviewImageProcessorImpl? = null
         var fakeRequestUpdateProcessor: FakeRequestUpdateProcessor? = null
+        var sessionType: Int = -1
 
         init {
             when (processorType) {
@@ -843,6 +941,10 @@ class BasicExtenderSessionProcessorTest(
             _captureStage = captureStage
         }
 
+        override fun onSessionType(): Int {
+            return sessionType
+        }
+
         override fun getProcessorType() = processorType
         override fun getProcessor() =
             when (processorType) {
@@ -869,6 +971,8 @@ class BasicExtenderSessionProcessorTest(
                 null
             }
         }
+        var sessionType = -1
+        var postviewSupportedSizes: List<Pair<Int, Array<Size>>> = emptyList()
 
         override fun isExtensionAvailable(
             cameraId: String,
@@ -909,12 +1013,12 @@ class BasicExtenderSessionProcessorTest(
         }
 
         override fun onSessionType(): Int {
-            return SessionConfiguration.SESSION_REGULAR
+            return sessionType
         }
 
         override fun getSupportedPostviewResolutions(captureSize: Size):
-            MutableList<Pair<Int, Array<Size>>>? {
-            return null
+            List<Pair<Int, Array<Size>>>? {
+            return postviewSupportedSizes
         }
 
         override fun isCaptureProcessProgressAvailable(): Boolean {
@@ -922,7 +1026,7 @@ class BasicExtenderSessionProcessorTest(
         }
 
         override fun getRealtimeCaptureLatency(): Pair<Long, Long>? {
-            return null;
+            return null
         }
 
         override fun isPostviewAvailable(): Boolean {

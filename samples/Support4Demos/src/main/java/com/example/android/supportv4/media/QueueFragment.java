@@ -255,24 +255,21 @@ public class QueueFragment extends Fragment {
         public void onClick(View v) {
             final int state = mPlaybackState == null ?
                     PlaybackStateCompat.STATE_NONE : mPlaybackState.getState();
-            switch (v.getId()) {
-                case R.id.play_pause:
-                    Log.d(TAG, "Play button pressed, in state " + state);
-                    if (state == PlaybackStateCompat.STATE_PAUSED ||
-                            state == PlaybackStateCompat.STATE_STOPPED ||
-                            state == PlaybackStateCompat.STATE_NONE) {
-                        playMedia();
-                    } else if (state == PlaybackStateCompat.STATE_PLAYING) {
-                        pauseMedia();
-                    }
-                    break;
-                case R.id.skip_previous:
-                    Log.d(TAG, "Start button pressed, in state " + state);
-                    skipToPrevious();
-                    break;
-                case R.id.skip_next:
-                    skipToNext();
-                    break;
+            int id = v.getId();
+            if (id == R.id.play_pause) {
+                Log.d(TAG, "Play button pressed, in state " + state);
+                if (state == PlaybackStateCompat.STATE_PAUSED
+                        || state == PlaybackStateCompat.STATE_STOPPED
+                        || state == PlaybackStateCompat.STATE_NONE) {
+                    playMedia();
+                } else if (state == PlaybackStateCompat.STATE_PLAYING) {
+                    pauseMedia();
+                }
+            } else if (id == R.id.skip_previous) {
+                Log.d(TAG, "Start button pressed, in state " + state);
+                skipToPrevious();
+            } else if (id == R.id.skip_next) {
+                skipToNext();
             }
         }
     };

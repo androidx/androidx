@@ -32,6 +32,8 @@ import androidx.graphics.lowlatency.BufferTransformer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.hardware.DefaultFlags
+import androidx.hardware.DefaultNumBuffers
 import androidx.hardware.HardwareBufferFormat
 import androidx.hardware.HardwareBufferUsage
 import androidx.hardware.SyncFenceCompat
@@ -277,8 +279,8 @@ class GLFrameBufferRenderer internal constructor(
                 inverseTransform: Int
             ) {
                 val frameBufferPool = FrameBufferPool(
-                    bufferTransformer.glWidth,
-                    bufferTransformer.glHeight,
+                    bufferTransformer.bufferWidth,
+                    bufferTransformer.bufferHeight,
                     this@GLFrameBufferRenderer.mFormat,
                     mUsage,
                     mMaxBuffers
@@ -373,8 +375,8 @@ class GLFrameBufferRenderer internal constructor(
             private val height = bufferTransformer.logicalHeight
 
             private val bufferInfo = BufferInfo().apply {
-                this.width = bufferTransformer.glWidth
-                this.height = bufferTransformer.glHeight
+                this.width = bufferTransformer.bufferWidth
+                this.height = bufferTransformer.bufferHeight
             }
 
             override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
@@ -412,6 +414,11 @@ class GLFrameBufferRenderer internal constructor(
                         .setVisibility(surfaceControl, true)
                         .setBuffer(surfaceControl, frameBuffer.hardwareBuffer, syncFenceCompat) {
                                 releaseFence ->
+                            if (mGLRenderer.isRunning()) {
+                                mGLRenderer.execute {
+                                    callback.onBufferReleased(frameBuffer, releaseFence)
+                                }
+                            }
                             if (mMaxBuffers > 1 || frameBufferPool.isClosed) {
                                 // Release the previous buffer only if we are not in single buffered
                                 // mode
@@ -616,6 +623,21 @@ class GLFrameBufferRenderer internal constructor(
         ) {
             // NO-OP
         }
+
+        /**
+         * Optional callback invoked the thread backed by the [GLRenderer] when the provided
+         * framebuffer is released. That is the given [FrameBuffer] instance is no longer being
+         * presented and is not visible.
+         * @param frameBuffer The buffer that is no longer being presented and has returned to the
+         * buffer allocation pool
+         * @param releaseFence Optional fence that must be waited upon before the [FrameBuffer] can
+         * be reused. The framework will invoke this callback early to improve performance and
+         * signal the fence when it is ready to be re-used.
+         */
+        @WorkerThread
+        fun onBufferReleased(frameBuffer: FrameBuffer, releaseFence: SyncFenceCompat?) {
+            // NO-OP
+        }
     }
 
     /**
@@ -759,7 +781,15 @@ class GLFrameBufferRenderer internal constructor(
                         width: Int,
                         height: Int
                     ) {
-                        createSurfaceControl(target, callback)
+                        if (width > 0 && height > 0) {
+                            createSurfaceControl(target, callback)
+                        } else {
+                            Log.w(
+                                TAG,
+                                "Invalid dimensions provided, width and height must be > 0. " +
+                                "width: $width height: $height"
+                            )
+                       }
                     }
 
                     override fun surfaceDestroyed(p0: SurfaceHolder) {
@@ -782,7 +812,9 @@ class GLFrameBufferRenderer internal constructor(
                 val holder = target.holder
                 holder.addCallback(surfaceHolderCallback)
                 if (holder.surface != null && holder.surface.isValid) {
-                    createSurfaceControl(target, callback)
+                    if (target.width > 0 && target.height > 0) {
+                        createSurfaceControl(target, callback)
+                    }
                 }
                 mSurfaceHolderCallback = surfaceHolderCallback
             }
@@ -814,22 +846,5 @@ class GLFrameBufferRenderer internal constructor(
 
     internal companion object {
         internal val TAG = "GLFrameBufferRenderer"
-
-        // Leverage the same value as HardwareBuffer.USAGE_COMPOSER_OVERLAY.
-        // While this constant was introduced in the SDK in the Android T release, it has
-        // been available within the NDK as part of
-        // AHardwareBuffer_UsageFlags#AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY for quite some time.
-        // This flag is required for usage of ASurfaceTransaction#setBuffer
-        // Use a separate constant with the same value to avoid SDK warnings of accessing the
-        // newly added constant in the SDK.
-        // See:
-        // developer.android.com/ndk/reference/group/a-hardware-buffer#ahardwarebuffer_usageflags
-        private const val USAGE_COMPOSER_OVERLAY: Long = 2048L
-
-        internal const val DefaultFlags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
-            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
-            USAGE_COMPOSER_OVERLAY
-
-        internal const val DefaultNumBuffers = 3
     }
 }

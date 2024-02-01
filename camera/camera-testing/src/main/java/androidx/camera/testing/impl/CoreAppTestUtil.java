@@ -49,6 +49,8 @@ import java.io.IOException;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CoreAppTestUtil {
 
+    private static final String TAG = "CoreAppTestUtil";
+
     /** ADB shell input key code for dismissing keyguard for device with API level <= 22. */
     private static final int DISMISS_LOCK_SCREEN_CODE = 82;
     /** ADB shell command for dismissing keyguard for device with API level >= 23. */
@@ -153,8 +155,11 @@ public final class CoreAppTestUtil {
         }
 
         device.pressHome();
-        device.waitForIdle(MAX_TIMEOUT_MS);
-
+        try {
+            device.waitForIdle(MAX_TIMEOUT_MS);
+        } catch (IllegalStateException e) {
+            Logger.d(TAG, "Fail to waitForIdle", e);
+        }
         // Close system dialogs first to avoid interrupt.
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
             instrumentation.getTargetContext().sendBroadcast(
@@ -205,7 +210,7 @@ public final class CoreAppTestUtil {
             instrumentation.waitForIdleSync();
 
             if (activityRef == null) {
-                Logger.d("CoreAppTestUtil", String.format("Activity %s, failed to launch",
+                Logger.d(TAG, String.format("Activity %s, failed to launch",
                         startIntent.getComponent()) + ", ignore the foreground checking");
                 return;
             }
@@ -216,7 +221,7 @@ public final class CoreAppTestUtil {
             Espresso.onIdle();
             return;
         } catch (Exception e) {
-            Logger.d("CoreAppTestUtil", "Fail to get foreground", e);
+            Logger.d(TAG, "Fail to get foreground", e);
         } finally {
             if (activityRef != null) {
                 IdlingRegistry.getInstance().unregister(activityRef.getViewReadyIdlingResource());

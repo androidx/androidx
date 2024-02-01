@@ -27,6 +27,7 @@ import androidx.core.haptics.VibratorWrapper
 import androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom
 import androidx.core.haptics.signal.PredefinedEffectSignal
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Fake [VibratorWrapper] implementation for testing.
@@ -35,6 +36,7 @@ internal sealed class FakeVibrator(
     private val amplitudeControlSupported: Boolean,
     private val effectsSupported: IntArray? = null,
     private val primitivesSupported: IntArray = intArrayOf(),
+    private val primitivesDurations: Map<Int, Duration>? = null,
 ) : VibratorWrapper {
     private val requests: MutableList<VibratorRequest> = mutableListOf()
     private val vibrations: MutableList<AttributedVibration> = mutableListOf()
@@ -56,6 +58,13 @@ internal sealed class FakeVibrator(
 
     override fun arePrimitivesSupported(primitives: IntArray): BooleanArray =
         primitives.map { primitivesSupported.contains(it) }.toBooleanArray()
+
+    override fun getPrimitivesDurations(primitives: IntArray): IntArray? =
+        primitivesDurations?.let {
+            primitives.map {
+                primitivesDurations[it]?.inWholeMilliseconds?.toInt() ?: 0
+            }.toIntArray()
+        }
 
     override fun vibrate(vibration: VibrationWrapper, attrs: AttributesWrapper?) {
         requests.add(PlayVibration(vibration))
@@ -99,6 +108,15 @@ internal data class AttributedVibration(
 )
 
 /**
+ * Vibrator that has no vibrator motor available on device.
+ */
+internal class NoVibrator : FakeVibrator(
+    amplitudeControlSupported = false,
+) {
+    override fun hasVibrator(): Boolean = false
+}
+
+/**
  * Vibrator that only supports on-off patterns.
  */
 internal class PatternVibrator : FakeVibrator(
@@ -117,35 +135,34 @@ internal class AmplitudeVibrator : FakeVibrator(
  */
 internal class PredefinedEffectsAndAmplitudeVibrator : FakeVibrator(
     amplitudeControlSupported = true,
-    effectsSupported = intArrayOf(
-        PredefinedEffectSignal.TICK,
-        PredefinedEffectSignal.CLICK,
-        PredefinedEffectSignal.HEAVY_CLICK,
-        PredefinedEffectSignal.DOUBLE_CLICK,
-    ),
+    effectsSupported = PredefinedEffectSignal.ALL_EFFECTS.map { it.type }.toIntArray()
+)
+
+/**
+ * Vibrator that supports amplitude control, all predefined effects and given primitives.
+ */
+internal class PartialVibrator(
+    primitivesSupported: IntArray,
+    primitivesDurations: Map<Int, Duration>? = null,
+) : FakeVibrator(
+    amplitudeControlSupported = true,
+    effectsSupported = PredefinedEffectSignal.ALL_EFFECTS.map { it.type }.toIntArray(),
+    primitivesSupported,
+    primitivesDurations,
 )
 
 /**
  * Vibrator that supports amplitude control and all predefined and primitive effects.
  */
-internal class FullVibrator : FakeVibrator(
+internal class FullVibrator(
+    fakePrimitiveDuration: Duration? = 20.milliseconds,
+) : FakeVibrator(
     amplitudeControlSupported = true,
-    effectsSupported = intArrayOf(
-        PredefinedEffectSignal.TICK,
-        PredefinedEffectSignal.CLICK,
-        PredefinedEffectSignal.HEAVY_CLICK,
-        PredefinedEffectSignal.DOUBLE_CLICK,
-    ),
-    primitivesSupported = intArrayOf(
-        PrimitiveAtom.LOW_TICK,
-        PrimitiveAtom.TICK,
-        PrimitiveAtom.CLICK,
-        PrimitiveAtom.SLOW_RISE,
-        PrimitiveAtom.QUICK_RISE,
-        PrimitiveAtom.QUICK_FALL,
-        PrimitiveAtom.SPIN,
-        PrimitiveAtom.THUD,
-    ),
+    effectsSupported = PredefinedEffectSignal.ALL_EFFECTS.map { it.type }.toIntArray(),
+    primitivesSupported = PrimitiveAtom.ALL_PRIMITIVES.map { it.type }.toIntArray(),
+    primitivesDurations = fakePrimitiveDuration?.let {
+            PrimitiveAtom.ALL_PRIMITIVES.map { it.type }.associateWith { fakePrimitiveDuration }
+        },
 )
 
 /** Helper to create [android.os.VibrationEffect.Composition] entries. */

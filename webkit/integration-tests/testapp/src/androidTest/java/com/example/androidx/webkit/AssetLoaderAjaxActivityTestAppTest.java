@@ -24,7 +24,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +53,6 @@ public final class AssetLoaderAjaxActivityTestAppTest {
     }
 
     @Test
-    @Ignore("b/267242191")
     public void testAssetLoaderAjaxActivity() {
         mRule.getScenario().onActivity(AssetLoaderAjaxActivity::loadUrl);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();

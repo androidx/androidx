@@ -103,7 +103,7 @@ internal interface CameraDeviceWrapper : UnsafeWrapper {
 
     /** @see CameraDevice.createExtensionSession */
     @RequiresApi(Build.VERSION_CODES.S)
-    fun createExtensionSession(config: SessionConfigData): Boolean
+    fun createExtensionSession(config: ExtensionSessionConfigData): Boolean
 
     /** Invoked when the [CameraDevice] has been closed */
     fun onDeviceClosed()
@@ -168,7 +168,7 @@ internal class AndroidCameraDevice(
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    override fun createExtensionSession(config: SessionConfigData): Boolean {
+    override fun createExtensionSession(config: ExtensionSessionConfigData): Boolean {
         checkNotNull(config.extensionStateCallback) {
             "extensionStateCallback must be set to create Extension session"
         }
@@ -194,6 +194,18 @@ internal class AndroidCameraDevice(
                         config.executor
                     ),
                 )
+
+            if (config.postviewOutputConfiguration != null &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+            ) {
+                val postviewOutput = config.postviewOutputConfiguration
+                    .unwrapAs(OutputConfiguration::class)
+                checkNotNull(postviewOutput) {
+                    "Failed to unwrap Postview OutputConfiguration"
+                }
+                Api34Compat.setPostviewOutputConfiguration(sessionConfig, postviewOutput)
+            }
+
             Api31Compat.createExtensionCaptureSession(cameraDevice, sessionConfig)
         }
         if (result == null) {
@@ -380,14 +392,21 @@ internal class AndroidCameraDevice(
                 )
 
             if (config.inputConfiguration != null) {
-                Api28Compat.setInputConfiguration(
-                    sessionConfig,
-                    Api23Compat.newInputConfiguration(
-                        config.inputConfiguration.width,
-                        config.inputConfiguration.height,
-                        config.inputConfiguration.format
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api28Compat.setInputConfiguration(
+                        sessionConfig,
+                        Api31Compat.newInputConfiguration(config.inputConfiguration, cameraId.value)
                     )
-                )
+                } else {
+                    Api28Compat.setInputConfiguration(
+                        sessionConfig,
+                        Api23Compat.newInputConfiguration(
+                            config.inputConfiguration.single().width,
+                            config.inputConfiguration.single().height,
+                            config.inputConfiguration.single().format
+                        )
+                    )
+                }
             }
 
             val requestBuilder = cameraDevice.createCaptureRequest(config.sessionTemplateId)
@@ -552,7 +571,7 @@ internal class VirtualAndroidCameraDevice(
     }
 
     @RequiresApi(31)
-    override fun createExtensionSession(config: SessionConfigData) = synchronized(lock) {
+    override fun createExtensionSession(config: ExtensionSessionConfigData) = synchronized(lock) {
         if (disconnected) {
             Log.warn { "createExtensionSession failed: Virtual device disconnected" }
             config.extensionStateCallback!!.onSessionFinalized()

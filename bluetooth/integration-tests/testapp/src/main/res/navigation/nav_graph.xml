@@ -27,9 +27,21 @@
         tools:layout="@layout/fragment_scanner" />
 
     <fragment
+        android:id="@+id/navigation_connections"
+        android:name="androidx.bluetooth.integration.testapp.ui.connections.ConnectionsFragment"
+        android:label="@string/title_connections"
+        tools:layout="@layout/fragment_connections" />
+
+    <fragment
         android:id="@+id/navigation_advertiser"
         android:name="androidx.bluetooth.integration.testapp.ui.advertiser.AdvertiserFragment"
         android:label="@string/title_advertiser"
         tools:layout="@layout/fragment_advertiser" />
+
+    <fragment
+        android:id="@+id/navigation_gatt_server"
+        android:name="androidx.bluetooth.integration.testapp.ui.gatt_server.GattServerFragment"
+        android:label="@string/title_gatt_server"
+        tools:layout="@layout/fragment_gatt_server" />
 
 </navigation>

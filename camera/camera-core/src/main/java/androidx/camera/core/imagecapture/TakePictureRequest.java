@@ -21,6 +21,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
@@ -199,6 +200,29 @@ public abstract class TakePictureRequest {
     void onResult(@Nullable ImageProxy imageProxy) {
         getAppExecutor().execute(() -> requireNonNull(getInMemoryCallback()).onCaptureSuccess(
                 requireNonNull(imageProxy)));
+    }
+
+    void onCaptureProcessProgressed(int progress) {
+        getAppExecutor().execute(() -> {
+            if (getOnDiskCallback() != null) {
+                getOnDiskCallback().onCaptureProcessProgressed(progress);
+            } else if (getInMemoryCallback() != null) {
+                getInMemoryCallback().onCaptureProcessProgressed(progress);
+            }
+        });
+    }
+
+    /**
+     * Delivers postview bitmap result to the app.
+     */
+    void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
+        getAppExecutor().execute(() -> {
+            if (getOnDiskCallback() != null) {
+                getOnDiskCallback().onPostviewBitmapAvailable(bitmap);
+            } else if (getInMemoryCallback() != null) {
+                getInMemoryCallback().onPostviewBitmapAvailable(bitmap);
+            }
+        });
     }
 
     /**

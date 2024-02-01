@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -29,7 +35,7 @@ dependencies {
 
     implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
-    implementation("androidx.compose.material3:material3:1.0.0")
+    implementation("androidx.compose.material3:material3:1.1.2")
     compileOnly(project(":annotation:annotation-sampled"))
 }
 

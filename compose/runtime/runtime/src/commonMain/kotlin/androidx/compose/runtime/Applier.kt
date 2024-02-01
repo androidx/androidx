@@ -203,7 +203,7 @@ abstract class AbstractApplier<T>(val root: T) : Applier<T> {
     }
 
     override fun up() {
-        check(stack.isNotEmpty()) { "empty stack" }
+        checkPrecondition(stack.isNotEmpty()) { "empty stack" }
         current = stack.removeAt(stack.size - 1)
     }
 

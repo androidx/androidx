@@ -44,6 +44,7 @@ class BundleTest {
         val charSequenceValue = "hey"
         val parcelableValue = Rect(1, 2, 3, 4)
         val serializableValue = AtomicInteger(1)
+        val binderValue = object : IBinder by Binder() {}
 
         val bundle = bundleOf(
             "null" to null,
@@ -60,6 +61,7 @@ class BundleTest {
             "bundle" to bundleValue,
             "charSequence" to charSequenceValue,
             "parcelable" to parcelableValue,
+            "binder" to binderValue,
 
             "booleanArray" to booleanArrayOf(),
             "byteArray" to byteArrayOf(),
@@ -78,7 +80,7 @@ class BundleTest {
             "serializable" to serializableValue
         )
 
-        assertEquals(25, bundle.size())
+        assertEquals(26, bundle.size())
 
         assertNull(bundle["null"])
 
@@ -94,6 +96,7 @@ class BundleTest {
         assertSame(bundleValue, bundle["bundle"])
         assertSame(charSequenceValue, bundle["charSequence"])
         assertSame(parcelableValue, bundle["parcelable"])
+        assertSame(binderValue, bundle["binder"])
 
         assertArrayEquals(booleanArrayOf(), bundle["booleanArray"] as BooleanArray)
         assertArrayEquals(byteArrayOf(), bundle["byteArray"] as ByteArray)
@@ -111,14 +114,6 @@ class BundleTest {
             .containsExactly(serializableValue)
 
         assertSame(serializableValue, bundle["serializable"])
-    }
-
-    @SdkSuppress(minSdkVersion = 18)
-    @Suppress("DEPRECATION")
-    @Test fun bundleOfValidApi18() {
-        val binderValue = object : IBinder by Binder() {}
-        val bundle = bundleOf("binder" to binderValue)
-        assertSame(binderValue, bundle["binder"])
     }
 
     @SdkSuppress(minSdkVersion = 21)

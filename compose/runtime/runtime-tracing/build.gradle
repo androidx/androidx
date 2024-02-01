@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -34,8 +41,8 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.3.0")
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":tracing:tracing-perfetto"))
+    implementation("androidx.compose.runtime:runtime:1.3.3")
+    implementation("androidx.tracing:tracing-perfetto:1.0.0")
     implementation("androidx.startup:startup-runtime:1.1.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -45,7 +52,6 @@ dependencies {
 androidx {
     name = "Compose Runtime: Tracing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.COMPOSE_RUNTIME_TRACING
     inceptionYear = "2022"
     description = "Additional tracing in Compose"
     metalavaK2UastEnabled = true

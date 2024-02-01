@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -1302,6 +1303,9 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             }
         }
 
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { redrawCount[0] == 1 && redrawCount[1] == 1 }
+
         rule.runOnIdle {
             stateUsedInDrawScope = true
         }
@@ -2451,6 +2455,46 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     }
 
     @Test
+    fun testSmallScrollWithLookaheadScope() {
+        val itemSize = 10
+        val itemSizeDp = with(rule.density) { itemSize.toDp() }
+        val containerSizeDp = with(rule.density) { 15.toDp() }
+        val scrollDelta = 2f
+        val scrollDeltaDp = with(rule.density) { scrollDelta.toDp() }
+        val state = LazyListState()
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LookaheadScope {
+                LazyColumnOrRow(Modifier.mainAxisSize(containerSizeDp), state = state) {
+                    repeat(20) {
+                        item {
+                            Box(
+                                Modifier
+                                    .size(itemSizeDp)
+                                    .testTag("$it")
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                scope.launch {
+                    state.scrollBy(scrollDelta)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertMainAxisStartPositionInRootIsEqualTo(-scrollDeltaDp)
+        rule.onNodeWithTag("1")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp - scrollDeltaDp)
+    }
+
+    @Test
     fun testLookaheadPositionWithTwoInBoundTwoOutBound() {
         testLookaheadPositionWithPlacementAnimator(
             initialList = listOf(0, 1, 2, 3, 4, 5),
@@ -2659,6 +2703,111 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             }
             rule.mainClock.advanceTimeByFrame()
         }
+    }
+
+    @Test
+    fun animContentSize_resetOnReuse() = with(rule.density) {
+        val visBoxCount = 10
+        val maxItemCount = 10 * visBoxCount
+        val boxHeightPx = 100
+        val smallBoxPx = 100
+        val mediumBoxPx = 200
+        val largeBoxPx = 300
+        val maxHeightPx = visBoxCount * boxHeightPx
+
+        val mediumItemsStartIndex = 50
+
+        var assertedSmallItems = false
+        var assertedMediumItems = false
+
+        /**
+         * Since only the first item is expected to animate. This Modifier can check that all other
+         * items were only measure at their expected dimensions.
+         */
+        fun Modifier.assertMeasureCalls(index: Int): Modifier {
+            return this.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                when {
+                    index == 0 -> {
+                        // Do nothing
+                    }
+
+                    index >= mediumItemsStartIndex -> {
+                        assertedMediumItems = true
+                        assertEquals(mediumBoxPx, placeable.width)
+                        assertEquals(boxHeightPx, placeable.height)
+                    }
+
+                    else -> {
+                        assertedSmallItems = true
+                        assertEquals(smallBoxPx, placeable.width)
+                        assertEquals(boxHeightPx, placeable.height)
+                    }
+                }
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0)
+                }
+            }
+        }
+
+        val isFirstElementExpanded = mutableStateOf(false)
+
+        val listState = LazyListState()
+        rule.setContent {
+            LazyColumnOrRow(
+                modifier = Modifier.height(maxHeightPx.toDp()),
+                state = listState
+            ) {
+                items(maxItemCount) { index ->
+                    val modifier = when {
+                        index == 0 -> {
+                            val sizeDp = if (isFirstElementExpanded.value) {
+                                largeBoxPx.toDp()
+                            } else {
+                                smallBoxPx.toDp()
+                            }
+                            Modifier.requiredSize(sizeDp)
+                        }
+
+                        index >= mediumItemsStartIndex -> {
+                            Modifier
+                                .requiredSize(mediumBoxPx.toDp(), boxHeightPx.toDp())
+                        }
+
+                        else -> {
+                            Modifier
+                                .requiredSize(smallBoxPx.toDp(), boxHeightPx.toDp())
+                        }
+                    }
+                    Box(
+                        Modifier
+                            .wrapContentSize()
+                            .assertMeasureCalls(index)
+                            .animateContentSize()
+                    ) {
+                        Box(modifier)
+                    }
+                }
+            }
+        }
+
+        // Wait for layout to settle
+        rule.waitForIdle()
+
+        // Trigger an animation on the first element and wait for completion
+        isFirstElementExpanded.value = true
+        rule.waitForIdle()
+
+        // Scroll to a different index and wait for layout to settle.
+        // At the selected index, ALL layout nodes will have a different size. If
+        // `animateContentSize` wasn't properly reset, it might have started more animations, caught
+        // with `assertMeasureCalls`.
+        listState.scrollTo(mediumItemsStartIndex)
+        rule.waitForIdle()
+
+        // Safety check to prevent silent failures (no UI was run)
+        assert(assertedMediumItems)
+        assert(assertedSmallItems)
     }
 
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
@@ -3155,6 +3304,47 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 }
             }
         }
+    }
+
+    @Test
+    fun layoutModifierIsNotRepeated() {
+        val itemSize = with(rule.density) { 30.toDp() }
+        var userScrollEnabled by mutableStateOf(true)
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier
+                    .mainAxisSize(itemSize * 3)
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val itemSizePx = itemSize.roundToPx()
+                        layout(placeable.width, placeable.height) {
+                            val offset = if (vertical) {
+                                IntOffset(0, itemSizePx)
+                            } else {
+                                IntOffset(itemSizePx, 0)
+                            }
+                            placeable.place(offset)
+                        }
+                    }
+                    .testTag(LazyListTag),
+                userScrollEnabled = true,
+            ) {
+                items(5) {
+                    Spacer(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyListTag)
+            .assertStartPositionInRootIsEqualTo(itemSize)
+
+        userScrollEnabled = false
+
+        rule.onNodeWithTag(LazyListTag)
+            .assertStartPositionInRootIsEqualTo(itemSize)
     }
 
     // ********************* END OF TESTS *********************

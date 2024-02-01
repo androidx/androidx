@@ -16,37 +16,60 @@
 
 package androidx.privacysandbox.sdkruntime.core
 
+import android.app.sdksandbox.AppOwnedSdkSandboxInterface
 import android.os.Binder
+import android.os.Build
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
+import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 35, codeName = "UpsideDownCakePrivacySandbox")
+// TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+@RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class AppOwnedSdkSandboxInterfaceCompatTest {
 
-    @Test
-    fun converterTest() {
-        val converter = AppOwnedInterfaceConverter()
+    @Before
+    fun setUp() {
+        assumeTrue(
+            "Requires AppOwnedInterfacesApi API available",
+            BuildCompat.AD_SERVICES_EXTENSION_INT >= 8
+        )
+    }
 
+    @Test
+    fun toAppOwnedSdkSandboxInterfaceTest() {
         val compatObj = AppOwnedSdkSandboxInterfaceCompat(
             name = "SDK",
             version = 1,
             binder = Binder()
         )
 
-        val platformObj = converter.toPlatform(compatObj)
-        assertThat(platformObj.javaClass.name)
-            .isEqualTo("android.app.sdksandbox.AppOwnedSdkSandboxInterface")
+        val platformObj = compatObj.toAppOwnedSdkSandboxInterface()
 
-        val convertedCompatObj = converter.toCompat(platformObj)
+        assertThat(platformObj.getName()).isEqualTo(compatObj.getName())
+        assertThat(platformObj.getVersion()).isEqualTo(compatObj.getVersion())
+        assertThat(platformObj.getInterface()).isEqualTo(compatObj.getInterface())
+    }
 
-        assertThat(convertedCompatObj.getName()).isEqualTo(compatObj.getName())
-        assertThat(convertedCompatObj.getVersion()).isEqualTo(compatObj.getVersion())
-        assertThat(convertedCompatObj.getInterface()).isEqualTo(compatObj.getInterface())
+    @Test
+    fun fromAppOwnedSdkSandboxInterfaceTest() {
+        val platformObj = AppOwnedSdkSandboxInterface(
+            "SDK", 1, Binder()
+        )
+        val compatObj = AppOwnedSdkSandboxInterfaceCompat(platformObj)
+
+        assertThat(compatObj.getName()).isEqualTo(platformObj.getName())
+        assertThat(compatObj.getVersion()).isEqualTo(platformObj.getVersion())
+        assertThat(compatObj.getInterface()).isEqualTo(platformObj.getInterface())
     }
 }

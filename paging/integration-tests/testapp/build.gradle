@@ -22,6 +22,8 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.multidex)
+
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(projectOrArtifact(":room:room-ktx"))
     implementation(projectOrArtifact(":room:room-rxjava2"))
@@ -39,15 +41,25 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(libs.kotlinStdlib)
 
+    // Only needed to ensure version of annotation:annotation matches in impl
+    // and androidTestImpl, for both AOSP and playground builds.
+    implementation(project(":annotation:annotation"))
+
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":annotation:annotation"))
 }
 
 android {
     namespace "androidx.paging.integration.testapp"
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }
 
 // Enable parameter names to support Room incremental when its a project() dep.

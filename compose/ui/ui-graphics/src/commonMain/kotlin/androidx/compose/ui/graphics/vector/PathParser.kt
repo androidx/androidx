@@ -49,21 +49,44 @@ import kotlin.math.tan
 internal val EmptyArray = FloatArray(0)
 
 class PathParser {
-    private val nodes = ArrayList<PathNode>()
-
+    private var nodes: ArrayList<PathNode>? = null
     private var nodeData = FloatArray(64)
 
+    /**
+     * Clears the collection of [PathNode] stored in this parser and returned by [toNodes].
+     */
     fun clear() {
-        nodes.clear()
+        nodes?.clear()
     }
 
     /**
-     * Parses the path string to create a collection of PathNode instances with their corresponding
-     * arguments
+     * Parses the SVG path string to extract [PathNode] instances for each path instruction
+     * (`lineTo`, `moveTo`, etc.). The [PathNode] are stored in this parser's internal list
+     * of nodes which can be queried by calling [toNodes]. Calling this method replaces any
+     * existing content in the current nodes list.
      */
     fun parsePathString(pathData: String): PathParser {
-        nodes.clear()
+        var dstNodes = nodes
+        if (dstNodes == null) {
+            dstNodes = ArrayList()
+            nodes = dstNodes
+        } else {
+            dstNodes.clear()
+        }
+        pathStringToNodes(pathData, dstNodes)
+        return this
+    }
 
+    /**
+     * Parses the path string and adds the corresponding [PathNode] instances to the
+     * specified [nodes] collection. This method returns [nodes].
+     */
+    @Suppress("ConcreteCollection")
+    fun pathStringToNodes(
+        pathData: String,
+        @Suppress("ConcreteCollection")
+        nodes: ArrayList<PathNode> = ArrayList()
+    ): ArrayList<PathNode> {
         var start = 0
         var end = pathData.length
 
@@ -120,11 +143,11 @@ class PathParser {
                     } while (index < end && !value.isNaN())
                 }
 
-                addNodes(command, nodeData, dataCount)
+                command.addPathNodes(nodes, nodeData, dataCount)
             }
         }
 
-        return this
+        return nodes
     }
 
     @Suppress("NOTHING_TO_INLINE")
@@ -136,19 +159,31 @@ class PathParser {
         }
     }
 
+    /**
+     * Adds the list of [PathNode] [nodes] to this parser's internal list of [PathNode].
+     * The resulting list can be obtained by calling [toNodes].
+     */
     fun addPathNodes(nodes: List<PathNode>): PathParser {
-        this.nodes.addAll(nodes)
+        var dstNodes = this.nodes
+        if (dstNodes == null) {
+            dstNodes = ArrayList()
+            this.nodes = dstNodes
+        }
+        dstNodes.addAll(nodes)
         return this
     }
 
-    fun toNodes(): List<PathNode> = nodes
+    /**
+     * Returns this parser's list of [PathNode]. Note: this function does not return
+     * a copy of the list. The caller should make a copy when appropriate.
+     */
+    fun toNodes(): List<PathNode> = nodes ?: emptyList()
 
-    fun toPath(target: Path = Path()) = nodes.toPath(target)
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun addNodes(cmd: Char, args: FloatArray, count: Int) {
-        cmd.addPathNodes(nodes, args, count)
-    }
+    /**
+     * Converts this parser's list of [PathNode] instances into a [Path]. A new
+     * [Path] is returned every time this method is invoked.
+     */
+    fun toPath(target: Path = Path()) = nodes?.toPath(target) ?: Path()
 }
 
 /**
@@ -294,7 +329,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
             }
 
             is RelativeQuadTo -> {
-                target.relativeQuadraticBezierTo(node.dx1, node.dy1, node.dx2, node.dy2)
+                target.relativeQuadraticTo(node.dx1, node.dy1, node.dx2, node.dy2)
                 ctrlX = currentX + node.dx1
                 ctrlY = currentY + node.dy1
                 currentX += node.dx2
@@ -302,7 +337,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
             }
 
             is QuadTo -> {
-                target.quadraticBezierTo(node.x1, node.y1, node.x2, node.y2)
+                target.quadraticTo(node.x1, node.y1, node.x2, node.y2)
                 ctrlX = node.x1
                 ctrlY = node.y1
                 currentX = node.x2
@@ -317,7 +352,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     reflectiveCtrlX = 0.0f
                     reflectiveCtrlY = 0.0f
                 }
-                target.relativeQuadraticBezierTo(
+                target.relativeQuadraticTo(
                     reflectiveCtrlX,
                     reflectiveCtrlY, node.dx, node.dy
                 )
@@ -335,7 +370,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     reflectiveCtrlX = currentX
                     reflectiveCtrlY = currentY
                 }
-                target.quadraticBezierTo(
+                target.quadraticTo(
                     reflectiveCtrlX,
                     reflectiveCtrlY, node.x, node.y
                 )

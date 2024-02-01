@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+NotCloseable: androidx.graphics.lowlatency.CanvasFrontBufferedRenderer:
+    Classes that release resources (release(), release()) should implement AutoCloseable and CloseGuard: class androidx.graphics.lowlatency.CanvasFrontBufferedRenderer
+NotCloseable: androidx.graphics.lowlatency.GLFrontBufferedRenderer:
+    Classes that release resources (release(), release()) should implement AutoCloseable and CloseGuard: class androidx.graphics.lowlatency.GLFrontBufferedRenderer
+NotCloseable: androidx.graphics.opengl.GLFrameBufferRenderer:
+    Classes that release resources (release(), release()) should implement AutoCloseable and CloseGuard: class androidx.graphics.opengl.GLFrameBufferRenderer
+NotCloseable: androidx.graphics.opengl.GLRenderer:
+    Classes that release resources (stop(), stop()) should implement AutoCloseable and CloseGuard: class androidx.graphics.opengl.GLRenderer
+NotCloseable: androidx.graphics.opengl.egl.EGLManager:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.graphics.opengl.egl.EGLManager
+NotCloseable: androidx.graphics.surface.SurfaceControlCompat:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.graphics.surface.SurfaceControlCompat

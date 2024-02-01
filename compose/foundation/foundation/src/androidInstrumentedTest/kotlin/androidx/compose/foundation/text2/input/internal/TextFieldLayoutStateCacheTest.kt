@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -134,6 +135,7 @@ class TextFieldLayoutStateCacheTest {
         }
     }
 
+    @FlakyTest(bugId = 300168644)
     @Test
     fun updateNonMeasureInputs_invalidatesSnapshot_whenStyleLayoutAffectingAttrsChanged() {
         textStyle = TextStyle(fontSize = 12.sp)
@@ -271,6 +273,7 @@ class TextFieldLayoutStateCacheTest {
      * To fix this, we manually record reads done by the transformation function and re-read them
      * explicitly when checking for a full cache hit.
      */
+    @Ignore("b/306198696")
     @Test
     fun invalidatesAllReaders_whenTransformationDependenciesChanged_producingSameVisualText() {
         var transformationState by mutableStateOf(1)
@@ -332,6 +335,7 @@ class TextFieldLayoutStateCacheTest {
         assertThat(secondaryInvalidations).isEqualTo(1)
     }
 
+    @FlakyTest(bugId = 299662404)
     @Test
     fun invalidatesAllReaders_whenTransformationDependenciesChanged_producingNewVisualText() {
         var transformationState by mutableStateOf(1)

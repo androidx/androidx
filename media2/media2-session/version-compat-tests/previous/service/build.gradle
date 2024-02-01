@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation("androidx.media2:media2-session:1.2.0-rc01")
+    androidTestImplementation("androidx.media2:media2-session:1.2.0")
     androidTestImplementation(project(":media2:media2-session:version-compat-tests:common"))
 
     androidTestImplementation(libs.testExtJunit)
@@ -29,9 +29,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 16
-    }
     namespace "androidx.media2.test.service"
 }
 

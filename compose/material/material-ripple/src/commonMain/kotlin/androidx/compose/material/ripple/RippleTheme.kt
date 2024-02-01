@@ -17,8 +17,6 @@
 package androidx.compose.material.ripple
 
 import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.material.ripple.RippleTheme.Companion.defaultRippleAlpha
-import androidx.compose.material.ripple.RippleTheme.Companion.defaultRippleColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -33,12 +31,14 @@ import androidx.compose.ui.graphics.luminance
  *
  * @see rememberRipple
  */
+@Deprecated(RippleThemeDeprecationMessage, level = DeprecationLevel.ERROR)
 public interface RippleTheme {
     /**
      * @return the default ripple color at the call site's position in the hierarchy.
      * This color will be used when a color is not explicitly set in the ripple itself.
      * @see defaultRippleColor
      */
+    @Deprecated(RippleThemeDeprecationMessage, level = DeprecationLevel.ERROR)
     @Composable
     public fun defaultColor(): Color
 
@@ -48,6 +48,7 @@ public interface RippleTheme {
      * [defaultColor] or the color explicitly provided to the ripple.
      * @see defaultRippleAlpha
      */
+    @Deprecated(RippleThemeDeprecationMessage, level = DeprecationLevel.ERROR)
     @Composable
     public fun rippleAlpha(): RippleAlpha
 
@@ -60,6 +61,16 @@ public interface RippleTheme {
          * contains the ripple.
          * @param lightTheme whether the theme is light or not
          */
+        @Deprecated(
+            "The default ripple color varies between design system versions: this " +
+                "function technically implements the default used by the material library, but " +
+                "is not used by the material3 library. To remove confusion and link the " +
+                "defaults more strongly to the design system library, these default values have " +
+                "been moved to the material and material3 libraries. For material, use " +
+                "MaterialRippleThemeDefaults#rippleColor. For material3, use content color " +
+                "directly.",
+            level = DeprecationLevel.WARNING
+        )
         public fun defaultRippleColor(
             contentColor: Color,
             lightTheme: Boolean
@@ -83,6 +94,16 @@ public interface RippleTheme {
          * contains the ripple.
          * @param lightTheme whether the theme is light or not
          */
+        @Deprecated(
+            "The default ripple alpha varies between design system versions: this " +
+                "function technically implements the default used by the material library, but " +
+                "is not used by the material3 library. To remove confusion and link the " +
+                "defaults more strongly to the design system library, these default values have " +
+                "been moved to the material and material3 libraries. For material, use " +
+                "MaterialRippleThemeDefaults#rippleAlpha. For material3, use " +
+                "MaterialRippleThemeDefaults#RippleAlpha.",
+            level = DeprecationLevel.WARNING
+        )
         public fun defaultRippleAlpha(contentColor: Color, lightTheme: Boolean): RippleAlpha {
             return when {
                 lightTheme -> {
@@ -159,6 +180,8 @@ public class RippleAlpha(
  * See [RippleTheme.defaultRippleColor] and [RippleTheme.defaultRippleAlpha] functions for the
  * default implementations for color and alpha.
  */
+@Suppress("DEPRECATION_ERROR")
+@Deprecated(RippleThemeDeprecationMessage, level = DeprecationLevel.ERROR)
 public val LocalRippleTheme: ProvidableCompositionLocal<RippleTheme> =
     staticCompositionLocalOf { DebugRippleTheme }
 
@@ -209,14 +232,22 @@ private val DarkThemeRippleAlpha = RippleAlpha(
  * instead provide your own theme with meaningful values - this exists as an alternative to
  * crashing if no theme is provided.
  */
+@Suppress("DEPRECATION_ERROR", "deprecation")
 @Immutable
 private object DebugRippleTheme : RippleTheme {
+    @Deprecated("Super method is deprecated")
     @Composable
-    override fun defaultColor() = defaultRippleColor(Color.Black, lightTheme = true)
+    override fun defaultColor() = RippleTheme.defaultRippleColor(Color.Black, lightTheme = true)
 
+    @Deprecated("Super method is deprecated")
     @Composable
-    override fun rippleAlpha(): RippleAlpha = defaultRippleAlpha(
+    override fun rippleAlpha(): RippleAlpha = RippleTheme.defaultRippleAlpha(
         Color.Black,
         lightTheme = true
     )
 }
+
+private const val RippleThemeDeprecationMessage = "RippleTheme and LocalRippleTheme have been " +
+    "deprecated - they are not compatible with the new ripple implementation using the new " +
+    "Indication APIs that provide notable performance improvements. For a migration guide and " +
+    "background information, please visit developer.android.com"

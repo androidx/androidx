@@ -61,7 +61,7 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     public void scaledFlingThresholds_withDeviceParams_apiPre34() {
         InputDevice device = findInputDevice(SOURCE_TOUCHSCREEN);
         if (device == null) {
@@ -87,7 +87,7 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     public void scaledFlingThresholds_realTouchScreenDevice_apiPre34() {
         InputDevice touchScreenDevice = findInputDevice(SOURCE_TOUCHSCREEN);
         if (touchScreenDevice == null) {
@@ -112,7 +112,7 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     public void scaledFlingThresholds_realRotaryEncoderDevice_hasNoAndroidResForFling_apiPre34() {
         InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
         if (rotaryEncoderDevice == null) {
@@ -134,7 +134,7 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     public void scaledMinFlingVelocity_realRotaryEncoderDevice_hasAndroidResForFling_apiPre34() {
         InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
         if (rotaryEncoderDevice == null) {
@@ -153,7 +153,7 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     public void scaledMinFlingVelocity_realRotaryEncoderDevice_hasAndroidResForNoFling_apiPre34() {
         InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
         if (rotaryEncoderDevice == null) {
@@ -172,7 +172,7 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     public void scaledMaxFlingVelocity_hasAndroidResForFling_realRotaryEncoderDevice_apiPre34() {
         InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
         if (rotaryEncoderDevice == null) {
@@ -191,7 +191,7 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     public void scaledMaxFlingVelocity_hasAndroidResForNoFling_realRotaryEncoderDevice_apiPre34() {
         InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
         if (rotaryEncoderDevice == null) {
@@ -210,7 +210,7 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     public void scaledFlingThresholds_invalidInputDeviceParameters_apiPre34() {
         assertFlingThresholds(
                 mViewConfigMock,
@@ -330,7 +330,6 @@ public class ViewConfigurationCompatTest {
                         mContext, vc, inputDeviceId, axis, source));
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Nullable
     private InputDevice findInputDevice(int source) {
         InputManager inputManager =

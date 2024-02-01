@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -24,11 +30,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -40,6 +44,7 @@ androidXMultiplatform {
 
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation("androidx.collection:collection:1.4.0")
                 api("androidx.annotation:annotation:1.1.0")
             }
         }
@@ -62,16 +67,15 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation-experimental:1.4.0")
                 implementation('androidx.collection:collection-ktx:1.2.0')
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(project(":compose:runtime:runtime"))
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(project(":compose:runtime:runtime"))
             }
         }
 
@@ -100,16 +104,10 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-            }
+        desktopTest {
+            dependsOn(jvmTest)
         }
     }
-}
-
-dependencies {
-    samples(projectOrArtifact(":compose:ui:ui-unit:ui-unit-samples"))
 }
 
 androidx {
@@ -118,6 +116,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose classes for simple units"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-unit:ui-unit-samples"))
 }
 
 android {

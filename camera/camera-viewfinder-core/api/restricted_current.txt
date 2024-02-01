@@ -1,1 +1,90 @@
 // Signature format: 4.0
+package @RequiresApi(21) androidx.camera.viewfinder.surface {
+
+  public enum ImplementationMode {
+    method public static androidx.camera.viewfinder.surface.ImplementationMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.camera.viewfinder.surface.ImplementationMode[] values();
+    enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode COMPATIBLE;
+    enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode PERFORMANCE;
+    field public static final androidx.camera.viewfinder.surface.ImplementationMode.Companion Companion;
+  }
+
+  public static final class ImplementationMode.Companion {
+  }
+
+  public final class TransformationInfo {
+    ctor public TransformationInfo(int sourceRotation, int cropRectLeft, int cropRectRight, int cropRectTop, int cropRectBottom, boolean shouldMirror);
+    method public int getCropRectBottom();
+    method public int getCropRectLeft();
+    method public int getCropRectRight();
+    method public int getCropRectTop();
+    method public int getSourceRotation();
+    method public boolean shouldMirror();
+    property public final int cropRectBottom;
+    property public final int cropRectLeft;
+    property public final int cropRectRight;
+    property public final int cropRectTop;
+    property public final boolean shouldMirror;
+    property public final int sourceRotation;
+  }
+
+  public interface ViewfinderSurfaceProvider {
+    method public void onSurfaceRequested(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest request);
+  }
+
+  public final class ViewfinderSurfaceRequest {
+    method public androidx.camera.viewfinder.surface.ImplementationMode? getImplementationMode();
+    method public int getLensFacing();
+    method public android.util.Size getResolution();
+    method public int getSensorOrientation();
+    method public suspend Object? getSurface(kotlin.coroutines.Continuation<? super android.view.Surface>);
+    method public com.google.common.util.concurrent.ListenableFuture<android.view.Surface> getSurfaceAsync();
+    method public void markSurfaceSafeToRelease();
+    method public void provideSurface(android.view.Surface surface, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Result?> resultListener);
+    method public boolean willNotProvideSurface();
+    property public final androidx.camera.viewfinder.surface.ImplementationMode? implementationMode;
+    property public final int lensFacing;
+    property public final android.util.Size resolution;
+    property public final int sensorOrientation;
+    field public static final androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion Companion;
+  }
+
+  public static final class ViewfinderSurfaceRequest.Builder {
+    ctor public ViewfinderSurfaceRequest.Builder(android.util.Size resolution);
+    ctor public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest surfaceRequest);
+    ctor public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder builder);
+    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest build();
+    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder setImplementationMode(androidx.camera.viewfinder.surface.ImplementationMode? implementationMode);
+    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder setLensFacing(int lensFacing);
+    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder setSensorOrientation(int sensorOrientation);
+  }
+
+  public static final class ViewfinderSurfaceRequest.Companion {
+  }
+
+  @com.google.auto.value.AutoValue public static final class ViewfinderSurfaceRequest.Result {
+    ctor public ViewfinderSurfaceRequest.Result(int code, android.view.Surface surface);
+    method public int component1();
+    method public android.view.Surface component2();
+    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Result copy(int code, android.view.Surface surface);
+    method public int getCode();
+    method public android.view.Surface getSurface();
+    property public final int code;
+    property public final android.view.Surface surface;
+    field public static final androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Result.Companion Companion;
+    field public static final int RESULT_INVALID_SURFACE = 2; // 0x2
+    field public static final int RESULT_REQUEST_CANCELLED = 1; // 0x1
+    field public static final int RESULT_SURFACE_ALREADY_PROVIDED = 3; // 0x3
+    field public static final int RESULT_SURFACE_USED_SUCCESSFULLY = 0; // 0x0
+    field public static final int RESULT_WILL_NOT_PROVIDE_SURFACE = 4; // 0x4
+  }
+
+  public static final class ViewfinderSurfaceRequest.Result.Companion {
+  }
+
+  public final class ViewfinderSurfaceRequestUtil {
+    method @RequiresApi(21) public static androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
+  }
+
+}
+

@@ -1,3 +1,13 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.BuildOnServerKt
+import androidx.build.KmpPlatformsKt
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
@@ -6,10 +16,11 @@ plugins {
     id("androidx.benchmark.darwin")
 }
 
+def macEnabled = KmpPlatformsKt.enableMac(project)
 androidXMultiplatform {
     // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
-
+    jvm() // add an empty compilation to prevent the warning for unused sourceSets.
     ios {
         binaries.framework {
             // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
@@ -22,28 +33,30 @@ androidXMultiplatform {
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
+        if (macEnabled) {
+            iosMain {
+                dependencies {
+                    api(libs.kotlinStdlib)
+                    api(project(":benchmark:benchmark-darwin"))
+                }
+            }
+            iosArm64Main {
+                dependsOn(iosMain)
+            }
+            iosSimulatorArm64Main {
+                dependsOn(iosMain)
+            }
+            iosX64Main {
+                dependsOn(iosMain)
             }
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
+    }
+
+    targets.configureEach { target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            target.compilations.configureEach {
+                compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
             }
-        }
-        iosArm64Main {
-            dependsOn(commonMain)
-            dependencies {
-                api(project(":benchmark:benchmark-darwin"))
-            }
-        }
-        iosSimulatorArm64Main {
-            dependsOn(iosArm64Main)
-        }
-        iosX64Main {
-            dependsOn(iosArm64Main)
         }
     }
 }
@@ -54,7 +67,7 @@ darwinBenchmark {
     )
     xcodeProjectName = "benchmark-darwin-samples-xcode"
     scheme = "testapp-ios"
-    // ios 13, 15.2
+    // To run locally switch to iOS 17.0 simulators
     destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
     referenceSha.set(androidx.getReferenceSha())
 }

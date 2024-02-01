@@ -17,6 +17,7 @@
 package androidx.build.docs
 
 import androidx.build.PROJECT_STRUCTURE_METADATA_FILENAME
+import androidx.build.configureTaskTimeouts
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
 import androidx.build.defaultAndroidConfig
@@ -29,6 +30,7 @@ import androidx.build.getLibraryByName
 import androidx.build.metalava.versionMetadataUsage
 import androidx.build.multiplatformUsage
 import androidx.build.versionCatalog
+import androidx.build.workaroundPrebuiltTakingPrecedenceOverProject
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
@@ -168,6 +170,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             multiplatformDocsSourcesConfiguration,
             mergedProjectMetadata
         )
+
+        project.configureTaskTimeouts()
+        project.workaroundPrebuiltTakingPrecedenceOverProject()
     }
 
     /**
@@ -228,7 +233,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             task.into(destinationDirectory)
             task.from(
                 sources.elements.map { jars ->
-                    jars.map { jar ->
+                    // Now that we publish sample jars, they can get confused with normal source
+                    // jars. We want to handle sample jars separately, so filter by the name.
+                    jars.filter { "samples" !in it.toString() }.map { jar ->
                         localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
                     }
                 }
@@ -461,8 +468,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val generatedDocsDir = project.layout.buildDirectory.dir("docs")
 
         val dackkaConfiguration =
-            project.configurations.create("dackka").apply {
-                dependencies.add(project.dependencies.create(project.getLibraryByName("dackka")))
+            project.configurations.create("dackka") {
+                it.dependencies.add(project.dependencies.create(project.getLibraryByName("dackka")))
+                it.isCanBeConsumed = false
             }
 
         val generateMetadataTask =
@@ -487,11 +495,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val dackkaTask =
             project.tasks.register("docs", DackkaTask::class.java) { task ->
                 var taskStartTime: LocalDateTime? = null
-                task.argsJsonFile =
+                task.argsJsonFile.set(
                     File(
                         project.rootProject.getDistributionDirectory(),
                         "dackkaArgs-${project.name}.json"
                     )
+                )
                 task.apply {
                     dependsOn(unzipJvmSourcesTask)
                     dependsOn(unzipSamplesTask)
@@ -505,31 +514,39 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
 
                     dackkaClasspath.from(project.files(dackkaConfiguration))
                     destinationDir.set(generatedDocsDir)
-                    frameworkSamplesDir = File(project.rootDir, "samples")
+                    frameworkSamplesDir.set(
+                        project.rootProject.layout.projectDirectory.dir("samples")
+                    )
                     samplesDir.set(unzippedSamplesSources)
                     jvmSourcesDir.set(unzippedJvmSourcesDirectory)
                     multiplatformSourcesDir.set(unzippedMultiplatformSourcesDirectory)
-                    docsProjectDir = File(project.rootDir, "docs-public")
-                    dependenciesClasspath =
+                    projectListsDirectory.set(
+                        project.rootProject.layout.projectDirectory.dir("docs-public/package-lists")
+                    )
+                    dependenciesClasspath.from(
                         dependencyClasspath +
                             project.getAndroidJar() +
                             project.getExtraCommonDependencies()
-                    excludedPackages = hiddenPackages.toSet()
-                    excludedPackagesForJava = hiddenPackagesJava
-                    excludedPackagesForKotlin = emptySet()
+                    )
+                    excludedPackages.set(hiddenPackages.toSet())
+                    excludedPackagesForJava.set(hiddenPackagesJava)
+                    excludedPackagesForKotlin.set(emptySet())
                     libraryMetadataFile.set(getMetadataRegularFile(project))
                     projectStructureMetadataFile.set(mergedProjectMetadata)
-                    // See go/dackka-source-link for details on this link.
-                    baseSourceLink = "https://cs.android.com/search?" + "q=file:%s+class:%s"
-                    annotationsNotToDisplay = hiddenAnnotations
-                    annotationsNotToDisplayJava = hiddenAnnotationsJava
-                    annotationsNotToDisplayKotlin = hiddenAnnotationsKotlin
-                    hidingAnnotations = annotationsToHideApis
-                    nullabilityAnnotations = validNullabilityAnnotations
-                    versionMetadataFiles =
-                        versionMetadataConfiguration.incoming.artifacts.resolvedArtifacts.map {
-                            it.map { it.file }
-                        }
+                    // See go/dackka-source-link for details on these links.
+                    baseSourceLink.set("https://cs.android.com/search?q=file:%s+class:%s")
+                    baseFunctionSourceLink.set(
+                        "https://cs.android.com/search?q=file:%s+function:%s"
+                    )
+                    basePropertySourceLink.set("https://cs.android.com/search?q=file:%s+symbol:%s")
+                    annotationsNotToDisplay.set(hiddenAnnotations)
+                    annotationsNotToDisplayJava.set(hiddenAnnotationsJava)
+                    annotationsNotToDisplayKotlin.set(hiddenAnnotationsKotlin)
+                    hidingAnnotations.set(annotationsToHideApis)
+                    nullabilityAnnotations.set(validNullabilityAnnotations)
+                    versionMetadataFiles.from(
+                        versionMetadataConfiguration.incoming.artifactView { }.files
+                    )
                     task.doFirst { taskStartTime = LocalDateTime.now() }
                     task.doLast {
                         val taskEndTime = LocalDateTime.now()

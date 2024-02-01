@@ -43,7 +43,6 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
     private final Executor mExecutor;
     private final boolean mAutoCloseSurfaceOutput;
 
-
     @Nullable
     private SurfaceRequest mSurfaceRequest;
     @NonNull

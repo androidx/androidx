@@ -83,7 +83,6 @@ public class CompactChip implements LayoutElement {
         @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = COMPACT_PRIMARY_COLORS;
-        private boolean mIsFontPaddingExcluded = false;
         @Nullable private String mIconResourceId = null;
 
         /**
@@ -119,25 +118,9 @@ public class CompactChip implements LayoutElement {
         }
 
         /**
-         * Sets whether the font padding is excluded or not. If not set, default to false, meaning
-         * that text will have font padding included.
-         *
-         * <p>Setting this to {@code true} will perfectly align the text label.
-         */
-        @NonNull
-        @ProtoLayoutExperimental
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder setExcludeFontPadding(boolean excluded) {
-            this.mIsFontPaddingExcluded = excluded;
-            return this;
-        }
-
-        /**
          * Sets the icon for the {@link CompactChip}. Provided icon will be tinted to the given
          * content color from {@link ChipColors}. This icon should be image with chosen alpha
          * channel that can be tinted.
-         *
-         * <p>It is highly recommended to use it with {@link #setExcludeFontPadding} set to true.
          */
         @NonNull
         public Builder setIconContent(@NonNull String imageResourceId) {
@@ -161,7 +144,6 @@ public class CompactChip implements LayoutElement {
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
-                            .setPrimaryLabelExcludeFontPadding(mIsFontPaddingExcluded)
                             .setIsPrimaryLabelScalable(false);
 
             if (mIconResourceId != null) {
@@ -219,12 +201,6 @@ public class CompactChip implements LayoutElement {
         androidx.wear.protolayout.materialcore.Chip coreChip =
                 androidx.wear.protolayout.materialcore.Chip.fromLayoutElement(element);
         return coreChip == null ? null : new CompactChip(new Chip(coreChip));
-    }
-
-    /** Returns whether the font padding for the primary label is excluded. */
-    @ProtoLayoutExperimental
-    public boolean hasExcludeFontPadding() {
-        return mElement.hasPrimaryLabelExcludeFontPadding();
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)

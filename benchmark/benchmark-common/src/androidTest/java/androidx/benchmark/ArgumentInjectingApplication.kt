@@ -62,5 +62,8 @@ class ArgumentInjectingApplication : Application() {
                 InstrumentationRegistry.getInstrumentation().targetContext.filesDir.absolutePath
             )
         }
+        // Since we don't care about measurement accuracy in these correctness test, enable method
+        // tracing to occur multiple times without killing the process.
+        BenchmarkState.enableMethodTracingAffectsMeasurementError = false
     }
 }

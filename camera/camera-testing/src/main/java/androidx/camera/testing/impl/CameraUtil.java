@@ -32,7 +32,6 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.OutputConfiguration;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -41,7 +40,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
-import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.DoNotInline;
@@ -58,8 +56,9 @@ import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.concurrent.CameraCoordinator;
+import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
@@ -623,16 +622,18 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
             @NonNull Context context,
             @NonNull CameraCoordinator cameraCoordinator,
-            @NonNull CameraSelector cameraSelector) {
+            @NonNull CameraSelector cameraSelector,
+            @NonNull CameraConfig cameraConfig) {
         try {
             CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
                     TimeUnit.MILLISECONDS);
-            LinkedHashSet<CameraInternal> cameras =
-                    cameraSelector.filter(cameraX.getCameraRepository().getCameras());
-            return new CameraUseCaseAdapter(cameras,
+            CameraInternal camera =
+                    cameraSelector.select(cameraX.getCameraRepository().getCameras());
+            return new CameraUseCaseAdapter(camera,
                     cameraCoordinator,
                     cameraX.getCameraDeviceSurfaceManager(),
-                    cameraX.getDefaultConfigFactory());
+                    cameraX.getDefaultConfigFactory(),
+                    cameraConfig);
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new RuntimeException("Unable to retrieve CameraX instance");
         }
@@ -658,7 +659,22 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
             @NonNull Context context,
             @NonNull CameraSelector cameraSelector) {
-        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(), cameraSelector);
+        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(),
+                cameraSelector, CameraConfigs.defaultConfig());
+    }
+
+    /**
+     * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector and
+     * CameraConfig
+     */
+    @VisibleForTesting
+    @NonNull
+    public static CameraUseCaseAdapter createCameraUseCaseAdapter(
+            @NonNull Context context,
+            @NonNull CameraSelector cameraSelector,
+            @NonNull CameraConfig cameraConfig) {
+        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(),
+                cameraSelector, cameraConfig);
     }
 
     /**
@@ -829,6 +845,22 @@ public final class CameraUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * Gets the {@link CameraCharacteristics} by specified camera id.
+     *
+     * @return the camera characteristics for the given camera id or {@code null} if it can't
+     * be retrieved.
+     */
+    @Nullable
+    public static CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId) {
+        try {
+            return getCameraCharacteristicsOrThrow(cameraId);
+        } catch (RuntimeException e) {
+            Logger.e(LOG_TAG, "Unable to get CameraCharacteristics.", e);
+            return null;
+        }
     }
 
     /**
@@ -1019,46 +1051,6 @@ public final class CameraUtil {
     }
 
     /**
-     * Retrieves the max high resolution output size if the camera has high resolution output sizes
-     * with the specified lensFacing.
-     *
-     * @param lensFacing The desired camera lensFacing.
-     * @return the max high resolution output size if the camera has high resolution output sizes
-     * with the specified LensFacing. Returns null otherwise.
-     * @throws IllegalStateException if the CAMERA permission is not currently granted.
-     */
-    @Nullable
-    public static Size getMaxHighResolutionOutputSizeWithLensFacing(
-            @CameraSelector.LensFacing int lensFacing, int imageFormat) {
-        @SupportedLensFacingInt
-        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
-        for (String cameraId : getBackwardCompatibleCameraIdListOrThrow()) {
-            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
-            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing == null || cameraLensFacing != lensFacingInteger) {
-                continue;
-            }
-
-            StreamConfigurationMap map = characteristics.get(
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                @SuppressLint("ClassVerificationFailure")
-                Size[] highResolutionOutputSizes = map.getHighResolutionOutputSizes(imageFormat);
-
-                if (highResolutionOutputSizes == null || Arrays.asList(
-                        highResolutionOutputSizes).isEmpty()) {
-                    return null;
-                }
-
-                Arrays.sort(highResolutionOutputSizes, new CompareSizesByArea(true));
-                return highResolutionOutputSizes[0];
-            }
-        }
-        return null;
-    }
-
-    /**
      * Grant the camera permission and test the camera.
      *
      * <p>It will
@@ -1189,6 +1181,10 @@ public final class CameraUtil {
             deviceHolder = new CameraDeviceHolder(getCameraManager(), cameraId, null);
             if (deviceHolder.get() == null) {
                 ret = false;
+            }
+            if (Build.MODEL.equalsIgnoreCase("sm-g920v")) {
+                // Please see b/305835396
+                TimeUnit.SECONDS.sleep(1);
             }
         } catch (Exception e) {
             ret = false;
@@ -1392,8 +1388,9 @@ public final class CameraUtil {
             return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
+                    String logPrefix = String.format("[%s]", System.currentTimeMillis());
                     if (mCameraIdListCorrect.get() == null) {
-                        if (isCameraLensFacingInfoAvailable()) {
+                        if (isCameraLensFacingInfoAvailable(logPrefix)) {
                             mCameraIdListCorrect.set(true);
                         } else {
                             mCameraIdListCorrect.set(false);
@@ -1401,7 +1398,7 @@ public final class CameraUtil {
 
                         // Always try to initialize CameraX if the CameraXConfig has been set.
                         if (mCameraXConfig != null) {
-                            if (checkLensFacingByCameraXConfig(
+                            if (checkLensFacingByCameraXConfig(logPrefix,
                                     ApplicationProvider.getApplicationContext(), mCameraXConfig)) {
                                 mCameraIdListCorrect.set(true);
                             } else {
@@ -1427,11 +1424,14 @@ public final class CameraUtil {
         }
     }
 
-    static boolean checkLensFacingByCameraXConfig(@NonNull Context context,
+    static boolean checkLensFacingByCameraXConfig(
+            @NonNull String logPrefix,
+            @NonNull Context context,
             @NonNull CameraXConfig config) {
         try {
             // Shutdown exist instances, if there is any
             CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
+            logInit(logPrefix, "Start init CameraX");
 
             CameraXUtil.initialize(context, config).get(10, TimeUnit.SECONDS);
             CameraX camerax = CameraXUtil.getOrCreateInstance(context, null).get(5,
@@ -1447,10 +1447,10 @@ public final class CameraUtil {
             if (frontFeature) {
                 CameraSelector.DEFAULT_FRONT_CAMERA.select(cameras);
             }
-            Logger.i(LOG_TAG, "Successfully init CameraX");
+            logInit(logPrefix, "Successfully init CameraX");
             return true;
         } catch (Exception e) {
-            Logger.w(LOG_TAG, "CameraX init fail", e);
+            logInit(logPrefix, "CameraX init fail", e);
         } finally {
             try {
                 CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
@@ -1467,7 +1467,7 @@ public final class CameraUtil {
      * @return true if the front and main camera info exists in the camera characteristic.
      */
     @SuppressWarnings("ObjectToString")
-    static boolean isCameraLensFacingInfoAvailable() {
+    static boolean isCameraLensFacingInfoAvailable(@NonNull String logPrefix) {
         boolean error = false;
         Context context = ApplicationProvider.getApplicationContext();
         CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
@@ -1514,7 +1514,7 @@ public final class CameraUtil {
 
             if (!backPass || !frontPass) {
                 error = true;
-                Logger.e(LOG_TAG,
+                logInit(logPrefix,
                         "Missing front or back camera, has front camera: " + hasFront + ", has "
                                 + "back camera: " + hasBack + " has main camera feature:"
                                 + backFeature + " has front camera feature:" + frontFeature
@@ -1522,9 +1522,22 @@ public final class CameraUtil {
             }
         } else {
             error = true;
-            Logger.e(LOG_TAG, "cameraIds.length is zero");
+            logInit(logPrefix, "cameraIds.length is zero");
         }
 
         return !error;
+    }
+
+    private static void logInit(@NonNull String prefix, @NonNull String message) {
+        logInit(prefix, message, null);
+    }
+
+    private static void logInit(
+            @NonNull String prefix, @NonNull String message, @Nullable Throwable t) {
+        if (t != null) {
+            Logger.i(LOG_TAG, prefix + message + " Time:" + System.currentTimeMillis(), t);
+        } else {
+            Logger.i(LOG_TAG, prefix + message + " Time:" + System.currentTimeMillis());
+        }
     }
 }

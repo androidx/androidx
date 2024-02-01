@@ -358,7 +358,7 @@ class PerformanceMetricsState private constructor() {
         @JvmStatic
         @UiThread
         fun getHolderForHierarchy(view: View): Holder {
-            val rootView = getRootView(view)
+            val rootView = view.getRootView()
             var metricsStateHolder = rootView.getTag(R.id.metricsStateHolder)
             if (metricsStateHolder == null) {
                 metricsStateHolder = Holder()
@@ -386,16 +386,6 @@ class PerformanceMetricsState private constructor() {
                 holder.state = PerformanceMetricsState()
             }
             return holder
-        }
-
-        internal fun getRootView(view: View): View {
-            var rootView = view
-            var parent = rootView.parent
-            while (parent is View) {
-                rootView = parent
-                parent = rootView.parent
-            }
-            return rootView
         }
     }
 

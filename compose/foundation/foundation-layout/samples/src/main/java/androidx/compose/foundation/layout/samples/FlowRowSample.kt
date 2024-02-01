@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.random.Random
 
 @OptIn(ExperimentalLayoutApi::class)
 @Sampled
@@ -42,6 +43,7 @@ fun SimpleFlowRow() {
     FlowRow(
         Modifier
             .fillMaxWidth(1f)
+            .padding(20.dp)
             .wrapContentHeight(align = Alignment.Top),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -68,6 +70,7 @@ fun SimpleFlowRowWithWeights() {
     FlowRow(
         Modifier
             .wrapContentHeight()
+            .padding(20.dp)
             .fillMaxWidth(1f),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -84,4 +87,48 @@ fun SimpleFlowRowWithWeights() {
             )
         }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Sampled
+@Composable
+fun SimpleFlowRow_EqualHeight() {
+    FlowRow(
+        Modifier
+            .fillMaxWidth(1f)
+            .padding(20.dp)
+            .wrapContentHeight(align = Alignment.Top),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        maxItemsInEachRow = 3,
+    ) {
+        repeat(9) {
+            Box(
+                Modifier
+                    .width(100.dp)
+                    .background(Color.Green)
+                    .fillMaxRowHeight(1f)
+            ) {
+                val text = generateRandomString(IntRange(10, 50).random())
+                Text(
+                    text = text,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(3.dp)
+                )
+            }
+        }
+    }
+}
+
+fun generateRandomString(length: Int): String {
+    val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+    val random = Random.Default
+
+    val randomString = StringBuilder(length)
+    repeat(length) {
+        val randomIndex = random.nextInt(0, charPool.size)
+        val randomChar = charPool[randomIndex]
+        randomString.append(randomChar)
+    }
+    return randomString.toString()
 }

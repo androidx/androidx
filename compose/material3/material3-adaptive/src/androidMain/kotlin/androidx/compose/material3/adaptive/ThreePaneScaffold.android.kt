@@ -1,120 +1,42 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.compose.material3.adaptive
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Stable
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal class DefaultThreePaneScaffoldState(
-    initialFocusHistory: List<ThreePaneScaffoldRole>,
-    initialScaffoldDirective: PaneScaffoldDirective,
-    initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
-) {
-
-    private val focusHistory = mutableStateListOf<ThreePaneScaffoldRole>().apply {
-        addAll(initialFocusHistory)
-    }
-
-    var scaffoldDirective by mutableStateOf(initialScaffoldDirective)
-    var adaptStrategies by mutableStateOf(initialAdaptStrategies)
-
-    val currentFocus: ThreePaneScaffoldRole?
-        get() = focusHistory.lastOrNull()
-
-    val layoutValue: ThreePaneScaffoldValue get() = calculateScaffoldValue(currentFocus)
-
-    fun navigateTo(pane: ThreePaneScaffoldRole) {
-        focusHistory.add(pane)
-    }
-
-    fun canNavigateBack(layoutValueMustChange: Boolean): Boolean =
-        getPreviousFocusIndex(layoutValueMustChange) >= 0
-
-    fun navigateBack(popUntilLayoutValueChange: Boolean): Boolean {
-        val previousFocusIndex = getPreviousFocusIndex(popUntilLayoutValueChange)
-        if (previousFocusIndex < 0) {
-            focusHistory.clear()
-            return false
-        }
-        val targetSize = previousFocusIndex + 1
-        while (focusHistory.size > targetSize) {
-            focusHistory.removeLast()
-        }
-        return true
-    }
-
-    private fun getPreviousFocusIndex(withLayoutValueChange: Boolean): Int {
-        if (focusHistory.size <= 1) {
-            // No previous focus
-            return -1
-        }
-        if (!withLayoutValueChange) {
-            return focusHistory.lastIndex - 1
-        }
-        for (previousFocusIndex in focusHistory.lastIndex - 1 downTo 0) {
-            val newValue = calculateScaffoldValue(focusHistory[previousFocusIndex])
-            if (newValue != layoutValue) {
-                return previousFocusIndex
-            }
-        }
-        return -1
-    }
-
-    private fun calculateScaffoldValue(
-        focus: ThreePaneScaffoldRole?
-    ): ThreePaneScaffoldValue =
-        calculateThreePaneScaffoldValue(
-            scaffoldDirective.maxHorizontalPartitions,
-            adaptStrategies,
-            focus
-        )
-
-    companion object {
-        /**
-         * To keep focus history saved
-         */
-        fun saver(
-            initialScaffoldDirective: PaneScaffoldDirective,
-            initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies
-        ): Saver<DefaultThreePaneScaffoldState, *> = listSaver(
-            save = {
-                it.focusHistory.toList()
-            },
-            restore = {
-                DefaultThreePaneScaffoldState(
-                    initialFocusHistory = it,
-                    initialScaffoldDirective = initialScaffoldDirective,
-                    initialAdaptStrategies = initialAdaptStrategies
-                )
-            }
-        )
-    }
+/**
+ * The state of [ThreePaneScaffold]. It provides the layout directive and value state that will
+ * be updated directly. It also provides functions to perform navigation.
+ *
+ * @property scaffoldDirective the current layout directives that the associated
+ *           [ThreePaneScaffold] needs to follow. It's supposed to be automatically updated
+ *           when the window configuration changes.
+ * @property scaffoldValue the current layout value of the associated [ThreePaneScaffold],
+ *           which represents unique layout states of the scaffold.
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Stable
+interface ThreePaneScaffoldState {
+    val scaffoldDirective: PaneScaffoldDirective
+    val scaffoldValue: ThreePaneScaffoldValue
 }
 
 @ExperimentalMaterial3AdaptiveApi
-@Composable
-internal fun rememberDefaultThreePaneScaffoldState(
-    scaffoldDirective: PaneScaffoldDirective,
-    adaptStrategies: ThreePaneScaffoldAdaptStrategies,
-    initialFocusHistory: List<ThreePaneScaffoldRole>
-): DefaultThreePaneScaffoldState =
-    rememberSaveable(
-        saver = DefaultThreePaneScaffoldState.saver(
-            scaffoldDirective,
-            adaptStrategies,
-        )
-    ) {
-        DefaultThreePaneScaffoldState(
-            initialFocusHistory = initialFocusHistory,
-            initialScaffoldDirective = scaffoldDirective,
-            initialAdaptStrategies = adaptStrategies
-        )
-    }.apply {
-        this.scaffoldDirective = scaffoldDirective
-        this.adaptStrategies = adaptStrategies
-    }
+internal class ThreePaneScaffoldStateImpl(
+    override val scaffoldDirective: PaneScaffoldDirective,
+    override val scaffoldValue: ThreePaneScaffoldValue
+) : ThreePaneScaffoldState

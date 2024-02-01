@@ -17,6 +17,7 @@ package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
@@ -158,6 +159,11 @@ class SdkLoaderTest {
     }
 
     private class NoOpImpl : SdkSandboxControllerCompat.SandboxControllerImpl {
+
+        override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+            throw UnsupportedOperationException("NoOp")
+        }
+
         override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
             throw UnsupportedOperationException("NoOp")
         }

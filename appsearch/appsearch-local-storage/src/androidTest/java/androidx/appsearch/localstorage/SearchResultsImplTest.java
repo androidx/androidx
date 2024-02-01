@@ -53,7 +53,7 @@ public class SearchResultsImplTest {
                 mTemporaryFolder.newFolder(),
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new DefaultIcingOptionsConfig()
+                        new LocalStorageIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);

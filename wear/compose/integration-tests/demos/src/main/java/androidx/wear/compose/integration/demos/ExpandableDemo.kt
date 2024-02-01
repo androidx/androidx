@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ExpandableState
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.expandableButton
 import androidx.wear.compose.foundation.expandableItem
 import androidx.wear.compose.foundation.expandableItems
@@ -77,6 +78,7 @@ private data class ItemsToShow(val text: String, val key: Int = keySeq++) {
     }
 }
 
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun ExpandableMultipleItems() {
     val items = remember {

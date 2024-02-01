@@ -35,7 +35,6 @@ import java.lang.reflect.Method;
 /**
  * Utility methods for handling file descriptors.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class FileDescriptorUtil {
 
     /**

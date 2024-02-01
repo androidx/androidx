@@ -382,11 +382,11 @@ class FocusMeteringControlTest {
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
             assertWithMessage("Wrong lock behavior for AE")
-                .that(aeLockBehavior).isEqualTo(Lock3ABehavior.AFTER_NEW_SCAN)
+                .that(aeLockBehavior).isEqualTo(Lock3ABehavior.IMMEDIATE)
             assertWithMessage("Wrong lock behavior for AF")
-                .that(afLockBehavior).isEqualTo(Lock3ABehavior.AFTER_NEW_SCAN)
+                .that(afLockBehavior).isEqualTo(Lock3ABehavior.IMMEDIATE)
             assertWithMessage("Wrong lock behavior for AWB")
-                .that(awbLockBehavior).isEqualTo(Lock3ABehavior.AFTER_NEW_SCAN)
+                .that(awbLockBehavior).isEqualTo(Lock3ABehavior.IMMEDIATE)
         }
     }
 
@@ -1352,7 +1352,7 @@ class FocusMeteringControlTest {
 
             assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
             assertWithMessage("Wrong lock behavior for AE")
-                .that(afLockBehavior).isEqualTo(Lock3ABehavior.AFTER_NEW_SCAN)
+                .that(afLockBehavior).isEqualTo(Lock3ABehavior.IMMEDIATE)
 
             assertWithMessage("Wrong number of AWB regions").that(awbRegions).isNull()
             assertWithMessage("Wrong lock behavior for AWB").that(awbLockBehavior).isNull()

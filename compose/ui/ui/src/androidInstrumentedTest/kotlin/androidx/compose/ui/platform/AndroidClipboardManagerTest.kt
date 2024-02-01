@@ -16,8 +16,11 @@
 
 package androidx.compose.ui.platform
 
+import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
+import android.net.Uri
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -34,18 +37,19 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class AndroidClipboardManagerTest {
-
-    private val context = InstrumentationRegistry.getInstrumentation().context
 
     @Test
     fun annotatedString_singleSpanStyle_convertToCharSequenceAndRecover() {
@@ -242,6 +246,92 @@ class AndroidClipboardManagerTest {
         val subject = AndroidClipboardManager(clipboardManager)
 
         assertThat(subject.hasText()).isFalse()
+    }
+
+    @Test
+    fun getPrimaryClipEntry_returnsClipData() {
+        val clipboardManager = mock<ClipboardManager>()
+        val clipData = mock<ClipData>()
+        whenever(clipboardManager.primaryClip).thenReturn(clipData)
+        val subject = AndroidClipboardManager(clipboardManager)
+
+        assertThat(subject.getClip()?.clipData).isSameInstanceAs(clipData)
+    }
+
+    @Test
+    fun getPrimaryClipDescription_returnsClipDescription() {
+        val clipboardManager = mock<ClipboardManager>()
+        val clipDescription = mock<ClipDescription>()
+        whenever(clipboardManager.primaryClipDescription).thenReturn(clipDescription)
+        val subject = AndroidClipboardManager(clipboardManager)
+
+        assertThat(subject.getClipMetadata()?.clipDescription).isSameInstanceAs(clipDescription)
+        verify(clipboardManager, never()).primaryClip
+    }
+
+    @Test
+    fun hasPrimaryClipEntry_returnsHasClipData() {
+        val clipboardManager = mock<ClipboardManager>()
+        whenever(clipboardManager.hasPrimaryClip()).thenReturn(true)
+        val subject = AndroidClipboardManager(clipboardManager)
+
+        assertThat(subject.hasClip()).isEqualTo(true)
+
+        whenever(clipboardManager.hasPrimaryClip()).thenReturn(false)
+
+        assertThat(subject.hasClip()).isEqualTo(false)
+
+        verify(clipboardManager, never()).primaryClip
+        verify(clipboardManager, never()).primaryClipDescription
+    }
+
+    @Test
+    fun setPrimaryClip_callsSetPrimaryClip() {
+        val clipboardManager = mock<ClipboardManager>()
+        val clipData = mock<ClipData>()
+        val subject = AndroidClipboardManager(clipboardManager)
+
+        subject.setClip(clipData.toClipEntry())
+
+        verify(clipboardManager, times(1)).setPrimaryClip(clipData)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun firstUriOrNull_returnsFirstItem_ifNotNull() {
+        val uri = Uri.parse("http://example.com")
+        val clipData = mock<ClipData> {
+            on { itemCount } doReturn 2
+            on { getItemAt(0) } doReturn ClipData.Item(uri)
+            on { getItemAt(1) } doReturn ClipData.Item("Hello")
+        }
+
+        assertThat(clipData.toClipEntry().firstUriOrNull()).isEqualTo(uri)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun firstUriOrNull_returnsSecondItem_ifFirstIsNull() {
+        val uri = Uri.parse("http://example.com")
+        val clipData = mock<ClipData> {
+            on { itemCount } doReturn 2
+            on { getItemAt(0) } doReturn ClipData.Item("Hello")
+            on { getItemAt(1) } doReturn ClipData.Item(uri)
+        }
+
+        assertThat(clipData.toClipEntry().firstUriOrNull()).isEqualTo(uri)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun firstUriOrNull_returnsNull_ifNoUri() {
+        val clipData = mock<ClipData> {
+            on { itemCount } doReturn 2
+            on { getItemAt(0) } doReturn ClipData.Item("Hello")
+            on { getItemAt(1) } doReturn ClipData.Item("World")
+        }
+
+        assertThat(clipData.toClipEntry().firstUriOrNull()).isNull()
     }
 
     private fun assertEncodeAndDecode(spanStyle: SpanStyle) {

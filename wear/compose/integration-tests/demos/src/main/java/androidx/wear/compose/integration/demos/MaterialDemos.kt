@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.material.ListHeader
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.samples.AlertDialogSample
 import androidx.wear.compose.material.samples.AlertWithButtons
 import androidx.wear.compose.material.samples.AlertWithChips
@@ -94,6 +97,30 @@ import java.time.LocalTime
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
+        DemoCategory(
+            "Page Indicator",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Sample with InlineSlider") {
+                            Centralize { HorizontalPageIndicatorSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Customized PageIndicator") {
+                            CustomizedHorizontalPageIndicator()
+                        },
+                        ComposableDemo("Pager with Indicator") { params ->
+                            PagerWithIndicator(params.swipeToDismissBoxState)
+                        }
+                    )
+                )
+            )
+        ),
         DemoCategory(
             "ScrollAway",
             listOf(
@@ -505,27 +532,6 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "Page Indicator",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Sample with InlineSlider") {
-                            Centralize { HorizontalPageIndicatorSample() }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Customized PageIndicator") {
-                            CustomizedHorizontalPageIndicator()
-                        },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
             "Progress Indicator",
             listOf(
                 DemoCategory(
@@ -642,8 +648,11 @@ val WearMaterialDemos = DemoCategory(
             "Position Indicator",
             listOf(
                 ComposableDemo("Hide when no scrollable") { HideWhenFullDemo() },
-                ComposableDemo("Hide when no scrollable on ScalingLazyColumn") {
+                ComposableDemo("Hide when no scrollable SLC") {
                     HideWhenFullSLCDemo()
+                },
+                ComposableDemo("SLC with PositionIndicator") {
+                    SLCWithPositionIndicatorDemo()
                 },
                 ComposableDemo("Controllable PI") { ControllablePositionIndicator() },
                 ComposableDemo("Shared PI") { SharedPositionIndicator() }
@@ -668,5 +677,29 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Colors") { ThemeColors() },
             )
         ),
+        ComposableDemo("Settings Demo") { SettingsDemo() },
+        DemoCategory(
+            "ListHeader",
+            listOf(
+                ComposableDemo("Sample") {
+                    Centralize {
+                        ListHeader {
+                            Text("Header", maxLines = 3)
+                        }
+                    }
+                },
+                ComposableDemo("MultiLine Sample") {
+                    Centralize {
+                        ListHeader {
+                            Text(
+                                text = "ListHeader that spans multiple lines in a large " +
+                                    "font and should expand to fit the contents",
+                                style = MaterialTheme.typography.title3
+                            )
+                        }
+                    }
+                }
+            )
+        )
     ),
 )

@@ -39,7 +39,6 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +53,6 @@ import java.util.concurrent.TimeUnit;
  * In order to get the media key events, the player state is set to 'Playing' before every test
  * method.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT) // For AudioManager#dispatchMediaKeyEvent()
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSession_KeyEventTest extends MediaSessionTestBase {

@@ -37,6 +37,7 @@ import androidx.compose.ui.node.ComposeUiNode.Companion.SetMeasurePolicy
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetModifier
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.checkMeasuredSize
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -294,6 +295,14 @@ internal enum class IntrinsicWidthHeight {
     Width, Height
 }
 
+// A large value to use as a replacement for Infinity with DefaultIntrinisicMeasurable.
+// A layout likely won't use this dimension as it is opposite from the one being measured in
+// the max/min Intrinsic Width/Height, but it is possible. For example, if the direct child
+// uses normal measurement/layout, we don't want to return Infinity sizes when its parent
+// asks for intrinsic size. 15 bits can fit in a Constraints, so should be safe unless
+// the parent adds to it and the other dimension is also very large (> 2^15).
+internal const val LargeDimension = (1 shl 15) - 1
+
 /**
  * A wrapper around a [Measurable] for intrinsic measurements in [Layout]. Consumers of
  * [Layout] don't identify intrinsic methods, but we can give a reasonable implementation
@@ -315,14 +324,19 @@ internal class DefaultIntrinsicMeasurable(
             } else {
                 measurable.minIntrinsicWidth(constraints.maxHeight)
             }
-            return FixedSizeIntrinsicsPlaceable(width, constraints.maxHeight)
+            // Can't use infinity for height, so use a large number
+            val height =
+                if (constraints.hasBoundedHeight) constraints.maxHeight else LargeDimension
+            return FixedSizeIntrinsicsPlaceable(width, height)
         }
         val height = if (minMax == IntrinsicMinMax.Max) {
             measurable.maxIntrinsicHeight(constraints.maxWidth)
         } else {
             measurable.minIntrinsicHeight(constraints.maxWidth)
         }
-        return FixedSizeIntrinsicsPlaceable(constraints.maxWidth, height)
+        // Can't use infinity for width, so use a large number
+        val width = if (constraints.hasBoundedWidth) constraints.maxWidth else LargeDimension
+        return FixedSizeIntrinsicsPlaceable(width, height)
     }
 
     override fun minIntrinsicWidth(height: Int): Int {
@@ -354,15 +368,21 @@ internal class IntrinsicsMeasureScope(
         width: Int,
         height: Int,
         alignmentLines: Map<AlignmentLine, Int>,
+        rulers: (RulerScope.() -> Unit)?,
         placementBlock: Placeable.PlacementScope.() -> Unit
     ): MeasureResult {
+        val w = width.coerceAtLeast(0)
+        val h = height.coerceAtLeast(0)
+        checkMeasuredSize(w, h)
         return object : MeasureResult {
             override val width: Int
-                get() = width
+                get() = w
             override val height: Int
-                get() = height
+                get() = h
             override val alignmentLines: Map<AlignmentLine, Int>
                 get() = alignmentLines
+            override val rulers: (RulerScope.() -> Unit)?
+                get() = rulers
 
             override fun placeChildren() {
                 // Intrinsics should never be placed

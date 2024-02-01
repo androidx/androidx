@@ -36,10 +36,6 @@ import androidx.annotation.RequiresApi;
 class TransitionUtils {
 
     private static final int MAX_IMAGE_SIZE = 1024 * 1024;
-    private static final boolean HAS_IS_ATTACHED_TO_WINDOW =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-    private static final boolean HAS_OVERLAY =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
     private static final boolean HAS_PICTURE_BITMAP =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
 
@@ -94,22 +90,18 @@ class TransitionUtils {
             ViewGroup sceneRoot) {
         final boolean addToOverlay;
         final boolean sceneRootIsAttached;
-        if (HAS_IS_ATTACHED_TO_WINDOW) {
-            addToOverlay = !Api19Impl.isAttachedToWindow(view);
-            sceneRootIsAttached = sceneRoot != null && Api19Impl.isAttachedToWindow(sceneRoot);
-        } else {
-            addToOverlay = false;
-            sceneRootIsAttached = false;
-        }
+        addToOverlay = !view.isAttachedToWindow();
+        sceneRootIsAttached = sceneRoot != null && sceneRoot.isAttachedToWindow();
         ViewGroup parent = null;
         int indexInParent = 0;
-        if (HAS_OVERLAY && addToOverlay) {
+        if (addToOverlay) {
             if (!sceneRootIsAttached) {
                 return null;
             }
             parent = (ViewGroup) view.getParent();
             indexInParent = parent.indexOfChild(view);
-            Api18Impl.getOverlayAndAdd(sceneRoot, view);
+            ViewGroupOverlay result = sceneRoot.getOverlay();
+            result.add(view);
         }
         Bitmap bitmap = null;
         int bitmapWidth = Math.round(bounds.width());
@@ -137,8 +129,9 @@ class TransitionUtils {
                 view.draw(canvas);
             }
         }
-        if (HAS_OVERLAY && addToOverlay) {
-            Api18Impl.getOverlayAndRemove(sceneRoot, view);
+        if (addToOverlay) {
+            ViewGroupOverlay result = sceneRoot.getOverlay();
+            result.remove(view);
             parent.addView(view, indexInParent);
         }
         return bitmap;
@@ -180,26 +173,6 @@ class TransitionUtils {
 
     private TransitionUtils() { }
 
-    @RequiresApi(18)
-    static class Api18Impl {
-        private Api18Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static ViewGroupOverlay getOverlayAndAdd(ViewGroup viewGroup, View toAdd) {
-            ViewGroupOverlay result = viewGroup.getOverlay();
-            result.add(toAdd);
-            return result;
-        }
-
-        @DoNotInline
-        static ViewGroupOverlay getOverlayAndRemove(ViewGroup viewGroup, View toRemove) {
-            ViewGroupOverlay result = viewGroup.getOverlay();
-            result.remove(toRemove);
-            return result;
-        }
-    }
     @RequiresApi(28)
     static class Api28Impl {
         private Api28Impl() {
@@ -211,16 +184,5 @@ class TransitionUtils {
             return Bitmap.createBitmap(source);
         }
 
-    }
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean isAttachedToWindow(View view) {
-            return view.isAttachedToWindow();
-        }
     }
 }

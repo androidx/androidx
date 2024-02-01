@@ -22,10 +22,12 @@ package androidx.room
  * @see [AutoMigration]
  *
  */
-@JvmRepeatable(RenameTable.Entries::class)
+@Repeatable
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-public annotation class RenameTable(
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
+public expect annotation class RenameTable(
     /**
      * Name of the table in the [AutoMigration.from] version of the database.
      *
@@ -39,13 +41,4 @@ public annotation class RenameTable(
      * @return Name of the table to rename to.
      */
     val toTableName: String,
-) {
-    /**
-     * Container annotation for the repeatable annotation [RenameTable].
-     */
-    @Target(AnnotationTarget.CLASS)
-    @Retention(AnnotationRetention.BINARY)
-    public annotation class Entries(
-        vararg val value: RenameTable
-    )
-}
+)

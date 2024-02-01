@@ -27,15 +27,15 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Provider
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -50,7 +50,8 @@ abstract class DackkaTask
 constructor(private val workerExecutor: WorkerExecutor, private val objects: ObjectFactory) :
     DefaultTask() {
 
-    @Internal lateinit var argsJsonFile: File
+    @get:OutputFile
+    abstract val argsJsonFile: RegularFileProperty
 
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     abstract val projectStructureMetadataFile: RegularFileProperty
@@ -60,11 +61,11 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
 
     // Classpath containing dependencies of libraries needed to resolve types in docs
     @get:[InputFiles Classpath]
-    lateinit var dependenciesClasspath: FileCollection
+    abstract val dependenciesClasspath: ConfigurableFileCollection
 
     // Directory containing the code samples from framework
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    lateinit var frameworkSamplesDir: File
+    abstract val frameworkSamplesDir: DirectoryProperty
 
     // Directory containing the code samples
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
@@ -78,43 +79,45 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     abstract val multiplatformSourcesDir: DirectoryProperty
 
-    // Directory containing the docs project and package-lists
+    // Directory containing the package-lists
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    lateinit var docsProjectDir: File
+    abstract val projectListsDirectory: DirectoryProperty
 
     // Location of generated reference docs
     @get:OutputDirectory abstract val destinationDir: DirectoryProperty
 
     // Set of packages to exclude for refdoc generation for all languages
-    @Input lateinit var excludedPackages: Set<String>
+    @get:Input abstract val excludedPackages: SetProperty<String>
 
     // Set of packages to exclude for Java refdoc generation
-    @Input lateinit var excludedPackagesForJava: Set<String>
+    @get:Input abstract val excludedPackagesForJava: SetProperty<String>
 
     // Set of packages to exclude for Kotlin refdoc generation
-    @Input lateinit var excludedPackagesForKotlin: Set<String>
+    @get:Input abstract val excludedPackagesForKotlin: SetProperty<String>
 
-    @Input lateinit var annotationsNotToDisplay: List<String>
+    @get:Input abstract val annotationsNotToDisplay: ListProperty<String>
 
-    @Input lateinit var annotationsNotToDisplayJava: List<String>
+    @get:Input abstract val annotationsNotToDisplayJava: ListProperty<String>
 
-    @Input lateinit var annotationsNotToDisplayKotlin: List<String>
+    @get:Input abstract val annotationsNotToDisplayKotlin: ListProperty<String>
 
-    @Input lateinit var hidingAnnotations: List<String>
+    @get:Input abstract val hidingAnnotations: ListProperty<String>
 
-    @Input lateinit var nullabilityAnnotations: List<String>
+    @get:Input abstract val nullabilityAnnotations: ListProperty<String>
 
-    @InputFiles
-    @PathSensitive(PathSensitivity.NONE)
-    lateinit var versionMetadataFiles: Provider<List<File>>
+    @get:[InputFiles PathSensitive(PathSensitivity.NONE)]
+    abstract val versionMetadataFiles: ConfigurableFileCollection
 
     // Maps to the system variable LIBRARY_METADATA_FILE containing artifactID and other metadata
     @get:[InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val libraryMetadataFile: RegularFileProperty
 
-    // The base URL to create source links for classes, as a format string with placeholders for the
-    // file path and qualified class name.
-    @Input lateinit var baseSourceLink: String
+    // The base URLs to create source links for classes, functions, and properties, respectively, as
+    // format strings with placeholders for the file path and qualified class name, function name,
+    // or property name.
+    @get:Input abstract val baseSourceLink: Property<String>
+    @get:Input abstract val baseFunctionSourceLink: Property<String>
+    @get:Input abstract val basePropertySourceLink: Property<String>
 
     private fun sourceSets(): List<DokkaInputModels.SourceSet> {
         val externalDocs =
@@ -122,7 +125,9 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 DokkaInputModels.GlobalDocsLink(
                     url = url,
                     packageListUrl =
-                        "file://${docsProjectDir.toPath()}/package-lists/$name/package-list"
+                        "file://${
+                            projectListsDirectory.get().asFile.absolutePath
+                        }/$name/package-list"
                 )
             }
         val gson = GsonBuilder().create()
@@ -163,7 +168,10 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 displayName = "main",
                 analysisPlatform = "jvm",
                 sourceRoots = objects.fileCollection().from(jvmSourcesDir),
-                samples = objects.fileCollection().from(samplesDir, frameworkSamplesDir),
+                samples = objects.fileCollection().from(
+                    samplesDir,
+                    frameworkSamplesDir.get().asFile
+                ),
                 includes = objects.fileCollection().from(includesFiles(jvmSourcesDir.get().asFile)),
                 classpath = dependenciesClasspath,
                 externalDocumentationLinks = externalDocs,
@@ -204,20 +212,24 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                         "projectPath" to "androidx",
                                         "javaDocsPath" to "",
                                         "kotlinDocsPath" to "kotlin",
-                                        "excludedPackages" to excludedPackages,
-                                        "excludedPackagesForJava" to excludedPackagesForJava,
-                                        "excludedPackagesForKotlin" to excludedPackagesForKotlin,
+                                        "excludedPackages" to excludedPackages.get(),
+                                        "excludedPackagesForJava" to excludedPackagesForJava.get(),
+                                        "excludedPackagesForKotlin" to
+                                            excludedPackagesForKotlin.get(),
                                         "libraryMetadataFilename" to
                                             libraryMetadataFile.get().toString(),
-                                        "baseSourceLink" to baseSourceLink,
-                                        "annotationsNotToDisplay" to annotationsNotToDisplay,
+                                        "baseSourceLink" to baseSourceLink.get(),
+                                        "baseFunctionSourceLink" to baseFunctionSourceLink.get(),
+                                        "basePropertySourceLink" to basePropertySourceLink.get(),
+                                        "annotationsNotToDisplay" to annotationsNotToDisplay.get(),
                                         "annotationsNotToDisplayJava" to
-                                            annotationsNotToDisplayJava,
+                                            annotationsNotToDisplayJava.get(),
                                         "annotationsNotToDisplayKotlin" to
-                                            annotationsNotToDisplayKotlin,
-                                        "hidingAnnotations" to hidingAnnotations,
+                                            annotationsNotToDisplayKotlin.get(),
+                                        "hidingAnnotations" to hidingAnnotations.get(),
                                         "versionMetadataFilenames" to checkVersionMetadataFiles(),
-                                        "validNullabilityAnnotations" to nullabilityAnnotations,
+                                        "validNullabilityAnnotations" to
+                                            nullabilityAnnotations.get(),
                                     )
                                 )
                         )
@@ -225,8 +237,9 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
             )
 
         val json = gson.toJson(jsonMap)
-        argsJsonFile.writeText(json)
-        return argsJsonFile
+        return argsJsonFile.get().asFile.apply {
+            writeText(json)
+        }
     }
 
     /**
@@ -235,7 +248,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
      * exact match of the version metadata attributes to be selected as version metadata.
      */
     private fun checkVersionMetadataFiles(): List<File> {
-        val (json, nonJson) = versionMetadataFiles.get().partition { it.extension == "json" }
+        val (json, nonJson) = versionMetadataFiles.files.partition { it.extension == "json" }
         if (nonJson.isNotEmpty()) {
             logger.error(
                 "The following were resolved as version metadata files but are not JSON files. " +

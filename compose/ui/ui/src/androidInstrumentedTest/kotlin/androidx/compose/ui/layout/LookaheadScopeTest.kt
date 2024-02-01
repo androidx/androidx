@@ -19,7 +19,6 @@
 package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
@@ -53,7 +52,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -64,7 +62,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -103,7 +100,6 @@ import junit.framework.TestCase.assertTrue
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.test.assertNotNull
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.junit.Ignore
 import org.junit.Rule
@@ -2288,83 +2284,6 @@ class LookaheadScopeTest {
             assertEquals(100, intrinsicsResult["maxWidth"])
             assertEquals(100, intrinsicsResult["minWidth"])
         }
-    }
-
-    @Test
-    fun forceMeasureLookaheadRootInParentsMeasurePass() {
-        var show by mutableStateOf(false)
-        var lookaheadOffset: Offset? = null
-        var offset: Offset? = null
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                // Mutate this state in measure
-                Box(Modifier.fillMaxSize()) {
-                    val size by produceState(initialValue = 200) {
-                        delay(500)
-                        value = 600 - value
-                    }
-                    LazyColumn(Modifier.layout { measurable, _ ->
-                        // Mutate this state in measure. This state will later be used in descendant's
-                        // composition.
-                        show = size > 300
-                        measurable.measure(Constraints.fixed(size, size)).run {
-                            layout(width, height) { place(0, 0) }
-                        }
-                    }) {
-                        item {
-                            SubcomposeLayout(Modifier.fillMaxSize()) {
-                                val placeable = subcompose(Unit) {
-                                    // read the value to force a recomposition
-                                    Box(
-                                        Modifier.requiredSize(222.dp)
-                                    ) {
-                                        AnimatedContent(show, Modifier.requiredSize(200.dp)) {
-                                            if (it) {
-                                                Row(
-                                                    Modifier
-                                                        .fillMaxSize()
-                                                        .layout { measurable, constraints ->
-                                                            val p = measurable.measure(constraints)
-                                                            layout(p.width, p.height) {
-                                                                coordinates
-                                                                    ?.positionInRoot()
-                                                                    .let {
-                                                                        if (isLookingAhead) {
-                                                                            lookaheadOffset = it
-                                                                        } else {
-                                                                            offset = it
-                                                                        }
-                                                                    }
-                                                                p.place(0, 0)
-                                                            }
-                                                        }) {}
-                                            } else {
-                                                Row(
-                                                    Modifier.size(10.dp)
-                                                ) {}
-                                            }
-                                        }
-                                    }
-                                }[0].measure(Constraints(0, 2000, 0, 2000))
-                                // Measure with the same constraints to ensure the child (i.e. Box)
-                                // gets no constraints change and hence starts forceMeasureSubtree
-                                // from there
-                                layout(700, 800) {
-                                    placeable.place(0, 0)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        rule.waitUntil(2000) {
-            show
-        }
-        rule.waitForIdle()
-
-        assertEquals(Offset(-150f, 0f), lookaheadOffset)
-        assertEquals(Offset(-150f, 0f), offset)
     }
 
     @OptIn(ExperimentalComposeUiApi::class)

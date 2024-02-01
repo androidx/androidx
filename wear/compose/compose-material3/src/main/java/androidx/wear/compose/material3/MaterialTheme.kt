@@ -17,12 +17,9 @@ package androidx.wear.compose.material3
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
@@ -55,62 +52,58 @@ import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
  * @param shapes A set of shapes to be used by the components in this hierarchy
  */
 @Composable
-public fun MaterialTheme(
+fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
     content: @Composable () -> Unit
 ) {
-    val rememberedColors = remember {
-        // Explicitly creating a new object here so we don't mutate the initial [colors]
-        // provided, and overwrite the values set in it.
-        colorScheme.copy()
-    }.apply { updateColorSchemeFrom(colorScheme) }
-    val rippleIndication = rememberRipple()
-    val selectionColors = rememberTextSelectionColors(rememberedColors)
+    val rippleIndication = rippleOrFallbackImplementation()
+    val selectionColors = rememberTextSelectionColors(colorScheme)
+    @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
-        LocalColorScheme provides rememberedColors,
+        LocalColorScheme provides colorScheme,
         LocalShapes provides shapes,
         LocalTypography provides typography,
-        LocalContentAlpha provides ContentAlpha.high,
         LocalIndication provides rippleIndication,
-        LocalRippleTheme provides MaterialRippleTheme,
+        // TODO: b/304985887 - remove after one stable release
+        androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalTextSelectionColors provides selectionColors,
-        LocalSwipeToDismissBackgroundScrimColor provides rememberedColors.background,
-        LocalSwipeToDismissContentScrimColor provides rememberedColors.background
+        LocalSwipeToDismissBackgroundScrimColor provides colorScheme.background,
+        LocalSwipeToDismissContentScrimColor provides colorScheme.background
         ) {
         ProvideTextStyle(value = typography.bodyLarge, content = content)
     }
 }
 
-public object MaterialTheme {
-    public val colorScheme: ColorScheme
+object MaterialTheme {
+    val colorScheme: ColorScheme
         @ReadOnlyComposable
         @Composable
         get() = LocalColorScheme.current
 
-    public val typography: Typography
+    val typography: Typography
         @ReadOnlyComposable
         @Composable
         get() = LocalTypography.current
 
-    public val shapes: Shapes
+    val shapes: Shapes
         @ReadOnlyComposable
         @Composable
         get() = LocalShapes.current
 }
 
-@Immutable
-private object MaterialRippleTheme : RippleTheme {
-    @Composable
-    override fun defaultColor() = RippleTheme.defaultRippleColor(
-        contentColor = LocalContentColor.current,
-        lightTheme = false
-    )
-
-    @Composable
-    override fun rippleAlpha() = RippleTheme.defaultRippleAlpha(
-        contentColor = LocalContentColor.current,
-        lightTheme = false
-    )
+@Composable
+/*@VisibleForTesting*/
+internal fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectionColors {
+    val primaryColor = colorScheme.primary
+    return remember(primaryColor) {
+        TextSelectionColors(
+            handleColor = primaryColor,
+            backgroundColor = primaryColor.copy(alpha = TextSelectionBackgroundOpacity),
+        )
+    }
 }
+
+/*@VisibleForTesting*/
+internal const val TextSelectionBackgroundOpacity = 0.4f

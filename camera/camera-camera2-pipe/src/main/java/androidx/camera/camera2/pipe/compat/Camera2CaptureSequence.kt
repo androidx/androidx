@@ -194,17 +194,16 @@ internal class Camera2CaptureSequence(
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
-        val request = readRequestMetadata(requestNumber)
+        val requestMetadata = readRequestMetadata(requestNumber)
 
-        val simpleCaptureFailure = SimpleCaptureFailure(
-            request,
+        val extensionRequestFailure = ExtensionRequestFailure(
+            requestMetadata,
             false,
             frameNumber,
-            CaptureFailure.REASON_ERROR,
-            null
+            CaptureFailure.REASON_ERROR
         )
 
-        invokeCaptureFailure(request, frameNumber, simpleCaptureFailure)
+        invokeCaptureFailure(requestMetadata, frameNumber, extensionRequestFailure)
     }
 
     override fun onCaptureBufferLost(

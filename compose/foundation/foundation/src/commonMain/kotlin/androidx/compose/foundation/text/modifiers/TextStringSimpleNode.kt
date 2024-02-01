@@ -50,10 +50,10 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.clearTextSubstitution
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.isShowingTextSubstitution
-import androidx.compose.ui.semantics.originalText
 import androidx.compose.ui.semantics.setTextSubstitution
 import androidx.compose.ui.semantics.showTextSubstitution
 import androidx.compose.ui.semantics.text
+import androidx.compose.ui.semantics.textSubstitution
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -62,7 +62,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Node that implements Text for [String].
@@ -216,7 +216,7 @@ internal class TextStringSimpleNode(
         var substitution: String,
         var isShowingSubstitution: Boolean = false,
         var layoutCache: ParagraphLayoutCache? = null,
-        // TODO(klikli): add animation
+        // TODO(b/283944749): add animation
     )
 
     private var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
@@ -275,30 +275,26 @@ internal class TextStringSimpleNode(
             semanticsTextLayoutResult = localSemanticsTextLayoutResult
         }
 
-        val currentTextSubstitution = textSubstitution
-        if (currentTextSubstitution == null) {
-            text = AnnotatedString(this@TextStringSimpleNode.text)
-        } else {
+        text = AnnotatedString(this@TextStringSimpleNode.text)
+        val currentTextSubstitution = this@TextStringSimpleNode.textSubstitution
+        if (currentTextSubstitution != null) {
             isShowingTextSubstitution = currentTextSubstitution.isShowingSubstitution
-            if (currentTextSubstitution.isShowingSubstitution) {
-                text = AnnotatedString(currentTextSubstitution.substitution)
-                originalText = AnnotatedString(currentTextSubstitution.original)
-            } else {
-                text = AnnotatedString(currentTextSubstitution.original)
-            }
+            textSubstitution = AnnotatedString(currentTextSubstitution.substitution)
         }
 
         setTextSubstitution { updatedText ->
             setSubstitution(updatedText.text)
+            // TODO: add test to cover the immediate semantics invalidation
+            invalidateSemantics()
 
             true
         }
         showTextSubstitution {
-            if (textSubstitution == null) {
+            if (this@TextStringSimpleNode.textSubstitution == null) {
                 return@showTextSubstitution false
             }
 
-            textSubstitution?.isShowingSubstitution = it
+            this@TextStringSimpleNode.textSubstitution?.isShowingSubstitution = it
 
             invalidateSemantics()
             invalidateMeasurement()
@@ -339,14 +335,14 @@ internal class TextStringSimpleNode(
             if (cache == null) {
                 cache = LinkedHashMap(2)
             }
-            cache[FirstBaseline] = paragraph.firstBaseline.roundToInt()
-            cache[LastBaseline] = paragraph.lastBaseline.roundToInt()
+            cache[FirstBaseline] = paragraph.firstBaseline.fastRoundToInt()
+            cache[LastBaseline] = paragraph.lastBaseline.fastRoundToInt()
             baselineCache = cache
         }
 
         // then allow children to measure _inside_ our final box, with the above placeholders
         val placeable = measurable.measure(
-            Constraints.fixed(
+            Constraints.fixedCoerceHeightAndWidthForBits(
                 layoutSize.width,
                 layoutSize.height
             )
@@ -357,7 +353,6 @@ internal class TextStringSimpleNode(
             layoutSize.height,
             baselineCache!!
         ) {
-            // this is basically a graphicsLayer
             placeable.place(0, 0)
         }
     }

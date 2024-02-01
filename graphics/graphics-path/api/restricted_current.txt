@@ -25,10 +25,10 @@ package androidx.graphics.path {
   }
 
   public final class PathSegment {
-    method public android.graphics.PointF![] getPoints();
+    method public android.graphics.PointF[] getPoints();
     method public androidx.graphics.path.PathSegment.Type getType();
     method public float getWeight();
-    property public final android.graphics.PointF![] points;
+    property public final android.graphics.PointF[] points;
     property public final androidx.graphics.path.PathSegment.Type type;
     property public final float weight;
   }

@@ -16,10 +16,20 @@
 
 package androidx.compose.foundation.anchoredDraggable
 
+import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.FloatDecayAnimationSpec
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorizedAnimationSpec
+import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.B
@@ -61,6 +71,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -96,7 +107,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -143,7 +155,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -211,9 +224,10 @@ class AnchoredDraggableStateTest {
         val frameLengthMillis = 16L
         val state = AnchoredDraggableState(
             initialValue = A,
-            animationSpec = tween(animationDuration, easing = LinearEasing),
+            snapAnimationSpec = tween(animationDuration, easing = LinearEasing),
             positionalThreshold = { distance -> distance * 0.5f },
-            velocityThreshold = defaultVelocityThreshold
+            velocityThreshold = defaultVelocityThreshold,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -277,7 +291,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         rule.setContent {
             WithTouchSlop(touchSlop = 0f) {
@@ -339,7 +354,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -382,12 +398,13 @@ class AnchoredDraggableStateTest {
         val restorationTester = StateRestorationTester(rule)
 
         val initialState = C
-        val animationSpec = tween<Float>(durationMillis = 1000)
+        val snapAnimationSpec = tween<Float>(durationMillis = 1000)
         val state = AnchoredDraggableState(
             initialValue = initialState,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = animationSpec
+            snapAnimationSpec = snapAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         lateinit var scope: CoroutineScope
 
@@ -407,7 +424,7 @@ class AnchoredDraggableStateTest {
         restorationTester.emulateSavedInstanceStateRestore()
 
         assertThat(state.currentValue).isEqualTo(initialState)
-        assertThat(state.animationSpec).isEqualTo(animationSpec)
+        assertThat(state.snapAnimationSpec).isEqualTo(snapAnimationSpec)
 
         scope.launch {
             state.animateTo(B)
@@ -428,7 +445,8 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    snapAnimationSpec = defaultAnimationSpec,
+                    decayAnimationSpec = defaultDecayAnimationSpec
                 )
             }
             LaunchedEffect(state.targetValue) {
@@ -476,7 +494,8 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    snapAnimationSpec = defaultAnimationSpec,
+                    decayAnimationSpec = defaultDecayAnimationSpec
                 )
             }
             LaunchedEffect(state.progress) {
@@ -523,7 +542,8 @@ class AnchoredDraggableStateTest {
             initialValue = B,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         var offset: Float? = null
         rule.setContent {
@@ -575,7 +595,8 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    snapAnimationSpec = defaultAnimationSpec,
+                    decayAnimationSpec = defaultDecayAnimationSpec
                 )
             }
             LaunchedEffect(Unit) {
@@ -596,8 +617,8 @@ class AnchoredDraggableStateTest {
             C at maxBound
         }
 
-        val animationSpec = FloatSpringSpec(dampingRatio = Spring.DampingRatioHighBouncy)
-        val animationDuration = animationSpec.getDurationNanos(
+        val snapAnimationSpec = FloatSpringSpec(dampingRatio = Spring.DampingRatioHighBouncy)
+        val animationDuration = snapAnimationSpec.getDurationNanos(
             initialValue = minBound,
             targetValue = maxBound,
             initialVelocity = 0f
@@ -607,7 +628,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = animationSpec
+            snapAnimationSpec = snapAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         lateinit var scope: CoroutineScope
 
@@ -654,7 +676,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
@@ -668,7 +691,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
@@ -682,7 +706,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
 
         assertThat(anchoredDraggableState.currentValue).isEqualTo(A)
@@ -710,7 +735,8 @@ class AnchoredDraggableStateTest {
             initialValue = 1,
             defaultPositionalThreshold,
             defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
 
         val anchorUpdates = Channel<DraggableAnchors<Int>>()
@@ -748,7 +774,8 @@ class AnchoredDraggableStateTest {
             initialValue = 1,
             defaultPositionalThreshold,
             defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
 
         val anchorUpdates = Channel<DraggableAnchors<Int>>()
@@ -785,7 +812,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             defaultPositionalThreshold,
             defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         anchoredDraggableState.updateAnchors(
             DraggableAnchors {
@@ -831,7 +859,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             defaultPositionalThreshold,
             defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         val cancellationSignal = CompletableDeferred(false)
         val anchoredDragUpdates = Channel<Unit>()
@@ -856,7 +885,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -883,7 +913,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -907,7 +938,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -942,7 +974,8 @@ class AnchoredDraggableStateTest {
             anchors = anchors,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         assertThat(state.anchors).isEqualTo(anchors)
         assertThat(state.offset).isEqualTo(initialValueOffset)
@@ -956,7 +989,8 @@ class AnchoredDraggableStateTest {
             anchors = anchors,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         assertThat(state.anchors).isEqualTo(anchors)
         assertThat(state.offset).isNaN()
@@ -970,13 +1004,14 @@ class AnchoredDraggableStateTest {
                 initialValue = B,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec,
+                snapAnimationSpec = defaultAnimationSpec,
                 confirmValueChange = {
                     if (shouldBlockValueC)
                         it != C // block state value C
                     else
                         true
-                }
+                },
+                decayAnimationSpec = defaultDecayAnimationSpec
             )
             val anchors = DraggableAnchors {
                 A at 0f
@@ -1007,6 +1042,463 @@ class AnchoredDraggableStateTest {
             assertThat(state.currentValue).isNotEqualTo(C)
         }
 
+    @Test
+    fun anchoredDraggable_animateToTarget_ZeroVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = A,
+                velocityThreshold = defaultVelocityThreshold,
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            )
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // dragging across the positionalThreshold to settle at anchor B
+            val delta = distance * positionalThreshold * 1.1f
+            state.dispatchRawDelta(delta)
+            assertThat(state.requireOffset()).isEqualTo(positionOfA + delta)
+
+            state.settle(velocity = 0f)
+
+            assertThat(state.currentValue).isEqualTo(B)
+
+            // since velocity is zero, target animation will be used
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(1)
+        }
+
+    @Test
+    fun anchoredDraggable_animateToTarget_canNotDecayToTarget_positiveVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = A,
+                velocityThreshold = defaultVelocityThreshold,
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec
+            )
+
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // dragging across the positionalThreshold to settle at anchor B
+            val delta = distance * positionalThreshold * 1.1f
+            state.dispatchRawDelta(delta)
+            val newOffset = positionOfA + delta
+            assertThat(state.requireOffset()).isEqualTo(newOffset)
+
+            val velocity = 500f // velocity not high enough to perform decay animation
+            val projectedTarget =
+                decayAnimationSpec.calculateTargetValue(state.requireOffset(), velocity)
+            assertThat(projectedTarget).isLessThan(positionOfB)
+
+            state.settle(velocity)
+            assertThat(state.currentValue).isEqualTo(B)
+
+            // velocity is not enough to perform decay animation, target animation will be used
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(1)
+        }
+
+    @Test
+    fun anchoredDraggable_animateToTarget_canNotDecayToTarget_negativeVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = B,
+                velocityThreshold = defaultVelocityThreshold,
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec
+            )
+
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(B)
+
+            // dragging across the positionalThreshold to settle at anchor A
+            val delta = -distance * positionalThreshold * 1.1f
+            state.dispatchRawDelta(delta)
+            val newOffset = positionOfB + delta
+            assertThat(state.requireOffset()).isEqualTo(newOffset)
+
+            val velocity = -500f // velocity not high enough to perform decay animation
+            val projectedTarget = decayAnimationSpec.calculateTargetValue(newOffset, velocity)
+            assertThat(projectedTarget).isGreaterThan(positionOfA)
+
+            state.settle(velocity)
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // velocity is not enough to perform decay animation, target animation will be used
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(1)
+        }
+
+    @Test
+    fun anchoredDraggable_animateToTarget_canDecayToTarget_positiveVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = A,
+                velocityThreshold = defaultVelocityThreshold,
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec
+            )
+
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // dragging across the positionalThreshold to settle at anchor B
+            val delta = distance * positionalThreshold * 1.1f
+            state.dispatchRawDelta(delta)
+            val newOffset = positionOfA + delta
+            assertThat(state.requireOffset()).isEqualTo(newOffset)
+
+            val velocity = 2000f // velocity high enough to perform decay animation
+            val projectedTarget = decayAnimationSpec.calculateTargetValue(newOffset, velocity)
+            assertThat(projectedTarget).isAtLeast(positionOfB)
+
+            state.settle(velocity)
+            assertThat(state.currentValue).isEqualTo(B)
+
+            // velocity is enough to perform decay animation
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(1)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(0)
+        }
+
+    @Test
+    fun anchoredDraggable_animateToTarget_canDecayToTarget_negativeVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = B,
+                velocityThreshold = defaultVelocityThreshold,
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec
+            )
+
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(B)
+
+            // dragging across the positionalThreshold to settle at anchor A
+            val delta = -distance * positionalThreshold * 1.1f
+            state.dispatchRawDelta(delta)
+            val newOffset = positionOfB + delta
+            assertThat(state.requireOffset()).isEqualTo(newOffset)
+
+            val velocity = -2000f // velocity high enough to perform decay animation
+            val projectedTarget = decayAnimationSpec.calculateTargetValue(newOffset, velocity)
+            assertThat(projectedTarget).isAtMost(positionOfA)
+
+            state.settle(velocity)
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // velocity is not enough to perform decay animation
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(1)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(0)
+        }
+
+    @Test
+    fun anchoredDraggable_dragNotInTheSameDirectionOfTarget_positiveOffset_positiveVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val velocityPx = with(rule.density) { 1000.dp.toPx() }
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = A,
+                velocityThreshold = { velocityPx },
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec
+            )
+
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // dragging but not crossing positional threshold
+            val delta = distance * positionalThreshold * 0.9f
+            state.dispatchRawDelta(delta)
+            val newOffset = positionOfA + delta
+            assertThat(state.requireOffset()).isEqualTo(newOffset)
+
+            // velocity less than the velocityThreshold but enough to perform decay animation
+            val velocity = velocityPx * 0.9f
+            val projectedTarget = decayAnimationSpec.calculateTargetValue(newOffset, velocity)
+            assertThat(projectedTarget).isAtLeast(positionOfB)
+
+            // target anchor did not change (still at A) since velocityThreshold and
+            // positionalThreshold were not crossed.
+            state.settle(velocity)
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // assert that target animation is used, not decay animation because the target anchor
+            // is not in the same direction of the drag (sign of velocity)
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(1)
+        }
+
+    @Test
+    fun anchoredDraggable_dragNotInTheSameDirectionOfTarget_positiveOffset_negativeVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val velocityPx = with(rule.density) { 1000.dp.toPx() }
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = B,
+                velocityThreshold = { velocityPx },
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec
+            )
+
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(B)
+
+            val delta = -distance * positionalThreshold * 0.9f
+            state.dispatchRawDelta(delta)
+            val newOffset = positionOfB + delta
+            assertThat(state.requireOffset()).isEqualTo(newOffset)
+
+            // velocity less than the velocityThreshold but enough to perform decay animation
+            val velocity = -velocityPx * 0.9f
+            val projectedTarget = decayAnimationSpec.calculateTargetValue(newOffset, velocity)
+            assertThat(projectedTarget).isAtMost(positionOfA)
+
+            // target anchor did not change (still at B) since velocityThreshold and
+            // positionalThreshold were not crossed.
+            state.settle(velocity)
+            assertThat(state.currentValue).isEqualTo(B)
+
+            // assert that target animation is used, not decay animation because the target anchor
+            // is not in the same direction of the drag (sign of velocity)
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(1)
+        }
+
+    @Test
+    fun anchoredDraggable_dragNotInTheSameDirectionOfTarget_negativeOffset_negativeVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val velocityPx = with(rule.density) { 500.dp.toPx() }
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = A,
+                velocityThreshold = { velocityPx },
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at -200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec
+            )
+
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(A)
+
+            val delta = -distance * positionalThreshold * 0.9f
+            state.dispatchRawDelta(delta)
+            val newOffset = positionOfA + delta
+            assertThat(state.requireOffset()).isEqualTo(newOffset)
+
+            // velocity less than the velocityThreshold but enough to perform decay animation
+            val velocity = -velocityPx * 0.9f
+            val projectedTarget = decayAnimationSpec.calculateTargetValue(newOffset, velocity)
+            assertThat(projectedTarget).isAtMost(positionOfA)
+
+            // target anchor did not change (still at A) since velocityThreshold and
+            // positionalThreshold were not crossed.
+            state.settle(velocity)
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // assert that target animation is used, not decay animation because the target anchor
+            // is not in the same direction of the drag (sign of velocity)
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(1)
+        }
+
+    @Test
+    fun anchoredDraggable_dragNotInTheSameDirectionOfTarget_negativeOffset_positiveVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            val velocityPx = with(rule.density) { 50.dp.toPx() }
+            val positionalThreshold = 0.5f
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = B,
+                velocityThreshold = { velocityPx },
+                positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at -200f
+                },
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec
+            )
+
+            val positionOfA = state.anchors.positionOf(A)
+            val positionOfB = state.anchors.positionOf(B)
+            val distance = abs(positionOfA - positionOfB)
+
+            assertThat(state.currentValue).isEqualTo(B)
+
+            val delta = distance * positionalThreshold * 0.9f
+            state.dispatchRawDelta(delta)
+            val newOffset = positionOfB + delta
+            assertThat(state.requireOffset()).isEqualTo(newOffset)
+
+            // velocity less than the velocityThreshold but enough to perform decay animation
+            val velocity = velocityPx * 0.9f
+            val projectedTarget = decayAnimationSpec.calculateTargetValue(newOffset, velocity)
+            assertThat(projectedTarget).isAtMost(positionOfA)
+
+            // target anchor did not change (still at B) since velocityThreshold and
+            // positionalThreshold were not crossed.
+            state.settle(velocity)
+            assertThat(state.currentValue).isEqualTo(B)
+
+            // assert that target animation is used, not decay animation because the target anchor
+            // is not in the same direction of the drag (sign of velocity)
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(1)
+        }
+
+    @Test
+    fun anchoredDraggable_settleWhenOffsetEqualsTargetOffset() =
+        runBlocking(AutoTestFrameClock()) {
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = A,
+                positionalThreshold = defaultPositionalThreshold,
+                velocityThreshold = defaultVelocityThreshold,
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec,
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 250f
+                }
+            )
+
+            val positionA = state.anchors.positionOf(A)
+            val positionB = state.anchors.positionOf(B)
+            val distance = abs(positionA - positionB)
+
+            assertThat(state.currentValue).isEqualTo(A)
+            assertThat(state.offset).isEqualTo(positionA)
+
+            state.dispatchRawDelta(distance)
+
+            assertThat(state.offset).isEqualTo(positionB)
+
+            state.settle(velocity = 1000f)
+
+            // Assert that the component settled at positionB (anchor B)
+            assertThat(state.offset).isEqualTo(positionB)
+
+            // since offset == positionB, decay animation is used
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(1)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(0)
+        }
+
     private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
 
     private class HandPumpTestFrameClock : MonotonicFrameClock {
@@ -1021,6 +1513,46 @@ class AnchoredDraggableStateTest {
         }
     }
 
+    private class InspectSpringAnimationSpec(
+        private val animation: AnimationSpec<Float>
+    ) : AnimationSpec<Float> {
+
+        var animationWasExecutions = 0
+
+        override fun <V : AnimationVector> vectorize(
+            converter: TwoWayConverter<Float, V>
+        ): VectorizedAnimationSpec<V> {
+            animationWasExecutions++
+            return animation.vectorize(converter)
+        }
+    }
+
+    private class InspectSplineAnimationSpec(
+        private val splineBasedFloatDecayAnimationSpec: SplineBasedFloatDecayAnimationSpec
+    ) : FloatDecayAnimationSpec by splineBasedFloatDecayAnimationSpec {
+
+        private var valueFromNanosCalls = 0
+        val animationWasExecutions: Int
+            get() = valueFromNanosCalls / 2
+
+        override fun getValueFromNanos(
+            playTimeNanos: Long,
+            initialValue: Float,
+            initialVelocity: Float
+        ): Float {
+
+            if (playTimeNanos == 0L) {
+                valueFromNanosCalls++
+            }
+
+            return splineBasedFloatDecayAnimationSpec.getValueFromNanos(
+                playTimeNanos,
+                initialValue,
+                initialVelocity
+            )
+        }
+    }
+
     private val defaultPositionalThreshold: (totalDistance: Float) -> Float = {
         with(rule.density) { 56.dp.toPx() }
     }
@@ -1028,4 +1560,7 @@ class AnchoredDraggableStateTest {
     private val defaultVelocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } }
 
     private val defaultAnimationSpec = tween<Float>()
+
+    private val defaultDecayAnimationSpec: DecayAnimationSpec<Float> =
+        SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec()
 }

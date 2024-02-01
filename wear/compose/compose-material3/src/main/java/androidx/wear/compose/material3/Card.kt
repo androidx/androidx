@@ -40,8 +40,12 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.CardTokens
+import androidx.wear.compose.material3.tokens.ImageCardTokens
+import androidx.wear.compose.material3.tokens.OutlinedCardTokens
 import androidx.wear.compose.materialcore.ImageWithScrimPainter
 import androidx.wear.compose.materialcore.Text
 
@@ -74,10 +78,10 @@ import androidx.wear.compose.materialcore.Text
  * @param border A BorderStroke object which is used for drawing outlines.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content The main slot for a content of this card
  */
 @Composable
@@ -85,31 +89,25 @@ fun Card(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.large,
+    shape: Shape = CardTokens.Shape.value,
     colors: CardColors = CardDefaults.cardColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    androidx.wear.compose.materialcore.Card(
+    CardImpl(
         onClick = onClick,
+        typography = CardTokens.ContentTypography.value,
         modifier = modifier.minimumInteractiveComponentSize(),
-        border = border,
-        containerPainter = colors.containerPainter,
         enabled = enabled,
-        contentPadding = contentPadding,
+        colors = colors,
+        border = border,
         interactionSource = interactionSource,
-        role = null,
+        contentPadding = contentPadding,
         shape = shape,
-    ) {
-        CompositionLocalProvider(
-            LocalContentColor provides colors.contentColor,
-            LocalTextStyle provides MaterialTheme.typography.bodyLarge,
-        ) {
-            content()
-        }
-    }
+        content = content
+    )
 }
 
 /**
@@ -164,10 +162,10 @@ fun Card(
  * @param border A BorderStroke object which is used for drawing outlines.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
  * [Image] associated with the application.
  * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
@@ -181,11 +179,11 @@ fun AppCard(
     title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.large,
+    shape: Shape = CardTokens.Shape.value,
     colors: CardColors = CardDefaults.cardColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     appImage: @Composable (RowScope.() -> Unit)? = null,
     time: @Composable (RowScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
@@ -200,10 +198,11 @@ fun AppCard(
         contentPadding = contentPadding,
         appImage = appImage?.let { { appImage() } },
         interactionSource = interactionSource,
+        ripple = rippleOrFallbackImplementation(),
         appName = {
             CompositionLocalProvider(
                 LocalContentColor provides colors.appNameColor,
-                LocalTextStyle provides MaterialTheme.typography.labelSmall,
+                LocalTextStyle provides CardTokens.AppNameTypography.value,
             ) {
                 appName()
             }
@@ -212,7 +211,7 @@ fun AppCard(
             {
                 CompositionLocalProvider(
                     LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides MaterialTheme.typography.labelSmall,
+                    LocalTextStyle provides CardTokens.TimeTypography.value,
                 ) {
                     time()
                 }
@@ -221,7 +220,7 @@ fun AppCard(
         title = {
             CompositionLocalProvider(
                 LocalContentColor provides colors.titleColor,
-                LocalTextStyle provides MaterialTheme.typography.titleMedium,
+                LocalTextStyle provides CardTokens.TitleTypography.value,
             ) {
                 title()
             }
@@ -229,7 +228,7 @@ fun AppCard(
         content = {
             CompositionLocalProvider(
                 LocalContentColor provides colors.contentColor,
-                LocalTextStyle provides MaterialTheme.typography.bodyLarge,
+                LocalTextStyle provides CardTokens.ContentTypography.value,
             ) {
                 content()
             }
@@ -289,10 +288,10 @@ fun AppCard(
  * @param border A BorderStroke object which is used for drawing outlines.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content The optional body content of the card. If not provided then title
  * and subtitle are expected to be provided
  */
@@ -304,11 +303,11 @@ fun TitleCard(
     time: @Composable (() -> Unit)? = null,
     subtitle: @Composable (ColumnScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.large,
+    shape: Shape = CardTokens.Shape.value,
     colors: CardColors = CardDefaults.cardColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable (() -> Unit)? = null,
 ) {
     val timeWithTextStyle: @Composable () -> Unit = {
@@ -316,7 +315,7 @@ fun TitleCard(
             CompositionLocalProvider(
                 values = arrayOf(
                     LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides MaterialTheme.typography.labelSmall
+                    LocalTextStyle provides CardTokens.TimeTypography.value
                 ),
                 content = time
             )
@@ -332,7 +331,8 @@ fun TitleCard(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         role = null,
-        shape = shape
+        shape = shape,
+        ripple = rippleOrFallbackImplementation(),
     ) {
         Column {
             if (content == null) {
@@ -345,7 +345,7 @@ fun TitleCard(
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides colors.titleColor,
-                    LocalTextStyle provides MaterialTheme.typography.titleMedium,
+                    LocalTextStyle provides CardTokens.TitleTypography.value,
                 ) {
                     title()
                 }
@@ -358,7 +358,7 @@ fun TitleCard(
                 CompositionLocalProvider(
                     values = arrayOf(
                         LocalContentColor provides colors.contentColor,
-                        LocalTextStyle provides MaterialTheme.typography.bodyLarge
+                        LocalTextStyle provides CardTokens.ContentTypography.value
                     ),
                     content = content
                 )
@@ -367,7 +367,7 @@ fun TitleCard(
                 Spacer(modifier = Modifier.height(if (content != null) 2.dp else 4.dp))
                 CompositionLocalProvider(
                     LocalContentColor provides colors.subtitleColor,
-                    LocalTextStyle provides MaterialTheme.typography.titleMedium
+                    LocalTextStyle provides CardTokens.SubtitleTypography.value
                 ) {
                     subtitle()
                 }
@@ -406,10 +406,10 @@ fun TitleCard(
  * @param border A BorderStroke object which is used for the outline drawing.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content The main slot for a content of this card
  */
 @Composable
@@ -417,15 +417,16 @@ fun OutlinedCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.large,
+    shape: Shape = OutlinedCardTokens.Shape.value,
     colors: CardColors = CardDefaults.outlinedCardColors(),
     border: BorderStroke = CardDefaults.outlinedCardBorder(),
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Card(
+    CardImpl(
         onClick = onClick,
+        typography = OutlinedCardTokens.ContentTypography.value,
         modifier = modifier,
         enabled = enabled,
         colors = colors,
@@ -455,12 +456,12 @@ object CardDefaults {
      */
     @Composable
     fun cardColors(
-        containerColor: Color = MaterialTheme.colorScheme.surface,
-        contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        appNameColor: Color = contentColor,
-        timeColor: Color = contentColor,
-        titleColor: Color = MaterialTheme.colorScheme.onSurface,
-        subtitleColor: Color = MaterialTheme.colorScheme.tertiary,
+        containerColor: Color = CardTokens.ContainerColor.value,
+        contentColor: Color = CardTokens.ContentColor.value,
+        appNameColor: Color = CardTokens.AppNameColor.value,
+        timeColor: Color = CardTokens.TimeColor.value,
+        titleColor: Color = CardTokens.TitleColor.value,
+        subtitleColor: Color = CardTokens.SubtitleColor.value,
     ): CardColors = CardColors(
         containerPainter = remember(containerColor) { ColorPainter(containerColor) },
         contentColor = contentColor,
@@ -482,11 +483,11 @@ object CardDefaults {
      */
     @Composable
     fun outlinedCardColors(
-        contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        appNameColor: Color = contentColor,
-        timeColor: Color = contentColor,
-        titleColor: Color = MaterialTheme.colorScheme.onSurface,
-        subtitleColor: Color = MaterialTheme.colorScheme.tertiary
+        contentColor: Color = OutlinedCardTokens.ContentColor.value,
+        appNameColor: Color = OutlinedCardTokens.AppNameColor.value,
+        timeColor: Color = OutlinedCardTokens.TimeColor.value,
+        titleColor: Color = OutlinedCardTokens.TitleColor.value,
+        subtitleColor: Color = OutlinedCardTokens.SubtitleColor.value
     ): CardColors = CardColors(
         containerPainter = remember { ColorPainter(Color.Transparent) },
         contentColor = contentColor,
@@ -510,11 +511,11 @@ object CardDefaults {
     @Composable
     fun imageCardColors(
         containerPainter: Painter,
-        contentColor: Color = MaterialTheme.colorScheme.onBackground,
-        appNameColor: Color = contentColor,
-        timeColor: Color = contentColor,
-        titleColor: Color = contentColor,
-        subtitleColor: Color = MaterialTheme.colorScheme.tertiary
+        contentColor: Color = ImageCardTokens.ContentColor.value,
+        appNameColor: Color = ImageCardTokens.AppNameColor.value,
+        timeColor: Color = ImageCardTokens.TimeColor.value,
+        titleColor: Color = ImageCardTokens.TitleColor.value,
+        subtitleColor: Color = ImageCardTokens.SubtitleColor.value
     ): CardColors = CardColors(
         containerPainter = containerPainter,
         contentColor = contentColor,
@@ -555,8 +556,8 @@ object CardDefaults {
      */
     @Composable
     fun outlinedCardBorder(
-        outlineColor: Color = MaterialTheme.colorScheme.outline,
-        borderWidth: Dp = 1.dp
+        outlineColor: Color = OutlinedCardTokens.ContainerBorderColor.value,
+        borderWidth: Dp = OutlinedCardTokens.BorderWidth
     ): BorderStroke =
         BorderStroke(borderWidth, outlineColor)
 
@@ -578,7 +579,7 @@ object CardDefaults {
     /**
      * The default size of the app icon/image when used inside a [AppCard].
      */
-    val AppImageSize: Dp = 16.dp
+    val AppImageSize: Dp = CardTokens.AppImageSize
 }
 
 /**
@@ -624,5 +625,39 @@ class CardColors(
         result = 31 * result + titleColor.hashCode()
         result = 31 * result + subtitleColor.hashCode()
         return result
+    }
+}
+
+@Composable
+private fun CardImpl(
+    onClick: () -> Unit,
+    typography: TextStyle,
+    modifier: Modifier,
+    enabled: Boolean,
+    shape: Shape,
+    colors: CardColors,
+    border: BorderStroke?,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource?,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    androidx.wear.compose.materialcore.Card(
+        onClick = onClick,
+        modifier = modifier,
+        border = border,
+        containerPainter = colors.containerPainter,
+        enabled = enabled,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+        role = null,
+        shape = shape,
+        ripple = rippleOrFallbackImplementation()
+    ) {
+        CompositionLocalProvider(
+            LocalContentColor provides colors.contentColor,
+            LocalTextStyle provides typography,
+        ) {
+            content()
+        }
     }
 }

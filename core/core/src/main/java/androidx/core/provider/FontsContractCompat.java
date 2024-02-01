@@ -34,7 +34,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.res.ResourcesCompat;
@@ -570,7 +569,6 @@ public class FontsContractCompat {
      */
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @RequiresApi(19)
     public static Map<Uri, ByteBuffer> prepareFontData(
             Context context,
             FontInfo[] fonts,

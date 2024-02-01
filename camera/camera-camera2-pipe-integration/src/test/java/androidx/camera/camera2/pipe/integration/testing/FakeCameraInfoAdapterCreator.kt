@@ -22,6 +22,8 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Range
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraBackendId
+import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
@@ -42,6 +44,8 @@ import androidx.camera.camera2.pipe.integration.impl.State3AControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
+import androidx.camera.camera2.pipe.integration.internal.CameraFovInfo
+import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.util.concurrent.MoreExecutors
@@ -96,6 +100,14 @@ object FakeCameraInfoAdapterCreator {
             cameraId
         ),
         zoomControl: ZoomControl = this.zoomControl,
+        cameraDevices: CameraDevices = FakeCameraDevices(
+            defaultCameraBackendId = CameraBackendId(cameraId.value),
+            concurrentCameraBackendIds = emptySet(),
+            cameraMetadataMap = mapOf(
+                CameraBackendId(cameraId.value) to listOf(cameraProperties.metadata)
+            )
+        )
+
     ): CameraInfoAdapter {
         val fakeUseCaseCamera = FakeUseCaseCamera()
         val fakeStreamConfigurationMap = StreamConfigurationMapCompat(
@@ -135,8 +147,9 @@ object FakeCameraInfoAdapterCreator {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeCameraQuirks,
-            EncoderProfilesProviderAdapter(cameraId.value),
+            EncoderProfilesProviderAdapter(cameraId.value, fakeCameraQuirks.quirks),
             fakeStreamConfigurationMap,
+            CameraFovInfo(cameraDevices, cameraProperties),
         )
     }
 }

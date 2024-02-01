@@ -170,10 +170,8 @@ public final class ResourcesCompat {
             int density, @Nullable Theme theme) throws NotFoundException {
         if (SDK_INT >= 21) {
             return Api21Impl.getDrawableForDensity(res, id, density, theme);
-        } else if (SDK_INT >= 15) {
-            return Api15Impl.getDrawableForDensity(res, id, density);
         } else {
-            return res.getDrawable(id);
+            return res.getDrawableForDensity(id, density);
         }
     }
 
@@ -711,19 +709,6 @@ public final class ResourcesCompat {
                 Theme theme) {
             return resources.getDrawableForDensity(id, density, theme);
         }
-    }
-
-    @RequiresApi(15)
-    static class Api15Impl {
-        private Api15Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static Drawable getDrawableForDensity(Resources resources, int id, int density) {
-            return resources.getDrawableForDensity(id, density);
-        }
-
     }
 
     private ResourcesCompat() {

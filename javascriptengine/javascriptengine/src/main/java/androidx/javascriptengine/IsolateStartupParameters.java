@@ -23,12 +23,13 @@ import androidx.annotation.RequiresFeature;
  * Class used to set startup parameters for {@link JavaScriptIsolate}.
  */
 public final class IsolateStartupParameters {
-    private long mMaxHeapSizeBytes;
+    private long mMaxHeapSizeBytes = AUTOMATIC_MAX_HEAP_SIZE;
     private int mMaxEvaluationReturnSizeBytes = DEFAULT_MAX_EVALUATION_RETURN_SIZE_BYTES;
     /**
-     * Special value for selecting a default heap size limit (which may be device-specific).
+     * Special value for automatically selecting a heap size limit (which may be
+     * device-specific) when the isolate is created. This is the default setting for max heap size.
      */
-    public static final long DEFAULT_MAX_HEAP_SIZE = 0;
+    public static final long AUTOMATIC_MAX_HEAP_SIZE = 0;
     /**
      * Default maximum size in bytes for evaluation returns/errors.
      */
@@ -40,8 +41,9 @@ public final class IsolateStartupParameters {
     /**
      * Sets the max heap size used by the {@link JavaScriptIsolate}.
      * <p>
-     * A heap size of {@link IsolateStartupParameters#DEFAULT_MAX_HEAP_SIZE} indicates to use a
-     * default limit (which may be device-specific).
+     * A setting of {@link IsolateStartupParameters#AUTOMATIC_MAX_HEAP_SIZE} indicates to
+     * automatically chose a limit (which may be device-specific) when the isolate is created. This
+     * is the default.
      * <p>
      * If a value higher than the device-specific maximum heap size limit is supplied, the device's
      * maximum limit will be used as the heap size limit.
@@ -61,7 +63,7 @@ public final class IsolateStartupParameters {
      * exhaustion equally, and may crash the sandbox without attributing the failure to memory
      * exhaustion in a particular isolate.
      *
-     * @param size {@link IsolateStartupParameters#DEFAULT_MAX_HEAP_SIZE} or a heap size limit in
+     * @param size {@link IsolateStartupParameters#AUTOMATIC_MAX_HEAP_SIZE} or a heap size limit in
      *             bytes
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_ISOLATE_MAX_HEAP_SIZE,
@@ -97,11 +99,12 @@ public final class IsolateStartupParameters {
     /**
      * Gets the max heap size used by the {@link JavaScriptIsolate}.
      * <p>
-     * If not set using {@link IsolateStartupParameters#setMaxHeapSizeBytes(long)}, the default
-     * value is {@link IsolateStartupParameters#DEFAULT_MAX_HEAP_SIZE} which indicates a default
-     * limit will be chosen automatically.
+     * The default value is {@link IsolateStartupParameters#AUTOMATIC_MAX_HEAP_SIZE} which
+     * indicates a limit (which may be device-specific) will be chosen automatically when the
+     * isolate is created.
      *
-     * @return {@link IsolateStartupParameters#DEFAULT_MAX_HEAP_SIZE} or a heap size limit in bytes
+     * @return {@link IsolateStartupParameters#AUTOMATIC_MAX_HEAP_SIZE} or a heap size limit in
+     * bytes
      */
     public @IntRange(from = 0) long getMaxHeapSizeBytes() {
         return mMaxHeapSizeBytes;

@@ -58,6 +58,8 @@ import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
+import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
+import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_NON_STREAMING
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_STREAMING
 import androidx.camera.video.VideoOutput.SourceState.INACTIVE
@@ -274,6 +276,13 @@ class RecorderTest(
     fun tearDown() {
         for (recording in recordingsToStop) {
             recording.stop()
+            try {
+                // Wait for recording done to avoid overlapping to next recording test.
+                // Overlapping recording tests may lead to uncertainty and flaky-ness.
+                recording.listener.verifyFinalize(inOrder = false)
+            } catch (e: AssertionError) {
+                // Ignored.
+            }
         }
 
         if (this::cameraUseCaseAdapter.isInitialized) {
@@ -737,6 +746,8 @@ class RecorderTest(
 
     @Test
     fun stop_WhenUseCaseDetached() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         // Arrange.
         val recording = createRecordingProcess()
 
@@ -1011,6 +1022,31 @@ class RecorderTest(
         }
     }
 
+    @Test
+    fun defaultVideoCapabilitiesSource() {
+        val recorder = createRecorder()
+
+        assertThat(recorder.videoCapabilitiesSource)
+            .isEqualTo(VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE)
+    }
+
+    @Test
+    fun canSetVideoCapabilitiesSource() {
+        val recorder = createRecorder(
+            videoCapabilitiesSource = VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
+        )
+
+        assertThat(recorder.videoCapabilitiesSource)
+            .isEqualTo(VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES)
+    }
+
+    @Test
+    fun setNonSupportedVideoCapabilitiesSource_throwException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            createRecorder(videoCapabilitiesSource = Integer.MAX_VALUE)
+        }
+    }
+
     private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(targetBitrate: Int) {
         // Arrange.
         val recorder = createRecorder(targetBitrate = targetBitrate)
@@ -1045,6 +1081,7 @@ class RecorderTest(
         sendSurfaceRequest: Boolean = true,
         initSourceState: VideoOutput.SourceState = ACTIVE_STREAMING,
         qualitySelector: QualitySelector? = null,
+        videoCapabilitiesSource: Int? = null,
         executor: Executor? = null,
         videoEncoderFactory: EncoderFactory? = null,
         audioEncoderFactory: EncoderFactory? = null,
@@ -1052,6 +1089,7 @@ class RecorderTest(
     ): Recorder {
         val recorder = Recorder.Builder().apply {
             qualitySelector?.let { setQualitySelector(it) }
+            videoCapabilitiesSource?.let { setVideoCapabilitiesSource(it) }
             executor?.let { setExecutor(it) }
             videoEncoderFactory?.let { setVideoEncoderFactory(it) }
             audioEncoderFactory?.let { setAudioEncoderFactory(it) }
@@ -1217,17 +1255,16 @@ class RecorderTest(
         MediaMetadataRetriever().useAndRelease {
             it.setDataSource(context, uri)
             // Only test on mp4 output format, others will be ignored.
-            val mime = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+            val mime = it.getMimeType()
             assumeTrue(
                 "Unsupported mime = $mime",
                 "video/mp4".equals(mime, ignoreCase = true)
             )
-            val value = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
-            assertThat(value).isNotNull()
+            val value = it.getLocation()
             // ex: (90, 180) => "+90.0000+180.0000/" (ISO-6709 standard)
             val matchGroup =
                 "([+-]?[0-9]+(\\.[0-9]+)?)([+-]?[0-9]+(\\.[0-9]+)?)".toRegex()
-                    .find(value!!) ?: fail("Fail on checking location metadata: $value")
+                    .find(value) ?: fail("Fail on checking location metadata: $value")
             val lat = matchGroup.groupValues[1].toDouble()
             val lon = matchGroup.groupValues[3].toDouble()
 
@@ -1244,10 +1281,9 @@ class RecorderTest(
     private fun checkDurationAtMost(uri: Uri, duration: Long) {
         MediaMetadataRetriever().useAndRelease {
             it.setDataSource(context, uri)
-            val durationFromFile = it.getDuration()
+            val durationFromFile = it.getDurationMs()
 
-            assertThat(durationFromFile).isNotNull()
-            assertThat(durationFromFile!!).isAtMost(duration)
+            assertThat(durationFromFile).isAtMost(duration)
         }
     }
 

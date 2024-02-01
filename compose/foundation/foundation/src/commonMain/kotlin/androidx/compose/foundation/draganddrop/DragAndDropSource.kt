@@ -18,9 +18,8 @@ package androidx.compose.foundation.draganddrop
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropInfo
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
-import androidx.compose.ui.draganddrop.DragAndDropTransfer
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
@@ -38,10 +37,10 @@ import androidx.compose.ui.unit.toSize
 @ExperimentalFoundationApi
 interface DragAndDropSourceScope : PointerInputScope {
     /**
-     * Starts a drag and drop session with [transfer] as the data to be transferred on gesture
+     * Starts a drag and drop session with [transferData] as the data to be transferred on gesture
      * completion
      */
-    fun startTransfer(transfer: DragAndDropTransfer)
+    fun startTransfer(transferData: DragAndDropTransferData)
 }
 
 /**
@@ -51,7 +50,7 @@ interface DragAndDropSourceScope : PointerInputScope {
  * Learn how to use [Modifier.dragAndDropSource] while providing a custom drag shadow:
  * @sample androidx.compose.foundation.samples.DragAndDropSourceWithColoredDragShadowSample
  *
- * @param onDrawDragShadow provides the visual representation of the item dragged during the
+ * @param drawDragDecoration provides the visual representation of the item dragged during the
  * drag and drop gesture.
  * @param block A lambda with a [DragAndDropSourceScope] as a receiver
  * which provides a [PointerInputScope] to detect the drag gesture, after which a drag and drop
@@ -60,10 +59,10 @@ interface DragAndDropSourceScope : PointerInputScope {
  */
 @ExperimentalFoundationApi
 fun Modifier.dragAndDropSource(
-    onDrawDragShadow: DrawScope.() -> Unit,
+    drawDragDecoration: DrawScope.() -> Unit,
     block: suspend DragAndDropSourceScope.() -> Unit
 ): Modifier = this then DragAndDropSourceElement(
-    onDrawDragShadow = onDrawDragShadow,
+    drawDragDecoration = drawDragDecoration,
     dragAndDropSourceHandler = block,
 )
 
@@ -72,32 +71,32 @@ private data class DragAndDropSourceElement(
     /**
      * @see Modifier.dragAndDropSource
      */
-    val onDrawDragShadow: DrawScope.() -> Unit,
+    val drawDragDecoration: DrawScope.() -> Unit,
     /**
      * @see Modifier.dragAndDropSource
      */
     val dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit
 ) : ModifierNodeElement<DragAndDropSourceNode>() {
     override fun create() = DragAndDropSourceNode(
-        onDrawDragShadow = onDrawDragShadow,
+        drawDragDecoration = drawDragDecoration,
         dragAndDropSourceHandler = dragAndDropSourceHandler,
     )
 
     override fun update(node: DragAndDropSourceNode) = with(node) {
-        onDrawDragShadow = this@DragAndDropSourceElement.onDrawDragShadow
+        drawDragDecoration = this@DragAndDropSourceElement.drawDragDecoration
         dragAndDropSourceHandler = this@DragAndDropSourceElement.dragAndDropSourceHandler
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "dragSource"
-        properties["onDrawDragShadow"] = onDrawDragShadow
+        properties["drawDragDecoration"] = drawDragDecoration
         properties["dragAndDropSourceHandler"] = dragAndDropSourceHandler
     }
 }
 
 @ExperimentalFoundationApi
 internal class DragAndDropSourceNode(
-    var onDrawDragShadow: DrawScope.() -> Unit,
+    var drawDragDecoration: DrawScope.() -> Unit,
     var dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit
 ) : DelegatingNode(),
     LayoutAwareModifierNode {
@@ -113,13 +112,11 @@ internal class DragAndDropSourceNode(
             SuspendingPointerInputModifierNode {
                 dragAndDropSourceHandler(
                     object : DragAndDropSourceScope, PointerInputScope by this {
-                        override fun startTransfer(transfer: DragAndDropTransfer) =
+                        override fun startTransfer(transferData: DragAndDropTransferData) =
                             dragAndDropModifierNode.drag(
-                                DragAndDropInfo(
-                                    transfer = transfer,
-                                    size = size.toSize(),
-                                    onDrawDragShadow = onDrawDragShadow
-                                )
+                                transferData = transferData,
+                                decorationSize = size.toSize(),
+                                drawDragDecoration = drawDragDecoration
                             )
                     }
                 )

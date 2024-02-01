@@ -43,12 +43,6 @@ unset ANDROID_BUILD_TOP
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 
-if [[ " ${@} " =~ " -PupdateLintBaseline " ]]; then
-  # remove when b/188666845 is complete
-  # Inform lint to not fail even when creating a baseline file
-  JAVA_OPTS="$JAVA_OPTS -Dlint.baselines.continue=true"
-fi
-
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`
 
@@ -120,7 +114,6 @@ fi
 export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
 # override JAVA_HOME, because CI machines have it and it points to very old JDK
 export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk17/$plat-$platform_suffix"
-export JAVA_TOOLS_JAR="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86/lib/tools.jar"
 export STUDIO_GRADLE_JDK=$JAVA_HOME
 
 # Warn developers if they try to build top level project without the full checkout
@@ -264,6 +257,7 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
        --stacktrace\
        -Pandroidx.summarizeStderr\
        -Pandroidx.enableAffectedModuleDetection\
+       -Pandroidx.printTimestamps\
        --no-watch-fs\
        -Pandroidx.highMemory"
     fi
@@ -309,14 +303,26 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   fi
 done
 
+raiseMemory=false
 if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
-    #Set the initial heap size to match the max heap size,
-    #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
-    MAX_MEM=32g
-    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
+    raiseMemory=true
+fi
+if [[ " ${@} " =~ " -Pandroidx.lowMemory " ]]; then
+  if [ "$raiseMemory" == "true" ]; then
+    echo "androidx.lowMemory overriding androidx.highMemory"
+    echo
+  fi
+  raiseMemory=false
+fi
 
-    # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
-    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
+if [ "$raiseMemory" == "true" ]; then
+  # Set the initial heap size to match the max heap size,
+  # by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
+  MAX_MEM=32g
+  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
+
+  # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
+  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
 fi
 
 # check whether the user has requested profiling via yourkit
@@ -403,6 +409,9 @@ function runGradle() {
     processOutput=true
   fi
   if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
+    processOutput=true
+  fi
+  if [[ "${@} " =~ " -Pandroidx.printTimestamps " ]]; then
     processOutput=true
   fi
   if [ "$processOutput" == "true" ]; then

@@ -17,7 +17,9 @@
 package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.unit.Constraints
 
 /**
@@ -26,11 +28,14 @@ import androidx.compose.ui.unit.Constraints
  * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy
  * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
  * change.
+ *
+ * @param prefetchExecutor the PrefetchExecutor implementation to use to execute prefetch requests.
+ * If null is provided, the default PrefetchExecutor for the platform will be used.
  */
 @ExperimentalFoundationApi
 @Stable
-class LazyLayoutPrefetchState {
-    internal var prefetcher: Prefetcher? = null
+class LazyLayoutPrefetchState(internal val prefetchExecutor: PrefetchExecutor? = null) {
+    internal var prefetchHandleProvider: PrefetchHandleProvider? = null
 
     /**
      * Schedules precomposition and premeasure for the new item.
@@ -39,7 +44,7 @@ class LazyLayoutPrefetchState {
      * @param constraints [Constraints] to use for premeasuring.
      */
     fun schedulePrefetch(index: Int, constraints: Constraints): PrefetchHandle {
-        return prefetcher?.schedulePrefetch(index, constraints) ?: DummyHandle
+        return prefetchHandleProvider?.schedulePrefetch(index, constraints) ?: DummyHandle
     }
 
     sealed interface PrefetchHandle {
@@ -49,13 +54,84 @@ class LazyLayoutPrefetchState {
          */
         fun cancel()
     }
-
-    internal interface Prefetcher {
-        fun schedulePrefetch(index: Int, constraints: Constraints): PrefetchHandle
-    }
 }
 
 @ExperimentalFoundationApi
-private object DummyHandle : LazyLayoutPrefetchState.PrefetchHandle {
+private object DummyHandle : PrefetchHandle {
     override fun cancel() {}
+}
+
+/**
+ * PrefetchHandleProvider is used to connect the [LazyLayoutPrefetchState], which provides the API
+ * to schedule prefetches, to a [LazyLayoutItemContentFactory] which resolves key and content from
+ * an index, [SubcomposeLayoutState] which knows how to precompose/premeasure,
+ * and a specific [PrefetchExecutor] used to execute a request.
+ */
+@ExperimentalFoundationApi
+internal class PrefetchHandleProvider(
+    private val itemContentFactory: LazyLayoutItemContentFactory,
+    private val subcomposeLayoutState: SubcomposeLayoutState,
+    private val executor: PrefetchExecutor
+) {
+    fun schedulePrefetch(index: Int, constraints: Constraints): PrefetchHandle =
+        HandleAndRequestImpl(index, constraints).also {
+            executor.requestPrefetch(it)
+        }
+
+    @ExperimentalFoundationApi
+    private inner class HandleAndRequestImpl(
+        private val index: Int,
+        private val constraints: Constraints
+    ) : PrefetchHandle, PrefetchExecutor.Request {
+
+        private var precomposeHandle: SubcomposeLayoutState.PrecomposedSlotHandle? = null
+        private var isMeasured = false
+        private var isCanceled = false
+
+        override val isValid: Boolean
+            get() = !isCanceled &&
+                index in 0 until itemContentFactory.itemProvider().itemCount
+
+        override val isComposed get() = precomposeHandle != null
+
+        override fun cancel() {
+            if (!isCanceled) {
+                isCanceled = true
+                precomposeHandle?.dispose()
+                precomposeHandle = null
+            }
+        }
+
+        override fun performComposition() {
+            require(isValid) {
+                "Callers should check whether the request is still valid before calling " +
+                    "performComposition()"
+            }
+            require(precomposeHandle == null) { "Request was already composed!" }
+            val itemProvider = itemContentFactory.itemProvider()
+            val key = itemProvider.getKey(index)
+            val contentType = itemProvider.getContentType(index)
+            val content = itemContentFactory.getContent(index, key, contentType)
+            precomposeHandle = subcomposeLayoutState.precompose(key, content)
+        }
+
+        override fun performMeasure() {
+            require(!isCanceled) {
+                "Callers should check whether the request is still valid before calling " +
+                    "performMeasure()"
+            }
+            require(!isMeasured) { "Request was already measured!" }
+            isMeasured = true
+            val handle = requireNotNull(precomposeHandle) {
+                "performComposition() must be called before performMeasure()"
+            }
+            repeat(handle.placeablesCount) { placeableIndex ->
+                handle.premeasure(placeableIndex, constraints)
+            }
+        }
+
+        override fun toString(): String =
+            "HandleAndRequestImpl { index = $index, constraints = $constraints, " +
+                "isComposed = $isComposed, isMeasured = $isMeasured, isCanceled = $isCanceled }"
+    }
 }

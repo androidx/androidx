@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -187,7 +188,7 @@ private fun ArrowValues(progress: Float): ArrowValues {
     // How far beyond the threshold pull has gone, as a percentage of the threshold.
     val overshootPercent = abs(progress) - 1.0f
     // Limit the overshoot to 200%. Linear between 0 and 200.
-    val linearTension = overshootPercent.coerceIn(0f, 2f)
+    val linearTension = overshootPercent.fastCoerceIn(0f, 2f)
     // Non-linear tension. Increases with linearTension, but at a decreasing rate.
     val tensionPercent = linearTension - linearTension.pow(2) / 4
 

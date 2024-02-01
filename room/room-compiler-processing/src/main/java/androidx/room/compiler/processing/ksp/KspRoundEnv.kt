@@ -29,9 +29,11 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import kotlin.reflect.KClass
 
 internal class KspRoundEnv(
-    private val env: KspProcessingEnv,
-    override val isProcessingOver: Boolean
+    private val env: KspProcessingEnv?, // null on last round (i.e. isProcessingOver == true)
 ) : XRoundEnv {
+    override val isProcessingOver: Boolean
+        get() = env == null
+
     override val rootElements: Set<XElement>
         get() = TODO("not supported")
 
@@ -46,6 +48,10 @@ internal class KspRoundEnv(
         if (annotationQualifiedName == "*") {
             return emptySet()
         }
+        if (isProcessingOver) {
+            return emptySet()
+        }
+        checkNotNull(env)
         return buildSet {
             env.resolver.getSymbolsWithAnnotation(annotationQualifiedName)
                 .forEach { symbol ->

@@ -22,11 +22,21 @@ import androidx.concurrent.futures.await
 
 /**
  * Provides a suspending function of [CameraViewfinder.requestSurfaceAsync] to request
- * a [Surface] by sending a [ViewfinderSurfaceRequest].
+ * a [Surface] by sending a [androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest].
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 object CameraViewfinderExt {
+
+    @Suppress("DEPRECATION")
+    @Deprecated(message = "Use androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest " +
+        "as argument",
+        replaceWith = ReplaceWith("requestSurface using " +
+            "androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest"))
     suspend fun CameraViewfinder.requestSurface(
         viewfinderSurfaceRequest: ViewfinderSurfaceRequest
+    ): Surface = requestSurfaceAsync(viewfinderSurfaceRequest).await()
+
+    suspend fun CameraViewfinder.requestSurface(
+        viewfinderSurfaceRequest: androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest
     ): Surface = requestSurfaceAsync(viewfinderSurfaceRequest).await()
 }

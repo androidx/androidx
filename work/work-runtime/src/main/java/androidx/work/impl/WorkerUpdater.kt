@@ -21,15 +21,15 @@ import androidx.annotation.RestrictTo
 import androidx.work.Configuration
 import androidx.work.ExistingWorkPolicy
 import androidx.work.Operation
-import androidx.work.Operation.State.FAILURE
 import androidx.work.WorkInfo
 import androidx.work.WorkManager.UpdateResult
 import androidx.work.WorkManager.UpdateResult.APPLIED_FOR_NEXT_RUN
 import androidx.work.WorkRequest
+import androidx.work.executeAsync
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.EnqueueRunnable
-import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.wrapInConstraintTrackingWorkerIfNeeded
+import androidx.work.launchOperation
 import com.google.common.util.concurrent.ListenableFuture
 
 private fun updateWorkImpl(
@@ -90,20 +90,12 @@ private fun updateWorkImpl(
 internal fun WorkManagerImpl.updateWorkImpl(
     workRequest: WorkRequest
 ): ListenableFuture<UpdateResult> {
-    val future = SettableFuture.create<UpdateResult>()
-    workTaskExecutor.serialTaskExecutor.execute {
-        if (future.isCancelled) return@execute
-        try {
-            val result = updateWorkImpl(
-                processor, workDatabase,
-                configuration, schedulers, workRequest.workSpec, workRequest.tags
-            )
-            future.set(result)
-        } catch (e: Throwable) {
-            future.setException(e)
-        }
+    return workTaskExecutor.serialTaskExecutor.executeAsync("updateWorkImpl") {
+        updateWorkImpl(
+            processor, workDatabase,
+            configuration, schedulers, workRequest.workSpec, workRequest.tags
+        )
     }
-    return future
 }
 
 /**
@@ -113,58 +105,41 @@ internal fun WorkManagerImpl.updateWorkImpl(
 fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(
     name: String,
     workRequest: WorkRequest,
-): Operation {
-    val operation = OperationImpl()
+): Operation = launchOperation(workTaskExecutor.serialTaskExecutor) {
     val enqueueNew = {
         val requests = listOf(workRequest)
         val continuation = WorkContinuationImpl(this, name, ExistingWorkPolicy.KEEP, requests)
-        EnqueueRunnable(continuation, operation).run()
+        EnqueueRunnable.enqueue(continuation)
     }
-    workTaskExecutor.serialTaskExecutor.execute {
-        val workSpecDao = workDatabase.workSpecDao()
-        val idAndStates = workSpecDao.getWorkSpecIdAndStatesForName(name)
-        if (idAndStates.size > 1) {
-            operation.failWorkTypeChanged("Can't apply UPDATE policy to the chains of work.")
-            return@execute
-        }
-        val current = idAndStates.firstOrNull()
-        if (current == null) {
-            enqueueNew()
-            return@execute
-        }
-        val spec = workSpecDao.getWorkSpec(current.id)
-        if (spec == null) {
-            operation.markState(
-                FAILURE(
-                    IllegalStateException("WorkSpec with ${current.id}, that matches a " +
-                        "name \"$name\", wasn't found")
-                )
-            )
-            return@execute
-        }
-        if (!spec.isPeriodic) {
-            operation.failWorkTypeChanged("Can't update OneTimeWorker to Periodic Worker. " +
-                "Update operation must preserve worker's type.")
-            return@execute
-        }
-        if (current.state == WorkInfo.State.CANCELLED) {
-            workSpecDao.delete(current.id)
-            enqueueNew()
-            return@execute
-        }
-        val newWorkSpec = workRequest.workSpec.copy(id = current.id)
-        try {
-            updateWorkImpl(
-                processor, workDatabase, configuration, schedulers, newWorkSpec, workRequest.tags
-            )
-            operation.markState(Operation.SUCCESS)
-        } catch (e: Throwable) {
-            operation.markState(FAILURE(e))
-        }
-    }
-    return operation
-}
 
-private fun OperationImpl.failWorkTypeChanged(message: String) = markState(
-    FAILURE(UnsupportedOperationException(message))
-)
+    val workSpecDao = workDatabase.workSpecDao()
+    val idAndStates = workSpecDao.getWorkSpecIdAndStatesForName(name)
+    if (idAndStates.size > 1)
+        throw UnsupportedOperationException("Can't apply UPDATE policy to the chains of work.")
+
+    val current = idAndStates.firstOrNull()
+    if (current == null) {
+        enqueueNew()
+        return@launchOperation
+    }
+    val spec = workSpecDao.getWorkSpec(current.id)
+        ?: throw IllegalStateException(
+            "WorkSpec with ${current.id}, that matches a " +
+                "name \"$name\", wasn't found"
+        )
+
+    if (!spec.isPeriodic) throw UnsupportedOperationException(
+        "Can't update OneTimeWorker to Periodic Worker. " +
+            "Update operation must preserve worker's type."
+    )
+
+    if (current.state == WorkInfo.State.CANCELLED) {
+        workSpecDao.delete(current.id)
+        enqueueNew()
+        return@launchOperation
+    }
+    val newWorkSpec = workRequest.workSpec.copy(id = current.id)
+    updateWorkImpl(
+        processor, workDatabase, configuration, schedulers, newWorkSpec, workRequest.tags
+    )
+}

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
@@ -46,8 +53,16 @@ androidXMultiplatform {
             }
         }
 
+        commonJvmMain {
+            dependsOn(commonMain)
+        }
+
+        jvmMain {
+            dependsOn(commonJvmMain)
+        }
+
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonJvmMain)
         }
 
         commonTest {
@@ -59,15 +74,19 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
+        commonJvmTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
             }
         }
 
+        jvmTest {
+            dependsOn(commonJvmTest)
+        }
+
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.testRunner)
             }

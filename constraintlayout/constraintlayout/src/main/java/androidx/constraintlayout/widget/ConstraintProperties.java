@@ -1043,9 +1043,7 @@ public class ConstraintProperties {
                     throw new IllegalArgumentException("right to "
                             + sideToString(endSide) + " undefined");
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    mParams.setMarginStart(margin);
-                }
+                mParams.setMarginStart(margin);
                 break;
             case END:
                 if (endSide == END) {
@@ -1058,10 +1056,7 @@ public class ConstraintProperties {
                     throw new IllegalArgumentException("right to "
                             + sideToString(endSide) + " undefined");
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-
-                    mParams.setMarginEnd(margin);
-                }
+                mParams.setMarginEnd(margin);
 
                 break;
             default:

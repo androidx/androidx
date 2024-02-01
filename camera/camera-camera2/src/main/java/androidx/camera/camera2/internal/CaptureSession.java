@@ -319,7 +319,7 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     SessionConfigurationCompat sessionConfigCompat =
                             mSessionOpener.createSessionConfigurationCompat(
-                                    SessionConfigurationCompat.SESSION_REGULAR, outputConfigList,
+                                    sessionConfig.getSessionType(), outputConfigList,
                                     callbacks);
 
                     if (sessionConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
@@ -626,7 +626,7 @@ final class CaptureSession implements CaptureSessionInterface {
                 Logger.d(TAG, "Issuing request for session.");
                 CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                         captureConfig, mSynchronizedCaptureSession.getDevice(),
-                        mConfiguredSurfaceMap);
+                        mConfiguredSurfaceMap, true);
                 if (captureRequest == null) {
                     Logger.d(TAG, "Skipping issuing empty request for session.");
                     return -1;
@@ -733,7 +733,7 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                             captureConfigBuilder.build(), mSynchronizedCaptureSession.getDevice(),
-                            mConfiguredSurfaceMap);
+                            mConfiguredSurfaceMap, false);
                     if (captureRequest == null) {
                         Logger.d(TAG, "Skipping issuing request without surface.");
                         return -1;
@@ -853,7 +853,7 @@ final class CaptureSession implements CaptureSessionInterface {
             for (CaptureConfig captureConfig : captureConfigs) {
                 for (CameraCaptureCallback cameraCaptureCallback :
                         captureConfig.getCameraCaptureCallbacks()) {
-                    cameraCaptureCallback.onCaptureCancelled();
+                    cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
                 }
             }
         }

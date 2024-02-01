@@ -320,6 +320,18 @@ constructor(
                 return false
             }
             return when (errorCode) {
+                CameraError.ERROR_UNDETERMINED ->
+                    // The error indicates that the camera has encountered an undetermined error
+                    // while the camera is being opened [1].
+                    //
+                    // This is an error that will be later informed through onError() [2], and will
+                    // be returned as an actual error if the second camera open attempt also fails.
+                    //
+                    // [1] b/307411676 - IllegalArgumentException at
+                    //                   CameraStateAdapter$Companion.toCameraStateError
+                    // [2] https://developer.android.com/reference/android/hardware/camera2/CameraDevice.StateCallback#onError(android.hardware.camera2.CameraDevice,%20int)
+                    attempts <= 1
+
                 CameraError.ERROR_CAMERA_IN_USE ->
                     // The error indicates that camera is in use, possibly by an app with higher
                     // priority [1].
@@ -373,6 +385,19 @@ constructor(
                     //                   is on.
                     false
 
+                CameraError.ERROR_UNKNOWN_EXCEPTION ->
+                    // The error indicates that an unknown (undocumented) Exception has been thrown
+                    // during the CameraManager.openCamera() call [1].
+                    //
+                    // The documentation states that only CameraAccessException,
+                    // IllegalArgumentException and SecurityException can be thrown [2]. However, it
+                    // seems that other Exceptions can also be thrown from a misbehaving camera HAL.
+                    //
+                    // [1] b/307387400 - Invalid (undocumented) exception during
+                    //                   CameraManager.openCamera()
+                    // [2] https://developer.android.com/reference/android/hardware/camera2/CameraManager#openCamera(java.lang.String,%20java.util.concurrent.Executor,%20android.hardware.camera2.CameraDevice.StateCallback)
+                    attempts <= 1
+
                 else -> {
                     Log.error { "Unexpected CameraError: $this" }
                     false
@@ -393,10 +418,10 @@ constructor(
             activeResumeActivated: Boolean,
             cameraOpenRetryMaxTimeoutNs: DurationNs? = null
         ) = if (!activeResumeActivated) {
-                min(defaultCameraRetryTimeoutNs, cameraOpenRetryMaxTimeoutNs)
-            } else {
-                min(activeResumeCameraRetryTimeoutNs, cameraOpenRetryMaxTimeoutNs)
-            }
+            min(defaultCameraRetryTimeoutNs, cameraOpenRetryMaxTimeoutNs)
+        } else {
+            min(activeResumeCameraRetryTimeoutNs, cameraOpenRetryMaxTimeoutNs)
+        }
 
         internal fun getRetryDelayMs(elapsedNs: DurationNs, activeResumeActivated: Boolean): Long {
             if (!activeResumeActivated) {

@@ -17,12 +17,10 @@
 package androidx.window.extensions;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -32,7 +30,6 @@ public class TestActivity extends Activity implements View.OnLayoutChangeListene
     private CountDownLatch mLayoutLatch = new CountDownLatch(1);
     private static CountDownLatch sResumeLatch = new CountDownLatch(1);
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

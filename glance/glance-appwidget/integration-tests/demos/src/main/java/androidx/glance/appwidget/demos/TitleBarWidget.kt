@@ -17,6 +17,8 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -26,16 +28,15 @@ import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.component.CircleIconButton
-import androidx.glance.appwidget.component.TitleBar
+import androidx.glance.appwidget.components.CircleIconButton
+import androidx.glance.appwidget.components.Scaffold
+import androidx.glance.appwidget.components.TitleBar
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
-import androidx.glance.layout.Box
-import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.padding
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 
 class TitleBarWidgetBroadcastReceiver : GlanceAppWidgetReceiver() {
 
@@ -65,31 +66,45 @@ class TitleBarWidget : GlanceAppWidget() {
             // individual apps should find a size cutoff that works.
             val isNarrow = LocalSize.current.width < 250.dp
 
-            Box(GlanceModifier.fillMaxSize().background(GlanceTheme.colors.surface)) {
-                Column(GlanceModifier.fillMaxSize().padding(16.dp)) {
-                    TitleBar(
-                        startIcon = icStart,
-                        title = if (isNarrow) "" else "Top Bar", // Leaves room for the buttons
-                        contentColor = contentColor
-                    ) {
-                        // Action block should contain icon buttons with a null `backgroundColor`
-                        CircleIconButton(
-                            imageProvider = icAdd,
-                            contentDescription = "Add",
-                            backgroundColor = null,
-                            contentColor = contentColor,
-                            onClick = {})
-                        CircleIconButton(
-                            imageProvider = icPhone,
-                            contentDescription = "Call",
-                            backgroundColor = null,
-                            contentColor = contentColor,
-                            onClick = {})
-                    }
-
-                    Text("Widget content\ngoes here", style = TextStyle(color = contentColor))
+            @Composable
+            fun WidgetTitleBar(modifier: GlanceModifier = GlanceModifier) {
+                TitleBar(
+                    startIcon = icStart,
+                    title = if (isNarrow) "" else "Top Bar", // Leaves room for the buttons
+                    iconColor = contentColor,
+                    textColor = contentColor,
+                    modifier = modifier
+                ) {
+                    // Action block should contain icon buttons with a null `backgroundColor`
+                    CircleIconButton(
+                        imageProvider = icAdd,
+                        contentDescription = "Add",
+                        backgroundColor = null,
+                        contentColor = contentColor,
+                        onClick = {})
+                    CircleIconButton(
+                        imageProvider = icPhone,
+                        contentDescription = "Call",
+                        backgroundColor = null,
+                        contentColor = contentColor,
+                        onClick = {})
                 }
             }
+
+            @Composable
+            fun MainContent(modifier: GlanceModifier = GlanceModifier) {
+                Text(
+                    "This is the content() of the scaffold.\nWidget content goes here...",
+                    style = TextStyle(color = contentColor),
+                    modifier = modifier
+                )
+            }
+
+            Scaffold(
+                backgroundColor = ColorProvider(Color.Yellow),
+                titleBar = { WidgetTitleBar(GlanceModifier.background(Color.Magenta)) },
+                content = { MainContent(GlanceModifier.background(Color.Cyan).fillMaxSize()) }
+            )
         }
     }
 }

@@ -15,7 +15,6 @@
  */
 package androidx.lifecycle
 
-import android.annotation.SuppressLint
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
 import androidx.arch.core.executor.ArchTaskExecutor
@@ -131,7 +130,8 @@ open class LifecycleRegistry private constructor(
             return
         }
         check(!(state == State.INITIALIZED && next == State.DESTROYED)) {
-            "no event down from $state in component ${lifecycleOwner.get()}"
+            "State must be at least CREATED to move to $next, but was $state in component " +
+                "${lifecycleOwner.get()}"
         }
         state = next
         if (handlingEvent || addingObserverCounter != 0) {
@@ -298,7 +298,6 @@ open class LifecycleRegistry private constructor(
         _currentStateFlow.value = currentState
     }
 
-    @SuppressLint("RestrictedApi")
     private fun enforceMainThreadIfNeeded(methodName: String) {
         if (enforceMainThread) {
             check(ArchTaskExecutor.getInstance().isMainThread) {

@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -39,19 +46,22 @@ androidXMultiplatform {
                     implementation(libs.kotlinTestAnnotationsCommon)
                 }
             }
-            iosArm64Main {
+            iosMain {
                 dependsOn(darwinMain)
                 dependencies {
                     api(project(":benchmark:benchmark-darwin-core"))
                 }
             }
+            iosArm64Main {
+                dependsOn(iosMain)
+            }
             iosSimulatorArm64Main {
-                dependsOn(iosArm64Main)
+                dependsOn(iosMain)
             }
             iosX64Main {
-                dependsOn(iosArm64Main)
+                dependsOn(iosMain)
             }
-            targets.all { target ->
+            targets.configureEach { target ->
                 if (target.platformType == KotlinPlatformType.native) {
                     target.compilations["main"].defaultSourceSet {
                         dependsOn(darwinMain)
@@ -59,7 +69,18 @@ androidXMultiplatform {
                     target.compilations["test"].defaultSourceSet {
                         dependsOn(darwinTest)
                     }
+                    target.compilations.configureEach {
+                        compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
+                    }
                 }
+            }
+        }
+    }
+    kotlin.metadata {
+        // KT-63338
+        compilations.matching { it.name == "iosMain" }.configureEach {
+            it.compileTaskProvider.configure {
+                enabled = false
             }
         }
     }

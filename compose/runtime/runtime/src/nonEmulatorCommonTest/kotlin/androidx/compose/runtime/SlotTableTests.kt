@@ -2442,7 +2442,7 @@ class SlotTableTests {
         val slots = testItems()
         val writer = slots.openWriter()
         assertFalse(writer.closed)
-        writer.close()
+        writer.close(true)
         assertTrue(writer.closed)
     }
 
@@ -2952,8 +2952,8 @@ class SlotTableTests {
             it.write { writer ->
                 writer.insert {
                     writer.group(treeRoot) {
-                        repeat(4) {
-                            writer.group(it * 10 + 100) {
+                        repeat(4) { count ->
+                            writer.group(count * 10 + 100) {
                                 repeat(8) { value ->
                                     writer.update(value)
                                 }
@@ -2964,15 +2964,15 @@ class SlotTableTests {
                                 writer.update(value)
                             }
                         }
-                        repeat(2) {
-                            writer.group(it * 10 + 200) {
+                        repeat(2) { count ->
+                            writer.group(count * 10 + 200) {
                                 repeat(8) { value ->
                                     writer.update(value)
                                 }
                             }
                         }
-                        repeat(10) {
-                            writer.group(300 + it) { }
+                        repeat(10) { count ->
+                            writer.group(300 + count) { }
                         }
                     }
                 }
@@ -3796,7 +3796,7 @@ class SlotTableTests {
                 slots.write { writer ->
                     writer.seek(insertAnchor)
                     writer.ensureStarted(0)
-                    writer.group() {
+                    writer.group {
                         writer.insert {
                             writer.group(455) {
                                 writer.nodeGroup(456, 456)
@@ -3827,7 +3827,7 @@ class SlotTableTests {
 
     @Test
     fun canMoveAGroupFromATableIntoAnotherGroup() {
-        val slots = SlotTable()
+        val slots = SlotTable().apply { collectSourceInformation() }
         var insertAnchor = Anchor(-1)
 
         // Create a slot table
@@ -3911,7 +3911,7 @@ class SlotTableTests {
 
     @Test
     fun canReportNonGroupCallInformationDuringWrite() {
-        val slots = SlotTable()
+        val slots = SlotTable().apply { collectSourceInformation() }
         slots.write { writer ->
             writer.insert {
                 writer.group(100) {
@@ -3963,8 +3963,98 @@ class SlotTableTests {
     }
 
     @Test
+    fun reportsGrouplessDataInSourceInformationGroup() {
+        val table = SlotTable().apply {
+            collectSourceInformation()
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200, "C(200)") {
+                                update(201)
+                                update(202)
+                                update(203)
+                                group(300, "C(300)") {
+                                    update(301)
+                                    update(302)
+                                    update(301)
+                                }
+                                grouplessCall(400, "C(400)") {
+                                    update(401)
+                                    update(402)
+                                    update(403)
+                                }
+                                group(500, "C(500)") {
+                                    update(501)
+                                    update(502)
+                                    update(503)
+                                }
+                                grouplessCall(600, "C(600)") {
+                                    update(601)
+                                    grouplessCall(700, "C(700)") {
+                                        update(701)
+                                        update(702)
+                                        update(703)
+                                    }
+                                    update(602)
+                                    grouplessCall(800, "C(800)") {
+                                        update(801)
+                                        update(802)
+                                        update(803)
+                                    }
+                                    update(603)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val expectedTree = SourceGroup.group(100) {
+            group(200, "C(200)") {
+                data(201)
+                data(202)
+                data(203)
+                group(300, "C(300)") {
+                    data(301)
+                    data(302)
+                    data(301)
+                }
+                group(400, "C(400)") {
+                    data(401)
+                    data(402)
+                    data(403)
+                }
+                group(500, "C(500)") {
+                    data(501)
+                    data(502)
+                    data(503)
+                }
+                group(600, "C(600)") {
+                    data(601)
+                    group(700, "C(700)") {
+                        data(701)
+                        data(702)
+                        data(703)
+                    }
+                    data(602)
+                    group(800, "C(800)") {
+                        data(801)
+                        data(802)
+                        data(803)
+                    }
+                    data(603)
+                }
+            }
+        }
+        val receivedTree = SourceGroup.group(table, includeData = true)
+        assertEquals(expectedTree, receivedTree)
+    }
+
+    @Test
     fun canMoveSourceInformationFromAnotherTable() {
         val sourceTable = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -3980,6 +4070,7 @@ class SlotTableTests {
         sourceTable.verifyWellFormed()
 
         val mainTable = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -4019,6 +4110,7 @@ class SlotTableTests {
     @Test
     fun canMoveSourceInformationIntoAGroupWithSourceInformation() {
         val sourceTable = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -4034,6 +4126,7 @@ class SlotTableTests {
         sourceTable.verifyWellFormed()
 
         val mainTable = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -4077,6 +4170,7 @@ class SlotTableTests {
     @Test
     fun canRemoveAGroupBeforeAnEmptyGrouplessCall() {
         val slots = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -4112,6 +4206,7 @@ class SlotTableTests {
     @Test
     fun canRemoveAGroupAfterAnEmptyGrouplessCall() {
         val slots = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -4148,6 +4243,7 @@ class SlotTableTests {
     @Test
     fun canRemoveAGroupProducedInAGrouplessCall() {
         val slots = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -4186,6 +4282,7 @@ class SlotTableTests {
     @Test
     fun canRemoveAGroupWithSourceInformation() {
         val slots = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -4239,6 +4336,7 @@ class SlotTableTests {
     @Test
     fun canAddAGrouplessCallToAGroupWithNoSourceInformation() {
         val slots = SlotTable().apply {
+            collectSourceInformation()
             write { writer ->
                 with(writer) {
                     insert {
@@ -4374,6 +4472,968 @@ class SlotTableTests {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun canAddSlotsAfterChildGroupAdded() {
+        val slotTable = SlotTable()
+
+        slotTable.write { writer ->
+            writer.insert {
+                writer.group(1) {
+                    writer.group(10) {
+                        writer.update(10)
+                        writer.group(100) {
+                            writer.update(100)
+                        }
+                        writer.group(200) {
+                            writer.update(200)
+                        }
+                        writer.update(11)
+                        writer.update(12)
+                        writer.group(300) {
+                            writer.update(300)
+                        }
+                    }
+                }
+            }
+        }
+
+        slotTable.verifyWellFormed()
+
+        slotTable.read { reader ->
+            reader.expectGroup(1) {
+                reader.expectGroup(10) {
+                    reader.expectData(10)
+                    reader.expectGroup(100) {
+                        reader.expectData(100)
+                    }
+                    reader.expectGroup(200) {
+                        reader.expectData(200)
+                    }
+                    reader.expectData(11)
+                    reader.expectData(12)
+                    reader.expectGroup(300) {
+                        reader.expectData(300)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun canAddSlotsAfterChildGroupAddedThenEmptyChildrenThenChildrenWithSlots() {
+        val slotTable = SlotTable()
+
+        slotTable.write { writer ->
+            writer.insert {
+                writer.group(1) {
+                    writer.group(10) {
+                        writer.update(10)
+                        writer.group(300) { }
+                        writer.group(400) { }
+                        writer.update(11)
+                        writer.update(12)
+                        writer.group(500) {
+                            writer.update(500)
+                        }
+                    }
+                }
+            }
+        }
+
+        slotTable.verifyWellFormed()
+    }
+
+    @Test
+    fun supportsAppendingSlots_first_empty() {
+        var anchor: Anchor? = null
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200) { anchor = anchor(parent) }
+                            group(300) { }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) { }
+                    expectStrictGroup(300) { }
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                appendSlot(anchor!!, 200)
+                appendSlot(anchor!!, 201)
+            }
+        }
+
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                    }
+                    expectStrictGroup(300) { }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsAppendingSlots_first_occupied() {
+        var anchor: Anchor? = null
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200) { anchor = anchor(parent) }
+                            group(300) {
+                                update(300)
+                                update(301)
+                                update(302)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) { }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                appendSlot(anchor!!, 200)
+                appendSlot(anchor!!, 201)
+            }
+        }
+
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                    }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsAppendingSlots_after_occupied() {
+        var anchor: Anchor? = null
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200) {
+                                anchor = anchor(parent)
+                                update(200)
+                                update(201)
+                            }
+                            group(300) {
+                                update(300)
+                                update(301)
+                                update(302)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                    }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                appendSlot(anchor!!, 202)
+                appendSlot(anchor!!, 203)
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                        expectData(202)
+                        expectData(203)
+                    }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsAppendingSlots_middle() {
+        var anchor: Anchor? = null
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            update(100)
+                            update(101)
+                            group(200) { anchor = anchor(parent) }
+                            group(300) {
+                                update(300)
+                                update(301)
+                            }
+                            update(102)
+                            update(103)
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200) { }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                    }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                appendSlot(anchor!!, 200)
+                appendSlot(anchor!!, 201)
+                appendSlot(anchor!!, 202)
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                        expectData(202)
+                    }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                    }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsAppendingSlots_end() {
+        var anchor: Anchor? = null
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            update(100)
+                            update(101)
+                            group(200) { anchor = anchor(parent) }
+                            group(300) { }
+                            update(102)
+                            update(103)
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200) { }
+                    expectStrictGroup(300) { }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                appendSlot(anchor!!, 200)
+                appendSlot(anchor!!, 201)
+                appendSlot(anchor!!, 202)
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                        expectData(202)
+                    }
+                    expectStrictGroup(300) { }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsAppendingSlots_ensureStarted() {
+        var insertAnchor: Anchor? = null
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(1000) {
+                                group(200) {
+                                    update(200)
+                                    update(201)
+                                    update(202)
+                                    group(300) {
+                                        update(300)
+                                        group(400) {
+                                            insertAnchor = anchor(parent)
+                                            update(400)
+                                            group(500) {
+                                                update(500)
+                                            }
+                                        }
+                                    }
+                                }
+                                group(600) { update(600) }
+                                group(700) { update(700) }
+                                group(800) { update(800) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.write { writer ->
+            with(writer) {
+                advanceBy(insertAnchor!!.location)
+                ensureStarted(0)
+                ensureStarted(insertAnchor!!)
+                appendSlot(insertAnchor!!, 1000)
+                skipToGroupEnd()
+                endGroup()
+                skipToGroupEnd()
+                endGroup()
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                group(100) {
+                    group(1000) {
+                        group(200) {
+                            expectData(200)
+                            expectData(201)
+                            expectData(202)
+                            group(300) {
+                                expectData(300)
+                                group(400) {
+                                    expectData(400)
+                                    group(500) {
+                                        expectData(500)
+                                    }
+                                    expectData(1000)
+                                }
+                            }
+                        }
+                        group(600) { expectData(600) }
+                        group(700) { expectData(700) }
+                        group(800) { expectData(800) }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsRemovingSlots_toEmpty() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            update(100)
+                            update(101)
+                            group(200) {
+                                update(200)
+                                update(201)
+                                update(202)
+                            }
+                            group(300) {
+                                update(300)
+                                update(301)
+                                update(302)
+                            }
+                            update(102)
+                            update(103)
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                        expectData(202)
+                    }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    group {
+                        trimTailSlots(3)
+                    }
+                    skipToGroupEnd()
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200)
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsRemovingSlots_trim() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            update(100)
+                            update(101)
+                            group(200) {
+                                update(200)
+                                update(201)
+                                update(202)
+                            }
+                            group(300) {
+                                update(300)
+                                update(301)
+                                update(302)
+                            }
+                            update(102)
+                            update(103)
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                        expectData(202)
+                    }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    group {
+                        trimTailSlots(1)
+                    }
+                    skipToGroupEnd()
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                    }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsRemovingSlots_toEmpty_withAux() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            update(100)
+                            update(101)
+                            group(200) {
+                                insertAux("200 Aux")
+                                update(200)
+                                update(201)
+                                update(202)
+                            }
+                            group(300) {
+                                update(300)
+                                update(301)
+                                update(302)
+                            }
+                            update(102)
+                            update(103)
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectAux("200 Aux")
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                        expectData(202)
+                    }
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    group {
+                        trimTailSlots(3)
+                    }
+                    skipToGroupEnd()
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectAux("200 Aux")
+                    expectStrictGroup(200)
+                    expectStrictGroup(300) {
+                        expectData(300)
+                        expectData(301)
+                        expectData(302)
+                    }
+                    expectData(102)
+                    expectData(103)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun supportsRemovingSlots_toEmpty_atEnd() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            update(100)
+                            update(101)
+                            group(200) {
+                                update(200)
+                                update(201)
+                                update(202)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200) {
+                        expectData(200)
+                        expectData(201)
+                        expectData(202)
+                    }
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    group {
+                        trimTailSlots(3)
+                    }
+                    skipToGroupEnd()
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectData(100)
+                    expectData(101)
+                    expectStrictGroup(200)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun movingGroupsAtTheEndOfTheTable() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200) {
+                                update(2000)
+                                update(2001)
+                                update(2002)
+                            }
+                            group(201) {
+                                update(2010)
+                                update(2011)
+                                update(2012)
+                            }
+                            group(202) {
+                                update(2020)
+                                update(2021)
+                                update(2022)
+                                group(300) { }
+                                group(300) { }
+                            }
+                            group(203) { }
+                            group(204) { }
+                            group(205) { }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read {
+            with(it) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) {
+                        expectData(2000)
+                        expectData(2001)
+                        expectData(2002)
+                    }
+                    expectStrictGroup(201) {
+                        expectData(2010)
+                        expectData(2011)
+                        expectData(2012)
+                    }
+                    expectStrictGroup(202) {
+                        expectData(2020)
+                        expectData(2021)
+                        expectData(2022)
+                        expectStrictGroup(300) { }
+                        expectStrictGroup(300) { }
+                    }
+                    expectStrictGroup(203) { }
+                    expectStrictGroup(204) { }
+                    expectStrictGroup(205) { }
+                }
+            }
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    skipGroup()
+                    skipGroup()
+                    insert {
+                        group(1000) { }
+                    }
+                    moveGroup(1)
+                    skipToGroupEnd()
+                }
+            }
+        }
+
+        slots.read {
+            with(it) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) {
+                        expectData(2000)
+                        expectData(2001)
+                        expectData(2002)
+                    }
+                    expectStrictGroup(201) {
+                        expectData(2010)
+                        expectData(2011)
+                        expectData(2012)
+                    }
+                    expectStrictGroup(1000)
+                    expectStrictGroup(203) { }
+                    expectStrictGroup(202) {
+                        expectData(2020)
+                        expectData(2021)
+                        expectData(2022)
+                        expectStrictGroup(300) { }
+                        expectStrictGroup(300) { }
+                    }
+                    expectStrictGroup(204) { }
+                    expectStrictGroup(205) { }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun trimmingDataAtTheEndOfTheTable() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200) { }
+                            group(300) {
+                                update(301)
+                                update(302)
+                                update(303)
+                                group(400) {
+                                    update(401)
+                                    update(402)
+                                    update(403)
+                                }
+                            }
+                            group(500) { }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) { }
+                    expectStrictGroup(300) {
+                        expectData(301)
+                        expectData(302)
+                        expectData(303)
+                        expectStrictGroup(400) {
+                            expectData(401)
+                            expectData(402)
+                            expectData(403)
+                        }
+                    }
+                    expectStrictGroup(500) { }
+                }
+            }
+        }
+
+        val insertTable = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(1000) {
+                            update(1001)
+                            update(1002)
+                        }
+                    }
+                }
+            }
+        }
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    skipGroup()
+                    insert {
+                        moveFrom(insertTable, 0, false)
+                    }
+                    group {
+                        skipGroup()
+                        trimTailSlots(3)
+                    }
+                    insert {
+                        moveFrom(insertTable, 0, false)
+                    }
+                    skipToGroupEnd()
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.read { reader ->
+            with(reader) {
+                expectStrictGroup(100) {
+                    expectStrictGroup(200) { }
+                    expectStrictGroup(1000) {
+                        expectData(1001)
+                        expectData(1002)
+                    }
+                    expectStrictGroup(300) {
+                        expectStrictGroup(400) {
+                            expectData(401)
+                            expectData(402)
+                            expectData(403)
+                        }
+                    }
+                    expectStrictGroup(1000) {
+                        expectData(1001)
+                        expectData(1002)
+                    }
+                    expectStrictGroup(500) { }
                 }
             }
         }
@@ -4618,8 +5678,23 @@ private fun SlotReader.expectGroup(
     endGroup()
 }
 
+private fun SlotReader.expectStrictGroup(
+    key: Int,
+    block: () -> Unit = { }
+) {
+    assertEquals(key, groupKey)
+    startGroup()
+    block()
+    expectData(Composer.Empty)
+    endGroup()
+}
+
 private fun SlotReader.expectData(value: Any) {
     assertEquals(value, next())
+}
+
+private fun SlotReader.expectAux(value: Any) {
+    assertEquals(value, groupAux)
 }
 
 private fun SlotReader.expectGroup(
@@ -4659,8 +5734,12 @@ internal fun expectError(message: String, block: () -> Unit) {
     )
 }
 
-data class SourceGroup(val key: Any, val source: String?, val children: List<SourceGroup>) {
-
+data class SourceGroup(
+    val key: Any,
+    val source: String?,
+    val children: List<SourceGroup>,
+    val data: List<Any?>
+) {
     override fun toString(): String = buildString { toStringBuilder(this, 0) }
 
     private fun toStringBuilder(builder: StringBuilder, indent: Int) {
@@ -4672,29 +5751,52 @@ data class SourceGroup(val key: Any, val source: String?, val children: List<Sou
             builder.append(' ')
             builder.append(source)
         }
+        if (data.isNotEmpty()) {
+            builder.append(" [")
+            var first = true
+            for (item in data) {
+                if (!first) builder.append(", ")
+                first = false
+                builder.append(item)
+            }
+            builder.append(']')
+        }
         builder.appendLine()
         children.fastForEach { it.toStringBuilder(builder, indent + 2) }
     }
 
-    data class BuilderScope(private val children: ArrayList<SourceGroup> = ArrayList()) {
+    data class BuilderScope(
+        private val children: ArrayList<SourceGroup> = ArrayList(),
+        private val data: ArrayList<Any?> = ArrayList()
+    ) {
         fun group(key: Int, source: String? = null, block: BuilderScope.() -> Unit) {
             val scope = BuilderScope()
             scope.block()
-            this.children.add(SourceGroup(key, source, scope.children))
+            this.children.add(SourceGroup(key, source, scope.children, scope.data))
+        }
+
+        fun data(value: Any?) {
+            data.add(value)
         }
     }
 
     companion object {
         fun group(key: Int, block: BuilderScope.() -> Unit): SourceGroup {
             val children = ArrayList<SourceGroup>()
-            val scope = BuilderScope(children)
+            val data = ArrayList<Any?>()
+            val scope = BuilderScope(children, data)
             scope.block()
-            return SourceGroup(key, null, children)
+            return SourceGroup(key, null, children, data.toList())
         }
 
-        fun group(compositionData: CompositionData): SourceGroup =
-            groupOf(compositionData.compositionGroups.first())
-        private fun groupOf(group: CompositionGroup): SourceGroup =
-            SourceGroup(group.key, group.sourceInfo, group.compositionGroups.map(::groupOf))
+        fun group(compositionData: CompositionData, includeData: Boolean = false): SourceGroup =
+            groupOf(compositionData.compositionGroups.first(), includeData)
+        private fun groupOf(group: CompositionGroup, includeData: Boolean): SourceGroup =
+            SourceGroup(
+                group.key,
+                group.sourceInfo,
+                group.compositionGroups.map { groupOf(it, includeData) },
+                if (includeData) group.data.toList() else emptyList()
+            )
     }
 }

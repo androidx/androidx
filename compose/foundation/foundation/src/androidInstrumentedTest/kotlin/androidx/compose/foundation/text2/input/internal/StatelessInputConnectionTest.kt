@@ -16,18 +16,30 @@
 
 package androidx.compose.foundation.text2.input.internal
 
+import android.content.ClipDescription
+import android.net.Uri
+import android.os.Bundle
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputContentInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.firstUriOrNull
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.core.view.inputmethod.EditorInfoCompat
+import androidx.core.view.inputmethod.InputConnectionCompat
+import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,12 +62,23 @@ class StatelessInputConnectionTest {
             this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
         }
 
-        override fun requestEdit(block: EditingBuffer.() -> Unit) {
-            onRequestEdit?.invoke(block)
+        override fun requestEdit(
+            notifyImeOfChanges: Boolean,
+            block: EditingBuffer.() -> Unit
+        ) {
+            onRequestEdit?.invoke(notifyImeOfChanges, block)
         }
 
         override fun sendKeyEvent(keyEvent: KeyEvent) {
             onSendKeyEvent?.invoke(keyEvent)
+        }
+
+        override fun requestCursorUpdates(cursorUpdateMode: Int) {
+        }
+
+        override fun onCommitContent(transferableContent: TransferableContent): Boolean {
+            return this@StatelessInputConnectionTest.onCommitContent?.invoke(transferableContent)
+                ?: false
         }
     }
 
@@ -65,13 +88,14 @@ class StatelessInputConnectionTest {
             field = value
             state = TextFieldState(value.toString(), value.selectionInChars)
         }
-    private var onRequestEdit: ((EditingBuffer.() -> Unit) -> Unit)? = null
+    private var onRequestEdit: ((Boolean, EditingBuffer.() -> Unit) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
     private var onImeAction: ((ImeAction) -> Unit)? = null
+    private var onCommitContent: ((TransferableContent) -> Boolean)? = null
 
     @Before
     fun setup() {
-        ic = StatelessInputConnection(activeSession)
+        ic = StatelessInputConnection(activeSession, EditorInfo())
     }
 
     @Test
@@ -167,9 +191,9 @@ class StatelessInputConnectionTest {
     @Test
     fun commitTextTest_batchSession() {
         var requestEditsCalled = 0
-        onRequestEdit = {
+        onRequestEdit = { _, block ->
             requestEditsCalled++
-            state.mainBuffer.it()
+            state.mainBuffer.block()
         }
         value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
@@ -190,12 +214,118 @@ class StatelessInputConnectionTest {
         assertThat(state.mainBuffer.selection).isEqualTo(TextRange(13))
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @SdkSuppress(minSdkVersion = 25)
+    @Test
+    fun commitContent_parsesToTransferableContent() {
+        var transferableContent: TransferableContent? = null
+        onCommitContent = {
+            transferableContent = it
+            true
+        }
+        val contentUri = Uri.parse("content://com.example/content")
+        val linkUri = Uri.parse("https://example.com")
+        val description = ClipDescription("label", arrayOf("text/plain"))
+        val extras = Bundle().apply { putString("key", "value") }
+        val result = ic.commitContent(
+            InputContentInfo(contentUri, description, linkUri),
+            InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION,
+            extras
+        )
+
+        assertThat(transferableContent).isNotNull()
+        assertThat(transferableContent?.clipEntry).isNotNull()
+        assertThat(transferableContent?.clipEntry?.firstUriOrNull()).isEqualTo(contentUri)
+        assertThat(transferableContent?.clipEntry?.clipData?.itemCount).isEqualTo(1)
+        assertThat(transferableContent?.clipMetadata?.clipDescription)
+            .isSameInstanceAs(description)
+
+        assertThat(transferableContent?.source).isEqualTo(TransferableContent.Source.Keyboard)
+        assertThat(transferableContent?.platformTransferableContent?.linkUri).isEqualTo(linkUri)
+        assertThat(transferableContent?.platformTransferableContent?.extras?.keySet())
+            .contains("key")
+        assertThat(transferableContent?.platformTransferableContent?.extras?.keySet())
+            .contains("EXTRA_INPUT_CONTENT_INFO")
+
+        assertTrue(result)
+    }
+
+    @SdkSuppress(minSdkVersion = 25)
+    @Test
+    fun commitContent_returnsResultIfFalse() {
+        onCommitContent = {
+            false
+        }
+        val contentUri = Uri.parse("content://com.example/content")
+        val description = ClipDescription("label", arrayOf("text/plain"))
+        val result = ic.commitContent(InputContentInfo(contentUri, description), 0, null)
+
+        assertFalse(result)
+    }
+
+    @SdkSuppress(minSdkVersion = 25)
+    @Test
+    fun commitContent_returnsFalseWhenNotDefined() {
+        onCommitContent = null
+        val contentUri = Uri.parse("content://com.example/content")
+        val description = ClipDescription("label", arrayOf("text/plain"))
+        val result = ic.commitContent(InputContentInfo(contentUri, description), 0, null)
+
+        assertFalse(result)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @SdkSuppress(maxSdkVersion = 24)
+    @Test
+    fun performPrivateCommand_parsesToTransferableContent() {
+        var transferableContent: TransferableContent? = null
+        onCommitContent = {
+            transferableContent = it
+            true
+        }
+
+        val editorInfo = EditorInfo()
+        EditorInfoCompat.setContentMimeTypes(editorInfo, arrayOf("text/plain"))
+
+        ic = StatelessInputConnection(activeSession, editorInfo)
+
+        val contentUri = Uri.parse("content://com.example/content")
+        val linkUri = Uri.parse("https://example.com")
+        val description = ClipDescription("label", arrayOf("text/plain"))
+        val extras = Bundle().apply { putString("key", "value") }
+        // this will internally call performPrivateCommand when SDK <= 24
+        val result = InputConnectionCompat.commitContent(
+            ic,
+            editorInfo,
+            InputContentInfoCompat(contentUri, description, linkUri),
+            InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION,
+            extras
+        )
+
+        assertThat(transferableContent).isNotNull()
+        assertThat(transferableContent?.clipEntry).isNotNull()
+        assertThat(transferableContent?.clipEntry?.firstUriOrNull()).isEqualTo(contentUri)
+        assertThat(transferableContent?.clipEntry?.clipData?.itemCount).isEqualTo(1)
+        assertThat(transferableContent?.clipMetadata?.clipDescription)
+            .isSameInstanceAs(description)
+
+        assertThat(transferableContent?.source).isEqualTo(TransferableContent.Source.Keyboard)
+        assertThat(transferableContent?.platformTransferableContent?.linkUri).isEqualTo(linkUri)
+        assertThat(transferableContent?.platformTransferableContent?.extras?.keySet())
+            .contains("key")
+        // Permissions do not exist below SDK 25
+        assertThat(transferableContent?.platformTransferableContent?.extras?.keySet())
+            .doesNotContain("EXTRA_INPUT_CONTENT_INFO")
+
+        assertTrue(result)
+    }
+
     @Test
     fun mixedAPICalls_batchSession() {
         var requestEditsCalled = 0
-        onRequestEdit = {
+        onRequestEdit = { _, block ->
             requestEditsCalled++
-            state.mainBuffer.it()
+            state.mainBuffer.block()
         }
         value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
@@ -234,7 +364,7 @@ class StatelessInputConnectionTest {
     @Test
     fun do_not_callback_if_only_readonly_ops() {
         var requestEditsCalled = 0
-        onRequestEdit = { requestEditsCalled++ }
+        onRequestEdit = { _, _ -> requestEditsCalled++ }
         ic.beginBatchEdit()
         ic.getSelectedText(1)
         ic.endBatchEdit()
@@ -284,6 +414,66 @@ class StatelessInputConnectionTest {
             ImeAction.Default, // Unspecified is evaluated back to Default.
             ImeAction.Default // Unrecognized is evaluated back to Default.
         ))
+    }
+
+    @Test
+    fun selectAll_contextMenuAction_triggersSelectionAndImeNotification() {
+        value = TextFieldCharSequence("Hello")
+        var callCount = 0
+        var isNotifyIme = false
+        onRequestEdit = { notify, block ->
+            isNotifyIme = notify
+            callCount++
+            state.mainBuffer.block()
+        }
+
+        ic.performContextMenuAction(android.R.id.selectAll)
+
+        assertThat(callCount).isEqualTo(1)
+        assertThat(isNotifyIme).isTrue()
+        assertThat(state.mainBuffer.selection).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
+    fun cut_contextMenuAction_triggersSyntheticKeyEvents() {
+        val keyEvents = mutableListOf<KeyEvent>()
+        onSendKeyEvent = { keyEvents += it }
+
+        ic.performContextMenuAction(android.R.id.cut)
+
+        assertThat(keyEvents.size).isEqualTo(2)
+        assertThat(keyEvents[0].action).isEqualTo(KeyEvent.ACTION_DOWN)
+        assertThat(keyEvents[0].keyCode).isEqualTo(KeyEvent.KEYCODE_CUT)
+        assertThat(keyEvents[1].action).isEqualTo(KeyEvent.ACTION_UP)
+        assertThat(keyEvents[1].keyCode).isEqualTo(KeyEvent.KEYCODE_CUT)
+    }
+
+    @Test
+    fun copy_contextMenuAction_triggersSyntheticKeyEvents() {
+        val keyEvents = mutableListOf<KeyEvent>()
+        onSendKeyEvent = { keyEvents += it }
+
+        ic.performContextMenuAction(android.R.id.copy)
+
+        assertThat(keyEvents.size).isEqualTo(2)
+        assertThat(keyEvents[0].action).isEqualTo(KeyEvent.ACTION_DOWN)
+        assertThat(keyEvents[0].keyCode).isEqualTo(KeyEvent.KEYCODE_COPY)
+        assertThat(keyEvents[1].action).isEqualTo(KeyEvent.ACTION_UP)
+        assertThat(keyEvents[1].keyCode).isEqualTo(KeyEvent.KEYCODE_COPY)
+    }
+
+    @Test
+    fun paste_contextMenuAction_triggersSyntheticKeyEvents() {
+        val keyEvents = mutableListOf<KeyEvent>()
+        onSendKeyEvent = { keyEvents += it }
+
+        ic.performContextMenuAction(android.R.id.paste)
+
+        assertThat(keyEvents.size).isEqualTo(2)
+        assertThat(keyEvents[0].action).isEqualTo(KeyEvent.ACTION_DOWN)
+        assertThat(keyEvents[0].keyCode).isEqualTo(KeyEvent.KEYCODE_PASTE)
+        assertThat(keyEvents[1].action).isEqualTo(KeyEvent.ACTION_UP)
+        assertThat(keyEvents[1].keyCode).isEqualTo(KeyEvent.KEYCODE_PASTE)
     }
 
     @Test

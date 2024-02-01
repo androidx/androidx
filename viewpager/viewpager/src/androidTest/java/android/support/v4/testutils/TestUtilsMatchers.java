@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.annotation.ColorInt;
-import androidx.core.view.ViewCompat;
 import androidx.test.espresso.matcher.BoundedMatcher;
 
 import org.hamcrest.Description;
@@ -116,8 +115,8 @@ public class TestUtilsMatchers {
                 }
                 final ViewGroup parentGroup = (ViewGroup) parent;
 
-                final int parentLayoutDirection = ViewCompat.getLayoutDirection(parentGroup);
-                if (parentLayoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
+                final int parentLayoutDirection = parentGroup.getLayoutDirection();
+                if (parentLayoutDirection == View.LAYOUT_DIRECTION_LTR) {
                     if (view.getLeft() == 0) {
                         return true;
                     } else {
@@ -162,8 +161,8 @@ public class TestUtilsMatchers {
                 }
                 final ViewGroup parentGroup = (ViewGroup) parent;
 
-                final int parentLayoutDirection = ViewCompat.getLayoutDirection(parentGroup);
-                if (parentLayoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
+                final int parentLayoutDirection = parentGroup.getLayoutDirection();
+                if (parentLayoutDirection == View.LAYOUT_DIRECTION_LTR) {
                     if (view.getRight() == parentGroup.getWidth()) {
                         return true;
                     } else {

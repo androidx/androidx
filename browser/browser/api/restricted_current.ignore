@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.browser.customtabs.CustomTabsIntent.Builder#setActivitySideSheetMaximizationEnabled(boolean):
+    Added method androidx.browser.customtabs.CustomTabsIntent.Builder.setActivitySideSheetMaximizationEnabled(boolean)

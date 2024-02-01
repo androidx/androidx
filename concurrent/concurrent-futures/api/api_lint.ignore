@@ -8,7 +8,7 @@ GenericException: androidx.concurrent.futures.CallbackToFutureAdapter.Resolver#a
 
 
 NotCloseable: androidx.concurrent.futures.CallbackToFutureAdapter.Completer:
-    Classes that release resources (finalize()) should implement AutoClosable and CloseGuard: class androidx.concurrent.futures.CallbackToFutureAdapter.Completer
+    Classes that release resources (finalize()) should implement AutoCloseable and CloseGuard: class androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 
 
 PairedRegistration: androidx.concurrent.futures.CallbackToFutureAdapter.Completer#addCancellationListener(Runnable, java.util.concurrent.Executor):

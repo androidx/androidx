@@ -178,11 +178,29 @@ internal class JniBindings {
 
         @JvmStatic
         @JniVisible
+        external fun nSetDataSpace(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            dataSpace: Int
+        )
+
+        @JvmStatic
+        @JniVisible
         external fun nGetDisplayOrientation(): String
 
         @JvmStatic
         @JniVisible
         external fun nGetPreviousReleaseFenceFd(surfaceControl: Long, transactionStats: Long): Int
+
+        @JvmStatic
+        @JniVisible
+        external fun nSetFrameRate(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+            )
 
         init {
             System.loadLibrary("graphics-core")
@@ -327,6 +345,21 @@ internal class SurfaceControlWrapper {
                 surfaceControl.mNativeSurfaceControl,
                 hardwareBuffer,
                 syncFence
+            )
+            return this
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        fun setDataSpace(
+            surfaceControl: SurfaceControlWrapper,
+            dataSpace: Int
+        ): Transaction {
+            JniBindings.nSetDataSpace(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                dataSpace
             )
             return this
         }
@@ -631,6 +664,22 @@ internal class SurfaceControlWrapper {
                 dstWidth,
                 dstHeight,
                 transformation
+            )
+            return this
+        }
+
+        fun setFrameRate(
+            surfaceControl: SurfaceControlWrapper,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+        ): Transaction {
+            JniBindings.nSetFrameRate(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                frameRate,
+                compatibility,
+                changeFrameRateStrategy
             )
             return this
         }

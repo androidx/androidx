@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
 import androidx.core.haptics.VibrationWrapper
+import androidx.core.haptics.device.HapticDeviceProfile
 import androidx.core.haptics.impl.HapticSignalConverter
 import androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom.Companion.DEFAULT_AMPLITUDE
 import java.util.Objects
@@ -207,6 +208,9 @@ class WaveformSignal(
     override fun toVibration(): VibrationWrapper? =
         HapticSignalConverter.toVibration(initialWaveform = this, repeatingWaveform = null)
 
+    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean =
+        atoms.all { it.isSupportedBy(deviceProfile) }
+
     /**
      * A [WaveformSignal.Atom] is a building block for creating a [WaveformSignal].
      *
@@ -217,7 +221,13 @@ class WaveformSignal(
      * @sample androidx.core.haptics.samples.PatternWaveform
      * @sample androidx.core.haptics.samples.AmplitudeWaveform
      */
-    abstract class Atom internal constructor()
+    abstract class Atom internal constructor() {
+
+        /**
+         * Returns true if the device vibrator can play this atom as intended, false otherwise.
+         */
+        internal abstract fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean
+    }
 
     /**
      * A [ConstantVibrationAtom] plays a constant vibration for the specified period of time.
@@ -283,6 +293,13 @@ class WaveformSignal(
             return "ConstantVibrationAtom(durationMillis=$durationMillis" +
                 ", amplitude=${if (amplitude == DEFAULT_AMPLITUDE) "default" else amplitude})"
         }
+
+        override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean =
+            deviceProfile.isAmplitudeControlSupported || hasPatternAmplitude()
+
+        /** Returns true if amplitude is 0, 1 or [DEFAULT_AMPLITUDE]. */
+        internal fun hasPatternAmplitude(): Boolean =
+            (amplitude == 0f) || (amplitude == 1f) || (amplitude == DEFAULT_AMPLITUDE)
     }
 }
 
@@ -330,4 +347,8 @@ class RepeatingWaveformSignal internal constructor(
             initialWaveform = initialWaveform,
             repeatingWaveform = repeatingWaveform,
         )
+
+    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean =
+        initialWaveform?.isSupportedBy(deviceProfile) != false &&
+            repeatingWaveform.isSupportedBy(deviceProfile)
 }

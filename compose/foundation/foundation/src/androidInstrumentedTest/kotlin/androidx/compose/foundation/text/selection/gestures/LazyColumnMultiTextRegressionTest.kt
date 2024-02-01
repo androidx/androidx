@@ -27,6 +27,7 @@ import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
+import androidx.compose.foundation.text.selection.gestures.util.assertSelectionHandlesShown
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.CompositionLocalProvider
@@ -118,45 +119,37 @@ class LazyColumnMultiTextRegressionTest {
             prevEnd = endHandlePosition
         }
 
-        assertHandleNotShown(Handle.SelectionStart)
-        assertHandleNotShown(Handle.SelectionEnd)
+        rule.assertSelectionHandlesShown(startShown = false, endShown = false)
 
         createSelection(startLine = 1, endLine = 3)
-        assertHandleShown(Handle.SelectionStart)
-        assertHandleShown(Handle.SelectionEnd)
+        rule.assertSelectionHandlesShown(startShown = true, endShown = true)
         updateHandlePositions()
 
         scrollLines(fromLine = 3, toLine = 2)
-        assertHandleShown(Handle.SelectionStart)
-        assertHandleShown(Handle.SelectionEnd)
+        rule.assertSelectionHandlesShown(startShown = true, endShown = true)
         assertPositionMovedUp(prevStart, startHandlePosition)
         assertPositionMovedUp(prevEnd, endHandlePosition)
         updateHandlePositions()
 
         scrollLines(fromLine = 4, toLine = 2)
-        assertHandleNotShown(Handle.SelectionStart)
-        assertHandleShown(Handle.SelectionEnd)
+        rule.assertSelectionHandlesShown(startShown = false, endShown = true)
         assertPositionMovedUp(prevEnd, endHandlePosition)
 
         scrollLines(fromLine = 6, toLine = 4)
-        assertHandleNotShown(Handle.SelectionStart)
-        assertHandleNotShown(Handle.SelectionEnd)
+        rule.assertSelectionHandlesShown(startShown = false, endShown = false)
         updateHandlePositions()
 
         scrollLines(fromLine = 6, toLine = 8)
-        assertHandleNotShown(Handle.SelectionStart)
-        assertHandleShown(Handle.SelectionEnd)
+        rule.assertSelectionHandlesShown(startShown = false, endShown = true)
         updateHandlePositions()
 
         scrollLines(fromLine = 4, toLine = 6)
-        assertHandleShown(Handle.SelectionStart)
-        assertHandleShown(Handle.SelectionEnd)
+        rule.assertSelectionHandlesShown(startShown = true, endShown = true)
         assertHandleMovedDown(prevEnd, endHandlePosition)
         updateHandlePositions()
 
         scrollLines(fromLine = 2, toLine = 5)
-        assertHandleShown(Handle.SelectionStart)
-        assertHandleShown(Handle.SelectionEnd)
+        rule.assertSelectionHandlesShown(startShown = true, endShown = true)
         assertHandleMovedDown(prevStart, startHandlePosition)
         assertHandleMovedDown(prevEnd, endHandlePosition)
         updateHandlePositions()
@@ -348,14 +341,6 @@ class LazyColumnMultiTextRegressionTest {
                 ?.config
                 ?.get(SelectionHandleInfoKey)
                 ?.position
-
-        fun assertHandleShown(handle: Handle) {
-            rule.onNode(isSelectionHandle(handle)).assertExists()
-        }
-
-        fun assertHandleNotShown(handle: Handle) {
-            rule.onNode(isSelectionHandle(handle)).assertDoesNotExist()
-        }
 
         fun assertTextToolbarTopAt(y: Float) {
             assertThat(textToolbarRect?.top)

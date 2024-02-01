@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
@@ -130,6 +131,10 @@ class BenchmarkState internal constructor(
     @JvmField // Used by [BenchmarkState.keepRunningInline()]
     @PublishedApi
     internal var iterationsRemaining: Int = -1
+
+    @Suppress("NOTHING_TO_INLINE")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    inline fun getIterationsRemaining() = iterationsRemaining
 
     /**
      * Number of iterations in a repeat.
@@ -283,7 +288,21 @@ class BenchmarkState internal constructor(
         iterationsPerRepeat = iterationsPerRepeat.coerceAtLeast(currentLoopsPerMeasurement)
 
         InMemoryTracing.beginSection(currentPhase.label)
-        val phaseProfilerResult = currentPhase.profiler?.start(traceUniqueName)
+        val phaseProfilerResult = currentPhase.profiler?.run {
+            val estimatedMethodTraceDurNs =
+                warmupEstimatedIterationTimeNs * METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
+            if (this == MethodTracing &&
+                Looper.myLooper() == Looper.getMainLooper() &&
+                estimatedMethodTraceDurNs > METHOD_TRACING_MAX_DURATION_NS) {
+                InstrumentationResults.scheduleIdeWarningOnNextReport(
+                    "Skipping method trace of estimated duration" +
+                        " ${estimatedMethodTraceDurNs / 1_000_000_000.0} sec to avoid ANR"
+                )
+                null
+            } else {
+                start(traceUniqueName)
+            }
+        }
         if (phaseProfilerResult != null) {
             require(profilerResult == null) {
                 "ProfileResult already set, only support one profiling phase"
@@ -383,11 +402,26 @@ class BenchmarkState internal constructor(
      */
     private inline fun check(value: Boolean, lazyMessage: () -> String) {
         if (!value) {
-            ThreadPriority.resetBumpedThread()
-            if (phaseIndex >= 0 && phaseIndex <= phases.size) {
-                InMemoryTracing.endSection() // current phase cancelled, complete trace event
-            }
+            cleanupBeforeThrow()
             throw IllegalStateException(lazyMessage())
+        }
+    }
+
+    /**
+     * Ideally this would only be called when an exception is observed in measureRepeated, but to
+     * account for java callers, we explicitly trigger before throwing as well.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun cleanupBeforeThrow() {
+        if (phaseIndex >= 0 && phaseIndex <= phases.size) {
+            Log.d(TAG, "aborting and cancelling benchmark")
+            // current phase cancelled, complete current phase cleanup (trace event and profiling)
+            InMemoryTracing.endSection()
+            currentPhase.profiler?.stop()
+
+            // for safety, set other state to done and do broader cleanup
+            phaseIndex = phases.size
+            afterBenchmark()
         }
     }
 
@@ -432,7 +466,20 @@ class BenchmarkState internal constructor(
                     "isolation."
             )
         }
-        firstBenchmark = false
+        check(
+            DeviceInfo.artMainlineVersion != DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED_ERROR
+        ) {
+            "Unable to detect ART mainline module version to check for interference from method" +
+                " tracing, please see logcat for details, and/or file a bug with logcat."
+        }
+        check(
+            !enableMethodTracingAffectsMeasurementError ||
+            !DeviceInfo.methodTracingAffectsMeasurements ||
+                !MethodTracing.hasBeenUsed) {
+            "Measurement prevented by method trace - Running on a device/configuration where " +
+                "method tracing affects measurements, and a method trace has been captured " +
+                "- no additional benchmarks can be run without restarting the test suite."
+        }
 
         thermalThrottleSleepSeconds = 0
 
@@ -495,7 +542,6 @@ class BenchmarkState internal constructor(
             metricResults.forEach { it.putInBundle(status, PREFIX) }
         }
         InstrumentationResultScope(status).reportSummaryToIde(
-            warningMessage = Errors.acquireWarningStringForLogging() ?: "",
             testName = key,
             measurements = BenchmarkResult.Measurements(
                 singleMetrics = metricResults,
@@ -545,11 +591,38 @@ class BenchmarkState internal constructor(
 
         internal const val REPEAT_COUNT_ALLOCATION = 5
 
+        /**
+         * Conservative estimate for how much method tracing slows down runtime
+         * how much longer will `methodTrace {x()}` be than `x()`
+         *
+         * This is a conservative estimate, better version of this would account for OS/Art version
+         *
+         * Value derived from observed numbers on bramble API 31 (600-800x slowdown)
+         */
+        internal const val METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR = 1000
+
+        /**
+         * Maximum duration to trace on main thread to avoid ANRs
+         *
+         * In practice, other types of tracing can be equally dangerous for ANRs,
+         * but method tracing is the default tracing mode.
+         */
+        internal const val METHOD_TRACING_MAX_DURATION_NS = 4_000_000_000
+
         internal val DEFAULT_MEASUREMENT_DURATION_NS = TimeUnit.MILLISECONDS.toNanos(100)
         internal val SAMPLED_PROFILER_DURATION_NS =
             TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds)
 
         private var firstBenchmark = true
+
+        /**
+         * Disable error to enable internal correctness tests, which need to use method tracing
+         * and can safely ignore measurement accuracy
+         *
+         * Ideally this would function as a true suppressible error like in Errors.kt, but existing
+         * error functionality doesn't handle changing error states dynamically
+         */
+        internal var enableMethodTracingAffectsMeasurementError = false
 
         private val DEFAULT_METRICS: Array<MetricCapture> =
             if (Arguments.cpuEventCounterMask != 0) {

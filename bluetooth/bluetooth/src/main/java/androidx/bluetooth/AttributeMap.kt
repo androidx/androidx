@@ -16,50 +16,53 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
-import android.bluetooth.BluetoothGattService as FwkService
+import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
 
 internal class AttributeMap {
-    private val services: MutableMap<FwkService, GattService> = mutableMapOf()
-    private val characteristics: MutableMap<FwkCharacteristic, GattCharacteristic> =
+    private val fwkServices: MutableMap<FwkBluetoothGattService, GattService> = mutableMapOf()
+    private val fwkCharacteristics: MutableMap<FwkBluetoothGattCharacteristic, GattCharacteristic> =
         mutableMapOf()
-    fun updateWithFrameworkServices(services: List<FwkService>) {
-        this.services.clear()
-        characteristics.clear()
 
-        services.forEach { serv ->
+    fun updateWithFrameworkServices(fwkServices: List<FwkBluetoothGattService>) {
+        this.fwkServices.clear()
+        fwkCharacteristics.clear()
+
+        fwkServices.forEach { serv ->
             val serviceCharacteristics = mutableListOf<GattCharacteristic>()
             serv.characteristics.forEach { char ->
-               GattCharacteristic(char).let {
-                   characteristics[char] = it
-                   serviceCharacteristics.add(it)
-               }
+                GattCharacteristic(char).let {
+                    fwkCharacteristics[char] = it
+                    serviceCharacteristics.add(it)
+                }
             }
-            this.services[serv] = GattService(serv, serviceCharacteristics)
+            this.fwkServices[serv] = GattService(serv, serviceCharacteristics)
         }
     }
 
     fun updateWithServices(services: List<GattService>) {
-        this.services.clear()
-        characteristics.clear()
+        this.fwkServices.clear()
+        fwkCharacteristics.clear()
 
         services.forEach { serv ->
-            this.services[serv.fwkService] = serv
+            this.fwkServices[serv.fwkService] = serv
             serv.characteristics.forEach { char ->
-                characteristics[char.fwkCharacteristic] = char
+                fwkCharacteristics[char.fwkCharacteristic] = char
             }
         }
     }
 
     fun getServices(): List<GattService> {
-        return services.values.toList()
+        return fwkServices.values.toList()
     }
 
-    fun fromFwkService(service: FwkService): GattService? {
-        return services[service]
+    fun fromFwkService(fwkService: FwkBluetoothGattService): GattService? {
+        return fwkServices[fwkService]
     }
 
-    fun fromFwkCharacteristic(characteristic: FwkCharacteristic): GattCharacteristic? {
-        return characteristics[characteristic]
+    fun fromFwkCharacteristic(
+        fwkCharacteristic: FwkBluetoothGattCharacteristic
+    ): GattCharacteristic? {
+        return fwkCharacteristics[fwkCharacteristic]
     }
 }

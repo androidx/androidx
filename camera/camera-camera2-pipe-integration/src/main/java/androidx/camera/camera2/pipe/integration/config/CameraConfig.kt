@@ -56,6 +56,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.Quirks
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -168,6 +169,11 @@ abstract class CameraModule {
                 quirkFinalizeSessionOnCloseBehavior = quirkFinalizeSessionOnCloseBehavior,
             )
         }
+
+        @CameraScope
+        @Provides
+        @Named("cameraQuirksValues")
+        fun provideCameraQuirksValues(cameraQuirks: CameraQuirks): Quirks = cameraQuirks.quirks
     }
 
     @Binds

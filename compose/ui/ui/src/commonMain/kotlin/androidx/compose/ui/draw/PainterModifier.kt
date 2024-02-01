@@ -43,8 +43,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.max
-import kotlin.math.roundToInt
 
 /**
  * Paint the content using [painter].
@@ -269,14 +269,14 @@ private class PainterNode(
         val intrinsicSize = painter.intrinsicSize
         val intrinsicWidth =
             if (intrinsicSize.hasSpecifiedAndFiniteWidth()) {
-                intrinsicSize.width.roundToInt()
+                intrinsicSize.width.fastRoundToInt()
             } else {
                 constraints.minWidth
             }
 
         val intrinsicHeight =
             if (intrinsicSize.hasSpecifiedAndFiniteHeight()) {
-                intrinsicSize.height.roundToInt()
+                intrinsicSize.height.fastRoundToInt()
             } else {
                 constraints.minHeight
             }
@@ -295,8 +295,8 @@ private class PainterNode(
         // In this case the larger of the 2 dimensions is used and the aspect ratio is
         // maintained. Even if the size of the composable is smaller, the painter will
         // draw its content clipped
-        val minWidth = constraints.constrainWidth(scaledSize.width.roundToInt())
-        val minHeight = constraints.constrainHeight(scaledSize.height.roundToInt())
+        val minWidth = constraints.constrainWidth(scaledSize.width.fastRoundToInt())
+        val minHeight = constraints.constrainHeight(scaledSize.height.fastRoundToInt())
         return constraints.copy(minWidth = minWidth, minHeight = minHeight)
     }
 
@@ -325,8 +325,8 @@ private class PainterNode(
         }
 
         val alignedPosition = alignment.align(
-            IntSize(scaledSize.width.roundToInt(), scaledSize.height.roundToInt()),
-            IntSize(size.width.roundToInt(), size.height.roundToInt()),
+            IntSize(scaledSize.width.fastRoundToInt(), scaledSize.height.fastRoundToInt()),
+            IntSize(size.width.fastRoundToInt(), size.height.fastRoundToInt()),
             layoutDirection
         )
 

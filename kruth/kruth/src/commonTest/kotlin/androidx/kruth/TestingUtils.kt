@@ -27,3 +27,7 @@ internal fun assertFailsWithMessage(message: String, block: () -> Unit) {
         assertEquals(expected = message, actual = e.message)
     }
 }
+
+internal expect fun Float.nextUp(): Float
+
+internal expect fun Float.nextDown(): Float

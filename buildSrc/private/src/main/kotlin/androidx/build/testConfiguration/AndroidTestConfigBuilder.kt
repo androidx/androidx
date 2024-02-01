@@ -32,6 +32,8 @@ class ConfigBuilder {
     lateinit var testApkSha256: String
     lateinit var testRunner: String
     val additionalApkKeys = mutableListOf<String>()
+    val initialSetupApks = mutableListOf<String>()
+    val instrumentationArgsMap = mutableMapOf<String, String>()
 
     fun configName(configName: String) = apply { this.configName = configName }
 
@@ -57,6 +59,8 @@ class ConfigBuilder {
 
     fun additionalApkKeys(keys: List<String>) = apply { additionalApkKeys.addAll(keys) }
 
+    fun initialSetupApks(apks: List<String>) = apply { initialSetupApks.addAll(apks) }
+
     fun testApkName(testApkName: String) = apply { this.testApkName = testApkName }
 
     fun testApkSha256(testApkSha256: String) = apply { this.testApkSha256 = testApkSha256 }
@@ -65,7 +69,11 @@ class ConfigBuilder {
 
     fun buildJson(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
-        val instrumentationArgs =
+        val instrumentationArgsList = mutableListOf<InstrumentationArg>()
+        instrumentationArgsMap.forEach { (key, value) ->
+            instrumentationArgsList.add(InstrumentationArg(key, value))
+        }
+        instrumentationArgsList.addAll(
             if (isMicrobenchmark && !isPostsubmit) {
                 listOf(
                     InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"),
@@ -74,6 +82,7 @@ class ConfigBuilder {
             } else {
                 listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"))
             }
+        )
         val values =
             mapOf(
                 "name" to configName,
@@ -83,7 +92,7 @@ class ConfigBuilder {
                 "testApkSha256" to testApkSha256,
                 "appApk" to appApkName,
                 "appApkSha256" to appApkSha256,
-                "instrumentationArgs" to instrumentationArgs,
+                "instrumentationArgs" to instrumentationArgsList,
                 "additionalApkKeys" to additionalApkKeys
             )
         return gson.toJson(values)
@@ -105,12 +114,21 @@ class ConfigBuilder {
                 sb.append(MICROBENCHMARK_PRESUBMIT_OPTION)
             }
         }
+        instrumentationArgsMap.forEach { (key, value) ->
+            sb.append("""
+                <option name="instrumentation-arg" key="$key" value="$value" />
+
+                """.trimIndent())
+        }
         if (isMacrobenchmark) {
             sb.append(MACROBENCHMARK_POSTSUBMIT_OPTIONS)
         }
         sb.append(SETUP_INCLUDE)
             .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
-            .append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
+        initialSetupApks.forEach { apk ->
+            sb.append(APK_INSTALL_OPTION.replace("APK_NAME", apk))
+        }
+        sb.append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
         if (!appApkName.isNullOrEmpty())
             sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
         sb.append(TARGET_PREPARER_CLOSE)

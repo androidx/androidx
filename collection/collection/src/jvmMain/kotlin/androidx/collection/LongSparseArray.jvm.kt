@@ -49,11 +49,9 @@ import androidx.collection.internal.idealLongArraySize
  * requiring any additional array allocations.
  */
 public actual open class LongSparseArray<E>
-
-// TODO(b/237405792): Default value for optional argument is required here to workaround Metalava's
-//  lack of support for expect / actual.
-@Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
-@JvmOverloads public actual constructor(initialCapacity: Int = 10) : Cloneable {
+@JvmOverloads public actual constructor(
+    initialCapacity: Int
+) : Cloneable {
     @JvmSynthetic // Hide from Java callers.
     @JvmField
     internal actual var garbage = false

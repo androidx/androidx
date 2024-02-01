@@ -273,11 +273,9 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         rule.runOnIdle {
             runBlocking {
@@ -287,8 +285,7 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         // node reused
         rule.onNodeWithTag("0")
             .assertDoesNotExist()
@@ -350,11 +347,9 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         rule.runOnIdle {
             runBlocking {
@@ -364,8 +359,7 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         // node reused
         rule.onNodeWithTag("0")
             .assertDoesNotExist()
@@ -411,11 +405,9 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         rule.runOnIdle {
             runBlocking {
@@ -425,8 +417,7 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         // node reused
         rule.onNodeWithTag("0")
             .assertDoesNotExist()
@@ -545,7 +536,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun itemCountIsObservable() {
-        val items = mutableListOf(0, 1)
+        var items = listOf(0, 1)
         val pager = createPager {
             TestPagingSource(items = items, loadDelay = 0)
         }
@@ -562,7 +553,7 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items += 2
+            items = listOf(0, 1, 2)
             lazyPagingItems.refresh()
         }
 
@@ -571,8 +562,7 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items.clear()
-            items.add(0)
+            items = listOf(0)
             lazyPagingItems.refresh()
         }
 
@@ -583,7 +573,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun worksWhenUsedWithoutExtension() {
-        val items = mutableListOf(10, 20)
+        var items = listOf(10, 20)
         val pager = createPager {
             TestPagingSource(items = items, loadDelay = 0)
         }
@@ -606,8 +596,7 @@ class LazyPagingItemsTest {
             .assertIsDisplayed()
 
         rule.runOnIdle {
-            items.clear()
-            items.addAll(listOf(30, 20, 40))
+            items = listOf(30, 20, 40)
             lazyPagingItems.refresh()
         }
 
@@ -626,7 +615,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun updatingItem() {
-        val items = mutableListOf(1, 2, 3)
+        var items = listOf(1, 2, 3)
         val pager = createPager(
             PagingConfig(
                 pageSize = 3,
@@ -653,8 +642,7 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items.clear()
-            items.addAll(listOf(1, 4, 3))
+            items = listOf(1, 4, 3)
             lazyPagingItems.refresh()
         }
 
@@ -673,7 +661,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun addingNewItem() {
-        val items = mutableListOf(1, 2)
+        var items = listOf(1, 2)
         val pager = createPager(
             PagingConfig(
                 pageSize = 3,
@@ -700,8 +688,7 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items.clear()
-            items.addAll(listOf(1, 2, 3))
+            items = listOf(1, 2, 3)
             lazyPagingItems.refresh()
         }
 
@@ -717,7 +704,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun removingItem() {
-        val items = mutableListOf(1, 2, 3)
+        var items = listOf(1, 2, 3)
         val pager = createPager(
             PagingConfig(
                 pageSize = 3,
@@ -747,8 +734,7 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items.clear()
-            items.addAll(listOf(2, 3))
+            items = listOf(2, 3)
             lazyPagingItems.refresh()
         }
 
@@ -764,7 +750,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun stateIsMovedWithItemWithCustomKey_items() {
-        val items = mutableListOf(1)
+        var items = listOf(1)
         val pager = createPager {
             TestPagingSource(items = items, loadDelay = 0)
         }
@@ -787,8 +773,7 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items.clear()
-            items.addAll(listOf(0, 1))
+            items = listOf(0, 1)
             lazyPagingItems.refresh()
         }
 

@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-@file:SuppressLint("ClassVerificationFailure") // Entire file is RequiresApi(19)
-
 package androidx.core.transition
 
-import android.annotation.SuppressLint
 import android.transition.Transition
-import androidx.annotation.RequiresApi
 
 /**
  * Add an action which will be invoked when this transition has ended.
  */
-@RequiresApi(19)
 public inline fun Transition.doOnEnd(
     crossinline action: (transition: Transition) -> Unit
 ): Transition.TransitionListener = addListener(onEnd = action)
@@ -33,7 +28,6 @@ public inline fun Transition.doOnEnd(
 /**
  * Add an action which will be invoked when this transition has started.
  */
-@RequiresApi(19)
 public inline fun Transition.doOnStart(
     crossinline action: (transition: Transition) -> Unit
 ): Transition.TransitionListener = addListener(onStart = action)
@@ -41,7 +35,6 @@ public inline fun Transition.doOnStart(
 /**
  * Add an action which will be invoked when this transition has been cancelled.
  */
-@RequiresApi(19)
 public inline fun Transition.doOnCancel(
     crossinline action: (transition: Transition) -> Unit
 ): Transition.TransitionListener = addListener(onCancel = action)
@@ -49,7 +42,6 @@ public inline fun Transition.doOnCancel(
 /**
  * Add an action which will be invoked when this transition has resumed after a pause.
  */
-@RequiresApi(19)
 public inline fun Transition.doOnResume(
     crossinline action: (transition: Transition) -> Unit
 ): Transition.TransitionListener = addListener(onResume = action)
@@ -57,7 +49,6 @@ public inline fun Transition.doOnResume(
 /**
  * Add an action which will be invoked when this transition has been paused.
  */
-@RequiresApi(19)
 public inline fun Transition.doOnPause(
     crossinline action: (transition: Transition) -> Unit
 ): Transition.TransitionListener = addListener(onPause = action)
@@ -65,7 +56,6 @@ public inline fun Transition.doOnPause(
 /**
  * Add a listener to this Transition using the provided actions.
  */
-@RequiresApi(19)
 public inline fun Transition.addListener(
     crossinline onEnd: (transition: Transition) -> Unit = {},
     crossinline onStart: (transition: Transition) -> Unit = {},

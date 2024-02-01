@@ -18,10 +18,8 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
@@ -33,19 +31,19 @@ import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
-@Suppress("ComposableModifierFactory")
 @Composable
 internal fun Modifier.lazyLayoutSemantics(
     itemProviderLambda: () -> LazyLayoutItemProvider,
     state: LazyLayoutSemanticState,
     orientation: Orientation,
     userScrollEnabled: Boolean,
-    reverseScrolling: Boolean
+    reverseScrolling: Boolean,
+    coroutineScope: CoroutineScope
 ): Modifier {
-    val coroutineScope = rememberCoroutineScope()
     return this.then(
         remember(
             itemProviderLambda,

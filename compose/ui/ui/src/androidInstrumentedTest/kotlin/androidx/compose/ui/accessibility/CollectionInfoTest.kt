@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.accessibility
 
-import android.view.ViewGroup
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,28 +30,28 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.OpenComposeView
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
-import androidx.compose.ui.platform.accessibility.hasCollectionInfo
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.CollectionItemInfo
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.collectionInfo
 import androidx.compose.ui.semantics.collectionItemInfo
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import org.junit.Assert
-import org.junit.Before
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,71 +62,61 @@ class CollectionInfoTest {
     @get:Rule
     val rule = createAndroidComposeRule<TestActivity>()
 
-    private lateinit var container: OpenComposeView
-    private lateinit var accessibilityDelegate: AndroidComposeViewAccessibilityDelegateCompat
-    private lateinit var info: AccessibilityNodeInfoCompat
-
-    @Before
-    fun setup() {
-        container = OpenComposeView(rule.activity)
-
-        rule.runOnUiThread {
-            rule.activity.setContentView(
-                container,
-                ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-            )
-        }
-
-        val composeView = container.getChildAt(0) as AndroidComposeView
-        accessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(composeView).apply {
-            accessibilityForceEnabledForTesting = true
-        }
-        info = AccessibilityNodeInfoCompat.obtain()
-    }
+    private lateinit var composeView: AndroidComposeView
+    private val tag = "TestTag"
 
     // Collection Info tests
     @Test
     fun testCollectionInfo_withSelectableGroup() {
-        setContent {
-            Column(Modifier.selectableGroup().testTag("collection")) {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Column(Modifier.testTag(tag).selectableGroup()) {
                 Box(Modifier.size(50.dp).selectable(selected = true, onClick = {}))
                 Box(Modifier.size(50.dp).selectable(selected = false, onClick = {}))
             }
         }
-        val collectionNode = rule.onNodeWithTag("collection").fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(collectionNode)
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val resultCollectionInfo = info.collectionInfo
-        Assert.assertEquals(2, resultCollectionInfo.rowCount)
-        Assert.assertEquals(1, resultCollectionInfo.columnCount)
-        Assert.assertEquals(false, resultCollectionInfo.isHierarchical)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionInfo) {
+                assertThat(rowCount).isEqualTo(2)
+                assertThat(columnCount).isEqualTo(1)
+                assertThat(isHierarchical).isFalse()
+            }
+        }
     }
 
     @Test
     fun testDefaultCollectionInfo_lazyList() {
-        val tag = "LazyColumn"
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             LazyColumn(Modifier.testTag(tag)) {
                 items(2) { BasicText("Text") }
             }
         }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val itemNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        val resultCollectionInfo = info.collectionInfo
-        Assert.assertEquals(-1, resultCollectionInfo.rowCount)
-        Assert.assertEquals(1, resultCollectionInfo.columnCount)
-        Assert.assertEquals(false, resultCollectionInfo.isHierarchical)
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionInfo) {
+                assertThat(rowCount).isEqualTo(-1)
+                assertThat(columnCount).isEqualTo(1)
+                assertThat(isHierarchical).isFalse()
+            }
+        }
     }
 
     @Test
     fun testCollectionInfo_lazyList() {
-        val tag = "LazyColumn"
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             LazyColumn(
                 Modifier
                     .testTag(tag)
@@ -136,38 +125,48 @@ class CollectionInfoTest {
                 items(2) { BasicText("Text") }
             }
         }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val itemNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        val resultCollectionInfo = info.collectionInfo
-        Assert.assertEquals(2, resultCollectionInfo.rowCount)
-        Assert.assertEquals(1, resultCollectionInfo.columnCount)
-        Assert.assertEquals(false, resultCollectionInfo.isHierarchical)
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionInfo) {
+                assertThat(rowCount).isEqualTo(2)
+                assertThat(columnCount).isEqualTo(1)
+                assertThat(isHierarchical).isFalse()
+            }
+        }
     }
 
     @Test
     fun testCollectionInfo_withSelectableGroup_andDefaultLazyListSemantics() {
-        val tag = "LazyColumn"
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             LazyColumn(Modifier.testTag(tag).selectableGroup()) {
                 items(2) { BasicText("Text") }
             }
         }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val itemNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        val resultCollectionInfo = info.collectionInfo
-        Assert.assertEquals(-1, resultCollectionInfo.rowCount)
-        Assert.assertEquals(1, resultCollectionInfo.columnCount)
-        Assert.assertEquals(false, resultCollectionInfo.isHierarchical)
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionInfo) {
+                assertThat(rowCount).isEqualTo(-1)
+                assertThat(columnCount).isEqualTo(1)
+                assertThat(isHierarchical).isFalse()
+            }
+        }
     }
 
     @Test
     fun testCollectionInfo_withSelectableGroup_andLazyListSemantics() {
-        val tag = "LazyColumn"
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             LazyColumn(
                 Modifier
                     .testTag(tag)
@@ -177,54 +176,78 @@ class CollectionInfoTest {
                 items(2) { BasicText("Text") }
             }
         }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val itemNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        val resultCollectionInfo = info.collectionInfo
-        Assert.assertEquals(2, resultCollectionInfo.rowCount)
-        Assert.assertEquals(1, resultCollectionInfo.columnCount)
-        Assert.assertEquals(false, resultCollectionInfo.isHierarchical)
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionInfo) {
+                assertThat(rowCount).isEqualTo(2)
+                assertThat(columnCount).isEqualTo(1)
+                assertThat(isHierarchical).isFalse()
+            }
+        }
     }
 
     // Collection Item Info tests
     @Test
     fun testCollectionItemInfo_withSelectableGroup() {
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             Column(Modifier.selectableGroup()) {
-                Box(Modifier.selectable(selected = true, onClick = {}).testTag("item"))
-                Box(Modifier.selectable(selected = false, onClick = {}))
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .testTag(tag)
+                        .selectable(selected = true, onClick = {})
+                )
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .selectable(selected = false, onClick = {})
+                )
             }
         }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val itemNode = rule.onNodeWithTag("item").fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        val resultCollectionItemInfo = info.collectionItemInfo
-        Assert.assertEquals(0, resultCollectionItemInfo.rowIndex)
-        Assert.assertEquals(1, resultCollectionItemInfo.rowSpan)
-        Assert.assertEquals(0, resultCollectionItemInfo.columnIndex)
-        Assert.assertEquals(1, resultCollectionItemInfo.columnSpan)
-        Assert.assertEquals(true, resultCollectionItemInfo.isSelected)
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionItemInfo) {
+                assertThat(rowIndex).isEqualTo(0)
+                assertThat(rowSpan).isEqualTo(1)
+                assertThat(columnIndex).isEqualTo(0)
+                assertThat(columnSpan).isEqualTo(1)
+                assertThat(isSelected).isTrue()
+            }
+        }
     }
 
     @Test
     fun testNoCollectionItemInfo_lazyList() {
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             LazyColumn {
                 itemsIndexed(listOf("Text", "Text")) { index, item -> BasicText(item + index) }
             }
         }
+        val virtualId = rule.onNodeWithText("Text0").semanticsId
 
-        val itemNode = rule.onNodeWithText("Text0").fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        Assert.assertNull(info.collectionItemInfo)
+        // Assert.
+        rule.runOnIdle { assertThat(info.collectionItemInfo).isNull() }
     }
 
     @Test
     fun testCollectionItemInfo_defaultLazyListSemantics() {
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             LazyColumn {
                 itemsIndexed(listOf("Text", "Text")) { index, item ->
                     BasicText(
@@ -236,20 +259,27 @@ class CollectionInfoTest {
                 }
             }
         }
+        val virtualId = rule.onNodeWithText("Text0").semanticsId
 
-        val itemNode = rule.onNodeWithText("Text0").fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        val resultCollectionItemInfo = info.collectionItemInfo
-        Assert.assertEquals(0, resultCollectionItemInfo.rowIndex)
-        Assert.assertEquals(1, resultCollectionItemInfo.rowSpan)
-        Assert.assertEquals(0, resultCollectionItemInfo.columnIndex)
-        Assert.assertEquals(1, resultCollectionItemInfo.columnSpan)
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionItemInfo) {
+                assertThat(rowIndex).isEqualTo(0)
+                assertThat(rowSpan).isEqualTo(1)
+                assertThat(columnIndex).isEqualTo(0)
+                assertThat(columnSpan).isEqualTo(1)
+                assertThat(isSelected).isFalse()
+            }
+        }
     }
 
     @Test
     fun testCollectionItemInfo_lazyList() {
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             LazyColumn(Modifier.semantics { collectionInfo = CollectionInfo(2, 1) }) {
                 itemsIndexed(listOf("Text", "Text")) { index, item ->
                     BasicText(
@@ -261,20 +291,27 @@ class CollectionInfoTest {
                 }
             }
         }
+        val virtualId = rule.onNodeWithText("Text0").semanticsId
 
-        val itemNode = rule.onNodeWithText("Text0").fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        val resultCollectionItemInfo = info.collectionItemInfo
-        Assert.assertEquals(0, resultCollectionItemInfo.rowIndex)
-        Assert.assertEquals(1, resultCollectionItemInfo.rowSpan)
-        Assert.assertEquals(0, resultCollectionItemInfo.columnIndex)
-        Assert.assertEquals(1, resultCollectionItemInfo.columnSpan)
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionItemInfo) {
+                assertThat(rowIndex).isEqualTo(0)
+                assertThat(rowSpan).isEqualTo(1)
+                assertThat(columnIndex).isEqualTo(0)
+                assertThat(columnSpan).isEqualTo(1)
+                assertThat(isSelected).isFalse()
+            }
+        }
     }
 
     @Test
     fun testCollectionItemInfo_withSelectableGroup_andDefaultLazyListSemantics() {
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             LazyColumn(Modifier.selectableGroup()) {
                 itemsIndexed(listOf("Text", "Text")) { index, item ->
                     BasicText(
@@ -286,59 +323,119 @@ class CollectionInfoTest {
                 }
             }
         }
+        val virtualId = rule.onNodeWithText("Text0").semanticsId
 
-        val itemNode = rule.onNodeWithText("Text0").fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(itemNode)
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
 
-        val resultCollectionItemInfo = info.collectionItemInfo
-        Assert.assertEquals(0, resultCollectionItemInfo.rowIndex)
-        Assert.assertEquals(1, resultCollectionItemInfo.rowSpan)
-        Assert.assertEquals(0, resultCollectionItemInfo.columnIndex)
-        Assert.assertEquals(1, resultCollectionItemInfo.columnSpan)
+        // Assert.
+        rule.runOnIdle {
+            with(info.collectionItemInfo) {
+                assertThat(rowIndex).isEqualTo(0)
+                assertThat(rowSpan).isEqualTo(1)
+                assertThat(columnIndex).isEqualTo(0)
+                assertThat(columnSpan).isEqualTo(1)
+                assertThat(isSelected).isFalse()
+            }
+        }
     }
 
     @Test
     fun testSemanticsNodeHasCollectionInfo_whenProvidedDirectly() {
-        val tag = "column"
-        setContent {
-            Column(Modifier.testTag(tag).semantics { collectionInfo = CollectionInfo(1, 1) }) {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Column(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .semantics { collectionInfo = CollectionInfo(1, 1) }
+            ) {
                 // items
             }
         }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val semanticsNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        Assert.assertTrue(semanticsNode.hasCollectionInfo())
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(info.collectionInfo.columnCount).isEqualTo(1)
+            assertThat(info.collectionInfo.rowCount).isEqualTo(1)
+        }
     }
 
     @Test
     fun testSemanticsNodeHasCollectionInfo_whenProvidedViaSelectableGroup() {
-        val tag = "column"
-        setContent {
-            Column(Modifier.testTag(tag).selectableGroup()) {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Column(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .selectableGroup()
+            ) {
+                // items
+                Box(Modifier.size(10.dp).selectable(selected = true, onClick = {}))
+                Box(Modifier.size(10.dp).selectable(selected = false, onClick = {}))
+                Box(Modifier.size(10.dp).selectable(selected = false, onClick = {}))
+            }
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.collectionInfo.columnCount).isEqualTo(1)
+            assertThat(info.collectionInfo.rowCount).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun testSemanticsNodeHasCollectionInfo_whenProvidedViaEmptySelectableGroup() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Column(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .selectableGroup()
+            ) {
                 // items
             }
         }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val semanticsNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        Assert.assertTrue(semanticsNode.hasCollectionInfo())
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(info.collectionInfo).isNull() }
     }
 
     @Test
     fun testSemanticsNodeHasCollectionInfo_falseWhenNotProvided() {
-        val tag = "column"
-        setContent {
-            Column(Modifier.testTag(tag)) {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Column(Modifier.size(10.dp).testTag(tag)) {
                 // items
             }
         }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
-        val semanticsNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        Assert.assertFalse(semanticsNode.hasCollectionInfo())
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        assertThat(info.collectionInfo).isNull()
     }
 
     @Test
     fun testCollectionInfo_withSelectableGroup_zOrder() {
-        setContent {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
             Column(Modifier.selectableGroup()) {
                 Box(
                     Modifier
@@ -363,47 +460,80 @@ class CollectionInfoTest {
                 )
             }
         }
+        val virtualId0 = rule.onNodeWithTag("item0").semanticsId
+        val virtualId1 = rule.onNodeWithTag("item1").semanticsId
+        val virtualId2 = rule.onNodeWithTag("item2").semanticsId
 
-        for (index in 0..2) {
-            val itemNode = rule.onNodeWithTag("item$index").fetchSemanticsNode()
-            populateAccessibilityNodeInfoProperties(itemNode)
-            Assert.assertEquals(index, info.collectionItemInfo.rowIndex)
+        // Act.
+        rule.waitForIdle()
+        val info0 = composeView.createAccessibilityNodeInfo(virtualId0)
+        val info1 = composeView.createAccessibilityNodeInfo(virtualId1)
+        val info2 = composeView.createAccessibilityNodeInfo(virtualId2)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info0.collectionItemInfo.rowIndex).isEqualTo(0)
+            assertThat(info1.collectionItemInfo.rowIndex).isEqualTo(1)
+            assertThat(info2.collectionItemInfo.rowIndex).isEqualTo(2)
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
-    fun testCollectionInfo_Pager() {
+    fun horizontalPager() {
+        // Arrange.
         val pageCount = 20
-        val horizontalPagerTag = "horizontalPager"
-        val verticalPagerTag = "verticalPager"
+        rule.setContentWithAccessibilityEnabled {
+            @OptIn(ExperimentalFoundationApi::class)
+            HorizontalPager(rememberPagerState { pageCount }, Modifier.size(10.dp).testTag(tag)) {}
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
 
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(info.collectionInfo.columnCount).isEqualTo(pageCount) }
+    }
+
+    @Test
+    fun verticalPager() {
+        // Arrange.
+        val pageCount = 20
+        rule.setContentWithAccessibilityEnabled {
+            @OptIn(ExperimentalFoundationApi::class)
+            VerticalPager(rememberPagerState { pageCount }, Modifier.size(10.dp).testTag(tag)) {}
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { composeView.createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(info.collectionInfo.rowCount).isEqualTo(pageCount) }
+    }
+
+    // TODO(b/272068594): Add api to fetch the semantics id from SemanticsNodeInteraction directly.
+    private val SemanticsNodeInteraction.semanticsId: Int get() = fetchSemanticsNode().id
+
+    private fun ComposeContentTestRule.setContentWithAccessibilityEnabled(
+        content: @Composable () -> Unit
+    ) {
         setContent {
-            val state = rememberPagerState { pageCount }
-            HorizontalPager(state = state, Modifier.testTag(horizontalPagerTag)) {}
-            VerticalPager(state = state, Modifier.testTag(verticalPagerTag)) {}
-        }
-
-        var pager = rule.onNodeWithTag(horizontalPagerTag).fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(pager)
-
-        Assert.assertEquals(info.collectionInfo.columnCount, pageCount)
-
-        pager = rule.onNodeWithTag(verticalPagerTag).fetchSemanticsNode()
-        populateAccessibilityNodeInfoProperties(pager)
-
-        Assert.assertEquals(info.collectionInfo.rowCount, pageCount)
-    }
-
-    private fun setContent(content: @Composable () -> Unit) {
-        rule.runOnIdle {
-            container.setContent(content)
+            composeView = LocalView.current as AndroidComposeView
+            val accessibilityDelegate = ViewCompat.getAccessibilityDelegate(composeView)
+            with(accessibilityDelegate as AndroidComposeViewAccessibilityDelegateCompat) {
+                accessibilityForceEnabledForTesting = true
+                onSendAccessibilityEvent = { false }
+            }
+            content()
         }
     }
 
-    private fun populateAccessibilityNodeInfoProperties(node: SemanticsNode) {
-        rule.runOnIdle {
-            accessibilityDelegate.populateAccessibilityNodeInfoProperties(node.id, info, node)
-        }
+    private fun AndroidComposeView.createAccessibilityNodeInfo(
+        semanticsId: Int
+    ): AccessibilityNodeInfoCompat {
+        val accNodeInfo = accessibilityNodeProvider.createAccessibilityNodeInfo(semanticsId)
+        checkNotNull(accNodeInfo) { "Could not find semantics node with id = $semanticsId" }
+        return AccessibilityNodeInfoCompat.wrap(accNodeInfo)
     }
 }

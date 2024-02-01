@@ -106,6 +106,9 @@ class BenchmarkPlugin : Plugin<Project> {
         if (project.rootProject.tasks.findByName("lockClocks") == null) {
             project.rootProject.tasks.register("lockClocks", LockClocksTask::class.java).configure {
                 it.adbPath.set(adbPathProvider)
+                it.coresArg.set(
+                    project.findProperty("androidx.benchmark.lockClocks.cores")?.toString() ?: ""
+                )
             }
         }
 
@@ -130,10 +133,10 @@ class BenchmarkPlugin : Plugin<Project> {
             )
         }
 
-        // NOTE: .all here is a Gradle API, which will run the callback passed to it after the
-        // extension variants have been resolved.
+        // NOTE: .configureEach here is a Gradle API, which will run the callback passed to it after
+        // the extension variants have been resolved.
         var applied = false
-        extensionVariants.all {
+        extensionVariants.configureEach {
             if (!applied) {
                 applied = true
 

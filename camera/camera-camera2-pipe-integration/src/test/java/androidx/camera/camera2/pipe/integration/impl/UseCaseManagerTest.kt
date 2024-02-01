@@ -47,9 +47,11 @@ import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -343,6 +345,17 @@ class UseCaseManagerTest {
             characteristics = characteristicsMap
         )
         val fakeCamera = FakeCamera()
+        val fakeUseCaseThreads = run {
+            val executor = MoreExecutors.directExecutor()
+            val dispatcher = executor.asCoroutineDispatcher()
+            val cameraScope = CoroutineScope(Job() + dispatcher)
+
+            UseCaseThreads(
+                cameraScope,
+                executor,
+                dispatcher,
+            )
+        }
         return UseCaseManager(
             cameraPipe = CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
             cameraConfig = CameraConfig(cameraId),
@@ -368,6 +381,8 @@ class UseCaseManagerTest {
             ),
             displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
             context = ApplicationProvider.getApplicationContext(),
+            cameraInfoInternal = { fakeCamera.cameraInfoInternal },
+            useCaseThreads = { fakeUseCaseThreads },
         ).also {
             useCaseManagerList.add(it)
         }

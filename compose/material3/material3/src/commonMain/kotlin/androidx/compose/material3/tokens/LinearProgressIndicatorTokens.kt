@@ -28,7 +28,7 @@ internal object LinearProgressIndicatorTokens {
     val FourColorActiveIndicatorOneColor = ColorSchemeKeyTokens.Primary
     val FourColorActiveIndicatorThreeColor = ColorSchemeKeyTokens.Tertiary
     val FourColorActiveIndicatorTwoColor = ColorSchemeKeyTokens.PrimaryContainer
-    val TrackColor = ColorSchemeKeyTokens.SurfaceVariant
+    val TrackColor = ColorSchemeKeyTokens.PrimaryContainer // TODO(b/321712387): Update tokens
     val TrackHeight = 4.0.dp
     val TrackShape = ShapeKeyTokens.CornerNone
 }

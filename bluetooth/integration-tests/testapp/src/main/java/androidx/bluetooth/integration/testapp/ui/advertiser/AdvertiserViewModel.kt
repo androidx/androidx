@@ -16,26 +16,45 @@
 
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
+import android.annotation.SuppressLint
+import android.util.Log
+import androidx.bluetooth.AdvertiseException
 import androidx.bluetooth.AdvertiseParams
-import androidx.bluetooth.GattCharacteristic
-import androidx.bluetooth.GattService
+import androidx.bluetooth.BluetoothLe
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.UUID
+import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 
-class AdvertiserViewModel : ViewModel() {
+@HiltViewModel
+class AdvertiserViewModel @Inject constructor(
+    private val bluetoothLe: BluetoothLe
+) : ViewModel() {
 
     private companion object {
         private const val TAG = "AdvertiserViewModel"
     }
 
-    var includeDeviceAddress = false
-    var includeDeviceName = false
-    var connectable = false
-    var discoverable = false
-    var durationMillis = 0
-    var manufacturerDatas = mutableListOf<Pair<Int, ByteArray>>()
-    var serviceDatas = mutableListOf<Pair<UUID, ByteArray>>()
-    var serviceUuids = mutableListOf<UUID>()
+    // TODO(b/309360030) Complete missing AdvertiseParams in testapp
+    internal var includeDeviceAddress: Boolean = false
+    internal var includeDeviceName: Boolean = true
+    internal var connectable: Boolean = true
+    internal var discoverable: Boolean = true
+    internal var durationMillis: Long = 0
+    internal var manufacturerDatas: MutableList<Pair<Int, ByteArray>> = mutableListOf()
+    internal var serviceDatas: MutableList<Pair<UUID, ByteArray>> = mutableListOf()
+    internal var serviceUuids: MutableList<UUID> = mutableListOf()
+    internal var serviceSolicitationUuids: MutableList<UUID> = mutableListOf()
 
     val advertiseData: List<String>
         get() = listOf(
@@ -47,10 +66,15 @@ class AdvertiserViewModel : ViewModel() {
                     "UUID: ${it.first} Data: 0x${it.second.toString(Charsets.UTF_8)}" },
             serviceUuids
                 .map { "128-bit Service UUID:\n" +
+                    "$it" },
+            serviceSolicitationUuids
+                .map { "128-bit Service Solicitation UUID:\n" +
                     "$it" }
         ).flatten()
 
-    val advertiseParams: AdvertiseParams
+    var advertiseJob: Job? = null
+
+    private val advertiseParams: AdvertiseParams
         get() = AdvertiseParams(
             includeDeviceAddress,
             includeDeviceName,
@@ -59,47 +83,85 @@ class AdvertiserViewModel : ViewModel() {
             durationMillis,
             manufacturerDatas.toMap(),
             serviceDatas.toMap(),
-            serviceUuids
+            serviceUuids,
+            serviceSolicitationUuids
         )
 
-    private val _gattServerServices = mutableListOf<GattService>()
-    val gattServerServices: List<GattService> = _gattServerServices
-
-    private val gattServerServicesCharacteristicValueMap =
-        mutableMapOf<GattCharacteristic, ByteArray>()
+    private val _uiState = MutableStateFlow(AdvertiserUiState())
+    val uiState: StateFlow<AdvertiserUiState> = _uiState.asStateFlow()
 
     fun removeAdvertiseDataAtIndex(index: Int) {
         val manufacturerDataSize = manufacturerDatas.size
         val serviceDataSize = serviceDatas.size
+        val serviceUuidsSize = serviceUuids.size
 
         if (index < manufacturerDataSize) {
             manufacturerDatas.removeAt(index)
-        } else if (index < serviceDataSize + manufacturerDataSize) {
+        } else if (index < manufacturerDataSize + serviceDataSize) {
             serviceDatas.removeAt(index - manufacturerDataSize)
-        } else {
+        } else if (index < manufacturerDataSize + serviceDataSize + serviceUuidsSize) {
             serviceUuids.removeAt(index - manufacturerDataSize - serviceDataSize)
+        } else {
+            serviceSolicitationUuids
+                .removeAt(index - manufacturerDataSize - serviceDataSize - serviceUuidsSize)
         }
     }
 
-    fun addGattService(gattService: GattService) {
-        _gattServerServices.add(gattService)
-    }
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    fun startAdvertise() {
+        Log.d(TAG, "startAdvertise() called")
 
-    fun addGattCharacteristic(service: GattService, characteristic: GattCharacteristic) {
-        val index = _gattServerServices.indexOf(service)
-        if (index < 0) return;
-        _gattServerServices[index] = GattService(service.uuid,
-            service.characteristics.toMutableList().apply {
-                add(characteristic)
+        advertiseJob = bluetoothLe.advertise(advertiseParams)
+            .catch { throwable ->
+                Log.e(TAG, "bluetoothLe.advertise catch", throwable)
+
+                val message = if (throwable is AdvertiseException) {
+                    when (throwable.errorCode) {
+                        AdvertiseException.DATA_TOO_LARGE ->
+                            "Advertise failed. Data too large"
+
+                        AdvertiseException.TOO_MANY_ADVERTISERS ->
+                            "Advertise failed. Too many advertisers"
+
+                        AdvertiseException.INTERNAL_ERROR ->
+                            "Advertise failed. Internal error"
+
+                        AdvertiseException.UNSUPPORTED ->
+                            "Advertise failed. Feature unsupported"
+
+                        else ->
+                            "Advertise failed. Error unknown"
+                    }
+                } else if (throwable is IllegalStateException) {
+                    throwable.message
+                } else null
+
+                _uiState.update {
+                    it.copy(resultMessage = message)
+                }
             }
-        )
+            .onEach { advertiseResult ->
+                Log.d(TAG, "bluetoothLe.advertise onEach: $advertiseResult")
+
+                if (advertiseResult == BluetoothLe.ADVERTISE_STARTED) {
+                    _uiState.update {
+                        it.copy(isAdvertising = true, resultMessage = "Advertise started")
+                    }
+                }
+            }
+            .onCompletion {
+                Log.d(TAG, "bluetoothLe.advertise onCompletion")
+                _uiState.update {
+                    it.copy(isAdvertising = false, resultMessage = "Advertise completed")
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
-    fun readGattCharacteristicValue(characteristic: GattCharacteristic): ByteArray {
-        return gattServerServicesCharacteristicValueMap[characteristic] ?: ByteArray(0)
-    }
-
-    fun updateGattCharacteristicValue(characteristic: GattCharacteristic, value: ByteArray) {
-        gattServerServicesCharacteristicValueMap[characteristic] = value
+    fun clearResultMessage() {
+        _uiState.update {
+            it.copy(resultMessage = null)
+        }
     }
 }

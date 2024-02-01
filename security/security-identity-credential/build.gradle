@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -25,7 +32,7 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.biometric:biometric:1.1.0-alpha02")
+    implementation("androidx.biometric:biometric:1.1.0")
     implementation("co.nstant.in:cbor:0.8")
     implementation("org.bouncycastle:bcprov-jdk15on:1.65")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.56")

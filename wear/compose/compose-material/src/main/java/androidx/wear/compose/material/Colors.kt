@@ -16,64 +16,30 @@
 package androidx.wear.compose.material
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 
+@Immutable
 @Stable
 public class Colors(
-    primary: Color = Color(0xFFAECBFA),
-    primaryVariant: Color = Color(0xFF8AB4F8),
-    secondary: Color = Color(0xFFFDE293),
-    secondaryVariant: Color = Color(0xFF594F33),
-    background: Color = Color.Black,
-    surface: Color = Color(0xFF303133),
-    error: Color = Color(0xFFEE675C),
-    onPrimary: Color = Color(0xFF303133),
-    onSecondary: Color = Color(0xFF303133),
-    onBackground: Color = Color.White,
-    onSurface: Color = Color.White,
-    onSurfaceVariant: Color = Color(0xFFDADCE0),
-    onError: Color = Color(0xFF000000)
+    val primary: Color = Color(0xFFAECBFA),
+    val primaryVariant: Color = Color(0xFF8AB4F8),
+    val secondary: Color = Color(0xFFFDE293),
+    val secondaryVariant: Color = Color(0xFF594F33),
+    val background: Color = Color.Black,
+    val surface: Color = Color(0xFF303133),
+    val error: Color = Color(0xFFEE675C),
+    val onPrimary: Color = Color(0xFF303133),
+    val onSecondary: Color = Color(0xFF303133),
+    val onBackground: Color = Color.White,
+    val onSurface: Color = Color.White,
+    val onSurfaceVariant: Color = Color(0xFFDADCE0),
+    val onError: Color = Color(0xFF000000)
 ) {
-    public var primary: Color by mutableStateOf(primary, structuralEqualityPolicy())
-        internal set
-    public var primaryVariant: Color by mutableStateOf(primaryVariant, structuralEqualityPolicy())
-        internal set
-    public var secondary: Color by mutableStateOf(secondary, structuralEqualityPolicy())
-        internal set
-    public var secondaryVariant: Color by mutableStateOf(
-        secondaryVariant,
-        structuralEqualityPolicy()
-    )
-        internal set
-    public var background: Color by mutableStateOf(background, structuralEqualityPolicy())
-        internal set
-    public var surface: Color by mutableStateOf(surface, structuralEqualityPolicy())
-        internal set
-    public var error: Color by mutableStateOf(error, structuralEqualityPolicy())
-        internal set
-    public var onPrimary: Color by mutableStateOf(onPrimary, structuralEqualityPolicy())
-        internal set
-    public var onSecondary: Color by mutableStateOf(onSecondary, structuralEqualityPolicy())
-        internal set
-    public var onBackground: Color by mutableStateOf(onBackground, structuralEqualityPolicy())
-        internal set
-    public var onSurface: Color by mutableStateOf(onSurface, structuralEqualityPolicy())
-        internal set
-    public var onSurfaceVariant: Color by mutableStateOf(
-        onSurfaceVariant,
-        structuralEqualityPolicy()
-    )
-        internal set
-    public var onError: Color by mutableStateOf(onError, structuralEqualityPolicy())
-        internal set
 
     /**
      * Returns a copy of this Colors, optionally overriding some of the values.
@@ -178,35 +144,6 @@ public fun Colors.contentColorFor(backgroundColor: Color): Color {
 @ReadOnlyComposable
 public fun contentColorFor(backgroundColor: Color): Color =
     MaterialTheme.colors.contentColorFor(backgroundColor).takeOrElse { LocalContentColor.current }
-
-/**
- * Updates the internal values of the given [Colors] with values from the [other] [Colors]. This
- * allows efficiently updating a subset of [Colors], without recomposing every composable that
- * consumes values from [LocalColors].
- *
- * Because [Colors] is very wide-reaching, and used by many expensive composables in the
- * hierarchy, providing a new value to [LocalColors] causes every composable consuming
- * [LocalColors] to recompose, which is prohibitively expensive in cases such as animating one
- * color in the theme. Instead, [Colors] is internally backed by [mutableStateOf], and this
- * function mutates the internal state of [this] to match values in [other]. This means that any
- * changes will mutate the internal state of [this], and only cause composables that are reading
- * the specific changed value to recompose.
- */
-internal fun Colors.updateColorsFrom(other: Colors) {
-    primary = other.primary
-    primaryVariant = other.primaryVariant
-    secondary = other.secondary
-    secondaryVariant = other.secondaryVariant
-    background = other.background
-    surface = other.surface
-    error = other.error
-    onPrimary = other.onPrimary
-    onSecondary = other.onSecondary
-    onBackground = other.onBackground
-    onSurface = other.onSurface
-    onSurfaceVariant = other.onSurfaceVariant
-    onError = other.onError
-}
 
 /**
  * Convert given color to disabled color.

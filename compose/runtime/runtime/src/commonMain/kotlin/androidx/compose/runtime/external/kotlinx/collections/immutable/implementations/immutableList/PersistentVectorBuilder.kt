@@ -10,6 +10,7 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.MutabilityOwnership
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.assert
+import androidx.compose.runtime.requirePrecondition
 
 internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
                                           private var vectorRoot: Array<Any?>?,
@@ -238,8 +239,8 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      * Returns the resulting root.
      */
     private fun pushBuffers(root: Array<Any?>?, rootSize: Int, shift: Int, buffersIterator: Iterator<Array<Any?>>): Array<Any?> {
-        require(buffersIterator.hasNext()) {"invalid buffersIterator"}
-        require(shift >= 0) {"negative shift"}
+        requirePrecondition(buffersIterator.hasNext()) {"invalid buffersIterator"}
+        requirePrecondition(shift >= 0) {"negative shift"}
 
         if (shift == 0) {
             return buffersIterator.next()
@@ -476,7 +477,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             nullBuffers: Int,
             nextBuffer: Array<Any?>
     ) {
-        require(nullBuffers >= 1) { "requires at least one nullBuffer" }
+        requirePrecondition(nullBuffers >= 1) { "requires at least one nullBuffer" }
 
         val firstBuffer = makeMutable(startBuffer)
         buffers[0] = firstBuffer
@@ -742,7 +743,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      * If the height of the root is bigger than needed to store [size] elements, it's decreased.
      */
     private fun retainFirst(root: Array<Any?>, size: Int): Array<Any?>? {
-        require(size and MAX_BUFFER_SIZE_MINUS_ONE == 0) { "invalid size" }
+        requirePrecondition(size and MAX_BUFFER_SIZE_MINUS_ONE == 0) { "invalid size" }
 
         if (size == 0) {
             rootShift = 0
@@ -765,7 +766,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      * Used to prevent memory leaks after reusing nodes.
      */
     private fun nullifyAfter(root: Array<Any?>, index: Int, shift: Int): Array<Any?> {
-        require(shift >= 0) { "shift should be positive" }
+        requirePrecondition(shift >= 0) { "shift should be positive" }
 
         if (shift == 0) {
             // the `root` is a leaf buffer.

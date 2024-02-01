@@ -60,10 +60,10 @@ internal class BasicTextField2UndoTest {
         }
 
         rule.onNode(hasSetTextAction()).performTextInput(", World")
-        assertThat(state.text.toString()).isEqualTo("Hello, World")
+        state.assertText("Hello, World")
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello")
+        state.assertText("Hello")
         rule.onNode(hasSetTextAction()).assertTextEquals("Hello")
     }
 
@@ -93,10 +93,10 @@ internal class BasicTextField2UndoTest {
         }
 
         rule.onNode(hasSetTextAction()).typeText(", World")
-        assertThat(state.text.toString()).isEqualTo("Hello, World")
+        state.assertText("Hello, World")
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello")
+        state.assertText("Hello")
         rule.onNode(hasSetTextAction()).assertTextEquals("Hello")
     }
 
@@ -113,14 +113,14 @@ internal class BasicTextField2UndoTest {
             performTextInputSelection(TextRange(5))
             performTextInput(" Compose")
         }
-        assertThat(state.text.toString()).isEqualTo("Hello Compose, World")
+        state.assertText("Hello Compose, World")
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello, World")
+        state.assertText("Hello, World")
         rule.onNode(hasSetTextAction()).assertTextEquals("Hello, World")
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello")
+        state.assertText("Hello")
         rule.onNode(hasSetTextAction()).assertTextEquals("Hello")
     }
 
@@ -187,11 +187,10 @@ internal class BasicTextField2UndoTest {
             performTextInputSelection(TextRange(0, 5))
             performTextInput("a")
         }
-        assertThat(state.text.toString()).isEqualTo("a")
+        state.assertTextAndSelection("a", TextRange(1))
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello")
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+        state.assertTextAndSelection("Hello", TextRange(0, 5))
     }
 
     @Test
@@ -206,14 +205,18 @@ internal class BasicTextField2UndoTest {
             performTextInputSelection(TextRange(2))
             performTextInput(" abc ")
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(7))
+
+        state.assertTextAndSelection("He abc llo", TextRange(7))
 
         state.undoState.undo()
 
-        assertThat(state.text.selectionInChars).isNotEqualTo(TextRange(7))
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isNotEqualTo(TextRange(7))
+        }
 
         state.undoState.redo()
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(7))
+
+        state.assertTextAndSelection("He abc llo", TextRange(7))
     }
 
     @Test
@@ -262,17 +265,24 @@ internal class BasicTextField2UndoTest {
             typeText("ghi")
             performTextClearance()
         }
+        rule.waitForIdle()
         state.undoState.undo()
+        rule.waitForIdle()
         state.undoState.undo()
+        rule.waitForIdle()
         state.undoState.undo()
 
-        assertThat(state.undoState.canUndo).isTrue()
-        assertThat(state.undoState.canRedo).isTrue()
+        rule.runOnIdle {
+            assertThat(state.undoState.canUndo).isTrue()
+            assertThat(state.undoState.canRedo).isTrue()
+        }
 
         state.undoState.clearHistory()
 
-        assertThat(state.undoState.canUndo).isFalse()
-        assertThat(state.undoState.canRedo).isFalse()
+        rule.runOnIdle {
+            assertThat(state.undoState.canUndo).isFalse()
+            assertThat(state.undoState.canRedo).isFalse()
+        }
     }
 
     @Test
@@ -346,8 +356,16 @@ internal class BasicTextField2UndoTest {
         text.forEach { performTextInput(it.toString()) }
     }
 
+    private fun TextFieldState.assertText(text: String) {
+        rule.runOnIdle {
+            assertThat(this.text.toString()).isEqualTo(text)
+        }
+    }
+
     private fun TextFieldState.assertTextAndSelection(text: String, selection: TextRange) {
-        assertThat(this.text.toString()).isEqualTo(text)
-        assertThat(this.text.selectionInChars).isEqualTo(selection)
+        rule.runOnIdle {
+            assertThat(this.text.toString()).isEqualTo(text)
+            assertThat(this.text.selectionInChars).isEqualTo(selection)
+        }
     }
 }

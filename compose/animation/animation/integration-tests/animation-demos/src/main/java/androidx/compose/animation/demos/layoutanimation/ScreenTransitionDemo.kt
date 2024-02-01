@@ -108,7 +108,7 @@ fun ScreenTransitionDemo() {
 
                     TestScreens.Screen3 isTransitioningTo TestScreens.Screen1 ->
                         slideIntoContainer(towards = SlideDirection.Right) togetherWith
-                            ExitTransition.Hold
+                            ExitTransition.KeepUntilTransitionsFinished
 
                     else ->
                         // Material fade through

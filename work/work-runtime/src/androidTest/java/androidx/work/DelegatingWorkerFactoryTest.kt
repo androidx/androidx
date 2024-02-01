@@ -107,9 +107,9 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
 
 class NoOpFactory : WorkerFactory() {
     override fun createWorker(
-        context: Context,
-        workerClass: String,
-        parameters: WorkerParameters
+        appContext: Context,
+        workerClassName: String,
+        workerParameters: WorkerParameters
     ): ListenableWorker? {
         return null
     }
@@ -117,10 +117,10 @@ class NoOpFactory : WorkerFactory() {
 
 class FailedWorkerFactory : WorkerFactory() {
     override fun createWorker(
-        context: Context,
-        workerClass: String,
-        parameters: WorkerParameters
-    ): ListenableWorker? {
-        return FailureWorker(context, parameters)
+        appContext: Context,
+        workerClassName: String,
+        workerParameters: WorkerParameters
+    ): ListenableWorker {
+        return FailureWorker(appContext, workerParameters)
     }
 }

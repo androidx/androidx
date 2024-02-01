@@ -390,14 +390,13 @@ public class ObserverManager {
         Map<String, Set<String>> schemaChanges = observerInfo.mSchemaChanges;
         Map<DocumentChangeGroupKey, Set<String>> documentChanges = observerInfo.mDocumentChanges;
         if (schemaChanges.isEmpty() && documentChanges.isEmpty()) {
+            // There is nothing to send, return early.
             return;
         }
-        if (!schemaChanges.isEmpty()) {
-            observerInfo.mSchemaChanges = new ArrayMap<>();
-        }
-        if (!documentChanges.isEmpty()) {
-            observerInfo.mDocumentChanges = new ArrayMap<>();
-        }
+        // Clean the pending changes in the observer. We already copy pending changes to local
+        // variables.
+        observerInfo.mSchemaChanges = new ArrayMap<>();
+        observerInfo.mDocumentChanges = new ArrayMap<>();
 
         // Dispatch the pending changes
         observerInfo.mExecutor.execute(() -> {

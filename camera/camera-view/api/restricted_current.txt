@@ -11,6 +11,7 @@ package androidx.camera.view {
     method @MainThread public java.util.concurrent.Executor? getImageAnalysisBackgroundExecutor();
     method @MainThread public int getImageAnalysisBackpressureStrategy();
     method @MainThread public int getImageAnalysisImageQueueDepth();
+    method @MainThread public int getImageAnalysisOutputImageFormat();
     method @MainThread public androidx.camera.core.resolutionselector.ResolutionSelector? getImageAnalysisResolutionSelector();
     method @Deprecated @MainThread public androidx.camera.view.CameraController.OutputSize? getImageAnalysisTargetSize();
     method @MainThread public int getImageCaptureFlashMode();
@@ -42,6 +43,7 @@ package androidx.camera.view {
     method @MainThread public void setImageAnalysisBackgroundExecutor(java.util.concurrent.Executor?);
     method @MainThread public void setImageAnalysisBackpressureStrategy(int);
     method @MainThread public void setImageAnalysisImageQueueDepth(int);
+    method @MainThread public void setImageAnalysisOutputImageFormat(int);
     method @MainThread public void setImageAnalysisResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector?);
     method @Deprecated @MainThread public void setImageAnalysisTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setImageCaptureFlashMode(int);
@@ -107,6 +109,7 @@ package androidx.camera.view {
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setImplementationMode(androidx.camera.view.PreviewView.ImplementationMode);
     method @UiThread public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
+    method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
 
   @RequiresApi(21) public enum PreviewView.ImplementationMode {
@@ -136,6 +139,16 @@ package androidx.camera.view {
 
   public static interface RotationProvider.Listener {
     method public void onRotationChanged(int);
+  }
+
+  @RequiresApi(21) public final class ScreenFlashView extends android.view.View {
+    ctor @UiThread public ScreenFlashView(android.content.Context);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int, int);
+    method @UiThread public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
+    method @UiThread public void setController(androidx.camera.view.CameraController?);
+    method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
 
 }

@@ -17,10 +17,9 @@
 package androidx.compose.ui.graphics.colorspace
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.util.fastCbrt
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.packFloats
-import kotlin.math.abs
-import kotlin.math.pow
-import kotlin.math.sign
 
 /**
  * Implementation of the Oklab color space. Oklab uses
@@ -46,9 +45,9 @@ internal class Oklab(
     }
 
     override fun toXyz(v: FloatArray): FloatArray {
-        v[0] = v[0].coerceIn(0f, 1f)
-        v[1] = v[1].coerceIn(-0.5f, 0.5f)
-        v[2] = v[2].coerceIn(-0.5f, 0.5f)
+        v[0] = v[0].fastCoerceIn(0f, 1f)
+        v[1] = v[1].fastCoerceIn(-0.5f, 0.5f)
+        v[2] = v[2].fastCoerceIn(-0.5f, 0.5f)
 
         mul3x3Float3(InverseM2, v)
         v[0] = v[0] * v[0] * v[0]
@@ -60,9 +59,9 @@ internal class Oklab(
     }
 
     override fun toXy(v0: Float, v1: Float, v2: Float): Long {
-        val v00 = v0.coerceIn(0f, 1f)
-        val v10 = v1.coerceIn(-0.5f, 0.5f)
-        val v20 = v2.coerceIn(-0.5f, 0.5f)
+        val v00 = v0.fastCoerceIn(0f, 1f)
+        val v10 = v1.fastCoerceIn(-0.5f, 0.5f)
+        val v20 = v2.fastCoerceIn(-0.5f, 0.5f)
 
         val v01 = mul3x3Float3_0(InverseM2, v00, v10, v20)
         val v11 = mul3x3Float3_1(InverseM2, v00, v10, v20)
@@ -79,9 +78,9 @@ internal class Oklab(
     }
 
     override fun toZ(v0: Float, v1: Float, v2: Float): Float {
-        val v00 = v0.coerceIn(0f, 1f)
-        val v10 = v1.coerceIn(-0.5f, 0.5f)
-        val v20 = v2.coerceIn(-0.5f, 0.5f)
+        val v00 = v0.fastCoerceIn(0f, 1f)
+        val v10 = v1.fastCoerceIn(-0.5f, 0.5f)
+        val v20 = v2.fastCoerceIn(-0.5f, 0.5f)
 
         val v01 = mul3x3Float3_0(InverseM2, v00, v10, v20)
         val v11 = mul3x3Float3_1(InverseM2, v00, v10, v20)
@@ -107,9 +106,9 @@ internal class Oklab(
         var v1 = mul3x3Float3_1(M1, x, y, z)
         var v2 = mul3x3Float3_2(M1, x, y, z)
 
-        v0 = sign(v0) * abs(v0).pow(1.0f / 3.0f)
-        v1 = sign(v1) * abs(v1).pow(1.0f / 3.0f)
-        v2 = sign(v2) * abs(v2).pow(1.0f / 3.0f)
+        v0 = fastCbrt(v0)
+        v1 = fastCbrt(v1)
+        v2 = fastCbrt(v2)
 
         val v01 = mul3x3Float3_0(M2, v0, v1, v2)
         val v11 = mul3x3Float3_1(M2, v0, v1, v2)
@@ -121,9 +120,9 @@ internal class Oklab(
     override fun fromXyz(v: FloatArray): FloatArray {
         mul3x3Float3(M1, v)
 
-        v[0] = sign(v[0]) * abs(v[0]).pow(1.0f / 3.0f)
-        v[1] = sign(v[1]) * abs(v[1]).pow(1.0f / 3.0f)
-        v[2] = sign(v[2]) * abs(v[2]).pow(1.0f / 3.0f)
+        v[0] = fastCbrt(v[0])
+        v[1] = fastCbrt(v[1])
+        v[2] = fastCbrt(v[2])
 
         mul3x3Float3(M2, v)
         return v

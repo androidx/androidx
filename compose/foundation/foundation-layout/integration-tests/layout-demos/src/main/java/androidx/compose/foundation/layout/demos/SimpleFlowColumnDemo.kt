@@ -20,13 +20,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.samples.SimpleFlowColumn
 import androidx.compose.foundation.layout.samples.SimpleFlowColumnWithWeights
+import androidx.compose.foundation.layout.samples.SimpleFlowColumn_EqualWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SimpleFlowColumnDemo() {
-    Column() {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         SimpleFlowColumn()
         SimpleFlowColumnWithWeights()
+        SimpleFlowColumn_EqualWidth()
     }
 }

@@ -21,7 +21,6 @@ import androidx.activity.lint.stubs.STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -186,7 +185,6 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             .run().expectClean()
     }
 
-    @Ignore // b/293517205
     @Test
     fun expectFailRegisterForActivityResult() {
         lint().files(
@@ -220,7 +218,6 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             )
     }
 
-    @Ignore // b/293517205
     @Test
     fun expectFailRegisterForActivityResultInMethod() {
         lint().files(
@@ -258,7 +255,6 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             )
     }
 
-    @Ignore // b/293517205
     @Test
     fun expectFailRegisterForActivityResultMultipleCalls() {
         lint().files(
@@ -301,7 +297,6 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             )
     }
 
-    @Ignore // b/293517205
     @Test
     fun expectFailTransitiveDependency() {
         val projectFragment = project(

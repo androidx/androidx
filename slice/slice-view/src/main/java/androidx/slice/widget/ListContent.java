@@ -36,7 +36,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -53,7 +52,6 @@ import java.util.List;
  * Extracts information required to present content in a list format from a slice.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(19)
 @Deprecated
 public class ListContent extends SliceContent {
 

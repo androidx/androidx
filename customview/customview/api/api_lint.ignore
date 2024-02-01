@@ -35,6 +35,10 @@ MissingNullability: androidx.customview.widget.ExploreByTouchHelper#onInitialize
     Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
 
 
+NotCloseable: androidx.customview.widget.Openable:
+    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.customview.widget.Openable
+
+
 ParcelConstructor: androidx.customview.view.AbsSavedState#AbsSavedState(android.os.Parcel):
     Parcelable inflation is exposed through CREATOR, not raw constructors, in androidx.customview.view.AbsSavedState
 

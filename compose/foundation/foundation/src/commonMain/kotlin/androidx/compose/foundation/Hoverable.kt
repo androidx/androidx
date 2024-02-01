@@ -65,6 +65,7 @@ private class HoverableElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "hoverable"
         properties["interactionSource"] = interactionSource
+        properties["enabled"] = true
     }
 }
 
@@ -102,7 +103,7 @@ private class HoverableNode(
         tryEmitExit()
     }
 
-    suspend fun emitEnter() {
+    private suspend fun emitEnter() {
         if (hoverInteraction == null) {
             val interaction = HoverInteraction.Enter()
             interactionSource.emit(interaction)
@@ -110,7 +111,7 @@ private class HoverableNode(
         }
     }
 
-    suspend fun emitExit() {
+    private suspend fun emitExit() {
         hoverInteraction?.let { oldValue ->
             val interaction = HoverInteraction.Exit(oldValue)
             interactionSource.emit(interaction)
@@ -118,7 +119,7 @@ private class HoverableNode(
         }
     }
 
-    fun tryEmitExit() {
+    private fun tryEmitExit() {
         hoverInteraction?.let { oldValue ->
             val interaction = HoverInteraction.Exit(oldValue)
             interactionSource.tryEmit(interaction)

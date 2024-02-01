@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-
-import androidx.build.KmpPlatformsKt
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -26,11 +30,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -46,10 +48,13 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-geometry"))
 
                 implementation(project(":compose:ui:ui-util"))
+
+                implementation("androidx.collection:collection:1.4.0")
             }
         }
         androidMain.dependencies {
             api("androidx.annotation:annotation:1.1.0")
+            api("androidx.annotation:annotation-experimental:1.4.0")
             implementation("androidx.core:core-ktx:1.5.0")
         }
 
@@ -71,17 +76,15 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    api(project(":compose:foundation:foundation-layout"))
-                    api(project(":compose:runtime:runtime"))
-                    api(project(":compose:ui:ui"))
-                    api(project(":compose:ui:ui-geometry"))
-                    implementation(project(":compose:ui:ui-util"))
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                api(project(":compose:foundation:foundation-layout"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:ui:ui"))
+                api(project(":compose:ui:ui-geometry"))
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -113,11 +116,9 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
             }
         }
     }

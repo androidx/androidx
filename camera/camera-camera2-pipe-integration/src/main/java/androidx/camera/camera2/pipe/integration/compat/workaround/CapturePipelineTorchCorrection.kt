@@ -18,19 +18,23 @@
 
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter.Companion.getStillCaptureTemplate
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.TorchIsClosedAfterImageCapturingQuirk
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
+import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.TorchState
+import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.Config
 import javax.inject.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.joinAll
@@ -45,22 +49,35 @@ import kotlinx.coroutines.launch
  */
 @UseCaseCameraScope
 class CapturePipelineTorchCorrection @Inject constructor(
+    cameraProperties: CameraProperties,
     private val capturePipelineImpl: CapturePipelineImpl,
     private val threads: UseCaseThreads,
     private val torchControl: TorchControl,
 ) : CapturePipeline {
+    private val isLegacyDevice = cameraProperties.metadata[
+        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
+    ] == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
 
     override suspend fun submitStillCaptures(
-        requests: List<Request>,
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
         captureMode: Int,
         flashType: Int,
         flashMode: Int
     ): List<Deferred<Void?>> {
-        val needCorrectTorchState = isCorrectionRequired(requests)
+        val needCorrectTorchState = isCorrectionRequired(configs, requestTemplate)
 
         // Forward the capture request to capturePipelineImpl
         val deferredResults =
-            capturePipelineImpl.submitStillCaptures(requests, captureMode, flashType, flashMode)
+            capturePipelineImpl.submitStillCaptures(
+                configs,
+                requestTemplate,
+                sessionConfigOptions,
+                captureMode,
+                flashType,
+                flashMode
+            )
 
         if (needCorrectTorchState) {
             threads.sequentialScope.launch {
@@ -85,22 +102,21 @@ class CapturePipelineTorchCorrection @Inject constructor(
      * Return true means the Torch will be unexpectedly closed, and it requires turning on the
      * Torch again after the capturing.
      */
-    private fun isCorrectionRequired(requests: Collection<Request>): Boolean {
-        return requests.contains(stillCaptureTemplate) && isTorchOn()
-    }
-
-    private fun Collection<Request>.contains(template: RequestTemplate): Boolean {
-        forEach { request ->
-            if (request.template == template)
-                return true
-        }
-        return false
+    private fun isCorrectionRequired(
+        captureConfigs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+    ): Boolean {
+        return captureConfigs.any {
+            it.getStillCaptureTemplate(
+                requestTemplate,
+                isLegacyDevice,
+            ).value == CameraDevice.TEMPLATE_STILL_CAPTURE
+        } && isTorchOn()
     }
 
     private fun isTorchOn() = torchControl.torchStateLiveData.value == TorchState.ON
 
     companion object {
         val isEnabled = DeviceQuirks[TorchIsClosedAfterImageCapturingQuirk::class.java] != null
-        private val stillCaptureTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
     }
 }

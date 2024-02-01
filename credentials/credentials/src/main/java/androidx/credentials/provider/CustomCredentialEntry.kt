@@ -127,6 +127,16 @@ class CustomCredentialEntry internal constructor(
         beginGetCredentialOption
     )
 
+    @RequiresApi(34)
+    private object Api34Impl {
+        @JvmStatic
+        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
+            CustomCredentialEntry? {
+            val slice = credentialEntry.slice
+            return fromSlice(slice)
+        }
+    }
+
     @RequiresApi(28)
     private object Api28Impl {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -292,7 +302,7 @@ class CustomCredentialEntry internal constructor(
         }
     }
 
-    internal companion object {
+    companion object {
         private const val TAG = "CredentialEntry"
 
         private const val SLICE_HINT_TYPE_DISPLAY_NAME =
@@ -355,12 +365,27 @@ class CustomCredentialEntry internal constructor(
          * @param slice the [Slice] object constructed through [toSlice]
          *
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun fromSlice(slice: Slice): CustomCredentialEntry? {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.fromSlice(slice)
+            }
+            return null
+        }
+
+        /**
+         * Converts a framework [android.service.credentials.CredentialEntry] class to a Jetpack
+         * [CustomCredentialEntry] class
+         *
+         * @param credentialEntry the instance of framework class to be converted
+         */
+        @JvmStatic
+        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
+            CustomCredentialEntry? {
+            if (Build.VERSION.SDK_INT >= 34) {
+                return Api34Impl.fromCredentialEntry(credentialEntry)
             }
             return null
         }

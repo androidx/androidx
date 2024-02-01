@@ -28,7 +28,9 @@ import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.build.gradle.tasks.ProcessLibraryManifest
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 object MetalavaTasks {
 
@@ -48,6 +50,7 @@ object MetalavaTasks {
         // binary compatibility for APIs annotated with @RestrictTo(LIBRARY_GROUP). This is
         // implemented by excluding APIs with this annotation from the restricted API file.
         val generateRestrictToLibraryGroupAPIs = !extension.mavenGroup!!.requireSameVersion
+        val kotlinSourceLevel: Provider<KotlinVersion> = extension.kotlinApiVersion
         val generateApi =
             project.tasks.register("generateApi", GenerateApiTask::class.java) { task ->
                 task.group = "API"
@@ -58,6 +61,7 @@ object MetalavaTasks {
                 task.baselines.set(baselinesApiLocation)
                 task.targetsJavaConsumers = extension.targetsJavaConsumers
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
+                task.kotlinSourceLevel.set(kotlinSourceLevel)
 
                 // Arguments needed for generating the API levels JSON
                 task.projectApiDirectory = project.layout.projectDirectory.dir("api")
@@ -88,6 +92,7 @@ object MetalavaTasks {
                     task.dependencyClasspath = javaCompileInputs.dependencyClasspath
                     task.bootClasspath = javaCompileInputs.bootClasspath
                     task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
+                    task.kotlinSourceLevel.set(kotlinSourceLevel)
                     task.cacheEvenIfNoOutputs()
                     task.dependsOn(generateApi)
                 }
@@ -103,6 +108,7 @@ object MetalavaTasks {
                     task.dependencyClasspath = javaCompileInputs.dependencyClasspath
                     task.bootClasspath = javaCompileInputs.bootClasspath
                     task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
+                    task.kotlinSourceLevel.set(kotlinSourceLevel)
                     task.dependsOn(generateApi)
                 }
         }
@@ -116,6 +122,7 @@ object MetalavaTasks {
                 task.baselines.set(baselinesApiLocation)
                 task.targetsJavaConsumers.set(extension.targetsJavaConsumers)
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
+                task.kotlinSourceLevel.set(kotlinSourceLevel)
                 processManifest?.let { task.manifestPath.set(processManifest.manifestOutputFile) }
                 applyInputs(javaCompileInputs, task)
             }
@@ -142,6 +149,7 @@ object MetalavaTasks {
                 task.description =
                     "Regenerates historic API .txt files using the " +
                         "corresponding prebuilt and the latest Metalava"
+                task.kotlinSourceLevel.set(kotlinSourceLevel)
                 task.generateRestrictToLibraryGroupAPIs = generateRestrictToLibraryGroupAPIs
             }
 

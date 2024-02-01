@@ -33,7 +33,7 @@ import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallException
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
-import androidx.core.telecom.internal.utils.CapabilityExchangeUtils
+import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.CoroutineContext
@@ -52,7 +52,8 @@ internal class CallSessionLegacy(
     val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Unit,
     val onSetActiveCallback: suspend () -> Unit,
     val onSetInactiveCallback: suspend () -> Unit,
-    private val blockingSessionExecution: CompletableDeferred<Unit>
+    private val blockingSessionExecution: CompletableDeferred<Unit>,
+    private val voipExtensionManager: VoipExtensionManager
 ) : android.telecom.Connection() {
     // instance vars
     private val TAG: String = CallSessionLegacy::class.java.simpleName
@@ -132,7 +133,7 @@ internal class CallSessionLegacy(
                 "beginning capability exchange.")
             // Launch a new coroutine from the context of the current coroutine
             CoroutineScope(coroutineContext).launch {
-                CapabilityExchangeUtils.initiateVoipAppCapabilityExchange(
+                voipExtensionManager.initiateVoipAppCapabilityExchange(
                     extras!!, supportedCapabilities, TAG)
             }
         }

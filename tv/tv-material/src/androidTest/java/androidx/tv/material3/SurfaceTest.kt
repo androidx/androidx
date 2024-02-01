@@ -21,6 +21,7 @@ import android.os.SystemClock
 import android.view.KeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,13 +29,16 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -516,7 +520,7 @@ class SurfaceTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun clickableSurface_onFocus_changesGlowColor() {
-        rule.setContent {
+        rule.setFocusableContent {
             Surface(
                 modifier = Modifier
                     .testTag("surface")
@@ -926,8 +930,8 @@ class SurfaceTest {
     @Test
     fun toggleableSurface_onCheckedChange_changesGlowColor() {
         var isChecked by mutableStateOf(false)
-        var focusManager: FocusManager? = null
-        rule.setContent {
+        lateinit var focusManager: FocusManager
+        rule.setFocusableContent {
             focusManager = LocalFocusManager.current
             Surface(
                 checked = isChecked,
@@ -960,7 +964,7 @@ class SurfaceTest {
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
-        focusManager?.clearFocus()
+        rule.runOnUiThread { focusManager.clearFocus() }
 
         rule.onNodeWithTag("surface")
             .captureToImage()
@@ -971,8 +975,8 @@ class SurfaceTest {
     @Test
     fun toggleableSurface_onCheckedChange_changesScaleFactor() {
         var isChecked by mutableStateOf(false)
-        var focusManager: FocusManager? = null
-        rule.setContent {
+        lateinit var focusManager: FocusManager
+        rule.setFocusableContent {
             focusManager = LocalFocusManager.current
             Box(
                 modifier = Modifier
@@ -997,7 +1001,7 @@ class SurfaceTest {
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
-        focusManager?.clearFocus()
+        rule.runOnUiThread { focusManager.clearFocus() }
 
         rule.onRoot().captureToImage().assertDoesNotContainColor(Color.Blue)
     }
@@ -1006,8 +1010,8 @@ class SurfaceTest {
     @Test
     fun toggleableSurface_onCheckedChange_showsOutline() {
         var isChecked by mutableStateOf(false)
-        var focusManager: FocusManager? = null
-        rule.setContent {
+        lateinit var focusManager: FocusManager
+        rule.setFocusableContent {
             focusManager = LocalFocusManager.current
             Surface(
                 checked = isChecked,
@@ -1036,7 +1040,9 @@ class SurfaceTest {
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
-        focusManager?.clearFocus()
+        rule.runOnUiThread { focusManager.clearFocus() }
+
+        rule.waitForIdle()
 
         surface.captureToImage().assertContainsColor(Color.Magenta)
     }
@@ -1073,7 +1079,7 @@ class SurfaceTest {
         val clickableItemTag = "clickable-item"
         val toggleableItemTag = "toggleable-item"
         val rootElementTag = "root"
-        var focusManager: FocusManager? = null
+        lateinit var focusManager: FocusManager
 
         rule.setContent {
             // arrange
@@ -1147,7 +1153,7 @@ class SurfaceTest {
         // blue border shouldn't be visible
         rootEl.captureToImage().assertDoesNotContainColor(Color.Blue)
 
-        focusManager?.moveFocus(FocusDirection.Down)
+        focusManager.moveFocus(FocusDirection.Down)
         rule.waitForIdle()
 
         // blue border should be visible
@@ -1158,7 +1164,7 @@ class SurfaceTest {
             .performSemanticsAction(SemanticsActions.OnClick)
         rule.waitForIdle()
 
-        focusManager?.moveFocus(FocusDirection.Up)
+        focusManager.moveFocus(FocusDirection.Up)
         rule.waitForIdle()
 
         // blue border shouldn't be visible
@@ -1207,8 +1213,7 @@ class SurfaceTest {
             rule
                 .onNodeWithTag(containerTag)
                 .captureToImage()
-                .toPixelMap(0, 0, 1, 1)
-                .get(0, 0) == Color.White
+                .toPixelMap(0, 0, 1, 1)[0, 0] == Color.White
         )
 
         rule.onNodeWithTag(surfaceTag).requestFocus()
@@ -1219,8 +1224,7 @@ class SurfaceTest {
             rule
                 .onNodeWithTag(containerTag)
                 .captureToImage()
-                .toPixelMap(0, 0, 1, 1)
-                .get(0, 0) == Color.Red
+                .toPixelMap(0, 0, 1, 1)[0, 0] == Color.Red
         )
     }
 }
@@ -1257,4 +1261,30 @@ internal fun SemanticsNodeInteraction.performLongKeyPress(
         rule.waitForIdle()
     }
     return this
+}
+
+/**
+ * This function adds a parent composable which has size.
+ * [View.requestFocus()][android.view.View.requestFocus] will not take focus if the view has no
+ * size.
+ *
+ * @param extraItemForInitialFocus Includes an extra item that takes focus initially. This is
+ * useful in cases where we need tests that could be affected by initial focus. Eg. When there is
+ * only one focusable item and we clear focus, that item could end up being focused on again by the
+ * initial focus logic.
+ */
+private fun ComposeContentTestRule.setFocusableContent(
+    extraItemForInitialFocus: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    setContent {
+        if (extraItemForInitialFocus) {
+            Row {
+                Box(modifier = Modifier.requiredSize(10.dp, 10.dp).focusable())
+                Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
+            }
+        } else {
+            Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
+        }
+    }
 }

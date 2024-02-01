@@ -35,11 +35,12 @@ enum class PlatformGroup {
     JS,
     MAC,
     LINUX,
-    DESKTOP;
+    DESKTOP,
+    ANDROID_NATIVE;
 
     companion object {
         /** Target platform groups which require native compilation (e.g. LLVM). */
-        val native = listOf(MAC, LINUX)
+        val native = listOf(MAC, LINUX, ANDROID_NATIVE)
 
         /**
          * Target platform groups which are enabled by default.
@@ -59,6 +60,10 @@ enum class PlatformIdentifier(
     JVM("jvm", PlatformGroup.JVM),
     JS("js", PlatformGroup.JS),
     ANDROID("android", PlatformGroup.JVM),
+    ANDROID_NATIVE_ARM32("androidNativeArm32", PlatformGroup.ANDROID_NATIVE),
+    ANDROID_NATIVE_ARM64("androidNativeArm64", PlatformGroup.ANDROID_NATIVE),
+    ANDROID_NATIVE_X86("androidNativeX86", PlatformGroup.ANDROID_NATIVE),
+    ANDROID_NATIVE_X64("androidNativeX64", PlatformGroup.ANDROID_NATIVE),
     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
     MAC_OSX_64("macosx64", PlatformGroup.MAC),
     LINUX_64("linuxx64", PlatformGroup.LINUX),

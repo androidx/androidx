@@ -43,7 +43,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
-import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -125,11 +124,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
             if (sHandler == null) {
                 return;
             }
-            if (Build.VERSION.SDK_INT >= 18) {
-                sHandler.getLooper().quitSafely();
-            } else {
-                sHandler.getLooper().quit();
-            }
+            sHandler.getLooper().quitSafely();
             sHandler = null;
             sHandlerExecutor = null;
         }

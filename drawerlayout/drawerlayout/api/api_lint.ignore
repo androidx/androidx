@@ -17,8 +17,6 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout#checkLayoutParams(
     Missing nullability on parameter `p` in method `checkLayoutParams`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#dispatchGenericMotionEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `event` in method `dispatchGenericMotionEvent`
-MissingNullability: androidx.drawerlayout.widget.DrawerLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
-    Missing nullability on parameter `canvas` in method `drawChild`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
     Missing nullability on parameter `child` in method `drawChild`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#generateDefaultLayoutParams():
@@ -31,8 +29,6 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout#generateLayoutPara
     Missing nullability on method `generateLayoutParams` return
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `p` in method `generateLayoutParams`
-MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onDraw(android.graphics.Canvas) parameter #0:
-    Missing nullability on parameter `c` in method `onDraw`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onInterceptTouchEvent`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onKeyDown(int, android.view.KeyEvent) parameter #1:
@@ -47,6 +43,10 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SavedState#CREATOR
     Missing nullability on field `CREATOR` in class `class androidx.drawerlayout.widget.DrawerLayout.SavedState`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `dest` in method `writeToParcel`
+
+
+NotCloseable: androidx.drawerlayout.widget.DrawerLayout:
+    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.drawerlayout.widget.DrawerLayout
 
 
 ParcelCreator: androidx.drawerlayout.widget.DrawerLayout.SavedState:

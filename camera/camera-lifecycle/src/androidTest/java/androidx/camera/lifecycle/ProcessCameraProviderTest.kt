@@ -23,6 +23,8 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.camera.core.CameraFilter
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
@@ -31,7 +33,13 @@ import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
+import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
+import androidx.camera.core.impl.Config
+import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
+import androidx.camera.core.impl.Identifier
+import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
@@ -40,6 +48,7 @@ import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
 import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.testing.impl.fakes.FakeSurfaceProcessor
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
@@ -844,6 +853,81 @@ class ProcessCameraProviderTest {
                 }
             }
         }
+    }
+
+    @Test
+    @RequiresApi(23)
+    fun bindWithExtensions_doesNotImpactPreviousCamera(): Unit = runBlocking(Dispatchers.Main) {
+        // 1. Arrange.
+        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        val cameraSelectorWithExtensions = getCameraSelectorWithLimitedCapabilities(
+            cameraSelector,
+            emptySet() // All capabilities are not supported.
+        )
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val useCase = Preview.Builder().build()
+
+        // 2. Act: bind with and then without Extensions.
+        // bind with regular cameraSelector to get the regular camera (with empty use cases)
+        val camera = provider.bindToLifecycle(lifecycleOwner0, cameraSelector)
+        // bind with extensions cameraSelector to get the restricted version of camera.
+        val cameraWithExtensions = provider.bindToLifecycle(lifecycleOwner0,
+            cameraSelectorWithExtensions, useCase)
+
+        // 3. Assert: ensure we can different instances of Camera and one does not affect the other.
+        assertThat(camera).isNotSameInstanceAs(cameraWithExtensions)
+
+        // only the Extensions CameraControl does not support the zoom.
+        camera.cameraControl.setZoomRatio(1.0f).await()
+        assertThrows<IllegalStateException> {
+            cameraWithExtensions.cameraControl.setZoomRatio(1.0f).await()
+        }
+
+        // only the Extensions CameraInfo does not support the zoom.
+        assertThat(camera.cameraInfo.zoomState.value!!.maxZoomRatio).isGreaterThan(1.0f)
+        assertThat(cameraWithExtensions.cameraInfo.zoomState.value!!.maxZoomRatio).isEqualTo(1.0f)
+    }
+
+    @RequiresApi(23)
+    private fun getCameraSelectorWithLimitedCapabilities(
+        cameraSelector: CameraSelector,
+        supportedCapabilities: Set<Int>
+    ): CameraSelector {
+        val identifier = Identifier.create("idStr")
+        val sessionProcessor = FakeSessionProcessor()
+        sessionProcessor.restrictedCameraOperations = supportedCapabilities
+        ExtendedCameraConfigProviderStore.addConfig(identifier) { _, _ ->
+            object : CameraConfig {
+                override fun getConfig(): Config {
+                    return MutableOptionsBundle.create()
+                }
+
+                override fun getCompatibilityId(): Identifier {
+                    return identifier
+                }
+
+                override fun getSessionProcessor(
+                    valueIfMissing: SessionProcessor?
+                ) = sessionProcessor
+
+                override fun getSessionProcessor() = sessionProcessor
+            }
+        }
+
+        val builder = CameraSelector.Builder.fromSelector(cameraSelector)
+        builder.addCameraFilter(object : CameraFilter {
+            override fun filter(cameraInfos: MutableList<CameraInfo>): MutableList<CameraInfo> {
+                val newCameraInfos = mutableListOf<CameraInfo>()
+                newCameraInfos.addAll(cameraInfos)
+                return newCameraInfos
+            }
+
+            override fun getIdentifier(): Identifier {
+                return identifier
+            }
+        })
+
+        return builder.build()
     }
 
     private fun createConcurrentCameraAppConfig(): CameraXConfig {

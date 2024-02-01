@@ -32,6 +32,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Observable
+import androidx.camera.core.impl.SessionProcessor
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
@@ -53,8 +54,9 @@ class CameraInternalAdapter @Inject constructor(
 ) : CameraInternal {
     private val cameraId = config.cameraId
     private var coreCameraConfig: androidx.camera.core.impl.CameraConfig =
-        CameraConfigs.emptyConfig()
+        CameraConfigs.defaultConfig()
     private val debugId = cameraAdapterIds.incrementAndGet()
+    private var sessionProcessor: SessionProcessor? = null
 
     init {
         debug { "Created $this for $cameraId" }
@@ -126,7 +128,9 @@ class CameraInternalAdapter @Inject constructor(
     }
 
     override fun setExtendedConfig(cameraConfig: androidx.camera.core.impl.CameraConfig?) {
-        coreCameraConfig = cameraConfig ?: CameraConfigs.emptyConfig()
+        coreCameraConfig = cameraConfig ?: CameraConfigs.defaultConfig()
+        sessionProcessor = cameraConfig?.getSessionProcessor(null)
+        useCaseManager.sessionProcessor = sessionProcessor
     }
 
     override fun toString(): String = "CameraInternalAdapter<$cameraId>"

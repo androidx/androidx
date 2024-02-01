@@ -31,6 +31,7 @@ import androidx.compose.foundation.text2.input.ImeActionHandler
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
+import androidx.compose.foundation.text2.input.TextFieldDecorator
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextObfuscationMode
@@ -73,16 +74,11 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
 /**
- * BasicSecureTextField is a new text input component that is still in heavy development.
- * We strongly advise against using it in production as its API and implementation are currently
- * unstable. Many essential features such as selection, cursor, gestures, etc. may not work
- * correctly or may not even exist yet.
- *
  * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
- * alternative to BasicTextField2. It only supports a single line of content and comes with default
- * settings for KeyboardOptions, filter, and codepointTransformation that are appropriate for
- * entering secure content. Additionally, some context menu actions like cut, copy, and drag are
- * disabled for added security.
+ * alternative to [BasicTextField2]. It only supports a single line of content and comes with
+ * default settings for [KeyboardOptions], [InputTransformation], and [CodepointTransformation] that
+ * are appropriate for entering secure content. Additionally, some context menu actions like cut,
+ * copy, and drag are disabled for added security.
  *
  * Whenever the user edits the text, [onValueChange] is called with the most up to date state
  * represented by [String] with which developer is expected to update their state.
@@ -91,13 +87,13 @@ import kotlinx.coroutines.launch
  * the field through the [value] parameter. If an unexpected [value] is passed in during this time,
  * the contents of the field will _not_ be updated to reflect the value until editing is done. When
  * editing is done (i.e. focus is lost), the field will be updated to the last [value] received. Use
- * a [filter] to accept or reject changes during editing. For more direct control of the field
- * contents use the [BasicTextField2] overload that accepts a [TextFieldState].
+ * an [inputTransformation] to accept or reject changes during editing. For more direct control of
+ * the field contents use the [BasicSecureTextField] overload that accepts a [TextFieldState].
  *
  * @param value The input [String] text to be shown in the text field.
  * @param onValueChange The callback that is triggered when the user or the system updates the
  * text. The updated text is passed as a parameter of the callback. The value passed to the callback
- * will already have had the [filter] applied.
+ * will already have had the [inputTransformation] applied.
  * @param modifier optional [Modifier] for this text field.
  * @param enabled controls the enabled state of the [BasicTextField2]. When `false`, the text
  * field will be neither editable nor focusable, the input of the text field will not be selectable.
@@ -114,24 +110,28 @@ import kotlinx.coroutines.launch
  * @param keyboardType The keyboard type to be used in this text field. It is set to
  * [KeyboardType.Password] by default. Use [KeyboardType.NumberPassword] for numerical password
  * fields.
- * @param inputTransformation Optional [InputTransformation] that will be used to filter changes to
- * the [TextFieldState] made by the user. The filter will be applied to changes made by hardware and
- * software keyboard events, pasting or dropping text, accessibility services, and tests. The filter
- * will _not_ be applied when changing the [value] programmatically, or when the filter is changed.
- * If the filter is changed on an existing text field, it will be applied to the next user edit.
- * the filter will not immediately affect the current [value].
+ * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
+ * to the [TextFieldState] made by the user. The transformation will be applied to changes made by
+ * hardware and software keyboard events, pasting or dropping text, accessibility services, and
+ * tests. The transformation will _not_ be applied when changing the [value] programmatically, or
+ * when the transformation is changed. If the transformation is changed on an existing text field,
+ * it will be applied to the next user edit. The transformation will not immediately affect the
+ * current [value].
  * @param textStyle Style configuration for text content that's displayed in the editor.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
  * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
- * provided, there will be no cursor drawn
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object that callback provides contains paragraph information, size of the
- * text, baselines and other details. The callback can be used to add additional decoration or
- * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
- * scope is the one that was used while creating the given text layout.
+ * provided, there will be no cursor drawn.
+ * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
+ * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
+ * or null if it cannot. The function reads the layout result from a snapshot state object, and will
+ * invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
+ * paragraph information, size of the text, baselines and other details. The callback can be used to
+ * add additional decoration or functionality to the text. For example, to draw a cursor or
+ * selection around the text. [Density] scope is the one that was used while creating the given text
+ * layout.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
  * messages or similar, and automatically increase the hit target area of the text field.
  * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
@@ -153,7 +153,7 @@ fun BasicSecureTextField(
     textStyle: TextStyle = TextStyle.Default,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
 ) {
@@ -207,16 +207,11 @@ fun BasicSecureTextField(
 }
 
 /**
- * BasicSecureTextField is a new text input component that is still in heavy development.
- * We strongly advise against using it in production as its API and implementation are currently
- * unstable. Many essential features such as selection, cursor, gestures, etc. may not work
- * correctly or may not even exist yet.
- *
  * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
- * alternative to BasicTextField2. It only supports a single line of content and comes with default
- * settings for KeyboardOptions, filter, and codepointTransformation that are appropriate for
- * entering secure content. Additionally, some context menu actions like cut, copy, and drag are
- * disabled for added security.
+ * alternative to [BasicTextField2]. It only supports a single line of content and comes with
+ * default settings for [KeyboardOptions], [InputTransformation], and [CodepointTransformation] that
+ * are appropriate for entering secure content. Additionally, some context menu actions like cut,
+ * copy, and drag are disabled for added security.
  *
  * @param state [TextFieldState] object that holds the internal state of a [BasicTextField2].
  * @param modifier optional [Modifier] for this text field.
@@ -235,24 +230,28 @@ fun BasicSecureTextField(
  * @param keyboardType The keyboard type to be used in this text field. It is set to
  * [KeyboardType.Password] by default. Use [KeyboardType.NumberPassword] for numerical password
  * fields.
- * @param inputTransformation Optional [InputTransformation] that will be used to filter changes to
- * the [TextFieldState] made by the user. The filter will be applied to changes made by hardware and
- * software keyboard events, pasting or dropping text, accessibility services, and tests. The filter
- * will _not_ be applied when changing the [state] programmatically, or when the filter is changed.
- * If the filter is changed on an existing text field, it will be applied to the next user edit.
- * the filter will not immediately affect the current [state].
+ * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
+ * to the [TextFieldState] made by the user. The transformation will be applied to changes made by
+ * hardware and software keyboard events, pasting or dropping text, accessibility services, and
+ * tests. The transformation will _not_ be applied when changing the [state] programmatically, or
+ * when the transformation is changed. If the transformation is changed on an existing text field,
+ * it will be applied to the next user edit. The transformation will not immediately affect the
+ * current [state].
  * @param textStyle Style configuration for text content that's displayed in the editor.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
  * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
- * provided, there will be no cursor drawn
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object that callback provides contains paragraph information, size of the
- * text, baselines and other details. The callback can be used to add additional decoration or
- * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
- * scope is the one that was used while creating the given text layout.
+ * provided, there will be no cursor drawn.
+ * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
+ * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
+ * or null if it cannot. The function reads the layout result from a snapshot state object, and will
+ * invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
+ * paragraph information, size of the text, baselines and other details. The callback can be used to
+ * add additional decoration or functionality to the text. For example, to draw a cursor or
+ * selection around the text. [Density] scope is the one that was used while creating the given text
+ * layout.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
  * messages or similar, and automatically increase the hit target area of the text field.
  * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
@@ -275,7 +274,7 @@ fun BasicSecureTextField(
     textStyle: TextStyle = TextStyle.Default,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing

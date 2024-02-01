@@ -74,7 +74,10 @@ class ImageCaptureOrientationConfigChangesTest(
             "Known issue on this device. Please see b/198744779",
             listOf(
                 "redmi note 9s",
-                "redmi note 8"
+                "redmi note 8",
+                "m2003j15sc", // Redmi Note 9
+                "m2006c3lg", // Redmi 9A
+                "m2006c3mg" // Redmi 9C
             ).contains(Build.MODEL.lowercase(Locale.US)) && rotation == Surface.ROTATION_180
         )
         CoreAppTestUtil.assumeCompatibleDevice()

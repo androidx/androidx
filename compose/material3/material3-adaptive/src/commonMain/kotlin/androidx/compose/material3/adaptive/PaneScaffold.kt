@@ -31,8 +31,10 @@ import androidx.compose.ui.unit.dp
 @ExperimentalMaterial3AdaptiveApi
 interface PaneScaffoldScope {
     /**
-     * Specify the preferred width of the pane. The relevant pane scaffold implementations are
-     * supposed to respect the preferred width of a pane whenever it's possible.
+     * This modifier specifies the preferred width for a pane, and the pane scaffold implementation
+     * will respect this width whenever possible. In case the modifier is not set or set to
+     * [Dp.Unspecified], the default preferred widths of the respective scaffold implementation will
+     * be used.
      */
     fun Modifier.preferredWidth(width: Dp): Modifier
 }
@@ -83,6 +85,44 @@ private class PreferredWidthNode(var width: Dp) : ParentDataModifierNode, Modifi
         }
 }
 
+internal fun Modifier.animatedPane(): Modifier {
+    return this.then(AnimatedPaneElement)
+}
+
+private object AnimatedPaneElement : ModifierNodeElement<AnimatedPaneNode>() {
+    private val inspectorInfo = debugInspectorInfo {
+        name = "isPaneComposable"
+        value = true
+    }
+
+    override fun create(): AnimatedPaneNode {
+        return AnimatedPaneNode()
+    }
+
+    override fun update(node: AnimatedPaneNode) {
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun hashCode(): Int {
+        return 0
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (other is AnimatedPaneElement)
+    }
+}
+
+private class AnimatedPaneNode : ParentDataModifierNode, Modifier.Node() {
+    override fun Density.modifyParentData(parentData: Any?) =
+        ((parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData()).also {
+            it.isAnimatedPane = true
+        }
+}
+
 internal data class PaneScaffoldParentData(
     var preferredWidth: Float? = null,
+    var isAnimatedPane: Boolean = false
 )

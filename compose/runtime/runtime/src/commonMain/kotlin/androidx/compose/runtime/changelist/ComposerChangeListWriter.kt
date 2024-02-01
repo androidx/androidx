@@ -29,6 +29,7 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SlotReader
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.Stack
+import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.runtimeCheck
 
 internal class ComposerChangeListWriter(
@@ -172,6 +173,8 @@ internal class ComposerChangeListWriter(
         }
     }
 
+    val pastParent: Boolean get() = reader.parent - writersReaderDelta < 0
+
     inline fun withChangeList(
         newChangeList: ChangeList,
         block: () -> Unit
@@ -202,6 +205,23 @@ internal class ComposerChangeListWriter(
     fun updateValue(value: Any?, groupSlotIndex: Int) {
         pushSlotTableOperationPreamble(useParentSlot = true)
         changeList.pushUpdateValue(value, groupSlotIndex)
+    }
+
+    fun updateAnchoredValue(value: Any?, anchor: Anchor, groupSlotIndex: Int) {
+        // Because this uses an anchor, it can be performed without positioning the writer.
+        changeList.pushUpdateAnchoredValue(value, anchor, groupSlotIndex)
+    }
+
+    fun appendValue(anchor: Anchor, value: Any?) {
+        // Because this uses an anchor, it can be performed without positioning the writer.
+        changeList.pushAppendValue(anchor, value)
+    }
+
+    fun trimValues(count: Int) {
+        if (count > 0) {
+            pushSlotEditingOperationPreamble()
+            changeList.pushTrimValues(count)
+        }
     }
 
     fun resetSlots() {

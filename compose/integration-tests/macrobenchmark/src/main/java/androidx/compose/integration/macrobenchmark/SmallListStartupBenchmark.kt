@@ -47,8 +47,8 @@ class SmallListStartupBenchmark(
      */
     private val metrics = getStartupMetrics() + if (startupMode == StartupMode.COLD) {
         listOf(
-            TraceSectionMetric("cache_hit", TraceSectionMetric.Mode.Sum),
-            TraceSectionMetric("cache_miss", TraceSectionMetric.Mode.Sum)
+            TraceSectionMetric("cache_hit", "shaderCacheHit"),
+            TraceSectionMetric("cache_miss", "shaderCacheMiss")
         )
     } else {
         emptyList()

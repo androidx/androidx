@@ -35,9 +35,14 @@ class HapticDemosActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.haptics_demos_activity)
-
         val hapticManager = HapticManager.create(this)
+
+        if (hapticManager == null) {
+            setContentView(R.layout.no_vibrator_message)
+            return
+        }
+
+        setContentView(R.layout.haptic_demos_activity)
         findViewById<Button>(R.id.standard_click_btn).setOnClickListener {
             hapticManager.play(
                 predefinedClick(),

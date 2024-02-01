@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,8 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -78,6 +82,13 @@ import androidx.compose.ui.window.PopupProperties
  * [LayoutDirection], so the offset's x position will be added in LTR and subtracted in RTL.
  * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
  * @param properties [PopupProperties] for further customization of this popup's behavior
+ * @param shape the shape of the menu
+ * @param containerColor the container color of the menu
+ * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary color
+ * overlay is applied on top of the container. A higher tonal elevation value will result in a
+ * darker color in light theme and lighter color in dark theme. See also: [Surface].
+ * @param shadowElevation the elevation for the shadow below the menu
+ * @param border the border to draw around the container of the menu. Pass `null` for no border.
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Composable
@@ -88,6 +99,11 @@ fun DropdownMenu(
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
+    shape: Shape = MenuDefaults.shape,
+    containerColor: Color = MenuDefaults.containerColor,
+    tonalElevation: Dp = MenuDefaults.TonalElevation,
+    shadowElevation: Dp = MenuDefaults.ShadowElevation,
+    border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val expandedState = remember { MutableTransitionState(false) }
@@ -114,14 +130,63 @@ fun DropdownMenu(
                 expandedState = expandedState,
                 transformOriginState = transformOriginState,
                 scrollState = scrollState,
+                shape = shape,
+                containerColor = containerColor,
+                tonalElevation = tonalElevation,
+                shadowElevation = shadowElevation,
+                border = border,
                 modifier = modifier,
-                content = content
+                content = content,
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        expression = "DropdownMenu(\n" +
+            "    expanded = expanded,\n" +
+            "    onDismissRequest = onDismissRequest,\n" +
+            "    modifier = modifier,\n" +
+            "    offset = offset,\n" +
+            "    scrollState = scrollState,\n" +
+            "    properties = properties,\n" +
+            "    shape = MenuDefaults.shape,\n" +
+            "    containerColor = MenuDefaults.containerColor,\n" +
+            "    tonalElevation = MenuDefaults.TonalElevation,\n" +
+            "    shadowElevation = MenuDefaults.ShadowElevation,\n" +
+            "    border = null,\n" +
+            "    content = content,\n" +
+            ")",
+    ),
+    message = "Maintained for binary compatibility. Use overload with parameters for shape, " +
+        "color, elevation, and border."
+)
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    scrollState: ScrollState = rememberScrollState(),
+    properties: PopupProperties = PopupProperties(focusable = true),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    scrollState = scrollState,
+    properties = properties,
+    shape = MenuDefaults.shape,
+    containerColor = MenuDefaults.containerColor,
+    tonalElevation = MenuDefaults.TonalElevation,
+    shadowElevation = MenuDefaults.ShadowElevation,
+    border = null,
+    content = content,
+)
+
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
     replaceWith = ReplaceWith(
@@ -172,9 +237,10 @@ fun DropdownMenu(
  * @param colors [MenuItemColors] that will be used to resolve the colors used for this menu item in
  * different states. See [MenuDefaults.itemColors].
  * @param contentPadding the padding applied to the content of this menu item
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this menu item. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this menu item in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this menu item. You can use this to change the menu item's appearance
+ * or preview the menu item in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun DropdownMenuItem(
@@ -186,7 +252,7 @@ fun DropdownMenuItem(
     enabled: Boolean = true,
     colors: MenuItemColors = MenuDefaults.itemColors(),
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
 ) {
     DropdownMenuItemContent(
         text = text,

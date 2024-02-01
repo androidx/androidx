@@ -71,21 +71,24 @@ class KmpPlatformsTest {
     @Test
     fun withTheNativeFlag_itParsesTheFlagCorrectly() {
         assertThat(parseTargetPlatformsFlag("+native")).isEqualTo(
-            setOf(PlatformGroup.JVM, PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP)
+            setOf(PlatformGroup.JVM, PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE)
         )
     }
 
     @Test
     fun withMultipleFlagsIncludingTheNativeFlag_itParsesTheFlagCorrectly() {
         assertThat(parseTargetPlatformsFlag("-jvm,+native,+js")).isEqualTo(
-            setOf(PlatformGroup.JS, PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP)
+            setOf(PlatformGroup.JS, PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE)
         )
     }
 
     @Test
     fun withRedundentFlags_itParsesTheFlagCorrectly() {
         assertThat(parseTargetPlatformsFlag("-jvm,+native,+linux,+mac,+linux")).isEqualTo(
-            setOf(PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP)
+            setOf(PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE)
         )
     }
 }

@@ -77,9 +77,12 @@ object Arguments {
     internal val thermalThrottleSleepDurationSeconds: Long
     private val cpuEventCounterEnable: Boolean
     internal val cpuEventCounterMask: Int
+    val runOnMainDeadlineSeconds: Long // non-internal, used in BenchmarkRule
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
+
+    private val targetPackageName: String?
 
     private const val prefix = "androidx.benchmark."
 
@@ -90,13 +93,30 @@ object Arguments {
         val argumentName = "profiling.mode"
         val argumentValue = getBenchmarkArgument(argumentName, "DEFAULT_VAL")
         if (argumentValue == "DEFAULT_VAL") {
-            return if (Build.VERSION.SDK_INT in 22..33) {
-                MethodTracing to true
-            } else {
-                // Method tracing can corrupt the stack on API 21, see b/300658578
-                // on API 34, it causes regressions in jit behavior, see b/303686344
+            return if (Build.VERSION.SDK_INT <= 21) {
+                // Have observed stack corruption on API 21, we haven't spent the time to find out
+                // why, or if it's better on other low API levels. See b/300658578
+                // TODO: consider adding warning here
                 null to true
-            }
+            } else if (DeviceInfo.methodTracingAffectsMeasurements) {
+                // We warn here instead of in Errors since this doesn't affect all measurements -
+                // BenchmarkState throws rather than measuring incorrectly, and the first benchmark
+                // can still measure with a trace safely
+                InstrumentationResults.scheduleIdeWarningOnNextReport(
+                    """
+                    NOTE: Your device is running a version of ART where method tracing is known to
+                    affect performance measurement after trace capture, so method tracing is
+                    off by default.
+
+                    To use method tracing, either flash this device, use a different device, or
+                    enable method tracing with MicrobenchmarkConfig / instrumentation argument, and
+                    only run one test at a time.
+
+                    For more information, see https://issuetracker.google.com/issues/316174880
+                    """.trimIndent()
+                )
+                null to true
+            } else MethodTracing to true
         }
 
         val profiler = Profiler.getByName(argumentValue)
@@ -130,6 +150,9 @@ object Arguments {
 
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
+
+        targetPackageName =
+            arguments.getBenchmarkArgument("targetPackageName", defaultValue = null)
 
         _perfettoSdkTracingEnable =
             arguments.getBenchmarkArgument("perfettoSdkTracing.enable")?.toBoolean()
@@ -225,6 +248,12 @@ object Arguments {
 
         enableStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
+
+        // very relaxed default to start, ideally this would be less than 5 (ANR timeout),
+        // but configurability should help experimenting / narrowing over time
+        runOnMainDeadlineSeconds =
+            arguments.getBenchmarkArgument("runOnMainDeadlineSeconds")?.toLong() ?: 30
+        Log.d(BenchmarkState.TAG, "runOnMainDeadlineSeconds $runOnMainDeadlineSeconds")
     }
 
     fun macrobenchMethodTracingEnabled(): Boolean {
@@ -240,4 +269,18 @@ object Arguments {
             throw AssertionError(error)
         }
     }
+
+    /**
+     * Retrieves the target app package name from the instrumentation runner arguments.
+     * Note that this is supported only when MacrobenchmarkRule and BaselineProfileRule are used
+     * with the baseline profile gradle plugin. This feature requires AGP 8.3.0-alpha10 as minimum
+     * version.
+     */
+    fun getTargetPackageNameOrThrow(): String = targetPackageName
+            ?: throw IllegalArgumentException("""
+        Can't retrieve the target package name from instrumentation arguments.
+        This feature requires the baseline profile gradle plugin with minimum version 1.3.0-alpha01
+        and the Android Gradle Plugin minimum version 8.3.0-alpha10.
+        Please ensure your project has the correct versions in order to use this feature.
+    """.trimIndent())
 }

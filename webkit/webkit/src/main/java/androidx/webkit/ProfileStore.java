@@ -19,6 +19,7 @@ package androidx.webkit;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.UiThread;
 import androidx.webkit.internal.ApiFeature;
 import androidx.webkit.internal.ProfileStoreImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -26,8 +27,7 @@ import androidx.webkit.internal.WebViewFeatureInternal;
 import java.util.List;
 
 /**
- * Manages any creation, deletion for {@link Profile}. All calls on the this class
- * <b>must</b> be called on the apps UI thread.
+ * Manages any creation, deletion for {@link Profile}.
  *
  * <p>Example usage:
  * <pre class="prettyprint">
@@ -41,11 +41,11 @@ import java.util.List;
  *
  * </pre>
  */
+@UiThread
 public interface ProfileStore {
 
     /**
-     * Returns the production instance of ProfileStore. This method must be called on
-     * the UI thread.
+     * Returns the production instance of ProfileStore.
      *
      * @return ProfileStore instance to use for managing profiles.
      */
@@ -65,8 +65,7 @@ public interface ProfileStore {
      * Returns a profile with the given name, creating if needed.
      * <p>
      * Returns the associated Profile with this name, if there's no match with this name it
-     * will create a new Profile instance. This method must be called on
-     * the UI thread.
+     * will create a new Profile instance.
      *
      * @param name name of the profile to retrieve.
      * @return instance of {@link Profile} matching this name.
@@ -81,7 +80,6 @@ public interface ProfileStore {
      * <p>
      * Returns the associated Profile with this name, if there's no Profile with this name or the
      * Profile was deleted by {@link ProfileStore#deleteProfile(String)} it will return null.
-     * This method must be called on the UI thread.
      *
      * @param name the name of the profile to retrieve.
      * @return instance of {@link Profile} matching this name, null otherwise if there's no match.
@@ -94,8 +92,7 @@ public interface ProfileStore {
     /**
      * Returns the names of all available profiles.
      * <p>
-     * Default profile name will be included in this list. This method must be called on the UI
-     * thread.
+     * Default profile name will be included in this list.
      *
      * @return profile names as a list.
      */
@@ -111,7 +108,7 @@ public interface ProfileStore {
      * longer be usable by the application. Returning false means that this profile doesn't exist.
      * <p>
      * Some data may be deleted async and is not guaranteed to be cleared from disk by the time
-     * this method returns. This method must be called on the UI thread.
+     * this method returns.
      *
      * @param name the profile name to be deleted.
      * @return {@code true} if profile exists and its data is to be deleted, otherwise {@code

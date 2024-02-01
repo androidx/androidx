@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -39,8 +46,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
-
-    samples(project(":compose:ui:ui-viewbinding:ui-viewbinding-samples"))
 }
 
 androidx {
@@ -50,6 +55,7 @@ androidx {
     description = "Compose integration with ViewBinding"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(project(":compose:ui:ui-viewbinding:ui-viewbinding-samples"))
 }
 
 android {

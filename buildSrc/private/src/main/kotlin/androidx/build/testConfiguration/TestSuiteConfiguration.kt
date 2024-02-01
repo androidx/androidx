@@ -18,19 +18,23 @@ package androidx.build.testConfiguration
 
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXImplPlugin
-import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
+import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.getFileInTestConfigDirectory
+import androidx.build.getPrivacySandboxApksDirectory
 import androidx.build.getSupportRootFolder
 import androidx.build.hasAndroidTestSourceCode
 import androidx.build.hasBenchmarkPlugin
 import androidx.build.isPresubmitBuild
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.TestAndroidComponentsExtension
 import com.android.build.api.variant.Variant
@@ -57,6 +61,7 @@ fun Project.createTestConfigurationGenerationTask(
     artifacts: Artifacts,
     minSdk: Int,
     testRunner: String,
+    instrumentationRunnerArgs: Map<String, String>
 ) {
     val xmlName = "${path.asFilenamePrefix()}$variantName.xml"
     val jsonName = "_${path.asFilenamePrefix()}$variantName.json"
@@ -75,6 +80,26 @@ fun Project.createTestConfigurationGenerationTask(
         ) { task ->
             val androidXExtension = extensions.getByType<AndroidXExtension>()
 
+            if (androidXExtension.deviceTests.includePrivacySandboxSdks) {
+                // TODO (b/309610890): Replace for dependency on AGP artifact.
+                val extractedPrivacySandboxSdkApksDir = layout.buildDirectory.dir(
+                    "intermediates/extracted_apks_from_privacy_sandbox_sdks"
+                )
+                task.privacySandboxSdkApks.from(
+                    files(extractedPrivacySandboxSdkApksDir) {
+                        it.builtBy("buildPrivacySandboxSdkApksForDebug")
+                    }
+                )
+                task.outputPrivacySandboxFilenamesPrefix.set(
+                    "${path.asFilenamePrefix()}-$variantName"
+                )
+                task.outputPrivacySandboxSdkApks.set(
+                    getPrivacySandboxApksDirectory().map {
+                        it.dir("${path.asFilenamePrefix()}-$variantName-sdks")
+                    }
+                )
+            }
+
             task.testFolder.set(artifacts.get(SingleArtifact.APK))
             task.testLoader.set(artifacts.getBuiltArtifactsLoader())
             task.outputTestApk.set(
@@ -85,6 +110,7 @@ fun Project.createTestConfigurationGenerationTask(
             task.outputXml.set(getFileInTestConfigDirectory(xmlName))
             task.outputJson.set(getFileInTestConfigDirectory(jsonName))
             task.presubmit.set(isPresubmitBuild())
+            task.instrumentationArgs.putAll(instrumentationRunnerArgs)
             // Disable work tests on < API 18: b/178127496
             if (path.startsWith(":work:")) {
                 task.minSdk.set(maxOf(18, minSdk))
@@ -106,7 +132,7 @@ fun Project.createTestConfigurationGenerationTask(
         }
     }
     rootProject.tasks
-        .findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
+        .findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!
         .dependsOn(generateTestConfigurationTask)
 }
 
@@ -257,7 +283,7 @@ private fun getOrCreateMediaTestConfigTask(
             ) { task ->
                 AffectedModuleDetector.configureTaskGuard(task)
             }
-        project.rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)
+        project.rootProject.tasks.findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)
         return task
     } else {
         return parentProject.tasks
@@ -428,7 +454,7 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
                         artifacts,
                         baseExtension.defaultConfig.minSdk!!,
                         baseExtension.defaultConfig.testInstrumentationRunner!!,
-                        isMedia2 = false
+                        isMedia2 = false,
                     )
                 }
                 else -> {
@@ -436,10 +462,32 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
                         name,
                         artifacts,
                         baseExtension.defaultConfig.minSdk!!,
-                        baseExtension.defaultConfig.testInstrumentationRunner!!
+                        baseExtension.defaultConfig.testInstrumentationRunner!!,
+                        baseExtension.defaultConfig.testInstrumentationRunnerArguments
                     )
                 }
             }
+        }
+    }
+}
+
+fun Project.configureTestConfigGeneration(
+    kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidTarget,
+    componentsExtension: KotlinMultiplatformAndroidComponentsExtension
+) {
+    componentsExtension.onVariant { variant ->
+            val name = variant.androidTest?.name ?: return@onVariant
+            val artifacts = variant.androidTest?.artifacts ?: return@onVariant
+        kotlinMultiplatformAndroidTarget.compilations.withType(
+            KotlinMultiplatformAndroidTestOnDeviceCompilation::class.java
+        ) {
+            createTestConfigurationGenerationTask(
+                name,
+                artifacts,
+                kotlinMultiplatformAndroidTarget.minSdk!!,
+                it.instrumentationRunner!!,
+                mapOf()
+            )
         }
     }
 }

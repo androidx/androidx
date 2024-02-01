@@ -49,9 +49,10 @@ import androidx.arch.core.util.Function
 fun <X, Y> LiveData<X>.map(
     transform: (@JvmSuppressWildcards X) -> (@JvmSuppressWildcards Y)
 ): LiveData<Y> {
-    val result = MediatorLiveData<Y>()
-    if (isInitialized) {
-        result.value = transform(value as X)
+    val result = if (isInitialized) {
+        MediatorLiveData(transform(value as X))
+    } else {
+        MediatorLiveData()
     }
     result.addSource(this) { x -> result.value = transform(x) }
     return result
@@ -121,13 +122,16 @@ fun <X, Y> LiveData<X>.map(mapFunction: Function<X, Y>): LiveData<Y> {
 fun <X, Y> LiveData<X>.switchMap(
     transform: (@JvmSuppressWildcards X) -> (@JvmSuppressWildcards LiveData<Y>)?
 ): LiveData<Y> {
-    val result = MediatorLiveData<Y>()
     var liveData: LiveData<Y>? = null
-    if (isInitialized) {
+    val result = if (isInitialized) {
         val initialLiveData = transform(value as X)
         if (initialLiveData != null && initialLiveData.isInitialized) {
-            result.value = initialLiveData.value
+            MediatorLiveData<Y>(initialLiveData.value)
+        } else {
+            MediatorLiveData<Y>()
         }
+    } else {
+        MediatorLiveData<Y>()
     }
     result.addSource(this) { value: X ->
         val newLiveData = transform(value)
@@ -183,11 +187,12 @@ fun <X, Y> LiveData<X>.switchMap(switchMapFunction: Function<X, LiveData<Y>>): L
 @MainThread
 @CheckResult
 fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> {
-    val outputLiveData = MediatorLiveData<X>()
     var firstTime = true
-    if (isInitialized) {
-        outputLiveData.value = value
+    val outputLiveData = if (isInitialized) {
         firstTime = false
+        MediatorLiveData<X>(value)
+    } else {
+        MediatorLiveData<X>()
     }
     outputLiveData.addSource(this) { value ->
         val previousValue = outputLiveData.value

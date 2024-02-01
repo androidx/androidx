@@ -1,16 +1,4 @@
 // Baseline format: 1.0
-HiddenSuperclass: androidx.autofill.inline.common.ViewStyle:
-    Public class androidx.autofill.inline.common.ViewStyle stripped of unavailable superclass androidx.autofill.inline.common.BundledStyle
-HiddenSuperclass: androidx.autofill.inline.v1.InlineSuggestionUi.Content:
-    Public class androidx.autofill.inline.v1.InlineSuggestionUi.Content stripped of unavailable superclass androidx.autofill.inline.common.SlicedContent
-HiddenSuperclass: androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder:
-    Public class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder stripped of unavailable superclass androidx.autofill.inline.common.SlicedContent.Builder
-HiddenSuperclass: androidx.autofill.inline.v1.InlineSuggestionUi.Style:
-    Public class androidx.autofill.inline.v1.InlineSuggestionUi.Style stripped of unavailable superclass androidx.autofill.inline.common.BundledStyle
-HiddenSuperclass: androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder:
-    Public class androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder stripped of unavailable superclass androidx.autofill.inline.common.BundledStyle.Builder
-
-
 MissingGetterMatchingBuilder: androidx.autofill.inline.UiVersions.StylesBuilder#addStyle(androidx.autofill.inline.UiVersions.Style):
     android.os.Bundle does not declare a `getStyles()` method matching method androidx.autofill.inline.UiVersions.StylesBuilder.addStyle(androidx.autofill.inline.UiVersions.Style)
 MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setBackground(android.graphics.drawable.Icon):

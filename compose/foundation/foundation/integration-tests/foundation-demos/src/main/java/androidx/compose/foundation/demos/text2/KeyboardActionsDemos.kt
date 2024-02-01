@@ -21,6 +21,7 @@ import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.demos.text.fontSize8
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActionScope
@@ -48,13 +49,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-@Suppress("PrimitiveInLambda")
 @Preview
 @Composable
 fun KeyboardActionsDemos() {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    Box {
+    Box(Modifier.imePadding()) {
         var executeDefaultActions by remember { mutableStateOf(true) }
         val onImeAction: KeyboardActionScope.(ImeAction) -> Unit = remember(executeDefaultActions) {
             {

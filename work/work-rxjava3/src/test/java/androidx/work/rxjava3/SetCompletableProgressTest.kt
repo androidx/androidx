@@ -18,10 +18,10 @@ package androidx.work.rxjava3
 
 import android.content.Context
 import androidx.work.Data
+import androidx.work.DefaultWorkerFactory
 import androidx.work.ForegroundUpdater
 import androidx.work.ListenableWorker.Result
 import androidx.work.ProgressUpdater
-import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
@@ -70,7 +70,7 @@ class SetCompletableProgressTest {
         0,
         executor,
         RxWorkerTest.InstantWorkTaskExecutor(),
-        WorkerFactory.getDefaultWorkerFactory(),
+        DefaultWorkerFactory,
         progressUpdater,
         foregroundUpdater
     )

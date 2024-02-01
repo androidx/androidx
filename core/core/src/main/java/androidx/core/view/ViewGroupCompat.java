@@ -113,10 +113,7 @@ public final class ViewGroupCompat {
      * @see #setLayoutMode(ViewGroup, int)
      */
     public static int getLayoutMode(@NonNull ViewGroup group) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return Api18Impl.getLayoutMode(group);
-        }
-        return LAYOUT_MODE_CLIP_BOUNDS;
+        return group.getLayoutMode();
     }
 
     /**
@@ -130,9 +127,7 @@ public final class ViewGroupCompat {
      * @see #getLayoutMode(ViewGroup)
      */
     public static void setLayoutMode(@NonNull ViewGroup group, int mode) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            Api18Impl.setLayoutMode(group, mode);
-        }
+        group.setLayoutMode(mode);
     }
 
     /**
@@ -189,23 +184,6 @@ public final class ViewGroupCompat {
             return ((NestedScrollingParent) group).getNestedScrollAxes();
         }
         return ViewCompat.SCROLL_AXIS_NONE;
-    }
-
-    @RequiresApi(18)
-    static class Api18Impl {
-        private Api18Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static int getLayoutMode(ViewGroup viewGroup) {
-            return viewGroup.getLayoutMode();
-        }
-
-        @DoNotInline
-        static void setLayoutMode(ViewGroup viewGroup, int layoutMode) {
-            viewGroup.setLayoutMode(layoutMode);
-        }
     }
 
     @RequiresApi(21)

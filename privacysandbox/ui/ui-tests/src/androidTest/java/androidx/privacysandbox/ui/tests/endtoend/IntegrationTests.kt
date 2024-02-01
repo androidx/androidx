@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Binder
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.SystemClock
@@ -29,13 +28,15 @@ import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.core.BackwardCompatUtil
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -54,7 +55,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @RunWith(Parameterized::class)
 @MediumTest
 class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
@@ -65,8 +65,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     companion object {
         const val TEST_ONLY_USE_REMOTE_ADAPTER = "testOnlyUseRemoteAdapter"
         const val TIMEOUT = 1000.toLong()
-        const val INITIAL_HEIGHT = 10
-        const val INITIAL_WIDTH = 20
+        const val INITIAL_HEIGHT = 100
+        const val INITIAL_WIDTH = 100
 
         @JvmStatic
         @Parameterized.Parameters(name = "invokeBackwardsCompatFlow={0}")
@@ -79,29 +79,34 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     private val context = InstrumentationRegistry.getInstrumentation().context
 
     private lateinit var view: SandboxedSdkView
+    private lateinit var recyclerView: RecyclerView
     private lateinit var stateChangeListener: TestStateChangeListener
     private lateinit var errorLatch: CountDownLatch
+    private lateinit var linearLayout: LinearLayout
 
     @Before
     fun setup() {
         if (!invokeBackwardsCompatFlow) {
-            // SdkSandbox is only supported on U+ devices
-            assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+            // Device needs to support remote provider to invoke non-backward-compat flow.
+            assumeTrue(BackwardCompatUtil.canProviderBeRemote())
         }
 
         activityScenarioRule.withActivity {
             view = SandboxedSdkView(context)
+            recyclerView = RecyclerView(context)
             errorLatch = CountDownLatch(1)
             stateChangeListener = TestStateChangeListener(errorLatch)
             view.addStateChangedListener(stateChangeListener)
-            val linearLayout = LinearLayout(context)
+            linearLayout = LinearLayout(context)
             linearLayout.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
             setContentView(linearLayout)
-            view.layoutParams = LinearLayout.LayoutParams(100, 100)
+            view.layoutParams = LinearLayout.LayoutParams(INITIAL_WIDTH, INITIAL_HEIGHT)
             linearLayout.addView(view)
+            linearLayout.addView(recyclerView)
+            recyclerView.setLayoutManager(LinearLayoutManager(context))
         }
     }
 
@@ -179,6 +184,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
      * Tests that the provider receives Z-order change updates.
      */
     @Test
+    @Ignore("b/302090927")
     fun testZOrderChanged() {
         val adapter = createAdapterAndEstablishSession()
 
@@ -211,6 +217,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     }
 
     @Test
+    @Ignore("b/302006586")
     fun testHostCanSetZOrderBelowBeforeOpeningSession() {
         // TODO(b/300396631): Skip for backward compat
         assumeTrue(!invokeBackwardsCompatFlow)
@@ -229,44 +236,63 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         assertThat(stateChangeListener.error?.message).isEqualTo("Test Session Exception")
     }
 
-    // TODO(b/300056633): Replace with actual e2e test flow that triggers resize request
+    /**
+     * Tests that a provider-initiated resize is accepted if the view's parent does not impose
+     * exact restrictions on the view's size.
+     */
     @Test
-    fun testResize_ProviderInitiated_ReceivedByClient() {
-        val testSessionClient = TestSessionClient()
-        val sdkAdapter = createAdapterAndEstablishSession(
-            viewForSession = null,
-            testSessionClient = testSessionClient
-        )
+    fun testResizeRequested_requestedAccepted_atMostMeasureSpec() {
+        view.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        val sdkAdapter = createAdapterAndWaitToBeActive()
 
-        // Request resize from Session side
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
-        testSession.sessionClient.onResizeRequested(INITIAL_WIDTH + 10, INITIAL_HEIGHT + 10)
+        val newWidth = INITIAL_WIDTH - 10
+        val newHeight = INITIAL_HEIGHT - 10
 
-        // Verify SessionClient received the request
-        assertWithMessage("Resized width").that(testSessionClient.resizedWidth)
-            .isEqualTo(INITIAL_WIDTH + 10)
-        assertWithMessage("Resized height").that(testSessionClient.resizedHeight)
-            .isEqualTo(INITIAL_HEIGHT + 10)
+        activityScenarioRule.withActivity {
+            testSession.sessionClient.onResizeRequested(newWidth, newHeight)
+        }
+        assertWithMessage("Resized height").that(testSession.resizedWidth).isEqualTo(newWidth)
+        assertWithMessage("Resized width").that(testSession.resizedHeight).isEqualTo(newHeight)
+        testSession.assertResizeOccurred(
+            /* expectedWidth=*/ newWidth,
+            /* expectedHeight=*/ newHeight)
     }
 
-    // TODO(b/300056633): Replace with actual e2e test flow that triggers resize request
+    /**
+     * Tests that a provider-initiated resize is ignored if the view's parent provides exact
+     * measurements.
+     */
     @Test
-    fun testResize_ClientInitiated_ReceivedByProvider() {
-        val testSessionClient = TestSessionClient()
-        val sdkAdapter = createAdapterAndEstablishSession(
-            viewForSession = null,
-            testSessionClient = testSessionClient
-        )
+    fun testResizeRequested_requestIgnored_exactlyMeasureSpec() {
+        view.layoutParams = LinearLayout.LayoutParams(INITIAL_WIDTH, INITIAL_HEIGHT)
+        val sdkAdapter = createAdapterAndWaitToBeActive()
+        val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
 
-        // Notify resized from the client
-        testSessionClient.session?.notifyResized(INITIAL_WIDTH + 10, INITIAL_HEIGHT + 10)
+        activityScenarioRule.withActivity {
+            testSession.sessionClient.onResizeRequested(INITIAL_WIDTH - 10, INITIAL_HEIGHT - 10)
+        }
+        testSession.assertResizeDidNotOccur()
+    }
 
-        // Verify Session received the request
+    @Test
+    fun testResize_ClientInitiated() {
+        val sdkAdapter = createAdapterAndWaitToBeActive()
+        val newWidth = INITIAL_WIDTH - 10
+        val newHeight = INITIAL_HEIGHT - 10
+        activityScenarioRule.withActivity {
+            view.layoutParams = LinearLayout.LayoutParams(newWidth, newHeight)
+        }
+
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
         assertWithMessage("Resized width").that(testSession.resizedWidth)
-            .isEqualTo(INITIAL_WIDTH + 10)
+            .isEqualTo(newWidth)
         assertWithMessage("Resized height").that(testSession.resizedHeight)
-            .isEqualTo(INITIAL_HEIGHT + 10)
+            .isEqualTo(newHeight)
+        testSession.assertResizeOccurred(
+            /* expectedWidth=*/ newWidth,
+            /* expectedHeight=*/ newHeight)
     }
 
     @Test
@@ -290,6 +316,175 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         assertThat(client.hashCode()).isEqualTo(client.hashCode())
     }
 
+    @Test
+    fun testPoolingContainerListener_AllViewsRemovedFromContainer() {
+        // TODO(b/309848703): Stop skipping this for backwards compat flow
+        assumeTrue(!invokeBackwardsCompatFlow)
+
+        val adapter = createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(
+            isNestedView = false)
+
+        activityScenarioRule.withActivity {
+            recyclerView.layoutManager!!.removeAllViews()
+        }
+
+        adapter.waitForViewsToBeDetached()
+        adapter.ensureChildrenDoNotBecomeIdleFromActive()
+    }
+
+    @Test
+    fun testPoolingContainerListener_ContainerRemovedFromLayout() {
+        // TODO(b/309848703): Stop skipping this for backwards compat flow
+        assumeTrue(!invokeBackwardsCompatFlow)
+
+        val adapter = createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(
+            isNestedView = true)
+
+        activityScenarioRule.withActivity {
+            linearLayout.removeView(recyclerView)
+        }
+
+        adapter.ensureAllChildrenBecomeIdleFromActive()
+    }
+
+    @Test
+    fun testPoolingContainerListener_ViewWithinAnotherView_AllViewsRemovedFromContainer() {
+        // TODO(b/309848703): Stop skipping this for backwards compat flow
+        assumeTrue(!invokeBackwardsCompatFlow)
+
+        val adapter = createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(
+            isNestedView = false)
+
+        activityScenarioRule.withActivity {
+            recyclerView.layoutManager!!.removeAllViews()
+        }
+
+        adapter.waitForViewsToBeDetached()
+        adapter.ensureChildrenDoNotBecomeIdleFromActive()
+    }
+
+    @Test
+    fun testPoolingContainerListener_ViewWithinAnotherView_ContainerRemovedFromLayout() {
+        // TODO(b/309848703): Stop skipping this for backwards compat flow
+        assumeTrue(!invokeBackwardsCompatFlow)
+
+        val adapter = createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(
+            isNestedView = true)
+
+        activityScenarioRule.withActivity {
+            linearLayout.removeView(recyclerView)
+        }
+
+        adapter.ensureAllChildrenBecomeIdleFromActive()
+    }
+
+    fun createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(isNestedView: Boolean):
+        RecyclerViewTestAdapter {
+        val adapter = RecyclerViewTestAdapter(context, isNestedView)
+        activityScenarioRule.withActivity {
+            recyclerView.setAdapter(adapter)
+        }
+
+        adapter.waitForViewsToBeAttached()
+
+        for (i in 0 until recyclerView.childCount) {
+            lateinit var childView: SandboxedSdkView
+            if (isNestedView) {
+                childView = (recyclerView.getChildAt(i) as ViewGroup)
+                    .getChildAt(0) as SandboxedSdkView
+            } else {
+                childView = recyclerView.getChildAt(i) as SandboxedSdkView
+            }
+            createAdapterAndWaitToBeActive(true, childView)
+        }
+
+        adapter.ensureAllChildrenBecomeActive()
+        return adapter
+    }
+
+    class RecyclerViewTestAdapter(
+        private val context: Context,
+        val isNestedView: Boolean = false,
+    ) :
+        RecyclerView.Adapter<RecyclerViewTestAdapter.ViewHolder>() {
+        class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+        var numberOfSandboxedSdkViews = 0
+        val items = 5
+        private val activeLatch = CountDownLatch(items)
+        // The session will first be idle -> active -> idle in
+        // our tests, hence the count is items*2
+        private val idleLatch = CountDownLatch(items * 2)
+        private val attachedLatch = CountDownLatch(items)
+        private val detachedLatch = CountDownLatch(items)
+        val onAttachStateChangeListener = object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                attachedLatch.countDown()
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {
+                if (attachedLatch.count.equals(0.toLong())) {
+                    detachedLatch.countDown()
+                }
+            }
+        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            if (numberOfSandboxedSdkViews >= items) {
+                // We should return without creating a SandboxedSdkView if the
+                // number of SandboxedSdkViews is already equal to items. Recycler
+                // view will create new ViewHolders once SandboxedSdkViews are
+                // removed. We do not want to count latch down at that point of time.
+                return ViewHolder(View(context))
+            }
+
+            val listener = SandboxedSdkUiSessionStateChangedListener { state ->
+                if (state is SandboxedSdkUiSessionState.Active) {
+                    activeLatch.countDown()
+                } else if (state is SandboxedSdkUiSessionState.Idle) {
+                    idleLatch.countDown()
+                }
+            }
+
+            numberOfSandboxedSdkViews++
+            var view: View = SandboxedSdkView(context)
+            (view as SandboxedSdkView).addStateChangedListener(listener)
+            if (isNestedView) {
+                val parentView = LinearLayout(context)
+                parentView.addView(view)
+                view = parentView
+            }
+            view.layoutParams =
+                RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
+            view.addOnAttachStateChangeListener(onAttachStateChangeListener)
+            return ViewHolder(view)
+        }
+
+        fun waitForViewsToBeAttached() {
+            assertThat(attachedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        fun waitForViewsToBeDetached() {
+            assertThat(detachedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        fun ensureAllChildrenBecomeActive() {
+            assertThat(activeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        fun ensureAllChildrenBecomeIdleFromActive() {
+            assertThat(idleLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        fun ensureChildrenDoNotBecomeIdleFromActive() {
+            assertThat(idleLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+            assertThat(idleLatch.count).isEqualTo(items)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        }
+
+        override fun getItemCount(): Int = items
+    }
+
     private fun getCoreLibInfoFromAdapter(sdkAdapter: SandboxedUiAdapter): Bundle {
         val bundle = sdkAdapter.toCoreLibInfo(context)
         bundle.putBoolean(TEST_ONLY_USE_REMOTE_ADAPTER, !invokeBackwardsCompatFlow)
@@ -303,10 +498,10 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
      * created adapter is set on [view] to establish session.
      */
     private fun createAdapterAndEstablishSession(
-            hasFailingTestSession: Boolean = false,
-            viewForSession: SandboxedSdkView? = view,
-            testSessionClient: TestSessionClient = TestSessionClient()
-        ): TestSandboxedUiAdapter {
+        hasFailingTestSession: Boolean = false,
+        viewForSession: SandboxedSdkView? = view,
+        testSessionClient: TestSessionClient = TestSessionClient()
+    ): TestSandboxedUiAdapter {
 
         val adapter = TestSandboxedUiAdapter(hasFailingTestSession)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(
@@ -335,13 +530,17 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         return adapter
     }
 
-    private fun createAdapterAndWaitToBeActive(initialZOrder: Boolean): TestSandboxedUiAdapter {
-        view.orderProviderUiAboveClientUi(initialZOrder)
+    private fun createAdapterAndWaitToBeActive(
+        initialZOrder: Boolean = true,
+        viewForSession: SandboxedSdkView = view
+    ):
+        TestSandboxedUiAdapter {
+        viewForSession.orderProviderUiAboveClientUi(initialZOrder)
 
-        val adapter = createAdapterAndEstablishSession()
+        val adapter = createAdapterAndEstablishSession(false, viewForSession)
 
         val activeLatch = CountDownLatch(1)
-        view.addStateChangedListener { state ->
+        viewForSession.addStateChangedListener { state ->
             if (state is SandboxedSdkUiSessionState.Active) {
                 activeLatch.countDown()
             }
@@ -397,6 +596,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         var touchedLatch = CountDownLatch(1)
 
         lateinit var session: SandboxedUiAdapter.Session
+        var initialHeight: Int = -1
+        var initialWidth: Int = -1
 
         override fun openSession(
             context: Context,
@@ -408,6 +609,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             client: SandboxedUiAdapter.SessionClient
         ) {
             initialZOrderOnTop = isZOrderOnTop
+            this.initialHeight = initialHeight
+            this.initialWidth = initialWidth
             session = if (hasFailingTestSession) {
                 FailingTestSession(context, client)
             } else {
@@ -451,6 +654,9 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             private val configLatch = CountDownLatch(1)
             private val resizeLatch = CountDownLatch(1)
             private val zOrderLatch = CountDownLatch(1)
+            private val sizeChangedLatch = CountDownLatch(1)
+            private var width = -1
+            private var height = -1
 
             var config: Configuration? = null
                 get() {
@@ -483,6 +689,15 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
                             touchedLatch.countDown()
                             true
                         }
+                        it.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
+                            width = right - left
+                            height = bottom - top
+                            // Don't count down for the initial layout. We want to capture the
+                            // layout change for a size change.
+                            if (width != initialWidth || height != initialHeight) {
+                                sizeChangedLatch.countDown()
+                            }
+                        }
                     }
                 }
 
@@ -503,6 +718,16 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             }
 
             override fun close() {
+            }
+
+            internal fun assertResizeOccurred(expectedWidth: Int, expectedHeight: Int) {
+                assertThat(sizeChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+                assertThat(width).isEqualTo(expectedWidth)
+                assertThat(height).isEqualTo(expectedHeight)
+            }
+
+            internal fun assertResizeDidNotOccur() {
+                assertThat(sizeChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
             }
         }
     }

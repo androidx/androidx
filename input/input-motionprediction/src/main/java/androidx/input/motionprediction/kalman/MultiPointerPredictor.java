@@ -37,8 +37,11 @@ public class MultiPointerPredictor implements KalmanPredictor {
 
     private final SparseArray<SinglePointerPredictor> mPredictorMap = new SparseArray<>();
     private int mReportRateMs = 0;
+    private final int mStrategy;
 
-    public MultiPointerPredictor() {}
+    public MultiPointerPredictor(int strategy) {
+        mStrategy = strategy;
+    }
 
     @Override
     public void setReportRate(int reportRateMs) {
@@ -60,6 +63,7 @@ public class MultiPointerPredictor implements KalmanPredictor {
         int pointerId = event.getPointerId(actionIndex);
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
             SinglePointerPredictor predictor = new SinglePointerPredictor(
+                    mStrategy,
                     pointerId,
                     event.getToolType(actionIndex)
             );
@@ -155,11 +159,13 @@ public class MultiPointerPredictor implements KalmanPredictor {
         // Merge single pointer MotionEvent into a single MotionEvent
         MotionEvent.PointerCoords[][] pointerCoords =
                 new MotionEvent.PointerCoords[minHistorySize][pointerCount];
+        long[] pointerEventTimes = new long[minHistorySize];
         for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
             int historyIndex = 0;
             for (BatchedMotionEvent ev :
                     BatchedMotionEvent.iterate(singlePointerEvents[pointerIndex])) {
                 pointerCoords[historyIndex][pointerIndex] = ev.coords[0];
+                pointerEventTimes[historyIndex] = ev.timeMs;
                 if (minHistorySize <= ++historyIndex) {
                     break;
                 }
@@ -180,8 +186,8 @@ public class MultiPointerPredictor implements KalmanPredictor {
         }
         MotionEvent multiPointerEvent =
                 MotionEvent.obtain(
-                        0 /* down time */,
-                        0 /* event time */,
+                        singlePointerEvents[0].getDownTime() /* down time */,
+                        pointerEventTimes[0] /* event time */,
                         MotionEvent.ACTION_MOVE /* action */,
                         pointerCount /* pointer count */,
                         pointerProperties /* pointer properties */,
@@ -195,7 +201,10 @@ public class MultiPointerPredictor implements KalmanPredictor {
                         0 /* source */,
                         0 /* flags */);
         for (int historyIndex = 1; historyIndex < minHistorySize; historyIndex++) {
-            multiPointerEvent.addBatch(0, pointerCoords[historyIndex], 0);
+            multiPointerEvent.addBatch(
+                    pointerEventTimes[historyIndex],
+                    pointerCoords[historyIndex],
+                    0);
         }
         if (DEBUG_PREDICTION) {
             final StringBuilder builder =

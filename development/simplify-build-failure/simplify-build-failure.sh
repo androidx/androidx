@@ -434,7 +434,7 @@ else
     # TODO: maybe we should make diff-filterer.py directly support checking individual line differences within files rather than first running split.sh and asking diff-filterer.py to run join.sh
     # It would be harder to implement in diff-filterer.py though because diff-filterer.py would also need to support comparing against nonempty files too
     echo Running diff-filterer.py again to identify which function bodies can be removed
-    if "$supportRoot/development/file-utils/diff-filterer.py" $filtererOptions --work-path "$(cd $supportRoot/../.. && pwd)" "$noFunctionBodies_Passing" "$noFunctionBodies_goal" "${scriptPath}/impl/join.sh ${splitsPath} ${noFunctionBodies_sandbox} && cd ${noFunctionBodies_work} && $testCommand"; then
+    if "$supportRoot/development/file-utils/diff-filterer.py" $filtererOptions --allow-goal-passing --work-path "$(cd $supportRoot/../.. && pwd)" "$noFunctionBodies_Passing" "$noFunctionBodies_goal" "${scriptPath}/impl/join.sh ${splitsPath} ${noFunctionBodies_sandbox} && cd ${noFunctionBodies_work} && $testCommand"; then
       echo diff-filterer completed successfully
     else
       failed

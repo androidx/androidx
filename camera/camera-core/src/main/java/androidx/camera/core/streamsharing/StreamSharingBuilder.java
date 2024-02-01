@@ -25,7 +25,6 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.MutableConfig;
@@ -69,6 +68,7 @@ class StreamSharingBuilder implements
                             + ": "
                             + oldConfigClass);
         }
+        setCaptureType(UseCaseConfigFactory.CaptureType.STREAM_SHARING);
         setTargetClass(StreamSharing.class);
     }
 
@@ -113,12 +113,6 @@ class StreamSharingBuilder implements
     @NonNull
     @Override
     public StreamSharingBuilder setSurfaceOccupancyPriority(int priority) {
-        throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
-    }
-
-    @NonNull
-    @Override
-    public StreamSharingBuilder setCameraSelector(@NonNull CameraSelector cameraSelector) {
         throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
     }
 

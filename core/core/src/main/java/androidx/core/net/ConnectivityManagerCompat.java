@@ -16,16 +16,6 @@
 
 package androidx.core.net;
 
-import static android.net.ConnectivityManager.TYPE_BLUETOOTH;
-import static android.net.ConnectivityManager.TYPE_ETHERNET;
-import static android.net.ConnectivityManager.TYPE_MOBILE;
-import static android.net.ConnectivityManager.TYPE_MOBILE_DUN;
-import static android.net.ConnectivityManager.TYPE_MOBILE_HIPRI;
-import static android.net.ConnectivityManager.TYPE_MOBILE_MMS;
-import static android.net.ConnectivityManager.TYPE_MOBILE_SUPL;
-import static android.net.ConnectivityManager.TYPE_WIFI;
-import static android.net.ConnectivityManager.TYPE_WIMAX;
-
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.Manifest;
@@ -100,33 +90,7 @@ public final class ConnectivityManagerCompat {
     @SuppressWarnings("deprecation")
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isActiveNetworkMetered(@NonNull ConnectivityManager cm) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.isActiveNetworkMetered(cm);
-        } else {
-            final NetworkInfo info = cm.getActiveNetworkInfo();
-            if (info == null) {
-                // err on side of caution
-                return true;
-            }
-
-            final int type = info.getType();
-            switch (type) {
-                case TYPE_MOBILE:
-                case TYPE_MOBILE_DUN:
-                case TYPE_MOBILE_HIPRI:
-                case TYPE_MOBILE_MMS:
-                case TYPE_MOBILE_SUPL:
-                case TYPE_WIMAX:
-                    return true;
-                case TYPE_WIFI:
-                case TYPE_BLUETOOTH:
-                case TYPE_ETHERNET:
-                    return false;
-                default:
-                    // err on side of caution
-                    return true;
-            }
-        }
+        return cm.isActiveNetworkMetered();
     }
 
     /**
@@ -168,19 +132,6 @@ public final class ConnectivityManagerCompat {
     }
 
     private ConnectivityManagerCompat() {}
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-        @DoNotInline
-        static boolean isActiveNetworkMetered(ConnectivityManager connectivityManager) {
-            return connectivityManager.isActiveNetworkMetered();
-        }
-    }
 
     @RequiresApi(24)
     static class Api24Impl {

@@ -24,6 +24,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.collection.SparseArrayCompat
+import androidx.collection.keyIterator
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.core.net.toUri
@@ -127,7 +128,7 @@ public open class NavDestination(
                 // the arguments must at least contain every argument stored in this deep link
                 if (!arguments.containsKey(key)) return false
 
-                val type = destination.arguments[key]?.type
+                val type = destination._arguments[key]?.type
                 val matchingArgValue = type?.get(matchingArgs, key)
                 val entryArgValue = type?.get(arguments, key)
                 // fine if both argValues are null, i.e. arguments/params with nullable values
@@ -346,7 +347,7 @@ public open class NavDestination(
      * @see NavController.navigate
      */
     public fun addDeepLink(navDeepLink: NavDeepLink) {
-        val missingRequiredArguments = arguments.missingRequiredArguments { key ->
+        val missingRequiredArguments = _arguments.missingRequiredArguments { key ->
             key !in navDeepLink.argumentsNames
         }
         require(missingRequiredArguments.isEmpty()) {
@@ -391,7 +392,7 @@ public open class NavDestination(
             val uri = navDeepLinkRequest.uri
             // includes matching args for path, query, and fragment
             val matchingArguments =
-                if (uri != null) deepLink.getMatchingArguments(uri, arguments) else null
+                if (uri != null) deepLink.getMatchingArguments(uri, _arguments) else null
             val matchingPathSegments = deepLink.calculateMatchingPathSegments(uri)
             val requestAction = navDeepLinkRequest.action
             val matchingAction = requestAction != null && requestAction ==
@@ -400,7 +401,7 @@ public open class NavDestination(
             val mimeTypeMatchLevel =
                 if (mimeType != null) deepLink.getMimeTypeMatchRating(mimeType) else -1
             if (matchingArguments != null || ((matchingAction || mimeTypeMatchLevel > -1) &&
-                    hasRequiredArguments(deepLink, uri, arguments))
+                    hasRequiredArguments(deepLink, uri, _arguments))
             ) {
                 val newMatch = DeepLinkMatch(
                     this, matchingArguments,
@@ -629,12 +630,13 @@ public open class NavDestination(
             val argName = matcher.group(1)
             if (bundle != null && bundle.containsKey(argName)) {
                 matcher.appendReplacement(builder, "")
-                val argType = argName?.let { arguments[argName]?.type }
+                val argType = argName?.let { _arguments[argName]?.type }
                 if (argType == NavType.ReferenceType) {
                     val value = context.getString(bundle.getInt(argName))
                     builder.append(value)
                 } else {
-                    builder.append(bundle.getString(argName))
+                    @Suppress("DEPRECATION")
+                    builder.append(bundle[argName].toString())
                 }
             } else {
                 throw IllegalArgumentException(
@@ -669,22 +671,18 @@ public open class NavDestination(
     }
 
     override fun equals(other: Any?): Boolean {
+        if (this === other) return true
         if (other == null || other !is NavDestination) return false
 
-        val equalDeepLinks = deepLinks.intersect(other.deepLinks).size == deepLinks.size
+        val equalDeepLinks = deepLinks == other.deepLinks
 
         val equalActions = actions.size() == other.actions.size() &&
-            actions.valueIterator().asSequence().all { other.actions.containsValue(it) } &&
-            other.actions.valueIterator().asSequence().all { actions.containsValue(it) }
+            actions.keyIterator().asSequence().all { actions.get(it) == other.actions.get(it) }
 
-        val equalArguments = arguments.size == other.arguments.size &&
-            arguments.asSequence().all {
-                other.arguments.containsKey(it.key) &&
-                    other.arguments[it.key] == it.value
-            } &&
-            other.arguments.asSequence().all {
-                arguments.containsKey(it.key) &&
-                    arguments[it.key] == it.value
+        val equalArguments = _arguments.size == other._arguments.size &&
+            _arguments.asSequence().all {
+                other._arguments.containsKey(it.key) &&
+                    other._arguments[it.key] == it.value
             }
 
         return id == other.id &&
@@ -710,9 +708,9 @@ public open class NavDestination(
                 result = 31 * result + value.defaultArguments!!.get(it).hashCode()
             }
         }
-        arguments.keys.forEach {
+        _arguments.keys.forEach {
             result = 31 * result + it.hashCode()
-            result = 31 * result + arguments[it].hashCode()
+            result = 31 * result + _arguments[it].hashCode()
         }
         return result
     }

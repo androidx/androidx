@@ -7,8 +7,8 @@ function echoAndDo() {
 
 # Versions that the user should update when running this script
 echo Getting Studio version and link
-AGP_VERSION=${1:-8.3.0-alpha04}
-STUDIO_VERSION_STRING=${2:-"Android Studio Iguana | 2023.2.1 Canary 4"}
+AGP_VERSION=${1:-8.3.0-beta01}
+STUDIO_VERSION_STRING=${2:-"Android Studio Iguana | 2023.2.1 Beta 1"}
 
 # Get studio version number from version name
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`
@@ -26,6 +26,7 @@ STUDIO_VERSION=`echo $STUDIO_LINK | sed "s/.*ide-zips\/\(.*\)\/android-studio-.*
 # Update AGP
 ARTIFACTS_TO_DOWNLOAD="com.android.tools.build:gradle:$AGP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="androidx.databinding:viewbinding:$AGP_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="com.android.kotlin.multiplatform.library:com.android.kotlin.multiplatform.library.gradle.plugin:$AGP_VERSION,"
 AAPT2_VERSIONS=`curl "https://dl.google.com/dl/android/maven2/com/android/tools/build/group-index.xml" | grep aapt2-proto | sed 's/.*versions="\(.*\)"\/>/\1/g'`
 AAPT2_VERSION=`echo $AAPT2_VERSIONS | sed "s/.*\($AGP_VERSION-[0-9]*\).*/\1/g"`
 ARTIFACTS_TO_DOWNLOAD+="com.android.tools.build:aapt2:$AAPT2_VERSION:linux,"
@@ -55,7 +56,7 @@ while read line
              | tail -n +3 \
              | head -n -1)
 
-ATP_VERSION=${4:-0.0.8-alpha08}
+ATP_VERSION=${4:-0.0.9-alpha02}
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-test-plugin:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:launcher:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-driver-instrumentation:$ATP_VERSION,"

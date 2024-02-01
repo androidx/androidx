@@ -650,6 +650,8 @@ package androidx.media {
     method public void onLoadChildren(String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>!>, android.os.Bundle);
     method public void onLoadItem(String!, androidx.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem!>);
     method public void onSearch(String, android.os.Bundle!, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void onSubscribe(String!, android.os.Bundle!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void onUnsubscribe(String!);
     method public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token!);
     field public static final String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
   }

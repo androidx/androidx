@@ -21,6 +21,7 @@ import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -56,7 +57,11 @@ internal class ViewLayer(
     private var drawBlock: ((Canvas) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
-    private val outlineResolver = OutlineResolver(ownerView.density)
+    private val outlineResolver = Snapshot.withoutReadObservation {
+        // we don't really care about observation here as density is applied manually
+        // not observing the density changes saves performance on recording reads
+        OutlineResolver(ownerView.density)
+    }
     // Value of the layerModifier's clipToBounds property
     private var clipToBounds = false
     private var clipBoundsCache: android.graphics.Rect? = null
@@ -137,7 +142,7 @@ internal class ViewLayer(
             this.pivotX = mTransformOrigin.pivotFractionX * width
             this.pivotY = mTransformOrigin.pivotFractionY * height
         }
-        if (maybeChangedFields and Fields.ScaleY != 0) {
+        if (maybeChangedFields and Fields.ScaleX != 0) {
             this.scaleX = scope.scaleX
         }
         if (maybeChangedFields and Fields.ScaleY != 0) {
@@ -168,23 +173,23 @@ internal class ViewLayer(
             this.cameraDistancePx = scope.cameraDistance
         }
         val wasClippingManually = manualClipPath != null
+        val clipToOutline = scope.clip && scope.shape !== RectangleShape
         if (maybeChangedFields and (Fields.Clip or Fields.Shape) != 0) {
             this.clipToBounds = scope.clip && scope.shape === RectangleShape
             resetClipBounds()
-            this.clipToOutline = scope.clip && scope.shape !== RectangleShape
+            this.clipToOutline = clipToOutline
         }
-        val shapeChanged = if (maybeChangedFields and Fields.OutlineAffectingFields != 0) {
-            outlineResolver.update(
-                scope.shape,
-                this.alpha,
-                this.clipToOutline,
-                this.elevation,
-                layoutDirection,
-                density
-            ).also {
-                updateOutlineResolver()
-            }
-        } else false
+        val shapeChanged = outlineResolver.update(
+            scope.shape,
+            scope.alpha,
+            clipToOutline,
+            scope.shadowElevation,
+            layoutDirection,
+            density
+        )
+        if (outlineResolver.cacheIsDirty) {
+            updateOutlineResolver()
+        }
         val isClippingManually = manualClipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate() // have to redraw the content

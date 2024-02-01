@@ -109,10 +109,11 @@ public class UserAgentMetadataActivity extends AppCompatActivity {
     private void refreshView(boolean setOverrides) {
         UserAgentMetadata overrideSetting;
         if (setOverrides) {
+            UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion
+                    .Builder().setBrand("myBrand").setMajorVersion("1").setFullVersion("1.1.1.1")
+                    .build();
             overrideSetting = new UserAgentMetadata.Builder()
-                    .setBrandVersionList(Collections.singletonList(
-                            new UserAgentMetadata.BrandVersion(
-                                    "myBrand", "1", "1.1.1.1")))
+                    .setBrandVersionList(Collections.singletonList(brandVersion))
                     .setFullVersion("1.1.1.1").setPlatform("myPlatform")
                     .setPlatformVersion("2.2.2.2").setArchitecture("myArch")
                     .setMobile(true).setModel("myModel").setBitness(32)

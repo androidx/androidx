@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.InputConfiguration;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.util.Range;
 import android.util.Size;
 
@@ -51,8 +52,11 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SessionConfig {
+    public static final int DEFAULT_SESSION_TYPE = SessionConfiguration.SESSION_REGULAR;
     /** The set of {@link OutputConfig} that data from the camera will be put into. */
     private final List<OutputConfig> mOutputConfigs;
+    /** The {@link OutputConfig} for the postview. */
+    private final OutputConfig mPostviewOutputConfig;
     /** The state callback for a {@link CameraDevice}. */
     private final List<CameraDevice.StateCallback> mDeviceStateCallbacks;
     /** The state callback for a {@link CameraCaptureSession}. */
@@ -62,6 +66,8 @@ public final class SessionConfig {
     private final List<ErrorListener> mErrorListeners;
     /** The configuration for building the {@link CaptureRequest} used for repeating requests. */
     private final CaptureConfig mRepeatingCaptureConfig;
+    /** The type of the session */
+    private final int mSessionType;
 
     /**
      * Immutable class to store an input configuration that is used to create a reprocessable
@@ -199,6 +205,7 @@ public final class SessionConfig {
      * @param repeatingCaptureConfig The configuration for building the {@link CaptureRequest}.
      * @param inputConfiguration     The input configuration to create a reprocessable capture
      *                               session.
+     * @param sessionType            The session type for the {@link CameraCaptureSession}.
      */
     SessionConfig(
             List<OutputConfig> outputConfigs,
@@ -207,7 +214,9 @@ public final class SessionConfig {
             List<CameraCaptureCallback> singleCameraCaptureCallbacks,
             List<ErrorListener> errorListeners,
             CaptureConfig repeatingCaptureConfig,
-            @Nullable InputConfiguration inputConfiguration) {
+            @Nullable InputConfiguration inputConfiguration,
+            int sessionType,
+            @Nullable OutputConfig postviewOutputConfig) {
         mOutputConfigs = outputConfigs;
         mDeviceStateCallbacks = Collections.unmodifiableList(deviceStateCallbacks);
         mSessionStateCallbacks = Collections.unmodifiableList(sessionStateCallbacks);
@@ -216,6 +225,8 @@ public final class SessionConfig {
         mErrorListeners = Collections.unmodifiableList(errorListeners);
         mRepeatingCaptureConfig = repeatingCaptureConfig;
         mInputConfiguration = inputConfiguration;
+        mSessionType = sessionType;
+        mPostviewOutputConfig = postviewOutputConfig;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
@@ -228,7 +239,9 @@ public final class SessionConfig {
                 new ArrayList<CameraCaptureCallback>(0),
                 new ArrayList<>(0),
                 new CaptureConfig.Builder().build(),
-                /* inputConfiguration */ null);
+                /* inputConfiguration */ null,
+                DEFAULT_SESSION_TYPE,
+                /* postviewOutputConfig */ null);
     }
 
     @Nullable
@@ -258,6 +271,11 @@ public final class SessionConfig {
         return mOutputConfigs;
     }
 
+    @Nullable
+    public OutputConfig getPostviewOutputConfig() {
+        return mPostviewOutputConfig;
+    }
+
     @NonNull
     public Config getImplementationOptions() {
         return mRepeatingCaptureConfig.getImplementationOptions();
@@ -265,6 +283,10 @@ public final class SessionConfig {
 
     public int getTemplateType() {
         return mRepeatingCaptureConfig.getTemplateType();
+    }
+
+    public int getSessionType() {
+        return mSessionType;
     }
 
     @NonNull
@@ -365,6 +387,9 @@ public final class SessionConfig {
         final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks = new ArrayList<>();
         @Nullable
         InputConfiguration mInputConfiguration;
+        int mSessionType = DEFAULT_SESSION_TYPE;
+        @Nullable
+        OutputConfig mPostviewOutputConfig;
     }
 
     /**
@@ -416,6 +441,15 @@ public final class SessionConfig {
         @NonNull
         public Builder setTemplateType(int templateType) {
             mCaptureConfigBuilder.setTemplateType(templateType);
+            return this;
+        }
+
+        /**
+         * Sets the session type.
+         */
+        @NonNull
+        public Builder setSessionType(int sessionType) {
+            mSessionType = sessionType;
             return this;
         }
 
@@ -671,6 +705,15 @@ public final class SessionConfig {
             return this;
         }
 
+        /**
+         * Sets the postview surface.
+         */
+        @NonNull
+        public Builder setPostviewSurface(@NonNull DeferrableSurface surface) {
+            mPostviewOutputConfig = OutputConfig.builder(surface).build();
+            return this;
+        }
+
         /** Remove a surface from the set which the session repeatedly writes to. */
         @NonNull
         public Builder removeSurface(@NonNull DeferrableSurface surface) {
@@ -724,7 +767,9 @@ public final class SessionConfig {
                     new ArrayList<>(mSingleCameraCaptureCallbacks),
                     new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
-                    mInputConfiguration);
+                    mInputConfiguration,
+                    mSessionType,
+                    mPostviewOutputConfig);
         }
     }
 
@@ -813,6 +858,32 @@ public final class SessionConfig {
                 mValid = false;
             }
 
+            if (sessionConfig.getSessionType() != mSessionType
+                    && sessionConfig.getSessionType() != DEFAULT_SESSION_TYPE
+                    && mSessionType != DEFAULT_SESSION_TYPE) {
+                String errorMessage =
+                        "Invalid configuration due to that two non-default session types are set";
+                Logger.d(TAG, errorMessage);
+                mValid = false;
+            } else {
+                if (sessionConfig.getSessionType() != DEFAULT_SESSION_TYPE) {
+                    mSessionType = sessionConfig.getSessionType();
+                }
+            }
+
+            if (sessionConfig.mPostviewOutputConfig != null) {
+                if (mPostviewOutputConfig != sessionConfig.mPostviewOutputConfig
+                        && mPostviewOutputConfig != null) {
+                    String errorMessage =
+                            "Invalid configuration due to that two different postview output "
+                                    + "configs are set";
+                    Logger.d(TAG, errorMessage);
+                    mValid = false;
+                } else {
+                    mPostviewOutputConfig = sessionConfig.mPostviewOutputConfig;
+                }
+            }
+
             // The conflicting of options is handled in addImplementationOptions where it could
             // throw an IllegalArgumentException if the conflict cannot be resolved.
             mCaptureConfigBuilder.addImplementationOptions(
@@ -891,7 +962,9 @@ public final class SessionConfig {
                     new ArrayList<>(mSingleCameraCaptureCallbacks),
                     new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
-                    mInputConfiguration);
+                    mInputConfiguration,
+                    mSessionType,
+                    mPostviewOutputConfig);
         }
 
         private int selectTemplateType(int type1, int type2) {

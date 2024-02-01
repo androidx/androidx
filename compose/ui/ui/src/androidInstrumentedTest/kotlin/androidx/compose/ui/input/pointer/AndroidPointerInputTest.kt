@@ -27,6 +27,7 @@ import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
 import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_OUTSIDE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_INDEX_SHIFT
 import android.view.MotionEvent.ACTION_POINTER_UP
@@ -1181,6 +1182,209 @@ class AndroidPointerInputTest {
         }
     }
 
+    /*
+     * This is a simple test that makes sure a bad ACTION_OUTSIDE MotionEvent doesn't negatively
+     * impact Compose (b/299074463#comment31). (We actually ignore them in Compose.)
+     * The event order of MotionEvents:
+     *   1. Hover enter on box 1
+     *   2. Hover move into box 2
+     *   3. Hover exit on box 2
+     *   4. Outside event on box 3
+     *   5. Down on box 2
+     *   6. Up on box 2
+     */
+    @Test
+    fun hoverAndClickMotionEvent_badOutsideMotionEvent_outsideMotionEventIgnored() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+        var box2LayoutCoordinates: LayoutCoordinates? = null
+        var box3LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+        // One less than total because outside is not sent to Compose.
+        val totalEventLatch = CountDownLatch(5)
+
+        // Events for Box 1
+        var enterBox1 = false
+        var exitBox1 = false
+
+        // Events for Box 2
+        var enterBox2 = false
+        var exitBox2 = false
+        var pressBox2 = false
+        var releaseBox2 = false
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    awaitPointerEvent()
+                                    totalEventLatch.countDown()
+                                }
+                            }
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                enterBox1 = true
+                                            }
+                                            PointerEventType.Exit -> {
+                                                exitBox1 = true
+                                            }
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box2LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                enterBox2 = true
+                                            }
+                                            PointerEventType.Press -> {
+                                                pressBox2 = true
+                                            }
+                                            PointerEventType.Release -> {
+                                                releaseBox2 = true
+                                            }
+                                            PointerEventType.Exit -> {
+                                                exitBox2 = true
+                                            }
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box3LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(enterBox1).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // Hover Move to Box 2
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_HOVER_MOVE, box2LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(exitBox1).isTrue()
+            assertThat(enterBox2).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // Hover Exit on Box 2
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_HOVER_EXIT, box2LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            assertThat(exitBox2).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Outside event with Box 3 coordinates
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_OUTSIDE, box3LayoutCoordinates!!)
+
+        // No Compose event should be triggered (b/299074463#comment31)
+        rule.runOnUiThread {
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertThat(pointerEvent).isNull()
+        }
+
+        // Press on Box 2
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_DOWN, box2LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(pressBox2).isTrue()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertThat(pointerEvent).isNotNull()
+        }
+
+        // Release on Box 2
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_UP, box2LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(releaseBox2).isTrue()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertThat(pointerEvent).isNotNull()
+        }
+
+        assertTrue(totalEventLatch.await(1, TimeUnit.SECONDS))
+    }
+
     @Test
     fun dispatchHoverMove() {
         var layoutCoordinates: LayoutCoordinates? = null
@@ -1890,6 +2094,7 @@ class AndroidPointerInputTest {
         }
     }
 
+    // TODO (jjw): Another option
     @Test
     fun syntheticEventSentAfterUp() {
         val eventLog = mutableListOf<PointerEvent>()

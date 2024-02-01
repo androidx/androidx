@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -939,13 +940,6 @@ public class GenericDocument {
      * assigned into fields of the given document class. As such, the most likely outcome of
      * supplying the wrong document class would be an empty or partially populated result.
      *
-     * <p>If this GenericDocument's type is recorded as a subtype of the provided
-     * {@code documentClass}, the method will find an AppSearch document class that is the most
-     * concrete and assignable to {@code documentClass}, and then deserialize to that class
-     * instead. This allows for more specific and accurate deserialization of GenericDocuments.
-     * Parent types are specified via {@link AppSearchSchema.Builder#addParentType(String)} or
-     * the annotation parameter {@link Document#parent()}.
-     *
      * @param documentClass a class annotated with {@link Document}
      * @return an instance of the document class after being converted from a
      * {@link GenericDocument}
@@ -955,25 +949,77 @@ public class GenericDocument {
      */
     @NonNull
     public <T> T toDocumentClass(@NonNull Class<T> documentClass) throws AppSearchException {
-        Preconditions.checkNotNull(documentClass);
-        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
-        Class<? extends T> targetClass = findTargetClassToDeserialize(documentClass);
-        DocumentClassFactory<? extends T> factory = registry.getOrCreateFactory(targetClass);
-        return factory.fromGenericDocument(this);
+        return toDocumentClass(documentClass, /* documentClassMap= */null);
     }
 
     /**
-     * Find a target class that is assignable to {@code documentClass} to deserialize this document.
+     * Converts this GenericDocument into an instance of the provided document class.
+     *
+     * <p>It is the developer's responsibility to ensure the right kind of document class is being
+     * supplied here, either by structuring the application code to ensure the document type is
+     * known, or by checking the return value of {@link #getSchemaType}.
+     *
+     * <p>Document properties are identified by {@code String} names. Any that are found are
+     * assigned into fields of the given document class. As such, the most likely outcome of
+     * supplying the wrong document class would be an empty or partially populated result.
+     *
+     * <p>If this GenericDocument's type is recorded as a subtype of the provided
+     * {@code documentClass}, the method will find an AppSearch document class, using the provided
+     * {@code documentClassMap}, that is the most concrete and assignable to {@code documentClass},
+     * and then deserialize to that class instead. This allows for more specific and accurate
+     * deserialization of GenericDocuments. If {@code documentClassMap} is null or we are not
+     * able to find a candidate assignable to {@code documentClass}, the method will deserialize
+     * to {@code documentClass} directly.
+     *
+     * <p>Assignability is determined by the programing language's type system, and which type is
+     * more concrete is determined by AppSearch's type system specified via
+     * {@link AppSearchSchema.Builder#addParentType(String)} or the annotation parameter
+     * {@link Document#parent()}.
+     *
+     * <p>For nested document properties, this method will be called recursively, and
+     * {@code documentClassMap} will be passed down to the recursive calls of this method.
+     *
+     * @param documentClass    a class annotated with {@link Document}
+     * @param documentClassMap a map from AppSearch's type name specified by {@link Document#name()}
+     *                         to the list of the fully qualified names of the corresponding
+     *                         document classes. In most cases, passing the value returned by
+     *                         {@link AppSearchDocumentClassMap#getGlobalMap()} will be sufficient.
+     * @return an instance of the document class after being converted from a
+     * {@link GenericDocument}
+     * @throws AppSearchException if no factory for this document class could be found on the
+     *                            classpath.
+     * @see GenericDocument#fromDocumentClass
+     */
+    @NonNull
+    public <T> T toDocumentClass(@NonNull Class<T> documentClass,
+            @Nullable Map<String, List<String>> documentClassMap) throws AppSearchException {
+        Preconditions.checkNotNull(documentClass);
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+        Class<? extends T> targetClass = findTargetClassToDeserialize(documentClass,
+                documentClassMap);
+        DocumentClassFactory<? extends T> factory = registry.getOrCreateFactory(targetClass);
+        return factory.fromGenericDocument(this, documentClassMap);
+    }
+
+    /**
+     * Find a target class that is assignable to {@code documentClass} to deserialize this
+     * document, based on the provided document class map. If the provided map is null, return
+     * {@code documentClass} directly.
      *
      * <p>This method first tries to find a target class corresponding to the document's own type.
      * If that fails, it then tries to find a class corresponding to the document's parent type.
      * If that still fails, {@code documentClass} itself will be returned.
      */
     @NonNull
-    private <T> Class<? extends T> findTargetClassToDeserialize(@NonNull Class<T> documentClass) {
+    private <T> Class<? extends T> findTargetClassToDeserialize(@NonNull Class<T> documentClass,
+            @Nullable Map<String, List<String>> documentClassMap) {
+        if (documentClassMap == null) {
+            return documentClass;
+        }
+
         // Find the target class by the doc's original type.
         Class<? extends T> targetClass = AppSearchDocumentClassMap.getAssignableClassBySchemaName(
-                getSchemaType(), documentClass);
+                documentClassMap, getSchemaType(), documentClass);
         if (targetClass != null) {
             return targetClass;
         }
@@ -983,7 +1029,7 @@ public class GenericDocument {
         if (parentTypes != null) {
             for (int i = 0; i < parentTypes.size(); ++i) {
                 targetClass = AppSearchDocumentClassMap.getAssignableClassBySchemaName(
-                        parentTypes.get(i), documentClass);
+                        documentClassMap, parentTypes.get(i), documentClass);
                 if (targetClass != null) {
                     return targetClass;
                 }
@@ -1002,10 +1048,13 @@ public class GenericDocument {
      * {@link GenericDocument.Builder}.
      *
      * <p>The returned builder is a deep copy whose data is separate from this document.
+     * @deprecated This API is not compliant with API guidelines.
+     * Use {@link Builder#Builder(GenericDocument)} instead.
      * <!--@exportToFramework:hide-->
      */
     // TODO(b/171882200): Expose this API in Android T
     @NonNull
+    @Deprecated
     public GenericDocument.Builder<GenericDocument.Builder<?>> toBuilder() {
         Bundle clonedBundle = BundleUtil.deepCopy(mBundle);
         return new GenericDocument.Builder<>(clonedBundle);
@@ -1113,7 +1162,6 @@ public class GenericDocument {
                 builder.append("\n");
                 builder.decreaseIndentLevel();
             }
-            builder.append("]");
         } else {
             int propertyArrLength = Array.getLength(property);
             for (int i = 0; i < propertyArrLength; i++) {
@@ -1127,11 +1175,10 @@ public class GenericDocument {
                 }
                 if (i != propertyArrLength - 1) {
                     builder.append(", ");
-                } else {
-                    builder.append("]");
                 }
             }
         }
+        builder.append("]");
     }
 
     /**
@@ -1196,6 +1243,18 @@ public class GenericDocument {
             // mProperties is NonNull and initialized to empty Bundle() in builder.
             mProperties = Preconditions.checkNotNull(mBundle.getBundle(PROPERTIES_FIELD));
             mBuilderTypeInstance = (BuilderType) this;
+        }
+
+        /**
+         * Creates a new {@link GenericDocument.Builder} from the given GenericDocument.
+         *
+         * <p>The GenericDocument is deep copied, i.e. changes to the new GenericDocument
+         * returned by this function will NOT affect the original GenericDocument.
+         * <!--@exportToFramework:hide-->
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder(@NonNull GenericDocument document) {
+            this(BundleUtil.deepCopy(document.getBundle()));
         }
 
         /**

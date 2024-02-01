@@ -109,6 +109,30 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
         writeGradleProperties()
     }
 
+    fun getSdkDirectory(): String {
+        val localProperties = File(props.rootProjectPath, "local.properties")
+        when {
+            localProperties.exists() -> {
+                val stream = localProperties.inputStream()
+                val properties = Properties()
+                properties.load(stream)
+                return properties.getProperty("sdk.dir")
+            }
+            System.getenv("ANDROID_HOME") != null -> {
+                return System.getenv("ANDROID_HOME")
+            }
+            System.getenv("ANDROID_SDK_ROOT") != null -> {
+                return System.getenv("ANDROID_SDK_ROOT")
+            }
+            else -> {
+                throw IllegalStateException(
+                    "ProjectSetupRule did find local.properties at: $localProperties and " +
+                        "neither ANDROID_HOME or ANDROID_SDK_ROOT was set."
+                )
+            }
+        }
+    }
+
     /**
      * Gets the latest version of a published library.
      *
@@ -203,12 +227,23 @@ data class ProjectProps(
     val tipOfTreeMavenRepoPath: String,
     val agpDependency: String,
     val repositoryUrls: List<String>,
-    val buildSrcOutPath: String
+    val buildSrcOutPath: String,
+    // Not available in playground projects.
+    val prebuiltsPath: String?,
 ) {
     companion object {
         private fun Properties.getCanonicalPath(key: String): String {
             return File(getProperty(key)).canonicalPath
         }
+
+        private fun Properties.getOptionalCanonicalPath(key: String): String? {
+            return if (containsKey(key)) {
+                getCanonicalPath(key)
+            } else {
+                null
+            }
+        }
+
         fun load(): ProjectProps {
             val stream = ProjectSetupRule::class.java.classLoader.getResourceAsStream("sdk.prop")
                 ?: throw IllegalStateException("No sdk.prop file found. " +
@@ -244,7 +279,8 @@ data class ProjectProps(
                     properties.getProperty("kgpVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
                 agpDependency = properties.getProperty("agpDependency"),
-                buildSrcOutPath = properties.getCanonicalPath("buildSrcOutRelativePath")
+                buildSrcOutPath = properties.getCanonicalPath("buildSrcOutRelativePath"),
+                prebuiltsPath = properties.getOptionalCanonicalPath("prebuiltsRelativePath"),
             )
         }
     }

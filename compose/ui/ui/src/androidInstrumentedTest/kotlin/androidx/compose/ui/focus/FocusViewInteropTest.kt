@@ -18,6 +18,7 @@ package androidx.compose.ui.focus
 
 import android.graphics.Rect as AndroidRect
 import android.view.View
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -99,6 +101,36 @@ class FocusViewInteropTest {
         assertThat(view.getFocusedRect()).isEqualTo(
             IntRect(0, 0, 90, 100)
         )
+    }
+
+    @Test
+    fun requestFocus_returnsFalseWhenCancelled() {
+        // Arrange.
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .focusProperties {
+                        @OptIn(ExperimentalComposeUiApi::class)
+                        enter = { FocusRequester.Cancel }
+                    }
+                    .focusGroup()
+            ) {
+                Box(
+                    Modifier
+                        .size(10.dp)
+                        .focusable()
+                )
+            }
+        }
+
+        // Act.
+        val success = rule.runOnIdle { view.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle { assertThat(success).isFalse() }
     }
 
     private fun View.getFocusedRect() = AndroidRect().run {

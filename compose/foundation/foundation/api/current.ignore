@@ -1,33 +1,29 @@
 // Baseline format: 1.0
-DefaultValueChange: androidx.compose.foundation.ScrollState#animateScrollTo(int, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.ScrollState.animateScrollTo
-DefaultValueChange: androidx.compose.foundation.gestures.ScrollExtensionsKt#animateScrollBy(androidx.compose.foundation.gestures.ScrollableState, float, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.coroutines.Continuation<? super java.lang.Float>) parameter #3:
-    Attempted to remove default value from parameter arg4 in androidx.compose.foundation.gestures.ScrollExtensionsKt.animateScrollBy
-DefaultValueChange: androidx.compose.foundation.gestures.ScrollExtensionsKt#stopScroll(androidx.compose.foundation.gestures.ScrollableState, androidx.compose.foundation.MutatePriority, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.gestures.ScrollExtensionsKt.stopScroll
-DefaultValueChange: androidx.compose.foundation.gestures.TapGestureDetectorKt#awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope, boolean, androidx.compose.ui.input.pointer.PointerEventPass, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>) parameter #3:
-    Attempted to remove default value from parameter arg4 in androidx.compose.foundation.gestures.TapGestureDetectorKt.awaitFirstDown
-DefaultValueChange: androidx.compose.foundation.gestures.TapGestureDetectorKt#detectTapGestures(androidx.compose.ui.input.pointer.PointerInputScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.gestures.PressGestureScope,? super androidx.compose.ui.geometry.Offset,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #5:
-    Attempted to remove default value from parameter arg6 in androidx.compose.foundation.gestures.TapGestureDetectorKt.detectTapGestures
-DefaultValueChange: androidx.compose.foundation.gestures.TapGestureDetectorKt#waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope, androidx.compose.ui.input.pointer.PointerEventPass, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.gestures.TapGestureDetectorKt.waitForUpOrCancellation
-DefaultValueChange: androidx.compose.foundation.gestures.TransformableStateKt#animatePanBy(androidx.compose.foundation.gestures.TransformableState, long, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #3:
-    Attempted to remove default value from parameter arg4 in androidx.compose.foundation.gestures.TransformableStateKt.animatePanBy
-DefaultValueChange: androidx.compose.foundation.gestures.TransformableStateKt#animateRotateBy(androidx.compose.foundation.gestures.TransformableState, float, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #3:
-    Attempted to remove default value from parameter arg4 in androidx.compose.foundation.gestures.TransformableStateKt.animateRotateBy
-DefaultValueChange: androidx.compose.foundation.gestures.TransformableStateKt#animateZoomBy(androidx.compose.foundation.gestures.TransformableState, float, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #3:
-    Attempted to remove default value from parameter arg4 in androidx.compose.foundation.gestures.TransformableStateKt.animateZoomBy
-DefaultValueChange: androidx.compose.foundation.gestures.TransformableStateKt#stopTransformation(androidx.compose.foundation.gestures.TransformableState, androidx.compose.foundation.MutatePriority, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.gestures.TransformableStateKt.stopTransformation
-DefaultValueChange: androidx.compose.foundation.lazy.LazyListState#animateScrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.lazy.LazyListState.animateScrollToItem
-DefaultValueChange: androidx.compose.foundation.lazy.LazyListState#scrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.lazy.LazyListState.scrollToItem
-DefaultValueChange: androidx.compose.foundation.lazy.grid.LazyGridState#animateScrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.lazy.grid.LazyGridState.animateScrollToItem
-DefaultValueChange: androidx.compose.foundation.lazy.grid.LazyGridState#scrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.lazy.grid.LazyGridState.scrollToItem
-DefaultValueChange: androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState#animateScrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState.animateScrollToItem
-DefaultValueChange: androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState#scrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState.scrollToItem
+AddedAbstractMethod: androidx.compose.foundation.pager.PageInfo#getKey():
+    Added method androidx.compose.foundation.pager.PageInfo.getKey()
+AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getOutOfBoundsPageCount():
+    Added method androidx.compose.foundation.pager.PagerLayoutInfo.getOutOfBoundsPageCount()
+AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getSnapPosition():
+    Added method androidx.compose.foundation.pager.PagerLayoutInfo.getSnapPosition()
+
+
+ChangedType: androidx.compose.foundation.gestures.snapping.SnapFlingBehaviorKt#rememberSnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider):
+    Method androidx.compose.foundation.gestures.snapping.SnapFlingBehaviorKt.rememberSnapFlingBehavior has changed return type from androidx.compose.foundation.gestures.snapping.SnapFlingBehavior to androidx.compose.foundation.gestures.TargetedFlingBehavior
+
+
+ParameterNameChange: androidx.compose.foundation.gestures.snapping.SnapFlingBehavior#performFling(androidx.compose.foundation.gestures.ScrollScope, float, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>, kotlin.coroutines.Continuation<? super java.lang.Float>) parameter #2:
+    Attempted to change parameter name from onSettlingDistanceUpdated to onRemainingDistanceUpdated in method androidx.compose.foundation.gestures.snapping.SnapFlingBehavior.performFling
+
+
+RemovedClass: androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt:
+    Removed class androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt
+RemovedClass: androidx.compose.foundation.text2.input.AllCapsTransformationKt:
+    Removed class androidx.compose.foundation.text2.input.AllCapsTransformationKt
+RemovedClass: androidx.compose.foundation.text2.input.MaxLengthTransformationKt:
+    Removed class androidx.compose.foundation.text2.input.MaxLengthTransformationKt
+
+
+RemovedDeprecatedMethod: androidx.compose.foundation.gestures.TapGestureDetectorKt#awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope, boolean):
+    Removed deprecated method androidx.compose.foundation.gestures.TapGestureDetectorKt.awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope,boolean)
+RemovedDeprecatedMethod: androidx.compose.foundation.gestures.TapGestureDetectorKt#waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope):
+    Removed deprecated method androidx.compose.foundation.gestures.TapGestureDetectorKt.waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope)

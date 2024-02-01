@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 
 /**
  * ChangeClipBounds captures the {@link android.view.View#getClipBounds()} before and after the
@@ -78,7 +77,7 @@ public class ChangeClipBounds extends Transition {
             clip = (Rect) view.getTag(R.id.transition_clip);
         }
         if (clip == null) {
-            clip = ViewCompat.getClipBounds(view);
+            clip = view.getClipBounds();
         }
         if (clip == NULL_SENTINEL) {
             clip = null;
@@ -123,7 +122,7 @@ public class ChangeClipBounds extends Transition {
             return null;
         }
 
-        ViewCompat.setClipBounds(endValues.view, start);
+        endValues.view.setClipBounds(start);
         RectEvaluator evaluator = new RectEvaluator(new Rect());
         ObjectAnimator animator = ObjectAnimator.ofObject(endValues.view, ViewUtils.CLIP_BOUNDS,
                 evaluator, startClip, endClip);
@@ -162,18 +161,18 @@ public class ChangeClipBounds extends Transition {
 
         @Override
         public void onTransitionPause(@NonNull Transition transition) {
-            Rect clipBounds = ViewCompat.getClipBounds(mView);
+            Rect clipBounds = mView.getClipBounds();
             if (clipBounds == null) {
                 clipBounds = NULL_SENTINEL;
             }
             mView.setTag(R.id.transition_clip, clipBounds);
-            ViewCompat.setClipBounds(mView, mEnd);
+            mView.setClipBounds(mEnd);
         }
 
         @Override
         public void onTransitionResume(@NonNull Transition transition) {
             Rect clipBounds = (Rect) mView.getTag(R.id.transition_clip);
-            ViewCompat.setClipBounds(mView, clipBounds);
+            mView.setClipBounds(clipBounds);
             mView.setTag(R.id.transition_clip, null);
         }
 
@@ -185,9 +184,9 @@ public class ChangeClipBounds extends Transition {
         @Override
         public void onAnimationEnd(Animator animation, boolean isReverse) {
             if (!isReverse) {
-                ViewCompat.setClipBounds(mView, mEnd);
+                mView.setClipBounds(mEnd);
             } else {
-                ViewCompat.setClipBounds(mView, mStart);
+                mView.setClipBounds(mStart);
             }
         }
     }

@@ -16,6 +16,7 @@
 
 package androidx.test.uiautomator;
 
+import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.app.Instrumentation;
@@ -516,12 +517,12 @@ public class UiDevice implements Searchable {
      * Simulates a short press on the Recent Apps button.
      *
      * @return true if successful, else return false
-     * @throws RemoteException
+     * @throws RemoteException never
      */
     public boolean pressRecentApps() throws RemoteException {
         waitForIdle();
         Log.d(TAG, "Pressing recent apps button.");
-        return getInteractionController().toggleRecentApps();
+        return getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
     }
 
     /**
@@ -532,7 +533,8 @@ public class UiDevice implements Searchable {
     public boolean openNotification() {
         waitForIdle();
         Log.d(TAG, "Opening notification.");
-        return  getInteractionController().openNotification();
+        return getUiAutomation().performGlobalAction(
+                AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS);
     }
 
     /**
@@ -543,7 +545,8 @@ public class UiDevice implements Searchable {
     public boolean openQuickSettings() {
         waitForIdle();
         Log.d(TAG, "Opening quick settings.");
-        return getInteractionController().openQuickSettings();
+        return getUiAutomation().performGlobalAction(
+                AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS);
     }
 
     /**
@@ -562,6 +565,7 @@ public class UiDevice implements Searchable {
      *
      * @param displayId the display ID. Use {@link Display#getDisplayId()} to get the ID.
      * @return width in pixels
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     public @Px int getDisplayWidth(int displayId) {
         return getDisplaySize(displayId).x;
@@ -583,6 +587,7 @@ public class UiDevice implements Searchable {
      *
      * @param displayId the display ID. Use {@link Display#getDisplayId()} to get the ID.
      * @return height in pixels
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     public @Px int getDisplayHeight(int displayId) {
         return getDisplaySize(displayId).y;
@@ -811,6 +816,7 @@ public class UiDevice implements Searchable {
      * @return true if display with {@code displayId} is in its natural or flipped (180 degrees)
      * orientation
      * @see Display#getDisplayId()
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     private boolean isNaturalOrientation(int displayId) {
         int ret = getDisplayRotation(displayId);
@@ -830,10 +836,16 @@ public class UiDevice implements Searchable {
      * @return the current rotation of the display with {@code displayId}
      * @see Display#getDisplayId()
      * @see Display#getRotation()
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     public int getDisplayRotation(int displayId) {
         waitForIdle();
-        return getDisplayById(displayId).getRotation();
+        Display display = getDisplayById(displayId);
+        if (display == null) {
+            throw new IllegalArgumentException(String.format("Display %d not found or not "
+                    + "accessible", displayId));
+        }
+        return display.getRotation();
     }
 
     /**
@@ -850,6 +862,7 @@ public class UiDevice implements Searchable {
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
      * @see Display#getDisplayId()
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     @RequiresApi(30)
     public void freezeRotation(int displayId) {
@@ -931,6 +944,7 @@ public class UiDevice implements Searchable {
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
      * @see Display#getDisplayId()
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     @RequiresApi(30)
     public void setOrientationLeft(int displayId) {
@@ -960,6 +974,7 @@ public class UiDevice implements Searchable {
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
      * @see Display#getDisplayId()
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     @RequiresApi(30)
     public void setOrientationRight(int displayId) {
@@ -987,6 +1002,7 @@ public class UiDevice implements Searchable {
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
      * @see Display#getDisplayId()
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     @RequiresApi(30)
     public void setOrientationNatural(int displayId) {
@@ -1016,6 +1032,7 @@ public class UiDevice implements Searchable {
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
      * @see Display#getDisplayId()
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     @RequiresApi(30)
     public void setOrientationPortrait(int displayId) {
@@ -1051,6 +1068,7 @@ public class UiDevice implements Searchable {
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
      * @see Display#getDisplayId()
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     @RequiresApi(30)
     public void setOrientationLandscape(int displayId) {
@@ -1070,7 +1088,11 @@ public class UiDevice implements Searchable {
         waitRotationComplete(rotation, Display.DEFAULT_DISPLAY);
     }
 
-    /** Rotates the display using shell command and waits for the rotation to be detected. */
+    /**
+     * Rotates the display using shell command and waits for the rotation to be detected.
+     *
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
+     */
     @RequiresApi(30)
     private void rotateWithCommand(int rotation, int displayId) {
         try {
@@ -1087,7 +1109,11 @@ public class UiDevice implements Searchable {
         waitRotationComplete(rotation, displayId);
     }
 
-    /** Waits for the display with {@code displayId} to be in {@code rotation}. */
+    /**
+     * Waits for the display with {@code displayId} to be in {@code rotation}.
+     *
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
+     */
     private void waitRotationComplete(int rotation, int displayId) {
         Condition<UiDevice, Boolean> rotationCondition = new Condition<UiDevice, Boolean>() {
             @Override
@@ -1155,7 +1181,6 @@ public class UiDevice implements Searchable {
      */
     @Deprecated
     public void dumpWindowHierarchy(@NonNull String fileName) {
-
         File dumpFile = new File(fileName);
         if (!dumpFile.isAbsolute()) {
             dumpFile = mInstrumentation.getContext().getFileStreamPath(fileName);
@@ -1174,8 +1199,9 @@ public class UiDevice implements Searchable {
      * @throws IOException
      */
     public void dumpWindowHierarchy(@NonNull File dest) throws IOException {
+        Log.d(TAG, String.format("Dumping window hierarchy to %s.", dest));
         try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(dest))) {
-            dumpWindowHierarchy(stream);
+            AccessibilityNodeInfoDumper.dumpWindowHierarchy(this, stream);
         }
     }
 
@@ -1186,6 +1212,7 @@ public class UiDevice implements Searchable {
      * @throws IOException
      */
     public void dumpWindowHierarchy(@NonNull OutputStream out) throws IOException {
+        Log.d(TAG, String.format("Dumping window hierarchy to %s.", out));
         AccessibilityNodeInfoDumper.dumpWindowHierarchy(this, out);
     }
 
@@ -1335,6 +1362,11 @@ public class UiDevice implements Searchable {
         }
     }
 
+    /**
+     * Gets the display with {@code displayId}. The display may be null because it may be a private
+     * virtual display, for example.
+     */
+    @Nullable
     Display getDisplayById(int displayId) {
         return mDisplayManager.getDisplay(displayId);
     }
@@ -1344,10 +1376,15 @@ public class UiDevice implements Searchable {
      * on the current orientation of the display.
      *
      * @see Display#getRealSize(Point)
+     * @throws IllegalArgumentException when the display with {@code displayId} is not accessible.
      */
     Point getDisplaySize(int displayId) {
         Point p = new Point();
         Display display = getDisplayById(displayId);
+        if (display == null) {
+            throw new IllegalArgumentException(String.format("Display %d not found or not "
+                    + "accessible", displayId));
+        }
         display.getRealSize(p);
         return p;
     }

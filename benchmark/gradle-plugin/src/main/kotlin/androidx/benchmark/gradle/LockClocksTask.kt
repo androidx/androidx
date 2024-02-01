@@ -31,6 +31,7 @@ import org.gradle.work.DisableCachingByDefault
     because = "LockClocks affects device state, and may be modified/reset outside of this task"
 )
 abstract class LockClocksTask : DefaultTask() {
+
     init {
         group = "Android"
         description = "locks clocks of connected, supported, rooted device"
@@ -38,6 +39,9 @@ abstract class LockClocksTask : DefaultTask() {
 
     @get:Input
     abstract val adbPath: Property<String>
+
+    @get:Input
+    abstract val coresArg: Property<String>
 
     @Suppress("unused")
     @TaskAction
@@ -67,15 +71,14 @@ abstract class LockClocksTask : DefaultTask() {
         adb.execSync("shell chmod 700 $dest")
 
         // Forward gradle arguments to lockClocks.sh.
-        val coresArg = project.findProperty("androidx.benchmark.lockClocks.cores")
 
         if (!isAdbdRoot) {
             // Default shell is not running as root, escalate with su 0. Although the root group is
             // su's default, using syntax different from "su gid cmd", can cause the adb shell
             // command to hang on some devices.
-            adb.execSync("shell su 0 $dest ${coresArg ?: ""}")
+            adb.execSync("shell su 0 $dest ${coresArg.get()}")
         } else {
-            adb.execSync("shell $dest ${coresArg ?: ""}")
+            adb.execSync("shell $dest ${coresArg.get()}")
         }
         adb.execSync("shell rm $dest")
     }

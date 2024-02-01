@@ -149,7 +149,6 @@ class VideoCaptureTest {
             "test.testOption",
             Int::class.javaPrimitiveType!!
         )
-    private val testImplementationOptionValue = 5
 
     @Before
     fun setup() {
@@ -353,6 +352,7 @@ class VideoCaptureTest {
         setupCamera(sensorRotation = sensorRotation)
         createCameraUseCaseAdapter()
         val quality = HD
+        val resolution = CAMERA_0_QUALITY_SIZE[quality]!!
 
         listOf(
             Surface.ROTATION_0,
@@ -361,7 +361,7 @@ class VideoCaptureTest {
             Surface.ROTATION_270
         ).forEach { targetRotation ->
             // Arrange.
-            setSuggestedStreamSpec(quality)
+            setSuggestedStreamSpec(resolution)
             var surfaceRequest: SurfaceRequest? = null
             val videoOutput = createVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
@@ -378,7 +378,6 @@ class VideoCaptureTest {
             addAndAttachUseCases(videoCapture)
 
             // Assert.
-            val resolution = CAMERA_0_QUALITY_SIZE[quality]!!
             val expectedResolution = if (effect != null) {
                 rotateSize(resolution, cameraInfo.getSensorRotationDegrees(targetRotation))
             } else {
@@ -477,7 +476,8 @@ class VideoCaptureTest {
 
         // Camera 0 support 2160P(UHD) and 720P(HD)
         arrayOf(UHD, HD, HIGHEST, LOWEST).forEach { quality ->
-            setSuggestedStreamSpec(quality)
+            val resolution = CAMERA_0_QUALITY_SIZE[quality]!!
+            setSuggestedStreamSpec(resolution)
 
             val videoOutput = createVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
@@ -491,7 +491,7 @@ class VideoCaptureTest {
 
             // Assert.
             assertThat(videoCapture.attachedSurfaceResolution)
-                .isEqualTo(CAMERA_0_QUALITY_SIZE[quality]!!)
+                .isEqualTo(resolution)
 
             // Clean up.
             detachAndRemoveUseCases(videoCapture)
@@ -1267,6 +1267,38 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun adjustCropRect_heightIsLongerThanWidth_notAllowSwapWidthHeight() {
+        testAdjustCropRectToValidSize(
+            resolution = Size(720, 1280),
+            videoEncoderInfo = createVideoEncoderInfo(
+                canSwapWidthHeight = false,
+                widthAlignment = 8,
+                heightAlignment = 8,
+                supportedWidths = Range(8, 1280),
+                supportedHeights = Range(8, 720),
+            ),
+            cropRect = Rect(0, 0, 720, 1280),
+            expectedCropRect = Rect(0, 280, 720, 1000), // 720x720
+        )
+    }
+
+    @Test
+    fun adjustCropRect_heightIsLongerThanWidth_swapWidthHeightConstraints() {
+        testAdjustCropRectToValidSize(
+            resolution = Size(720, 1280),
+            videoEncoderInfo = createVideoEncoderInfo(
+                canSwapWidthHeight = true,
+                widthAlignment = 8,
+                heightAlignment = 8,
+                supportedWidths = Range(8, 1280),
+                supportedHeights = Range(8, 720),
+            ),
+            cropRect = Rect(0, 0, 720, 1280),
+            expectedCropRect = Rect(0, 0, 720, 1280), // 720x1280
+        )
+    }
+
+    @Test
     fun adjustCropRect_toSmallestDimensionChange() {
         testAdjustCropRectToValidSize(
             videoEncoderInfo = createVideoEncoderInfo(widthAlignment = 8, heightAlignment = 8),
@@ -1318,13 +1350,13 @@ class VideoCaptureTest {
     }
 
     private fun testAdjustCropRectToValidSize(
-        quality: Quality = HD, // HD maps to 1280x720 (4:3)
+        resolution: Size = RESOLUTION_720P,
         videoEncoderInfo: VideoEncoderInfo = createVideoEncoderInfo(),
         cropRect: Rect? = null,
         expectedCropRect: Rect? = null
     ) {
         testSurfaceRequestContainsExpected(
-            quality = quality,
+            resolution = resolution,
             videoEncoderInfo = videoEncoderInfo,
             cropRect = cropRect,
             expectedCropRect = expectedCropRect
@@ -1362,7 +1394,7 @@ class VideoCaptureTest {
     }
 
     private fun testSurfaceRequestContainsExpected(
-        quality: Quality = HD, // HD maps to 1280x720 (4:3)
+        resolution: Size = RESOLUTION_720P,
         videoEncoderInfo: VideoEncoderInfo = createVideoEncoderInfo(),
         cropRect: Rect? = null,
         expectedCropRect: Rect? = null,
@@ -1375,15 +1407,12 @@ class VideoCaptureTest {
         setupCamera()
         createCameraUseCaseAdapter()
         setSuggestedStreamSpec(
-            quality,
+            resolution = resolution,
             expectedFrameRate = expectedFrameRate,
             dynamicRange = expectedDynamicRange
         )
         var surfaceRequest: SurfaceRequest? = null
         val videoOutput = createVideoOutput(
-            mediaSpec = MediaSpec.builder().configureVideo {
-                it.setQualitySelector(QualitySelector.from(quality))
-            }.build(),
             surfaceRequestListener = { request, _ -> surfaceRequest = request },
         )
         val videoCapture = createVideoCapture(
@@ -1426,12 +1455,14 @@ class VideoCaptureTest {
     }
 
     private fun createVideoEncoderInfo(
+        canSwapWidthHeight: Boolean = true,
         widthAlignment: Int = 1,
         heightAlignment: Int = 1,
         supportedWidths: Range<Int> = Range.create(1, Integer.MAX_VALUE),
         supportedHeights: Range<Int> = Range.create(1, Integer.MAX_VALUE),
     ): VideoEncoderInfo {
         return FakeVideoEncoderInfo(
+            canSwapWidthHeight = canSwapWidthHeight,
             widthAlignment = widthAlignment,
             heightAlignment = heightAlignment,
             supportedWidths = supportedWidths,
@@ -1452,7 +1483,7 @@ class VideoCaptureTest {
             surfaceRequestListener.invoke(surfaceRequest, timebase)
         }
 
-    private class TestVideoOutput constructor(
+    private class TestVideoOutput(
         streamState: StreamState,
         mediaSpec: MediaSpec?,
         val videoCapabilities: VideoCapabilities = CAMERA_0_VIDEO_CAPABILITIES,
@@ -1552,12 +1583,12 @@ class VideoCaptureTest {
     }
 
     private fun setSuggestedStreamSpec(
-        quality: Quality,
+        resolution: Size,
         expectedFrameRate: Range<Int> = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED,
         dynamicRange: DynamicRange? = null
     ) {
         setSuggestedStreamSpec(
-            StreamSpec.builder(CAMERA_0_QUALITY_SIZE[quality]!!).apply {
+            StreamSpec.builder(resolution).apply {
                 setExpectedFrameRateRange(expectedFrameRate)
                 dynamicRange?.let { setDynamicRange(dynamicRange) }
             }.build()
@@ -1623,7 +1654,7 @@ class VideoCaptureTest {
             HD to RESOLUTION_720P,
             FHD to RESOLUTION_1080P,
             UHD to RESOLUTION_2160P,
-            LOWEST to RESOLUTION_720P,
+            LOWEST to RESOLUTION_480P,
             HIGHEST to RESOLUTION_2160P,
         )
 

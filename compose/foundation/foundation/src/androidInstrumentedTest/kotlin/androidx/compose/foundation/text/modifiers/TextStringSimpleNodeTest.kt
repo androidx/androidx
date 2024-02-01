@@ -19,7 +19,11 @@ package androidx.compose.foundation.text.modifiers
 import android.content.Context
 import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
@@ -37,6 +41,7 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -79,6 +84,19 @@ class TextStringSimpleNodeTest {
             }
         }
         rule.waitForIdle()
+    }
+
+    @Test
+    fun exceedsMaxConstraintSize_doesNotCrash() {
+        rule.setContent {
+            val state = rememberScrollState()
+            Column(Modifier.verticalScroll(state)) {
+                BasicText(
+                    text = "text\n".repeat(10_000),
+                    style = TextStyle(fontSize = 50.sp),
+                )
+            }
+        }
     }
 
     // TODO(b/279797016) re-enable this test, and add a path for AnnotatedString

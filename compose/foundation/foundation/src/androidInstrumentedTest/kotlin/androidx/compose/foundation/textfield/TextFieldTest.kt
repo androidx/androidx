@@ -17,7 +17,6 @@
 package androidx.compose.foundation.textfield
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.FocusInteraction
@@ -39,10 +38,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
+import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.text.selection.isSelectionHandle
+import androidx.compose.foundation.text2.input.InputMethodInterceptor
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -53,6 +55,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.onFocusChanged
@@ -63,11 +66,13 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
-import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
@@ -90,9 +95,11 @@ import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
@@ -115,15 +122,11 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.input.CommitTextCommand
-import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextFieldValue.Companion.Saver
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
@@ -142,6 +145,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -155,20 +159,15 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
-class TextFieldTest {
+class TextFieldTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
     private val Tag = "textField"
 
     // This sample font provides the following features:
@@ -183,22 +182,16 @@ class TextFieldTest {
 
     @Test
     fun textField_focusInSemantics() {
-        val inputService = TextInputService(mock())
-
         var isFocused = false
         rule.setContent {
             val state = remember { mutableStateOf("") }
-            CompositionLocalProvider(
-                LocalTextInputService provides inputService
-            ) {
-                BasicTextField(
-                    value = state.value,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .onFocusChanged { isFocused = it.isFocused },
-                    onValueChange = { state.value = it }
-                )
-            }
+            BasicTextField(
+                value = state.value,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onFocusChanged { isFocused = it.isFocused },
+                onValueChange = { state.value = it }
+            )
         }
 
         rule.onNode(hasSetTextAction()).performClick()
@@ -208,198 +201,90 @@ class TextFieldTest {
         }
     }
 
-    @Composable
-    private fun TextFieldApp() {
-        val state = remember { mutableStateOf("") }
-        BasicTextField(
-            value = state.value,
-            modifier = Modifier.fillMaxSize(),
-            onValueChange = {
-                state.value = it
-            }
-        )
-    }
-
     @Test
     fun textField_commitTexts() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
-
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                TextFieldApp()
-            }
+        var state by mutableStateOf("")
+        inputMethodInterceptor.setContent {
+            BasicTextField(
+                value = state,
+                modifier = Modifier.fillMaxSize(),
+                onValueChange = {
+                    state = it
+                }
+            )
         }
-
         rule.onNode(hasSetTextAction()).performClick()
 
-        var onEditCommandCallback: ((List<EditCommand>) -> Unit)? = null
-        rule.runOnIdle {
-            // Verify startInput is called and capture the callback.
-            val onEditCommandCaptor = argumentCaptor<(List<EditCommand>) -> Unit>()
-            verify(platformTextInputService, times(1)).startInput(
-                value = any(),
-                imeOptions = any(),
-                onEditCommand = onEditCommandCaptor.capture(),
-                onImeActionPerformed = any()
-            )
-            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-            onEditCommandCallback = onEditCommandCaptor.firstValue
-            assertThat(onEditCommandCallback).isNotNull()
-        }
-
-        // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
-        arrayOf(
-            listOf(CommitTextCommand("1", 1)),
-            listOf(CommitTextCommand("a", 1)),
-            listOf(CommitTextCommand("2", 1)),
-            listOf(CommitTextCommand("b", 1)),
-            listOf(CommitTextCommand("3", 1))
-        ).forEach {
-            // TODO: This should work only with runOnUiThread. But it seems that these events are
-            // not buffered and chaining multiple of them before composition happens makes them to
-            // get lost.
-            rule.runOnIdle { onEditCommandCallback!!.invoke(it) }
+        with(inputMethodInterceptor) {
+            withInputConnection { commitText("1", 1) }
+            withInputConnection { commitText("a", 1) }
+            withInputConnection { commitText("2", 1) }
+            withInputConnection { commitText("b", 1) }
+            withInputConnection { commitText("3", 1) }
         }
 
         rule.runOnIdle {
-            val stateCaptor = argumentCaptor<TextFieldValue>()
-            verify(platformTextInputService, atLeastOnce())
-                .updateState(any(), stateCaptor.capture())
-
-            // Don't care about the intermediate state update. It should eventually be "1a2b3".
-            assertThat(stateCaptor.lastValue.text).isEqualTo("1a2b3")
+            assertThat(state).isEqualTo("1a2b3")
         }
-    }
-
-    @Composable
-    private fun OnlyDigitsApp() {
-        val state = remember { mutableStateOf("") }
-        BasicTextField(
-            value = state.value,
-            modifier = Modifier.fillMaxSize(),
-            onValueChange = { value ->
-                if (value.all { it.isDigit() }) {
-                    state.value = value
-                }
-            }
-        )
     }
 
     @Test
     fun textField_commitTexts_state_may_not_set() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
-
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                OnlyDigitsApp()
-            }
+        var state by mutableStateOf("")
+        inputMethodInterceptor.setContent {
+            BasicTextField(
+                value = state,
+                modifier = Modifier.fillMaxSize(),
+                onValueChange = { value ->
+                    if (value.all { it.isDigit() }) {
+                        state = value
+                    }
+                }
+            )
         }
 
         rule.onNode(hasSetTextAction()).performClick()
 
-        var onEditCommandCallback: ((List<EditCommand>) -> Unit)? = null
-        rule.runOnIdle {
-            // Verify startInput is called and capture the callback.
-            val onEditCommandCaptor = argumentCaptor<(List<EditCommand>) -> Unit>()
-            verify(platformTextInputService, times(1)).startInput(
-                value = any(),
-                imeOptions = any(),
-                onEditCommand = onEditCommandCaptor.capture(),
-                onImeActionPerformed = any()
-            )
-            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-            onEditCommandCallback = onEditCommandCaptor.firstValue
-            assertThat(onEditCommandCallback).isNotNull()
-        }
-
         // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
-        arrayOf(
-            listOf(CommitTextCommand("1", 1)),
-            listOf(CommitTextCommand("a", 1)),
-            listOf(CommitTextCommand("2", 1)),
-            listOf(CommitTextCommand("b", 1)),
-            listOf(CommitTextCommand("3", 1))
-        ).forEach {
-            // TODO: This should work only with runOnUiThread. But it seems that these events are
-            // not buffered and chaining multiple of them before composition happens makes them to
-            // get lost.
-            rule.runOnIdle { onEditCommandCallback!!.invoke(it) }
+        with(inputMethodInterceptor) {
+            withInputConnection { commitText("1", 1) }
+            withInputConnection { commitText("a", 1) }
+            withInputConnection { commitText("2", 1) }
+            withInputConnection { commitText("b", 1) }
+            withInputConnection { commitText("3", 1) }
         }
 
         rule.runOnIdle {
-            val stateCaptor = argumentCaptor<TextFieldValue>()
-            verify(platformTextInputService, atLeastOnce())
-                .updateState(any(), stateCaptor.capture())
-
-            // Don't care about the intermediate state update. It should eventually be "123" since
-            // the rejects if the incoming model contains alphabets.
-            assertThat(stateCaptor.lastValue.text).isEqualTo("123")
+            assertThat(state).isEqualTo("123")
         }
     }
 
     @Test
     fun textField_onTextLayoutCallback() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
-
         val onTextLayout: (TextLayoutResult) -> Unit = mock()
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                val state = remember { mutableStateOf("") }
+        var state by mutableStateOf("")
+        inputMethodInterceptor.setContent {
                 BasicTextField(
-                    value = state.value,
+                    value = state,
                     modifier = Modifier.fillMaxSize(),
                     onValueChange = {
-                        state.value = it
+                        state = it
                     },
                     onTextLayout = onTextLayout
                 )
-            }
         }
 
         rule.onNode(hasSetTextAction()).performClick()
 
-        var onEditCommandCallback: ((List<EditCommand>) -> Unit)? = null
-        rule.runOnIdle {
-            // Verify startInput is called and capture the callback.
-            val onEditCommandCaptor = argumentCaptor<(List<EditCommand>) -> Unit>()
-            verify(platformTextInputService, times(1)).startInput(
-                value = any(),
-                imeOptions = any(),
-                onEditCommand = onEditCommandCaptor.capture(),
-                onImeActionPerformed = any()
-            )
-            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-            onEditCommandCallback = onEditCommandCaptor.firstValue
-            assertThat(onEditCommandCallback).isNotNull()
-        }
-
         // Performs input events "1", "2", "3".
-        arrayOf(
-            listOf(CommitTextCommand("1", 1)),
-            listOf(CommitTextCommand("2", 1)),
-            listOf(CommitTextCommand("3", 1))
-        ).forEach {
-            // TODO: This should work only with runOnUiThread. But it seems that these events are
-            // not buffered and chaining multiple of them before composition happens makes them to
-            // get lost.
-            rule.runOnIdle { onEditCommandCallback!!.invoke(it) }
+        with(inputMethodInterceptor) {
+            withInputConnection { commitText("1", 1) }
+            withInputConnection { commitText("2", 1) }
+            withInputConnection { commitText("3", 1) }
         }
 
         rule.runOnIdle {
-            val layoutCaptor = argumentCaptor<TextLayoutResult>()
-            verify(onTextLayout, atLeastOnce()).invoke(layoutCaptor.capture())
-
-            // Don't care about the intermediate state update. It should eventually be "123"
-            assertThat(layoutCaptor.lastValue.layoutInput.text.text).isEqualTo("123")
+            assertThat(state).isEqualTo("123")
         }
     }
 
@@ -769,6 +654,50 @@ class TextFieldTest {
     }
 
     @Test
+    fun semantics_setTextSetSelection_transformed_invalidIndex() {
+        rule.setContent {
+            var value by remember { mutableStateOf("Hello") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it }
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performSemanticsAction(SemanticsActions.SetSelection) { it(0, Int.MAX_VALUE, false) }
+            .assert(
+                // invalid selection should be ignored.
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.TextSelectionRange,
+                    TextRange(0, 0)
+                )
+            )
+    }
+
+    @Test
+    fun semantics_setTextSetSelection_original_invalidIndex() {
+        rule.setContent {
+            var value by remember { mutableStateOf("Hello") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it }
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performSemanticsAction(SemanticsActions.SetSelection) { it(0, Int.MAX_VALUE, true) }
+            .assert(
+                // invalid selection should be ignored.
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.TextSelectionRange,
+                    TextRange(0, 0)
+                )
+            )
+    }
+
+    @Test
     fun setImeAction_isReflectedInSemantics() {
         rule.setContent {
             BasicTextField(
@@ -897,7 +826,7 @@ class TextFieldTest {
         var value by mutableStateOf(TextFieldValue(text, TextRange(text.length)))
         var toolbar: TextToolbar? = null
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             toolbar = LocalTextToolbar.current
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
@@ -1298,6 +1227,29 @@ class TextFieldTest {
         rule.onNodeWithTag(Tag).captureToImage().assertCentered(fontSize)
     }
 
+    @Test
+    fun textField_cursorAppearsOnTouch_thenDisappearsWhenTyping() {
+        rule.setTextFieldTestContent {
+            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                BasicTextField(
+                    value = "test",
+                    onValueChange = {},
+                    // center so that the click places the cursor in the middle of the word
+                    textStyle = TextStyle(textAlign = TextAlign.Center),
+                    modifier = Modifier.testTag(Tag),
+                )
+            }
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
+
+        rule.onNodeWithTag(Tag).performTouchInput { click() }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertExists()
+
+        rule.onNodeWithTag(Tag).performTextInput("t")
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenSelectedTextIsRemoved_SelectionCoerces() {
@@ -1386,6 +1338,7 @@ class TextFieldTest {
     }
 
     @OptIn(ExperimentalTestApi::class)
+    @FlakyTest(bugId = 300053741)
     @Test
     fun whenSelectedTextIsPartiallyRemoved_addedLater_SelectionRemainsPartially() {
         val textFieldValue = mutableStateOf("Hello")
@@ -1450,6 +1403,51 @@ class TextFieldTest {
         val actual = textNode.fetchSemanticsNode().config
             .getOrNull(SemanticsProperties.TextSelectionRange)
         assertThat(actual).isEqualTo(TextRange(0))
+    }
+
+    // Regression test for b/311834126
+    @Test
+    fun whenPastingTextThatIncreasesEndOffset_noCrashAndCursorAtEndOfPastedText() {
+        val longText = "Text".repeat(4)
+        val shortText = "Text".repeat(2)
+
+        var tfv by mutableStateOf(TextFieldValue(shortText))
+        val clipboardManager = object : ClipboardManager {
+            var contents: AnnotatedString? = null
+
+            override fun setText(annotatedString: AnnotatedString) {
+                contents = annotatedString
+            }
+
+            override fun getText(): AnnotatedString? {
+                return contents
+            }
+        }
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField(
+                    value = tfv,
+                    onValueChange = { tfv = it },
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
+        }
+        clipboardManager.setText(AnnotatedString(longText))
+        rule.waitForIdle()
+
+        val node = rule.onNodeWithTag(Tag)
+        node.performTouchInput { longClick(center) }
+        rule.waitForIdle()
+
+        node.performSemanticsAction(SemanticsActions.PasteText) { it() }
+        rule.waitForIdle()
+
+        val expectedTfv = TextFieldValue(
+            text = longText,
+            selection = TextRange(longText.length)
+        )
+        assertThat(tfv.text).isEqualTo(expectedTfv.text)
+        assertThat(tfv.selection).isEqualTo(expectedTfv.selection)
     }
 
     @Test
@@ -1528,6 +1526,57 @@ class TextFieldTest {
         rule.onNode(hasSetTextAction()).performTextInput("hello2")
 
         rule.onNodeWithTag(decorationTag, true).assertDoesNotExist()
+    }
+
+    // Regression test for b/311007530
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun whenToggleReadOnly_onEditedTextField_noChangeNorCrash() {
+        val tag = "tag"
+
+        val text = "text"
+        val tfv = TextFieldValue(
+            text = text,
+            selection = TextRange(text.length)
+        )
+
+        val textAfterBackspace = text.run { substring(0, length - 1) }
+        val tfvAfterBackspace = TextFieldValue(
+            text = textAfterBackspace,
+            selection = TextRange(textAfterBackspace.length),
+        )
+
+        var value by mutableStateOf(tfv)
+        var readOnly by mutableStateOf(false)
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                value = value,
+                onValueChange = { value = it },
+                readOnly = readOnly,
+                modifier = Modifier.testTag(tag),
+            )
+        }
+        val node = rule.onNodeWithTag(tag)
+        // gain focus and place cursor at end of text
+        node.performTouchInput { click(centerRight - Offset(5f, 0f)) }
+        rule.waitForIdle()
+        assertThat(value.text).isEqualTo(tfv.text)
+        assertThat(value.selection).isEqualTo(tfv.selection)
+
+        node.performKeyInput { keyDown(Key.Backspace) }
+        rule.waitForIdle()
+        assertThat(value.text).isEqualTo(tfvAfterBackspace.text)
+        assertThat(value.selection).isEqualTo(tfvAfterBackspace.selection)
+
+        rule.runOnUiThread { readOnly = true }
+        rule.waitForIdle()
+        assertThat(value.text).isEqualTo(tfvAfterBackspace.text)
+        assertThat(value.selection).isEqualTo(tfvAfterBackspace.selection)
+
+        rule.runOnUiThread { readOnly = false }
+        rule.waitForIdle()
+        assertThat(value.text).isEqualTo(tfvAfterBackspace.text)
+        assertThat(value.selection).isEqualTo(tfvAfterBackspace.selection)
     }
 }
 

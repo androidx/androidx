@@ -809,8 +809,7 @@ class DraggableTest {
         rule.setContent {
             val viewConfig = LocalViewConfiguration.current
             val newConfig = object : ViewConfiguration by viewConfig {
-                override val maximumFlingVelocity: Int
-                    get() = maxVelocity.toInt()
+                override val maximumFlingVelocity: Float get() = maxVelocity
             }
             CompositionLocalProvider(LocalViewConfiguration provides newConfig) {
                 Box {
@@ -1008,7 +1007,6 @@ class DraggableTest {
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "orientation",
                 "enabled",
-                "canDrag",
                 "reverseDirection",
                 "interactionSource",
                 "startDragImmediately",
@@ -1017,6 +1015,18 @@ class DraggableTest {
                 "state",
             )
         }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals() {
+        val state = DraggableState { }
+
+        val firstModifier = Modifier.draggable(state, Orientation.Horizontal)
+        val secondModifier = Modifier.draggable(state, Orientation.Vertical)
+        val thirdModifier = Modifier.draggable(state, Orientation.Horizontal)
+
+        assertThat(firstModifier).isEqualTo(thirdModifier)
+        assertThat(firstModifier).isNotEqualTo(secondModifier)
     }
 
     private fun setDraggableContent(draggableFactory: @Composable () -> Modifier) {

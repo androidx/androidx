@@ -16,6 +16,7 @@
 
 <resources>
     <string name="demos_label">Glance AppWidget Demos</string>
+    <string name="demo_widget_viewer">Demo Widget Viewer</string>
 
     <!-- Name of the app widgets -->
     <string name="responsive_widget_name">Responsive Widget</string>
@@ -40,4 +41,5 @@
     <string name="buttons_widget_name">Buttons Demo Widget</string>
     <string name="tint_widget">Tint widget</string>
     <string name="title_bar_widget">Title Bar Widget</string>
+    <string name="content_description_widget_name">Content Description Widget</string>
 </resources>

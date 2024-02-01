@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
@@ -25,13 +24,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class MeasuredPage(
     override val index: Int,
     val size: Int,
     private val placeables: List<Placeable>,
     private val visualOffset: IntOffset,
-    val key: Any,
+    override val key: Any,
     orientation: Orientation,
     private val horizontalAlignment: Alignment.Horizontal?,
     private val verticalAlignment: Alignment.Vertical?,
@@ -78,14 +76,14 @@ internal class MeasuredPage(
             if (isVertical) {
                 placeableOffsets[indexInArray] =
                     requireNotNull(horizontalAlignment) { "null horizontalAlignment" }
-                    .align(placeable.width, layoutWidth, layoutDirection)
+                        .align(placeable.width, layoutWidth, layoutDirection)
                 placeableOffsets[indexInArray + 1] = mainAxisOffset
                 mainAxisOffset += placeable.height
             } else {
                 placeableOffsets[indexInArray] = mainAxisOffset
                 placeableOffsets[indexInArray + 1] =
                     requireNotNull(verticalAlignment) { "null verticalAlignment" }
-                    .align(placeable.height, layoutHeight)
+                        .align(placeable.height, layoutHeight)
                 mainAxisOffset += placeable.width
             }
         }
@@ -110,8 +108,20 @@ internal class MeasuredPage(
         }
     }
 
+    fun applyScrollDelta(delta: Int) {
+        offset += delta
+        repeat(placeableOffsets.size) { index ->
+            // placeableOffsets consist of x and y pairs for each placeable.
+            // if isVertical is true then the main axis offsets are located at indexes 1, 3, 5 etc.
+            if ((isVertical && index % 2 == 1) || (!isVertical && index % 2 == 0)) {
+                placeableOffsets[index] += delta
+            }
+        }
+    }
+
     private fun getOffset(index: Int) =
         IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
+
     private val Placeable.mainAxisSize get() = if (isVertical) height else width
     private inline fun IntOffset.copy(mainAxisMap: (Int) -> Int): IntOffset =
         IntOffset(if (isVertical) x else mainAxisMap(x), if (isVertical) mainAxisMap(y) else y)

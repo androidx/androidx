@@ -42,6 +42,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("deprecation")
 @MediumTest
 public class ListViewCompatTest extends BaseInstrumentationTestCase<ListViewTestActivity> {
     private ListView mListView;

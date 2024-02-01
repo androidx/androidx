@@ -29,7 +29,7 @@ import org.junit.runners.JUnit4
 private val ExternalModuleFunctionStub = kotlinAndBytecodeStub(
     filename = "Other.kt",
     filepath = "bar/compose",
-    checksum = 0xad5be2a5,
+    checksum = 0xdc553c55,
     source = """
         package bar.compose
 
@@ -51,54 +51,54 @@ private val ExternalModuleFunctionStub = kotlinAndBytecodeStub(
         }
     """.trimIndent(),
     """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGJ2KM3AZcWllJiXUpSfmVKhl5yfW5BfnKqX
-                ll+al5JYkpmfp5eTWJlfWiIk4pRfEZ5ZkuGcn1dcUpSYmVdS7F3CJcbFnZRY
-                BNMmxO5fkpFaBBTn5WJOy88XYgtJLS7xLlFi0GIAALeBd4B7AAAA
-                """,
+    META-INF/main.kotlin_module:
+    H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuJSSsxLKcrPTKnQS87PLcgvTtVL
+    yy/NS0ksyczP08tJrMwvLRESccqvCM8syXDOzysuKUrMzCsp9i7hEuPiTkos
+    gmkTYvcvyUgtAorzcjGn5ecLsYWkFpd4lygxaDEAADRmnbZ7AAAA
+    """,
     """
-                bar/compose/OtherKt＄Test＄1.class:
-                H4sIAAAAAAAA/6VU33MTVRT+7ibNJtvFlCLQFgSVCGmrbIv4i8RiCa2sxOCY
-                Usfp083m0myzubezezdT3vrm/+FfIDojjM44HR/9oxzP3cYQhuKDPOTck3PP
-                +c53zv2Sv/7+7Q8AN3GfYaHDYy9Qg32VCO+B7on4vq5siURXVm0whh+afaWj
-                UHp7w4EXSi1iySOvyQedLq9N3j1KZaBDJRNvc+St1ptcdmMVdg/GHR6pVHa5
-                ufUi/lil2rujDr4Lda9BlTrm1CFpB2pfjLEfylDX1mrE9NVEbOQZLv03GRsF
-                hkI9JLg1hlx1cZshX/UXt10U4TiYwjQFdC9MGC42X70VYlII5VD1BcPt6utM
-                aBhcaap419sTumNuEo9LqTQ/pt5SupVGETWcqxhelZeBiph9cfDxYnypYwIM
-                g8TGmwxng54I+iPEb3jMB4ISGa5Vm3t8yImq3PUedPZEoGsTkbYB2a2ZJZ3D
-                eQdnMcdw5oTl2FhgsB8mYouIuriIGQcX8BbDa2mA4eoJ/BZfDjHc+v9tbLzj
-                omwYW7jCMD0hPBvvMRT9VntrvdXYYDj1gipdXEO1hKtYZLD2VxlmT2JWrAdR
-                pjojtJJpct0UvlEib4Xh9L+QXwvNiS+nEmswzNEPlBljM7C+cXIUPwiNR1VW
-                l9pVjg5d5+jQsWYsx5qzyJ05OlywVtiStWLdc/78sWAVTVX3Bk1V51LJxwOV
-                JiR/kNSNnF3cRokoZq94va8p3FBdYSZRAY+2eRzyTiS2jGEoN0MpWumgI+JR
-                pPJtKnU4EL4chklIobG01p8LmcH1pRRxI+JJIuhreUMGkUpIWTRzT3UZSu1w
-                V3KdxoTptFUaB2IzNA3mRw22j+EnULFC+5uiQehvCvNmobSZPH1oyRS5Q16F
-                MmhWFJbyT+E+MRtFg6x7HMWprOa0eXvKNBUNOi06p5dnzzzD/PIzXDJlFu6S
-                NU9XoFSHSgzMuePUEYzxZnGZoDdGr0ZpmFkn9LdHfL4YobtLy0d491dUfsbS
-                T2P4QsaqPAHtjqFdLON9ui/ig/F057Mcavs7rO+fwvsFq0+ywBQ2M7ZslDCH
-                L7PVXCAC97J2OfjZuY6v6PyEMm9Q1Yc7yPm46eMjsvjYp4tPfXyGWztgCWqo
-                7yCf4PMEawkuJyj/AyfuA+BHBgAA
-                """,
+    bar/compose/OtherKt＄Test＄1.class:
+    H4sIAAAAAAAA/6VU33PbRBD+TnYsW1FxmtI2SUsL1LROAlVSCoXapE1NQkWN
+    y+A0DJOns3yNFct3GenkSd/yxv/BX0BhhnZghsnwyB/FsKcY405THuiD9lb7
+    49tv91b6869ffwdwE02GhQ6PvUAN9lUivIe6J+IHurIlEl1ZtcEYvm/2lY5C
+    6e0NB14otYglj7wmH3S6vDbpe5zKQIdKJt7mSFutN7nsxirsHowrPFap7HLj
+    9SL+RKXau6cOvg11r0GZOuZUIWkHal+MsR/JUNfWasT01URs5Bku/TcZGwWG
+    Qj0kuDWGXHVxmyFf9Re3XRThOJjCNBl0L0wYLjZfPRViUgjlUPUFw53q63Ro
+    GFxpqnjX2xO6YzyJx6VUmh9TbyndSqOICs5VDK/Ky0BFzL7Y+HgwvtQxAYZB
+    YuNNhrNBTwT9EeLXPOYDQYEM16rNPT7kRFXueg87eyLQtQlL24Ds1syQzuG8
+    g7OYYzhzwnBsLDDYjxKxRURdXMSMgwt4i+G1doDh6gn8Fl82Mdz+/2VsvOOi
+    bBhbuMIwPbF4Nt5jKPqt9tZ6q7HBcOqFrXRxDdUSrmKRwdpfZZg9iVmxHkTZ
+    1plFK5ki103iGyXSVhhO/wP5ldCc+HJKsQbDHH2gzIiSEWBgfaPkyHkQGo1S
+    rS7VrBwdus7RoWPNWI41Z5E6c3S4YK2wJWvFuu/88UPBKpqs7g1qrc6lkk8G
+    Kk3oGyDQvNlpF3dRIp7ZVV7vazI3VFeYdlTAo20eh7wTiS0jGMrNUIpWOuiI
+    eGSpfJNKHQ6EL4dhEpJpvF/r/24zg+tLKeJGxJNE0Gt5QwaRSmi9qPGe6jKU
+    2uGu5DqNCdNpqzQOxGZoCsyPCmwfw0+gYoWGOEWN0L8K82aqNJk8PTRpsjRI
+    q1AE9YrCUv4Z3KfZLD8n6R5bcSrLOW0WgCJNRoNOi87p5dkzzzG//ByXTJqF
+    DZLm/goU6lCKgTl3HDqCMdosLhP0Juk23RqFYWad0N8e8bk7QneXlo/w7i+o
+    /ISlH8fwhYxVeQLaHUO7WMb75C/ig3F357MYKvsbrO+ewfsZq08zwxS+yNiy
+    UcAc7mejuYB1+Fm5HL7Mznt4QOctirxBWR/uIOfjpo+PfHyMWz4+wac+bqO2
+    A5agjs92kE+wluBOgssJyn8D0BOnRkwGAAA=
+    """,
     """
-                bar/compose/OtherKt.class:
-                H4sIAAAAAAAA/6VUWVMTQRD+ZhNICEGWcMglHgQJqCzggRo8MCXlljFYglgl
-                T5PNAAubWWpnQuEbf0mfKB8snv1Rlj1LRDnUKk1Vpo/p/rr7m06+fvv8BcAd
-                FBm6qzxyvLC+EyrhLOlNEb3UKTAGe4vvcifgcsNZqm4Jj7wJhpY4hOFJocxl
-                LQr92t5x9nrYkDWu/VBS2oewoZ1n4d47X2+WQql0xH2p1bIX7ojixCrD2FmA
-                qCG1XxdOKbZ5NRDU4Gg5jDacLaGrBkE5XMpQx1WUUwl1pREEFNU6rzd99TiN
-                NoaR7VAHvnS2dusO1RSR5IHjSh1Ruu+pFNoZer1N4W0381/ziNeFNnONF8qn
-                5y7+4lk2IBvUfxYduJBBFp0M7XlTO99kZv5/iGFIvVViheCIamVcafQwJFeE
-                0gyJgiFu8JwXy5uA/EwK/Qxpt7K8slApPWcYLv8+tpjFIIbaMIDhk5StN6R3
-                RO9iUyPcEYa5f5rLbNMVavrsTb4m1nkjoLnmCu/Lf26g6J59FvMI1zCawVXk
-                Gbp+ILwSmlNTnLi06rsJ2nNmjhQD2zaKRf4932jTpNVmGJ4e7tuZw/2MZVsZ
-                K03ffovMwbRNhzXNXqQGbdsy2myrnSCZJE/WbjGeydgyOLOMCiEdczy1TUMl
-                S2FNMHSWfSkqjXpVRCtmoxly5dDjwSqPfGM3nUNvjnbflbu+8sm18HPNGfKn
-                b4839kRY1pVSRKWAKyXIzCyHjcgTi74pMNCEWD0DjxlYSMJ8ErQNLWgleZss
-                42eGuslc5gD2R0Me/WmAAugHhzTukp49CkEXciTvNW9TJOearFMgCLf7PNze
-                c3DbT+D2/A23Dxcp3eBONKfoSHzCpUNcTrIDjBl0FqNnKAzoJOTcCbwE7se3
-                xFGc3o8HcUezeEjyEfmvEynja0i4KLiYoBOTLm7gpotbmFoDU3AwvYZWhT5i
-                U6FboUchp9DyHfyqvvRqBQAA
-                """
+    bar/compose/OtherKt.class:
+    H4sIAAAAAAAA/6VT21ITQRA9s7kSoqwBkYt3owZUFvCCGrxgSsotY7QEsUqe
+    JpuBLNnMWjsTCt/4JXyifLB49qMse5aIRlCr9GFnus90n54+0/vl66fPAG5h
+    nmGwziPHC9vvQyWcl7opouc6A8Zgb/BN7gRcrjsv6xvCIzTBkIpDGB6Vqlw2
+    otBvbB1kr4Ud2eDaDyWlfQg72nkSbr31dbMSSqUj7kutlrzwvShPrDBcPkwQ
+    daT228KpxD6vB6LMcKkaRuvOhtB1w6AcLmWo4yrKqYW61gkCikrP66avHmbR
+    x3C2FerAl87GZtuhmiKSPHBcqSNK9z2VQT/DSa8pvFY3/xWPeFto09fVUvXX
+    vss/IUuGZJ3un8cxHM8hjwGG/qKpXewqM/8/wjBk3iixTHQktTJQFkMMyWWh
+    NEOiZIQbO+LFiiagOJPBCEPWrS0tL9QqTxlOV38fW85jDON9GMXpXsnWOtLb
+    l3exaxHvWYa5f+rLTNN5uvThk2JDrPFOQH3Nld5V/3yBsnv4WcwjXMSlHC6g
+    yHDiO8MLoTldipOWVnszQXPOzNJnFjCwljEsOtzyjTVNVmOG4fHetp3b285Z
+    tpWzsvSNWOSOZW1arGn2LDNm25axZtN2gvYkIXk7ZZDJ2DM8s8yUyMZCT7Wo
+    s2QlbAiGgaovRa3Troto2Yw1Q6EaejxY4ZFv/C44/nr/B3Dlpq98ghZ+zDpD
+    8dfTg7HtCcu7UoqoEnClBLm5pbATeWLRNwVGuxQrh+gxAwtJIxESNBIppGm/
+    RZ7BqStkJgu5Xdg7RjzcpjVNcBpZ3CE7vx+CEyjQPtc9zdB+1+DMiELGKAaP
+    4j15BG9/D+/Q33iHcYrSDe9Et4tjiY84s4dzSbaLyzvx0xv2HIUBA8Rc6OFL
+    4F58ShrF6SO4H9/oJsq0PyD8ColydRUJFyUXEy4mcc3FddxwMQVnFUxhGjOr
+    SCsMK8wqDCoMKRQUUt8ADl3qEW8FAAA=
+    """
 )
 
 @RunWith(JUnit4::class)
@@ -111,7 +111,7 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
     private val BoxWithConstraintsStub = bytecodeStub(
         filename = "BoxWithConstraints.kt",
         filepath = "androidx/compose/foundation/layout",
-        checksum = 0xddc1f733,
+        checksum = 0x12a1c0a0,
         source =
         """
             package androidx.compose.foundation.layout
@@ -137,67 +137,67 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
             ) {}
         """.trimIndent(),
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGJ2KM3AZcWllJiXUpSfmVKhl5yfW5BfnKqX
-                ll+al5JYkpmfp5eTWJlfWiIk4pRfEZ5ZkuGcn1dcUpSYmVdS7F3CxcvFnJaf
-                L8QWklpc4l2ixKDFAAD5174zYwAAAA==
-                """,
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuJSSsxLKcrPTKnQS87PLcgvTtVL
+        yy/NS0ksyczP08tJrMwvLRESccqvCM8syXDOzysuKUrMzCsp9i7hEuPiTkos
+        gmkTYvcvyUgt8i5RYtBiAADDkmqHbAAAAA==
+        """,
         """
-                androidx/compose/foundation/layout/BoxWithConstraintsKt.class:
-                H4sIAAAAAAAA/6VTXU8TQRQ9sy394qsU+SqIKCAgwhZiwkOJiRKJjQWNRYzw
-                NGyHsrSdaXZnCbwY/oav/gPfiA+G+OiPMt7ZtlrsA4lusnfunTl77p17z/74
-                +fUbgCdYZ9jgsuwpt3xuO6reUL6wj1Ugy1y7Sto1fqECbT9X5+9dfbKlpK89
-                7krtv9JxMIb0KT/jhJIV+/XRqXBoN8KQ6cYzzC0eFKtK11xpn57V7eNAOiaF
-                b2+3vLX80j5D41bY5krxn0ouOaoh8m3yd9LV+adhyvluPi+Q2q0LeyuM+VFN
-                5Blmi8qr2KdCHxlC3+ZSKs2b1e0qvRvUaoSKO0pqIXUCKYbpjqtQDcKTvGYX
-                pPboe9fx4+hjGHFOhFNtEbzhHq8LAjIsLBb/7m6+Y6dkSCp0gT4MYDCFfqQZ
-                xhqeavAK12LHlTfazw4YZm4bAEO2u29zZXHMg5omqdw+wkJ3zabCHsRSsDDG
-                MNRm2BGa08g4JbXqZxGSIzMmTqVWjWPR/rlrvBx55TWGD9eX06nry5SVtppL
-                b7iMW51vNpe+vsxaObaeSBCQvMj6VDqaHc9EM1YuFlqW6/n+OWYl4qFNvIyb
-                BPQrgKTbLq+zKZv/IzgSQZvzxTkJw6dv2uR7FyFgpPvb1Sr1O7qlyoJhsOhK
-                sRvUj4S3Z6RoqlQOr+1zzzVxazNZciuS68Ajf/JtU8AFeeb6Lh0/+6NV+hX/
-                Pv2tuhuw/pLmTnWHN1oJUiUVeI7Ydk0w0eLY7+LHGk06CvNYmDCjp2iJojzF
-                lhnxcqb3CkNfQsAjsjFqfAwjWCZ/tAlBBsMhRRwp3KHzxyE6jpUWPkHrKr1J
-                A6fLA+kkUYySb3JttGoYmIp+/ISeSD67fIXxZkqbbAQsEeYegJFYhjiHiTND
-                x7kQtEjXALaJzlwhe4hIAZMFTJHF3QKmca+AGdw/BPPxALOHSPro8THnIxPa
-                lI95Hw99JHws/AJecgBzcAUAAA==
-                """,
+        androidx/compose/foundation/layout/BoxWithConstraintsKt.class:
+        H4sIAAAAAAAA/6VTW08TQRT+Zlt6A7GucrEioqKCqNuiCQ81JkokNhY0FjHK
+        03Q7lO1lptmdbcqL4W/46j/wzfhgiI/+KOOZbavVPpDoQ89l55vvnDnn6/cf
+        X74CeID7DBtc1nzl1XqOq9odFQjnQIWyxrWnpNPiRyrUzhPVe+Ppw00lA+1z
+        T+rguU6CMWQbvMsJJevOi2pDuPQ1xmCP4xmWV96Vm0q3POk0um3nIJSuKRE4
+        W4OoUFzdY+icCnt4t/xPLVdc1RHFIflr6enio6jkjXE+P5TaawtnM8p5tSWK
+        DNfLyq87DaGrhjBwuJRK8353O0rvhK0WoZKuklpInUKGYXHkKdSD8CVvOSWp
+        fbrvuUESUwwz7qFwmwOCl9znbUFAhlsr5b+nWxz5UjEkdXrAFKZxNoMzyDLM
+        dXzV4XWuxbYn/xg/e8ewdNoCGHLjc1uuiQMetjRJ5fQVlsZ7Nh1OIJGBhTmG
+        c0OGbaE5rYxTUavdjZEcmTFpY0D9Nk1g0WHPM1GeolqB4e3J8WLm5DhjZa2+
+        m4zcvDX6y+WzJ8c5K8/WUykCUhRbX8jGc/N23Lbyiciy/MS3jwkrlYxs6lnS
+        FFhnprY97HF0Mg//R3WkhCHn0x6pI6A7Q/LdowgwM373XpOGHt9UNcFwtuxJ
+        sRO2q8LfNXo0XSqXt/a475l88DFd8eqS69Cn+NKrvopLsusFHh0//i1Y+j/+
+        ffpLen/AzlQ0d5vbvDMokKmo0HfFlmeSiwOOvTF+FGjdcbNK8hfN/im7TVmR
+        cot8cs2e/IxznyLAGtkEDT6BGdyheLYPgY3zEUUSGVyg87sROol7A3yKvGNE
+        Y0WaSQPZNFHMUmxqbQx6mF6Iv/+AiVgxt/YZ8/2SebIxsFRUexpGYjZxnidO
+        m44LEWgV6+S3iM48IbePWAmXSlgo4TIWS7iCpRKu4to+WIDrWN5HOsBEgBsB
+        7MhmAtwMcCtAKsDKT2vS8Et1BQAA
+        """,
         """
-                androidx/compose/foundation/layout/BoxWithConstraintsScope.class:
-                H4sIAAAAAAAA/5WSzW7aQBDH/2vA2IYQJ21aQvqdSm0uNUU9tb30Q1WRSCol
-                UhOJkzEOLNi7iF0QvfEUfYAe+hA9VCjHPlTVMSUBQSpRazWz89N/dtYz++v3
-                j58AXuAxw0tfNPuSN0deIOOeVKF3Lgei6WsuhRf5X+RAe2/l6JTr9jsplO77
-                XGh1EshemAVjcDv+0CehaHmfGp0w0FmkGAqtUC/IGSpPD2prVFrIecWwX5P9
-                ltcJdSNByvOFkHqqV96R1EeDKCJVjmodcnHKm7rNcLBeofe9y0x/NMvM/z3n
-                Y8hbbT0L/dFluFXrSh1x4R2G2qezfMo34mGK+sgSk2VgXUIjnkRl2jWfM3yd
-                jEuOUTQcw52MHVrTvZWaecs6L07GFaPMjrddo2SUU2cX39MX30yzlLbSboao
-                STS7QC3XJuos0dyU5pfoxpQWluimaye3qzC8XqdT/xg+/T6og8HikMv/P2I7
-                nrf4ydqDs+KrqdnxfGRWfPUMdlav/axLkr3jgdA8DqtiyBVvROGb+ZticE7k
-                oB+EH3gUMuzOpJ9XhCb1D2kkXybNkIFJrXhIUeKzADEL9gpzrmG5a1h+mVG1
-                R1P7APvk60Q3qGqhjlQVm1W4ZLGVmO0qbuAmCRR2cKsOV+G2QlFhV6GkkFEw
-                FfYU7ijkFWyFuwqOwj2FnMJ9BesPb1xrKxsEAAA=
-                """,
+        androidx/compose/foundation/layout/BoxWithConstraintsScope.class:
+        H4sIAAAAAAAA/5WS3W4SQRTH/7MLy+5C6bZapdTvarQ3LhKv1Bs/YiShNWkT
+        a8LVAlsY2J0hzEDwjqfwAbzwIbwwpJc+lPEs0kKgJphszscv/zNn9pz59fvH
+        TwDP8YjhRSCafcmbI78h455UoX8mB6IZaC6FHwVf5ED7b+TolOv2WymU7gdc
+        aHXSkL0wA8bgdYJhQELR8j/WO2FDZ2Ay5FuhXpAzlJ8cVNfotFDzkmG/Kvst
+        vxPqeoKUHwgh9VSv/COpjwZRRKos9Trk4pQ3dZvhYL1G73oXlcFoVpn7e86H
+        kLfaepYGo4t0q9qVOuLCPwx1QGcFVG/EQ5PmyBLjJAYMrEt8xJOsRFHzGcPX
+        ybjoGgXDNbzJ2KVvGtvmzNv2WWEyLhsldrztGUWjZH4+/546/2ZZxZSd8tJE
+        LaKZBWp7DlF3iWanNLdEN6Y0v0Q3PSe5XZnh1Trj+scLoBnQL2cbi5su/f+e
+        nXg+58drb8+OL1fnxPO92fHlW9hZvfbTLkn2jgdC8zisiCFXvB6Fr+cPi8E9
+        kYN+I3zPo5Bhdyb9tCK0aH5IJUtHOsWQhkWjeEBZ4jMAMRvOCnOvYNkrWG6Z
+        Ubf9qb2Ph+RrRDeoa74Gs4LNCrwKtrBNIa5VcB07JFC4gZs1eAoFhV2FosKe
+        QlrBUrilcFshp+Ao3FFwFe4qZBXuKdh/AAfjFM8gBAAA
+        """,
         """
-                androidx/compose/foundation/layout/Constraints.class:
-                H4sIAAAAAAAA/5WPz07CQBDGv9mWUot/CooiT6AXWonxYjyoiQkJxAQTMeFU
-                aIEVumvYheCNZ/HgQ3gwhKMPZdxyMF7dbH47szO73zdf3x+fAM5xRKhFIp5K
-                Hi+CvkxfpEqCgZyJONJcimASvcqZDm6lUHoacaFVHkTwn6N5ZIpiGNz3npO+
-                zsMiFIaJbnHR4bEeEayT0wah2BxLPeEiaCU6Mp9GlwSWzi2jThnyBBqbqwXP
-                stBE8RnhYrUseazCPOavlp7ZzHc95jJ3UFkt6yykdslnVRZaT+t3e/3mOFXb
-                tf1c9rpOCJv/G8lYAsFNf62Xb+Siw/XoT09trAneg5xN+8kdnySE4/ZMaJ4m
-                j1zx3iS5FkLqjYJyjA/YyBbZhBwcEzGUNzzAoTmvjGDeVNwurAa2GvAMUciw
-                3cAOdrsghT34XTgKRYWSwv6GOQXnB5/tt/C/AQAA
-                """,
+        androidx/compose/foundation/layout/Constraints.class:
+        H4sIAAAAAAAA/5VPy07CQBQ9d1pKKT4KiiJfoBtaiXFjXKiJSROICSZiwqrQ
+        AsNjxjADwR3f4sKPcGEISz/KOLAwbk0mZ859nnO/vj8+AVygTKjGIplKniyC
+        rpy8SJUGPTkTSay5FME4fpUzHdxJofQ05kKrLIjgD+N5bIqiHzx0hmlXZ2ER
+        8v1UN7ho8UQPCNbpWUQo1EdSj7kIGqmOzdL4isAmc8uo0wZyGwCBRia/4Jso
+        NCw5J1yulkWPlZnH/NXSM4/5rsdc5vbKq2WNhdQs+qzCQut5/W6v3xynYru2
+        n9lM1whh/X93GV/Ghjv59V+6lYsW14M/PdWRJniPcjbtpvd8nBJOmjOh+SR9
+        4op3xumNEFJvFZRjfMDG9jqbkIFjGMPRFks4Nv+1EcyaituGFSEXwYuQx46h
+        2I2wh/02SMFHoQ1HoahwoHC4xYyC8wPcDr7hxAEAAA==
+        """,
         """
-                androidx/compose/foundation/layout/Dp.class:
-                H4sIAAAAAAAA/41Oy07DQAwcb6Ep4ZXykMoHIG6krXrjxENIlYqQQIJDT9tm
-                C9sku1V2U4Vbv4sD6pmPQjjlB7Cl8diWZ/z98/kFYIATwrk0SWF1UsVTmy+s
-                U/HMliaRXlsTZ/LDlj6+WwQgQjSXS8kz8xY/TuZq6gM0CO1Ran2mTfygvOQ7
-                eUUQ+bLBBlRDQKCUR5Wuuy6zpEc4Xa9aoeiIUETMZp31qi+6VC/7hIvRv55i
-                I7DSja1etX+/tcb5Qmrj3WXqCeGzLYuputeZIpw9lcbrXL1opyeZujbG+o2a
-                a7IntvAXAkcbbOOYa4/VtzmbYzSGCIZoMWKnhnCIXeyNQQ77OBhDOBw6RL/m
-                nxtjWQEAAA==
-                """
+        androidx/compose/foundation/layout/Dp.class:
+        H4sIAAAAAAAA/41Oy07DQAwcb6GP8GqBSuUDEDfSVr1x4iGkSEVIIMGhp22z
+        hW2S3Sq7qcKt38UB9cxHIZzyA9jSeGzLM/7++fwCMEKXcC5NnFsdl+HMZkvr
+        VDi3hYml19aEqfywhQ/vlg0Qob2QK8kz8xY+Thdq5huoETrjxPpUm/BBecl3
+        8oogslWNDaiCVgUgUMLzUlddn1k8IHQ362YgeiIQbWbz3mY9FH2qlkPCxfhf
+        n7Ebi3dvbPmq/futNc7nUhvvLhNPCJ5tkc/UvU4V4eypMF5n6kU7PU3VtTHW
+        b9VcnT2xg78QONniMU65Dlh9l7M+QS1CI0IzQgsBU+xF2MfBBORwiKMJhEPb
+        ofMLzHJE/14BAAA=
+        """
     )
 
     @Test

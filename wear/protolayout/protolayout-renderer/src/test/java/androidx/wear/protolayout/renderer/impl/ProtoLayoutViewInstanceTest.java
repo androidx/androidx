@@ -224,7 +224,7 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     @Test
-    public void adaptiveUpdateRatesEnabled_ongoingRendering_skipsNewLayout() throws Exception {
+    public void adaptiveUpdateRatesEnabled_ongoingRendering_skipsPreviousLayout() {
         FrameLayout container = new FrameLayout(mApplicationContext);
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
         ListenableFuture<Void> result1 =
@@ -237,11 +237,11 @@ public class ProtoLayoutViewInstanceTest {
                         layout(column(text(TEXT1), text(TEXT3))), RESOURCES, container);
         shadowOf(Looper.getMainLooper()).idle();
 
-        assertNoException(result1);
-        assertThat(result2.isCancelled()).isTrue();
-        // Assert that only the modified text is reinflated.
-        assertThat(findViewsWithText(container, TEXT2)).hasSize(1);
-        assertThat(findViewsWithText(container, TEXT3)).isEmpty();
+        assertThat(result1.isCancelled()).isTrue();
+        assertThat(result2.isDone()).isTrue();
+        // Assert that the most recent layout is reinflated.
+        assertThat(findViewsWithText(container, TEXT2)).isEmpty();
+        assertThat(findViewsWithText(container, TEXT3)).hasSize(1);
     }
 
     @Test
@@ -390,6 +390,52 @@ public class ProtoLayoutViewInstanceTest {
         assertThat(mRootContainer.getChildCount()).isEqualTo(0);
     }
 
+    @Test
+    public void resourceVersionChange_sameLayout_causesFullInflation() throws Exception {
+        Layout layout1 = layout(text(TEXT1));
+        Resources resources1 = Resources.newBuilder().setVersion("1").build();
+        Layout layout2 = layout(text(TEXT1));
+        Resources resources2 = Resources.newBuilder().setVersion("2").build();
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout1, resources1, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+        View view1 = findViewsWithText(mRootContainer, TEXT1).get(0);
+
+        result = mInstanceUnderTest.renderAndAttach(layout2, resources2, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+        View view2 = findViewsWithText(mRootContainer, TEXT1).get(0);
+        assertThat(view1).isNotSameInstanceAs(view2);
+    }
+
+    @Test
+    public void invalidateCache_sameResourceVersion_fullInflation() throws Exception {
+        Layout layout1 = layout(text(TEXT1));
+        Resources resources1 = Resources.newBuilder().setVersion("1").build();
+        Layout layout2 = layout(text(TEXT1));
+        Resources resources2 = Resources.newBuilder().setVersion("1").build();
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout1, resources1, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+        View view1 = findViewsWithText(mRootContainer, TEXT1).get(0);
+
+        mInstanceUnderTest.invalidateCache();
+        result = mInstanceUnderTest.renderAndAttach(layout2, resources2, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+        View view2 = findViewsWithText(mRootContainer, TEXT1).get(0);
+        assertThat(view1).isNotSameInstanceAs(view2);
+    }
 
     @Test
     public void adaptiveUpdateRatesEnabled_rootElementdiff_keepsElementCentered() throws Exception {

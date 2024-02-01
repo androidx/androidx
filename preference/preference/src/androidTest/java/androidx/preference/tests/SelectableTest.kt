@@ -19,7 +19,6 @@ package androidx.preference.tests
 import android.content.Context
 import android.graphics.drawable.StateListDrawable
 import android.os.Build
-import androidx.core.view.ViewCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -177,7 +176,7 @@ class SelectableTest {
             super.onBindViewHolder(holder)
             // If there's no background, no ripple effect will play regardless.
             if (holder.itemView.background != null) {
-                ViewCompat.setBackground(holder.itemView, TestDrawable())
+                holder.itemView.setBackground(TestDrawable())
             }
         }
     }

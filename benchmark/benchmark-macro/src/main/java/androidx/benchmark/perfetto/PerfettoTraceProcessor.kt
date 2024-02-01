@@ -18,6 +18,9 @@ package androidx.benchmark.perfetto
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Outputs
+import androidx.benchmark.Profiler
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.macro.perfetto.server.PerfettoHttpServer
 import java.io.File
@@ -129,7 +132,29 @@ class PerfettoTraceProcessor {
     ): T {
         loadTraceImpl(trace.path)
         // TODO: unload trace after block
-        return block.invoke(Session(this))
+        try {
+            return block.invoke(Session(this))
+        } catch (t: Throwable) {
+            // TODO: move this behavior to an extension function in benchmark when
+            //  this class moves out of benchmark group
+            // TODO: consider a label argument to control logging like this in the success case as
+            //  well, which lets us get rid of FileLinkingRule (which doesn't work well anyway)
+            if (trace.path.startsWith(Outputs.outputDirectory.absolutePath)) {
+                // only link trace with failure to Studio if it's an output file
+                InstrumentationResults.instrumentationReport {
+                    val label = "Trace with processing error: ${t.message?.take(50)?.trim()}..."
+                    reportSummaryToIde(
+                        profilerResults = listOf(
+                            Profiler.ResultFile(
+                                label = label,
+                                absolutePath = trace.path
+                            )
+                        )
+                    )
+                }
+            }
+            throw t
+        }
     }
 
     /**

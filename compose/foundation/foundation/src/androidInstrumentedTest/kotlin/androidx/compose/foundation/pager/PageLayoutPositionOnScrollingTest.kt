@@ -89,10 +89,10 @@ class PageLayoutPositionOnScrollingTest(
                                 add(
                                     ParamConfig(
                                         orientation = orientation,
-                                        pageSpacing = pageSpacing,
                                         mainAxisContentPadding = contentPadding,
                                         reverseLayout = reverseLayout,
-                                        layoutDirection = layoutDirection
+                                        layoutDirection = layoutDirection,
+                                        pageSpacing = pageSpacing
                                     )
                                 )
                             }

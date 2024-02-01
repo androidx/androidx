@@ -18,6 +18,7 @@ package androidx.core.uwb.common
 
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.UwbDevice
+import com.google.android.gms.internal.nearby.zzpe
 import com.google.android.gms.nearby.uwb.RangingCapabilities
 import com.google.android.gms.nearby.uwb.UwbAddress
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
@@ -29,8 +30,8 @@ internal class TestCommons {
             .setChannel(10)
             .build()
         val LOCAL_ADDRESS = UwbAddress(byteArrayOf(0xB0.toByte()))
-        val RANGING_CAPABILITIES = RangingCapabilities(true, false, false,
-            200, listOf(9), listOf(1, 2, 3), 2F)
+        val RANGING_CAPABILITIES = RangingCapabilities(true, false, false, false,
+            200, zzpe.zzl(9), zzpe.zzl(1), zzpe.zzn(1, 2, 3), zzpe.zzl(2), zzpe.zzl(1), false)
         val NEIGHBOR_1 = byteArrayOf(0xA1.toByte())
         val NEIGHBOR_2 = byteArrayOf(0xA5.toByte())
         val UWB_DEVICE = UwbDevice.createForAddress(NEIGHBOR_1)
@@ -38,11 +39,16 @@ internal class TestCommons {
             RangingParameters.CONFIG_UNICAST_DS_TWR,
             sessionId = 0,
             subSessionId = 0,
-            sessionKeyInfo = null,
+            sessionKeyInfo = byteArrayOf(
+                /* Vendor ID */ 0x07, 0x08,
+                /* Static STS IV */ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06),
             subSessionKeyInfo = null,
             complexChannel = null,
             listOf(UWB_DEVICE),
-            RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
+            RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
+            uwbRangeDataNtfConfig = null,
+            RangingParameters.RANGING_SLOT_DURATION_2_MILLIS,
+            isAoaDisabled = false
         )
     }
 }

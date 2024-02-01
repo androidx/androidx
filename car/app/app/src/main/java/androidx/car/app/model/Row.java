@@ -62,7 +62,7 @@ public final class Row implements Item {
      *
      */
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
+    @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE, IMAGE_TYPE_EXTRA_SMALL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RowImageType {
     }
@@ -96,6 +96,15 @@ public final class Row implements Item {
      * default tint color as determined by the host will be applied.
      */
     public static final int IMAGE_TYPE_ICON = (1 << 2);
+
+    /**
+     * Represents an extra small image to be displayed in the row.
+     *
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 88 x 88 dp bounding box. If necessary, the image will be scaled down while
+     * preserving its aspect ratio.
+     */
+    public static final int IMAGE_TYPE_EXTRA_SMALL = (1 << 3);
 
     private final boolean mIsEnabled;
     @Nullable

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -43,7 +50,7 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.kotlinCoroutinesGuava)
-    implementation("androidx.core:core-ktx:1.12.0-alpha05")
+    implementation("androidx.core:core-ktx:1.12.0")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -65,8 +72,6 @@ dependencies {
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
-
-    samples(project(":health:connect:connect-client-samples"))
 }
 
 android {
@@ -89,4 +94,5 @@ androidx {
     inceptionYear = "2022"
     description = "read or write user's health and fitness records."
     metalavaK2UastEnabled = true
+    samples(project(":health:connect:connect-client-samples"))
 }

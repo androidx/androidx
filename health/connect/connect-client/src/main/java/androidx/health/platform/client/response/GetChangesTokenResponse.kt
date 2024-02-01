@@ -17,10 +17,11 @@
 package androidx.health.platform.client.response
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
-/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class GetChangesTokenResponse(override val proto: ResponseProto.GetChangesTokenResponse) :
     ProtoParcelable<ResponseProto.GetChangesTokenResponse>() {
 

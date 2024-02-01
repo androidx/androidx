@@ -17,16 +17,14 @@
 package androidx.wear.compose.integration.macrobenchmark.test
 
 import android.content.Intent
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
-import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runners.Parameterized
@@ -54,7 +52,6 @@ class BaselineProfile {
     @get:Rule
     val baselineRule = BaselineProfileRule()
 
-    private lateinit var device: UiDevice
     private val ALERT_DIALOG = "alert-dialog"
     private val BUTTONS = "buttons"
     private val CARDS = "cards"
@@ -76,12 +73,6 @@ class BaselineProfile {
     private val STEPPER = "stepper"
     private val SWIPE_TO_REVEAL = "swipe-to-reveal"
     private val SWITCH = "switch"
-
-    @Before
-    fun setUp() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        device = UiDevice.getInstance(instrumentation)
-    }
 
     @Test
     fun profile() {
@@ -107,7 +98,7 @@ class BaselineProfile {
         )
     }
 
-    private fun testChips() {
+    private fun MacrobenchmarkScope.testChips() {
         findAndClick(By.desc(CHIPS))
         device.waitForIdle()
         findAndClick(By.desc(CHECKBOX))
@@ -117,7 +108,7 @@ class BaselineProfile {
         device.waitForIdle()
     }
 
-    private fun testDialogs() {
+    private fun MacrobenchmarkScope.testDialogs() {
         findAndClick(By.desc(DIALOGS))
         device.waitForIdle()
         testDestination(description = ALERT_DIALOG)
@@ -126,7 +117,7 @@ class BaselineProfile {
         device.waitForIdle()
     }
 
-    private fun testExpandables() {
+    private fun MacrobenchmarkScope.testExpandables() {
         findAndClick(By.desc(EXPANDABLES))
         device.waitForIdle()
         findAndClick(By.desc(EXPAND_ITEMS))
@@ -136,7 +127,7 @@ class BaselineProfile {
         device.waitForIdle()
     }
 
-    private fun testProgressIndicators() {
+    private fun MacrobenchmarkScope.testProgressIndicators() {
         findAndClick(By.desc(PROGRESSINDICATORS))
         device.waitForIdle()
         testDestination(description = PROGRESS_INDICATOR)
@@ -145,14 +136,14 @@ class BaselineProfile {
         device.waitForIdle()
     }
 
-    private fun testDestination(description: String) {
+    private fun MacrobenchmarkScope.testDestination(description: String) {
         findAndClick(By.desc(description))
         device.waitForIdle()
         device.pressBack()
         device.waitForIdle()
     }
 
-    private fun findAndClick(selector: BySelector) {
+    private fun MacrobenchmarkScope.findAndClick(selector: BySelector) {
         device.wait(Until.findObject(selector), 3000)
         device.findObject(selector).click()
     }

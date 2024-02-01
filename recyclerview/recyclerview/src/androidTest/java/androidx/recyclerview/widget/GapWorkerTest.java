@@ -97,38 +97,39 @@ public class GapWorkerTest {
         assertNull(list.get(1).view);
         assertNull(list.get(2).view);
     }
+
     @Test
-    public void taskOrderImmediate() {
+    public void taskOrder_neededNextFrame() {
         ArrayList<GapWorker.Task> list = new ArrayList<>();
         list.add(new GapWorker.Task());
         list.add(new GapWorker.Task());
         list.add(new GapWorker.Task());
 
-        list.get(0).immediate = true;
-        list.get(1).immediate = false;
-        list.get(2).immediate = true;
+        list.get(0).neededNextFrame = true;
+        list.get(1).neededNextFrame = false;
+        list.get(2).neededNextFrame = true;
 
         Collections.sort(list, GapWorker.sTaskComparator);
 
-        assertTrue(list.get(0).immediate);
-        assertTrue(list.get(1).immediate);
-        assertFalse(list.get(2).immediate);
+        assertTrue(list.get(0).neededNextFrame);
+        assertTrue(list.get(1).neededNextFrame);
+        assertFalse(list.get(2).neededNextFrame);
     }
 
     @Test
-    public void taskOrderImmediateVelocity() {
+    public void taskOrder_neededNextFrame_velocity() {
         ArrayList<GapWorker.Task> list = new ArrayList<>();
         list.add(new GapWorker.Task());
         list.add(new GapWorker.Task());
         list.add(new GapWorker.Task());
 
-        list.get(0).immediate = true;
+        list.get(0).neededNextFrame = true;
         list.get(0).viewVelocity = 10;
 
-        list.get(1).immediate = false;
+        list.get(1).neededNextFrame = false;
         list.get(1).viewVelocity = 99;
 
-        list.get(2).immediate = true;
+        list.get(2).neededNextFrame = true;
         list.get(2).viewVelocity = 20;
 
         Collections.sort(list, GapWorker.sTaskComparator);
@@ -139,26 +140,26 @@ public class GapWorkerTest {
     }
 
     @Test
-    public void taskOrderImmediateVelocityDistance() {
+    public void taskOrder_neededNextFrame_velocity_distance() {
         ArrayList<GapWorker.Task> list = new ArrayList<>();
         list.add(new GapWorker.Task());
         list.add(new GapWorker.Task());
         list.add(new GapWorker.Task());
         list.add(new GapWorker.Task());
 
-        list.get(0).immediate = true;
+        list.get(0).neededNextFrame = true;
         list.get(0).viewVelocity = 400;
         list.get(0).distanceToItem = 300;
 
-        list.get(1).immediate = false;
+        list.get(1).neededNextFrame = false;
         list.get(1).viewVelocity = 800;
         list.get(1).distanceToItem = 900;
 
-        list.get(2).immediate = true;
+        list.get(2).neededNextFrame = true;
         list.get(2).viewVelocity = 300;
         list.get(2).distanceToItem = 200;
 
-        list.get(3).immediate = true;
+        list.get(3).neededNextFrame = true;
         list.get(3).viewVelocity = 300;
         list.get(3).distanceToItem = 100;
 

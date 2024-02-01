@@ -28,18 +28,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
@@ -65,9 +64,10 @@ import androidx.compose.ui.unit.dp
  * services.
  * @param colors [RadioButtonColors] that will be used to resolve the color used for this radio
  * button in different states. See [RadioButtonDefaults.colors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this radio button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this radio button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this radio button. You can use this to change the radio button's
+ * appearance or preview the radio button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  */
 @Composable
 fun RadioButton(
@@ -76,7 +76,7 @@ fun RadioButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) {
     val dotRadius = animateDpAsState(
         targetValue = if (selected) RadioButtonDotSize / 2 else 0.dp,
@@ -91,7 +91,7 @@ fun RadioButton(
                 enabled = enabled,
                 role = Role.RadioButton,
                 interactionSource = interactionSource,
-                indication = rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = RadioButtonTokens.StateLayerSize / 2
                 )
@@ -130,6 +130,14 @@ fun RadioButton(
  * Defaults used in [RadioButton].
  */
 object RadioButtonDefaults {
+
+    /**
+     * Creates a [RadioButtonColors] that will animate between the provided colors according to
+     * the Material specification.
+     */
+    @Composable
+    fun colors() = MaterialTheme.colorScheme.defaultRadioButtonColors
+
     /**
      * Creates a [RadioButtonColors] that will animate between the provided colors according to
      * the Material specification.
@@ -143,20 +151,30 @@ object RadioButtonDefaults {
      */
     @Composable
     fun colors(
-        selectedColor: Color = RadioButtonTokens.SelectedIconColor.value,
-        unselectedColor: Color = RadioButtonTokens.UnselectedIconColor.value,
-        disabledSelectedColor: Color = RadioButtonTokens.DisabledSelectedIconColor
-            .value
-            .copy(alpha = RadioButtonTokens.DisabledSelectedIconOpacity),
-        disabledUnselectedColor: Color = RadioButtonTokens.DisabledUnselectedIconColor
-            .value
-            .copy(alpha = RadioButtonTokens.DisabledUnselectedIconOpacity)
-    ): RadioButtonColors = RadioButtonColors(
+        selectedColor: Color = Color.Unspecified,
+        unselectedColor: Color = Color.Unspecified,
+        disabledSelectedColor: Color = Color.Unspecified,
+        disabledUnselectedColor: Color = Color.Unspecified
+    ): RadioButtonColors = MaterialTheme.colorScheme.defaultRadioButtonColors.copy(
         selectedColor,
         unselectedColor,
         disabledSelectedColor,
         disabledUnselectedColor
     )
+
+    internal val ColorScheme.defaultRadioButtonColors: RadioButtonColors
+        get() {
+            return defaultRadioButtonColorsCached ?: RadioButtonColors(
+                selectedColor = fromToken(RadioButtonTokens.SelectedIconColor),
+                unselectedColor = fromToken(RadioButtonTokens.UnselectedIconColor),
+                disabledSelectedColor = fromToken(RadioButtonTokens.DisabledSelectedIconColor)
+                    .copy(alpha = RadioButtonTokens.DisabledSelectedIconOpacity),
+                disabledUnselectedColor = fromToken(RadioButtonTokens.DisabledUnselectedIconColor)
+                    .copy(alpha = RadioButtonTokens.DisabledUnselectedIconOpacity)
+            ).also {
+                defaultRadioButtonColorsCached = it
+            }
+        }
 }
 
 /**
@@ -179,6 +197,22 @@ class RadioButtonColors constructor(
     val disabledSelectedColor: Color,
     val disabledUnselectedColor: Color
 ) {
+    /**
+     * Returns a copy of this SelectableChipColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        selectedColor: Color = this.selectedColor,
+        unselectedColor: Color = this.unselectedColor,
+        disabledSelectedColor: Color = this.disabledSelectedColor,
+        disabledUnselectedColor: Color = this.disabledUnselectedColor,
+    ) = RadioButtonColors(
+        selectedColor.takeOrElse { this.selectedColor },
+        unselectedColor.takeOrElse { this.unselectedColor },
+        disabledSelectedColor.takeOrElse { this.disabledSelectedColor },
+        disabledUnselectedColor.takeOrElse { this.disabledUnselectedColor },
+    )
+
     /**
      * Represents the main color used to draw the outer and inner circles, depending on whether
      * the [RadioButton] is [enabled] / [selected].

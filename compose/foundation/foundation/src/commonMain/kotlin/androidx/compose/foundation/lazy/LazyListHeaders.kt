@@ -71,6 +71,7 @@ internal fun findOrComposeLazyListHeader(
     }
 
     val measuredHeaderItem = itemProvider.getAndMeasure(currentHeaderListPosition)
+    measuredHeaderItem.nonScrollableItem = true
 
     var headerOffset = if (currentHeaderOffset != Int.MIN_VALUE) {
         maxOf(-beforeContentPadding, currentHeaderOffset)

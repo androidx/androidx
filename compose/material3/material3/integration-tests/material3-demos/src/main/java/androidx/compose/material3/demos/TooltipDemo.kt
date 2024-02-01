@@ -164,6 +164,7 @@ fun ListItemCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 class ItemInfo(
     val itemName: String,
     val addedTooltipState: TooltipState

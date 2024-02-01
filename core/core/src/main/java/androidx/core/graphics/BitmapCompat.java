@@ -54,10 +54,7 @@ public final class BitmapCompat {
      * @see Bitmap#hasMipMap()
      */
     public static boolean hasMipMap(@NonNull Bitmap bitmap) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.hasMipMap(bitmap);
-        }
-        return false;
+        return bitmap.hasMipMap();
     }
 
     /**
@@ -81,9 +78,7 @@ public final class BitmapCompat {
      * @see Bitmap#setHasMipMap(boolean)
      */
     public static void setHasMipMap(@NonNull Bitmap bitmap, boolean hasMipMap) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.setHasMipMap(bitmap, hasMipMap);
-        }
+        bitmap.setHasMipMap(hasMipMap);
     }
 
     /**
@@ -94,10 +89,7 @@ public final class BitmapCompat {
      * @see Bitmap#getAllocationByteCount()
      */
     public static int getAllocationByteCount(@NonNull Bitmap bitmap) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getAllocationByteCount(bitmap);
-        }
-        return bitmap.getByteCount();
+        return bitmap.getAllocationByteCount();
     }
 
     /**
@@ -332,35 +324,6 @@ public final class BitmapCompat {
 
     private BitmapCompat() {
         // This class is not instantiable.
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean hasMipMap(Bitmap bitmap) {
-            return bitmap.hasMipMap();
-        }
-
-        @DoNotInline
-        static void setHasMipMap(Bitmap bitmap, boolean hasMipMap) {
-            bitmap.setHasMipMap(hasMipMap);
-        }
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static int getAllocationByteCount(Bitmap bitmap) {
-            return bitmap.getAllocationByteCount();
-        }
     }
 
     @RequiresApi(27)

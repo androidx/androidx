@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import javax.inject.Inject
 
@@ -92,12 +99,12 @@ configurations {
 dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
-    implementation("androidx.core:core-ktx:1.12.0-alpha05")
+    implementation("androidx.core:core-ktx:1.12.0")
 
     api project(path: ':privacysandbox:sdkruntime:sdkruntime-core')
 
-    implementation("androidx.core:core:1.12.0-alpha05")
-    implementation("androidx.activity:activity:1.8.0-alpha06")
+    implementation("androidx.core:core:1.12.0")
+    implementation("androidx.activity:activity:1.8.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -137,6 +144,7 @@ android {
     }
 
     namespace "androidx.privacysandbox.sdkruntime.client"
+    compileSdkVersion = "android-34-ext10"
 }
 
 androidx {

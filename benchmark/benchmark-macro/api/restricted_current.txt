@@ -1,10 +1,6 @@
 // Signature format: 4.0
 package androidx.benchmark.macro {
 
-  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class AudioUnderrunMetric extends androidx.benchmark.macro.Metric {
-    ctor public AudioUnderrunMetric();
-  }
-
   public enum BaselineProfileMode {
     method public static androidx.benchmark.macro.BaselineProfileMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.benchmark.macro.BaselineProfileMode[] values();
@@ -62,6 +58,10 @@ package androidx.benchmark.macro {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This Metric API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalMetricApi {
   }
 
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class FrameTimingGfxInfoMetric extends androidx.benchmark.macro.Metric {
+    ctor public FrameTimingGfxInfoMetric();
+  }
+
   public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
     ctor public FrameTimingMetric();
   }
@@ -74,7 +74,7 @@ package androidx.benchmark.macro {
     method public Integer? getIteration();
     method public String getPackageName();
     method public void killProcess();
-    method public void killProcess(optional boolean useKillAll);
+    method @Deprecated public void killProcess(optional boolean useKillAll);
     method public void pressHome();
     method public void pressHome(optional long delayDurationMs);
     method public void startActivityAndWait();
@@ -230,13 +230,15 @@ package androidx.benchmark.macro {
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class TraceSectionMetric extends androidx.benchmark.macro.Metric {
-    ctor public TraceSectionMetric(String sectionName, optional androidx.benchmark.macro.TraceSectionMetric.Mode mode, optional boolean targetPackageOnly);
+    ctor public TraceSectionMetric(String sectionName, optional String label, optional androidx.benchmark.macro.TraceSectionMetric.Mode mode, optional boolean targetPackageOnly);
   }
 
   public enum TraceSectionMetric.Mode {
     method public static androidx.benchmark.macro.TraceSectionMetric.Mode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.benchmark.macro.TraceSectionMetric.Mode[] values();
     enum_constant public static final androidx.benchmark.macro.TraceSectionMetric.Mode First;
+    enum_constant public static final androidx.benchmark.macro.TraceSectionMetric.Mode Max;
+    enum_constant public static final androidx.benchmark.macro.TraceSectionMetric.Mode Min;
     enum_constant public static final androidx.benchmark.macro.TraceSectionMetric.Mode Sum;
   }
 

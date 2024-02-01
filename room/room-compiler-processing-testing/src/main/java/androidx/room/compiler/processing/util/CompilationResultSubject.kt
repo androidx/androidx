@@ -352,7 +352,7 @@ class CompilationResultSubject internal constructor(
         return Truth.assertThat(match!!.contents)
     }
 
-    private fun findGeneratedSource(relativePath: String) = compilationResult.generatedSources
+    fun findGeneratedSource(relativePath: String) = compilationResult.generatedSources
         .firstOrNull {
             it.relativePath == relativePath
         }

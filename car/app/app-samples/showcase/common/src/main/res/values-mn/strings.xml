@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Маршрутын сонголтууд"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Хурдны замаас зайлсхийх"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Гаталга онгоцноос зайлсхийх"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Газрын зургийн демонууд"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Контентын демонуудтай газрын зураг"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Мессежийн загварын демотой газрын зураг"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Хүснэгтийн загварын демотой газрын зураг"</string>
 </resources>

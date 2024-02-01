@@ -18,12 +18,12 @@ package androidx.compose.ui.node
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.padding
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -309,7 +309,7 @@ class ModifierNodeAttachOrderTest {
         var active by mutableStateOf(true)
         var inBox by mutableStateOf(true)
         val content = movableContentOf {
-            ReusableContentHost(active = active) {
+            SubcompositionReusableContentHost(active = active) {
                 BasicText("Hello World")
             }
         }

@@ -16,8 +16,11 @@
 
 package androidx.compose.animation.core
 
+import androidx.collection.IntList
+import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntList
+import androidx.collection.MutableIntObjectMap
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
 import kotlin.math.min
 
 /**
@@ -189,7 +192,7 @@ interface VectorizedDurationBasedAnimationSpec<V : AnimationVector> :
  * Clamps the input [playTime] to the duration range of the given
  * [VectorizedDurationBasedAnimationSpec].
  */
-private fun VectorizedDurationBasedAnimationSpec<*>.clampPlayTime(playTime: Long): Long {
+internal fun VectorizedDurationBasedAnimationSpec<*>.clampPlayTime(playTime: Long): Long {
     return (playTime - delayMillis).coerceIn(0, durationMillis.toLong())
 }
 
@@ -214,24 +217,162 @@ private fun VectorizedDurationBasedAnimationSpec<*>.clampPlayTime(playTime: Long
  *          delayMillis = delay
  *     )
  *
- * @param keyframes a map from time to a value/easing function pair. The value in each entry
- *                  defines the animation value at that time, and the easing curve is used in the
- *                  interval starting from that time.
- * @param durationMillis total duration of the animation
- * @param delayMillis the amount of the time the animation should wait before it starts. Defaults to
- *                    0.
+ * The interpolation between each value is dictated by [VectorizedKeyframeSpecElementInfo.arcMode] on each
+ * keyframe. If no keyframe information is provided, [initialArcMode] is used.
  *
  * @see [KeyframesSpec]
  */
-class VectorizedKeyframesSpec<V : AnimationVector>(
-    private val keyframes: Map<Int, Pair<V, Easing>>,
+@OptIn(ExperimentalAnimationSpecApi::class)
+class VectorizedKeyframesSpec<V : AnimationVector> internal constructor(
+    // List of all timestamps. Must include start (time = 0), end (time = durationMillis) and all
+    // other timestamps found in [keyframes].
+    private val timestamps: IntList,
+    private val keyframes: IntObjectMap<VectorizedKeyframeSpecElementInfo<V>>,
     override val durationMillis: Int,
-    override val delayMillis: Int = 0
+    override val delayMillis: Int,
+    // Easing used for any segment of time not covered by [keyframes].
+    private val defaultEasing: Easing,
+    // The [ArcMode] used from time `0` until the first keyframe. So, it applies
+    // for the entire duration if [keyframes] is empty.
+    private val initialArcMode: ArcMode
 ) : VectorizedDurationBasedAnimationSpec<V> {
+    /**
+     * @param keyframes a map from time to a value/easing function pair. The value in each entry
+     *                  defines the animation value at that time, and the easing curve is used in
+     *                  the interval starting from that time.
+     * @param durationMillis total duration of the animation
+     * @param delayMillis the amount of the time the animation should wait before it starts.
+     *                    Defaults to 0.
+     */
+    constructor(
+        keyframes: Map<Int, Pair<V, Easing>>,
+        durationMillis: Int,
+        delayMillis: Int = 0
+    ) : this(
+        timestamps = kotlin.run {
+            val times = MutableIntList(keyframes.size + 2)
+            keyframes.forEach { (t, _) ->
+                times.add(t)
+            }
+            if (!keyframes.containsKey(0)) {
+                times.add(0, 0)
+            }
+            if (!keyframes.containsKey(durationMillis)) {
+                times.add(durationMillis)
+            }
+            times.sort()
+            return@run times
+        },
+        keyframes = kotlin.run {
+            val timeToInfoMap = MutableIntObjectMap<VectorizedKeyframeSpecElementInfo<V>>()
+            keyframes.forEach { (time, valueEasing) ->
+                timeToInfoMap[time] = VectorizedKeyframeSpecElementInfo(
+                    vectorValue = valueEasing.first,
+                    easing = valueEasing.second,
+                    arcMode = ArcMode.Companion.ArcLinear
+                )
+            }
 
+            return@run timeToInfoMap
+        },
+        durationMillis = durationMillis,
+        delayMillis = delayMillis,
+        defaultEasing = LinearEasing,
+        initialArcMode = ArcMode.Companion.ArcLinear
+    )
+
+    /**
+     * List of time range for the given keyframes.
+     *
+     * This will be used to do a faster lookup for the corresponding Easing curves.
+     */
+    private lateinit var modes: IntArray
+    private lateinit var times: FloatArray
     private lateinit var valueVector: V
     private lateinit var velocityVector: V
 
+    // Objects for ArcSpline
+    private lateinit var lastInitialValue: V
+    private lateinit var lastTargetValue: V
+    private lateinit var posArray: FloatArray
+    private lateinit var slopeArray: FloatArray
+    private lateinit var arcSpline: ArcSpline
+
+    private fun init(initialValue: V, targetValue: V, initialVelocity: V) {
+        var requiresArcSpline = ::arcSpline.isInitialized
+
+        // Only need to initialize once
+        if (!::valueVector.isInitialized) {
+            valueVector = initialValue.newInstance()
+            velocityVector = initialVelocity.newInstance()
+
+            times = FloatArray(timestamps.size) {
+                timestamps[it].toFloat() / SecondsToMillis
+            }
+
+            modes = IntArray(timestamps.size) {
+                val mode = (keyframes[timestamps[it]]?.arcMode ?: initialArcMode)
+                if (mode != ArcMode.Companion.ArcLinear) {
+                    requiresArcSpline = true
+                }
+
+                mode.value
+            }
+        }
+
+        if (!requiresArcSpline) {
+            return
+        }
+
+        // Initialize variables dependent on initial and/or target value
+        if (!::arcSpline.isInitialized ||
+            lastInitialValue != initialValue || lastTargetValue != targetValue
+        ) {
+            lastInitialValue = initialValue
+            lastTargetValue = targetValue
+
+            // Force to the next even dimension
+            val dimensionCount = initialValue.size % 2 + initialValue.size
+            posArray = FloatArray(dimensionCount)
+            slopeArray = FloatArray(dimensionCount)
+
+            // TODO(b/299477780): Re-use objects, after the first pass, only the initial and target
+            //  may change, and only if the keyframes does not overwrite it
+            val values = Array(timestamps.size) {
+                when (val timestamp = timestamps[it]) {
+                    // Start (zero) and end (durationMillis) may not have been declared in keyframes
+                    0 -> {
+                        if (!keyframes.contains(timestamp)) {
+                            FloatArray(dimensionCount, initialValue::get)
+                        } else {
+                            FloatArray(dimensionCount, keyframes[timestamp]!!.vectorValue::get)
+                        }
+                    }
+
+                    durationMillis -> {
+                        if (!keyframes.contains(timestamp)) {
+                            FloatArray(dimensionCount, targetValue::get)
+                        } else {
+                            FloatArray(dimensionCount, keyframes[timestamp]!!.vectorValue::get)
+                        }
+                    }
+
+                    // All other values are guaranteed to exist
+                    else -> FloatArray(dimensionCount, keyframes[timestamp]!!.vectorValue::get)
+                }
+            }
+            arcSpline = ArcSpline(
+                arcModes = modes,
+                timePoints = times,
+                y = values
+            )
+        }
+    }
+
+    /**
+     * @Throws IllegalStateException When the initial or final value to animate within a keyframe is
+     * missing.
+     */
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: V,
@@ -240,47 +381,63 @@ class VectorizedKeyframesSpec<V : AnimationVector>(
     ): V {
         val playTimeMillis = playTimeNanos / MillisToNanos
         val clampedPlayTime = clampPlayTime(playTimeMillis).toInt()
+
         // If there is a key frame defined with the given time stamp, return that value
-        if (keyframes.containsKey(clampedPlayTime)) {
-            return keyframes.getValue(clampedPlayTime).first
+        if (keyframes.contains(clampedPlayTime)) {
+            return keyframes[clampedPlayTime]!!.vectorValue
         }
 
         if (clampedPlayTime >= durationMillis) {
             return targetValue
         } else if (clampedPlayTime <= 0) return initialValue
 
-        var startTime = 0
-        var startVal = initialValue
-        var endVal = targetValue
-        var endTime: Int = durationMillis
-        var easing: Easing = LinearEasing
-        for ((timestamp, value) in keyframes) {
-            if (clampedPlayTime > timestamp && timestamp >= startTime) {
-                startTime = timestamp
-                startVal = value.first
-                easing = value.second
-            } else if (clampedPlayTime < timestamp && timestamp <= endTime) {
-                endTime = timestamp
-                endVal = value.first
+        init(initialValue, targetValue, initialVelocity)
+
+        // ArcSpline is only initialized when necessary
+        if (::arcSpline.isInitialized) {
+            // ArcSpline requires eased play time in seconds
+            val easedTime = getEasedTime(clampedPlayTime)
+
+            arcSpline.getPos(
+                time = easedTime,
+                v = posArray
+            )
+            for (i in posArray.indices) {
+                valueVector[i] = posArray[i]
             }
+            return valueVector
         }
 
-        // Now interpolate
-        val fraction = easing.transform(
-            (clampedPlayTime - startTime) / (endTime - startTime).toFloat()
-        )
-        init(initialValue)
-        for (i in 0 until startVal.size) {
-            valueVector[i] = lerp(startVal[i], endVal[i], fraction)
+        // If ArcSpline is not required we do a simple linear interpolation
+        val index = findEntryForTimeMillis(clampedPlayTime)
+
+        // For the `lerp` method we need the eased time as a fraction
+        val easedTime = getEasedTimeFromIndex(index, clampedPlayTime, true)
+
+        val timestampStart = timestamps[index]
+        val startValue: V = if (keyframes.contains(timestampStart)) {
+            keyframes[timestampStart]!!.vectorValue
+        } else {
+            // Use initial value if it wasn't overwritten by the user
+            // This is always the correct fallback assuming timestamps and keyframes were populated
+            // as expected
+            initialValue
+        }
+
+        val timestampEnd = timestamps[index + 1]
+        val endValue = if (keyframes.contains(timestampEnd)) {
+            keyframes[timestampEnd]!!.vectorValue
+        } else {
+            // Use target value if it wasn't overwritten by the user
+            // This is always the correct fallback assuming timestamps and keyframes were populated
+            // as expected
+            targetValue
+        }
+
+        for (i in 0 until valueVector.size) {
+            valueVector[i] = lerp(startValue[i], endValue[i], easedTime)
         }
         return valueVector
-    }
-
-    private fun init(value: V) {
-        if (!::valueVector.isInitialized) {
-            valueVector = value.newInstance()
-            velocityVector = value.newInstance()
-        }
     }
 
     override fun getVelocityFromNanos(
@@ -291,9 +448,26 @@ class VectorizedKeyframesSpec<V : AnimationVector>(
     ): V {
         val playTimeMillis = playTimeNanos / MillisToNanos
         val clampedPlayTime = clampPlayTime(playTimeMillis)
-        if (clampedPlayTime <= 0L) {
+        if (clampedPlayTime < 0L) {
             return initialVelocity
         }
+
+        init(initialValue, targetValue, initialVelocity)
+
+        // ArcSpline is only initialized when necessary
+        if (::arcSpline.isInitialized) {
+            val easedTime = getEasedTime(clampedPlayTime.toInt())
+            arcSpline.getSlope(
+                time = easedTime,
+                v = slopeArray
+            )
+            for (i in slopeArray.indices) {
+                velocityVector[i] = slopeArray[i]
+            }
+            return velocityVector
+        }
+
+        // Velocity calculation when ArcSpline is not used
         val startNum = getValueFromMillis(
             clampedPlayTime - 1,
             initialValue,
@@ -306,12 +480,112 @@ class VectorizedKeyframesSpec<V : AnimationVector>(
             targetValue,
             initialVelocity
         )
-
-        init(initialValue)
         for (i in 0 until startNum.size) {
             velocityVector[i] = (startNum[i] - endNum[i]) * 1000f
         }
         return velocityVector
+    }
+
+    private fun getEasedTime(timeMillis: Int): Float {
+        // There's no promise on the nature of the given time, so we need to search for the correct
+        // time range at every call
+        val index = findEntryForTimeMillis(timeMillis)
+        return getEasedTimeFromIndex(index, timeMillis, false)
+    }
+
+    private fun getEasedTimeFromIndex(
+        index: Int,
+        timeMillis: Int,
+        asFraction: Boolean
+    ): Float {
+        if (index >= timestamps.lastIndex) {
+            // Return the same value. This may only happen at the end of the animation.
+            return timeMillis.toFloat() / SecondsToMillis
+        }
+        val timeMin = timestamps[index]
+        val timeMax = timestamps[index + 1]
+
+        if (timeMillis == timeMin) {
+            return timeMin.toFloat() / SecondsToMillis
+        }
+
+        val timeRange = timeMax - timeMin
+        val easing = keyframes[timeMin]?.easing ?: defaultEasing
+        val rawFraction = (timeMillis - timeMin).toFloat() / timeRange
+        val easedFraction = easing.transform(rawFraction)
+
+        if (asFraction) {
+            return easedFraction
+        }
+        return (timeRange * easedFraction + timeMin) / SecondsToMillis
+    }
+
+    /**
+     * Returns the entry index such that:
+     *
+     * [timeMillis] >= Entry(i).key && [timeMillis] < Entry(i+1).key
+     */
+    private fun findEntryForTimeMillis(timeMillis: Int): Int {
+        val index = timestamps.binarySearch(timeMillis)
+        return if (index < -1) -(index + 2) else index
+    }
+
+    @Suppress("unused")
+    private val ArcMode.value: Int
+        get() = when (this) {
+            ArcMode.Companion.ArcAbove -> ArcSpline.ArcAbove
+            ArcMode.Companion.ArcBelow -> ArcSpline.ArcBelow
+            ArcMode.Companion.ArcLinear -> ArcSpline.ArcStartLinear
+            else -> ArcSpline.ArcStartLinear // Unknown mode, fallback to linear
+        }
+}
+
+@OptIn(ExperimentalAnimationSpecApi::class)
+internal data class VectorizedKeyframeSpecElementInfo<V : AnimationVector>(
+    val vectorValue: V,
+    val easing: Easing,
+    val arcMode: ArcMode
+)
+
+/**
+ * Interpolation mode for Arc-based animation spec.
+ *
+ * @see ArcAbove
+ * @see ArcBelow
+ * @see ArcLinear
+ *
+ * @see ArcAnimationSpec
+ */
+@ExperimentalAnimationSpecApi
+sealed class ArcMode {
+    companion object {
+        /**
+         * Interpolates using a quarter of an Ellipse where the curve is "above" the center of the
+         * Ellipse.
+         */
+        @ExperimentalAnimationSpecApi
+        object ArcAbove : ArcMode()
+
+        /**
+         * Interpolates using a quarter of an Ellipse where the curve is "below" the center of the
+         * Ellipse.
+         */
+        @ExperimentalAnimationSpecApi
+        object ArcBelow : ArcMode()
+
+        /**
+         * An [ArcMode] that forces linear interpolation.
+         *
+         * You'll likely only use this mode within a keyframe.
+         */
+        @ExperimentalAnimationSpecApi
+        object ArcLinear : ArcMode()
+
+        /**
+         * Unused [ArcMode] to prevent exhaustive `when` usage.
+         */
+        @Suppress("unused")
+        private object UnexpectedArc : ArcMode()
     }
 }
 

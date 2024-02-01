@@ -21,6 +21,7 @@ package androidx.graphics.shapes
  * at that feature
  */
 internal typealias MeasuredFeatures = List<ProgressableFeature>
+
 internal data class ProgressableFeature(val progress: Float, val feature: Feature)
 
 /**
@@ -28,23 +29,49 @@ internal data class ProgressableFeature(val progress: Float, val feature: Featur
  */
 internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatures): DoubleMapper {
     // We only use corners for this mapping.
-    val filteredFeatures1 = features1.filter { it.feature is Feature.Corner }
-    val filteredFeatures2 = features2.filter { it.feature is Feature.Corner }
+    val filteredFeatures1 = buildList {
+        // Performance: Builds the list by avoiding creating an unnecessary Iterator to iterate
+        // through the features1 List.
+        for (i in features1.indices) {
+            if (features1[i].feature is Feature.Corner) {
+                add(features1[i])
+            }
+        }
+    }
+    val filteredFeatures2 = buildList {
+        // Performance: Builds the list by avoiding creating an unnecessary Iterator to iterate
+        // through the features2 List.
+        for (i in features2.indices) {
+            if (features2[i].feature is Feature.Corner) {
+                add(features2[i])
+            }
+        }
+    }
 
     val (m1, m2) = if (filteredFeatures1.size > filteredFeatures2.size) {
         doMapping(filteredFeatures2, filteredFeatures1) to filteredFeatures2
     } else {
         filteredFeatures1 to doMapping(filteredFeatures1, filteredFeatures2)
     }
-    val mm = m1.zip(m2).map { (f1, f2) -> f1.progress to f2.progress }
 
-    debugLog(LOG_TAG) { mm.joinToString { "${it.first} -> ${it.second}" } }
+    // Performance: Equivalent to `m1.zip(m2).map { (f1, f2) -> f1.progress to f2.progress }` and
+    // done to zip and create a Pairs list without creating unnecessary Iterators.
+    val mm = buildList {
+        for (i in m1.indices) {
+            if (i == m2.size) break
+            add(m1[i].progress to m2[i].progress)
+        }
+    }
+
+    debugLog(LOG_TAG) {
+        mm.joinToString { "${it.first} -> ${it.second}" }
+    }
     return DoubleMapper(*mm.toTypedArray()).also { dm ->
         debugLog(LOG_TAG) {
             val N = 10
             "Map: " +
                 (0..N).joinToString { i -> "%.3f".format(dm.map(i.toFloat() / N)) } +
-            "\nMb : " +
+                "\nMb : " +
                 (0..N).joinToString { i -> "%.3f".format(dm.mapBack(i.toFloat() / N)) }
         }
     }

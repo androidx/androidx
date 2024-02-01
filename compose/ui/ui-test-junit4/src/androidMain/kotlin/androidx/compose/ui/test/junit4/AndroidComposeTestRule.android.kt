@@ -303,7 +303,15 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
     override suspend fun awaitIdle() = composeTest.awaitIdle()
 
     override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) =
-        composeTest.waitUntil(timeoutMillis, condition)
+        composeTest.waitUntil(conditionDescription = null, timeoutMillis, condition)
+
+    override fun waitUntil(
+        conditionDescription: String,
+        timeoutMillis: Long,
+        condition: () -> Boolean
+    ) {
+        composeTest.waitUntil(conditionDescription, timeoutMillis, condition)
+    }
 
     @ExperimentalTestApi
     override fun waitUntilNodeCount(matcher: SemanticsMatcher, count: Int, timeoutMillis: Long) =
@@ -338,6 +346,10 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
     ): SemanticsNodeInteractionCollection = composeTest.onAllNodes(matcher, useUnmergedTree)
 
     override fun setContent(composable: @Composable () -> Unit) = composeTest.setContent(composable)
+
+    fun cancelAndRecreateRecomposer() {
+        environment.cancelAndRecreateRecomposer()
+    }
 }
 
 private fun <A : ComponentActivity> getActivityFromTestRule(rule: ActivityScenarioRule<A>): A {

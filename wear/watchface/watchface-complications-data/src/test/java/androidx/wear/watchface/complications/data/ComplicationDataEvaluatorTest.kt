@@ -332,11 +332,11 @@ class ComplicationDataEvaluatorTest {
                 .build()
 
         val provider = mock<PlatformDataProvider>()
-        val evaluator = ComplicationDataEvaluator(
-            platformDataProviders = mapOf(
-                provider to setOf(PlatformHealthSources.Keys.HEART_RATE_BPM)
+        val evaluator =
+            ComplicationDataEvaluator(
+                platformDataProviders =
+                    mapOf(provider to setOf(PlatformHealthSources.Keys.HEART_RATE_BPM))
             )
-        )
         val flow = evaluator.evaluate(expressed)
 
         // Validity check - Platform provider not used until Flow collection.
@@ -418,6 +418,25 @@ class ComplicationDataEvaluatorTest {
                 WireComplicationData.Builder(TYPE_SHORT_TEXT)
                     .setShortText(WireComplicationText("Text"))
                     .setPlaceholder(evaluatedData("Placeholder"))
+                    .build()
+            )
+    }
+
+    @Test
+    fun evaluate_keepExpressionInvalidated_setsOriginal() = runBlocking {
+        val expressed =
+            WireComplicationData.Builder(TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText(DynamicString.from(AppDataKey("missing_key"))))
+                .setPlaceholder(constantData("Placeholder"))
+                .build()
+        val evaluator = ComplicationDataEvaluator(keepDynamicValues = true)
+
+        assertThat(evaluator.evaluate(expressed).firstOrNull())
+            .isEqualTo(
+                WireComplicationData.Builder(TYPE_NO_DATA)
+                    .setInvalidatedData(expressed)
+                    // Keeps the placeholder too.
+                    .setPlaceholder(evaluatedWithConstantData("Placeholder"))
                     .build()
             )
     }

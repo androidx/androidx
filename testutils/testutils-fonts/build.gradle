@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-
-import androidx.build.KmpPlatformsKt
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -23,11 +28,9 @@ plugins {
     id("com.android.library")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 }
 
 dependencies {
@@ -39,7 +42,7 @@ android {
         main {
             res.srcDirs += "src/commonMain/resources"
             res.srcDirs += "src/androidMain/res"
-            java.srcDirs += "src/commonMain/java"
+            java.srcDirs += "src/androidMain/java"
             assets.srcDirs += "src/androidMain/assets"
         }
     }

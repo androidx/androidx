@@ -19,6 +19,7 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -35,7 +36,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -45,11 +45,12 @@ internal fun rememberPagerMeasurePolicy(
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     orientation: Orientation,
-    beyondBoundsPageCount: Int,
+    outOfBoundsPageCount: Int,
     pageSpacing: Dp,
     pageSize: PageSize,
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
+    snapPosition: SnapPosition,
     pageCount: () -> Int,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
@@ -60,6 +61,7 @@ internal fun rememberPagerMeasurePolicy(
     verticalAlignment,
     pageSpacing,
     pageSize,
+    snapPosition,
     pageCount,
 ) {
     { containerConstraints ->
@@ -139,16 +141,21 @@ internal fun rememberPagerMeasurePolicy(
         )
         val itemProvider = itemProviderLambda()
 
-        val firstVisiblePage: Int
-        val firstVisiblePageOffset: Int
+        val currentPage: Int
+        val currentPageOffset: Int
+
         Snapshot.withoutReadObservation {
-            firstVisiblePage =
-                state.matchScrollPositionWithKey(itemProvider, state.firstVisiblePage)
-            firstVisiblePageOffset = if (state.layoutInfo == EmptyLayoutInfo) {
-                (state.initialPageOffsetFraction * pageAvailableSize).roundToInt()
-            } else {
-                state.firstVisiblePageOffset
-            }
+            currentPage = state.matchScrollPositionWithKey(itemProvider, state.currentPage)
+            currentPageOffset = snapPosition.currentPageOffset(
+                mainAxisAvailableSize,
+                pageAvailableSize,
+                spaceBetweenPages,
+                beforeContentPadding,
+                afterContentPadding,
+                state.currentPage,
+                state.currentPageOffsetFraction,
+                state.pageCount
+            )
         }
 
         val pinnedPages = itemProvider.calculateLazyLayoutPinnedIndices(
@@ -165,16 +172,17 @@ internal fun rememberPagerMeasurePolicy(
             mainAxisAvailableSize = mainAxisAvailableSize,
             visualPageOffset = visualItemOffset,
             pageAvailableSize = pageAvailableSize,
-            beyondBoundsPageCount = beyondBoundsPageCount,
+            outOfBoundsPageCount = outOfBoundsPageCount,
             orientation = orientation,
-            firstVisiblePage = firstVisiblePage,
-            firstVisiblePageOffset = firstVisiblePageOffset,
+            currentPage = currentPage,
+            currentPageOffset = currentPageOffset,
             horizontalAlignment = horizontalAlignment,
             verticalAlignment = verticalAlignment,
             pagerItemProvider = itemProvider,
             reverseLayout = reverseLayout,
-            scrollToBeConsumed = state.scrollToBeConsumed,
             pinnedPages = pinnedPages,
+            snapPosition = snapPosition,
+            placementScopeInvalidator = state.placementScopeInvalidator,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

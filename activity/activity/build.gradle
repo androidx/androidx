@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
@@ -18,7 +25,7 @@ dependencies {
 
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
-    api("androidx.core:core:1.8.0")
+    api(projectOrArtifact(":core:core"))
     api("androidx.lifecycle:lifecycle-runtime:2.6.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     api("androidx.savedstate:savedstate:1.2.1")
@@ -27,8 +34,8 @@ dependencies {
     implementation("androidx.tracing:tracing:1.0.0")
     api(libs.kotlinStdlib)
 
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
+    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.leakcanary)

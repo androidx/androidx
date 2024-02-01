@@ -24,6 +24,7 @@ import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -430,6 +431,59 @@ class DragAndDropNodeTest {
     }
 
     @Test
+    fun dispatchDragEvent_callsEnterEventsBeforeExitEvents() {
+        rule.runOnUiThread {
+            val calls = mutableListOf<String>()
+            acceptingParentBottomStartDropTarget.onEntered = {
+                calls += "enter-parent"
+            }
+            acceptingParentBottomStartDropTarget.onExited = {
+                calls += "exit-parent"
+            }
+            acceptingInnerBottomStartDropTarget.onEntered = {
+                calls += "enter-child"
+            }
+            acceptingInnerBottomStartDropTarget.onExited = {
+                calls += "exit-child"
+            }
+
+            val events = listOf(
+                // Start in the center
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_STARTED,
+                    x = with(density) { HalfContainerSize.toPx() },
+                    y = with(density) { HalfContainerSize.toPx() },
+                ),
+                // Move into bottom start parent
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    x = with(density) { HalfChildSize.toPx() },
+                    y = with(density) {
+                        (ContainerSize - ChildSize - HalfChildSize).toPx()
+                    },
+                ),
+                // Move into bottom start inner child
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    x = with(density) { HalfChildSize.toPx() },
+                    y = with(density) { (ContainerSize - HalfChildSize).toPx() },
+                )
+            )
+
+            val androidComposeView = findAndroidComposeView(container)!!
+            events.forEach(androidComposeView::dispatchDragEvent)
+
+            // Assertions
+            Truth.assertThat(calls).isEqualTo(listOf(
+                "enter-parent",
+                // important bit is enter child is received before exit parent.
+                "enter-child",
+                "exit-parent"
+            ))
+        }
+    }
+
+    @Test
     fun dispatchDragEvent_multicasts_ACTION_DRAG_ENDED() {
         rule.runOnUiThread {
             val events = listOf(
@@ -667,6 +721,131 @@ class DragAndDropNodeTest {
     }
 
     @Test
+    fun dispatchDragEvent_ignoresNodeThatWasDetached() {
+        //     start                  end
+        // ┌─────┐─────┐         ┌───────────┐
+        // │     │     │         │           │
+        // └─────┘     │   --->  │           │
+        // │           │         │           │
+        // └───────────┘         └───────────┘
+
+        val androidComposeView = findAndroidComposeView(container)!!
+        var canShowChild by mutableStateOf(true)
+        val parentDropTargetHolder = DropTargetModifierHolder(
+            acceptsDragAndDrop = { true }
+        )
+        val childDropTargetHolder = DropTargetModifierHolder(
+            acceptsDragAndDrop = { true }
+        )
+
+        // At the center
+        val initialEvent = DragEvent(
+            action = DragEvent.ACTION_DRAG_STARTED,
+            x = with(density) { HalfContainerSize.toPx() },
+            y = with(density) { HalfContainerSize.toPx() },
+        )
+        // Close to top start
+        val insideParentAndChild = DragEvent(
+            action = DragEvent.ACTION_DRAG_LOCATION,
+            x = with(density) { HalfParentSize.toPx() },
+            y = with(density) { HalfParentSize.toPx() },
+        )
+        // Close to top start
+        val insideParentAndChildWithChildRemoved = DragEvent(
+            action = DragEvent.ACTION_DRAG_LOCATION,
+            x = with(density) { HalfChildSize.toPx() },
+            y = with(density) { HalfChildSize.toPx() },
+        )
+
+        // Set up UI
+        countDown(from = 2) { latch ->
+            rule.runOnUiThread {
+                // Create UI with node placed in top start of parent
+                container.setContent {
+                    density = LocalDensity.current
+                    Box(
+                        modifier = Modifier
+                            .requiredSize(ContainerSize)
+                            .testDropTarget(parentDropTargetHolder)
+                            .onGloballyPositioned {
+                                // Events already dispatched, return
+                                if (!canShowChild) return@onGloballyPositioned
+
+                                // Start in the center
+                                androidComposeView.dispatchDragEvent(initialEvent)
+                                // Move into item
+                                androidComposeView.dispatchDragEvent(insideParentAndChild)
+                                // Remove child
+                                canShowChild = false
+
+                                latch.countDown()
+                            }
+
+                    ) {
+                        if (canShowChild) Box(
+                            modifier = Modifier
+                                .requiredSize(ParentSize)
+                                .align(Alignment.TopStart)
+                                .testDropTarget(childDropTargetHolder)
+                        )
+                    }
+
+                    if (canShowChild) DisposableEffect(Unit) {
+                        // Move drag pointer after the child has been removed
+                        onDispose {
+                            androidComposeView.dispatchDragEvent(
+                                insideParentAndChildWithChildRemoved
+                            )
+
+                            latch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        // Assertions
+        // Parent and child should have seen start events
+        Truth.assertThat(parentDropTargetHolder.startOffsets.first())
+            .isEqualTo(initialEvent.offset())
+        Truth.assertThat(childDropTargetHolder.startOffsets.first())
+            .isEqualTo(initialEvent.offset())
+
+        // Parent should have seen first and second move events as enters
+        Truth.assertThat(parentDropTargetHolder.enterOffsets.first())
+            .isEqualTo(insideParentAndChild.offset())
+        Truth.assertThat(parentDropTargetHolder.enterOffsets[1])
+            .isEqualTo(insideParentAndChildWithChildRemoved.offset())
+
+        // Parent should have seen the first move event as an exit
+        Truth.assertThat(parentDropTargetHolder.exitOffsets.first())
+            .isEqualTo(insideParentAndChild.offset())
+
+        // Parent should have seen the second move event as a move
+        Truth.assertThat(parentDropTargetHolder.moveOffsets.first())
+            .isEqualTo(insideParentAndChildWithChildRemoved.offset())
+
+        // Child should have seen the first move only
+        Truth.assertThat(childDropTargetHolder.enterOffsets.first())
+            .isEqualTo(insideParentAndChild.offset())
+        Truth.assertThat(childDropTargetHolder.moveOffsets.first())
+            .isEqualTo(insideParentAndChild.offset())
+
+        // Parent should have seen two enters, one moves and one exit
+        Truth.assertThat(parentDropTargetHolder.enterOffsets.size)
+            .isEqualTo(2)
+        Truth.assertThat(parentDropTargetHolder.moveOffsets.size)
+            .isEqualTo(1)
+        Truth.assertThat(parentDropTargetHolder.exitOffsets.size)
+            .isEqualTo(1)
+
+        // Child should have seen just one enter and one move
+        Truth.assertThat(childDropTargetHolder.enterOffsets.size)
+            .isEqualTo(1)
+        Truth.assertThat(childDropTargetHolder.moveOffsets.size)
+            .isEqualTo(1)
+    }
+
+    @Test
     fun dispatchDragEvent_canReactToNodeMoves() {
         //     start                  end
         // ┌─────┐─────┐         ┌─────┐─────┐
@@ -813,7 +992,9 @@ private fun countDown(from: Int, block: (CountDownLatch) -> Unit) {
 
 private fun Modifier.testDropTarget(holder: DropTargetModifierHolder) = this then holder.modifier
 private class DropTargetModifierHolder(
-    private val acceptsDragAndDrop: () -> Boolean
+    private val acceptsDragAndDrop: () -> Boolean,
+    var onEntered: ((event: DragAndDropEvent) -> Unit)? = null,
+    var onExited: ((event: DragAndDropEvent) -> Unit)? = null,
 ) {
     val startOffsets = mutableListOf<Offset>()
     val enterOffsets = mutableListOf<Offset>()
@@ -824,38 +1005,48 @@ private class DropTargetModifierHolder(
 
     @OptIn(ExperimentalFoundationApi::class)
     val modifier = Modifier.dragAndDropTarget(
-        onStarted = {
-            val accepts = acceptsDragAndDrop()
-            if (accepts) startOffsets.add(
-                Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-            )
-            accepts
+        target = object : DragAndDropTarget {
+            override fun onStarted(event: DragAndDropEvent) {
+                startOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+            }
+
+            override fun onEntered(event: DragAndDropEvent) {
+                enterOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+                onEntered?.invoke(event)
+            }
+
+            override fun onMoved(event: DragAndDropEvent) {
+                moveOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+            }
+
+            override fun onDrop(event: DragAndDropEvent): Boolean {
+                dropOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+                return true
+            }
+
+            override fun onExited(event: DragAndDropEvent) {
+                exitOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+                onExited?.invoke(event)
+            }
+
+            override fun onEnded(event: DragAndDropEvent) {
+                endedOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+            }
         },
-        onEntered = {
-            enterOffsets.add(
-                Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-            )
+        shouldStartDragAndDrop = {
+            acceptsDragAndDrop()
         },
-        onMoved = {
-            moveOffsets.add(
-                Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-            )
-        },
-        onDropped = {
-            dropOffsets.add(
-                Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-            )
-            true
-        },
-        onExited = {
-            exitOffsets.add(
-                Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-            )
-        },
-        onEnded = {
-            endedOffsets.add(
-                Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-            )
-        }
     )
 }

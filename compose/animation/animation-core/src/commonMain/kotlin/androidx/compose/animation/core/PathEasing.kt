@@ -18,8 +18,8 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathMeasure
-import kotlin.math.absoluteValue
+import androidx.compose.ui.graphics.PathIterator
+import androidx.compose.ui.graphics.PathSegment
 
 /**
  * An easing function for an arbitrary [Path].
@@ -28,50 +28,30 @@ import kotlin.math.absoluteValue
  * [Path] is the input value and the output is the y coordinate of the line at that
  * point. This means that the Path must conform to a function `y = f(x)`.
  *
- * The [Path] must not have gaps in the x direction and must not
- * loop back on itself such that there can be two points sharing the same x coordinate.
+ * The [Path] must be continuous along the x axis. The [Path] should also be
+ * monotonically increasing along the x axis. If the [Path] is not monotonic and
+ * there are multiple y values for a given x, the chosen y value is implementation
+ * dependent and may vary.
+ *
+ * The [Path] must not contain any [Path.close] command as it would force the path
+ * to restart from the beginning.
  *
  * This is equivalent to the Android `PathInterpolator`.
  *
- * [CubicBezierEasing] should be used if a bezier curve is required as it performs less allocations.
- * [PathEasing] should be used when creating an arbitrary path.
+ * [CubicBezierEasing] should be used if a single bezier curve is required as it
+ * performs fewer allocations. [PathEasing] should be used when creating an
+ * arbitrary path.
+ *
+ * Note: a [PathEasing] instance can be used from any thread, but not concurrently.
  *
  * @sample androidx.compose.animation.core.samples.PathEasingSample
  *
- * @param path The path to use to make the line representing the Easing Curve.
+ * @param path The [Path] to use to make the curve representing the easing curve.
  *
  */
 @Immutable
-class PathEasing(path: Path) : Easing {
-
-    private val offsetX: FloatArray
-    private val offsetY: FloatArray
-
-    init {
-        val pathMeasure = PathMeasure()
-        pathMeasure.setPath(path, false)
-
-        val pathLength: Float = pathMeasure.length
-        require(pathLength > 0) {
-            "Path cannot be zero in length. " +
-                "Ensure that supplied Path starts at [0,0] and ends at [1,1]"
-        }
-        val numPoints: Int =
-            (pathLength / Precision).toInt() + 1
-
-        offsetX = FloatArray(numPoints) { 0f }
-        offsetY = FloatArray(numPoints) { 0f }
-
-        for (i in 0 until numPoints) {
-            val distance = i * pathLength / (numPoints - 1)
-            val offset = pathMeasure.getPosition(distance)
-            offsetX[i] = offset.x
-            offsetY[i] = offset.y
-            if (i > 0 && offsetX[i] < offsetX[i - 1]) {
-                throw IllegalArgumentException("Path needs to be continuously increasing")
-            }
-        }
-    }
+class PathEasing(private val path: Path) : Easing {
+    private lateinit var intervals: IntervalTree<PathSegment>
 
     override fun transform(fraction: Float): Float {
         if (fraction <= 0.0f) {
@@ -80,32 +60,52 @@ class PathEasing(path: Path) : Easing {
             return 1.0f
         }
 
-        // Do a binary search for the correct x to interpolate between.
-        val startIndex = offsetX.binarySearch(fraction)
-        // the index will be negative if an exact match is not found,
-        // so return the exact item if the index is positive.
-        if (startIndex > 0) {
-            return offsetY[startIndex]
+        if (!::intervals.isInitialized) {
+            val roots = FloatArray(5)
+
+            // Using an interval tree is a bit heavy handed but since we are dealing with
+            // easing curves, we don't expect many segments, and therefore few allocations.
+            // The interval tree allows us to quickly query for the correct segment inside
+            // the transform() function.
+            val segmentIntervals = IntervalTree<PathSegment>().apply {
+                // A path easing curve is defined in the domain 0..1, use an error
+                // appropriate for this domain (the default is 0.25). Conic segments
+                // should be unlikely in path easing curves, but just in case...
+                val iterator = path.iterator(
+                    PathIterator.ConicEvaluation.AsQuadratics,
+                    2e-4f
+                )
+                while (iterator.hasNext()) {
+                    val segment = iterator.next()
+                    requirePrecondition(segment.type != PathSegment.Type.Close) {
+                        "The path cannot contain a close() command."
+                    }
+                    if (segment.type != PathSegment.Type.Move &&
+                        segment.type != PathSegment.Type.Done
+                    ) {
+                        val bounds = computeHorizontalBounds(segment, roots)
+                        this += Interval(bounds.first, bounds.second, segment)
+                    }
+                }
+            }
+
+            requirePrecondition(0.0f in segmentIntervals && 1.0f in segmentIntervals) {
+                "The easing path must start at 0.0f and end at 1.0f."
+            }
+
+            intervals = segmentIntervals
         }
-        val insertionStartIndex = startIndex.absoluteValue
-        if (insertionStartIndex >= offsetX.size - 1) {
-            return offsetY.last()
+
+        val result = intervals.findFirstOverlap(fraction)
+        val segment = checkPreconditionNotNull(result.data) {
+            "The easing path is invalid. Make sure it is continuous on the x axis."
         }
-        val endIndex: Int = insertionStartIndex + 1
 
-        val xRange: Float = offsetX[endIndex] - offsetX[insertionStartIndex]
+        val t = findFirstRoot(segment, fraction)
+        checkPrecondition(!t.isNaN()) {
+            "The easing path is invalid. Make sure it does not contain NaN/Infinity values."
+        }
 
-        val tInRange: Float = fraction - offsetX[insertionStartIndex]
-        val newFraction = tInRange / xRange
-
-        val startY: Float = offsetY[insertionStartIndex]
-        val endY: Float = offsetY[endIndex]
-
-        return startY + newFraction * (endY - startY)
+        return evaluateY(segment, t).coerceAtLeast(0.0f).coerceAtMost(1.0f)
     }
 }
-
-/**
- * Governs the accuracy of the approximation of [PathEasing].
- */
-private const val Precision = 0.002f

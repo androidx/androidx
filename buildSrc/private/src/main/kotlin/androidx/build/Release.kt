@@ -136,22 +136,22 @@ object Release {
     /**
      * Registers the project to be included in its group's zip file as well as the global zip files.
      */
-    fun register(project: Project, extension: AndroidXExtension) {
-        if (!extension.shouldPublish()) {
+    fun register(project: Project, androidXExtension: AndroidXExtension) {
+        if (!androidXExtension.shouldPublish()) {
             project.logger.info(
                 "project ${project.name} isn't part of release," +
                     " because its \"publish\" property is explicitly set to Publish.NONE"
             )
             return
         }
-        if (!extension.isPublishConfigured()) {
+        if (!androidXExtension.isPublishConfigured()) {
             project.logger.info(
                 "project ${project.name} isn't part of release, because" +
                     " it does not set the \"publish\" property."
             )
             return
         }
-        if (!extension.shouldRelease() && !isSnapshotBuild()) {
+        if (!androidXExtension.shouldRelease() && !isSnapshotBuild()) {
             project.logger.info(
                 "project ${project.name} isn't part of release, because its" +
                     " \"publish\" property is SNAPSHOT_ONLY, but it is not a snapshot build"
@@ -160,11 +160,11 @@ object Release {
         }
 
         val mavenGroup =
-            extension.mavenGroup?.group
+            androidXExtension.mavenGroup?.group
                 ?: throw IllegalArgumentException(
                     "Cannot register a project to release if it does not have a mavenGroup set up"
                 )
-        if (!extension.isVersionSet()) {
+        if (!androidXExtension.isVersionSet()) {
             throw IllegalArgumentException(
                 "Cannot register a project to release if it does not have a mavenVersion set up"
             )
@@ -179,14 +179,14 @@ object Release {
                 getGlobalFullZipTask(project)
             )
 
-        val artifacts = extension.publishedArtifacts
+        val artifacts = androidXExtension.publishedArtifacts
         val publishTask = project.tasks.named("publish")
         zipTasks.forEach {
             it.configure { zipTask ->
                 artifacts.forEach { artifact -> zipTask.addCandidate(artifact) }
 
                 // Add additional artifacts needed for Gradle Plugins
-                if (extension.type == LibraryType.GRADLE_PLUGIN) {
+                if (androidXExtension.type == LibraryType.GRADLE_PLUGIN) {
                     project.extensions
                         .getByType(GradlePluginDevelopmentExtension::class.java)
                         .plugins

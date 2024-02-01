@@ -237,7 +237,7 @@ class IntSetTest {
 
         // Make sure reinserting an entry after filling the table
         // with "Deleted" markers works
-        set += 3
+        set += 1
 
         assertEquals(1, set.size)
         assertEquals(capacity, set.capacity)

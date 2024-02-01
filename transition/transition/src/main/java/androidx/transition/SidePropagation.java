@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 
 /**
  * A <code>TransitionPropagation</code> that propagates based on the distance to the side
@@ -125,12 +124,12 @@ public class SidePropagation extends VisibilityPropagation {
             int left, int top, int right, int bottom) {
         final int side;
         if (mSide == Gravity.START) {
-            final boolean isRtl = ViewCompat.getLayoutDirection(sceneRoot)
-                    == ViewCompat.LAYOUT_DIRECTION_RTL;
+            final boolean isRtl = sceneRoot.getLayoutDirection()
+                    == View.LAYOUT_DIRECTION_RTL;
             side = isRtl ? Gravity.RIGHT : Gravity.LEFT;
         } else if (mSide == Gravity.END) {
-            final boolean isRtl = ViewCompat.getLayoutDirection(sceneRoot)
-                    == ViewCompat.LAYOUT_DIRECTION_RTL;
+            final boolean isRtl = sceneRoot.getLayoutDirection()
+                    == View.LAYOUT_DIRECTION_RTL;
             side = isRtl ? Gravity.LEFT : Gravity.RIGHT;
         } else {
             side = mSide;

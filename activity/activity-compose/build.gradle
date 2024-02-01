@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -44,8 +51,6 @@ dependencies {
 
     lintChecks(projectOrArtifact(":activity:activity-compose-lint"))
     lintPublish(projectOrArtifact(":activity:activity-compose-lint"))
-
-    samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
 }
 
 androidx {
@@ -55,6 +60,7 @@ androidx {
     description = "Compose integration with Activity"
     runApiTasks = new RunApiTasks.Yes()
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
 }
 
 android {

@@ -53,15 +53,16 @@ import java.util.concurrent.Executor;
 
 /**
  * Base interface for all media players that want media session.
- * <p>
- * APIs that return {@link ListenableFuture} should be the asynchronous calls and shouldn't block
+ *
+ * <p>APIs that return {@link ListenableFuture} should be the asynchronous calls and shouldn't block
  * the calling thread. This guarantees the APIs are safe to be called on the main thread.
  *
  * <p>Topics covered here are:
+ *
  * <ol>
- * <li><a href="#BestPractices">Best practices</a>
- * <li><a href="#PlayerStates">Player states</a>
- * <li><a href="#InvalidStates">Invalid method calls</a>
+ *   <li><a href="#BestPractices">Best practices</a>
+ *   <li><a href="#PlayerStates">Player states</a>
+ *   <li><a href="#InvalidStates">Invalid method calls</a>
  * </ol>
  *
  * <h3 id="BestPractices">Best practices</h3>
@@ -69,80 +70,76 @@ import java.util.concurrent.Executor;
  * Here are best practices when implementing/using SessionPlayer:
  *
  * <ul>
- * <li>When updating UI, you should respond to {@link PlayerCallback} invocations instead of
- * {@link PlayerResult} objects since the player can be controlled by others.
- * <li>When a SessionPlayer object is no longer being used, call {@link #close()} as soon as
- * possible to release the resources used by the internal player engine associated with the
- * SessionPlayer. For example, if a player uses hardware decoder, other player instances may
- * fallback to software decoders or fail to play. You cannot use SessionPlayer instance after
- * you call {@link #close()}. There is no way to reuse the instance.
- * <li>The current playback position can be retrieved with a call to {@link #getCurrentPosition()},
- * which is helpful for applications such as a music player that need to keep track of the playback
- * progress.
- * <li>The playback position can be adjusted with a call to {@link #seekTo(long)}. Although the
- * asynchronous {@link #seekTo} call returns right away, the actual seek operation may take a
- * while to finish, especially for audio/video being streamed.
- * <li>You can call {@link #seekTo(long)} from the {@link #PLAYER_STATE_PAUSED}. In these cases, if
- * you are playing a video stream and the requested position is valid, one video frame may be
- * displayed.
+ *   <li>When updating UI, you should respond to {@link PlayerCallback} invocations instead of
+ *       {@link PlayerResult} objects since the player can be controlled by others.
+ *   <li>When a SessionPlayer object is no longer being used, call {@link #close()} as soon as
+ *       possible to release the resources used by the internal player engine associated with the
+ *       SessionPlayer. For example, if a player uses hardware decoder, other player instances may
+ *       fallback to software decoders or fail to play. You cannot use SessionPlayer instance after
+ *       you call {@link #close()}. There is no way to reuse the instance.
+ *   <li>The current playback position can be retrieved with a call to {@link
+ *       #getCurrentPosition()}, which is helpful for applications such as a music player that need
+ *       to keep track of the playback progress.
+ *   <li>The playback position can be adjusted with a call to {@link #seekTo(long)}. Although the
+ *       asynchronous {@link #seekTo} call returns right away, the actual seek operation may take a
+ *       while to finish, especially for audio/video being streamed.
+ *   <li>You can call {@link #seekTo(long)} from the {@link #PLAYER_STATE_PAUSED}. In these cases,
+ *       if you are playing a video stream and the requested position is valid, one video frame may
+ *       be displayed.
  * </ul>
  *
  * <h3 id="PlayerStates">Player states</h3>
+ *
  * The playback control of audio/video files is managed as a state machine. The SessionPlayer
  * defines four states:
+ *
  * <ol>
- *     <li>{@link #PLAYER_STATE_IDLE}: Initial state after the instantiation.
- *         <p>
- *         While in this state, you should call {@link #setMediaItem(MediaItem)} or
- *         {@link #setPlaylist(List, MediaMetadata)}. Check returned {@link ListenableFuture} for
- *         potential error.
- *         <p>
- *         Calling {@link #prepare()} transfers this object to {@link #PLAYER_STATE_PAUSED}.
- *
- *     <li>{@link #PLAYER_STATE_PAUSED}: State when the audio/video playback is paused.
- *         <p>
- *         Call {@link #play()} to resume or start playback from the position where it paused.
- *
- *     <li>{@link #PLAYER_STATE_PLAYING}: State when the player plays the media item.
- *         <p>
- *         In this state, {@link PlayerCallback#onBufferingStateChanged(
- *         SessionPlayer, MediaItem, int)} will be called regularly to tell the buffering status.
- *         <p>
- *         Playback state would remain {@link #PLAYER_STATE_PLAYING} when the currently playing
- *         media item is changed.
- *         <p>
- *         When the playback reaches the end of stream, the behavior depends on repeat mode, set by
- *         {@link #setRepeatMode(int)}. If the repeat mode was set to {@link #REPEAT_MODE_NONE},
- *         the player will transfer to the {@link #PLAYER_STATE_PAUSED}. Otherwise, the
- *         SessionPlayer object remains in the {@link #PLAYER_STATE_PLAYING} and playback will be
- *         ongoing.
- *
- *     <li>{@link #PLAYER_STATE_ERROR}: State when the playback failed and player cannot be
- *         recovered by itself.
- *         <p>
- *         In general, playback might fail due to various reasons such as unsupported audio/video
- *         format, poorly interleaved audio/video, resolution too high, streaming timeout, and
- *         others. In addition, due to programming errors, a playback control operation might be
- *         performed from an <a href="#InvalidStates">invalid state</a>. In these cases the player
- *         may transition to this state.
+ *   <li>{@link #PLAYER_STATE_IDLE}: Initial state after the instantiation.
+ *       <p>While in this state, you should call {@link #setMediaItem(MediaItem)} or {@link
+ *       #setPlaylist(List, MediaMetadata)}. Check returned {@link ListenableFuture} for potential
+ *       error.
+ *       <p>Calling {@link #prepare()} transfers this object to {@link #PLAYER_STATE_PAUSED}.
+ *   <li>{@link #PLAYER_STATE_PAUSED}: State when the audio/video playback is paused.
+ *       <p>Call {@link #play()} to resume or start playback from the position where it paused.
+ *   <li>{@link #PLAYER_STATE_PLAYING}: State when the player plays the media item.
+ *       <p>In this state, {@link PlayerCallback#onBufferingStateChanged( SessionPlayer, MediaItem,
+ *       int)} will be called regularly to tell the buffering status.
+ *       <p>Playback state would remain {@link #PLAYER_STATE_PLAYING} when the currently playing
+ *       media item is changed.
+ *       <p>When the playback reaches the end of stream, the behavior depends on repeat mode, set by
+ *       {@link #setRepeatMode(int)}. If the repeat mode was set to {@link #REPEAT_MODE_NONE}, the
+ *       player will transfer to the {@link #PLAYER_STATE_PAUSED}. Otherwise, the SessionPlayer
+ *       object remains in the {@link #PLAYER_STATE_PLAYING} and playback will be ongoing.
+ *   <li>{@link #PLAYER_STATE_ERROR}: State when the playback failed and player cannot be recovered
+ *       by itself.
+ *       <p>In general, playback might fail due to various reasons such as unsupported audio/video
+ *       format, poorly interleaved audio/video, resolution too high, streaming timeout, and others.
+ *       In addition, due to programming errors, a playback control operation might be performed
+ *       from an <a href="#InvalidStates">invalid state</a>. In these cases the player may
+ *       transition to this state.
  * </ol>
+ *
  * Subclasses may have extra methods to reset the player state to {@link #PLAYER_STATE_IDLE} from
  * other states. Take a look at documentations of specific subclass that you're interested in.
+ *
  * <p>
  *
  * <h3 id="InvalidStates">Invalid method calls</h3>
- * The only method you safely call from the {@link #PLAYER_STATE_ERROR} is {@link #close()}.
- * Any other methods might return meaningless data.
- * <p>
- * Subclasses of the SessionPlayer may have extra methods that are safe to be called in the error
+ *
+ * The only method you safely call from the {@link #PLAYER_STATE_ERROR} is {@link #close()}. Any
+ * other methods might return meaningless data.
+ *
+ * <p>Subclasses of the SessionPlayer may have extra methods that are safe to be called in the error
  * state and/or provide a method to recover from the error state. Take a look at documentations of
  * specific subclass that you're interested in.
+ *
+ * <p>Most methods can be called from any non-Error state. In case they're called in invalid state,
+ * the implementation should ignore and would return {@link PlayerResult} with {@link
+ * PlayerResult#RESULT_ERROR_INVALID_STATE}. The following table lists the methods that aren't
+ * guaranteed to successfully running if they're called from the associated invalid states.
+ *
  * <p>
- * Most methods can be called from any non-Error state. In case they're called in invalid state,
- * the implementation should ignore and would return {@link PlayerResult} with
- * {@link PlayerResult#RESULT_ERROR_INVALID_STATE}. The following table lists the methods that
- * aren't guaranteed to successfully running if they're called from the associated invalid states.
- * <p>
+ *
  * <table>
  * <tr><th>Method Name</th> <th>Invalid States</th></tr>
  * <tr><td>setAudioAttributes</td> <td>{Paused, Playing}</td></tr>
@@ -151,11 +148,15 @@ import java.util.concurrent.Executor;
  * <tr><td>pause</td> <td>{Idle}</td></tr>
  * <tr><td>seekTo</td> <td>{Idle}</td></tr>
  * </table>
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
 // Previously MediaSessionCompat.Callback.
 // Players can extend this directly (e.g. MediaPlayer) or create wrapper and control underlying
 // player.
 // Preferably it can be interface, but API guideline requires to use abstract class.
+@Deprecated
 public abstract class SessionPlayer implements Closeable {
     private static final String TAG = "SessionPlayer";
 
@@ -1016,18 +1017,22 @@ public abstract class SessionPlayer implements Closeable {
     /**
      * Class for the player to return each audio/video/subtitle track's metadata.
      *
-     * Note: TrackInfo holds a MediaFormat instance, but only the following key-values will be
+     * <p>Note: TrackInfo holds a MediaFormat instance, but only the following key-values will be
      * supported when sending it over different processes:
+     *
      * <ul>
-     * <li>{@link MediaFormat#KEY_LANGUAGE}</li>
-     * <li>{@link MediaFormat#KEY_MIME}</li>
-     * <li>{@link MediaFormat#KEY_IS_FORCED_SUBTITLE}</li>
-     * <li>{@link MediaFormat#KEY_IS_AUTOSELECT}</li>
-     * <li>{@link MediaFormat#KEY_IS_DEFAULT}</li>
+     *   <li>{@link MediaFormat#KEY_LANGUAGE}
+     *   <li>{@link MediaFormat#KEY_MIME}
+     *   <li>{@link MediaFormat#KEY_IS_FORCED_SUBTITLE}
+     *   <li>{@link MediaFormat#KEY_IS_AUTOSELECT}
+     *   <li>{@link MediaFormat#KEY_IS_DEFAULT}
      * </ul>
      *
      * @see #getTracks
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     @VersionedParcelize(isCustom = true)
     public static class TrackInfo extends CustomVersionedParcelable {
         public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
@@ -1290,9 +1295,13 @@ public abstract class SessionPlayer implements Closeable {
     }
 
     /**
-     * A callback class to receive notifications for events on the session player. See
-     * {@link #registerPlayerCallback(Executor, PlayerCallback)} to register this callback.
+     * A callback class to receive notifications for events on the session player. See {@link
+     * #registerPlayerCallback(Executor, PlayerCallback)} to register this callback.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public abstract static class PlayerCallback {
         /**
          * Called when the state of the player has changed.
@@ -1509,17 +1518,23 @@ public abstract class SessionPlayer implements Closeable {
 
     /**
      * Result class of the asynchronous APIs.
+     *
+     * <p>Subclass may extend this class for providing more result and/or custom result code. For
+     * the custom result code, follow the convention below to avoid potential code duplication.
+     *
      * <p>
-     * Subclass may extend this class for providing more result and/or custom result code. For the
-     * custom result code, follow the convention below to avoid potential code duplication.
-     * <p>
+     *
      * <ul>
-     * <li>Predefined error code: Negative integers greater than -100. (i.e. -100 < code < 0)
-     * <li>Custom error code: Negative integers equal to or less than -1000. (i.e. code < -1000)
-     * <li>Predefined info code: Positive integers less than 100. (i.e. 0 < code < 100)
-     * <li>Custom Info code: Positive integers equal to or greater than 1000. (i.e. code > +1000)
+     *   <li>Predefined error code: Negative integers greater than -100. (i.e. -100 < code < 0)
+     *   <li>Custom error code: Negative integers equal to or less than -1000. (i.e. code < -1000)
+     *   <li>Predefined info code: Positive integers less than 100. (i.e. 0 < code < 100)
+     *   <li>Custom Info code: Positive integers equal to or greater than 1000. (i.e. code > +1000)
      * </ul>
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     @SuppressWarnings("HiddenSuperclass")
     public static class PlayerResult implements BaseResult {
         /**

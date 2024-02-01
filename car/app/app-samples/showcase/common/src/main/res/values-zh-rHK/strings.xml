@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"路線選項"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"避開高速公路"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"避開渡輪"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"地圖示範"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"含有內容示範的地圖"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"含有訊息範本示範的地圖"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"含有格線範本示範的地圖"</string>
 </resources>

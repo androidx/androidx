@@ -15,16 +15,18 @@
  */
 package androidx.camera.effects.internal;
 
+import static androidx.camera.effects.internal.Utils.lockCanvas;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
+
 import static java.util.Objects.requireNonNull;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Size;
 import android.view.Surface;
 
@@ -33,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
+import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
@@ -46,6 +49,8 @@ import androidx.core.util.Pair;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of {@link SurfaceProcessor} that applies an overlay to the input surface.
@@ -56,13 +61,18 @@ import java.util.concurrent.Executor;
 public class SurfaceProcessorImpl implements SurfaceProcessor,
         SurfaceTexture.OnFrameAvailableListener {
 
+    private static final String TAG = "SurfaceProcessorImpl";
+
+    // The semaphore usually releases within 2ms. We wait for 30ms since it's the FPS.
+    // At maximum, we wait until the next frame is ready.
+    private static final long OVERLAY_UPDATE_TIMEOUT_MILLIS = 30L;
+
     // GL thread and handler.
     private final Handler mGlHandler;
     private final Executor mGlExecutor;
 
     // GL renderer.
-    private final GlRenderer mGlRenderer = new GlRenderer();
-    private final int mQueueDepth;
+    private final GlRenderer mGlRenderer;
 
     // Transform matrices.
     private final float[] mSurfaceTransform = new float[16];
@@ -74,9 +84,9 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
     @Nullable
     private TextureFrameBuffer mBuffer = null;
     @Nullable
-    private Bitmap mOverlayBitmap;
+    private Surface mOverlaySurface;
     @Nullable
-    private Canvas mOverlayCanvas;
+    private SurfaceTexture mOverlayTexture;
     @Nullable
     private Pair<SurfaceOutput, Surface> mOutputSurfacePair = null;
     @Nullable
@@ -86,11 +96,25 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
 
     private boolean mIsReleased = false;
 
+    private final int mQueueDepth;
+
+    // Thread and handler for receiving overlay texture updates.
+    private final HandlerThread mOverlayHandlerThread;
+    private final Handler mOverlayHandler;
+
     public SurfaceProcessorImpl(int queueDepth, @NonNull Handler glHandler) {
+        mQueueDepth = queueDepth;
         mGlHandler = glHandler;
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
-        mQueueDepth = queueDepth;
-        runOnGlThread(mGlRenderer::init);
+        mGlRenderer = new GlRenderer(queueDepth);
+        mOverlayHandlerThread = new HandlerThread("overlay texture updates");
+        mOverlayHandlerThread.start();
+        mOverlayHandler = new Handler(mOverlayHandlerThread.getLooper());
+        runOnGlThread(() -> {
+            mGlRenderer.init();
+            mOverlayTexture = new SurfaceTexture(mGlRenderer.getOverlayTextureId());
+            mOverlaySurface = new Surface(mOverlayTexture);
+        });
     }
 
     @Override
@@ -201,8 +225,15 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
                 }
                 mGlRenderer.release();
                 mBuffer = null;
-                mOverlayBitmap = null;
-                mOverlayCanvas = null;
+                if (mOverlayTexture != null) {
+                    mOverlayTexture.release();
+                    mOverlayTexture = null;
+                }
+                if (mOverlaySurface != null) {
+                    mOverlaySurface.release();
+                    mOverlaySurface = null;
+                }
+                mOverlayHandlerThread.quitSafely();
                 mInputSize = null;
                 mIsReleased = true;
             }
@@ -239,7 +270,7 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
      * exception.
      */
     @NonNull
-    public ListenableFuture<Integer> drawFrame(long timestampNs) {
+    public ListenableFuture<Integer> drawFrameAsync(long timestampNs) {
         return CallbackToFutureAdapter.getFuture(completer -> {
             runOnGlThread(() -> {
                 if (mIsReleased) {
@@ -256,6 +287,21 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
             });
             return "drawFrameFuture";
         });
+    }
+
+    /**
+     * Gets the depth of the buffer.
+     */
+    public int getQueueDepth() {
+        return mQueueDepth;
+    }
+
+    /**
+     * Gets the GL handler.
+     */
+    @NonNull
+    public Handler getGlHandler() {
+        return mGlHandler;
     }
 
     // *** Private methods ***
@@ -277,15 +323,16 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
         mInputSize = inputSize;
 
         // Create a buffer of textures with the same size as the input.
-        int[] textureIds = mGlRenderer.createBufferTextureIds(mQueueDepth, mInputSize);
+        int[] textureIds = mGlRenderer.createBufferTextureIds(mInputSize);
         mBuffer = new TextureFrameBuffer(textureIds);
 
-        // Create the overlay Bitmap with the same size as the input.
-        mOverlayBitmap = Bitmap.createBitmap(inputSize.getWidth(), inputSize.getHeight(),
-                Bitmap.Config.ARGB_8888);
-        mOverlayCanvas = new Canvas(mOverlayBitmap);
-        mOverlayCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        mGlRenderer.uploadOverlay(mOverlayBitmap);
+        // Sets the size for overlay texture.
+        requireNonNull(mOverlayTexture)
+                .setDefaultBufferSize(mInputSize.getWidth(), mInputSize.getHeight());
+        // Clears the overlay texture.
+        Canvas canvas = lockCanvas(requireNonNull(mOverlaySurface));
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        blockAndPostOverlay(canvas);
     }
 
     /**
@@ -302,10 +349,10 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
                 return OverlayEffect.RESULT_INVALID_SURFACE;
             }
             // Only draw if frame is associated with the current output surface.
-            if (drawOverlay(frame.getTimestampNs())) {
+            if (drawOverlay(frame.getTimestampNanos())) {
                 mGlRenderer.renderQueueTextureToSurface(
                         frame.getTextureId(),
-                        frame.getTimestampNs(),
+                        frame.getTimestampNanos(),
                         frame.getTransform(),
                         frame.getSurface());
                 return OverlayEffect.RESULT_SUCCESS;
@@ -330,18 +377,40 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
             return true;
         }
         Frame frame = Frame.of(
-                requireNonNull(mOverlayCanvas),
+                requireNonNull(mOverlaySurface),
                 timestampNs,
                 requireNonNull(mInputSize),
                 mTransformationInfo);
-        if (!mOnDrawListener.apply(frame)) {
-            // The caller wants to drop the frame.
-            return false;
-        }
+
+        boolean shouldRender = mOnDrawListener.apply(frame);
         if (frame.isOverlayDirty()) {
-            mGlRenderer.uploadOverlay(requireNonNull(mOverlayBitmap));
+            blockAndPostOverlay(frame.getOverlayCanvas());
         }
-        return true;
+        return shouldRender;
+    }
+
+    /**
+     * Posts the overlay Canvas and blocks the current GL thread until it's ready.
+     */
+    private void blockAndPostOverlay(@NonNull Canvas canvas) {
+        checkGlThread();
+        Semaphore semaphore = new Semaphore(0);
+        requireNonNull(mOverlayTexture).setOnFrameAvailableListener(
+                surfaceTexture -> semaphore.release(),
+                mOverlayHandler);
+        requireNonNull(mOverlaySurface).unlockCanvasAndPost(canvas);
+        try {
+            boolean acquireOverlaySemaphore = semaphore.tryAcquire(
+                    OVERLAY_UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            if (!acquireOverlaySemaphore) {
+                // Time out waiting for texture update.
+                Logger.e(TAG, "Timed out waiting canvas post");
+            }
+        } catch (InterruptedException e) {
+            Logger.e(TAG, "Interrupted waiting canvas post", e);
+        }
+        // Update the texture image if the wait was successful.
+        requireNonNull(mOverlayTexture).updateTexImage();
     }
 
     private void checkGlThread() {
@@ -362,5 +431,11 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
     @NonNull
     TextureFrameBuffer getBuffer() {
         return requireNonNull(mBuffer);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public Surface getOverlaySurface() {
+        return requireNonNull(mOverlaySurface);
     }
 }

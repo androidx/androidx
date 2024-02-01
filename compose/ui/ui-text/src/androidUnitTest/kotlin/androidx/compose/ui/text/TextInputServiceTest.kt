@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
@@ -141,6 +143,19 @@ class TextInputServiceTest {
         verify(platformService, times(1)).showSoftwareKeyboard()
     }
 
+    @OptIn(InternalTextApi::class)
+    @Test
+    fun showSoftwareKeyboard_afterNullaryStartInput() {
+        val platformService = mock<PlatformTextInputService>()
+
+        val textInputService = TextInputService(platformService)
+
+        textInputService.startInput()
+
+        textInputService.showSoftwareKeyboard()
+        verify(platformService, times(1)).showSoftwareKeyboard()
+    }
+
     @Test
     fun showSoftwareKeyboard_with_a_second_valid_session() {
         val platformService = mock<PlatformTextInputService>()
@@ -180,7 +195,7 @@ class TextInputServiceTest {
         ).dispose()
 
         textInputService.showSoftwareKeyboard()
-        verify(platformService).showSoftwareKeyboard()
+        verify(platformService, never()).showSoftwareKeyboard()
     }
 
     @Test
@@ -190,7 +205,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         textInputService.showSoftwareKeyboard()
-        verify(platformService).showSoftwareKeyboard()
+        verify(platformService, never()).showSoftwareKeyboard()
     }
 
     @Test

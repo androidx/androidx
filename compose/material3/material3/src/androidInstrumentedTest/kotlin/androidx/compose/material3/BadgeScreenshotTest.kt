@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -42,7 +41,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalTestApi::class)
 class BadgeScreenshotTest {
 
     @get:Rule
@@ -51,7 +49,6 @@ class BadgeScreenshotTest {
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun lightTheme_noContent() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
@@ -70,7 +67,6 @@ class BadgeScreenshotTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun darkTheme_noContent() {
         composeTestRule.setMaterialContent(darkColorScheme()) {
@@ -89,7 +85,6 @@ class BadgeScreenshotTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun lightTheme_withContent() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
@@ -108,7 +103,6 @@ class BadgeScreenshotTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun darkTheme_withContent() {
         composeTestRule.setMaterialContent(darkColorScheme()) {

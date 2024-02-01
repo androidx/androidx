@@ -338,6 +338,51 @@ class NavControllerWithFragmentTest {
         )
     }
 
+    @Test
+    fun testPopToInitialInFragmentStarted() = withNavigationActivity {
+        navController.graph = navController.createGraph("first") {
+            fragment<EmptyFragment>("first")
+            fragment<PopToInitialInOnStartedFragment>("second")
+            fragment<EmptyFragment>("third")
+        }
+        navController.navigate("second")
+
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("third")
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
+    }
+
+    @Test
+    fun testPopInitialAndNavigateInitial() = withNavigationActivity {
+        navController.graph = navController.createGraph("first") {
+            fragment<EmptyFragment>("first")
+            fragment<EmptyFragment>("second")
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        // pop first as initial entry, then navigate to second which is the new initial entry
+        navController.navigate(
+            "second",
+            navOptions { popUpTo("first") { inclusive = true } }
+        )
+
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
+        val navigator = navController.navigatorProvider.getNavigator(FragmentNavigator::class.java)
+        // the popUpTo and following navigation to second are both isolated
+        // fragment operations (initial entry) so neither of them would trigger a callback from FM
+        assertThat(navigator.pendingOps).isEmpty()
+    }
+
     @LargeTest
     @Test
     fun testSystemBackPressAfterPopUpToStartDestinationOffBackStack() = withNavigationActivity {
@@ -447,6 +492,17 @@ class PopInOnStartedFragment : Fragment(R.layout.strict_view_fragment) {
         super.onStart()
         findNavController().navigate("third") {
             popUpTo("second") {
+                inclusive = true
+            }
+        }
+    }
+}
+
+class PopToInitialInOnStartedFragment : Fragment(R.layout.strict_view_fragment) {
+    override fun onStart() {
+        super.onStart()
+        findNavController().navigate("third") {
+            popUpTo("first") {
                 inclusive = true
             }
         }

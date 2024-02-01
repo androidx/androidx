@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
@@ -78,7 +79,8 @@ import kotlinx.coroutines.withContext
  * This modifier mostly handles layout and draw.
  */
 internal data class TextFieldCoreModifier(
-    private val isFocused: Boolean,
+    private val isFocused: Boolean, /* true iff component is focused and the window in focus */
+    private val isDragHovered: Boolean,
     private val textLayoutState: TextLayoutState,
     private val textFieldState: TransformedTextFieldState,
     private val textFieldSelectionState: TextFieldSelectionState,
@@ -90,6 +92,7 @@ internal data class TextFieldCoreModifier(
 
     override fun create(): TextFieldCoreModifierNode = TextFieldCoreModifierNode(
         isFocused = isFocused,
+        isDragHovered = isDragHovered,
         textLayoutState = textLayoutState,
         textFieldState = textFieldState,
         textFieldSelectionState = textFieldSelectionState,
@@ -102,6 +105,7 @@ internal data class TextFieldCoreModifier(
     override fun update(node: TextFieldCoreModifierNode) {
         node.updateNode(
             isFocused = isFocused,
+            isDragHovered = isDragHovered,
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
@@ -120,7 +124,9 @@ internal data class TextFieldCoreModifier(
 /** Modifier node for [TextFieldCoreModifier]. */
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldCoreModifierNode(
+    // true iff this component is focused and the window is focused
     private var isFocused: Boolean,
+    private var isDragHovered: Boolean,
     private var textLayoutState: TextLayoutState,
     private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
@@ -147,7 +153,7 @@ internal class TextFieldCoreModifierNode(
      * and brush at a given time.
      */
     private val showCursor: Boolean
-        get() = writeable && isFocused && cursorBrush.isSpecified
+        get() = writeable && (isFocused || isDragHovered) && cursorBrush.isSpecified
 
     /**
      * Observes the [textFieldState] for any changes to content or selection. If a change happens,
@@ -155,17 +161,22 @@ internal class TextFieldCoreModifierNode(
      */
     private var changeObserverJob: Job? = null
 
-    // TODO: kdoc
-    private var previousSelection: TextRange = TextRange.Zero
-    private var lastFollowing: Int = -1
-    private var previousCursorRect: Rect = Rect.Zero
+    /**
+     * When selection/cursor changes its position, it may go out of the visible area. When that
+     * happens, ideally we would want to scroll the TextField to keep the changing handle in the
+     * visible area. The following member variables keep track of the latest selection and cursor
+     * positions that we have adjusted for. When we detect a change to both of them during the
+     * layout phase, ScrollState gets adjusted.
+     */
+    private var previousSelection: TextRange? = null
+    private var previousCursorRect: Rect = Rect(-1f, -1f, -1f, -1f)
 
     private val textFieldMagnifierNode = delegate(
         textFieldMagnifierNode(
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
             textLayoutState = textLayoutState,
-            isFocused = isFocused
+            visible = isFocused || isDragHovered
         )
     )
 
@@ -174,6 +185,7 @@ internal class TextFieldCoreModifierNode(
      */
     fun updateNode(
         isFocused: Boolean,
+        isDragHovered: Boolean,
         textLayoutState: TextLayoutState,
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
@@ -187,8 +199,10 @@ internal class TextFieldCoreModifierNode(
         val previousTextFieldState = this.textFieldState
         val previousTextLayoutState = this.textLayoutState
         val previousTextFieldSelectionState = this.textFieldSelectionState
+        val previousScrollState = this.scrollState
 
         this.isFocused = isFocused
+        this.isDragHovered = isDragHovered
         this.textLayoutState = textLayoutState
         this.textFieldState = textFieldState
         this.textFieldSelectionState = textFieldSelectionState
@@ -201,7 +215,7 @@ internal class TextFieldCoreModifierNode(
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
             textLayoutState = textLayoutState,
-            isFocused = isFocused
+            visible = isFocused || isDragHovered
         )
 
         if (!showCursor) {
@@ -217,7 +231,7 @@ internal class TextFieldCoreModifierNode(
             changeObserverJob = coroutineScope.launch {
                 // Animate the cursor even when animations are disabled by the system.
                 withContext(FixedMotionDurationScale) {
-                    snapshotFlow { textFieldState.text }
+                    snapshotFlow { textFieldState.visualText }
                         .collectLatest {
                             // ensure that the value is always 1f _this_ frame by calling snapTo
                             cursorAlpha.snapTo(1f)
@@ -230,7 +244,8 @@ internal class TextFieldCoreModifierNode(
 
         if (previousTextFieldState != textFieldState ||
             previousTextLayoutState != textLayoutState ||
-            previousTextFieldSelectionState != textFieldSelectionState) {
+            previousTextFieldSelectionState != textFieldSelectionState ||
+            previousScrollState != scrollState) {
             invalidateMeasurement()
         }
     }
@@ -246,7 +261,7 @@ internal class TextFieldCoreModifierNode(
 
     override fun ContentDrawScope.draw() {
         drawContent()
-        val value = textFieldState.text
+        val value = textFieldState.visualText
         val textLayoutResult = textLayoutState.layoutResult ?: return
 
         if (value.selectionInChars.collapsed) {
@@ -264,16 +279,6 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val currSelection = textFieldState.text.selectionInChars
-        val offsetToFollow = when {
-            currSelection.end != previousSelection.end -> currSelection.end
-            currSelection.start != previousSelection.start -> currSelection.start
-            lastFollowing >= 0 -> lastFollowing
-            else -> currSelection.min
-        }
-        lastFollowing = offsetToFollow
-        previousSelection = currSelection
-
         // remove any height constraints for TextField since it'll be able to scroll vertically.
         val childConstraints = constraints.copy(maxHeight = Constraints.Infinity)
         val placeable = measurable.measure(childConstraints)
@@ -282,17 +287,31 @@ internal class TextFieldCoreModifierNode(
 
         return layout(placeable.width, height) {
             // we may need to update the scroll state to bring the cursor back into view after
-            // layout is completed
-            updateScrollState(
-                cursorRect = getCursorRectInScroller(
+            // layout is completed.
+            val currSelection = textFieldState.visualText.selectionInChars
+            val offsetToFollow = calculateOffsetToFollow(currSelection)
+
+            val cursorRectInScroller = if (offsetToFollow >= 0) {
+                getCursorRectInScroller(
                     cursorOffset = offsetToFollow,
                     textLayoutResult = textLayoutState.layoutResult,
                     rtl = layoutDirection == LayoutDirection.Rtl,
                     textFieldWidth = placeable.width
-                ),
+                )
+            } else {
+                null
+            }
+
+            updateScrollState(
+                cursorRect = cursorRectInScroller,
                 containerSize = height,
                 textFieldSize = placeable.height
             )
+
+            // only update the previous selection if this node is focused.
+            if (isFocused) {
+                previousSelection = currSelection
+            }
 
             placeable.placeRelative(0, -scrollState.value)
         }
@@ -302,16 +321,6 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val currSelection = textFieldState.text.selectionInChars
-        val offsetToFollow = when {
-            currSelection.end != previousSelection.end -> currSelection.end
-            currSelection.start != previousSelection.start -> currSelection.start
-            lastFollowing >= 0 -> lastFollowing
-            else -> currSelection.min
-        }
-        lastFollowing = offsetToFollow
-        previousSelection = currSelection
-
         // If the maxIntrinsicWidth of the children is already smaller than the constraint, pass
         // the original constraints so that the children has more information to determine its
         // size.
@@ -329,18 +338,40 @@ internal class TextFieldCoreModifierNode(
         return layout(width, placeable.height) {
             // we may need to update the scroll state to bring the cursor back into view before
             // layout is updated.
-            updateScrollState(
-                cursorRect = getCursorRectInScroller(
+            val currSelection = textFieldState.visualText.selectionInChars
+            val offsetToFollow = calculateOffsetToFollow(currSelection)
+
+            val cursorRectInScroller = if (offsetToFollow >= 0) {
+                getCursorRectInScroller(
                     cursorOffset = offsetToFollow,
                     textLayoutResult = textLayoutState.layoutResult,
                     rtl = layoutDirection == LayoutDirection.Rtl,
                     textFieldWidth = placeable.width
-                ),
+                )
+            } else {
+                null
+            }
+
+            updateScrollState(
+                cursorRect = cursorRectInScroller,
                 containerSize = width,
                 textFieldSize = placeable.width
             )
 
+            // only update the previous selection if this node is focused.
+            if (isFocused) {
+                previousSelection = currSelection
+            }
+
             placeable.placeRelative(-scrollState.value, 0)
+        }
+    }
+
+    private fun calculateOffsetToFollow(currSelection: TextRange): Int {
+        return when {
+            currSelection.end != previousSelection?.end -> currSelection.end
+            currSelection.start != previousSelection?.start -> currSelection.start
+            else -> -1
         }
     }
 
@@ -348,14 +379,14 @@ internal class TextFieldCoreModifierNode(
      * Updates the scroll state to make sure cursor is visible after text content, selection, or
      * layout changes. Only scroll changes won't trigger this.
      *
-     * @param cursorRect Rectangle area to bring into view
+     * @param cursorRect Rectangle area to bring into view. Pass null to skip this functionality.
      * @param containerSize Either height or width of scrollable host, depending on scroll
      * orientation
      * @param textFieldSize Either height or width of scrollable text field content, depending on
      * scroll orientation
      */
     private fun updateScrollState(
-        cursorRect: Rect,
+        cursorRect: Rect?,
         containerSize: Int,
         textFieldSize: Int,
     ) {
@@ -363,8 +394,9 @@ internal class TextFieldCoreModifierNode(
         val difference = textFieldSize - containerSize
         scrollState.maxValue = difference
 
-        // if cursor is not showing, we don't have to update the state for cursor
-        if (!showCursor) return
+        // if the cursor is not showing, we don't have to update the scroll state for the cursor
+        // if there is no rect area to bring into view, we can early return.
+        if (!showCursor || cursorRect == null) return
 
         // Check if cursor has actually changed its location
         if (cursorRect.left != previousCursorRect.left ||
@@ -467,7 +499,7 @@ internal class TextFieldCoreModifierNode(
         // invalidates.
         if (cursorAlpha.value <= 0f || !showCursor) return
 
-        val cursorAlphaValue = cursorAlpha.value.coerceIn(0f, 1f)
+        val cursorAlphaValue = cursorAlpha.value.fastCoerceIn(0f, 1f)
         if (cursorAlphaValue == 0f) return
 
         val cursorRect = textFieldSelectionState.cursorRect
@@ -482,6 +514,7 @@ internal class TextFieldCoreModifierNode(
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        this.textLayoutState.coreNodeCoordinates = coordinates
         textFieldMagnifierNode.onGloballyPositioned(coordinates)
     }
 
@@ -527,7 +560,9 @@ private fun Density.getCursorRectInScroller(
     rtl: Boolean,
     textFieldWidth: Int
 ): Rect {
-    val cursorRect = textLayoutResult?.getCursorRect(cursorOffset) ?: Rect.Zero
+    val cursorRect = textLayoutResult?.getCursorRect(
+        cursorOffset.coerceIn(0..textLayoutResult.layoutInput.text.length)
+    ) ?: Rect.Zero
     val thickness = DefaultCursorThickness.roundToPx()
 
     val cursorLeft = if (rtl) {

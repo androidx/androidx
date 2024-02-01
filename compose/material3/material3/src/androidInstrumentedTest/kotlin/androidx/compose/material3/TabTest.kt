@@ -78,6 +78,7 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalMaterial3Api::class)
 class TabTest {
 
     private val ExpectedSmallTabHeight = 48.dp
@@ -248,21 +249,19 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
-            val indicator = @Composable { tabPositions: List<TabPosition> ->
-                Box(
-                    Modifier
-                        .tabIndicatorOffset(tabPositions[state])
-                        .fillMaxWidth()
-                        .height(indicatorHeight)
-                        .background(color = Color.Red)
-                        .testTag("indicator")
-                )
-            }
-
             Box(Modifier.testTag("tabRow")) {
                 SecondaryTabRow(
                     selectedTabIndex = state,
-                    indicator = indicator
+                    indicator = {
+                        Box(
+                            Modifier
+                                .tabIndicatorOffset(state)
+                                .fillMaxWidth()
+                                .height(indicatorHeight)
+                                .background(color = Color.Red)
+                                .testTag("indicator")
+                        )
+                    }
                 ) {
                     titles.forEachIndexed { index, title ->
                         Tab(

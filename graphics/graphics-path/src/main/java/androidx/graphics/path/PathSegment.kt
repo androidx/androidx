@@ -39,7 +39,6 @@ class PathSegment internal constructor(
     @get:Suppress("ArrayReturn") val points: Array<PointF>,
     val weight: Float
 ) {
-
     /**
      * Type of a given segment in a [path][android.graphics.Path], either a command
      * ([Type.Move], [Type.Close], [Type.Done]) or a curve ([Type.Line], [Type.Cubic],
@@ -136,8 +135,3 @@ val DoneSegment = PathSegment(PathSegment.Type.Done, emptyArray(), 0.0f)
  * [Close][PathSegment.Type.Close] result from [PathIterator.next].
  */
 val CloseSegment = PathSegment(PathSegment.Type.Close, emptyArray(), 0.0f)
-
-/**
- * Cache of [PathSegment.Type] values to avoid internal allocation on each use.
- */
-internal val pathSegmentTypes = PathSegment.Type.values()

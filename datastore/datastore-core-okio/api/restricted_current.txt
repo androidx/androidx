@@ -13,5 +13,9 @@ package androidx.datastore.core.okio {
     method public androidx.datastore.core.StorageConnection<T> createConnection();
   }
 
+  public final class OkioStorageKt {
+    method public static androidx.datastore.core.InterProcessCoordinator createSingleProcessCoordinator(okio.Path path);
+  }
+
 }
 

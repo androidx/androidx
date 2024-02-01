@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -94,6 +95,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     private float mLinearZoom = -1;
     private boolean mTorchEnabled = false;
     private int mExposureCompensation = -1;
+    private ScreenFlash mScreenFlash;
 
     @Nullable
     private FocusMeteringAction mLastSubmittedFocusMeteringAction = null;
@@ -144,7 +146,9 @@ public final class FakeCameraControl implements CameraControlInternal {
         for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
-                mExecutor.execute(cameraCaptureCallback::onCaptureCancelled);
+                mExecutor.execute(() -> {
+                    cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
+                });
             }
         }
         for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
@@ -165,6 +169,7 @@ public final class FakeCameraControl implements CameraControlInternal {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
                 mExecutor.execute(() -> cameraCaptureCallback.onCaptureFailed(
+                        captureConfig.getId(),
                         new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR)));
             }
         }
@@ -186,7 +191,8 @@ public final class FakeCameraControl implements CameraControlInternal {
         for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
-                mExecutor.execute(() -> cameraCaptureCallback.onCaptureCompleted(result));
+                mExecutor.execute(() -> cameraCaptureCallback.onCaptureCompleted(
+                        captureConfig.getId(), result));
             }
         }
         for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
@@ -206,6 +212,17 @@ public final class FakeCameraControl implements CameraControlInternal {
     public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         mFlashMode = flashMode;
         Logger.d(TAG, "setFlashMode(" + mFlashMode + ")");
+    }
+
+    @Override
+    public void setScreenFlash(@Nullable ScreenFlash screenFlash) {
+        mScreenFlash = screenFlash;
+        Logger.d(TAG, "setScreenFlash(" + mScreenFlash + ")");
+    }
+
+    @Nullable
+    public ScreenFlash getScreenFlash() {
+        return mScreenFlash;
     }
 
     @Override

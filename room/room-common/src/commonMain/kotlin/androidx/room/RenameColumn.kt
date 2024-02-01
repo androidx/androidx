@@ -22,10 +22,12 @@ package androidx.room
  *
  * @see AutoMigration
  */
-@JvmRepeatable(RenameColumn.Entries::class)
+@Repeatable
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-public annotation class RenameColumn(
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
+public expect annotation class RenameColumn(
     /**
      * Name of the table in the [AutoMigration.from] version of the database the renamed
      * column is found in. The name in [AutoMigration.from] version is used in case the table
@@ -48,13 +50,4 @@ public annotation class RenameColumn(
      * @return Name of the column.
      */
     val toColumnName: String,
-) {
-    /**
-     * Container annotation for the repeatable annotation [RenameColumn].
-     */
-    @Target(AnnotationTarget.CLASS)
-    @Retention(AnnotationRetention.BINARY)
-    public annotation class Entries(
-        vararg val value: RenameColumn
-    )
-}
+)

@@ -29,13 +29,11 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.camera2.interop.Camera2CameraInfo;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.ExtensionMode;
@@ -52,6 +50,7 @@ import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.internal.compat.workaround.AvailableKeysRetriever;
+import androidx.camera.extensions.internal.compat.workaround.BasicExtenderSurfaceCombinationAvailability;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.camera.extensions.internal.compat.workaround.ImageAnalysisAvailability;
 import androidx.camera.extensions.internal.sessionprocessor.BasicExtenderSessionProcessor;
@@ -60,6 +59,7 @@ import androidx.core.util.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +73,7 @@ public class BasicVendorExtender implements VendorExtender {
             new ExtensionDisabledValidator();
     private PreviewExtenderImpl mPreviewExtenderImpl = null;
     private ImageCaptureExtenderImpl mImageCaptureExtenderImpl = null;
-    private CameraInfo mCameraInfo;
+    private CameraInfoInternal mCameraInfo;
     private String mCameraId;
     private CameraCharacteristics mCameraCharacteristics;
     private AvailableKeysRetriever mAvailableKeysRetriever = new AvailableKeysRetriever();
@@ -132,8 +132,8 @@ public class BasicVendorExtender implements VendorExtender {
     }
 
     @VisibleForTesting
-    BasicVendorExtender(ImageCaptureExtenderImpl imageCaptureExtenderImpl,
-            PreviewExtenderImpl previewExtenderImpl) {
+    public BasicVendorExtender(@Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl,
+            @Nullable PreviewExtenderImpl previewExtenderImpl) {
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
@@ -156,18 +156,16 @@ public class BasicVendorExtender implements VendorExtender {
                 && mImageCaptureExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics);
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void init(@NonNull CameraInfo cameraInfo) {
-        mCameraInfo = cameraInfo;
+        mCameraInfo = (CameraInfoInternal) cameraInfo;
 
         if (mPreviewExtenderImpl == null || mImageCaptureExtenderImpl == null) {
             return;
         }
 
-        mCameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-        mCameraCharacteristics =
-                Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
+        mCameraId = mCameraInfo.getCameraId();
+        mCameraCharacteristics = (CameraCharacteristics) mCameraInfo.getCameraCharacteristics();
         mPreviewExtenderImpl.init(mCameraId, mCameraCharacteristics);
         mImageCaptureExtenderImpl.init(mCameraId, mCameraCharacteristics);
 
@@ -184,17 +182,15 @@ public class BasicVendorExtender implements VendorExtender {
                 Version.VERSION_1_2) >= 0) {
             try {
                 return mImageCaptureExtenderImpl.getEstimatedCaptureLatencyRange(size);
-            } catch (NoSuchMethodError e) {
+            } catch (Throwable e) {
             }
         }
         return null;
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private Size[] getOutputSizes(int imageFormat) {
-        StreamConfigurationMap map = Camera2CameraInfo.from(mCameraInfo)
-                .getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
+        StreamConfigurationMap map =
+                mCameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
         return map.getOutputSizes(imageFormat);
     }
 
@@ -313,15 +309,25 @@ public class BasicVendorExtender implements VendorExtender {
     @NonNull
     @Override
     public Size[] getSupportedYuvAnalysisResolutions() {
+        Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
+
+        // check if the ImageAnalysis is available.
         ImageAnalysisAvailability imageAnalysisAvailability = new ImageAnalysisAvailability();
+        if (!imageAnalysisAvailability.isAvailable(mCameraId, mMode)) {
+            return new Size[0];
+        }
+
+        // check if the surface combination supports the ImageAnalysis.
+        BasicExtenderSurfaceCombinationAvailability
+                surfaceCombinationAvailability = new BasicExtenderSurfaceCombinationAvailability();
         boolean hasPreviewProcessor = mPreviewExtenderImpl.getProcessorType()
                 == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR;
         boolean hasImageCaptureProcessor = mImageCaptureExtenderImpl.getCaptureProcessor() != null;
-        if (!imageAnalysisAvailability.isAvailable(mCameraId, getHardwareLevel(), mMode,
-                hasPreviewProcessor, hasImageCaptureProcessor)) {
+        if (!surfaceCombinationAvailability.isImageAnalysisAvailable(
+                getHardwareLevel(), hasPreviewProcessor, hasImageCaptureProcessor)) {
             return new Size[0];
         }
-        Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
+
         return getOutputSizes(ImageFormat.YUV_420_888);
     }
 
@@ -377,6 +383,45 @@ public class BasicVendorExtender implements VendorExtender {
         return Collections.emptyList();
     }
 
+    @NonNull
+    @Override
+    public Map<Integer, List<Size>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            List<Pair<Integer, Size[]>> list =
+                    mImageCaptureExtenderImpl.getSupportedPostviewResolutions(captureSize);
+            Map<Integer, List<Size>> result = new HashMap<>();
+            for (Pair<Integer, Size[]> pair : list) {
+                int format = pair.first;
+                Size[] sizes = pair.second;
+                result.put(format, Arrays.asList(sizes));
+            }
+            return Collections.unmodifiableMap(result);
+        }
+
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mImageCaptureExtenderImpl.isPostviewAvailable();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mImageCaptureExtenderImpl.isCaptureProcessProgressAvailable();
+        } else {
+            return false;
+        }
+    }
+
     @Nullable
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {
@@ -385,6 +430,7 @@ public class BasicVendorExtender implements VendorExtender {
                 mPreviewExtenderImpl, mImageCaptureExtenderImpl,
                 getSupportedParameterKeys(context),
                 getSupportedCaptureResultKeys(),
+                this,
                 context);
     }
 }

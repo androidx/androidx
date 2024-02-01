@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text.input
 
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -32,7 +31,7 @@ import org.mockito.kotlin.reset
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
-@OptIn(InternalTextApi::class)
+@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class EditProcessorTest {
 

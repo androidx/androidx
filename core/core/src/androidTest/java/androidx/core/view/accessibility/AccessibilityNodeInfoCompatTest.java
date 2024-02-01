@@ -35,7 +35,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,7 +58,6 @@ public class AccessibilityNodeInfoCompatTest {
         accessibilityNodeInfoCompat.setCollectionItemInfo(null);
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testSetCollectionItemInfoCompatBuilder_withDefaultValues() {
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
@@ -76,7 +74,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(collectionItemInfoCompat.isHeading()).isFalse();
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testSetCollectionInfoCompatBuilder_withRealValues() {
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
@@ -107,7 +104,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(collectionItemInfoCompat.isHeading()).isTrue();
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testRangeInfoCompatConstructor_always_returnsRangeInfoCompat() {
         AccessibilityNodeInfoCompat.RangeInfoCompat rangeInfoCompat =
@@ -144,7 +140,7 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetHintText() {
-        final CharSequence hintText = (Build.VERSION.SDK_INT >= 19) ? "hint text" : null;
+        final CharSequence hintText = "hint text";
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHintText(hintText);
         assertThat(nodeCompat.getHintText()).isEqualTo(hintText);
@@ -152,7 +148,7 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetPaneTitle() {
-        final CharSequence paneTitle = (Build.VERSION.SDK_INT >= 19) ? "pane title" : null;
+        final CharSequence paneTitle = "pane title";
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setPaneTitle(paneTitle);
         assertThat(nodeCompat.getPaneTitle()).isEqualTo(paneTitle);
@@ -160,13 +156,12 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetTooltipText() {
-        final CharSequence tooltipText = (Build.VERSION.SDK_INT >= 19) ? "tooltip" : null;
+        final CharSequence tooltipText = "tooltip";
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setTooltipText(tooltipText);
         assertThat(nodeCompat.getTooltipText()).isEqualTo(tooltipText);
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetShowingHintText() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -176,7 +171,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isShowingHintText()).isFalse();
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetScreenReaderFocusable() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -186,7 +180,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isScreenReaderFocusable()).isFalse();
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetMinDurationBetweenContentChanges() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -194,7 +187,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.getMinDurationBetweenContentChangesMillis()).isEqualTo(200L);
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetRequestInitialAccessibilityFocus() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -205,13 +197,12 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetContainerTitle() {
-        final CharSequence containerTitle = (Build.VERSION.SDK_INT >= 19) ? "title" : null;
+        final CharSequence containerTitle = "title";
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setContainerTitle(containerTitle);
         assertThat(nodeCompat.getContainerTitle()).isEqualTo(containerTitle);
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetBoundsInWindow() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -232,7 +223,6 @@ public class AccessibilityNodeInfoCompatTest {
         verify(accessibilityNodeInfo).setQueryFromAppProcessEnabled(null, true);
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testisGranularScrollingSupported() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -241,7 +231,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isGranularScrollingSupported()).isTrue();
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetHeading() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -255,7 +244,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isHeading()).isTrue();
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetTextEntryKey() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -265,7 +253,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isTextEntryKey()).isFalse();
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetAccessibilityDataSensitive() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
@@ -278,13 +265,12 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetUniqueId() {
-        final String uniqueId = (Build.VERSION.SDK_INT >= 19) ? "localUId" : null;
+        final String uniqueId = "localUId";
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setUniqueId(uniqueId);
         assertThat(nodeCompat.getUniqueId()).isEqualTo(uniqueId);
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testAccessibilityActionsNotNull() {
         try {
@@ -333,7 +319,6 @@ public class AccessibilityNodeInfoCompatTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testAccessibilityActionToString() {
         AccessibilityActionCompat actionCompat;
@@ -451,7 +436,6 @@ public class AccessibilityNodeInfoCompatTest {
                         accessibilityNodeInfoCompat.unwrap().getExtraRenderingInfo());
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @SmallTest
     @Test
     public void testSetGetTextSelectable() {
@@ -462,7 +446,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(accessibilityNodeInfoCompat.isTextSelectable()).isTrue();
     }
 
-    @Ignore("b/296118211")
     @SmallTest
     @Test
     public void testActionScrollInDirection() {

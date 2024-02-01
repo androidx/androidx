@@ -11,23 +11,13 @@ inputs:
     description: "password for gradle cache"
   gradle-enterprise-access-key:
     description: "access key for gradle enterprise"
+  gradle-encryption-key:
+    description: "key for gradle configuration cache encryption"
   gradle-flags:
     description: "flags to pass while invoking gradle"
 runs:
   using: "composite"
   steps:
-    - name: "Setup JDK 8 for tools.jar"
-      id: setup-java8
-      uses: actions/setup-java@v1
-      with:
-        java-version: "8"
-    - name: "set tools jar path"
-      id: setup-tools-jar
-      shell: bash
-      run: |
-        set -x
-        TOOLS_JAR=$JAVA_HOME/lib/tools.jar
-        echo "::set-output name=toolsJar::$TOOLS_JAR"
     - name: "Setup JDK 17"
       id: setup-java
       uses: actions/setup-java@v1
@@ -51,7 +41,7 @@ runs:
         echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
     - name: "Setup Gradle"
-      uses: gradle/gradle-build-action@v2
+      uses: gradle/gradle-build-action@v3-beta
       with:
         # Only save Gradle User Home state for builds on the 'androidx-main' branch.
         # Builds on other branches will only read existing entries from the cache.
@@ -59,6 +49,8 @@ runs:
 
         # Don't reuse cache entries from any other Job.
         gradle-home-cache-strict-match: true
+
+        cache-encryption-key: ${{ inputs.gradle-encryption-key }}
 
         # Limit the size of the cache entry.
         # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
@@ -69,18 +61,18 @@ runs:
     - name: "gradle buildOnServer zipTestConfigsWithApks"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
+        GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
       run: ./gradlew buildOnServer zipTestConfigsWithApks ${{ inputs.gradle-flags }}
     - name: "gradle playgroundCIHostTests"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
+        GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
       run: ./gradlew playgroundCIHostTests ${{ inputs.gradle-flags }}

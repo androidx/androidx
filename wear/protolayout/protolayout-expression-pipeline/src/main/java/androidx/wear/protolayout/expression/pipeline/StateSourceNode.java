@@ -79,7 +79,11 @@ class StateSourceNode<T>
     @Override
     public void onData(@NonNull DynamicDataValue newData) {
         T actualValue = mStateExtractor.apply(newData);
-        mDownstream.onData(actualValue);
+        if (actualValue == null) {
+            this.onInvalidated();
+        } else {
+            mDownstream.onData(actualValue);
+        }
     }
 
     @Override

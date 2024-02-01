@@ -20,9 +20,7 @@ import androidx.annotation.RestrictTo
 import com.google.gson.annotations.SerializedName
 
 /**
- * Data class that holds FTS Options of an {@link Fts3 Fts3} or
- * {@link Fts4 Fts4}.
- *
+ * Data class that holds [androidx.room.FtsOptions] information.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FtsOptionsBundle(

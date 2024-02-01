@@ -16,11 +16,12 @@
 
 package androidx.compose.ui.geometry
 
+import kotlin.math.max
 import kotlin.math.pow
 
 // File of internal utility methods used for the geometry library
 internal fun Float.toStringAsFixed(digits: Int): String {
-    val clampedDigits: Int = kotlin.math.max(digits, 0) // Accept positive numbers and 0 only
+    val clampedDigits: Int = max(digits, 0) // Accept positive numbers and 0 only
     val pow = 10f.pow(clampedDigits)
     val shifted = this * pow // shift the given value by the corresponding power of 10
     val decimal = shifted - shifted.toInt() // obtain the decimal of the shifted value

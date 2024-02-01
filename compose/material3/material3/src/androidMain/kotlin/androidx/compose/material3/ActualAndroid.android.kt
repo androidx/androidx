@@ -29,6 +29,7 @@ import java.util.Locale
  */
 @Composable
 @ReadOnlyComposable
+@OptIn(ExperimentalMaterial3Api::class)
 internal actual fun defaultLocale(): CalendarLocale {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         Locale24.defaultLocale()

@@ -23,7 +23,7 @@ import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.snapshots.StateFactoryMarker
-import androidx.compose.runtime.snapshots.StateObject
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.overwritable
 import androidx.compose.runtime.snapshots.readable
@@ -129,7 +129,7 @@ internal expect fun <T> createSnapshotMutableState(
 internal open class SnapshotMutableStateImpl<T>(
     value: T,
     override val policy: SnapshotMutationPolicy<T>
-) : StateObject, SnapshotMutableState<T> {
+) : StateObjectImpl(), SnapshotMutableState<T> {
     @Suppress("UNCHECKED_CAST")
     override var value: T
         get() = next.readable(this).value

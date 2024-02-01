@@ -18,7 +18,6 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -99,7 +98,6 @@ internal class CardTestCase : LayeredComposeTestCase() {
 
 internal class ClickableCardTestCase : LayeredComposeTestCase() {
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun MeasuredContent() {
         Card(onClick = {}, modifier = Modifier.size(200.dp)) { }

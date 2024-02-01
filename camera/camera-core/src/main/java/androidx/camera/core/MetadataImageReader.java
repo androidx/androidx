@@ -58,8 +58,9 @@ public class MetadataImageReader implements ImageReaderProxy,
     // Callback when camera capture is completed.
     private CameraCaptureCallback mCameraCaptureCallback = new CameraCaptureCallback() {
         @Override
-        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
-            super.onCaptureCompleted(cameraCaptureResult);
+        public void onCaptureCompleted(int captureConfigId,
+                @NonNull CameraCaptureResult cameraCaptureResult) {
+            super.onCaptureCompleted(captureConfigId, cameraCaptureResult);
             resultIncoming(cameraCaptureResult);
         }
     };

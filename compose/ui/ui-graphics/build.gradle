@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -24,11 +30,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -41,7 +45,7 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(":collection:collection"))
+                implementation("androidx.collection:collection:1.4.0")
             }
         }
 
@@ -51,13 +55,11 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(libs.skikoCommon)
-                    implementation(project(":compose:runtime:runtime"))
-                }
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.skikoCommon)
+                implementation(project(":compose:runtime:runtime"))
             }
         }
 
@@ -67,22 +69,21 @@ androidXMultiplatform {
             }
         }
 
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
+                implementation("androidx.graphics:graphics-path:1.0.0-beta02")
                 api(libs.androidx.annotation)
+                api("androidx.annotation:annotation-experimental:1.4.0")
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependsOn(skikoMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    implementation(libs.kotlinStdlibJdk8)
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(skikoMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinStdlibJdk8)
             }
         }
 
@@ -115,16 +116,14 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                resources.srcDirs += "src/desktopTest/res"
-                dependsOn(jvmTest)
-                dependencies {
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation(libs.junit)
-                    implementation(libs.truth)
-                    implementation(libs.skikoCurrentOs)
-                }
+        desktopTest {
+            resources.srcDirs += "src/desktopTest/res"
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(libs.skikoCurrentOs)
             }
         }
     }
@@ -150,8 +149,6 @@ android {
     namespace "androidx.compose.ui.graphics"
 }
 
-if (desktopEnabled) {
-    tasks.findByName("desktopTest").configure {
-        systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
-    }
+tasks.findByName("desktopTest").configure {
+    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
 }

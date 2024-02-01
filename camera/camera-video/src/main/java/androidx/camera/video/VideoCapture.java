@@ -26,7 +26,6 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -45,6 +44,7 @@ import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECU
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.video.QualitySelector.getQualityToResolutionMap;
 import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
+import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_FORCE_ENABLE_SURFACE_PROCESSING;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_ENCODER_INFO_FINDER;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoEncoderConfig;
@@ -75,7 +75,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
@@ -126,7 +125,7 @@ import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureI
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
-import androidx.camera.video.internal.encoder.InvalidConfigException;
+import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
@@ -225,8 +224,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @NonNull
     public static <T extends VideoOutput> VideoCapture<T> withOutput(@NonNull T videoOutput) {
-        return new VideoCapture.Builder<>(Preconditions.checkNotNull(videoOutput)).setCaptureType(
-                UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE).build();
+        return new VideoCapture.Builder<>(Preconditions.checkNotNull(videoOutput)).build();
     }
 
     /**
@@ -577,8 +575,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         } else {
             cropRect = new Rect(0, 0, surfaceResolution.getWidth(), surfaceResolution.getHeight());
         }
-        if (videoEncoderInfo == null || videoEncoderInfo.isSizeSupported(cropRect.width(),
-                cropRect.height())) {
+        if (videoEncoderInfo == null || videoEncoderInfo.isSizeSupportedAllowSwapping(
+                cropRect.width(), cropRect.height())) {
             return cropRect;
         }
         return adjustCropRectToValidSize(cropRect, surfaceResolution, videoEncoderInfo);
@@ -623,7 +621,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // pipeline when the transformation becomes invalid.
             mHasCompensatingTransformation = true;
         }
-        mNode = createNodeIfNeeded(camera, mCropRect, resolution, dynamicRange);
+        mNode = createNodeIfNeeded(camera, config, mCropRect, resolution, dynamicRange);
         // Choose Timebase based on the whether the buffer is copied.
         Timebase timebase;
         if (mNode != null || !camera.getHasTransform()) {
@@ -786,7 +784,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
 
         private static final Function<VideoEncoderConfig, VideoEncoderInfo>
-                DEFAULT_VIDEO_ENCODER_INFO_FINDER = createFinder();
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER = VideoEncoderInfoImpl.FINDER;
 
         static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
 
@@ -800,22 +798,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             Builder<?> builder = new Builder<>(DEFAULT_VIDEO_OUTPUT)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setVideoEncoderInfoFinder(DEFAULT_VIDEO_ENCODER_INFO_FINDER)
-                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
-        }
-
-        @NonNull
-        private static Function<VideoEncoderConfig, VideoEncoderInfo> createFinder() {
-            return encoderConfig -> {
-                try {
-                    return VideoEncoderInfoImpl.from(encoderConfig);
-                } catch (InvalidConfigException e) {
-                    Logger.w(TAG, "Unable to find VideoEncoderInfo", e);
-                    return null;
-                }
-            };
         }
 
         @NonNull
@@ -917,10 +902,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     @Nullable
     private SurfaceProcessorNode createNodeIfNeeded(@NonNull CameraInternal camera,
+            @NonNull VideoCaptureConfig<T> config,
             @NonNull Rect cropRect,
             @NonNull Size resolution,
             @NonNull DynamicRange dynamicRange) {
         if (getEffect() != null
+                || shouldEnableSurfaceProcessingByConfig(camera, config)
                 || shouldEnableSurfaceProcessingByQuirk(camera)
                 || shouldCrop(cropRect, resolution)
                 || shouldMirror(camera)
@@ -967,11 +954,29 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 videoEncoderInfo.getSupportedHeights()
         ));
 
-        // Construct all up/down alignment combinations.
+        boolean swapWidthHeightConstraints;
+        if (videoEncoderInfo.getSupportedWidths().contains(cropRect.width())
+                && videoEncoderInfo.getSupportedHeights().contains(cropRect.height())) {
+            swapWidthHeightConstraints = false;
+        } else if (videoEncoderInfo.canSwapWidthHeight()
+                && videoEncoderInfo.getSupportedHeights().contains(cropRect.width())
+                && videoEncoderInfo.getSupportedWidths().contains(cropRect.height())) {
+            swapWidthHeightConstraints = true;
+        } else {
+            // We may need a strategy when both width and height are not within supported widths
+            // and heights. It should be a rare case and for now we leave it no swapping.
+            swapWidthHeightConstraints = false;
+        }
+        if (swapWidthHeightConstraints) {
+            videoEncoderInfo = new SwappedVideoEncoderInfo(videoEncoderInfo);
+        }
+
         int widthAlignment = videoEncoderInfo.getWidthAlignment();
         int heightAlignment = videoEncoderInfo.getHeightAlignment();
         Range<Integer> supportedWidths = videoEncoderInfo.getSupportedWidths();
         Range<Integer> supportedHeights = videoEncoderInfo.getSupportedHeights();
+
+        // Construct all up/down alignment combinations.
         int widthAlignedDown = alignDown(cropRect.width(), widthAlignment, supportedWidths);
         int widthAlignedUp = alignUp(cropRect.width(), widthAlignment, supportedWidths);
         int heightAlignedDown = alignDown(cropRect.height(), heightAlignment, supportedHeights);
@@ -1090,6 +1095,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 || resolution.getHeight() != cropRect.height();
     }
 
+    private static <T extends VideoOutput> boolean shouldEnableSurfaceProcessingByConfig(
+            @NonNull CameraInternal camera, @NonNull VideoCaptureConfig<T> config) {
+        // If there has been a buffer copy, it means the surface processing is already enabled on
+        // input stream. Otherwise, enable it as needed.
+        return camera.getHasTransform() && config.isSurfaceProcessingForceEnabled();
+    }
+
     private static boolean shouldEnableSurfaceProcessingByQuirk(@NonNull CameraInternal camera) {
         // If there has been a buffer copy, it means the surface processing is already enabled on
         // input stream. Otherwise, enable it as needed.
@@ -1205,9 +1217,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                             new CameraCaptureCallback() {
                                 private boolean mIsFirstCaptureResult = true;
                                 @Override
-                                public void onCaptureCompleted(
+                                public void onCaptureCompleted(int captureConfigId,
                                         @NonNull CameraCaptureResult cameraCaptureResult) {
-                                    super.onCaptureCompleted(cameraCaptureResult);
+                                    super.onCaptureCompleted(captureConfigId, cameraCaptureResult);
                                     // Only print the first result to avoid flooding the log.
                                     if (mIsFirstCaptureResult) {
                                         mIsFirstCaptureResult = false;
@@ -1426,6 +1438,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                                 + oldConfigClass);
             }
 
+            setCaptureType(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
             setTargetClass((Class<VideoCapture<T>>) (Type) VideoCapture.class);
         }
 
@@ -1761,14 +1774,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder<T> setCameraSelector(@NonNull CameraSelector cameraSelector) {
-            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
-            return this;
-        }
-
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
         public Builder<T> setUseCaseEventCallback(
                 @NonNull EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
@@ -1877,6 +1882,27 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @Override
         public Builder<T> setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType) {
             getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+            return this;
+        }
+
+        /**
+         * Forces surface processing to be enabled.
+         *
+         * <p>Typically, surface processing is automatically enabled only when required for a
+         * specific effect. However, calling this method will force it to be enabled even if no
+         * effect is required. Surface processing creates additional processing through the OpenGL
+         * pipeline, affecting performance and memory usage. Camera service may treat the surface
+         * differently, potentially impacting video quality and stabilization. So it is generally
+         * not recommended to enable it.
+         *
+         * <p>One example where it might be useful is to work around device compatibility issues.
+         * For example, UHD video recording might not work on some devices, but enabling surface
+         * processing could work around the issue.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder<T> setSurfaceProcessingForceEnabled() {
+            getMutableConfig().insertOption(OPTION_FORCE_ENABLE_SURFACE_PROCESSING, true);
             return this;
         }
     }

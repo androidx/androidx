@@ -16,7 +16,10 @@
 
 package androidx.compose.ui.text.input
 
+import androidx.compose.runtime.Immutable
+
 /**
  * Used to configure the platform specific IME options.
  */
-expect sealed interface PlatformImeOptions
+@Immutable
+expect class PlatformImeOptions

@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.renderer.common;
 
-import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.DISCARDED_FINGERPRINT_VALUE;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.arc;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.arcText;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.column;
@@ -29,8 +28,6 @@ import static androidx.wear.protolayout.renderer.helper.TestDsl.text;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
-import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
@@ -38,12 +35,8 @@ import androidx.wear.protolayout.proto.LayoutElementProto.Span;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.LayoutDiff;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.TreeNodeWithChange;
 
-import com.google.common.collect.ImmutableList;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class ProtoLayoutDifferTest {
@@ -99,93 +92,6 @@ public class ProtoLayoutDifferTest {
                         referenceLayout().getFingerprint(),
                         referenceLayout().toBuilder().clearFingerprint().build());
         assertThat(diff).isNull();
-    }
-
-    @Test
-    public void getChangedNodes_bothFingerprintsDiscarded_allDiffs() {
-        Layout layout =
-                layout(
-                        column( // 1
-                                row( // 1.1
-                                        text("Foo"), // 1.1.1
-                                        text("Bar") // 1.1.2
-                                        )));
-        NodeFingerprint discardedFingerPrintRoot =
-                buildShadowDiscardedFingerprint(
-                        layout.getFingerprint().getRoot(),
-                        "1",
-                        ImmutableList.of("1", "1.1", "1.1.1", "1.1.2"),
-                        ImmutableList.of("1", "1.1"));
-
-        Layout discardedFingerprintLayout =
-                Layout.newBuilder()
-                        .setRoot(layout.getRoot())
-                        .setFingerprint(
-                                TreeFingerprint.newBuilder().setRoot(discardedFingerPrintRoot))
-                        .build();
-
-        LayoutDiff diff =
-                ProtoLayoutDiffer.getDiff(
-                        discardedFingerprintLayout.getFingerprint(), discardedFingerprintLayout);
-        assertThat(diff.getChangedNodes()).hasSize(1);
-    }
-
-    @Test
-    public void getChangedNodes_selfChange_childrenUnaffected() {
-        Layout layout =
-                layout(
-                        column( // 1
-                                row( // 1.1
-                                        text("Foo"), // 1.1.1
-                                        text("Bar") // 1.1.2
-                                        )));
-        NodeFingerprint discardedFingerPrintRoot =
-                buildShadowDiscardedFingerprint(
-                        layout.getFingerprint().getRoot(),
-                        "1",
-                        ImmutableList.of("1.1"),
-                        ImmutableList.of());
-
-        Layout discardedFingerprintLayout =
-                Layout.newBuilder()
-                        .setRoot(layout.getRoot())
-                        .setFingerprint(
-                                TreeFingerprint.newBuilder().setRoot(discardedFingerPrintRoot))
-                        .build();
-
-        LayoutDiff diff =
-                ProtoLayoutDiffer.getDiff(layout.getFingerprint(), discardedFingerprintLayout);
-        assertThat(diff.getChangedNodes()).hasSize(1);
-        assertThat(diff.getChangedNodes().get(0).isSelfOnlyChange()).isTrue();
-    }
-
-    @Test
-    public void getChangedNodes_selfChangeAndChildren_isAllChange() {
-        Layout layout =
-                layout(
-                        column( // 1
-                                row( // 1.1
-                                        text("Foo"), // 1.1.1
-                                        text("Bar") // 1.1.2
-                                        )));
-        NodeFingerprint discardedFingerPrintRoot =
-                buildShadowDiscardedFingerprint(
-                        layout.getFingerprint().getRoot(),
-                        "1",
-                        ImmutableList.of("1.1"),
-                        ImmutableList.of("1.1"));
-
-        Layout discardedFingerprintLayout =
-                Layout.newBuilder()
-                        .setRoot(layout.getRoot())
-                        .setFingerprint(
-                                TreeFingerprint.newBuilder().setRoot(discardedFingerPrintRoot))
-                        .build();
-
-        LayoutDiff diff =
-                ProtoLayoutDiffer.getDiff(layout.getFingerprint(), discardedFingerprintLayout);
-        assertThat(diff.getChangedNodes()).hasSize(1);
-        assertThat(diff.getChangedNodes().get(0).isSelfOnlyChange()).isFalse();
     }
 
     @Test
@@ -338,42 +244,6 @@ public class ProtoLayoutDifferTest {
         String childPosId = "pT1.22.3";
         String parentPosId = "pT1.2";
         assertThat(ProtoLayoutDiffer.isDescendantOf(childPosId, parentPosId)).isFalse();
-    }
-
-    private NodeFingerprint buildShadowDiscardedFingerprint(
-            NodeFingerprint fingerprintRoot,
-            String rootPosId,
-            List<String> discardedNodes,
-            List<String> discardedChilds) {
-        NodeFingerprint.Builder shadowNodeBuilder = NodeFingerprint.newBuilder();
-        shadowNodeBuilder.setSelfTypeValue(fingerprintRoot.getSelfTypeValue());
-        if (discardedNodes.contains(rootPosId)) {
-            shadowNodeBuilder.setSelfPropsValue(DISCARDED_FINGERPRINT_VALUE);
-        } else {
-            shadowNodeBuilder.setSelfPropsValue(fingerprintRoot.getSelfPropsValue());
-        }
-        boolean discardChildren = discardedChilds.contains(rootPosId);
-        if (discardChildren) {
-            shadowNodeBuilder.setChildNodesValue(DISCARDED_FINGERPRINT_VALUE);
-        } else {
-            shadowNodeBuilder.setChildNodesValue(fingerprintRoot.getChildNodesValue());
-        }
-        int childIndex = 1;
-        for (NodeFingerprint childNode : fingerprintRoot.getChildNodesList()) {
-            NodeFingerprint childNodeFingerprint =
-                    buildShadowDiscardedFingerprint(
-                            childNode,
-                            rootPosId + "." + childIndex++,
-                            discardedNodes,
-                            discardedChilds);
-            if (!discardChildren) {
-                shadowNodeBuilder.addChildNodes(childNodeFingerprint);
-            }
-            if (childNodeFingerprint.getSelfPropsValue() == DISCARDED_FINGERPRINT_VALUE) {
-                shadowNodeBuilder.setChildNodesValue(DISCARDED_FINGERPRINT_VALUE);
-            }
-        }
-        return shadowNodeBuilder.build();
     }
 
     private static Layout referenceLayout() {

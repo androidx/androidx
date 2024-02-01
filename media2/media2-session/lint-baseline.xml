@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="WrongConstant"
@@ -48,6 +48,231 @@
 
     <issue
         id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onSessionResult(final int seq, final ParcelImpl sessionResult) {"
+        errorLine2="                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onLibraryResult(final int seq, final ParcelImpl libraryResult) {"
+        errorLine2="                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onCurrentMediaItemChanged(int seq, final ParcelImpl item, final int currentIdx,"
+        errorLine2="                                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onBufferingStateChanged(int seq, final ParcelImpl item, @BuffState final int state,"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl metadata, final int currentIdx, final int previousIdx,"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onPlaylistMetadataChanged(int seq, final ParcelImpl metadata)"
+        errorLine2="                                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onPlaybackInfoChanged(int seq, final ParcelImpl playbackInfo)"
+        errorLine2="                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onVideoSizeChanged(int seq, final ParcelImpl item, final ParcelImpl videoSize) {"
+        errorLine2="                                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onVideoSizeChanged(int seq, final ParcelImpl item, final ParcelImpl videoSize) {"
+        errorLine2="                                                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onSubtitleData(int seq, final ParcelImpl item, final ParcelImpl track,"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onSubtitleData(int seq, final ParcelImpl item, final ParcelImpl track,"
+        errorLine2="                                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl data) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onConnected(int seq, ParcelImpl connectionResult) {"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onSetCustomLayout(final int seq, final List&lt;ParcelImpl> commandButtonList) {"
+        errorLine2="                                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onAllowedCommandsChanged(int seq, final ParcelImpl commands) {"
+        errorLine2="                                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onCustomCommand(final int seq, final ParcelImpl commandParcel, final Bundle args) {"
+        errorLine2="                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onTrackInfoChanged(final int seq, final List&lt;ParcelImpl> trackInfoList,"
+        errorLine2="                                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl selectedVideoParcel, final ParcelImpl selectedAudioParcel,"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl selectedVideoParcel, final ParcelImpl selectedAudioParcel,"
+        errorLine2="                                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl selectedSubtitleParcel, final ParcelImpl selectedMetadataParcel) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl selectedSubtitleParcel, final ParcelImpl selectedMetadataParcel) {"
+        errorLine2="                                                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onTrackSelected(final int seq, final ParcelImpl trackInfoParcel) {"
+        errorLine2="                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void onTrackDeselected(final int seq, final ParcelImpl trackInfoParcel) {"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl libraryParams) throws RuntimeException {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl libraryParams) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
         message="MediaBrowserServiceCompat.onSubscribe can only be called from within the same library (androidx.media:media)"
         errorLine1="    public void onSubscribe(final String id, final Bundle option) {"
         errorLine2="                ~~~~~~~~~~~">
@@ -65,30 +290,228 @@
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setTimeDiff(Long timeDiff) {"
-        errorLine2="                            ~~~~">
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="        public void connect(final IMediaController caller, final ParcelImpl connectionRequest) {"
+        errorLine2="                                                                 ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaController.java"/>
+            file="src/main/java/androidx/media2/session/MediaSessionServiceImplBase.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public IBinder onBind(@NonNull Intent intent) {"
-        errorLine2="           ~~~~~~~">
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void connect(final IMediaController caller, int seq, ParcelImpl connectionRequest)"
+        errorLine2="                                                                ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaLibraryService.java"/>
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MediaSessionCompat getSessionCompat() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl sessionResult) {"
+        errorLine2="                  ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaSession.java"/>
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl command, final Bundle args) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl ratingParcelable) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl metadata) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl metadata) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void selectTrack(IMediaController caller, int seq, final ParcelImpl trackInfoParcel) {"
+        errorLine2="                                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public void deselectTrack(IMediaController caller, int seq, final ParcelImpl trackInfoParcel) {"
+        errorLine2="                                                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl libraryParams) throws RuntimeException {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final int page, final int pageSize, final ParcelImpl libraryParams)"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl libraryParams) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final int page, final int pageSize, final ParcelImpl libraryParams) {"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl libraryParams) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            ParcelImpl videoSizeParcel = MediaParcelUtils.toParcelable(videoSize);"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            List&lt;ParcelImpl> trackInfoList = MediaParcelUtils.toParcelableList(tracks);"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            ParcelImpl itemParcel = MediaParcelUtils.toParcelable(item);"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            ParcelImpl trackParcel = MediaParcelUtils.toParcelable(track);"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            ParcelImpl dataParcel = MediaParcelUtils.toParcelable(data);"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="        List&lt;ParcelImpl> parcelImplList = listSlice.getList();"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            final ParcelImpl itemParcelImpl = parcelImplList.get(i);"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    public static List&lt;ParcelImpl> convertCommandButtonListToParcelImplList("
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="        List&lt;ParcelImpl> parcelImplList = new ArrayList&lt;>();"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="        List&lt;ParcelImpl> itemParcelableList = new ArrayList&lt;>();"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="                final ParcelImpl itemParcelImpl = MediaParcelUtils.toParcelable(item);"
+        errorLine2="                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -386,42 +809,6 @@
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ComponentName getComponentName() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Object getBinder() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void onSessionTokenCreated(MediaSessionCompat.Token compatToken, SessionToken sessionToken);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void onSessionTokenCreated(MediaSessionCompat.Token compatToken, SessionToken sessionToken);"
-        errorLine2="                                                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
     </issue>
 
 </issues>

@@ -23,7 +23,6 @@ import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 internal class ViewPortBasedSnappingLayoutInfoProvider(
     private val baseSnapLayoutInfoProvider: SnapLayoutInfoProvider,

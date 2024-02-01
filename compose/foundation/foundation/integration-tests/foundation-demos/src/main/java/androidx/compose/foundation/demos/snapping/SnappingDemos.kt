@@ -48,12 +48,9 @@ val SnappingDemos = listOf(
     DemoCategory("Lazy List Snapping", LazyListSnappingDemos),
     DemoCategory("Scrollable Row Snapping", RowSnappingDemos),
     DemoCategory("Lazy Grid Snapping", LazyGridSnappingDemos),
-    ComposableDemo("Non Item based Snapping") {
-        NonItemBasedLayout()
-    },
+    ComposableDemo("Non Item based Snapping") { NonItemBasedLayout() },
 )
 
-@Suppress("PrimitiveInLambda")
 @Composable
 internal fun SnappingDemoMainLayout(
     lazyListState: LazyListState,

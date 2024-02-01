@@ -41,6 +41,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class EdgeContentLayoutTest {
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
     private static final DeviceParameters DEVICE_PARAMETERS =

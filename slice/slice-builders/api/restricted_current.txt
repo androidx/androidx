@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.slice.builders {
 
-  @Deprecated @RequiresApi(19) public class GridRowBuilder {
+  @Deprecated public class GridRowBuilder {
     ctor @Deprecated public GridRowBuilder();
     method @Deprecated public androidx.slice.builders.GridRowBuilder addCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
     method @Deprecated public androidx.slice.builders.GridRowBuilder setContentDescription(CharSequence);
@@ -28,7 +28,7 @@ package androidx.slice.builders {
     method @Deprecated public androidx.slice.builders.GridRowBuilder.CellBuilder setSliceAction(androidx.slice.builders.SliceAction);
   }
 
-  @Deprecated @RequiresApi(19) public class ListBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+  @Deprecated public class ListBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor @Deprecated @RequiresApi(26) public ListBuilder(android.content.Context, android.net.Uri, java.time.Duration?);
     ctor @Deprecated public ListBuilder(android.content.Context, android.net.Uri, long);
     method @Deprecated public androidx.slice.builders.ListBuilder addAction(androidx.slice.builders.SliceAction);
@@ -145,7 +145,7 @@ package androidx.slice.builders {
     method @Deprecated public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(long);
   }
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MessagingSliceBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MessagingSliceBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor @Deprecated public MessagingSliceBuilder(android.content.Context, android.net.Uri);
     method @Deprecated public androidx.slice.builders.MessagingSliceBuilder! add(androidx.core.util.Consumer<androidx.slice.builders.MessagingSliceBuilder.MessageBuilder!>!);
     method @Deprecated public androidx.slice.builders.MessagingSliceBuilder! add(androidx.slice.builders.MessagingSliceBuilder.MessageBuilder!);
@@ -160,7 +160,7 @@ package androidx.slice.builders {
     method @Deprecated public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addTimestamp(long);
   }
 
-  @Deprecated @RequiresApi(19) public class SelectionBuilder {
+  @Deprecated public class SelectionBuilder {
     ctor @Deprecated public SelectionBuilder();
     method @Deprecated public androidx.slice.builders.SelectionBuilder! addOption(String!, CharSequence!);
     method @Deprecated public androidx.slice.builders.SelectionBuilder! setContentDescription(CharSequence?);
@@ -173,7 +173,7 @@ package androidx.slice.builders {
     method @Deprecated public androidx.slice.builders.SelectionBuilder! setTitle(CharSequence?);
   }
 
-  @Deprecated @RequiresApi(19) public class SliceAction implements androidx.slice.core.SliceAction {
+  @Deprecated public class SliceAction implements androidx.slice.core.SliceAction {
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, CharSequence, boolean);
@@ -203,7 +203,7 @@ package androidx.slice.builders {
     method @Deprecated public androidx.slice.builders.SliceAction setPriority(@IntRange(from=0) int);
   }
 
-  @Deprecated @RequiresApi(19) public abstract class TemplateSliceBuilder {
+  @Deprecated public abstract class TemplateSliceBuilder {
     method @Deprecated public androidx.slice.Slice build();
   }
 

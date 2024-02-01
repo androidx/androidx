@@ -69,8 +69,8 @@ import java.util.Set;
  * the media router implementation lives here.
  */
 /* package */ final class GlobalMediaRouter
-        implements SystemMediaRouteProvider.SyncCallback,
-        RegisteredMediaRouteProviderWatcher.Callback {
+        implements PlatformMediaRouter1RouteProvider.SyncCallback,
+                RegisteredMediaRouteProviderWatcher.Callback {
 
     static final String TAG = "GlobalMediaRouter";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -117,7 +117,7 @@ import java.util.Set;
     private boolean mTransferReceiverDeclared;
     private boolean mUseMediaRouter2ForSystemRouting;
     private MediaRoute2Provider mMr2Provider;
-    private SystemMediaRouteProvider mSystemProvider;
+    private PlatformMediaRouter1RouteProvider mPlatformMediaRouter1RouteProvider;
     private DisplayManagerCompat mDisplayManager;
     private MediaRouterActiveScanThrottlingHelper mActiveScanThrottlingHelper;
     private MediaRouterParams mRouterParams;
@@ -157,17 +157,19 @@ import java.util.Set;
                         ? new MediaRoute2Provider(mApplicationContext, new Mr2ProviderCallback())
                         : null;
 
-        // Add the system media route provider for interoperating with
-        // the framework media router.  This one is special and receives
-        // synchronization messages from the media router.
-        mSystemProvider = SystemMediaRouteProvider.obtain(mApplicationContext, this);
+        // Add the platform media router 1 route provider for interoperating with the framework
+        // android.media.MediaRouter. This one is special and receives synchronization messages
+        // from the media router.
+        mPlatformMediaRouter1RouteProvider =
+                PlatformMediaRouter1RouteProvider.obtain(mApplicationContext, this);
         start();
     }
 
     private void start() {
         mActiveScanThrottlingHelper =
                 new MediaRouterActiveScanThrottlingHelper(this::updateDiscoveryRequest);
-        addProvider(mSystemProvider, /* treatRouteDescriptorIdsAsUnique= */ true);
+        addProvider(
+                mPlatformMediaRouter1RouteProvider, /* treatRouteDescriptorIdsAsUnique= */ true);
         if (mMr2Provider != null) {
             addProvider(mMr2Provider, /* treatRouteDescriptorIdsAsUnique= */ true);
         }
@@ -703,7 +705,8 @@ import java.util.Set;
         boolean selectedRouteDescriptorChanged = false;
         if (providerDescriptor != null
                 && (providerDescriptor.isValid()
-                || providerDescriptor == mSystemProvider.getDescriptor())) {
+                        || providerDescriptor
+                                == mPlatformMediaRouter1RouteProvider.getDescriptor())) {
             final List<MediaRouteDescriptor> routeDescriptors = providerDescriptor.getRoutes();
             // Updating route group's contents requires all member routes' information.
             // Add the groups to the lists and update them later.
@@ -711,9 +714,9 @@ import java.util.Set;
             List<Pair<MediaRouter.RouteInfo, MediaRouteDescriptor>> updatedGroups =
                     new ArrayList<>();
             for (MediaRouteDescriptor routeDescriptor : routeDescriptors) {
-                // SystemMediaRouteProvider may have invalid routes
+                // PlatformMediaRouter1RouteProvider may have invalid routes
                 if (routeDescriptor == null || !routeDescriptor.isValid()) {
-                    Log.w(TAG, "Ignoring invalid system route descriptor: " + routeDescriptor);
+                    Log.w(TAG, "Ignoring invalid route descriptor: " + routeDescriptor);
                     continue;
                 }
                 final String id = routeDescriptor.getId();
@@ -722,12 +725,14 @@ import java.util.Set;
                 if (sourceIndex < 0) {
                     // 1. Add the route to the list.
                     String uniqueId = assignRouteUniqueId(provider, id);
-                    MediaRouter.RouteInfo route = new MediaRouter.RouteInfo(provider, id, uniqueId);
+                    MediaRouter.RouteInfo route =
+                            new MediaRouter.RouteInfo(
+                                    provider, id, uniqueId, routeDescriptor.isSystemRoute());
 
                     provider.mRoutes.add(targetIndex++, route);
                     mRoutes.add(route);
                     // 2. Create the route's contents.
-                    if (routeDescriptor.getGroupMemberIds().size() > 0) {
+                    if (!routeDescriptor.getGroupMemberIds().isEmpty()) {
                         addedGroups.add(new Pair<>(route, routeDescriptor));
                     } else {
                         route.maybeUpdateDescriptor(routeDescriptor);
@@ -744,7 +749,7 @@ import java.util.Set;
                     // 1. Reorder the route within the list.
                     Collections.swap(provider.mRoutes, sourceIndex, targetIndex++);
                     // 2. Update the route's contents.
-                    if (routeDescriptor.getGroupMemberIds().size() > 0) {
+                    if (!routeDescriptor.getGroupMemberIds().isEmpty()) {
                         updatedGroups.add(new Pair<>(route, routeDescriptor));
                     } else {
                         // 3. Notify clients about changes.
@@ -954,14 +959,14 @@ import java.util.Set;
     }
 
     private boolean isSystemLiveAudioOnlyRoute(MediaRouter.RouteInfo route) {
-        return route.getProviderInstance() == mSystemProvider
+        return route.getProviderInstance() == mPlatformMediaRouter1RouteProvider
                 && route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
                 && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
     }
 
     private boolean isSystemDefaultRoute(MediaRouter.RouteInfo route) {
-        return route.getProviderInstance() == mSystemProvider
-                && route.mDescriptorId.equals(SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
+        return route.getProviderInstance() == mPlatformMediaRouter1RouteProvider
+                && route.mDescriptorId.equals(PlatformMediaRouter1RouteProvider.DEFAULT_ROUTE_ID);
     }
 
     /* package */ void selectRouteInternal(
@@ -1149,10 +1154,10 @@ import java.util.Set;
             };
 
     @Override
-    public void onSystemRouteSelectedByDescriptorId(@NonNull String id) {
+    public void onPlatformRouteSelectedByDescriptorId(@NonNull String id) {
         // System route is selected, do not sync the route we selected before.
         mCallbackHandler.removeMessages(CallbackHandler.MSG_ROUTE_SELECTED);
-        MediaRouter.ProviderInfo provider = findProviderInfo(mSystemProvider);
+        MediaRouter.ProviderInfo provider = findProviderInfo(mPlatformMediaRouter1RouteProvider);
         if (provider != null) {
             MediaRouter.RouteInfo route = provider.findRouteByDescriptorId(id);
             if (route != null) {
@@ -1503,8 +1508,8 @@ import java.util.Set;
                 updateSelectedRouteIfNeeded(true);
             }
 
-            // Synchronize state with the system media router.
-            syncWithSystemProvider(what, obj);
+            // Synchronize state with the platform media router.
+            syncWithPlatformMediaRouter1RouteProvider(what, obj);
 
             // Invoke all registered callbacks.
             // Build a list of callbacks before invoking them in case callbacks
@@ -1529,25 +1534,28 @@ import java.util.Set;
 
         // Using Pair<RouteInfo, RouteInfo>
         @SuppressWarnings({"unchecked"})
-        private void syncWithSystemProvider(int what, Object obj) {
+        private void syncWithPlatformMediaRouter1RouteProvider(int what, Object obj) {
             switch (what) {
                 case MSG_ROUTE_ADDED:
-                    mSystemProvider.onSyncRouteAdded((MediaRouter.RouteInfo) obj);
+                    mPlatformMediaRouter1RouteProvider.onSyncRouteAdded(
+                            (MediaRouter.RouteInfo) obj);
                     break;
                 case MSG_ROUTE_REMOVED:
-                    mSystemProvider.onSyncRouteRemoved((MediaRouter.RouteInfo) obj);
+                    mPlatformMediaRouter1RouteProvider.onSyncRouteRemoved(
+                            (MediaRouter.RouteInfo) obj);
                     break;
                 case MSG_ROUTE_CHANGED:
-                    mSystemProvider.onSyncRouteChanged((MediaRouter.RouteInfo) obj);
+                    mPlatformMediaRouter1RouteProvider.onSyncRouteChanged(
+                            (MediaRouter.RouteInfo) obj);
                     break;
                 case MSG_ROUTE_SELECTED: {
                     MediaRouter.RouteInfo selectedRoute =
                             ((Pair<MediaRouter.RouteInfo, MediaRouter.RouteInfo>) obj).second;
-                    mSystemProvider.onSyncRouteSelected(selectedRoute);
+                    mPlatformMediaRouter1RouteProvider.onSyncRouteSelected(selectedRoute);
                     // TODO(b/166794092): Remove this nullness check
                     if (mDefaultRoute != null && selectedRoute.isDefaultOrBluetooth()) {
                         for (MediaRouter.RouteInfo prevGroupRoute : mDynamicGroupRoutes) {
-                            mSystemProvider.onSyncRouteRemoved(prevGroupRoute);
+                            mPlatformMediaRouter1RouteProvider.onSyncRouteRemoved(prevGroupRoute);
                         }
                         mDynamicGroupRoutes.clear();
                     }
@@ -1557,8 +1565,8 @@ import java.util.Set;
                     MediaRouter.RouteInfo groupRoute =
                             ((Pair<MediaRouter.RouteInfo, MediaRouter.RouteInfo>) obj).second;
                     mDynamicGroupRoutes.add(groupRoute);
-                    mSystemProvider.onSyncRouteAdded(groupRoute);
-                    mSystemProvider.onSyncRouteSelected(groupRoute);
+                    mPlatformMediaRouter1RouteProvider.onSyncRouteAdded(groupRoute);
+                    mPlatformMediaRouter1RouteProvider.onSyncRouteSelected(groupRoute);
                     break;
                 }
             }

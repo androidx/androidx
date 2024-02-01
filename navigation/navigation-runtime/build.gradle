@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -28,8 +35,8 @@ dependencies {
     api("androidx.activity:activity-ktx:1.7.1")
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    api("androidx.annotation:annotation-experimental:1.1.0")
-    implementation('androidx.collection:collection:1.0.0')
+    api("androidx.annotation:annotation-experimental:1.4.0")
+    implementation('androidx.collection:collection:1.1.0')
 
     api(libs.kotlinStdlib)
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))

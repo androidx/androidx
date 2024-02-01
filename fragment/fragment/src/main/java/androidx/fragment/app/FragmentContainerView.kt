@@ -18,7 +18,6 @@ package androidx.fragment.app
 import android.animation.LayoutTransition
 import android.content.Context
 import android.graphics.Canvas
-import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -151,6 +150,11 @@ public class FragmentContainerView : FrameLayout {
             }
             val containerFragment: Fragment =
                 fm.fragmentFactory.instantiate(context.classLoader, name)
+            containerFragment.mFragmentId = id
+            containerFragment.mContainerId = id
+            containerFragment.mTag = tag
+            containerFragment.mFragmentManager = fm
+            containerFragment.mHost = fm.host
             containerFragment.onInflate(context, attrs, null)
             fm.beginTransaction()
                 .setReorderingAllowed(true)
@@ -173,13 +177,6 @@ public class FragmentContainerView : FrameLayout {
      * @attr ref android.R.styleable#ViewGroup_animateLayoutChanges
      */
     public override fun setLayoutTransition(transition: LayoutTransition?) {
-        if (Build.VERSION.SDK_INT < 18) {
-            // Transitions on APIs below 18 are using an empty LayoutTransition as a replacement
-            // for suppressLayout(true) and null LayoutTransition to then unsuppress it. If the
-            // API is below 18, we should allow FrameLayout to handle this call.
-            super.setLayoutTransition(transition)
-            return
-        }
         throw UnsupportedOperationException(
             "FragmentContainerView does not support Layout Transitions or " +
                 "animateLayoutChanges=\"true\"."

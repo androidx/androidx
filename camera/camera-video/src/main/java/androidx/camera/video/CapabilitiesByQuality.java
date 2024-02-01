@@ -16,6 +16,8 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.core.internal.utils.SizeUtil.findNearestHigherFor;
+
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -158,23 +160,8 @@ public class CapabilitiesByQuality {
     /** Finds the nearest higher supported {@link Quality} for the input size. */
     @NonNull
     public Quality findNearestHigherSupportedQualityFor(@NonNull Size size) {
-        Map.Entry<Size, Quality> ceilEntry = mAreaSortedSizeToQualityMap.ceilingEntry(size);
-
-        if (ceilEntry != null) {
-            // The ceiling entry will either be equivalent or higher in size, so always
-            // return it.
-            return ceilEntry.getValue();
-        } else {
-            // If a ceiling entry doesn't exist and a floor entry exists, it is the closest
-            // we have, so return it.
-            Map.Entry<Size, Quality> floorEntry = mAreaSortedSizeToQualityMap.floorEntry(size);
-            if (floorEntry != null) {
-                return floorEntry.getValue();
-            }
-        }
-
-        // No supported qualities.
-        return Quality.NONE;
+        Quality quality = findNearestHigherFor(size, mAreaSortedSizeToQualityMap);
+        return quality != null ? quality : Quality.NONE;
     }
 
     @Nullable

@@ -41,7 +41,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.ExperimentalTvFoundationApi
-import androidx.tv.foundation.text.AndroidImeOptions
+import androidx.tv.foundation.text.PlatformImeOptions
 import androidx.tv.foundation.text.TvKeyboardAlignment
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
@@ -87,7 +87,7 @@ fun SampleTextField(label: String, keyboardType: KeyboardType = KeyboardType.Tex
         },
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
-            platformImeOptions = AndroidImeOptions(TvKeyboardAlignment.Left),
+            platformImeOptions = PlatformImeOptions(TvKeyboardAlignment.Left),
             imeAction = ImeAction.Next
         ),
         colors = OutlinedTextFieldDefaults.colors(

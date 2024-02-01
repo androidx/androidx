@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"මාර්ග විකල්ප"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"අධිවේගී මාර්ග මඟ හරින්න"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ගංතොට මඟ හරින්න"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"සිතියම් ආදර්ශන"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"අන්තර්ගත ආදර්ශන සමග සිතියම"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"පණිවිඩ අච්චු ආදර්ශනය සමග සිතියම"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ජාල අච්චු ආදර්ශනය සමග සිතියම"</string>
 </resources>

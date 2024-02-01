@@ -75,7 +75,7 @@ dependencies {
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.activity:activity-ktx:1.2.0")
-    implementation("androidx.viewpager2:viewpager2:1.1.0-alpha01")
+    implementation("androidx.viewpager2:viewpager2:1.1.0-beta02")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(project(":window:window"))
     implementation(project(":window:window-java"))
@@ -89,7 +89,7 @@ dependencies {
 
     // Compose
     implementation 'androidx.activity:activity-compose:1.4.0'
-    implementation 'androidx.compose.material:material:1.4.0'
+    implementation project(':compose:material:material')
     implementation 'androidx.compose.animation:animation:1.4.0'
     implementation 'androidx.compose.runtime:runtime:1.4.0'
     implementation 'androidx.compose.ui:ui-tooling:1.4.0'
@@ -97,6 +97,9 @@ dependencies {
     implementation 'androidx.navigation:navigation-compose:2.4.2'
     implementation 'androidx.compose.material:material-icons-extended:1.4.0'
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
+
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)
@@ -122,7 +125,16 @@ dependencies {
 
     // Testing for Compose
     // Test rules and transitive dependencies:
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.1.1")
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:runtime:runtime-saveable"))
+    androidTestImplementation(project(":compose:ui:ui-geometry"))
+    androidTestImplementation(project(":compose:ui:ui-util"))
+    androidTestImplementation(project(":compose:ui:ui-graphics"))
+    androidTestImplementation(project(":compose:ui:ui-unit"))
+    androidTestImplementation(project(":compose:ui:ui-text"))
+    androidTestImplementation("androidx.collection:collection:1.4.0")
     // Needed for createComposeRule, but not createAndroidComposeRule:
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.1.1")
+    debugImplementation(project(":compose:ui:ui-test-manifest"))
 }

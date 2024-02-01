@@ -293,7 +293,7 @@ library in this situation to skip versions, e.g. move directly from
 
 #### Kotlin Multiplatform library versions {#modules-kmp-versioning}
 
-When a library adds [Kotlin Multiplatform](/company/teams/androidx/kmp.md)
+When a library adds [Kotlin Multiplatform](/docs/kmp.md)
 support, it is permitted to have different versions for the multiplatform
 artifacts until they reach alpha quality.
 
@@ -335,14 +335,14 @@ androidx {
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
 The recommended minimum SDK version for new Jetpack libraries is currently
-**19** (Android 4.4, KitKat). This SDK was chosen to represent 99% of active
+**21** (Android 5.0, Lollipop). This SDK was chosen to represent 99% of active
 devices based on Play Store check-ins (see Android Studio
 [distribution metadata](https://dl.google.com/android/studio/metadata/distributions.json)
 for current statistics). This maximizes potential users for external developers
 while minimizing the amount of overhead necessary to support legacy versions.
 
 However, if no explicit minimum SDK version is specified for a library, the
-default is **14** (Android 4.0, Ice Cream Sandwich).
+default is **19** (Android 4.4, KitKat).
 
 Note that a library **must not** depend on another library with a higher
 `minSdkVersion` that its own, so it may be necessary for a new library to match
@@ -373,7 +373,7 @@ for more details on the platform-side implementation of extension libraries,
 including motivations for their use.
 
 See
-[Platform extension (sidecar JAR) dependencies](/company/teams/androidx/api_guidelines#dependencies-sidecar)
+[Platform extension (sidecar JAR) dependencies](/docs/api_guidelines#dependencies-sidecar)
 for guidelines on depending on extension libraries defined externally or within
 Jetpack.
 

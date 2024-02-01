@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -24,10 +31,13 @@ plugins {
 dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
-
-    implementation("androidx.annotation:annotation-experimental:1.3.1")
-    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     api(project(":wear:protolayout:protolayout-expression"))
+
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
+
+    lintChecks(project(":wear:protolayout:protolayout-lint"))
+    lintPublish(project(":wear:protolayout:protolayout-lint"))
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)

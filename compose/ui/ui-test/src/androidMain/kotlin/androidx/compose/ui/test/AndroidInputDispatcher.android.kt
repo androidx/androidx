@@ -290,8 +290,23 @@ internal class AndroidInputDispatcher(
                 },
                 /* pointerCoords = */ Array(coordinates.size) { pointerIndex ->
                     PointerCoords().apply {
-                        x = positionInScreen.x + coordinates[pointerIndex][0].x
-                        y = positionInScreen.y + coordinates[pointerIndex][0].y
+
+                        val startOffset = coordinates[pointerIndex][0]
+
+                        // Allows for non-valid numbers/Offsets to be passed along to Compose to
+                        // test if it handles them properly (versus breaking here and we not knowing
+                        // if Compose properly handles these values).
+                        x = if (startOffset.isValid()) {
+                            positionInScreen.x + startOffset.x
+                        } else {
+                            Float.NaN
+                        }
+
+                        y = if (startOffset.isValid()) {
+                            positionInScreen.y + startOffset.y
+                        } else {
+                            Float.NaN
+                        }
                     }
                 },
                 /* metaState = */ 0,
@@ -311,8 +326,23 @@ internal class AndroidInputDispatcher(
                         /* eventTime = */ eventTimes[timeIndex],
                         /* pointerCoords = */ Array(coordinates.size) { pointerIndex ->
                             PointerCoords().apply {
-                                x = positionInScreen.x + coordinates[pointerIndex][timeIndex].x
-                                y = positionInScreen.y + coordinates[pointerIndex][timeIndex].y
+                                val currentOffset = coordinates[pointerIndex][timeIndex]
+
+                                // Allows for non-valid numbers/Offsets to be passed along to
+                                // Compose to test if it handles them properly (versus breaking
+                                // here and we not knowing if Compose properly handles these
+                                // values).
+                                x = if (currentOffset.isValid()) {
+                                    positionInScreen.x + currentOffset.x
+                                } else {
+                                    Float.NaN
+                                }
+
+                                y = if (currentOffset.isValid()) {
+                                    positionInScreen.y + currentOffset.y
+                                } else {
+                                    Float.NaN
+                                }
                             }
                         },
                         /* metaState = */ 0

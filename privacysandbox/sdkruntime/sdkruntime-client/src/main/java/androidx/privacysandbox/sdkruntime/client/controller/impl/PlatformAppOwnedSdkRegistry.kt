@@ -16,20 +16,19 @@
 
 package androidx.privacysandbox.sdkruntime.client.controller.impl
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
+import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
-import androidx.privacysandbox.sdkruntime.core.AppOwnedInterfaceConverter
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 
 /**
- * Implementation for Developer Preview builds backed by [SdkSandboxManager].
- * Using reflection to call public methods / constructors.
- * TODO(b/281397807) Replace reflection for method calls when new prebuilt will be available.
+ * Implementation backed by [SdkSandboxManager].
  */
-@RequiresApi(33) // will be available later via mainline update
+@RequiresApi(33)
+@RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
 internal class PlatformAppOwnedSdkRegistry(
     context: Context
 ) : AppOwnedSdkRegistry {
@@ -38,48 +37,19 @@ internal class PlatformAppOwnedSdkRegistry(
         SdkSandboxManager::class.java
     )
 
-    private val appOwnedSdkInterfaceClass = Class.forName(
-        "android.app.sdksandbox.AppOwnedSdkSandboxInterface"
-    )
-
-    private val registerAppOwnedSdkMethod = sdkSandboxManager.javaClass.getMethod(
-        "registerAppOwnedSdkSandboxInterface",
-        /* parameter1 */ appOwnedSdkInterfaceClass
-    )
-
-    private val unregisterAppOwnedSdkMethod = sdkSandboxManager.javaClass.getMethod(
-        "unregisterAppOwnedSdkSandboxInterface",
-        /* parameter1 */ String::class.java
-    )
-
-    private val getAppOwnedSdksMethod = sdkSandboxManager.javaClass.getMethod(
-        "getAppOwnedSdkSandboxInterfaces"
-    )
-
-    private val converter: AppOwnedInterfaceConverter = AppOwnedInterfaceConverter()
-
-    @SuppressLint("BanUncheckedReflection") // calling public non restricted methods
     override fun registerAppOwnedSdkSandboxInterface(
         appOwnedSdk: AppOwnedSdkSandboxInterfaceCompat
     ) {
-        val platformObj = converter.toPlatform(appOwnedSdk)
-        registerAppOwnedSdkMethod.invoke(
-            sdkSandboxManager,
-            /* parameter1 */ platformObj
-        )
+        val platformObj = appOwnedSdk.toAppOwnedSdkSandboxInterface()
+        sdkSandboxManager.registerAppOwnedSdkSandboxInterface(platformObj)
     }
 
-    @SuppressLint("BanUncheckedReflection") // calling public non restricted methods
     override fun unregisterAppOwnedSdkSandboxInterface(sdkName: String) {
-        unregisterAppOwnedSdkMethod.invoke(
-            sdkSandboxManager,
-            /* parameter1 */ sdkName
-        )
+        sdkSandboxManager.unregisterAppOwnedSdkSandboxInterface(sdkName)
     }
 
-    @SuppressLint("BanUncheckedReflection") // calling public non restricted methods
     override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
-        val apiResult = getAppOwnedSdksMethod.invoke(sdkSandboxManager) as List<*>
-        return apiResult.map { converter.toCompat(it!!) }
+        val apiResult = sdkSandboxManager.getAppOwnedSdkSandboxInterfaces()
+        return apiResult.map { AppOwnedSdkSandboxInterfaceCompat(it) }
     }
 }

@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
@@ -34,10 +35,25 @@ import com.google.common.truth.IterableSubject
  * This function adds a parent composable which has size.
  * [View.requestFocus()][android.view.View.requestFocus] will not take focus if the view has no
  * size.
+ *
+ * @param extraItemForInitialFocus Includes an extra item that takes focus initially. This is
+ * useful in cases where we need tests that could be affected by initial focus. Eg. When there is
+ * only one focusable item and we clear focus, that item could end up being focused on again by the
+ * initial focus logic.
  */
-internal fun ComposeContentTestRule.setFocusableContent(content: @Composable () -> Unit) {
+internal fun ComposeContentTestRule.setFocusableContent(
+    extraItemForInitialFocus: Boolean = true,
+    content: @Composable () -> Unit
+) {
     setContent {
-        Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
+        if (extraItemForInitialFocus) {
+            Row {
+                Box(modifier = Modifier.requiredSize(10.dp, 10.dp).focusTarget())
+                Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
+            }
+        } else {
+            Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
+        }
     }
 }
 
@@ -66,9 +82,9 @@ internal fun FocusableBox(
             .focusProperties { canFocus = !deactivated }
             .focusTarget(),
         measurePolicy = remember(width, height) {
-            MeasurePolicy { measurables, constraint ->
+            MeasurePolicy { measurableList, constraint ->
                 layout(width, height) {
-                    measurables.forEach {
+                    measurableList.forEach {
                         val placeable = it.measure(constraint)
                         placeable.placeRelative(0, 0)
                     }

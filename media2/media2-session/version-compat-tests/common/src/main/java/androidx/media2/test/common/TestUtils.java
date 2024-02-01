@@ -18,7 +18,6 @@ package androidx.media2.test.common;
 
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -74,11 +73,7 @@ public class TestUtils {
     // Copied code from ObjectsCompat.java due to build dependency problem of
     // previous version of support lib.
     public static boolean equals(Object a, Object b) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Objects.equals(a, b);
-        } else {
-            return (a == b) || (a != null && a.equals(b));
-        }
+        return Objects.equals(a, b);
     }
 
     /**

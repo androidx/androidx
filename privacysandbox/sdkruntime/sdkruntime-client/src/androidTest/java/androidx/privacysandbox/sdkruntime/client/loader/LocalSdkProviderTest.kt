@@ -319,6 +319,10 @@ internal class LocalSdkProviderTest(
         var sdkActivityHandlers: MutableMap<IBinder, SdkSandboxActivityHandlerCompat> =
             mutableMapOf()
 
+        override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+            throw UnsupportedOperationException("Shouldn't be called")
+        }
+
         override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
             return sandboxedSdksResult
         }

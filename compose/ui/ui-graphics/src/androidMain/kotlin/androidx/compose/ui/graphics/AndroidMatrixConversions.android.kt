@@ -54,18 +54,6 @@ fun Matrix.setFrom(matrix: android.graphics.Matrix) {
  * Set the native [android.graphics.Matrix] from [matrix].
  */
 fun android.graphics.Matrix.setFrom(matrix: Matrix) {
-    require(
-        matrix[0, 2] == 0f &&
-            matrix[1, 2] == 0f &&
-            matrix[2, 2] == 1f &&
-            matrix[3, 2] == 0f &&
-            matrix[2, 0] == 0f &&
-            matrix[2, 1] == 0f &&
-            matrix[2, 3] == 0f
-    ) {
-        "Android does not support arbitrary transforms"
-    }
-
     // We'll reuse the array used in Matrix to avoid allocation by temporarily
     // setting it to the 3x3 matrix used by android.graphics.Matrix
     // Store the values of the 4 x 4 matrix into temporary variables

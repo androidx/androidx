@@ -33,12 +33,16 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.compat.Camera2Quirks
+import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
+import androidx.camera.camera2.pipe.core.CoroutineMutex
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.core.withLockLaunch
 import androidx.camera.camera2.pipe.formatForLogs
 import androidx.camera.camera2.pipe.putAllMetadata
 import java.util.concurrent.CountDownLatch
@@ -133,6 +137,7 @@ constructor(
 ) : GraphProcessor, GraphListener {
     private val lock = Any()
     private val tryStartRepeatingExecutionLock = Any()
+    private val coroutineMutex = CoroutineMutex()
 
     @GuardedBy("lock")
     private val submitQueue: MutableList<List<Request>> = ArrayList()
@@ -275,9 +280,11 @@ constructor(
             if (closed) return
             repeatingQueue.add(request)
             debug { "startRepeating with ${request.formatForLogs()}" }
-        }
 
-        graphScope.launch(threads.lightweightDispatcher) { tryStartRepeating() }
+            coroutineMutex.withLockLaunch(graphScope) {
+                tryStartRepeating()
+            }
+        }
     }
 
     override fun stopRepeating() {
@@ -287,15 +294,15 @@ constructor(
             processor = _requestProcessor
             repeatingQueue.clear()
             currentRepeatingRequest = null
-        }
 
-        graphScope.launch(threads.lightweightDispatcher) {
-            Debug.traceStart { "$this#stopRepeating" }
-            // Start with requests that have already been submitted
-            if (processor != null) {
-                synchronized(processor) { processor.stopRepeating() }
+            coroutineMutex.withLockLaunch(graphScope) {
+                Debug.traceStart { "$this#stopRepeating" }
+                // Start with requests that have already been submitted
+                if (processor != null) {
+                    synchronized(processor) { processor.stopRepeating() }
+                }
+                Debug.traceStop()
             }
-            Debug.traceStop()
         }
     }
 
@@ -568,7 +575,18 @@ constructor(
                 submitted =
                     synchronized(processor) {
                         val requiredParameters = mutableMapOf<Any, Any?>()
-                        graphState3A.writeTo(requiredParameters)
+                        if (cameraGraphConfig.defaultParameters[
+                                CameraPipeKeys.ignore3ARequiredParameters] == true ||
+                            cameraGraphConfig.requiredParameters[
+                                CameraPipeKeys.ignore3ARequiredParameters] == true
+                        ) {
+                            info {
+                                "${CameraPipeKeys.ignore3ARequiredParameters} is set to true, " +
+                                    "ignoring 3A required parameters"
+                            }
+                        } else {
+                            graphState3A.writeTo(requiredParameters)
+                        }
                         requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
 
                         processor.submit(

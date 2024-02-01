@@ -138,6 +138,10 @@ public class CarContext extends ContextWrapper {
      * Manages posting suggestion events
      */
     public static final String SUGGESTION_SERVICE = "suggestion";
+
+    /**
+     * Manages the media requests from 3p apps such as providing a media session token,
+     */
     @ExperimentalCarApi
     public static final String MEDIA_PLAYBACK_SERVICE = "media_playback";
 

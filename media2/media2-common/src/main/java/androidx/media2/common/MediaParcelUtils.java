@@ -18,8 +18,6 @@ package androidx.media2.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -97,7 +95,6 @@ public class MediaParcelUtils {
     private MediaParcelUtils() {
     }
 
-    @SuppressLint("RestrictedApi")
     private static class MediaItemParcelImpl extends ParcelImpl {
         private final MediaItem mItem;
         MediaItemParcelImpl(MediaItem item) {

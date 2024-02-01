@@ -21,9 +21,8 @@ import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
 import com.google.gson.annotations.SerializedName
 
 /**
- * Data class that holds the schema information about an {@link Fts3 FTS3} or {@link Fts4 FTS4}
- * entity.
- *
+ * Data class that holds the schema information about an [androidx.room.Fts3] or
+ * [androidx.room.Fts4] entity.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FtsEntityBundle(

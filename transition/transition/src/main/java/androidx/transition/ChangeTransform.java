@@ -20,7 +20,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Matrix;
@@ -109,8 +108,6 @@ public class ChangeTransform extends Transition {
     public ChangeTransform() {
     }
 
-    @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
-    // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
     public ChangeTransform(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.CHANGE_TRANSFORM);
@@ -330,7 +327,7 @@ public class ChangeTransform extends Transition {
                 handleParentChange, mUseOverlay);
 
         animator.addListener(listener);
-        AnimatorUtils.addPauseListener(animator, listener);
+        animator.addPauseListener(listener);
         return animator;
     }
 
@@ -551,8 +548,7 @@ public class ChangeTransform extends Transition {
         }
     }
 
-    private static class Listener extends AnimatorListenerAdapter implements
-            AnimatorUtils.AnimatorPauseListenerCompat {
+    private static class Listener extends AnimatorListenerAdapter {
         private boolean mIsCanceled;
         private final Matrix mTempMatrix = new Matrix();
         private final boolean mHandleParentChange;

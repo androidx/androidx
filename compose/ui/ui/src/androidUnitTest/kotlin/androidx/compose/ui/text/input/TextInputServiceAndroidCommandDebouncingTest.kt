@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.text.input
 
 import android.view.View
@@ -235,7 +237,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
     }
 
     @Test
-    fun commandsAreIgnored_ifFocusLostBeforeProcessing() {
+    fun commandsAreNotIgnored_ifFocusLostBeforeProcessing() {
         // Send command while view still has focus.
         service.showSoftwareKeyboard()
         // Blur the view.
@@ -243,7 +245,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
         // Process the queued commands.
         scope.advanceUntilIdle()
 
-        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
     }
 
     @Test

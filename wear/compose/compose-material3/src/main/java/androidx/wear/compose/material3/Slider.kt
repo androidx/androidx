@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -51,6 +50,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.materialcore.InlineSliderButton
 import androidx.wear.compose.materialcore.RangeDefaults.calculateCurrentStepValue
 import androidx.wear.compose.materialcore.RangeDefaults.snapValueToStep
@@ -103,7 +103,6 @@ import kotlin.math.roundToInt
 @Composable
 fun InlineSlider(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     steps: Int,
     decreaseIcon: @Composable () -> Unit,
@@ -128,7 +127,6 @@ fun InlineSlider(
     ) {
         val visibleSegments = if (segmented) steps + 1 else 1
 
-        @Suppress("PrimitiveInLambda")
         val updateValue: (Int) -> Unit = { stepDiff ->
             val newValue = calculateCurrentStepValue(currentStep + stepDiff, steps, valueRange)
             if (newValue != value) onValueChange(newValue)
@@ -138,7 +136,10 @@ fun InlineSlider(
         val containerColor = colors.containerColor(enabled)
         val barSeparatorColor = colors.barSeparatorColor(enabled)
         CompositionLocalProvider(
-            LocalIndication provides rememberRipple(bounded = false, radius = this.maxWidth / 2)
+            LocalIndication provides rippleOrFallbackImplementation(
+                bounded = false,
+                radius = this.maxWidth / 2
+            )
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -167,7 +168,11 @@ fun InlineSlider(
 
                 val valueRatio by animateFloatAsState(
                     targetValue = currentStep.toFloat() / (steps + 1).toFloat(),
-                    animationSpec = tween(SHORT_3, 0, STANDARD_DECELERATE)
+                    animationSpec = tween(
+                        durationMillis = MotionTokens.DurationShort3,
+                        delayMillis = 0,
+                        easing = MotionTokens.EasingStandardDecelerate
+                    )
                 )
 
                 Box(
@@ -259,7 +264,6 @@ fun InlineSlider(
 @Composable
 fun InlineSlider(
     value: Int,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Int) -> Unit,
     valueProgression: IntProgression,
     decreaseIcon: @Composable () -> Unit,
@@ -509,8 +513,5 @@ private fun InlineSliderButtonContent(
     content: @Composable () -> Unit
 ) = CompositionLocalProvider(
     LocalContentColor provides buttonIconColor(enabled).value,
-    LocalContentAlpha provides if (enabled) {
-        LocalContentAlpha.current
-    } else ContentAlpha.disabled,
     content = content
 )

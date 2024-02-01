@@ -197,7 +197,7 @@ class KotlinMetadataElementTest(
             assertThat(
                 testClassElement.getDeclaredMethods().map {
                     it.simpleName.toString() to metadataElement.getFunctionMetadata(it)
-                        ?.isSuspend()
+                        ?.isSuspend
                 }
             ).containsExactly(
                 "emptyFunction" to false,

@@ -1,41 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0)" variant="all" version="8.1.0">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginStart`"
-        errorLine1="                mParams.setMarginStart(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginEnd`"
-        errorLine1="                mParams.setMarginEnd(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginStart`"
-        errorLine1="                mParams.setMarginStart(value);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginEnd`"
-        errorLine1="                mParams.setMarginEnd(value);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="BanTargetApiAnnotation"
@@ -47,17 +11,8 @@
     </issue>
 
     <issue
-        id="BanTargetApiAnnotation"
-        message="Use `@RequiresApi` instead of `@TargetApi`"
-        errorLine1="        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    Object val = method.invoke(view);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -66,7 +21,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mIntegerValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -75,7 +30,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mFloatValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -84,7 +39,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, drawable);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -93,7 +48,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mColorValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -102,7 +57,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mStringValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -111,7 +66,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mBooleanValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -120,7 +75,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mFloatValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -129,7 +84,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mIntegerValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -138,7 +93,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mIntegerValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -147,7 +102,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mFloatValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -156,7 +111,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, drawable);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -165,7 +120,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mColorValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -174,7 +129,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mStringValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -183,7 +138,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mBooleanValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -192,7 +147,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mFloatValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -201,7 +156,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, (int) value[0]);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -210,7 +165,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, value[0]);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -219,7 +174,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, drawable);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -228,7 +183,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, color);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -237,7 +192,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, value[0] > 0.5f);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -246,7 +201,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, value[0]);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -255,7 +210,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            method.invoke(call);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -264,7 +219,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, get(t));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -273,7 +228,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, get(t));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -282,7 +237,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, get(t, time, view, cache));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -327,96 +282,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            int paddingStart = Math.max(0, getPaddingStart());"
-        errorLine2="                                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            int paddingEnd = Math.max(0, getPaddingEnd());"
-        errorLine2="                                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return isRtlSupported &amp;&amp; (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());"
-        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());"
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());"
-        errorLine2="                                                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout.LayoutParams is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                isRtl = (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginStart(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginEnd(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginStart(value);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginEnd(value);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mView.setElevation(elevation);"
         errorLine2="                  ~~~~~~~~~~~~">
@@ -431,78 +296,6 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mParams.setMarginStart(margin);"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mParams.setMarginEnd(margin);"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        constraint.transform.translationZ = view.getTranslationZ();"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            constraint.transform.elevation = view.getElevation();"
-        errorLine2="                                                                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                layout.endMargin = param.getMarginEnd();"
-        errorLine2="                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                layout.startMargin = param.getMarginStart();"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                param.setMarginStart(layout.startMargin);"
-        errorLine2="                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                param.setMarginEnd(layout.endMargin);"
-        errorLine2="                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
@@ -526,8 +319,8 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        view.setTranslationZ(constraint.transform.translationZ);"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
+        errorLine1="                constraint.transform.translationZ = view.getTranslationZ();"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
@@ -535,19 +328,28 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            view.setElevation(constraint.transform.elevation);"
-        errorLine2="                                 ~~~~~~~~~~~~">
+        errorLine1="                    constraint.transform.elevation = view.getElevation();"
+        errorLine2="                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.helper.widget.Grid is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            v.setId(View.generateViewId());"
-        errorLine2="                         ~~~~~~~~~~~~~~">
+        message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    view.setTranslationZ(constraint.transform.translationZ);"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Grid.java"/>
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        view.setElevation(constraint.transform.elevation);"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
@@ -957,33 +759,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            Display display = getDisplay();"
-        errorLine2="                                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        int currentRotation = getDisplay().getRotation();"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout.Model is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    layoutParams.resolveLayoutDirection(getLayoutDirection());"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    target.setNestedScrollingEnabled(false);"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -996,15 +771,6 @@
         message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            target.setNestedScrollingEnabled(true);"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Display display = getDisplay();"
-        errorLine2="                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>

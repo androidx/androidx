@@ -23,6 +23,6 @@ import androidx.core.telecom.extensions.IActionsResultCallback;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IParticipantActions {
     // Contains participant action callbacks to VOIP app, to be accessed by the ICS side.
-    void raiseHand(in int participantId, in IActionsResultCallback cb) = 0;
+    void toggleHandRaised(in IActionsResultCallback cb) = 0;
     void kickParticipant(in int participantId, in IActionsResultCallback cb) = 1;
 }

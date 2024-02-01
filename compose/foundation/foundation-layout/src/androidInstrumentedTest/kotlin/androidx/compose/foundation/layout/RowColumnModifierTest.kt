@@ -195,30 +195,30 @@ class RowColumnModifierTest() {
                         repeat(5) { index ->
                             Box(
                                 Modifier
-                                .size(
-                                    20.toDp(), if (index == 4) {
-                                        10.toDp()
-                                    } else {
-                                        20.toDp()
+                                    .size(
+                                        20.toDp(), if (index == 4) {
+                                            10.toDp()
+                                        } else {
+                                            20.toDp()
+                                        }
+                                    )
+                                    .weight(1f, fill)
+                                    .onSizeChanged {
+                                        if (index > 0) {
+                                            Truth
+                                                .assertThat(it.width)
+                                                .isEqualTo(width)
+                                        } else {
+                                            width = it.width
+                                        }
                                     }
-                                )
-                                .weight(1f, fill)
-                                .onSizeChanged {
-                                    if (index > 0) {
-                                        Truth
-                                            .assertThat(it.width)
-                                            .isEqualTo(width)
-                                    } else {
-                                        width = it.width
-                                    }
-                                }
-                                .align(alignment)
-                                .onPlaced {
-                                    if (index == 4) {
-                                        val positionInParent = it.positionInParent()
-                                        positionInParentY = positionInParent.y
-                                    }
-                                })
+                                    .align(alignment)
+                                    .onPlaced {
+                                        if (index == 4) {
+                                            val positionInParent = it.positionInParent()
+                                            positionInParentY = positionInParent.y
+                                        }
+                                    })
                         }
                     }
                 }
@@ -396,31 +396,31 @@ class RowColumnModifierTest() {
                         repeat(5) { index ->
                             Box(
                                 Modifier
-                                .size(
-                                    if (index == 4) {
-                                        10.toDp()
-                                    } else {
-                                        20.toDp()
-                                    },
-                                    20.toDp(),
-                                )
-                                .weight(1f, fill)
-                                .onSizeChanged {
-                                    if (index > 0) {
-                                        Truth
-                                            .assertThat(it.height)
-                                            .isEqualTo(height)
-                                    } else {
-                                        height = it.height
+                                    .size(
+                                        if (index == 4) {
+                                            10.toDp()
+                                        } else {
+                                            20.toDp()
+                                        },
+                                        20.toDp(),
+                                    )
+                                    .weight(1f, fill)
+                                    .onSizeChanged {
+                                        if (index > 0) {
+                                            Truth
+                                                .assertThat(it.height)
+                                                .isEqualTo(height)
+                                        } else {
+                                            height = it.height
+                                        }
                                     }
-                                }
-                                .align(alignment)
-                                .onPlaced {
-                                    if (index == 4) {
-                                        val positionInParent = it.positionInParent()
-                                        positionInParentX = positionInParent.x
-                                    }
-                                })
+                                    .align(alignment)
+                                    .onPlaced {
+                                        if (index == 4) {
+                                            val positionInParent = it.positionInParent()
+                                            positionInParentX = positionInParent.x
+                                        }
+                                    })
                         }
                     }
                 }

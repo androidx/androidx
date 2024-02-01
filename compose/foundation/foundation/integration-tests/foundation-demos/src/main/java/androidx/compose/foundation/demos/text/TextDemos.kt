@@ -21,14 +21,18 @@ import androidx.compose.foundation.demos.text2.BasicTextField2CustomPinFieldDemo
 import androidx.compose.foundation.demos.text2.BasicTextField2Demos
 import androidx.compose.foundation.demos.text2.BasicTextField2FilterDemos
 import androidx.compose.foundation.demos.text2.BasicTextField2LongTextDemo
+import androidx.compose.foundation.demos.text2.BasicTextField2OutputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextField2ValueCallbackDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardActionsDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
+import androidx.compose.foundation.demos.text2.NestedReceiveContentDemo
 import androidx.compose.foundation.demos.text2.ScrollableDemos
 import androidx.compose.foundation.demos.text2.ScrollableDemosRtl
 import androidx.compose.foundation.demos.text2.SwapFieldSameStateDemo
+import androidx.compose.foundation.demos.text2.TextField2CursorNotBlinkingInUnfocusedWindowDemo
 import androidx.compose.foundation.demos.text2.TextFieldLineLimitsDemos
+import androidx.compose.foundation.demos.text2.TextFieldReceiveContentDemo
 import androidx.compose.foundation.samples.BasicTextField2UndoSample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
@@ -41,6 +45,7 @@ val TextDemos = DemoCategory(
             "Text Canvas",
             listOf(
                 ComposableDemo("Brush") { TextBrushDemo() },
+                ComposableDemo("Brush Span") { BrushAnimatingSpanDemo() },
                 ComposableDemo("drawText") { DrawTextDemo() },
                 ComposableDemo("Stroke") { TextStrokeDemo() }
             )
@@ -81,13 +86,15 @@ val TextDemos = DemoCategory(
                             TextOverflowVisibleInPopupDemo()
                         },
                         ComposableDemo("Min/max lines") { BasicTextMinMaxLinesDemo() },
+                        ComposableDemo("Get last character after clip") {
+                            LastClippedCharacterDemo()
+                        }
                     )
                 ),
                 ComposableDemo("IncludeFontPadding & Clip") { TextFontPaddingDemo() },
                 ComposableDemo("Line Height Behavior") { TextLineHeightDemo() },
                 ComposableDemo("Layout Reuse") { TextReuseLayoutDemo() },
                 ComposableDemo("Multi paragraph") { MultiParagraphDemo() },
-                ComposableDemo("Interactive text") { InteractiveTextDemo() },
             )
         ),
         DemoCategory(
@@ -107,7 +114,15 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Capitalization/AutoCorrect") {
                     CapitalizationAutoCorrectDemo()
                 },
-                ComposableDemo("Cursor configuration") { TextFieldCursorBlinkingDemo() },
+                DemoCategory(
+                    "Cursor",
+                    listOf(
+                        ComposableDemo("Cursor configuration") { TextFieldCursorBlinkingDemo() },
+                        ComposableDemo("Unfocused window") {
+                            CursorNotBlinkingInUnfocusedWindowDemo()
+                        }
+                    )
+                ),
                 DemoCategory(
                     "Focus",
                     listOf(
@@ -133,6 +148,7 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Tail Following Text Field") { TailFollowingTextFieldDemo() },
                 ComposableDemo("Secondary input system") { PlatformTextInputAdapterDemo() },
                 ComposableDemo("Read-only field") { ReadOnlyTextFieldDemo() },
+                ComposableDemo("Interop") { InteropTextFieldDemo() }
             )
         ),
         DemoCategory(
@@ -149,11 +165,19 @@ val TextDemos = DemoCategory(
                     ComposableDemo("Rtl") { ScrollableDemosRtl() },
                 )),
                 ComposableDemo("Filters") { BasicTextField2FilterDemos() },
+                DemoCategory("Receive Content", listOf(
+                    ComposableDemo("Basic") { TextFieldReceiveContentDemo() },
+                    ComposableDemo("Nested") { NestedReceiveContentDemo() },
+                )),
+                ComposableDemo("Output transformation") {
+                    BasicTextField2OutputTransformationDemos()
+                },
                 ComposableDemo("Secure Field") { BasicSecureTextFieldDemos() },
                 ComposableDemo("Swap the field but reuse the state") { SwapFieldSameStateDemo() },
                 ComposableDemo("Custom PIN field") { BasicTextField2CustomPinFieldDemo() },
                 ComposableDemo("Undo/Redo") { BasicTextField2UndoSample() },
                 ComposableDemo("Long text") { BasicTextField2LongTextDemo() },
+                ComposableDemo("Cursor") { TextField2CursorNotBlinkingInUnfocusedWindowDemo() }
             )
         ),
         DemoCategory(
@@ -168,6 +192,7 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Selection Minimum Touch Target") {
                     MinTouchTargetTextSelection()
                 },
+                ComposableDemo("Selection & DropdownMenu") { DropdownMenuSelection() },
             )
         ),
         DemoCategory(
@@ -177,6 +202,14 @@ val TextDemos = DemoCategory(
                 ComposableDemo("\uD83D\uDD75️ IfNotEmptyText") { MemoryAllocsIfNotEmptyText() },
                 ComposableDemo("\uD83E\uDDA5 LazyList reuse") { MemoryAllocsLazyList() }
             )
+        ),
+        DemoCategory(
+            "Interactive text",
+            listOf(
+                ComposableDemo("ClickableText with hover") { InteractiveTextDemo() },
+                ComposableDemo("\uD83D\uDD17 Hyperlinks") { Hyperlinks() }
+            )
         )
+
     )
 )

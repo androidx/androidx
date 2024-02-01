@@ -46,6 +46,10 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -53,11 +57,15 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -547,6 +555,105 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag("MenuContent 100").assertIsDisplayed()
     }
 
+    @Test
+    fun edm_hasDropdownSemantics() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuBox(
+                expanded = false,
+                onExpandedChange = { },
+            ) {
+                TextField(
+                    modifier = Modifier.menuAnchor(),
+                    value = "",
+                    onValueChange = { },
+                    label = { Text("Label") },
+                    readOnly = true,
+                )
+                ExposedDropdownMenu(
+                    expanded = false,
+                    onDismissRequest = { },
+                ) {
+                    Text("Menu Item")
+                }
+            }
+        }
+
+        rule.onNodeWithText("Label")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList))
+    }
+
+    @Test
+    fun edm_positionProvider() {
+        val topWindowInsets = 50
+        val density = Density(1f)
+        val anchorSize = IntSize(width = 200, height = 100)
+        val popupSize = IntSize(width = 200, height = 340)
+        val windowSize = IntSize(width = 500, height = 500)
+        val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
+        val layoutDirection = LayoutDirection.Ltr
+
+        val edmPositionProvider = ExposedDropdownMenuPositionProvider(
+            density = density,
+            topWindowInsets = topWindowInsets,
+        )
+
+        // typical case
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(
+                    size = anchorSize,
+                    offset = IntOffset(0, 0),
+                ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        ).isEqualTo(IntOffset(0, anchorSize.height))
+
+        // off-screen (above)
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(
+                    size = anchorSize,
+                    offset = IntOffset(0, -150),
+                ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        ).isEqualTo(IntOffset(0, verticalMargin))
+
+        // interacting with window insets
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(
+                    size = anchorSize,
+                    // If it weren't for topWindowInsets allowance,
+                    // the menu would be considered "off-screen"
+                    offset = IntOffset(0, 100),
+                ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        ).isEqualTo(IntOffset(0, 100 + anchorSize.height))
+
+        // off-screen (below)
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(
+                    size = anchorSize,
+                    offset = IntOffset(0, windowSize.height + 100),
+                ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        ).isEqualTo(
+            IntOffset(0, windowSize.height + topWindowInsets - verticalMargin - popupSize.height)
+        )
+    }
+
     @Composable
     fun ExposedDropdownMenuForTest(
         expanded: Boolean,
@@ -559,7 +666,7 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuBox(
                 modifier = Modifier.align(Alignment.Center),
                 expanded = expanded,
-                onExpandedChange = { onExpandChange(!expanded) }
+                onExpandedChange = onExpandChange,
             ) {
                 TextField(
                     modifier = Modifier

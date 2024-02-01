@@ -21,9 +21,13 @@ package androidx.compose.ui.text.font
  *  @see Font
  *  @see FontFamily
  */
-// TODO(b/205312869) This constructor should not be public as it leads to FontStyle([cursor]) in AS
 @kotlin.jvm.JvmInline
-value class FontStyle(val value: Int) {
+value class FontStyle
+@Deprecated(
+    "Please use FontStyle.Normal or FontStyle.Italic",
+    replaceWith = ReplaceWith("FontStyle.")
+)
+constructor(val value: Int) {
 
     override fun toString(): String {
         return when (this) {
@@ -35,9 +39,11 @@ value class FontStyle(val value: Int) {
 
     companion object {
         /** Use the upright glyphs */
+        @Suppress("DEPRECATION")
         val Normal = FontStyle(0)
 
         /** Use glyphs designed for slanting */
+        @Suppress("DEPRECATION")
         val Italic = FontStyle(1)
 
         /** Returns a list of possible values of [FontStyle]. */

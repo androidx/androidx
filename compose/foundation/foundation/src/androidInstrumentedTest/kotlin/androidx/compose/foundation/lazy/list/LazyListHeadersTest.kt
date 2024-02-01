@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.list
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -455,6 +456,48 @@ class LazyListHeadersTest {
 
         rule.onNodeWithTag("0")
             .assertTopPositionInRootIsEqualTo(itemIndexDp * 3 / 2)
+    }
+
+    @Test
+    fun lazyColumnShowsHeader_withoutBeyondBoundsItemCount2() {
+        val firstHeaderTag = "firstHeaderTag"
+        val secondHeaderTag = "secondHeaderTag"
+        val itemSizeDp = with(rule.density) { 100.toDp() }
+        val scrollDistance = 20
+        val scrollDistanceDp = with(rule.density) { scrollDistance.toDp() }
+        val state = LazyListState()
+
+        rule.setContent {
+            LazyColumn(Modifier.height(itemSizeDp * 3.5f), state) {
+                stickyHeader {
+                    Spacer(
+                        Modifier.height(itemSizeDp).fillParentMaxWidth()
+                            .testTag(firstHeaderTag)
+                    )
+                }
+                stickyHeader {
+                    Spacer(
+                        Modifier.height(itemSizeDp).fillParentMaxWidth()
+                            .testTag(secondHeaderTag)
+                    )
+                }
+
+                items(100) {
+                    Spacer(Modifier.height(itemSizeDp).fillParentMaxWidth().testTag(it.toString()))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking { state.scrollBy(scrollDistance.toFloat()) }
+        }
+
+        rule.onNodeWithTag(firstHeaderTag)
+            .assertTopPositionInRootIsEqualTo(-scrollDistanceDp)
+        rule.onNodeWithTag(secondHeaderTag)
+            .assertTopPositionInRootIsEqualTo(itemSizeDp - scrollDistanceDp)
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(itemSizeDp * 2 - scrollDistanceDp)
     }
 }
 

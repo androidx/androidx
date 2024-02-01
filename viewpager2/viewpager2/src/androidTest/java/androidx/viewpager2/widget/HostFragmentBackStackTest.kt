@@ -25,7 +25,6 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -53,7 +52,7 @@ class HostFragmentBackStackTest : BaseTest() {
     fun test_sameFragment_multipleBackStackEntries() {
         @Suppress("DEPRECATION")
         FragmentManager.enableDebugLogging(true)
-        val containerId = ViewCompat.generateViewId()
+        val containerId = View.generateViewId()
         setUpTest(ORIENTATION_HORIZONTAL).apply {
             val container: ViewGroup = FrameLayout(activity).apply {
                 id = containerId

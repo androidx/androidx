@@ -301,10 +301,12 @@ public final class CameraX {
 
                 CameraSelector availableCamerasLimiter =
                         mCameraXConfig.getAvailableCamerasLimiter(null);
-                long cameraOpenRetryMaxTimeoutInMs =
-                        mCameraXConfig.getCameraOpenRetryMaxTimeoutInMsWhileResuming(-1L);
+                long cameraOpenRetryMaxTimeoutInMillis =
+                        mCameraXConfig.getCameraOpenRetryMaxTimeoutInMillisWhileResuming();
                 mCameraFactory = cameraFactoryProvider.newInstance(mAppContext,
-                        cameraThreadConfig, availableCamerasLimiter, cameraOpenRetryMaxTimeoutInMs);
+                        cameraThreadConfig,
+                        availableCamerasLimiter,
+                        cameraOpenRetryMaxTimeoutInMillis);
                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                         mCameraXConfig.getDeviceSurfaceManagerProvider(null);
                 if (surfaceManagerProvider == null) {

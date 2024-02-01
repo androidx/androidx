@@ -24,4 +24,5 @@ import androidx.compose.runtime.ReadOnlyComposable
  */
 @Composable
 @ReadOnlyComposable
+@OptIn(ExperimentalMaterial3Api::class)
 internal actual fun defaultLocale(): CalendarLocale = java.util.Locale.getDefault()

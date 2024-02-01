@@ -33,14 +33,22 @@ import java.util.concurrent.Executor;
 
 /**
  * Browses media content offered by a {@link MediaLibraryService}.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class MediaBrowser extends MediaController {
     static final String TAG = "MediaBrowser";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * Callback to listen events from {@link MediaLibraryService}.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static class BrowserCallback extends MediaController.ControllerCallback {
         /**
          * Called when there's change in the parent's children after you've subscribed to the parent
@@ -294,17 +302,20 @@ public class MediaBrowser extends MediaController {
 
     /**
      * Builder for {@link MediaBrowser}.
-     * <p>
-     * To set the token of the session for the controller to connect to, one of the
-     * {@link #setSessionToken(SessionToken)} or
-     * {@link #setSessionCompatToken(MediaSessionCompat.Token)} should be called.
-     * Otherwise, the {@link #build()} will throw an {@link IllegalArgumentException}.
-     * <p>
-     * Any incoming event from the {@link MediaSession} will be handled on the callback
-     * executor.
+     *
+     * <p>To set the token of the session for the controller to connect to, one of the {@link
+     * #setSessionToken(SessionToken)} or {@link #setSessionCompatToken(MediaSessionCompat.Token)}
+     * should be called. Otherwise, the {@link #build()} will throw an {@link
+     * IllegalArgumentException}.
+     *
+     * <p>Any incoming event from the {@link MediaSession} will be handled on the callback executor.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
-    public static final class Builder extends
-            BuilderBase<MediaBrowser, MediaBrowser.Builder, BrowserCallback> {
+    @Deprecated
+    public static final class Builder
+            extends BuilderBase<MediaBrowser, MediaBrowser.Builder, BrowserCallback> {
         public Builder(@NonNull Context context) {
             super(context);
         }

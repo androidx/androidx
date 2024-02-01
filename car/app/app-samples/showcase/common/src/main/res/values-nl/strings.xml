@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Routeopties"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Snelwegen vermijden"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Veerboten vermijden"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Kaartdemo\'s"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kaart met contentdemo\'s"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Kaart met demo berichtentemplate"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Kaart met demo rastertemplate"</string>
 </resources>

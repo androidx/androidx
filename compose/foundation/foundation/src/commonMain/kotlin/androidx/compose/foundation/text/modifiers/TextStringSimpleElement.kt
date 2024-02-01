@@ -20,15 +20,14 @@ import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
- * Modifier element for any Text with [AnnotatedString] or [onTextLayout] parameters
+ * Modifier element for String based text
  *
- * This is slower than [TextAnnotatedStringElement]
+ * This is faster than [TextAnnotatedStringElement]
  */
 internal class TextStringSimpleElement(
     private val text: String,

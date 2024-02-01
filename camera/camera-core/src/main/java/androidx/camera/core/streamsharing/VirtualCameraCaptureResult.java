@@ -115,6 +115,20 @@ public class VirtualCameraCaptureResult implements CameraCaptureResult {
                 CameraCaptureMetaData.FlashState.UNKNOWN;
     }
 
+    @NonNull
+    @Override
+    public CameraCaptureMetaData.AeMode getAeMode() {
+        return mBaseCameraCaptureResult != null ? mBaseCameraCaptureResult.getAeMode() :
+                CameraCaptureMetaData.AeMode.UNKNOWN;
+    }
+
+    @NonNull
+    @Override
+    public CameraCaptureMetaData.AwbMode getAwbMode() {
+        return mBaseCameraCaptureResult != null ? mBaseCameraCaptureResult.getAwbMode() :
+                CameraCaptureMetaData.AwbMode.UNKNOWN;
+    }
+
     @Override
     public long getTimestamp() {
         if (mBaseCameraCaptureResult != null) {

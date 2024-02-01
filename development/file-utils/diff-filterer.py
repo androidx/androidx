@@ -20,15 +20,19 @@ import datetime, filecmp, math, multiprocessing, os, shutil, subprocess, stat, s
 from collections import OrderedDict
 
 def usage():
-  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--assume-input-states-are-correct] [--work-path <workpath>] [--num-jobs <count>] [--timeout <seconds>] [--debug] <passingPath> <failingPath> <shellCommand>
+  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--assume-input-states-are-correct] [--allow-goal-passing] [--work-path <workpath>] [--num-jobs <count>] [--timeout <seconds>] [--debug] <passingPath> <goalPath> <shellCommand>
 
-diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <failingPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
+diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <goalPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
 
 OPTIONS
   --assume-no-side-effects
     Assume that the given shell command does not make any (relevant) changes to the given directory, and therefore don't wipe and repopulate the directory before each invocation of the command
   --assume-input-states-are-correct
-    Assume that <shellCommand> passes in <passingPath> and fails in <failingPath> rather than re-verifying this
+    Assume that <shellCommand> passes in <passingPath> and fails in <goalPath> rather than re-verifying this
+  --allow-goal-passing
+    If <goalPath> passes the test, report it as the best result rather than reporting an error.
+    Usually it's a mistake to pass a passing state as the goal path, because then the passing state is the best result. This usually means the inputs might be reversed or mistaken. It also means that the binary search is very short.
+    In some cases this can make sense if the caller hasn't already checked whether the goal state passes.
   --work-path <filepath>
     File path to use as the work directory for testing the shell command
     This file path will be overwritten and modified as needed for testing purposes, and will also be the working directory of the shell command when it is run
@@ -551,7 +555,7 @@ class Job(object):
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
 class DiffRunner(object):
-  def __init__(self, failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce, timeoutSeconds):
+  def __init__(self, failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, allowGoalPassing, maxNumJobsAtOnce, timeoutSeconds):
     # some simple params
     self.workPath = os.path.abspath(workPath)
     self.bestState_path = fileIo.join(self.workPath, "bestResults")
@@ -563,6 +567,7 @@ class DiffRunner(object):
     self.originalFailingPath = os.path.abspath(failingPath)
     self.assumeNoSideEffects = assumeNoSideEffects
     self.assumeInputStatesAreCorrect = assumeInputStatesAreCorrect
+    self.allowGoalPassing = allowGoalPassing
     self.timeoutSeconds = timeoutSeconds
 
     # lists of all the files under the two dirs
@@ -599,9 +604,8 @@ class DiffRunner(object):
                 raise Exception("Failed to remove " + path, e)
 
   def runnerTest(self, testState, timeout = None):
+    self.cleanupTempDirs()
     workPath = self.getWorkPath(0)
-    # reset state if needed
-    fileIo.removePath(workPath)
     testState.apply(workPath)
     start = datetime.datetime.now()
     returnCode = ShellScript(self.testScript_path, workPath).process()
@@ -644,7 +648,13 @@ class DiffRunner(object):
       print("Testing that the given failing state actually fails")
       fileIo.removePath(workPath)
       if self.runnerTest(self.originalFailingState)[0]:
-        print("\nGiven failing state at " + self.originalFailingPath + " does not actually fail!")
+        if self.allowGoalPassing:
+          print("\nGiven goal state at " + self.originalFailingPath + " passes, so it is the best result")
+          self.cleanupTempDirs()
+          fileIo.removePath(self.bestState_path)
+          self.originalFailingState.apply(self.bestState_path)
+          return True
+        print("\nGiven goal state at " + self.originalFailingPath + " does not fail! Pass --allow-goal-passing if this is intentional")
         return False
       # clean up temporary dirs in case any daemons remain running
       self.cleanupTempDirs()
@@ -901,6 +911,7 @@ class DiffRunner(object):
 def main(args):
   assumeNoSideEffects = False
   assumeInputStatesAreCorrect = False
+  allowGoalPassing = False
   workPath = "/tmp/diff-filterer"
   timeoutSeconds = None
   maxNumJobsAtOnce = 1
@@ -912,6 +923,10 @@ def main(args):
       continue
     if arg == "--assume-input-states-are-correct":
       assumeInputStatesAreCorrect = True
+      args = args[1:]
+      continue
+    if arg == "--allow-goal-passing":
+      allowGoalPassing = True
       args = args[1:]
       continue
     if arg == "--work-path":
@@ -958,7 +973,7 @@ def main(args):
   if not os.path.exists(failingPath):
     print("Specified failing path " + failingPath + " does not exist")
     sys.exit(1)
-  success = DiffRunner(failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce, timeoutSeconds).run()
+  success = DiffRunner(failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, allowGoalPassing, maxNumJobsAtOnce, timeoutSeconds).run()
   endTime = datetime.datetime.now()
   duration = endTime - startTime
   if success:

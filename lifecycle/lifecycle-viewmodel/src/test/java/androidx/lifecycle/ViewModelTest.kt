@@ -16,7 +16,6 @@
 package androidx.lifecycle
 
 import java.io.Closeable
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertTrue
@@ -40,34 +39,27 @@ class ViewModelTest {
         androidx.lifecycle.ViewModel(closeable)
 
     @Test
-    fun testCloseableTag() {
+    fun testCloseableWithKey() {
         val vm = ViewModel()
         val impl = CloseableImpl()
-        vm.setTagIfAbsent("totally_not_coroutine_context", impl)
+        vm.addCloseable("totally_not_coroutine_context", impl)
         vm.clear()
         assertTrue(impl.wasClosed)
     }
 
     @Test
-    fun testCloseableTagAlreadyClearedVM() {
+    fun testCloseableWithKeyAlreadyClearedVM() {
         val vm = ViewModel()
         vm.clear()
         val impl = CloseableImpl()
-        vm.setTagIfAbsent("key", impl)
+        vm.addCloseable("key", impl)
         assertTrue(impl.wasClosed)
     }
 
     @Test
-    fun testAlreadyAssociatedKey() {
-        val vm = ViewModel()
-        assertThat(vm.setTagIfAbsent("key", "first"), `is`("first"))
-        assertThat(vm.setTagIfAbsent("key", "second"), `is`("first"))
-    }
-
-    @Test
-    fun testMockedGetTag() {
+    fun testMockedGetCloseable() {
         val vm = Mockito.mock(ViewModel::class.java)
-        assertThat(vm.getTag("Careless mocks =|"), nullValue())
+        assertThat(vm.getCloseable("Careless mocks =|"), nullValue())
     }
 
     @Test

@@ -20,6 +20,8 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.view.SurfaceView
+import android.view.TextureView
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -36,6 +38,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
@@ -181,6 +184,23 @@ class BasicUITest(
 
                 // Assert. Verify the Preview is processing output.
                 scenario.waitForViewfinderIdle()
+            }
+        }
+    }
+
+    @Test
+    fun testDefaultViewFinderImplementation() {
+        ActivityScenario.launch<CameraXActivity>(launchIntent).use { scenario ->
+            // Arrange.
+            // Wait for the Activity to be created and Preview appears before starting the test.
+            scenario.waitForViewfinderIdle()
+
+            scenario.withActivity {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    assertThat(viewFinder).isInstanceOf(SurfaceView::class.java)
+                } else {
+                    assertThat(viewFinder).isInstanceOf(TextureView::class.java)
+                }
             }
         }
     }

@@ -2,6 +2,14 @@
 package androidx.compose.ui.tooling.preview {
 
   public final class Devices {
+    method @Deprecated public String getWEAR_OS_LARGE_ROUND();
+    method @Deprecated public String getWEAR_OS_RECT();
+    method @Deprecated public String getWEAR_OS_SMALL_ROUND();
+    method @Deprecated public String getWEAR_OS_SQUARE();
+    property @Deprecated public String WEAR_OS_LARGE_ROUND;
+    property @Deprecated public String WEAR_OS_RECT;
+    property @Deprecated public String WEAR_OS_SMALL_ROUND;
+    property @Deprecated public String WEAR_OS_SQUARE;
     field public static final String AUTOMOTIVE_1024p = "id:automotive_1024p_landscape";
     field public static final String DEFAULT = "";
     field public static final String DESKTOP = "spec:id=reference_desktop,shape=Normal,width=1920,height=1080,unit=dp,dpi=160";

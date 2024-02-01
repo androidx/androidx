@@ -18,11 +18,8 @@ package androidx.webkit.internal;
 
 import static org.chromium.support_lib_boundary.WebMessagePayloadBoundaryInterface.WebMessagePayloadType;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 
@@ -59,7 +56,6 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
         return mWebMessageCompat.getData();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     @Nullable
     public InvocationHandler getMessagePayload() {

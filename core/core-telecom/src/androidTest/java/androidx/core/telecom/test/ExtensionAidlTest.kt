@@ -56,8 +56,10 @@ class ExtensionAidlTest {
     class CapabilityExchangeListenerImpl(
         val createParticipantExtension: (Int, IntArray?, IParticipantStateListener?) -> Unit =
             { _: Int, _: IntArray?, _: IParticipantStateListener? -> },
-        val createCallDetailsExtension: (Int, IntArray?, ICallDetailsListener?) -> Unit =
-            { _: Int, _: IntArray?, _: ICallDetailsListener? -> }
+        val createCallDetailsExtension: (Int, IntArray?, ICallDetailsListener?, String) -> Unit =
+            { _: Int, _: IntArray?, _: ICallDetailsListener?, _: String -> },
+        val unsubscribeFromParticipantExtensionUpdatse: () -> Unit = {},
+        val unsubscribeFromCallDetailsExtensionUpdates: () -> Unit = {}
     ) : ICapabilityExchangeListener.Stub() {
         override fun onCreateParticipantExtension(
             version: Int,
@@ -70,9 +72,15 @@ class ExtensionAidlTest {
         override fun onCreateCallDetailsExtension(
             version: Int,
             actions: IntArray?,
-            l: ICallDetailsListener?
+            l: ICallDetailsListener?,
+            packageName: String
         ) {
-            createCallDetailsExtension(version, actions, l)
+            createCallDetailsExtension(version, actions, l, packageName)
+        }
+
+        override fun onRemoveExtensions() {
+            unsubscribeFromParticipantExtensionUpdatse()
+            unsubscribeFromCallDetailsExtensionUpdates()
         }
     }
 

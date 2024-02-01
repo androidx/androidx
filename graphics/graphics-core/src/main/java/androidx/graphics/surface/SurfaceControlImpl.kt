@@ -89,7 +89,6 @@ internal interface SurfaceControlImpl {
     }
 
     @JvmDefaultWithCompatibility
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     interface Transaction : AutoCloseable {
 
         /**
@@ -322,10 +321,28 @@ internal interface SurfaceControlImpl {
         /**
          * See [SurfaceControlCompat.Transaction.setDataSpace]
          */
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         fun setDataSpace(
             surfaceControl: SurfaceControlImpl,
             dataSpace: Int
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setFrameRate]
+         */
+        @RequiresApi(Build.VERSION_CODES.R)
+        fun setFrameRate(
+            scImpl: SurfaceControlImpl,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.clearFrameRate]
+         */
+        @RequiresApi(Build.VERSION_CODES.R)
+        fun clearFrameRate(
+            scImpl: SurfaceControlImpl,
         ): Transaction
 
         /**

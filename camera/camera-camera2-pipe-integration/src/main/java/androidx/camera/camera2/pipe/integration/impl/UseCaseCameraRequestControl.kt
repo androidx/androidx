@@ -33,7 +33,6 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.ImageCapture
@@ -157,7 +156,6 @@ interface UseCaseCameraRequestControl {
 
 @UseCaseCameraScope
 class UseCaseCameraRequestControlImpl @Inject constructor(
-    private val configAdapter: CaptureConfigAdapter,
     private val capturePipeline: CapturePipeline,
     private val state: UseCaseCameraState,
     private val useCaseGraphConfig: UseCaseGraphConfig,
@@ -289,13 +287,9 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         }.let { infoBundle ->
             debug { "UseCaseCameraRequestControl: Submitting still captures to capture pipeline" }
             capturePipeline.submitStillCaptures(
-                requests = captureSequence.map {
-                    configAdapter.mapToRequest(
-                        captureConfig = it,
-                        requestTemplate = infoBundle.template!!,
-                        sessionConfigOptions = infoBundle.options.build()
-                    )
-                },
+                configs = captureSequence,
+                requestTemplate = infoBundle.template!!,
+                sessionConfigOptions = infoBundle.options.build(),
                 captureMode = captureMode,
                 flashType = flashType,
                 flashMode = flashMode,

@@ -17,48 +17,23 @@
 package androidx.emoji2.emojipicker
 
 import android.content.Context
-import android.view.Gravity
-import android.view.LayoutInflater
+import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup.LayoutParams
-import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.widget.GridLayout
-import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import kotlin.math.roundToInt
 
 /** A [ViewHolder] containing an emoji view and emoji data.  */
 internal class EmojiViewHolder(
     context: Context,
     width: Int,
     height: Int,
-    private val layoutInflater: LayoutInflater,
     private val stickyVariantProvider: StickyVariantProvider,
     private val onEmojiPickedListener: EmojiViewHolder.(EmojiViewItem) -> Unit,
     private val onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
 ) : ViewHolder(EmojiView(context)) {
     private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
-        showPopupWindow(context) {
-            PopupViewHelper(context).fillPopupView(
-                it,
-                emojiView.measuredWidth,
-                emojiView.measuredHeight,
-                emojiViewItem.variants,
-                clickListener = { view ->
-                    val emojiPickedInPopup = (view as EmojiView).emoji.toString()
-                    onEmojiPickedFromPopupListener(emojiPickedInPopup)
-                    onEmojiPickedListener(makeEmojiViewItem(emojiPickedInPopup))
-                    // variants[0] is always the base (i.e., primary) emoji
-                    stickyVariantProvider.update(emojiViewItem.variants[0], emojiPickedInPopup)
-                    dismiss()
-                    // Hover on the base emoji after popup dismissed
-                    emojiView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
-                }
-            )
-        }
-        true
+        targetEmojiView -> showEmojiPopup(context, targetEmojiView)
     }
 
     private val emojiView: EmojiView = (itemView as EmojiView).apply {
@@ -70,7 +45,7 @@ internal class EmojiViewHolder(
         }
     }
     private lateinit var emojiViewItem: EmojiViewItem
-
+    private lateinit var emojiPickerPopupViewController: EmojiPickerPopupViewController
     fun bindEmoji(
         emoji: String,
     ) {
@@ -86,45 +61,23 @@ internal class EmojiViewHolder(
         }
     }
 
-    private fun showPopupWindow(
-        context: Context,
-        init: PopupWindow.(GridLayout) -> Unit
-    ) {
-        val popupView = layoutInflater
-            .inflate(R.layout.variant_popup, null, false)
-            .findViewById<GridLayout>(R.id.variant_popup)
-        PopupWindow(popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, false).apply {
-            init(popupView)
-            val location = IntArray(2)
-            emojiView.getLocationInWindow(location)
-            // Make the popup view center align with the target emoji view.
-            val x =
-                location[0] + emojiView.width / 2f - popupView.columnCount * emojiView.width / 2f
-            val y =
-                location[1] - popupView.rowCount * emojiView.height -
-                    popupView.paddingBottom - popupView.paddingTop
-            // Set background drawable so that the popup window is dismissed properly when clicking
-            // outside / scrolling for API < 23.
-            setBackgroundDrawable(context.getDrawable(R.drawable.popup_view_rounded_background))
-            isOutsideTouchable = true
-            isTouchable = true
-            animationStyle = R.style.VariantPopupAnimation
-            elevation =
-                emojiView.context.resources
-                    .getDimensionPixelSize(R.dimen.emoji_picker_popup_view_elevation)
-                    .toFloat()
-            try {
-                showAtLocation(
-                    emojiView,
-                    Gravity.NO_GRAVITY,
-                    x.roundToInt(),
-                    y
-                )
-            } catch (e: WindowManager.BadTokenException) {
-                Toast.makeText(
-                    context, "Don't use EmojiPickerView inside a Popup", Toast.LENGTH_LONG).show()
-            }
-        }
+    private fun showEmojiPopup(context: Context, clickedEmojiView: View): Boolean {
+        val emojiPickerPopupView = EmojiPickerPopupView(
+            context, /* attrs= */null, targetEmojiView = clickedEmojiView,
+            variants = emojiViewItem.variants, emojiViewOnClickListener = { view ->
+                val emojiPickedInPopup = (view as EmojiView).emoji.toString()
+                onEmojiPickedFromPopupListener(emojiPickedInPopup)
+                onEmojiPickedListener(makeEmojiViewItem(emojiPickedInPopup))
+                // variants[0] is always the base (i.e., primary) emoji
+                stickyVariantProvider.update(emojiViewItem.variants[0], emojiPickedInPopup)
+                emojiPickerPopupViewController.dismiss()
+                // Hover on the base emoji after popup dismissed
+                clickedEmojiView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
+            })
+        emojiPickerPopupViewController = EmojiPickerPopupViewController(
+            context, emojiPickerPopupView, clickedEmojiView)
+        emojiPickerPopupViewController.show()
+        return true
     }
 
     private fun makeEmojiViewItem(emoji: String) =

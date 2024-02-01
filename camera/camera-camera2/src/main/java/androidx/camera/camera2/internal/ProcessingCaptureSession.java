@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +40,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.OutputSurface;
+import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.SessionProcessorSurface;
@@ -48,6 +48,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -102,8 +103,6 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     private static List<DeferrableSurface> sHeldProcessorSurfaces = new ArrayList<>();
     @Nullable
     private volatile List<CaptureConfig> mPendingCaptureConfigs = null;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    volatile boolean mIsExecutingStillCaptureRequest = false;
     private final SessionProcessorCaptureCallback mSessionProcessorCaptureCallback;
 
     private CaptureRequestOptions mSessionOptions = new CaptureRequestOptions.Builder().build();
@@ -176,31 +175,36 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                             OutputSurface previewOutputSurface = null;
                             OutputSurface captureOutputSurface = null;
                             OutputSurface analysisOutputSurface = null;
+                            OutputSurface postviewOutputSurface = null;
 
                             for (int i = 0; i < sessionConfig.getSurfaces().size(); i++) {
                                 DeferrableSurface dSurface = sessionConfig.getSurfaces().get(i);
-                                if (Objects.equals(dSurface.getContainerClass(),
-                                        Preview.class)) {
+                                if (isPreview(dSurface) || isStreamSharing(dSurface)) {
                                     previewOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
-                                            new Size(dSurface.getPrescribedSize().getWidth(),
-                                                    dSurface.getPrescribedSize().getHeight()),
+                                            dSurface.getPrescribedSize(),
                                             dSurface.getPrescribedStreamFormat());
-                                } else if (Objects.equals(dSurface.getContainerClass(),
-                                        ImageCapture.class)) {
+                                } else if (isImageCapture(dSurface)) {
                                     captureOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
-                                            new Size(dSurface.getPrescribedSize().getWidth(),
-                                                    dSurface.getPrescribedSize().getHeight()),
+                                            dSurface.getPrescribedSize(),
                                             dSurface.getPrescribedStreamFormat());
-                                } else if (Objects.equals(dSurface.getContainerClass(),
-                                        ImageAnalysis.class)) {
+                                } else if (isImageAnalysis(dSurface)) {
                                     analysisOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
-                                            new Size(dSurface.getPrescribedSize().getWidth(),
-                                                    dSurface.getPrescribedSize().getHeight()),
+                                            dSurface.getPrescribedSize(),
                                             dSurface.getPrescribedStreamFormat());
                                 }
+                            }
+
+                            if (sessionConfig.getPostviewOutputConfig() != null) {
+                                DeferrableSurface postviewDeferrableSurface =
+                                        sessionConfig.getPostviewOutputConfig().getSurface();
+                                postviewOutputSurface = OutputSurface.create(
+                                        postviewDeferrableSurface.getSurface().get(),
+                                        postviewDeferrableSurface.getPrescribedSize(),
+                                        postviewDeferrableSurface.getPrescribedStreamFormat()
+                                );
                             }
 
                             mProcessorState = ProcessorState.SESSION_INITIALIZED;
@@ -213,11 +217,15 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                             try {
                                 mProcessorSessionConfig = mSessionProcessor.initSession(
                                         mCamera2CameraInfoImpl,
-                                        previewOutputSurface,
-                                        captureOutputSurface,
-                                        analysisOutputSurface
+                                        OutputSurfaceConfiguration.create(
+                                                previewOutputSurface,
+                                                captureOutputSurface,
+                                                analysisOutputSurface,
+                                                postviewOutputSurface
+                                        )
                                 );
                             } catch (Throwable e) {
+                                Logger.e(TAG, "initSession failed", e);
                                 // Ensure we decrement the output surfaces if initSession failed.
                                 DeferrableSurfaces.decrementAll(mOutputSurfaces);
                                 throw e;
@@ -284,7 +292,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         for (CaptureConfig captureConfig : captureConfigs) {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
-                cameraCaptureCallback.onCaptureCancelled();
+                cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
             }
         }
     }
@@ -314,29 +322,9 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
             cancelRequests(Arrays.asList(captureConfig));
             return;
         }
-        mSessionProcessor.startTrigger(options, new SessionProcessor.CaptureCallback() {
-            @Override
-            public void onCaptureFailed(int captureSequenceId) {
-                mExecutor.execute(() -> {
-                    for (CameraCaptureCallback cameraCaptureCallback :
-                            captureConfig.getCameraCaptureCallbacks()) {
-                        cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
-                                CameraCaptureFailure.Reason.ERROR));
-                    }
-                });
-            }
-
-            @Override
-            public void onCaptureSequenceCompleted(int captureSequenceId) {
-                mExecutor.execute(() -> {
-                    for (CameraCaptureCallback cameraCaptureCallback :
-                            captureConfig.getCameraCaptureCallbacks()) {
-                        cameraCaptureCallback.onCaptureCompleted(
-                                new CameraCaptureResult.EmptyCameraCaptureResult());
-                    }
-                });
-            }
-        });
+        mSessionProcessor.startTrigger(options,
+                new CaptureCallbackAdapter(captureConfig.getId(),
+                        captureConfig.getCameraCaptureCallbacks()));
     }
 
     /**
@@ -413,30 +401,51 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
         mStillCaptureOptions = builder.build();
         updateParameters(mSessionOptions, mStillCaptureOptions);
-        mSessionProcessor.startCapture(new SessionProcessor.CaptureCallback() {
-            @Override
-            public void onCaptureFailed(
-                    int captureSequenceId) {
-                mExecutor.execute(() -> {
-                    for (CameraCaptureCallback cameraCaptureCallback :
-                            captureConfig.getCameraCaptureCallbacks()) {
-                        cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
-                                CameraCaptureFailure.Reason.ERROR));
-                    }
-                });
-            }
+        mSessionProcessor.startCapture(captureConfig.isPostviewEnabled(),
+                  new CaptureCallbackAdapter(captureConfig.getId(),
+                          captureConfig.getCameraCaptureCallbacks()));
+    }
 
-            @Override
-            public void onCaptureSequenceCompleted(int captureSequenceId) {
-                mExecutor.execute(() -> {
-                    for (CameraCaptureCallback cameraCaptureCallback :
-                            captureConfig.getCameraCaptureCallbacks()) {
-                        cameraCaptureCallback.onCaptureCompleted(
-                                new CameraCaptureResult.EmptyCameraCaptureResult());
-                    }
-                });
+    private static class CaptureCallbackAdapter implements SessionProcessor.CaptureCallback {
+        private List<CameraCaptureCallback> mCameraCaptureCallbacks;
+        private final int mCaptureConfigId;
+
+        private CaptureCallbackAdapter(int captureConfigId,
+                List<CameraCaptureCallback> cameraCaptureCallbacks) {
+            mCaptureConfigId = captureConfigId;
+            mCameraCaptureCallbacks = cameraCaptureCallbacks;
+        }
+
+        @Override
+        public void onCaptureStarted(int captureSequenceId, long timestamp) {
+            for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
+                cameraCaptureCallback.onCaptureStarted(mCaptureConfigId);
             }
-        });
+        }
+
+        @Override
+        public void onCaptureFailed(
+                int captureSequenceId) {
+            for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
+                cameraCaptureCallback.onCaptureFailed(mCaptureConfigId, new CameraCaptureFailure(
+                        CameraCaptureFailure.Reason.ERROR));
+            }
+        }
+
+        @Override
+        public void onCaptureSequenceCompleted(int captureSequenceId) {
+            for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
+                cameraCaptureCallback.onCaptureCompleted(mCaptureConfigId,
+                        new CameraCaptureResult.EmptyCameraCaptureResult());
+            }
+        }
+
+        @Override
+        public void onCaptureProcessProgressed(int progress) {
+            for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
+                cameraCaptureCallback.onCaptureProcessProgressed(mCaptureConfigId, progress);
+            }
+        }
     }
 
     /**
@@ -525,7 +534,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
             for (CaptureConfig captureConfig : mPendingCaptureConfigs) {
                 for (CameraCaptureCallback cameraCaptureCallback :
                         captureConfig.getCameraCaptureCallbacks()) {
-                    cameraCaptureCallback.onCaptureCancelled();
+                    cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
                 }
             }
             mPendingCaptureConfigs = null;
@@ -596,9 +605,15 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         }
     }
 
-    private boolean hasPreviewSurface(CaptureConfig captureConfig) {
+    /**
+     * Checks if the CaptureConfig has a preview surface.
+     *
+     * <p> Note that {@link StreamSharing} provides preview output surface and is therefore
+     * considered a {@link Preview}.
+     */
+    private static boolean hasPreviewSurface(@NonNull CaptureConfig captureConfig) {
         for (DeferrableSurface surface : captureConfig.getSurfaces()) {
-            if (Objects.equals(surface.getContainerClass(), Preview.class)) {
+            if (isPreview(surface) || isStreamSharing(surface)) {
                 return true;
             }
         }
@@ -616,6 +631,22 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         builder.insertAllOptions(sessionOptions);
         builder.insertAllOptions(stillCaptureOptions);
         mSessionProcessor.setParameters(builder.build());
+    }
+
+    private static boolean isPreview(@NonNull DeferrableSurface dSurface) {
+        return Objects.equals(dSurface.getContainerClass(), Preview.class);
+    }
+
+    private static boolean isImageCapture(@NonNull DeferrableSurface dSurface) {
+        return Objects.equals(dSurface.getContainerClass(), ImageCapture.class);
+    }
+
+    private static boolean isImageAnalysis(@NonNull DeferrableSurface dSurface) {
+        return Objects.equals(dSurface.getContainerClass(), ImageAnalysis.class);
+    }
+
+    private static boolean isStreamSharing(@NonNull DeferrableSurface dSurface) {
+        return Objects.equals(dSurface.getContainerClass(), StreamSharing.class);
     }
 
     private static class SessionProcessorCaptureCallback

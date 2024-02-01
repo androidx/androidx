@@ -223,6 +223,7 @@ class CompositionLocalContext internal constructor(
  */
 @Composable
 @OptIn(InternalComposeApi::class)
+@NonSkippableComposable
 fun CompositionLocalProvider(vararg values: ProvidedValue<*>, content: @Composable () -> Unit) {
     currentComposer.startProviders(values)
     content()
@@ -243,6 +244,7 @@ fun CompositionLocalProvider(vararg values: ProvidedValue<*>, content: @Composab
  */
 @Composable
 @OptIn(InternalComposeApi::class)
+@NonSkippableComposable
 fun CompositionLocalProvider(value: ProvidedValue<*>, content: @Composable () -> Unit) {
     currentComposer.startProvider(value)
     content()

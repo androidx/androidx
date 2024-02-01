@@ -21,12 +21,11 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.math.sign
 
 /**
@@ -48,7 +47,8 @@ internal class RowColumnMeasureHelperResult(
  */
 internal class RowColumnMeasurementHelper(
     val orientation: LayoutOrientation,
-    val arrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,
+    val horizontalArrangement: Arrangement.Horizontal?,
+    val verticalArrangement: Arrangement.Vertical?,
     val arrangementSpacing: Dp,
     val crossAxisSize: SizeMode,
     val crossAxisAlignment: CrossAxisAlignment,
@@ -109,6 +109,11 @@ internal class RowColumnMeasurementHelper(
                 ++weightChildrenCount
             } else {
                 val mainAxisMax = constraints.mainAxisMax
+                val crossAxisMax = constraints.crossAxisMax
+                val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) null else
+                    parentData?.flowLayoutData?.let {
+                        (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
+                    }
                 val placeable = placeables[i] ?: child.measure(
                     // Ask for preferred main axis size.
                     constraints.copy(
@@ -118,7 +123,8 @@ internal class RowColumnMeasurementHelper(
                         } else {
                             (mainAxisMax - fixedSpace).coerceAtLeast(0).toInt()
                         },
-                        crossAxisMin = 0
+                        crossAxisMin = crossAxisDesiredSize ?: 0,
+                        crossAxisMax = crossAxisDesiredSize ?: constraints.crossAxisMax
                     ).toBoxConstraints(orientation)
                 )
                 spaceAfterLastNoWeight = min(
@@ -151,7 +157,7 @@ internal class RowColumnMeasurementHelper(
 
             val weightUnitSpace = if (totalWeight > 0) remainingToTarget / totalWeight else 0f
             var remainder = remainingToTarget - (startIndex until endIndex).sumOf {
-                (weightUnitSpace * rowColumnParentData[it].weight).roundToInt()
+                (weightUnitSpace * rowColumnParentData[it].weight).fastRoundToInt()
             }
 
             for (i in startIndex until endIndex) {
@@ -159,6 +165,11 @@ internal class RowColumnMeasurementHelper(
                     val child = measurables[i]
                     val parentData = rowColumnParentData[i]
                     val weight = parentData.weight
+                    val crossAxisMax = constraints.crossAxisMax
+                    val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) null else
+                        parentData?.flowLayoutData?.let {
+                            (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
+                        }
                     check(weight > 0) { "All weights <= 0 should have placeables" }
                     // After the weightUnitSpace rounding, the total space going to be occupied
                     // can be smaller or larger than remainingToTarget. Here we distribute the
@@ -167,20 +178,31 @@ internal class RowColumnMeasurementHelper(
                     remainder -= remainderUnit
                     val childMainAxisSize = max(
                         0,
-                        (weightUnitSpace * weight).roundToInt() + remainderUnit
+                        (weightUnitSpace * weight).fastRoundToInt() + remainderUnit
                     )
-                    val placeable = child.measure(
-                        OrientationIndependentConstraints(
-                            if (parentData.fill && childMainAxisSize != Constraints.Infinity) {
-                                childMainAxisSize
-                            } else {
-                                0
-                            },
-                            childMainAxisSize,
-                            0,
-                            constraints.crossAxisMax
-                        ).toBoxConstraints(orientation)
+                    val restrictedConstraints = Constraints.restrictedConstraints(
+                        minWidth = if (parentData.fill &&
+                            childMainAxisSize != Constraints.Infinity
+                        ) {
+                            childMainAxisSize
+                        } else {
+                            0
+                        },
+                        maxWidth = childMainAxisSize,
+                        minHeight = crossAxisDesiredSize ?: 0,
+                        maxHeight = crossAxisDesiredSize ?: constraints.crossAxisMax
                     )
+                    val childConstraints = if (orientation == LayoutOrientation.Horizontal) {
+                        restrictedConstraints
+                    } else {
+                        Constraints(
+                            minHeight = restrictedConstraints.minWidth,
+                            maxHeight = restrictedConstraints.maxWidth,
+                            minWidth = restrictedConstraints.minHeight,
+                            maxWidth = restrictedConstraints.maxHeight,
+                        )
+                    }
+                    val placeable = child.measure(childConstraints)
                     weightedSpace += placeable.mainAxisSize()
                     crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
                     anyAlignBy = anyAlignBy || parentData.isRelative
@@ -267,13 +289,24 @@ internal class RowColumnMeasurementHelper(
         mainAxisPositions: IntArray,
         measureScope: MeasureScope
     ): IntArray {
-        arrangement(
-            mainAxisLayoutSize,
-            childrenMainAxisSize,
-            measureScope.layoutDirection,
-            measureScope,
-            mainAxisPositions
-        )
+        if (orientation == LayoutOrientation.Vertical) {
+            with(requireNotNull(verticalArrangement) { "null verticalArrangement in Column" }) {
+                measureScope.arrange(
+                    mainAxisLayoutSize,
+                    childrenMainAxisSize,
+                    mainAxisPositions
+                )
+            }
+        } else {
+            with(requireNotNull(horizontalArrangement) { "null horizontalArrangement in Row" }) {
+                measureScope.arrange(
+                    mainAxisLayoutSize,
+                    childrenMainAxisSize,
+                    measureScope.layoutDirection,
+                    mainAxisPositions
+                )
+            }
+        }
         return mainAxisPositions
     }
 

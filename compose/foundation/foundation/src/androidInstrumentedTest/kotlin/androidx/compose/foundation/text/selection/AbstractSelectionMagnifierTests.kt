@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -60,7 +62,7 @@ import org.junit.Test
  * The `check*` methods here should be called from tests in both [SelectionContainerMagnifierTest]
  * and [TextFieldMagnifierTest].
  */
-internal abstract class AbstractSelectionMagnifierTests {
+internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -103,7 +105,7 @@ internal abstract class AbstractSelectionMagnifierTests {
         val rtlWord = "בבבבב"
 
         lateinit var textLayout: TextLayoutResult
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content(
                 text = """
                     $rtlWord $ltrWord
@@ -118,6 +120,13 @@ internal abstract class AbstractSelectionMagnifierTests {
                 onTextLayout = { textLayout = it }
             )
         }
+
+        val firstPressOffset = textLayout.getBoundingBox(0).centerLeft + Offset(1f, 0f)
+
+        // get focus, start input session
+        rule.onNodeWithTag(tag).performTouchInput { click(firstPressOffset) }
+
+        rule.waitForIdle()
 
         val placedPosition = rule.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot
 
@@ -162,7 +171,7 @@ internal abstract class AbstractSelectionMagnifierTests {
     @Test
     fun magnifier_centeredOnCorrectLine_whenLinesAreEmpty() {
         lateinit var textLayout: TextLayoutResult
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content(
                 "a\n\n",
                 Modifier
@@ -175,6 +184,13 @@ internal abstract class AbstractSelectionMagnifierTests {
         }
 
         rule.waitForIdle()
+
+        val firstPressOffset = textLayout.getBoundingBox(0).centerLeft + Offset(1f, 0f)
+
+        // get focus, start input session
+        rule.onNodeWithTag(tag).performTouchInput { click(firstPressOffset) }
+
+        rule.waitForIdle()
         val placedOffset = rule.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.topLeft
         fun assertMagnifierAt(expected: Offset) {
             rule.waitForIdle()
@@ -183,7 +199,6 @@ internal abstract class AbstractSelectionMagnifierTests {
         }
 
         // start selection at first character
-        val firstPressOffset = textLayout.getBoundingBox(0).centerLeft + Offset(1f, 0f)
         rule.onNodeWithTag(tag).performTouchInput {
             longPress(firstPressOffset)
         }
@@ -213,7 +228,7 @@ internal abstract class AbstractSelectionMagnifierTests {
 
     @Test
     fun magnifier_hidden_whenTextIsEmpty() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content("", Modifier.testTag(tag))
         }
 
@@ -227,7 +242,7 @@ internal abstract class AbstractSelectionMagnifierTests {
 
     @Test
     fun magnifier_hidden_whenSelectionWithoutHandleTouch() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content("aaaa aaaa aaaa", Modifier.testTag(tag))
         }
         // Initiate selection.
@@ -382,7 +397,7 @@ internal abstract class AbstractSelectionMagnifierTests {
     ) = TestContent(text, modifier, style, onTextLayout, maxLines)
 
     protected fun checkMagnifierAppears_whileHandleTouched(handle: Handle) {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content("aaaa aaaa aaaa", Modifier.testTag(tag))
         }
 
@@ -402,7 +417,7 @@ internal abstract class AbstractSelectionMagnifierTests {
     }
 
     protected fun checkMagnifierAppears_whenCursorHandleDragged() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content("aaaa aaaa aaaa", Modifier.testTag(tag))
         }
 
@@ -433,7 +448,8 @@ internal abstract class AbstractSelectionMagnifierTests {
     ) {
         val dragDistance = Offset(10f, 0f)
         val dragDirection = if (expandForwards) 1f else -1f
-        rule.setContent {
+        lateinit var textLayout: TextLayoutResult
+        rule.setTextFieldTestContent {
             Content(
                 if (layoutDirection == LayoutDirection.Ltr) {
                     "aaaa aaaa aaaa"
@@ -444,9 +460,17 @@ internal abstract class AbstractSelectionMagnifierTests {
                     // Center the text to give the magnifier lots of room to move.
                     .fillMaxSize()
                     .wrapContentSize()
-                    .testTag(tag)
+                    .testTag(tag),
+                onTextLayout = { textLayout = it }
             )
         }
+
+        val firstPressOffset = textLayout.getBoundingBox(0).centerLeft + Offset(1f, 0f)
+
+        // get focus, start input session
+        rule.onNodeWithTag(tag).performTouchInput { click(firstPressOffset) }
+
+        rule.waitForIdle()
 
         // Initiate selection.
         rule.onNodeWithTag(tag)
@@ -475,7 +499,7 @@ internal abstract class AbstractSelectionMagnifierTests {
         layoutDirection: LayoutDirection = LayoutDirection.Ltr
     ) {
         val dragDistance = Offset(1f, 0f)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content(
                 if (layoutDirection == LayoutDirection.Ltr) {
                     "aaaa aaaa aaaa"
@@ -519,7 +543,7 @@ internal abstract class AbstractSelectionMagnifierTests {
         // When testing the cursor, we use an empty line so it doesn't have room to move in either
         // direction. For other handles, the line needs to have some text to select.
         val middleLine = if (handle == Handle.Cursor) "" else fillerWord
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content(
                 // Center line of text is shorter than others.
                 "$fillerWord$fillerWord\n$middleLine\n$fillerWord$fillerWord",
@@ -558,7 +582,7 @@ internal abstract class AbstractSelectionMagnifierTests {
     ) {
         var screenWidth = 0
         val dragDirection = if (checkStart) -1f else 1f
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content(
                 if (layoutDirection == LayoutDirection.Ltr) {
                     "aaaa aaaa\naaaa\naaaa aaaa"
@@ -594,7 +618,7 @@ internal abstract class AbstractSelectionMagnifierTests {
     protected fun checkMagnifierFollowsHandleVerticallyBetweenLines(handle: Handle) {
         val dragDistance = Offset(0f, 1f)
         var lineHeight = 0f
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content(
                 "aaaa aaaa aaaa\naaaa aaaa aaaa\naaaa aaaa aaaa",
                 Modifier
@@ -626,7 +650,7 @@ internal abstract class AbstractSelectionMagnifierTests {
 
     protected fun checkMagnifierAsHandleGoesOutOfBoundsUsingMaxLines(handle: Handle) {
         var lineHeight = 0f
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content(
                 "aaaa aaaa aaaa\naaaa aaaa aaaa",
                 Modifier
@@ -655,7 +679,7 @@ internal abstract class AbstractSelectionMagnifierTests {
 
     protected fun checkMagnifierDoesNotFollowHandleVerticallyWithinLine(handle: Handle) {
         val dragDistance = Offset(0f, 1f)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Content(
                 "aaaa aaaa aaaa\naaaa aaaa aaaa\naaaa aaaa aaaa",
                 Modifier

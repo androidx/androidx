@@ -26,7 +26,6 @@ import android.text.style.MetricAffectingSpan;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -34,7 +33,6 @@ import androidx.annotation.RestrictTo;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(19)
 public final class TypefaceEmojiSpan extends EmojiSpan {
 
     /**

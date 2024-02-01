@@ -176,6 +176,12 @@ internal class SnapFlingBehavior(
         .let { 31 * it + lazyListState.hashCode() }
         .let { 31 * it + density.hashCode() }
 
+    private operator fun <T : Comparable<T>> ClosedFloatingPointRange<T>.component1(): T =
+        this.start
+
+    private operator fun <T : Comparable<T>> ClosedFloatingPointRange<T>.component2(): T =
+        this.endInclusive
+
     private fun findClosestOffset(
         velocity: Float,
         lazyListState: LazyListState
@@ -185,7 +191,7 @@ internal class SnapFlingBehavior(
             return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
         }
 
-        fun calculateSnappingOffsetBounds(): FloatRange {
+        fun calculateSnappingOffsetBounds(): ClosedFloatingPointRange<Float> {
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
             var upperBoundOffset = Float.POSITIVE_INFINITY
 
@@ -206,7 +212,7 @@ internal class SnapFlingBehavior(
                 }
             }
 
-            return FloatRange(lowerBoundOffset, upperBoundOffset)
+            return lowerBoundOffset..upperBoundOffset
         }
 
         val (lowerBound, upperBound) = calculateSnappingOffsetBounds()

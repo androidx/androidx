@@ -40,6 +40,7 @@ import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.kotlin.isKotlin
 import org.jetbrains.uast.skipParenthesizedExprDown
 
 /**
@@ -47,6 +48,12 @@ import org.jetbrains.uast.skipParenthesizedExprDown
  * - a snapshot mutation policy argument is not specified (or it is structural equivalent policy)
  * - `T` is in the [replacements] map
  * - `T` is a non-nullable type
+ *
+ * This check only runs over Kotlin code, despite the possibility of calling mutableStateOf in
+ * Java. It's not possible to annotate a generic type in Java with @Nullable or @NonNull,
+ * so we will never have enough information to make the right call about whether you can make
+ * a suggested replacement or not. We therefore skip this check in all Java files to err on
+ * the side of underreporting.
  */
 class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
 
@@ -64,6 +71,7 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames() = listOf(Names.Runtime.MutableStateOf.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
+        if (!isKotlin(node.lang)) return
         if (!method.isInPackageName(Names.Runtime.PackageName)) return
 
         val replacement = getSuggestedReplacementName(node) ?: return
@@ -177,7 +185,9 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
                 "values when reading the value of the state. Instead, prefer to use a " +
                 "specialized primitive state implementation for `Int`, `Long`, `Float`, and " +
                 "`Double` when the state does not need to track null values and does not " +
-                "override the default `SnapshotMutationPolicy`.",
+                "override the default `SnapshotMutationPolicy`. See `mutableIntStateOf()`, " +
+                "`mutableLongStateOf()`, `mutableFloatStateOf()`, and `mutableDoubleStateOf()` " +
+                "for more information.",
             category = Category.PERFORMANCE, priority = 3, severity = Severity.INFORMATIONAL,
             implementation = Implementation(
                 AutoboxingStateCreationDetector::class.java,

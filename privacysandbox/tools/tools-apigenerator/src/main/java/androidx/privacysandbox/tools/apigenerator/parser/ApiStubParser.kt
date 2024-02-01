@@ -26,13 +26,18 @@ import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.privacysandbox.tools.core.validator.ModelValidator
 import java.nio.file.Path
+import kotlinx.metadata.ClassKind
 import kotlinx.metadata.ClassName
-import kotlinx.metadata.Flag
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.KmClassifier
 import kotlinx.metadata.KmFunction
 import kotlinx.metadata.KmProperty
 import kotlinx.metadata.KmType
+import kotlinx.metadata.isData
+import kotlinx.metadata.isNullable
+import kotlinx.metadata.isSuspend
+import kotlinx.metadata.isVar
+import kotlinx.metadata.kind
 
 internal object ApiStubParser {
     /**
@@ -58,7 +63,7 @@ internal object ApiStubParser {
         val type = parseClassName(service.name)
         val superTypes = service.supertypes.map(this::parseType).filterNot { it == Types.any }
 
-        if (!Flag.Class.IS_INTERFACE(service.flags)) {
+        if (service.kind != ClassKind.INTERFACE) {
             throw PrivacySandboxParsingException(
                 "${type.qualifiedName} is not a Kotlin interface but it's annotated with " +
                     "@$annotationName."
@@ -75,7 +80,7 @@ internal object ApiStubParser {
     private fun parseValue(value: KmClass): AnnotatedValue {
         val type = parseClassName(value.name)
 
-        if (!Flag.Class.IS_DATA(value.flags)) {
+        if (!value.isData) {
             throw PrivacySandboxParsingException(
                 "${type.qualifiedName} is not a Kotlin data class but it's annotated with " +
                     "@PrivacySandboxValue."
@@ -100,7 +105,7 @@ internal object ApiStubParser {
 
     private fun parseProperty(containerType: Type, property: KmProperty): ValueProperty {
         val qualifiedName = "${containerType.qualifiedName}.${property.name}"
-        if (Flag.Property.IS_VAR(property.flags)) {
+        if (property.isVar) {
             throw PrivacySandboxParsingException(
                 "Error in $qualifiedName: mutable properties are not allowed in data classes " +
                     "annotated with @PrivacySandboxValue."
@@ -114,13 +119,13 @@ internal object ApiStubParser {
             function.name,
             function.valueParameters.map { Parameter(it.name, parseType(it.type)) },
             parseType(function.returnType),
-            Flag.Function.IS_SUSPEND(function.flags)
+            function.isSuspend
         )
     }
 
     private fun parseType(type: KmType): Type {
         val classifier = type.classifier
-        val isNullable = Flag.Type.IS_NULLABLE(type.flags)
+        val isNullable = type.isNullable
         if (classifier !is KmClassifier.Class) {
             throw PrivacySandboxParsingException("Unsupported type in API description: $type")
         }

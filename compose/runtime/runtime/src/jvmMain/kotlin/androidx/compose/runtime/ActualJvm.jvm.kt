@@ -20,12 +20,14 @@ import androidx.compose.runtime.internal.ThreadMap
 import androidx.compose.runtime.internal.emptyThreadMap
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.ThreadContextElement
 
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
 
-internal actual open class ThreadLocal<T> actual constructor(
+internal actual class ThreadLocal<T> actual constructor(
     private val initialValue: () -> T
 ) : java.lang.ThreadLocal<T>() {
     @Suppress("UNCHECKED_CAST")
@@ -58,7 +60,7 @@ internal actual class SnapshotThreadLocal<T> {
         return if (threadId == MainThreadId) {
             mainThreadValue
         } else {
-            map.get().get(Thread.currentThread().id) as T?
+            map.get().get(threadId) as T?
         }
     }
 
@@ -102,17 +104,23 @@ internal actual fun <T> invokeComposableForResult(
     return realFn(composer, 1)
 }
 
-internal actual class AtomicInt actual constructor(value: Int) {
-    val delegate = java.util.concurrent.atomic.AtomicInteger(value)
-    actual fun get(): Int = delegate.get()
-    actual fun set(value: Int) = delegate.set(value)
-    actual fun add(amount: Int): Int = delegate.addAndGet(amount)
+internal actual class AtomicInt actual constructor(value: Int) : AtomicInteger(value) {
+    actual fun add(amount: Int): Int = addAndGet(amount)
+
+    // These are implemented by Number, but Kotlin fails to resolve them
+    override fun toByte(): Byte = toInt().toByte()
+    override fun toShort(): Short = toInt().toShort()
+    override fun toChar(): Char = toInt().toChar()
 }
 
 internal actual fun ensureMutable(it: Any) { /* NOTHING */ }
 
 internal actual class WeakReference<T : Any> actual constructor(reference: T) :
     java.lang.ref.WeakReference<T>(reference)
+
+internal actual fun currentThreadId(): Long = Thread.currentThread().id
+
+internal actual fun currentThreadName(): String = Thread.currentThread().name
 
 /**
  * Implementation of [SnapshotContextElement] that enters a single given snapshot when updating
@@ -132,7 +140,3 @@ internal actual class SnapshotContextElementImpl actual constructor(
         snapshot.unsafeLeave(oldState)
     }
 }
-
-internal actual fun currentThreadId(): Long = Thread.currentThread().id
-
-internal actual fun currentThreadName(): String = Thread.currentThread().name

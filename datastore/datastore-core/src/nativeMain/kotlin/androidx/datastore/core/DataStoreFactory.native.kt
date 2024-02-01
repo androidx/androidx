@@ -47,6 +47,7 @@ public actual object DataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
+    @kotlin.jvm.JvmOverloads // annotation has to match common
     public actual fun <T> create(
         storage: Storage<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>?,

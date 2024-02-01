@@ -25,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
@@ -55,7 +57,12 @@ public fun rememberExpandableState(
     collapseAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.collapseAnimationSpec,
 ): ExpandableState {
     val scope = rememberCoroutineScope()
-    return remember {
+    return rememberSaveable(
+        saver = ExpandableState.saver(
+            expandAnimationSpec = expandAnimationSpec,
+            collapseAnimationSpec = collapseAnimationSpec,
+        )
+    ) {
         ExpandableState(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
     }
 }
@@ -72,6 +79,7 @@ public fun rememberExpandableState(
  * @param collapseAnimationSpec The [AnimationSpec] to use when hiding the extra information.
  */
 @Composable
+@ExperimentalWearFoundationApi
 public fun <T> rememberExpandableStateMapping(
     initiallyExpanded: (key: T) -> Boolean = { false },
     expandAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.expandAnimationSpec,
@@ -180,8 +188,6 @@ private fun ScalingLazyListScope.expandableItemImpl(
     invertProgress: Boolean = false,
     content: @Composable (expanded: Boolean) -> Unit
 ) {
-    val progress = if (invertProgress) 1f - state.expandProgress else state.expandProgress
-
     item(key = key) {
         Layout(
             content = {
@@ -190,6 +196,8 @@ private fun ScalingLazyListScope.expandableItemImpl(
             },
             modifier = Modifier.clipToBounds()
         ) { measurables, constraints ->
+            val progress = if (invertProgress) 1f - state.expandProgress else state.expandProgress
+
             val placeables = measurables.fastMap { it.measure(constraints) }
 
             val width = lerp(placeables[0].width, placeables[1].width, progress)
@@ -257,12 +265,37 @@ public class ExpandableState internal constructor(
                 }
             }
         }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [ExpandableState].
+         */
+        @Composable
+        fun saver(
+            expandAnimationSpec: AnimationSpec<Float>,
+            collapseAnimationSpec: AnimationSpec<Float>,
+        ): Saver<ExpandableState, Boolean> {
+            val coroutineScope = rememberCoroutineScope()
+            return Saver(
+                save = { it.expanded },
+                restore = {
+                    ExpandableState(
+                        initiallyExpanded = it,
+                        expandAnimationSpec = expandAnimationSpec,
+                        collapseAnimationSpec = collapseAnimationSpec,
+                        coroutineScope = coroutineScope
+                    )
+                }
+            )
+        }
+    }
 }
 
 /**
  * A class that maps from keys of the given type to [ExpandableState].
  * An instance can be created and remembered with [rememberExpandableStateMapping]
  */
+@ExperimentalWearFoundationApi
 public class ExpandableStateMapping<T> internal constructor(
     private val initiallyExpanded: (key: T) -> Boolean,
     private val coroutineScope: CoroutineScope,

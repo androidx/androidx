@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.NORMAL
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
+import androidx.camera.camera2.pipe.core.Log
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.StateFlow
 
@@ -94,8 +95,9 @@ interface CameraGraph : AutoCloseable {
      *
      * @param camera The Camera2 [CameraId] that this [CameraGraph] represents.
      * @param streams A list of [CameraStream]s to use when building the configuration.
-     * @param streamSharingGroups A list of [CameraStream]s to apply buffer sharing to.
-     * @param input An input configuration to support Camera2 Reprocessing.
+     * @param exclusiveStreamGroups A list of [CameraStream] groups where the [CameraStream]s in
+     *   a group aren't expected to used simultaneously.
+     * @param input A list of input configurations to support Camera2 Reprocessing.
      * @param sessionTemplate The template id to use when creating the [CaptureRequest] to supply
      *   the default parameters for a [SessionConfiguration] object.
      * @param sessionParameters the extra parameters to apply to the [CaptureRequest] used to supply
@@ -120,8 +122,9 @@ interface CameraGraph : AutoCloseable {
     data class Config(
         val camera: CameraId,
         val streams: List<CameraStream.Config>,
-        val streamSharingGroups: List<List<CameraStream.Config>> = listOf(),
-        val input: InputStream.Config? = null,
+        val exclusiveStreamGroups: List<List<CameraStream.Config>> = listOf(),
+        val input: List<InputStream.Config>? = null,
+        val postviewStream: CameraStream.Config? = null,
         val sessionTemplate: RequestTemplate = RequestTemplate(1),
         val sessionParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val sessionMode: OperatingMode = NORMAL,
@@ -265,11 +268,19 @@ interface CameraGraph : AutoCloseable {
      * @property EXTENSION represents device-specific modes that may operate differently or have
      *   significant limitations in order to produce specific kinds of camera results.
      */
-    class OperatingMode private constructor() {
+    @JvmInline
+    value class OperatingMode private constructor(internal val mode: Int) {
         companion object {
-            val NORMAL = OperatingMode()
-            val HIGH_SPEED = OperatingMode()
-            val EXTENSION = OperatingMode()
+            val NORMAL = OperatingMode(0)
+            val HIGH_SPEED = OperatingMode(1)
+            val EXTENSION = OperatingMode(2)
+
+            fun custom(mode: Int): OperatingMode {
+                require(mode != NORMAL.mode && mode != HIGH_SPEED.mode) {
+                    Log.error { "Custom operating mode $mode conflicts with standard modes" }
+                }
+                return OperatingMode(mode)
+            }
         }
     }
 
@@ -319,16 +330,37 @@ interface CameraGraph : AutoCloseable {
         fun stopRepeating()
 
         /**
-         * Add the [Request] into an in-flight request queue. Requests will be issued to the Camera
-         * exactly once.
+         * Submit the [Request] to the camera. Requests are issued to the Camera, in order, on a
+         * background queue. Each call to submit will issue the [Request] to the camera exactly
+         * once unless the request is invalid, or unless the requests are aborted via [abort].
+         * The same request can be submitted multiple times.
          */
         fun submit(request: Request)
 
         /**
-         * Add the [Request] into an in-flight request queue. Requests will be issued to the Camera
-         * exactly once. The list of [Request]s is guaranteed to be submitted together.
+         * Submit the [Request]s to the camera. [Request]s are issued to the Camera, in order, on a
+         * background queue. Each call to submit will issue the List of [Request]s to the camera
+         * exactly once unless the one or more of the requests are invalid, or unless the requests
+         * are aborted via [abort]. The same list of [Request]s may be submitted multiple times.
          */
         fun submit(requests: List<Request>)
+
+        /**
+         * Submit the [Request] to the camera, and aggregate the results into a [FrameCapture],
+         * which can be used to wait for the [Frame] to start using [FrameCapture.awaitFrame].
+         *
+         * The [FrameCapture] **must** be closed, or it will result in a memory leak.
+         */
+        fun capture(request: Request): FrameCapture
+
+        /**
+         * Submit the [Request]s to the camera, and aggregate the results into a list of
+         * [FrameCapture]s, which can be used to wait for the associated [Frame]
+         * using [FrameCapture.awaitFrame].
+         *
+         * Each [FrameCapture] **must** be closed, or it will result in a memory leak.
+         */
+        fun capture(requests: List<Request>): List<FrameCapture>
 
         /**
          * Abort in-flight requests. This will abort *all* requests in the current

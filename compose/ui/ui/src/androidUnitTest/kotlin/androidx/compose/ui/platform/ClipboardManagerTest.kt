@@ -24,28 +24,38 @@ class ClipboardManagerTest {
 
     @Test
     fun clipboardManagerWithoutHasText_returnsTrue_withNonEmptyGetText() {
-        val clipboardManager = object : ClipboardManager {
-            override fun setText(annotatedString: AnnotatedString) { }
-            override fun getText() = AnnotatedString("Something")
-        }
+        val clipboardManager = FakeClipboardManager("Something")
         assertThat(clipboardManager.hasText()).isTrue()
     }
 
     @Test
     fun clipboardManagerWithoutHasText_returnsFalse_withNullGetText() {
-        val clipboardManager = object : ClipboardManager {
-            override fun setText(annotatedString: AnnotatedString) { }
-            override fun getText() = null
-        }
+        val clipboardManager = FakeClipboardManager()
         assertThat(clipboardManager.hasText()).isFalse()
     }
 
     @Test
     fun clipboardManagerWithoutHasText_returnsFalse_withEmptyGetText() {
-        val clipboardManager = object : ClipboardManager {
-            override fun setText(annotatedString: AnnotatedString) { }
-            override fun getText() = AnnotatedString("")
-        }
+        val clipboardManager = FakeClipboardManager("")
         assertThat(clipboardManager.hasText()).isFalse()
     }
+}
+
+fun FakeClipboardManager(
+    initialText: String? = null
+) = object : ClipboardManager {
+    private var currentText: AnnotatedString? = initialText?.let { AnnotatedString(it) }
+    override fun setText(annotatedString: AnnotatedString) {
+        currentText = annotatedString
+    }
+
+    override fun getText(): AnnotatedString? = currentText
+
+    override fun getClip(): ClipEntry? = null
+
+    override fun getClipMetadata(): ClipMetadata? = null
+
+    override fun hasClip(): Boolean = false
+
+    override fun setClip(clipEntry: ClipEntry) = Unit
 }

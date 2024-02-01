@@ -208,13 +208,12 @@ public final class HandlerCompat {
      * @return {@code true} if the callback is in the message queue
      * @see Handler#hasCallbacks(Runnable)
      */
-    @RequiresApi(16)
     public static boolean hasCallbacks(@NonNull Handler handler, @NonNull Runnable r) {
         Exception wrappedException = null;
 
         if (Build.VERSION.SDK_INT >= 29) {
             return Api29Impl.hasCallbacks(handler, r);
-        } else if (Build.VERSION.SDK_INT >= 16) {
+        } else {
             // The method signature didn't change when it was made public in SDK 29, but use
             // reflection so that we don't cause a verification error or NotFound exception if an
             // OEM changed something.

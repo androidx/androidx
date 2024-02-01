@@ -14,52 +14,84 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
     id("com.google.protobuf")
 }
 
-dependencies {
-    implementation(libs.kotlinStdlib)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinMetadataJvm)
-    testImplementation(libs.robolectric)
+androidXMultiplatform {
+    android()
+    desktop()
 
-    testCompileOnly(libs.kotlinCompiler)
-    testRuntimeOnly(
-        project(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged")
-    )
+    sourceSets {
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinStdlibCommon)
+                implementation(kotlin("test-junit"))
+                implementation(project(":compose:runtime:runtime"))
+            }
+        }
 
-    // tools.jar required for com.sun.jdi
-    def toolsJar
-    if (JavaVersion.current().getMajorVersion() == "8") {
-        toolsJar = ((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs()
-    } else if (System.env.JAVA_TOOLS_JAR != null) {
-        toolsJar = System.env.JAVA_TOOLS_JAR
-    } else {
-        throw new Exception("If you are not using Java 8, JAVA_TOOLS_JAR env variable " +
-                "needs to be set to tools.jar from a Java 8 installation to build Doclava")
+        jvmTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinMetadataJvm)
+
+                compileOnly(libs.kotlinCompiler)
+                implementation(
+                        project(":compose:compiler:compiler-hosted:integration-tests:protobuf-test-classes")
+                )
+                implementation(libs.kotlinStdlib)
+                implementation(libs.protobufLite)
+                implementation(libs.guavaAndroid)
+                implementation(project(":compose:compiler:compiler-hosted"))
+                implementation("androidx.compose.foundation:foundation:1.6.0-beta02")
+                implementation("androidx.compose.ui:ui:1.6.0-beta02")
+                implementation(project(":compose:runtime:runtime"))
+                implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
+                implementation("com.google.dagger:dagger:2.40.1")
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.kotlinMetadataJvm)
+                implementation(libs.robolectric)
+                implementation("androidx.activity:activity-ktx:1.9.0-alpha01")
+                implementation("androidx.core:core-ktx:1.13.0-alpha03")
+                runtimeOnly(
+                        project(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged")
+                )
+            }
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+                runtimeOnly(
+                        project(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged")
+                )
+            }
+        }
     }
-    testImplementation(files(toolsJar))
+}
 
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.protobufLite)
-    testImplementation(libs.guavaAndroid)
-    testImplementation(project(":compose:compiler:compiler-hosted"))
-    testImplementation(projectOrArtifact(":compose:foundation:foundation"))
-    testImplementation(projectOrArtifact(":compose:material:material"))
-    testImplementation(project(":compose:runtime:runtime"))
-    testImplementation(projectOrArtifact(":compose:ui:ui"))
-    testImplementation("androidx.core:core-ktx:1.1.0")
-    testImplementation("androidx.activity:activity-ktx:1.2.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
-    testImplementation("com.google.dagger:dagger:2.40.1")
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+    namespace "androidx.compose.runtime.tests"
 }
 
 afterEvaluate {
@@ -69,13 +101,11 @@ afterEvaluate {
         maxHeapSize("1024m")
         t.jvmArgs += ["--add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED"]
     }
-}
 
-android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-    namespace "androidx.compose.runtime.tests"
+    // The compose compiler debugger runs on desktop in AndroidStudio, and so the debugger test is
+    // implemented as a desktop test to avoid the need to inject tools.jar (from desktop jvm) into
+    // android tests
+    tasks.findByPath("test").dependsOn(tasks.findByPath("desktopTest"))
 }
 
 androidx {
@@ -89,9 +119,6 @@ protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         all().each { task ->
             task.builtins {

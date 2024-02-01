@@ -20,7 +20,6 @@ import static android.view.View.VISIBLE;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
@@ -54,9 +53,9 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
-import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 import android.view.accessibility.AccessibilityRecord;
 import android.view.autofill.AutofillId;
@@ -99,7 +98,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Helper for accessing features in {@link View}.
@@ -168,6 +166,7 @@ public class ViewCompat {
     @Retention(RetentionPolicy.SOURCE)
     private @interface AutofillImportance {}
 
+    @SuppressWarnings("deprecation")
     @IntDef({
             IMPORTANT_FOR_ACCESSIBILITY_AUTO,
             IMPORTANT_FOR_ACCESSIBILITY_YES,
@@ -215,23 +214,35 @@ public class ViewCompat {
 
     /**
      * Automatically determine whether a view is important for accessibility.
+     *
+     * @deprecated Use {@link View#IMPORTANT_FOR_ACCESSIBILITY_AUTO} directly.
      */
+    @Deprecated
     public static final int IMPORTANT_FOR_ACCESSIBILITY_AUTO = 0x00000000;
 
     /**
      * The view is important for accessibility.
+     *
+     * @deprecated Use {@link View#IMPORTANT_FOR_ACCESSIBILITY_YES} directly.
      */
+    @Deprecated
     public static final int IMPORTANT_FOR_ACCESSIBILITY_YES = 0x00000001;
 
     /**
      * The view is not important for accessibility.
+     *
+     * @deprecated Use {@link View#IMPORTANT_FOR_ACCESSIBILITY_NO} directly.
      */
+    @Deprecated
     public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = 0x00000002;
 
     /**
      * The view is not important for accessibility, nor are any of its
      * descendant views.
+     *
+     * @deprecated Use {@link View#IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS} directly.
      */
+    @Deprecated
     public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS = 0x00000004;
 
     @IntDef({
@@ -345,24 +356,36 @@ public class ViewCompat {
 
     /**
      * Horizontal layout direction of this view is from Left to Right.
+     *
+     * @deprecated Use {@link View#LAYOUT_DIRECTION_LTR} directly.
      */
+    @Deprecated
     public static final int LAYOUT_DIRECTION_LTR = 0;
 
     /**
      * Horizontal layout direction of this view is from Right to Left.
+     *
+     * @deprecated Use {@link View#LAYOUT_DIRECTION_RTL} directly.
      */
+    @Deprecated
     public static final int LAYOUT_DIRECTION_RTL = 1;
 
     /**
      * Horizontal layout direction of this view is inherited from its parent.
      * Use with {@link #setLayoutDirection}.
+     *
+     * @deprecated Use {@link View#LAYOUT_DIRECTION_INHERIT} directly.
      */
+    @Deprecated
     public static final int LAYOUT_DIRECTION_INHERIT = 2;
 
     /**
      * Horizontal layout direction of this view is from deduced from the default language
      * script for the locale. Use with {@link #setLayoutDirection}.
+     *
+     * @deprecated Use {@link View#LAYOUT_DIRECTION_LOCALE} directly.
      */
+    @Deprecated
     public static final int LAYOUT_DIRECTION_LOCALE = 3;
 
     /**
@@ -510,13 +533,6 @@ public class ViewCompat {
      * @see #getScrollIndicators(View)
      */
     public static final int SCROLL_INDICATOR_END = 0x20;
-
-    private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
-
-    private static Field sMinWidthField;
-    private static boolean sMinWidthFieldFetched;
-    private static Field sMinHeightField;
-    private static boolean sMinHeightFieldFetched;
 
     private static Method sDispatchStartTemporaryDetach;
     private static Method sDispatchFinishTemporaryDetach;
@@ -735,7 +751,10 @@ public class ViewCompat {
      *
      * @param v The View against which to invoke the method.
      * @param info The instance to initialize.
+     * @deprecated Call {@link View#onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo)}
+     * directly.
      */
+    @Deprecated
     public static void onInitializeAccessibilityNodeInfo(@NonNull View v,
             @NonNull AccessibilityNodeInfoCompat info) {
         v.onInitializeAccessibilityNodeInfo(info.unwrap());
@@ -1031,7 +1050,7 @@ public class ViewCompat {
      */
     public static void setAutofillId(@NonNull View v, @Nullable AutofillIdCompat id) {
         if (Build.VERSION.SDK_INT >= 28) {
-            Api28Impl.setAutofillId(v, id.toAutofillId());
+            Api28Impl.setAutofillId(v, id);
         }
     }
 
@@ -1181,7 +1200,7 @@ public class ViewCompat {
     public static void setContentCaptureSession(@NonNull View v,
             @Nullable ContentCaptureSessionCompat contentCaptureSession) {
         if (Build.VERSION.SDK_INT >= 29) {
-            Api29Impl.setContentCaptureSession(v, contentCaptureSession.toContentCaptureSession());
+            Api29Impl.setContentCaptureSession(v, contentCaptureSession);
         }
     }
 
@@ -1269,12 +1288,11 @@ public class ViewCompat {
      *
      * @param view View to check for transient state
      * @return true if the view has transient state
+     * @deprecated Call {@link View#hasTransientState()} directly.
      */
+    @Deprecated
     public static boolean hasTransientState(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.hasTransientState(view);
-        }
-        return false;
+        return view.hasTransientState();
     }
 
     /**
@@ -1283,11 +1301,11 @@ public class ViewCompat {
      *
      * @param view View tracking transient state
      * @param hasTransientState true if this view has transient state
+     * @deprecated Call {@link View#setHasTransientState(boolean)} directly.
      */
+    @Deprecated
     public static void setHasTransientState(@NonNull View view, boolean hasTransientState) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setHasTransientState(view, hasTransientState);
-        }
+        view.setHasTransientState(hasTransientState);
     }
 
     /**
@@ -1298,13 +1316,11 @@ public class ViewCompat {
      * only when this View is attached to a window.</p>
      *
      * @param view View to invalidate
+     * @deprecated Call {@link View#postInvalidateOnAnimation()} directly.
      */
+    @Deprecated
     public static void postInvalidateOnAnimation(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.postInvalidateOnAnimation(view);
-        } else {
-            view.postInvalidate();
-        }
+        view.postInvalidateOnAnimation();
     }
 
     /**
@@ -1319,14 +1335,12 @@ public class ViewCompat {
      * @param top The top coordinate of the rectangle to invalidate.
      * @param right The right coordinate of the rectangle to invalidate.
      * @param bottom The bottom coordinate of the rectangle to invalidate.
+     * @deprecated Call {@link View#postInvalidateOnAnimation(int, int, int, int)} directly.
      */
+    @Deprecated
     public static void postInvalidateOnAnimation(@NonNull View view, int left, int top,
             int right, int bottom) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.postInvalidateOnAnimation(view, left, top, right, bottom);
-        } else {
-            view.postInvalidate(left, top, right, bottom);
-        }
+        view.postInvalidateOnAnimation(left, top, right, bottom);
     }
 
     /**
@@ -1338,13 +1352,11 @@ public class ViewCompat {
      *
      * @param view View to post this Runnable to
      * @param action The Runnable that will be executed.
+     * @deprecated Call {@link View#postOnAnimation(Runnable)} directly.
      */
+    @Deprecated
     public static void postOnAnimation(@NonNull View view, @NonNull Runnable action) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.postOnAnimation(view, action);
-        } else {
-            view.postDelayed(action, ValueAnimator.getFrameDelay());
-        }
+        view.postOnAnimation(action);
     }
 
     /**
@@ -1359,15 +1371,13 @@ public class ViewCompat {
      * @param action The Runnable that will be executed.
      * @param delayMillis The delay (in milliseconds) until the Runnable
      *        will be executed.
+     * @deprecated Call {@link View#postOnAnimationDelayed(Runnable, long)} directly.
      */
+    @Deprecated
     @SuppressLint("LambdaLast")
     public static void postOnAnimationDelayed(@NonNull View view, @NonNull Runnable action,
             long delayMillis) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.postOnAnimationDelayed(view, action, delayMillis);
-        } else {
-            view.postDelayed(action, ValueAnimator.getFrameDelay() + delayMillis);
-        }
+        view.postOnAnimationDelayed(action, delayMillis);
     }
 
     /**
@@ -1382,13 +1392,12 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
+     * @deprecated Call {@link View#getImportantForAccessibility()} directly.
      */
+    @Deprecated
     @ImportantForAccessibility
     public static int getImportantForAccessibility(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getImportantForAccessibility(view);
-        }
-        return IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+        return view.getImportantForAccessibility();
     }
 
     /**
@@ -1409,22 +1418,13 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
+     * @deprecated Call {@link View#setImportantForAccessibility(int)} directly.
      */
+    @Deprecated
     @UiThread
     public static void setImportantForAccessibility(@NonNull View view,
             @ImportantForAccessibility int mode) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api16Impl.setImportantForAccessibility(view, mode);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS is not available
-            // on this platform so replace with IMPORTANT_FOR_ACCESSIBILITY_NO
-            // which is closer semantically.
-            if (mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
-                mode = IMPORTANT_FOR_ACCESSIBILITY_NO;
-            }
-            //noinspection WrongConstant
-            Api16Impl.setImportantForAccessibility(view, mode);
-        }
+        view.setImportantForAccessibility(mode);
     }
 
     /**
@@ -1490,13 +1490,12 @@ public class ViewCompat {
      * @param action The action to perform.
      * @param arguments Optional action arguments.
      * @return Whether the action was performed.
+     * @deprecated Call {@link View#performAccessibilityAction(int, Bundle)} directly.
      */
+    @Deprecated
     public static boolean performAccessibilityAction(@NonNull View view, int action,
             @Nullable Bundle arguments) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.performAccessibilityAction(view, action, arguments);
-        }
-        return false;
+        return view.performAccessibilityAction(action, arguments);
     }
 
     /**
@@ -1738,9 +1737,7 @@ public class ViewCompat {
     @UiThread
     public static void setStateDescription(@NonNull View view,
             @Nullable CharSequence stateDescription) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            stateDescriptionProperty().set(view, stateDescription);
-        }
+        stateDescriptionProperty().set(view, stateDescription);
     }
 
     /**
@@ -1787,9 +1784,7 @@ public class ViewCompat {
      * </ul>
      */
     public static void enableAccessibleClickableSpanSupport(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            ensureAccessibilityDelegateCompat(view);
-        }
+        ensureAccessibilityDelegateCompat(view);
     }
 
     /**
@@ -1817,11 +1812,9 @@ public class ViewCompat {
      */
     @Nullable
     public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            AccessibilityNodeProvider provider = Api16Impl.getAccessibilityNodeProvider(view);
-            if (provider != null) {
-                return new AccessibilityNodeProviderCompat(provider);
-            }
+        AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();
+        if (provider != null) {
+            return new AccessibilityNodeProviderCompat(provider);
         }
         return null;
     }
@@ -1910,12 +1903,11 @@ public class ViewCompat {
      *
      * @param view The view on which to invoke the corresponding method.
      * @return The labeled view id.
+     * @deprecated Call {@link View#getLabelFor()} directly.
      */
+    @Deprecated
     public static int getLabelFor(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.getLabelFor(view);
-        }
-        return 0;
+        return view.getLabelFor();
     }
 
     /**
@@ -1924,11 +1916,11 @@ public class ViewCompat {
      *
      * @param view The view on which to invoke the corresponding method.
      * @param labeledId The labeled view id.
+     * @deprecated Call {@link View#setLabelFor(int)} directly.
      */
+    @Deprecated
     public static void setLabelFor(@NonNull View view, @IdRes int labeledId) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.setLabelFor(view, labeledId);
-        }
+        view.setLabelFor(labeledId);
     }
 
     /**
@@ -1960,17 +1952,11 @@ public class ViewCompat {
      *        {@link View#LAYER_TYPE_NONE}
      *
      * @see #setLayerType(View, int, android.graphics.Paint)
+     * @deprecated Call {@link View#setLayerPaint(Paint)} directly.
      */
+    @Deprecated
     public static void setLayerPaint(@NonNull View view, @Nullable Paint paint) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.setLayerPaint(view, paint);
-        } else {
-            // Make sure the paint is correct; this will be cheap if it's the same
-            // instance as was used to call setLayerType earlier.
-            view.setLayerType(view.getLayerType(), paint);
-            // This is expensive, but the only way to accomplish this before JB-MR1.
-            view.invalidate();
-        }
+        view.setLayerPaint(paint);
     }
 
     /**
@@ -1982,13 +1968,13 @@ public class ViewCompat {
      *
      * For compatibility, this will return {@link #LAYOUT_DIRECTION_LTR} if API version
      * is lower than Jellybean MR1 (API 17)
+     *
+     * @deprecated Call {@link View#getLayoutDirection()} directly.
      */
+    @Deprecated
     @ResolvedLayoutDirectionMode
     public static int getLayoutDirection(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.getLayoutDirection(view);
-        }
-        return LAYOUT_DIRECTION_LTR;
+        return view.getLayoutDirection();
     }
 
     /**
@@ -2006,12 +1992,13 @@ public class ViewCompat {
      * Resolution will be done if the value is set to LAYOUT_DIRECTION_INHERIT. The resolution
      * proceeds up the parent chain of the view to get the value. If there is no parent, then it
      * will return the default {@link #LAYOUT_DIRECTION_LTR}.
+     *
+     * @deprecated Call {@link View#setLayoutDirection(int)} directly.
      */
+    @Deprecated
     public static void setLayoutDirection(@NonNull View view,
             @LayoutDirectionMode int layoutDirection) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.setLayoutDirection(view, layoutDirection);
-        }
+        view.setLayoutDirection(layoutDirection);
     }
 
     /**
@@ -2021,13 +2008,12 @@ public class ViewCompat {
      *
      * @param view View to retrieve parent for
      * @return The parent for use in accessibility inspection
+     * @deprecated Call {@link View#getParentForAccessibility()} directly.
      */
+    @Deprecated
     @Nullable
     public static ViewParent getParentForAccessibility(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getParentForAccessibility(view);
-        }
-        return view.getParent();
+        return view.getParentForAccessibility();
     }
 
     /**
@@ -2164,13 +2150,12 @@ public class ViewCompat {
      * @return The live region mode for the view.
      *
      * @see ViewCompat#setAccessibilityLiveRegion(View, int)
+     * @deprecated Call {@link View#getAccessibilityLiveRegion()} directly.
      */
+    @Deprecated
     @AccessibilityLiveRegion
     public static int getAccessibilityLiveRegion(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getAccessibilityLiveRegion(view);
-        }
-        return ACCESSIBILITY_LIVE_REGION_NONE;
+        return view.getAccessibilityLiveRegion();
     }
 
     /**
@@ -2212,12 +2197,12 @@ public class ViewCompat {
      *        <li>{@link #ACCESSIBILITY_LIVE_REGION_POLITE}
      *        <li>{@link #ACCESSIBILITY_LIVE_REGION_ASSERTIVE}
      *        </ul>
+     * @deprecated Call {@link View#setAccessibilityLiveRegion(int)} directly.
      */
+    @Deprecated
     public static void setAccessibilityLiveRegion(@NonNull View view,
             @AccessibilityLiveRegion int mode) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.setAccessibilityLiveRegion(view, mode);
-        }
+        view.setAccessibilityLiveRegion(mode);
     }
 
     /**
@@ -2227,13 +2212,12 @@ public class ViewCompat {
      *
      * @param view The view to get padding for
      * @return the start padding in pixels
+     * @deprecated Call {@link View#getPaddingStart()} directly.
      */
+    @Deprecated
     @Px
     public static int getPaddingStart(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.getPaddingStart(view);
-        }
-        return view.getPaddingLeft();
+        return view.getPaddingStart();
     }
 
     /**
@@ -2243,13 +2227,12 @@ public class ViewCompat {
      *
      * @param view The view to get padding for
      * @return the end padding in pixels
+     * @deprecated Call {@link View#getPaddingEnd()} directly.
      */
+    @Deprecated
     @Px
     public static int getPaddingEnd(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.getPaddingEnd(view);
-        }
-        return view.getPaddingRight();
+        return view.getPaddingEnd();
     }
 
     /**
@@ -2264,14 +2247,12 @@ public class ViewCompat {
      * @param top the top padding in pixels
      * @param end the end padding in pixels
      * @param bottom the bottom padding in pixels
+     * @deprecated Call {@link View#setPaddingRelative(int, int, int, int)} directly.
      */
+    @Deprecated
     public static void setPaddingRelative(@NonNull View view, @Px int start, @Px int top,
             @Px int end, @Px int bottom) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.setPaddingRelative(view, start, top, end, bottom);
-        } else {
-            view.setPadding(start, top, end, bottom);
-        }
+        view.setPaddingRelative(start, top, end, bottom);
     }
 
     private static void bindTempDetach() {
@@ -2388,34 +2369,13 @@ public class ViewCompat {
      * <p>Prior to API 16, this method may return 0 on some platforms.</p>
      *
      * @return the minimum width the view will try to be.
+     * @deprecated Call {@link View#getMinimumWidth()} directly.
      */
+    @Deprecated
     @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
     // Reflective access to private field, unboxing result of reflective get()
     public static int getMinimumWidth(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getMinimumWidth(view);
-        } else {
-            if (!sMinWidthFieldFetched) {
-                try {
-                    sMinWidthField = View.class.getDeclaredField("mMinWidth");
-                    sMinWidthField.setAccessible(true);
-                } catch (NoSuchFieldException e) {
-                    // Couldn't find the field. Abort!
-                }
-                sMinWidthFieldFetched = true;
-            }
-
-            if (sMinWidthField != null) {
-                try {
-                    return (int) sMinWidthField.get(view);
-                } catch (Exception e) {
-                    // Field get failed. Oh well...
-                }
-            }
-        }
-
-        // We failed, return 0
-        return 0;
+        return view.getMinimumWidth();
     }
 
     /**
@@ -2424,34 +2384,13 @@ public class ViewCompat {
      * <p>Prior to API 16, this method may return 0 on some platforms.</p>
      *
      * @return the minimum height the view will try to be.
+     * @deprecated Call {@link View#getMinimumHeight()} directly.
      */
+    @Deprecated
     @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
     // Reflective access to private field, unboxing result of reflective get()
     public static int getMinimumHeight(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getMinimumHeight(view);
-        } else {
-            if (!sMinHeightFieldFetched) {
-                try {
-                    sMinHeightField = View.class.getDeclaredField("mMinHeight");
-                    sMinHeightField.setAccessible(true);
-                } catch (NoSuchFieldException e) {
-                    // Couldn't find the field. Abort!
-                }
-                sMinHeightFieldFetched = true;
-            }
-
-            if (sMinHeightField != null) {
-                try {
-                    return (int) sMinHeightField.get(view);
-                } catch (Exception e) {
-                    // Field get failed. Oh well...
-                }
-            }
-        }
-
-        // We failed, return 0
-        return 0;
+        return view.getMinimumHeight();
     }
 
     /**
@@ -2459,7 +2398,9 @@ public class ViewCompat {
      * specific properties on this View.
      *
      * @return ViewPropertyAnimator The ViewPropertyAnimator associated with this View.
+     * @deprecated Call {@link View#animate()} directly.
      */
+    @Deprecated
     @NonNull
     public static ViewPropertyAnimatorCompat animate(@NonNull View view) {
         if (sViewPropertyAnimatorMap == null) {
@@ -2849,10 +2790,7 @@ public class ViewCompat {
      */
     @Deprecated
     public static int getWindowSystemUiVisibility(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getWindowSystemUiVisibility(view);
-        }
-        return 0;
+        return view.getWindowSystemUiVisibility();
     }
 
     /**
@@ -2864,8 +2802,8 @@ public class ViewCompat {
     public static void requestApplyInsets(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 20) {
             Api20Impl.requestApplyInsets(view);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.requestFitSystemWindows(view);
+        } else {
+            view.requestFitSystemWindows();
         }
     }
 
@@ -2909,12 +2847,11 @@ public class ViewCompat {
      * return false before API 16 (Jellybean).
      *
      * @param view view for which to get the state.
+     * @deprecated Call {@link View#getFitsSystemWindows()} directly.
      */
+    @Deprecated
     public static boolean getFitsSystemWindows(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getFitsSystemWindows(view);
-        }
-        return false;
+        return view.getFitsSystemWindows();
     }
 
     /**
@@ -3399,12 +3336,11 @@ public class ViewCompat {
      *
      * @param view view for which to get the state.
      * @return true if the content in this view might overlap, false otherwise.
+     * @deprecated Call {@link View#hasOverlappingRendering()} directly.
      */
+    @Deprecated
     public static boolean hasOverlappingRendering(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.hasOverlappingRendering(view);
-        }
-        return true;
+        return view.hasOverlappingRendering();
     }
 
     /**
@@ -3413,12 +3349,11 @@ public class ViewCompat {
      *
      * @param view view for which to get the state.
      * @return true if the padding is relative or false if it is not.
+     * @deprecated Call {@link View#isPaddingRelative()} directly.
      */
+    @Deprecated
     public static boolean isPaddingRelative(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.isPaddingRelative(view);
-        }
-        return false;
+        return view.isPaddingRelative();
     }
 
     /**
@@ -3428,13 +3363,11 @@ public class ViewCompat {
      * desired, please use {@code setPadding(int, int, int, int)}.
      * @param view view for which to set the background.
      * @param background the drawable to use as view background.
+     * @deprecated Call {@link View#setBackground(Drawable)} directly.
      */
+    @Deprecated
     public static void setBackground(@NonNull View view, @Nullable Drawable background) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setBackground(view, background);
-        } else {
-            view.setBackgroundDrawable(background);
-        }
+        view.setBackground(background);
     }
 
     /**
@@ -3475,7 +3408,7 @@ public class ViewCompat {
                     if (background.isStateful()) {
                         background.setState(view.getDrawableState());
                     }
-                    Api16Impl.setBackground(view, background);
+                    view.setBackground(background);
                 }
             }
         } else if (view instanceof TintableBackgroundView) {
@@ -3523,7 +3456,7 @@ public class ViewCompat {
                     if (background.isStateful()) {
                         background.setState(view.getDrawableState());
                     }
-                    Api16Impl.setBackground(view, background);
+                    view.setBackground(background);
                 }
             }
         } else if (view instanceof TintableBackgroundView) {
@@ -3991,23 +3924,21 @@ public class ViewCompat {
      * </ul>
      *
      * @return whether the view hierarchy is currently undergoing a layout pass
+     * @deprecated Call {@link View#isInLayout()} directly.
      */
+    @Deprecated
     public static boolean isInLayout(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return Api18Impl.isInLayout(view);
-        }
-        return false;
+        return view.isInLayout();
     }
 
     /**
      * Returns true if {@code view} has been through at least one layout since it
      * was last attached to or detached from a window.
+     * @deprecated Call {@link View#isLaidOut()} directly.
      */
+    @Deprecated
     public static boolean isLaidOut(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.isLaidOut(view);
-        }
-        return view.getWidth() > 0 && view.getHeight() > 0;
+        return view.isLaidOut();
     }
 
     /**
@@ -4019,12 +3950,11 @@ public class ViewCompat {
      * </ul>
      *
      * @return true if layout direction has been resolved.
+     * @deprecated Call {@link View#isLayoutDirectionResolved()} directly.
      */
+    @Deprecated
     public static boolean isLayoutDirectionResolved(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.isLayoutDirectionResolved(view);
-        }
-        return false;
+        return view.isLayoutDirectionResolved();
     }
 
     /**
@@ -4176,11 +4106,11 @@ public class ViewCompat {
      * @param view       The view to set clipBounds.
      * @param clipBounds The rectangular area, in the local coordinates of
      * this view, to which future drawing operations will be clipped.
+     * @deprecated Call {@link View#setClipBounds(Rect)} directly.
      */
+    @Deprecated
     public static void setClipBounds(@NonNull View view, @Nullable Rect clipBounds) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            Api18Impl.setClipBounds(view, clipBounds);
-        }
+        view.setClipBounds(clipBounds);
     }
 
     /**
@@ -4190,35 +4120,32 @@ public class ViewCompat {
      *
      * @return A copy of the current clip bounds if clip bounds are set,
      * otherwise null.
+     * @deprecated Call {@link View#getClipBounds()} directly.
      */
+    @Deprecated
     @Nullable
     public static Rect getClipBounds(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return Api18Impl.getClipBounds(view);
-        }
-        return null;
+        return view.getClipBounds();
     }
 
     /**
      * Returns true if the provided view is currently attached to a window.
+     * @deprecated Call {@link View#isAttachedToWindow()} directly.
      */
+    @Deprecated
     public static boolean isAttachedToWindow(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.isAttachedToWindow(view);
-        }
-        return view.getWindowToken() != null;
+        return view.isAttachedToWindow();
     }
 
     /**
      * Returns whether the provided view has an attached {@link View.OnClickListener}.
      *
      * @return true if there is a listener, false if there is none.
+     * @deprecated Call {@link View#hasOnClickListeners()} directly.
      */
+    @Deprecated
     public static boolean hasOnClickListeners(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 15) {
-            return Api15Impl.hasOnClickListeners(view);
-        }
-        return false;
+        return view.hasOnClickListeners();
     }
 
     /**
@@ -4317,19 +4244,12 @@ public class ViewCompat {
      * </ul>
      *
      * @return The logical display, or null if the view is not currently attached to a window.
+     * @deprecated Call {@link View#getDisplay()} directly.
      */
+    @Deprecated
     @Nullable
-    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public static Display getDisplay(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.getDisplay(view);
-        }
-        if (isAttachedToWindow(view)) {
-            final WindowManager wm = (WindowManager) view.getContext().getSystemService(
-                    Context.WINDOW_SERVICE);
-            return wm.getDefaultDisplay();
-        }
-        return null;
+        return view.getDisplay();
     }
 
     /**
@@ -4552,20 +4472,11 @@ public class ViewCompat {
      * This value will not collide with ID values generated at build time by aapt for R.id.
      *
      * @return a generated ID value
+     * @deprecated Call {@link View#generateViewId()} directly.
      */
+    @Deprecated
     public static int generateViewId() {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.generateViewId();
-        }
-        while (true) {
-            final int result = sNextGeneratedId.get();
-            // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
-            int newValue = result + 1;
-            if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
-            if (sNextGeneratedId.compareAndSet(result, newValue)) {
-                return result;
-            }
-        }
+        return View.generateViewId();
     }
 
     /**
@@ -4760,13 +4671,11 @@ public class ViewCompat {
     @UiThread
     public static void setAccessibilityPaneTitle(@NonNull View view,
             @Nullable CharSequence accessibilityPaneTitle) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            paneTitleProperty().set(view, accessibilityPaneTitle);
-            if (accessibilityPaneTitle != null) {
-                sAccessibilityPaneVisibilityManager.addAccessibilityPane(view);
-            } else {
-                sAccessibilityPaneVisibilityManager.removeAccessibilityPane(view);
-            }
+        paneTitleProperty().set(view, accessibilityPaneTitle);
+        if (accessibilityPaneTitle != null) {
+            sAccessibilityPaneVisibilityManager.addAccessibilityPane(view);
+        } else {
+            sAccessibilityPaneVisibilityManager.removeAccessibilityPane(view);
         }
     }
 
@@ -4917,7 +4826,7 @@ public class ViewCompat {
         void set(View view, T value) {
             if (frameworkAvailable()) {
                 frameworkSet(view, value);
-            } else if (extrasAvailable() && shouldUpdate(get(view), value)) {
+            } else if (shouldUpdate(get(view), value)) {
                 ensureAccessibilityDelegateCompat(view);
                 view.setTag(mTagKey, value);
                 // If we're here, we're guaranteed to be on v19+ (see the logic in
@@ -4931,7 +4840,7 @@ public class ViewCompat {
         T get(View view) {
             if (frameworkAvailable()) {
                 return frameworkGet(view);
-            } else if (extrasAvailable()) {
+            } else {
                 Object value = view.getTag(mTagKey);
                 if (mType.isInstance(value)) {
                     return (T) value;
@@ -4942,10 +4851,6 @@ public class ViewCompat {
 
         private boolean frameworkAvailable() {
             return Build.VERSION.SDK_INT >= mFrameworkMinimumSdk;
-        }
-
-        private boolean extrasAvailable() {
-            return Build.VERSION.SDK_INT >= 19;
         }
 
         boolean shouldUpdate(T oldValue, T newValue) {
@@ -4964,7 +4869,6 @@ public class ViewCompat {
         }
     }
 
-    @RequiresApi(19)
     static void notifyViewAccessibilityStateChangedIfNeeded(View view, int changeType) {
         AccessibilityManager accessibilityManager = (AccessibilityManager)
                 view.getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
@@ -4975,13 +4879,13 @@ public class ViewCompat {
                 && (view.isShown() && view.getWindowVisibility() == VISIBLE);
         // If this is a live region or accessibilityPane, we should send a subtree change event
         // from this view immediately. Otherwise, we can let it propagate up.
-        if ((getAccessibilityLiveRegion(view) != ACCESSIBILITY_LIVE_REGION_NONE)
+        if ((view.getAccessibilityLiveRegion() != ACCESSIBILITY_LIVE_REGION_NONE)
                 || isVisibleAccessibilityPane) {
             final AccessibilityEvent event = AccessibilityEvent.obtain();
             event.setEventType(isVisibleAccessibilityPane
                     ? AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
                     : AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
-            Api19Impl.setContentChangeTypes(event, changeType);
+            event.setContentChangeTypes(changeType);
             if (isVisibleAccessibilityPane) {
                 event.getText().add(getAccessibilityPaneTitle(view));
                 setImportantForAccessibilityIfNeeded(view);
@@ -4991,7 +4895,7 @@ public class ViewCompat {
             final AccessibilityEvent event = AccessibilityEvent.obtain();
             view.onInitializeAccessibilityEvent(event);
             event.setEventType(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-            Api19Impl.setContentChangeTypes(event, changeType);
+            event.setContentChangeTypes(changeType);
             event.setSource(view);
             view.onPopulateAccessibilityEvent(event);
             event.getText().add(getAccessibilityPaneTitle(view));
@@ -4999,7 +4903,7 @@ public class ViewCompat {
         } else if (view.getParent() != null) {
             final ViewParent parent = view.getParent();
             try {
-                Api19Impl.notifySubtreeAccessibilityStateChanged(parent, view, view, changeType);
+                parent.notifySubtreeAccessibilityStateChanged(view, view, changeType);
             } catch (AbstractMethodError e) {
                 Log.e(TAG, view.getParent().getClass().getSimpleName()
                         + " does not fully implement ViewParent", e);
@@ -5008,10 +4912,8 @@ public class ViewCompat {
     }
 
     private static void setImportantForAccessibilityIfNeeded(View view) {
-        if (ViewCompat.getImportantForAccessibility(view)
-                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-            ViewCompat.setImportantForAccessibility(view,
-                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        if (view.getImportantForAccessibility() == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
     }
 
@@ -5022,17 +4924,15 @@ public class ViewCompat {
             implements ViewTreeObserver.OnGlobalLayoutListener, View.OnAttachStateChangeListener {
         private final WeakHashMap<View, Boolean> mPanesToVisible = new WeakHashMap<>();
 
-        @RequiresApi(19)
         @Override
         public void onGlobalLayout() {
             if (Build.VERSION.SDK_INT < 28) {
                 for (Map.Entry<View, Boolean> entry : mPanesToVisible.entrySet()) {
-                    checkPaneVisibility(entry.getKey(), entry.getValue());
+                    checkPaneVisibility(entry);
                 }
             }
         }
 
-        @RequiresApi(19)
         @Override
         public void onViewAttachedToWindow(View view) {
             // When detached the view loses its viewTreeObserver.
@@ -5044,43 +4944,40 @@ public class ViewCompat {
             // Don't do anything.
         }
 
-        @RequiresApi(19)
         void addAccessibilityPane(View pane) {
             mPanesToVisible.put(pane, pane.isShown() && pane.getWindowVisibility() == VISIBLE);
             pane.addOnAttachStateChangeListener(this);
-            if (Api19Impl.isAttachedToWindow(pane)) {
+            if (pane.isAttachedToWindow()) {
                 registerForLayoutCallback(pane);
             }
         }
 
-        @RequiresApi(19)
         void removeAccessibilityPane(View pane) {
             mPanesToVisible.remove(pane);
             pane.removeOnAttachStateChangeListener(this);
             unregisterForLayoutCallback(pane);
         }
 
-        @RequiresApi(19)
-        private void checkPaneVisibility(View pane, boolean oldVisibility) {
+        private void checkPaneVisibility(Map.Entry<View, Boolean> panesToVisibleEntry) {
+            View pane = panesToVisibleEntry.getKey();
+            boolean oldVisibility = panesToVisibleEntry.getValue();
             boolean newVisibility = pane.isShown() && pane.getWindowVisibility() == VISIBLE;
             if (oldVisibility != newVisibility) {
                 int contentChangeType = newVisibility
                         ? AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED
                         : AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED;
                 notifyViewAccessibilityStateChangedIfNeeded(pane, contentChangeType);
-                mPanesToVisible.put(pane, newVisibility);
+                panesToVisibleEntry.setValue(newVisibility);
             }
         }
 
-        @RequiresApi(19)
         private void registerForLayoutCallback(View view) {
             view.getViewTreeObserver().addOnGlobalLayoutListener(this);
         }
 
-        @RequiresApi(19)
         private void unregisterForLayoutCallback(View view) {
             ViewTreeObserver observer = view.getViewTreeObserver();
-            Api16Impl.removeOnGlobalLayoutListener(observer, this);
+            observer.removeOnGlobalLayoutListener(this);
         }
     }
 
@@ -5190,7 +5087,7 @@ public class ViewCompat {
             }
             if (currentReceiver != null) {
                 View target = currentReceiver.get();
-                if (target != null && ViewCompat.isAttachedToWindow(target)) {
+                if (target != null && target.isAttachedToWindow()) {
                     onUnhandledKeyEvent(target, event);
                 }
                 // consume anyways so that we don't feed uncaptured key events to other views
@@ -5555,8 +5452,9 @@ public class ViewCompat {
 
         @DoNotInline
         static void setContentCaptureSession(View view,
-                ContentCaptureSession contentCaptureSession) {
-            view.setContentCaptureSession(contentCaptureSession);
+                ContentCaptureSessionCompat contentCaptureSession) {
+            view.setContentCaptureSession(contentCaptureSession == null
+                    ? null : contentCaptureSession.toContentCaptureSession());
         }
     }
 
@@ -5689,83 +5587,6 @@ public class ViewCompat {
         }
     }
 
-    @RequiresApi(18)
-    static class Api18Impl {
-        private Api18Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean isInLayout(@NonNull View view) {
-            return view.isInLayout();
-        }
-
-        @DoNotInline
-        static void setClipBounds(@NonNull View view, Rect clipBounds) {
-            view.setClipBounds(clipBounds);
-        }
-
-        @DoNotInline
-        static Rect getClipBounds(@NonNull View view) {
-            return view.getClipBounds();
-        }
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean isLaidOut(@NonNull View view) {
-            return view.isLaidOut();
-        }
-
-        @DoNotInline
-        static boolean isAttachedToWindow(@NonNull View view) {
-            return view.isAttachedToWindow();
-        }
-
-        @DoNotInline
-        static boolean isLayoutDirectionResolved(@NonNull View view) {
-            return view.isLayoutDirectionResolved();
-        }
-
-        @DoNotInline
-        static int getAccessibilityLiveRegion(View view) {
-            return view.getAccessibilityLiveRegion();
-        }
-
-        @DoNotInline
-        static void setAccessibilityLiveRegion(View view, int mode) {
-            view.setAccessibilityLiveRegion(mode);
-        }
-
-        @DoNotInline
-        static void setContentChangeTypes(AccessibilityEvent accessibilityEvent, int changeTypes) {
-            accessibilityEvent.setContentChangeTypes(changeTypes);
-        }
-
-        @DoNotInline
-        static void notifySubtreeAccessibilityStateChanged(ViewParent viewParent, View child,
-                View source, int changeType) {
-            viewParent.notifySubtreeAccessibilityStateChanged(child, source, changeType);
-        }
-    }
-
-    @RequiresApi(15)
-    static class Api15Impl {
-        private Api15Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean hasOnClickListeners(@NonNull View view) {
-            return view.hasOnClickListeners();
-        }
-    }
-
     @RequiresApi(24)
     static class Api24Impl {
         private Api24Impl() {
@@ -5803,171 +5624,6 @@ public class ViewCompat {
         @DoNotInline
         static void dispatchFinishTemporaryDetach(View view) {
             view.dispatchFinishTemporaryDetach();
-        }
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static Display getDisplay(@NonNull View view) {
-            return view.getDisplay();
-        }
-
-        @DoNotInline
-        static int generateViewId() {
-            return View.generateViewId();
-        }
-
-        @DoNotInline
-        static int getLabelFor(View view) {
-            return view.getLabelFor();
-        }
-
-        @DoNotInline
-        static void setLabelFor(View view, int id) {
-            view.setLabelFor(id);
-        }
-
-        @DoNotInline
-        static void setLayerPaint(View view, Paint paint) {
-            view.setLayerPaint(paint);
-        }
-
-        @DoNotInline
-        static int getLayoutDirection(View view) {
-            return view.getLayoutDirection();
-        }
-
-        @DoNotInline
-        static void setLayoutDirection(View view, int layoutDirection) {
-            view.setLayoutDirection(layoutDirection);
-        }
-
-        @DoNotInline
-        static int getPaddingStart(View view) {
-            return view.getPaddingStart();
-        }
-
-        @DoNotInline
-        static int getPaddingEnd(View view) {
-            return view.getPaddingEnd();
-        }
-
-        @DoNotInline
-        static void setPaddingRelative(View view, int start, int top, int end, int bottom) {
-            view.setPaddingRelative(start, top, end, bottom);
-        }
-
-        @DoNotInline
-        static boolean isPaddingRelative(View view) {
-            return view.isPaddingRelative();
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean hasTransientState(View view) {
-            return view.hasTransientState();
-        }
-
-        @DoNotInline
-        static void setHasTransientState(View view, boolean hasTransientState) {
-            view.setHasTransientState(hasTransientState);
-        }
-
-        @DoNotInline
-        static void postInvalidateOnAnimation(View view) {
-            view.postInvalidateOnAnimation();
-        }
-
-        @DoNotInline
-        static void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            view.postInvalidateOnAnimation(left, top, right, bottom);
-        }
-
-        @DoNotInline
-        static void postOnAnimation(View view, Runnable action) {
-            view.postOnAnimation(action);
-        }
-
-        @DoNotInline
-        static void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
-            view.postOnAnimationDelayed(action, delayMillis);
-        }
-
-        @DoNotInline
-        static int getImportantForAccessibility(View view) {
-            return view.getImportantForAccessibility();
-        }
-
-        @DoNotInline
-        static void setImportantForAccessibility(View view, int mode) {
-            view.setImportantForAccessibility(mode);
-        }
-
-        @DoNotInline
-        static AccessibilityNodeProvider getAccessibilityNodeProvider(View view) {
-            return view.getAccessibilityNodeProvider();
-        }
-
-        @DoNotInline
-        static ViewParent getParentForAccessibility(View view) {
-            return view.getParentForAccessibility();
-        }
-
-        @DoNotInline
-        static int getMinimumWidth(View view) {
-            return view.getMinimumWidth();
-        }
-
-        @DoNotInline
-        static int getMinimumHeight(View view) {
-            return view.getMinimumHeight();
-        }
-
-        @DoNotInline
-        static int getWindowSystemUiVisibility(View view) {
-            return view.getWindowSystemUiVisibility();
-        }
-
-        @DoNotInline
-        static void requestFitSystemWindows(View view) {
-            view.requestFitSystemWindows();
-        }
-
-        @DoNotInline
-        static boolean getFitsSystemWindows(View view) {
-            return view.getFitsSystemWindows();
-        }
-
-        @DoNotInline
-        static boolean performAccessibilityAction(View view, int action, Bundle arguments) {
-            return view.performAccessibilityAction(action, arguments);
-        }
-
-        @DoNotInline
-        static boolean hasOverlappingRendering(View view) {
-            return view.hasOverlappingRendering();
-        }
-
-        @DoNotInline
-        static void setBackground(View view, Drawable background) {
-            view.setBackground(background);
-        }
-
-        @DoNotInline
-        static void removeOnGlobalLayoutListener(ViewTreeObserver viewTreeObserver,
-                ViewTreeObserver.OnGlobalLayoutListener victim) {
-            viewTreeObserver.removeOnGlobalLayoutListener(victim);
         }
     }
 
@@ -6051,8 +5707,8 @@ public class ViewCompat {
         }
 
         @DoNotInline
-        public static void setAutofillId(View view, AutofillId id) {
-            view.setAutofillId(id);
+        public static void setAutofillId(View view, AutofillIdCompat id) {
+            view.setAutofillId(id == null ? null : id.toAutofillId());
         }
     }
 

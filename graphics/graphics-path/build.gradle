@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -25,12 +32,11 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    implementation('androidx.appcompat:appcompat:1.6.1')
-    implementation(project(':core:core'))
+    implementation('androidx.core:core:1.12.0')
 
-    androidTestImplementation("androidx.annotation:annotation:1.4.0")
-    androidTestImplementation("androidx.core:core-ktx:1.8.0")
-    androidTestImplementation("androidx.test:core:1.4.0@aar")
+    androidTestImplementation("androidx.annotation:annotation:1.7.0")
+    androidTestImplementation("androidx.core:core-ktx:1.12.0")
+    androidTestImplementation("androidx.test:core:1.5.0@aar")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -45,28 +51,29 @@ android {
         minSdkVersion 21 // Limited to 21+ due to native changes before that release
         externalNativeBuild {
             cmake {
-                cppFlags.addAll(
-                        [
-                        "-std=c++17",
-                        "-Wno-unused-command-line-argument",
-                        "-Wl,--hash-style=both", // Required to support API levels below 23
-                        "-fno-stack-protector",
-                        "-fno-exceptions",
-                        "-fno-unwind-tables",
-                        "-fno-asynchronous-unwind-tables",
-                        "-fno-rtti",
-                        "-ffast-math",
-                        "-ffp-contract=fast",
-                        "-fvisibility-inlines-hidden",
-                        "-fvisibility=hidden",
-                        "-fomit-frame-pointer",
-                        "-ffunction-sections",
-                        "-fdata-sections",
-                        "-Wl,--gc-sections",
-                        "-Wl,-Bsymbolic-functions",
+                cppFlags.addAll([
+                    "-std=c++17",
+                    "-Wno-unused-command-line-argument",
+                    "-Wl,--hash-style=both", // Required to support API levels below 23
+                    "-fno-stack-protector",
+                    "-fno-exceptions",
+                    "-fno-unwind-tables",
+                    "-fno-asynchronous-unwind-tables",
+                    "-fno-rtti",
+                    "-ffast-math",
+                    "-ffp-contract=fast",
+                    "-fvisibility-inlines-hidden",
+                    "-fvisibility=hidden",
+                    "-fomit-frame-pointer",
+                    "-ffunction-sections",
+                    "-fdata-sections",
+                    "-Wl,--gc-sections",
+                    "-Wl,-Bsymbolic-functions",
+                    "-nostdlib++"
                 ])
             }
         }
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     externalNativeBuild {
@@ -75,7 +82,6 @@ android {
             version libs.versions.cmake.get()
         }
     }
-
 }
 
 androidx {

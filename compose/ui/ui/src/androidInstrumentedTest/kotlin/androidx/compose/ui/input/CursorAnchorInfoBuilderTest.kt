@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.input
 
 import android.graphics.Matrix
@@ -56,6 +58,7 @@ import kotlin.math.ceil
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@Suppress("DEPRECATION")
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class CursorAnchorInfoBuilderTest {

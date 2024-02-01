@@ -344,16 +344,43 @@ class BackdropScaffoldTest {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @Test
+    fun backdropScaffold_deprecateScaffoldState_doesNotCrash() {
+        lateinit var scaffoldState: BackdropScaffoldState
+        rule.setContent {
+            scaffoldState = BackdropScaffoldState(
+                initialValue = Revealed
+            )
+            BackdropScaffold(
+                scaffoldState = scaffoldState,
+                peekHeight = peekHeight,
+                headerHeight = headerHeight,
+                appBar = { Box(Modifier.height(peekHeight)) },
+                backLayerContent = { Box(Modifier.height(contentHeight)) },
+                frontLayerContent = { Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag(frontLayer)) }
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState.currentValue).isEqualTo(Revealed)
+        }
+    }
+
     /**
      * Tests that the state and offset of [swipeable] are updated when swiping.
      */
     @Test
     fun backdropScaffold_syncThresholdUpdate() {
         val increasedAnchor = mutableStateOf(false)
-        val scaffoldState = BackdropScaffoldState(Revealed)
+        var scaffoldState: BackdropScaffoldState? = null
         rule.setContent {
+            scaffoldState = rememberBackdropScaffoldState(initialValue = Revealed)
             BackdropScaffold(
-                scaffoldState = scaffoldState,
+                scaffoldState = scaffoldState!!,
                 frontLayerScrimColor = Color.Red,
                 appBar = { },
                 backLayerContent = {
@@ -374,21 +401,21 @@ class BackdropScaffoldTest {
         }
 
         val revealedOffset = rule.runOnIdle {
-            assertThat(scaffoldState.currentValue).isEqualTo(BackdropValue.Revealed)
+            assertThat(scaffoldState?.currentValue).isEqualTo(BackdropValue.Revealed)
             // state change changes the anchors, causing the recalculation
             increasedAnchor.value = true
-            scaffoldState.offset.value
+            scaffoldState?.requireOffset()
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState.offset.value).isNotEqualTo(revealedOffset)
+            assertThat(scaffoldState?.requireOffset()).isNotEqualTo(revealedOffset)
             // swap back, causing threshold update during update-caused settle
             increasedAnchor.value = false
         }
 
         rule.runOnIdle {
             // no crash and assert passes
-            assertThat(scaffoldState.offset.value).isEqualTo(revealedOffset)
+            assertThat(scaffoldState?.requireOffset()).isEqualTo(revealedOffset)
         }
     }
 

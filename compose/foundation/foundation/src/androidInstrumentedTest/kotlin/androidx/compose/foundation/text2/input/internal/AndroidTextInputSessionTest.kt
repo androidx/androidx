@@ -20,6 +20,7 @@ import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -30,8 +31,8 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
+import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.platform.textInputSession
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
@@ -204,7 +205,7 @@ class AndroidTextInputSessionTest {
         onImeAction: (ImeAction) -> Unit = {}
     ) {
         coroutineScope.launch {
-            textInputNode.textInputSession {
+            textInputNode.establishTextInputSession {
                 inputSessionWithDefaultsForTest(
                     state,
                     imeOptions,
@@ -217,15 +218,18 @@ class AndroidTextInputSessionTest {
     private suspend fun PlatformTextInputSession.inputSessionWithDefaultsForTest(
         state: TextFieldState = TextFieldState(),
         imeOptions: ImeOptions = ImeOptions.Default,
-        onImeAction: (ImeAction) -> Unit = {}
+        onImeAction: (ImeAction) -> Unit = {},
+        receiveContentConfiguration: ReceiveContentConfiguration? = null
     ): Nothing = platformSpecificTextInputSession(
         state = TransformedTextFieldState(
             textFieldState = state,
             inputTransformation = null,
             codepointTransformation = null
         ),
+        layoutState = TextLayoutState(),
         imeOptions = imeOptions,
-        onImeAction = onImeAction
+        receiveContentConfiguration = receiveContentConfiguration,
+        onImeAction = onImeAction,
     )
 
     private inner class TestTextElement : ModifierNodeElement<TestTextNode>() {

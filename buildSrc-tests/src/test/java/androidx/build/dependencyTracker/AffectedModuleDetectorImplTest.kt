@@ -16,8 +16,13 @@
 
 package androidx.build.dependencyTracker
 
+import java.io.File
+import java.util.function.BiFunction
 import org.gradle.api.Project
+import org.gradle.api.Transformer
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.api.provider.Provider
+import org.gradle.api.specs.Spec
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
@@ -27,7 +32,6 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
 
 @RunWith(JUnit4::class)
 class AffectedModuleDetectorImplTest {
@@ -164,6 +168,29 @@ class AffectedModuleDetectorImplTest {
             .build()
     }
 
+    class TestProvider(private val list: List<String>) : Provider<List<String>> {
+        override fun get(): List<String> = list
+        override fun getOrNull(): List<String> = list
+        override fun isPresent(): Boolean = TODO("unused")
+        override fun forUseAtConfigurationTime(): Provider<List<String>> = TODO("unused")
+        override fun <U : Any?, R : Any?> zip(
+            right: Provider<U>,
+            combiner: BiFunction<in List<String>, in U, out R?>
+        ): Provider<R> = TODO("unused")
+        override fun orElse(provider: Provider<out List<String>>): Provider<List<String>> {
+            TODO("unused")
+        }
+        override fun orElse(value: List<String>): Provider<List<String>> = TODO("unused")
+        override fun <S : Any?> flatMap(
+            transformer: Transformer<out Provider<out S>?, in List<String>>
+        ): Provider<S> = TODO("unused")
+        override fun filter(spec: Spec<in List<String>>): Provider<List<String>> = TODO("unused")
+        override fun <S : Any?> map(
+            transformer: Transformer<out S?, in List<String>>
+        ): Provider<S> = TODO("unused")
+        override fun getOrElse(defaultValue: List<String>): List<String> = TODO("unused")
+    }
+
     @Test
     fun noChangeCLs() {
         val detector = AffectedModuleDetectorImpl(
@@ -172,9 +199,7 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
-                emptyList()
-            }
+            changedFilesProvider = TestProvider(emptyList())
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -204,9 +229,9 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(convertToFilePath("p1", "foo.java"))
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -230,12 +255,12 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(
                     convertToFilePath("p1", "foo.java"),
                     convertToFilePath("p2", "bar.java")
                 )
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -259,9 +284,9 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf("foo.java")
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -291,9 +316,9 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf("foo.java", convertToFilePath("p7", "bar.java"))
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -323,13 +348,13 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(
                     convertToFilePath(
                         "p8", "foo.java"
                     )
                 )
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -353,13 +378,13 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = setOf(setOf(":cobuilt1", ":cobuilt2", ":cobuilt3")),
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(
                     convertToFilePath(
                         "p8", "foo.java"
                     )
                 )
-            }
+            )
         )
         // This should trigger IllegalStateException due to missing cobuilt3
         detector.changedProjects
@@ -373,13 +398,13 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = setOf(setOf("cobuilt3", "cobuilt4", "cobuilt5")),
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(
                     convertToFilePath(
                         "p8", "foo.java"
                     )
                 )
-            }
+            )
         )
         // There should be no exception thrown here because *all* cobuilts are missing.
         detector.changedProjects
@@ -392,9 +417,9 @@ class AffectedModuleDetectorImplTest {
             dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(convertToFilePath("p1", "foo.java"))
-            }
+            )
         )
         // Verify expectations on affected projects
         MatcherAssert.assertThat(
@@ -439,9 +464,7 @@ class AffectedModuleDetectorImplTest {
             dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
-            changedFilesProvider = {
-                emptyList()
-            }
+            changedFilesProvider = TestProvider(emptyList())
         )
         // Verify expectations on affected projects
         MatcherAssert.assertThat(
@@ -485,9 +508,9 @@ class AffectedModuleDetectorImplTest {
             dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(convertToFilePath("unknown", "file.java"))
-            }
+            )
         )
         // Verify expectations on affected projects
         MatcherAssert.assertThat(
@@ -532,9 +555,9 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf("playground-common/tmp.kt")
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -558,9 +581,9 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(".github/workflows/bar.txt")
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -584,9 +607,9 @@ class AffectedModuleDetectorImplTest {
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf("playground-common/tmp.kt", "root.txt")
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.buildAll,
@@ -605,9 +628,9 @@ class AffectedModuleDetectorImplTest {
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
             ignoredPaths = ignoredPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(convertToFilePath("ignored", "example.txt"))
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.buildAll,
@@ -626,12 +649,12 @@ class AffectedModuleDetectorImplTest {
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
             ignoredPaths = ignoredPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(
                     convertToFilePath("ignored", "example.txt"),
                     convertToFilePath("p1", "foo.kt")
                 )
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.changedProjects,
@@ -656,12 +679,12 @@ class AffectedModuleDetectorImplTest {
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
             ignoredPaths = ignoredPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(
                     convertToFilePath("ignored", "example.txt"),
                     convertToFilePath("unknown", "foo.kt")
                 )
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.buildAll,
@@ -680,13 +703,13 @@ class AffectedModuleDetectorImplTest {
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
             ignoredPaths = ignoredPaths,
-            changedFilesProvider = {
+            changedFilesProvider = TestProvider(
                 listOf(
                     "ignored/eg.txt",
                     convertToFilePath("unknown", "foo.kt"),
                     convertToFilePath("p1", "bar.kt")
                 )
-            }
+            )
         )
         MatcherAssert.assertThat(
             detector.buildAll,

@@ -26,7 +26,9 @@ import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.CameraGraphImpl
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -34,6 +36,10 @@ import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.graph.GraphProcessorImpl
 import androidx.camera.camera2.pipe.graph.Listener3A
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.graph.SurfaceGraph
+import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
+import androidx.camera.camera2.pipe.internal.FrameDistributor
+import androidx.camera.camera2.pipe.internal.ImageSourceMap
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -92,6 +98,9 @@ internal abstract class SharedCameraGraphModules {
     @CameraGraphContext
     abstract fun bindCameraGraphContext(@CameraPipeContext cameraPipeContext: Context): Context
 
+    @Binds
+    abstract fun bindStreamGraph(streamGraph: StreamGraphImpl): StreamGraph
+
     companion object {
         @CameraGraphScope
         @Provides
@@ -105,18 +114,50 @@ internal abstract class SharedCameraGraphModules {
         @ForCameraGraph
         fun provideRequestListeners(
             graphConfig: CameraGraph.Config,
-            listener3A: Listener3A
+            listener3A: Listener3A,
+            frameDistributor: FrameDistributor
         ): List<@JvmSuppressWildcards Request.Listener> {
             val listeners = mutableListOf<Request.Listener>(listener3A)
 
             // Order slightly matters, add internal listeners first, and external listeners second.
             listeners.add(listener3A)
 
+            // FrameDistributor is responsible for all image grouping and distribution.
+            listeners.add(frameDistributor)
+
             // Listeners in CameraGraph.Config can de defined outside of the CameraPipe library,
             // and since we iterate thought the listeners in order and invoke them, it appears
             // beneficial to add the internal listeners first and then the graph config listeners.
             listeners.addAll(graphConfig.defaultListeners)
             return listeners
+        }
+
+        @CameraGraphScope
+        @Provides
+        fun provideSurfaceGraph(
+            streamGraphImpl: StreamGraphImpl,
+            cameraController: CameraController,
+            cameraSurfaceManager: CameraSurfaceManager,
+            imageSourceMap: ImageSourceMap
+        ): SurfaceGraph {
+            return SurfaceGraph(
+                streamGraphImpl,
+                cameraController,
+                cameraSurfaceManager,
+                imageSourceMap.imageSources
+            )
+        }
+
+        @CameraGraphScope
+        @Provides
+        fun provideFrameDistributor(
+            imageSourceMap: ImageSourceMap,
+            frameCaptureQueue: FrameCaptureQueue
+        ): FrameDistributor {
+            return FrameDistributor(
+                imageSourceMap.imageSources,
+                frameCaptureQueue
+            ) { }
         }
     }
 }
@@ -165,7 +206,7 @@ internal abstract class InternalCameraGraphModules {
             cameraBackend: CameraBackend,
             cameraContext: CameraContext,
             graphProcessor: GraphProcessorImpl,
-            streamGraph: StreamGraphImpl,
+            streamGraph: StreamGraph,
         ): CameraController {
             return cameraBackend.createCameraController(
                 cameraContext, graphConfig, graphProcessor, streamGraph

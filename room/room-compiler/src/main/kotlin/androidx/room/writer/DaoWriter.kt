@@ -202,7 +202,10 @@ class DaoWriter(
             } else {
                 val placeholders = requiredTypeConverters.joinToString(",") { "%L" }
                 val requiredTypeConvertersLiterals = requiredTypeConverters.map {
-                    XCodeBlock.ofJavaClassLiteral(language, it)
+                    when (language) {
+                        CodeLanguage.JAVA -> XCodeBlock.ofJavaClassLiteral(language, it)
+                        CodeLanguage.KOTLIN -> XCodeBlock.ofKotlinClassLiteral(language, it)
+                    }
                 }.toTypedArray()
                 when (language) {
                     CodeLanguage.JAVA ->
@@ -232,7 +235,10 @@ class DaoWriter(
         ).apply {
             returns(
                 CommonTypeNames.LIST.parametrizedBy(
-                    CommonTypeNames.JAVA_CLASS.parametrizedBy(XTypeName.ANY_WILDCARD)
+                    when (language) {
+                        CodeLanguage.JAVA -> CommonTypeNames.JAVA_CLASS
+                        CodeLanguage.KOTLIN -> CommonTypeNames.KOTLIN_CLASS
+                    }.parametrizedBy(XTypeName.ANY_WILDCARD)
                 )
             )
             addCode(body)
@@ -581,6 +587,28 @@ class DaoWriter(
     }
 
     private fun createQueryMethodBody(method: ReadQueryMethod): XCodeBlock {
+        if (!method.queryResultBinder.isMigratedToDriver()) {
+            return compatCreateQueryMethodBody(method)
+        }
+
+        val scope = CodeGenScope(this, useDriverApi = true)
+        val queryWriter = QueryWriter(method)
+        val sqlVar = scope.getTmpVar("_sql")
+        val listSizeArgs = queryWriter.prepareQuery(sqlVar, scope)
+        method.queryResultBinder.convertAndReturn(
+            sqlQueryVar = sqlVar,
+            dbProperty = dbProperty,
+            bindStatement = { stmtVar ->
+                queryWriter.bindArgs(stmtVar, listSizeArgs, this)
+            },
+            returnTypeName = method.returnType.asTypeName(),
+            inTransaction = method.inTransaction,
+            scope = scope
+        )
+        return scope.generate()
+    }
+
+    private fun compatCreateQueryMethodBody(method: ReadQueryMethod): XCodeBlock {
         val queryWriter = QueryWriter(method)
         val scope = CodeGenScope(this)
         val sqlVar = scope.getTmpVar("_sql")

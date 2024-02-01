@@ -18,7 +18,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
 }
 
@@ -39,10 +39,10 @@ dependencies {
     implementation(project(":activity:activity"))
     implementation(project(":work:work-runtime-ktx"))
     implementation(project(":hilt:hilt-work"))
-    kapt(project(":hilt:hilt-compiler"))
+    ksp(project(":hilt:hilt-compiler"))
     implementation(libs.kotlinStdlib)
     implementation(libs.hiltAndroid)
-    kapt(libs.hiltCompiler)
+    ksp(libs.hiltCompiler)
 
     androidTestImplementation(project(":activity:activity"))
     androidTestImplementation(libs.truth)
@@ -51,7 +51,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":work:work-testing"))
     androidTestImplementation(libs.hiltAndroidTesting)
-    kaptAndroidTest(libs.hiltCompiler)
+    kspAndroidTest(libs.hiltCompiler)
 }
 
 hilt {

@@ -19,8 +19,7 @@ package androidx.core.text;
 import static androidx.core.text.TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR;
 
 import android.text.SpannableStringBuilder;
-
-import androidx.core.view.ViewCompat;
+import android.view.View;
 
 import java.util.Locale;
 
@@ -122,6 +121,7 @@ public final class BidiFormatter {
     /**
      * Empty string constant.
      */
+    @SuppressWarnings("InlineTrivialConstant")
     private static final String EMPTY_STRING = "";
 
     /**
@@ -513,7 +513,7 @@ public final class BidiFormatter {
      * @return true if the {@code locale} directionality is RTL. False otherwise.
      */
     static boolean isRtlLocale(Locale locale) {
-        return (TextUtilsCompat.getLayoutDirectionFromLocale(locale) == ViewCompat.LAYOUT_DIRECTION_RTL);
+        return (TextUtilsCompat.getLayoutDirectionFromLocale(locale) == View.LAYOUT_DIRECTION_RTL);
     }
 
     /**

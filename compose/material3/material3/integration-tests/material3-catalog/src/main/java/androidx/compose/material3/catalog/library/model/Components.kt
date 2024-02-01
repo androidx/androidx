@@ -18,7 +18,9 @@ package androidx.compose.material3.catalog.library.model
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.catalog.library.R
-import androidx.compose.material3.catalog.library.util.AdaptiveMaterial3SourceUrl
+import androidx.compose.material3.catalog.library.util.AdaptiveGuidelinesUrl
+import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteMaterial3SourceUrl
+import androidx.compose.material3.catalog.library.util.AdaptiveSourceUrl
 import androidx.compose.material3.catalog.library.util.ComponentGuidelinesUrl
 import androidx.compose.material3.catalog.library.util.DocsUrl
 import androidx.compose.material3.catalog.library.util.Material3SourceUrl
@@ -42,6 +44,20 @@ private var nextId: Int = 1
 private fun nextId(): Int = nextId.also { nextId += 1 }
 
 // Components are ordered alphabetically by name.
+
+private val Adaptive =
+    Component(
+        id = nextId(),
+        name = "Adaptive",
+        description =
+        "Adaptive scaffolds provides automatic layout adjustment on different window size " +
+            "classes and postures.",
+        // No adaptive icon
+        guidelinesUrl = "$AdaptiveGuidelinesUrl/understanding-layout/overview",
+        docsUrl = "$DocsUrl/adaptive",
+        sourceUrl = "$AdaptiveSourceUrl/ThreePaneScaffold.kt",
+        examples = AdaptiveExamples
+    )
 
 private val Badge =
     Component(
@@ -103,6 +119,18 @@ private val Card = Component(
     docsUrl = "$PackageSummaryUrl#card",
     sourceUrl = "$Material3SourceUrl/Card.kt",
     examples = CardExamples
+)
+
+private val Carousel = Component(
+    id = nextId(),
+    name = "Carousel",
+    description = "Carousels are stylized versions of lists that provide a unique viewing and " +
+        "behavior that suit large imagery and other visually rich content.",
+    // No carousel icon
+    guidelinesUrl = "$StyleGuidelinesUrl/carousel",
+    docsUrl = "$PackageSummaryUrl#carousel",
+    sourceUrl = "$Material3SourceUrl/Carousel.kt",
+    examples = CarouselExamples
 )
 
 private val Checkboxes = Component(
@@ -254,7 +282,7 @@ private val NavigationSuiteScaffold = Component(
     // No navigation suite scaffold icon
     guidelinesUrl = "", // TODO: Add guidelines url when available
     docsUrl = "", // TODO: Add docs url when available
-    sourceUrl = "$AdaptiveMaterial3SourceUrl/NavigationSuiteScaffold.kt",
+    sourceUrl = "$AdaptiveNavigationSuiteMaterial3SourceUrl/NavigationSuiteScaffold.kt",
     examples = NavigationSuiteScaffoldExamples
 )
 
@@ -268,6 +296,19 @@ private val ProgressIndicators = Component(
     docsUrl = "$DocsUrl#circularprogressindicator",
     sourceUrl = "$Material3SourceUrl/ProgressIndicator.kt",
     examples = ProgressIndicatorsExamples
+)
+
+private val PullToRefreshIndicators = Component(
+    id = nextId(),
+    name = "Pull-to-Refresh Indicator",
+    description = "Pull to refresh is a swipe gesture available at the beginning of lists, grid " +
+        "lists, and card collections where the most recent content appears ",
+    // No pull-to-refresh icon
+    // TODO: Request component guidelines documentation from design.
+    guidelinesUrl = "",
+    docsUrl = "$DocsUrl#pulltorefreshcontainer",
+    sourceUrl = "$Material3SourceUrl/PullToRefresh.kt",
+    examples = PullToRefreshExamples
 )
 
 private val RadioButtons = Component(
@@ -396,11 +437,13 @@ private val TopAppBar = Component(
 
 /** Components for the catalog, ordered alphabetically by name. */
 val Components = listOf(
+    Adaptive,
     Badge,
     BottomAppBars,
     BottomSheets,
     Buttons,
     Card,
+    // Carousel, // TODO: Re-enable when ready
     Checkboxes,
     Chips,
     DatePickers,
@@ -415,6 +458,7 @@ val Components = listOf(
     NavigationRail,
     NavigationSuiteScaffold,
     ProgressIndicators,
+    PullToRefreshIndicators,
     RadioButtons,
     SearchBars,
     SegmentedButtons,

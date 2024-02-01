@@ -50,11 +50,11 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun assertTrue(actual: Boolean, message: String? = null) {
+    internal inline fun assertTrue(actual: Boolean, message: () -> String? = { null }) {
         contract { returns() implies actual }
 
         if (!actual) {
-            fail(message)
+            fail(message())
         }
     }
 
@@ -63,11 +63,11 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun assertFalse(actual: Boolean, message: String? = null) {
+    internal inline fun assertFalse(actual: Boolean, message: () -> String? = { null }) {
         contract { returns() implies !actual }
 
         if (actual) {
-            fail(message)
+            fail(message())
         }
     }
 
@@ -76,7 +76,11 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun assertEquals(expected: Any?, actual: Any?, message: String? = null) {
+    internal inline fun assertEquals(
+        expected: Any?,
+        actual: Any?,
+        message: () -> String? = { null },
+    ) {
         assertTrue(expected == actual, message)
     }
 
@@ -85,7 +89,7 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun assertNotEquals(illegal: Any?, actual: Any?, message: String? = null) {
+    internal fun assertNotEquals(illegal: Any?, actual: Any?, message: () -> String? = { null }) {
         assertFalse(illegal == actual, message)
     }
 
@@ -94,7 +98,7 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun assertNull(actual: Any?, message: String? = null) {
+    internal fun assertNull(actual: Any?, message: () -> String? = { null }) {
         contract { returns() implies (actual == null) }
         assertTrue(actual == null, message)
     }
@@ -104,7 +108,7 @@ data class FailureMetadata internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal fun <T : Any> assertNotNull(actual: T?, message: String? = null): T {
+    internal fun <T : Any> assertNotNull(actual: T?, message: () -> String? = { null }): T {
         contract { returns() implies (actual != null) }
         assertFalse(actual == null, message)
 

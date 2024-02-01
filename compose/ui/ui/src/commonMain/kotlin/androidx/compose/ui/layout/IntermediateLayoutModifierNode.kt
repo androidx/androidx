@@ -19,9 +19,11 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.NodeMeasuringIntrinsics
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.checkMeasuredSize
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.unit.Constraints
@@ -83,7 +85,7 @@ internal class IntermediateLayoutModifierNode(
 
     override fun onAttach() {
         val coordinates = coordinator?.lookaheadDelegate?.lookaheadLayoutCoordinates
-        checkNotNull(coordinates) { "could not fetch lookahead coordinates" }
+        checkPreconditionNotNull(coordinates) { "could not fetch lookahead coordinates" }
 
         val closestLookaheadRoot = requireLayoutNode().lookaheadRoot
         closestLookaheadScope = if (closestLookaheadRoot?.isVirtualLookaheadRoot == true) {
@@ -286,13 +288,18 @@ internal class IntermediateLayoutModifierNode(
             width: Int,
             height: Int,
             alignmentLines: Map<AlignmentLine, Int>,
+            rulers: (RulerScope.() -> Unit)?,
             placementBlock: Placeable.PlacementScope.() -> Unit
-        ) = object : MeasureResult {
-            override val width = width
-            override val height = height
-            override val alignmentLines = alignmentLines
-            override fun placeChildren() {
-                coordinator!!.placementScope.placementBlock()
+        ): MeasureResult {
+            checkMeasuredSize(width, height)
+            return object : MeasureResult {
+                override val width = width
+                override val height = height
+                override val alignmentLines = alignmentLines
+                override val rulers = rulers
+                override fun placeChildren() {
+                    coordinator!!.placementScope.placementBlock()
+                }
             }
         }
 

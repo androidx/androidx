@@ -48,7 +48,9 @@ public class CredentialProviderPlayServicesImplJavaTest {
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
             GoogleApiAvailability mock = mock(GoogleApiAvailability.class);
-            when(mock.isGooglePlayServicesAvailable(activity.getBaseContext()))
+            when(mock.isGooglePlayServicesAvailable(
+                    activity.getBaseContext(),
+                    CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION))
                     .thenReturn(ConnectionResult.SUCCESS);
             boolean expectedAvailability = true;
 
@@ -72,7 +74,9 @@ public class CredentialProviderPlayServicesImplJavaTest {
         activityScenario.onActivity(activity -> {
             for (int code : TestUtils.Companion.getConnectionResultFailureCases()) {
                 GoogleApiAvailability mock = mock(GoogleApiAvailability.class);
-                when(mock.isGooglePlayServicesAvailable(activity.getBaseContext()))
+                when(mock.isGooglePlayServicesAvailable(
+                        activity.getBaseContext(),
+                        CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION))
                         .thenReturn(code);
                 boolean expectedAvailability = false;
 

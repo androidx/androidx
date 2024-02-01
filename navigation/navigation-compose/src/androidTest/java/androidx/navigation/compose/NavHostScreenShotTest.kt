@@ -17,6 +17,10 @@
 package androidx.navigation.compose
 
 import android.os.Build
+import android.window.BackEvent
+import androidx.activity.BackEventCompat
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -33,10 +37,13 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -102,6 +109,69 @@ class NavHostScreenShotTest {
             .captureToImage().assertAgainstGolden(
                 screenshotRule,
                 "testNavHostAnimationsZIndex"
+            )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testNavHostPredictiveBackAnimations() {
+        lateinit var navController: NavHostController
+        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            backPressedDispatcher =
+                LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            NavHost(
+                navController = navController,
+                startDestination = FIRST,
+                route = "start",
+                enterTransition = { slideInHorizontally { it / 2 } },
+                exitTransition = { slideOutHorizontally { - it / 2 } }
+            ) {
+                composable(FIRST) { BasicText(FIRST) }
+                composable(SECOND) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(Color.Blue)) {
+                        BasicText(SECOND, Modifier.size(50.dp))
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(SECOND)
+        }
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+            )
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
+            assertThat(navController.previousBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(SECOND).onParent()
+            .captureToImage().assertAgainstGolden(
+                screenshotRule,
+                "testNavHostPredictiveBackAnimations"
             )
     }
 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,6 +73,7 @@ class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
         benchmarkRule.benchmarkFirstDraw { ExposedDropdownMenuTestCase(expanded) }
     }
 
+    @Ignore("b/311257475")
     @Test
     fun edm_textFieldAnchor_repositioned() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout({

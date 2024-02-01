@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.KmpPlatformsKt
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -27,11 +31,9 @@ plugins {
     id("AndroidXPaparazziPlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -39,6 +41,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                implementation(project(":collection:collection"))
                 implementation(project(":compose:animation:animation-core"))
 
                 api(project(":compose:foundation:foundation"))
@@ -46,9 +49,8 @@ androidXMultiplatform {
                 api(project(":compose:material:material-icons-core"))
                 api(project(":compose:material:material-ripple"))
                 api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui"))
                 api(project(":compose:ui:ui-text"))
-
                 implementation(project(":compose:ui:ui-util"))
             }
         }
@@ -64,19 +66,17 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(project(":compose:animation:animation-core"))
-                    api(project(":compose:runtime:runtime"))
-                    api(project(":compose:ui:ui"))
-                    api(project(":compose:ui:ui-text"))
-                    api(project(":compose:foundation:foundation-layout"))
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:animation:animation-core"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:ui:ui"))
+                api(project(":compose:ui:ui-text"))
+                api(project(":compose:foundation:foundation-layout"))
 
-                    implementation(project(":compose:animation:animation"))
-                    implementation(project(":compose:ui:ui-util"))
-                }
+                implementation(project(":compose:animation:animation"))
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -84,7 +84,8 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
-                implementation("androidx.activity:activity-compose:1.5.0")
+                api("androidx.annotation:annotation-experimental:1.4.0")
+                implementation("androidx.activity:activity-compose:1.8.2")
 
                 // TODO: remove next 3 dependencies when b/202810604 is fixed
                 implementation("androidx.savedstate:savedstate-ktx:1.2.1")
@@ -95,13 +96,11 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                }
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -139,15 +138,13 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation(libs.truth)
-                    implementation(libs.junit)
-                    implementation(libs.skikoCurrentOs)
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.skikoCurrentOs)
             }
         }
     }

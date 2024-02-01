@@ -43,7 +43,7 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
     private val ScaffoldStub = bytecodeStub(
         filename = "Scaffold.kt",
         filepath = "androidx/compose/material",
-        checksum = 0x2dde3750,
+        checksum = 0x7045eee1,
         """
             package androidx.compose.material
 
@@ -60,74 +60,75 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
             ) {}
 
         """,
-        """
+"""
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAAAGNgYGBmYGBgBGI2BijgUueSTMxLKcrPTKnQS87PLcgvTtXL
-        TSxJLcpMzBHiCk5OTEvLz0nxLuHi5WJOy88XYgtJLS7xLlFi0GIAACJwI+tQ
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUueSTMxLKcrPTKnQS87PLcgvTtXL
+        TSxJLcpMzBHiCk5OTEvLz0nxLuHi5WJOy88XYgtJLS7xLlFi0GIAADDzNLNQ
         AAAA
         """,
         """
         androidx/compose/material/ScaffoldKt＄Scaffold＄1.class:
-        H4sIAAAAAAAAAKVU604TQRT+Zlt6xxZEuYj3qi0o2+LdNiSEQNxQMLHYxPBr
+        H4sIAAAAAAAA/6VU604TQRT+Zlt6xxZEuYj3qi0o2+LdNiSEQNxQMLHYxPBr
         2t3C0N1Z091t8B8P4RP4BKKJJJoY4k8fynhmaQ2GiBo32bMn53zfmXOb/fb9
         0xcA9/CEQefS7LrC3NVbrvPK9Szd4b7VFdzW6y3ebru2uernB2q+HAdjWK11
         XN8WUt/pObqQhJeEr3GnafLKcV87kC1fuNLTV/paqTrwv5DCryxUGKZ+HyyO
         KMOl0wPGEWOIVQWFW2CIFIoNhmjBKDYySCCVwhDSZPC3hcdQrv1juZReTMie
         27EYxgrF2g7vcd3mckt/1tyxWn4lgyySKWgYYUgfqyyOswwJY72+sbi+tMww
         /EvZGZzD+STGME6gassOk1f5hqGmlPtMkrRphpEBcc3yucl9TilpTi9CA2RK
-        xJQAA+soJULOXaG0EmlmmWH6cC+ROtxLaTmNPrnDvSmtxJ6mvr6NaQlNYeYp
+        JJUAA+soJULOXaG0EmlmmWH6cC+ROtxLaTmNPrnDvSmtxJ6mvr6NaQlNYeYp
         8SqXrnztuIFHLaRg+b9pUxy3GXI/e2VabR7YPsObwskuB0Jfc03RFlb3Twvy
         n/5yxTg5JbUMc9Cp0kG6cx3KNLrkmjTY0Zrb4naDU31N29pQgiFbE9JaD5ym
         1e1bMoaUVnfJ5p5n0S5ll2XLdj0ht2gy267JkKyLLcn9oEvgVN0Nui1rRSjm
-        5PNA+sKxGsITFGpRStfnYdoo0ZSHqON0rzCpxk6ji9JLq0CWedLyhGBq0DOR
-        A2T2w2HfJZk5smI45IyoPewzZkMMvQqs0T1XMGVIHyOyI2JukYi5PnFe7ZE6
-        fOYjRt9j4t0p/ET/4ASlPTh4nNDqSX+G9vIAFz7g4n5oGMJ9kimCHQEm8CCs
-        8w7V/zA8JIJH4beMx+Gvia49sS5vImLgioGrBq7hukHNuGHgJm5tgnkooEh+
-        DzMeZj1kfwB7t1DT1wQAAA==
+        5PNA+sKxGsITFGpRStfnYdoo0ZSHqON0rzCpxk6ji9JLq0CWedLyhKChIDYT
+        OUBmPxz2XZKZIyuGQ86I2sM+YzbE0KvAGt1zBVOG9DEiOyLmFomY6xPn1R6p
+        w2c+YvQ9Jt6dwk/0D05Q2oODxwmtnvRnaC8PcOEDLu6HhiHcJ5ki2BFgAg/C
+        Ou9Q/Q/DQyJ4FH7LeBz+mujaE+vyJiIGrhi4auAarhvUjBsGbuLWJpiHAork
+        9zDjYdZD9geSTRPs1wQAAA==
         """,
         """
         androidx/compose/material/ScaffoldKt＄Scaffold＄2.class:
-        H4sIAAAAAAAAAKVU604TQRT+Zlt6WYotiHIR71VbULatd9uQECJxQ8HEYhPD
-        r2l3C0O3s6a72+A/HsIn8AlEE0k0McSfPpTxzNIqhogaN9mzJ+d835lzm/36
-        7eNnAHfwiMHg0uq6wtoxmm7npevZRof7dldwx6g1eavlOtaKnx2o2VIcjGGl
-        2nZ9R0hju9cxhCS8JHyVdxoWLx/1tQLZ9IUrPWO5rxUqA/9zKfzyQplh+vfB
-        4ogyXDg5YBwxhlhFULgFhkguX2eI5sx8PYUEdB1DGCaDvyU8hmL1H8ul9GJC
-        9ty2zTCey1e3eY8bDpebxtPGtt30yymkkdShYZRh+EhlcZxmSJhrtfXFtaXH
-        DCO/lJ3CGZxNYhwTBKo0nTB5lW8Yalq5TyVJm2EYHRBXbZ9b3OeUktbpRWiA
-        TImYEmBgbaVEyLkjlFYgzSoyzBzsJvSDXV3LaPTJHOxOawX2RP/yJqYlNIUp
-        UeIVLl35quMGHrWQgmX/pk1x3GTI/OiVZbd44PgMr3PHuxwIY9W1REvY3T8t
-        yH/6i2Xz+JTUMszDoEoH6c63KdPokmvRYMeqbpM7dU71NRx7XQmGdFVIey3o
-        NOxu35IypbS7Sw73PJt2Kf1YNh3XE3KTJrPlWgzJmtiU3A+6BNZrbtBt2stC
-        MaeeBdIXHbsuPEGhFqV0fR6mjQJNeYg6TvcKU2rsNLoovbQKZCmRliUEU4Oe
-        jewjtRcO+zbJ1KEVIyFnVO1hnzEXYuhVYI3uuYKxkPKTyA6JmUUiZvrEktoj
-        dfjsB4y9w+TbE/iJ/sEJSntw8ASh1TP8CdqLfZx7j/N7oWEId0nqBDsETOJe
-        WOctqv9+eEgED8JvEQ/DXxNde2Jd3EDExCUTl01cwVWTmnHNxHXc2ADzkEOe
-        /B5mPcx5SH8Hm6I3JNcEAAA=
+        H4sIAAAAAAAA/6VU604TQRT+Zlt6o9iCKBfxXrUFZdt6tw0JIRI3FEwsNjH8
+        mna3MHR31nR3G/zHQ/gEPoFoIokmhvjThzKeWVrFEFHjJnv25JzvO3Nus1+/
+        ffwM4A4eMehcml1XmDt6y3Veup6lO9y3uoLber3F223XNlf83EDNleNgDCu1
+        juvbQurbPUcXkvCS8DXuNE1eOeprB7LlC1d6+nJfK1YH/udS+JWFCsP074PF
+        EWW4cHLAOGIMsaqgcAsMkXyhwRDNG4VGGgmkUhjCMBn8LeExlGr/WC6lFxOy
+        53YshvF8obbNe1y3udzUnza3rZZfSSODZAoaRhmGj1QWx2mGhLFWX19cW3rM
+        MPJL2WmcwdkkxjFBoGrLDpNX+YahppX7VJK0GYbRAXHV8rnJfU4paU4vQgNk
+        SiSVAAPrKCVCzh2htCJpZolh5mA3kTrYTWlZjT7Zg91prciepL68iWkJTWHK
+        lHiVS1e+ctzAoxZSsNzftCmOmwzZH70yrTYPbJ/hdf54lwOhr7qmaAur+6cF
+        +U9/qWIcn5JahnnoVOkg3fkOZRpdck0a7FjNbXG7wam+pm2tK8GQqQlprQVO
+        0+r2LWlDSqu7ZHPPs2iXMo9ly3Y9ITdpMluuyZCsi03J/aBL4FTdDbota1ko
+        5tSzQPrCsRrCExRqUUrX52HaKNKUh6jjdK8wpcZOo4vSS6tAljJpOULQUBCb
+        jewjvRcO+zbJ9KEVIyFnVO1hnzEXYuhVYI3uuYKxkPKTyA6J2UUiZvvEstoj
+        dfjsB4y9w+TbE/iJ/sEJSntw8ASh1TP8CdqLfZx7j/N7oWEId0mmCHYImMS9
+        sM5bVP/98JAIHoTfEh6Gvya69sS6uIGIgUsGLhu4gqsGNeOageu4sQHmIY8C
+        +T3MepjzkPkOclh0G9cEAAA=
         """,
         """
         androidx/compose/material/ScaffoldKt.class:
-        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
+        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
+        S5104ZQXCQAA
         """
     )
 

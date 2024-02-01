@@ -82,7 +82,7 @@ import java.util.concurrent.atomic.AtomicReference;
 // TODO(jaewan): Implement host-side test so controller and session can run in different processes.
 // TODO(jaewan): Fix flaky failure -- see MediaControllerImpl.getController()
 // TODO(jaeawn): Revisit create/close session in the sHandler. It's no longer necessary.
-@SdkSuppress(maxSdkVersion = 32, minSdkVersion = 19) // b/244312419 and b/259936005
+@SdkSuppress(maxSdkVersion = 32) // b/244312419 and b/259936005
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 @FlakyTest

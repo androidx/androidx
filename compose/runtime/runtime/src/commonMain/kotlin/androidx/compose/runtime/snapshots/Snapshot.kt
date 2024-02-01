@@ -23,8 +23,15 @@ import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SnapshotThreadLocal
+import androidx.compose.runtime.checkPrecondition
 import androidx.compose.runtime.collection.IdentityArraySet
+import androidx.compose.runtime.currentThreadId
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
+import androidx.compose.runtime.requirePrecondition
+import androidx.compose.runtime.snapshots.Snapshot.Companion.takeMutableSnapshot
+import androidx.compose.runtime.snapshots.Snapshot.Companion.takeSnapshot
+import androidx.compose.runtime.snapshots.SnapshotApplyResult.Failure
+import androidx.compose.runtime.snapshots.SnapshotApplyResult.Success
 import androidx.compose.runtime.synchronized
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -174,7 +181,7 @@ sealed class Snapshot(
      */
     @ExperimentalComposeApi
     fun unsafeLeave(oldSnapshot: Snapshot?) {
-        check(threadSnapshot.get() === this) {
+        checkPrecondition(threadSnapshot.get() === this) {
             "Cannot leave snapshot; $this is not the current snapshot"
         }
         restoreCurrent(oldSnapshot)
@@ -194,6 +201,7 @@ sealed class Snapshot(
     /*
      * The read observer for the snapshot if there is one.
      */
+    @PublishedApi
     internal abstract val readObserver: ((Any) -> Unit)?
 
     /**
@@ -267,7 +275,7 @@ sealed class Snapshot(
     }
 
     internal fun validateNotDisposed() {
-        require(!disposed) { "Cannot use a disposed snapshot" }
+        requirePrecondition(!disposed) { "Cannot use a disposed snapshot" }
     }
 
     internal fun releasePinnedSnapshotLocked() {
@@ -459,32 +467,114 @@ sealed class Snapshot(
             writeObserver: ((Any) -> Unit)? = null,
             block: () -> T
         ): T {
-            if (readObserver != null || writeObserver != null) {
-                val currentSnapshot = threadSnapshot.get()
+            if (readObserver == null && writeObserver == null) {
+                // No observer change, just execute the block
+                return block()
+            }
+
+            val previous = threadSnapshot.get()
+            if (previous is TransparentObserverMutableSnapshot && previous.canBeReused) {
+                // Change observers in place without allocating new snapshots.
+                val previousReadObserver = previous.readObserver
+                val previousWriteObserver = previous.writeObserver
+
+                try {
+                    previous.readObserver =
+                        mergedReadObserver(readObserver, previousReadObserver)
+                    previous.writeObserver =
+                        mergedWriteObserver(writeObserver, previousWriteObserver)
+                    return block()
+                } finally {
+                    previous.readObserver = previousReadObserver
+                    previous.writeObserver = previousWriteObserver
+                }
+            } else {
+                // The snapshot is not already transparent, observe in a new transparent snapshot
                 val snapshot =
-                    if (currentSnapshot == null || currentSnapshot is MutableSnapshot)
-                        TransparentObserverMutableSnapshot(
-                            parentSnapshot = currentSnapshot as? MutableSnapshot,
-                            specifiedReadObserver = readObserver,
-                            specifiedWriteObserver = writeObserver,
-                            mergeParentObservers = true,
-                            ownsParentSnapshot = false
-                        )
-                    else if (readObserver == null) return block()
-                    else currentSnapshot.takeNestedSnapshot(readObserver)
+                    when {
+                        previous == null || previous is MutableSnapshot -> {
+                            TransparentObserverMutableSnapshot(
+                                parentSnapshot = previous as? MutableSnapshot,
+                                specifiedReadObserver = readObserver,
+                                specifiedWriteObserver = writeObserver,
+                                mergeParentObservers = true,
+                                ownsParentSnapshot = false
+                            )
+                        }
+                        readObserver == null -> {
+                            return block()
+                        }
+                        else -> {
+                            previous.takeNestedSnapshot(readObserver)
+                        }
+                    }
                 try {
                     return snapshot.enter(block)
                 } finally {
                     snapshot.dispose()
                 }
-            } else return block()
+            }
         }
 
+        @Suppress("unused") // left here for binary compatibility
         @PublishedApi
         internal fun createNonObservableSnapshot(): Snapshot =
             createTransparentSnapshotWithNoParentReadObserver(
                 previousSnapshot = threadSnapshot.get()
             )
+
+        @PublishedApi
+        internal val currentThreadSnapshot: Snapshot? get() = threadSnapshot.get()
+
+        private inline val TransparentObserverMutableSnapshot.canBeReused: Boolean
+            get() = threadId == currentThreadId()
+
+        private inline val TransparentObserverSnapshot.canBeReused: Boolean
+            get() = threadId == currentThreadId()
+
+        @PublishedApi
+        internal fun makeCurrentNonObservable(previous: Snapshot?): Snapshot =
+            when {
+                previous is TransparentObserverMutableSnapshot && previous.canBeReused -> {
+                    previous.readObserver = null
+                    previous
+                }
+                previous is TransparentObserverSnapshot && previous.canBeReused -> {
+                    previous.readObserver = null
+                    previous
+                }
+                else -> {
+                    val snapshot = createTransparentSnapshotWithNoParentReadObserver(
+                        previousSnapshot = previous
+                    )
+                    snapshot.makeCurrent()
+                    snapshot
+                }
+            }
+
+        @PublishedApi
+        internal fun restoreNonObservable(
+            previous: Snapshot?,
+            nonObservable: Snapshot,
+            observer: ((Any) -> Unit)?
+        ) {
+            if (previous === nonObservable) {
+                when (previous) {
+                    is TransparentObserverMutableSnapshot -> {
+                        previous.readObserver = observer
+                    }
+                    is TransparentObserverSnapshot -> {
+                        previous.readObserver = observer
+                    }
+                    else -> {
+                        error("Non-transparent snapshot was reused: $previous")
+                    }
+                }
+            } else {
+                nonObservable.restoreCurrent(previous)
+                nonObservable.dispose()
+            }
+        }
 
         /**
          * Passed [block] will be run with all the currently set snapshot read observers disabled.
@@ -493,11 +583,13 @@ sealed class Snapshot(
         @OptIn(ExperimentalContracts::class)
         inline fun <T> withoutReadObservation(block: @DisallowComposableCalls () -> T): T {
             contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
-            val snapshot = createNonObservableSnapshot()
+            val previousSnapshot = currentThreadSnapshot
+            val observer = previousSnapshot?.readObserver
+            val newSnapshot = makeCurrentNonObservable(previousSnapshot)
             try {
-                return snapshot.enter(block)
+                return block()
             } finally {
-                snapshot.dispose()
+                restoreNonObservable(previousSnapshot, newSnapshot, observer)
             }
         }
 
@@ -822,7 +914,7 @@ open class MutableSnapshot internal constructor(
     override fun nestedActivated(snapshot: Snapshot) { snapshots++ }
 
     override fun nestedDeactivated(snapshot: Snapshot) {
-        require(snapshots > 0) { "no pending nested snapshots" }
+        requirePrecondition(snapshots > 0) { "no pending nested snapshots" }
         if (--snapshots == 0) {
             if (!applied) {
                 abandon()
@@ -846,13 +938,13 @@ open class MutableSnapshot internal constructor(
     }
 
     private fun validateNotApplied() {
-        check(!applied) {
+        checkPrecondition(!applied) {
             "Unsupported operation on a snapshot that has been applied"
         }
     }
 
     private fun validateNotAppliedOrPinned() {
-        check(!applied || isPinned) {
+        checkPrecondition(!applied || isPinned) {
             "Unsupported operation on a disposed or applied snapshot"
         }
     }
@@ -1475,6 +1567,11 @@ internal class TransparentObserverMutableSnapshot(
         parentSnapshot?.writeObserver ?: currentGlobalSnapshot.get().writeObserver
     )
 ) {
+    override var readObserver: ((Any) -> Unit)? = super.readObserver
+    override var writeObserver: ((Any) -> Unit)? = super.writeObserver
+
+    internal val threadId: Long = currentThreadId()
+
     private val currentSnapshot: MutableSnapshot
         get() = parentSnapshot ?: currentGlobalSnapshot.get()
 
@@ -1576,12 +1673,14 @@ internal class TransparentObserverSnapshot(
     INVALID_SNAPSHOT,
     SnapshotIdSet.EMPTY,
 ) {
-    override val readObserver: ((Any) -> Unit)? = mergedReadObserver(
+    override var readObserver: ((Any) -> Unit)? = mergedReadObserver(
         specifiedReadObserver,
         previousSnapshot?.readObserver ?: currentGlobalSnapshot.get().readObserver,
         mergeParentObservers
     )
     override val writeObserver: ((Any) -> Unit)? = null
+
+    internal val threadId: Long = currentThreadId()
 
     override val root: Snapshot = this
 

@@ -23,6 +23,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
@@ -74,6 +75,19 @@ public class MacrobenchmarkScope(
      * This is `true` iff method tracing is currently active.
      */
     internal var isMethodTracing: Boolean = false
+
+    /**
+     * When `true`, the app will be forced to flush its ART profiles
+     * to disk before being killed. This allows them to be later collected e.g.
+     * by a `BaselineProfile` capture, or immediate compilation by `CompilationMode.Partial`
+     * with warmupIterations.
+     */
+    internal var flushArtProfiles: Boolean = false
+
+    /**
+     * `true` if the app is a system app.
+     */
+    internal var isSystemApp: Boolean = false
 
     /**
      * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
@@ -257,13 +271,24 @@ public class MacrobenchmarkScope(
      *
      *@param useKillAll should be set to `true` for System apps or pre-installed apps.
      */
-    @JvmOverloads
+    @Deprecated(
+        "Use the parameter-less killProcess() API instead",
+        replaceWith = ReplaceWith("killProcess()")
+    )
+    @Suppress("UNUSED_PARAMETER")
     public fun killProcess(useKillAll: Boolean = false) {
-        Log.d(TAG, "Killing process $packageName")
-        if (useKillAll) {
-            device.executeShellCommand("killall $packageName")
+        killProcess()
+    }
+
+    /**
+     * Force-stop the process being measured.
+     */
+    public fun killProcess() {
+        if (flushArtProfiles && Build.VERSION.SDK_INT >= 24) {
+            // Flushing ART profiles will also kill the process at the end.
+            killProcessAndFlushArtProfiles()
         } else {
-            device.executeShellCommand("am force-stop $packageName")
+            killProcessImpl()
         }
     }
 
@@ -328,7 +353,7 @@ public class MacrobenchmarkScope(
             pollDurationMs = 50L
         )
         // unique label so source is clear, dateToFileName so each run of test is unique on host
-        val outputFileName = "$uniqueLabel-method-${dateToFileName()}.trace"
+        val outputFileName = "$uniqueLabel-methodTracing-${dateToFileName()}.trace"
         val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
         // Staging location before we write it again using Outputs.writeFile(...)
         // NOTE: staging copy may be unnecessary if we just use a single `cp`
@@ -373,6 +398,55 @@ public class MacrobenchmarkScope(
         throw IllegalStateException(
             "Unable to drop caches: Did not observe perf.drop_caches reset automatically"
         )
+    }
+
+    @RequiresApi(24)
+    internal fun killProcessAndFlushArtProfiles() {
+        Log.d(TAG, "Flushing ART profiles for $packageName")
+        // For speed profile compilation, ART team recommended to wait for 5 secs when app
+        // is in the foreground, dump the profile, wait for an additional second before
+        // speed-profile compilation.
+        @Suppress("BanThreadSleep")
+        Thread.sleep(5000)
+        val saveResult = ProfileInstallBroadcast.saveProfile(packageName)
+        if (saveResult == null) {
+            killProcessImpl()
+        } else {
+            if (Shell.isSessionRooted()) {
+                // fallback on `killall -s SIGUSR1`, if available with root
+                Log.d(
+                    TAG,
+                    "Unable to saveProfile with profileinstaller ($saveResult), trying kill"
+                )
+                val response = Shell.executeScriptCaptureStdoutStderr(
+                    "killall -s SIGUSR1 $packageName"
+                )
+                check(response.isBlank()) {
+                    "Failed to dump profile for $packageName ($response),\n" +
+                        " and failed to save profile with broadcast: $saveResult"
+                }
+            } else {
+                throw RuntimeException(saveResult)
+            }
+        }
+    }
+
+    /**
+     * Force-stop the process being measured.
+     */
+    private fun killProcessImpl() {
+        val isRooted = Shell.isSessionRooted()
+        Log.d(TAG, "Killing process $packageName")
+        if (isRooted && isSystemApp) {
+            device.executeShellCommand("killall $packageName")
+        } else {
+            // We want to use `am force-stop` for apps that are not system apps
+            // to make sure app components are not automatically restarted by system_server.
+            device.executeShellCommand("am force-stop $packageName")
+        }
+        // System Apps need an additional Thread.sleep() to ensure that the process is killed.
+        @Suppress("BanThreadSleep")
+        Thread.sleep(Arguments.killProcessDelayMillis)
     }
 
     /**

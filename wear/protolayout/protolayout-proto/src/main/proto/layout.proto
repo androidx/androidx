@@ -83,9 +83,29 @@ message SpanVerticalAlignmentProp {
 
 // The styling of a font (e.g. font size, and metrics).
 message FontStyle {
-  // The size of the font, in scaled pixels (sp). If not specified, defaults to
-  // the size of the system's "body" font.
-  SpProp size = 1;
+  // The available sizes of the font, in scaled pixels (sp). If not specified, defaults to the size
+  // of the system's "body" font.
+  //
+  // If more than one size is specified and this FontStyle is applied to a Text element with static
+  // text, the text size will be automatically picked from the provided sizes to try to perfectly
+  // fit within its parent bounds. In other words, the largest size from the specified preset sizes
+  // that can fit the most text within the parent bounds will be used.
+  //
+  // The specified sizes don't have to be sorted. The maximum number of sizes used is limited to 10.
+  //
+  // Note that, if multiple sizes are set, the parent of the Text element this corresponds to
+  // shouldn't have its width and height set to wrapped, as it can lead to unexpected results.
+  //
+  // If this FontStyle is set to any other element besides Text, or that Text element has dynamic
+  // field, only the last added size will be use.
+  //
+  // Any previously added values with this method or #setSize will be cleared.
+  //
+  // While this field is accessible from 1.0 as singular, it only accepts multiple values since
+  // version 1.3 and renderers supporting version 1.3 will use the multiple values to automatically
+  // scale text. Renderers who don't support this version will use the first size among multiple
+  // values.
+  repeated SpProp size = 1;
 
   // Whether the text should be rendered in a italic typeface. If not specified,
   // defaults to "false".
@@ -124,12 +144,17 @@ enum TextOverflow {
   // Overflow behavior is undefined.
   TEXT_OVERFLOW_UNDEFINED = 0;
 
-  // Truncate the text to fit inside of the Text element's bounds. If text is
-  // truncated, it will be truncated on a word boundary.
+  // Truncate the text at the last line defined by {@code setMaxLines} in Text to fit in the Text
+  // element's bounds, but add an ellipsis (i.e. ...) to the end of the text if it has been
+  // truncated.
   TEXT_OVERFLOW_TRUNCATE = 1;
 
   // Truncate the text to fit in the Text element's bounds, but add an ellipsis
-  // (i.e. ...) to the end of the text if it has been truncated.
+  // (i.e. ...) to the end of the text if it has been truncated. Note that this will not add an
+  // ellipsis if the number of lines that fits into the available space is less than the
+  // {@code setMaxLines} in Text.
+  //
+  // DEPRECATED: Use {@link #TEXT_OVERFLOW_ELLIPSIZE} instead.
   TEXT_OVERFLOW_ELLIPSIZE_END = 2;
 
   // Enable marquee animation for texts that don't fit inside the Text element.
@@ -138,6 +163,13 @@ enum TextOverflow {
   //
 
   TEXT_OVERFLOW_MARQUEE = 3;
+
+  // Truncate the text to fit in the Text element's parent bounds, but add an
+  // ellipsis (i.e. ...) to the end of the text if it has been truncated.
+  //
+  // <p>Note that, when this is used, the parent of the Text element this corresponds to shouldn't
+  // have its width and height set to wrapped, as it can lead to unexpected results.
+  TEXT_OVERFLOW_ELLIPSIZE = 4;
 }
 
 // An extensible TextOverflow property.
@@ -555,6 +587,10 @@ message Arc {
   // target may not be achievable if other non-expandable elements bring us past
   // this value.
   DegreesProp max_angle = 6;
+
+  // The direction in which child elements are laid out. If not set, defaults to
+  // ARC_DIRECTION_NORMAL.
+  ArcDirectionProp arc_direction = 7;
 }
 
 // A text element that can be used in an Arc.
@@ -568,6 +604,9 @@ message ArcText {
 
   // Modifiers for this element.
   ArcModifiers modifiers = 3;
+
+  // The direction in which this text is drawn. If not set, defaults to ARC_DIRECTION_CLOCKWISE.
+  ArcDirectionProp arc_direction = 4;
 }
 
 // A line that can be used in an Arc and renders as a round progress bar.
@@ -608,6 +647,9 @@ message ArcLine {
 
   // The line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
   StrokeCapProp stroke_cap = 6;
+
+  // The direction in which this line is drawn. If not set, defaults to ARC_DIRECTION_CLOCKWISE.
+  ArcDirectionProp arc_direction = 8;
 }
 
 // Styles to use for path endings
@@ -619,7 +661,7 @@ enum StrokeCap {
   STROKE_CAP_BUTT = 1;
 
   // Begin and end contours with a semi-circle extension. The extension size is
-  // proportional to the thickness on the path.
+  // proportional to the thickness of the path.
   STROKE_CAP_ROUND = 2;
 
   // Begin and end contours with a half square extension. The extension size is
@@ -631,6 +673,14 @@ enum StrokeCap {
 message StrokeCapProp {
   // The value.
   StrokeCap value = 1;
+
+  // The stroke cap's shadow. When set, the stroke cap will be drawn with a
+  // shadow, which allows it to be visible on top of other similarly colored
+  // elements.
+  //
+  // Only opaque colors are supported in ArcLine if a shadow is set. Any
+  // transparent colors will have their alpha component set to 0xFF (opaque).
+  Shadow shadow = 2;
 }
 
 // A simple spacer used to provide padding between adjacent elements in an Arc.
@@ -661,6 +711,26 @@ message ArcAdapter {
   // will be placed at the 3 o clock position, but itself will not be rotated.
   // If not defined, defaults to false.
   BoolProp rotate_contents = 2;
+}
+
+// Direction of drawing for any curved element.
+enum ArcDirection {
+  // Draws an element in Clockwise direction for LTR layout direction and
+  // Counter Clockwise for RTL.
+  ARC_DIRECTION_NORMAL = 0;
+
+  // Draws an element in Clockwise direction, independently of layout direction.
+  ARC_DIRECTION_CLOCKWISE = 1;
+
+  // Draws an element in Counter Clockwise direction, independently of layout
+  // direction.
+  ARC_DIRECTION_COUNTER_CLOCKWISE = 2;
+}
+
+// An extensible StrokeCap property.
+message ArcDirectionProp {
+  // The value.
+  ArcDirection value = 1;
 }
 
 // A layout element which can be defined by a renderer extension. The

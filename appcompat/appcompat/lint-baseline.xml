@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="NewApi"
-        message="Class requires API level 21 (current min is 14): `android.graphics.drawable.AnimatedStateListDrawable`"
+        message="Class requires API level 21 (current min is 19): `android.graphics.drawable.AnimatedStateListDrawable`"
         errorLine1="                || button instanceof AnimatedStateListDrawable);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 25 (current min is 14): `new android.view.inputmethod.InputContentInfo`"
+        message="Call requires API level 25 (current min is 19): `new android.view.inputmethod.InputContentInfo`"
         errorLine1="        final InputContentInfo contentInfo = new InputContentInfo("
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 25 (current min is 14): `android.view.inputmethod.InputConnection#commitContent`"
+        message="Call requires API level 25 (current min is 19): `android.view.inputmethod.InputConnection#commitContent`"
         errorLine1="        return ic.commitContent(contentInfo, flags, null);"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
@@ -30,7 +30,7 @@
 
     <issue
         id="NewApi"
-        message="Class requires API level 26 (current min is 14): `android.view.textclassifier.TextClassifier`"
+        message="Class requires API level 26 (current min is 19): `android.view.textclassifier.TextClassifier`"
         errorLine1="    private static class NoOpTextClassifier implements TextClassifier {}"
         errorLine2="                                                       ~~~~~~~~~~~~~~">
         <location
@@ -39,7 +39,7 @@
 
     <issue
         id="NewApi"
-        message="Class requires API level 21 (current min is 14): `android.graphics.drawable.AnimatedStateListDrawable`"
+        message="Class requires API level 21 (current min is 19): `android.graphics.drawable.AnimatedStateListDrawable`"
         errorLine1="                || button instanceof AnimatedStateListDrawable);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -48,83 +48,11 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ContextThemeWrapper#applyOverrideConfiguration`"
-        errorLine1="        wrappedBase.applyOverrideConfiguration(overrideConfig);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatSpinnerRtlActivity.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ContextThemeWrapper#applyOverrideConfiguration`"
-        errorLine1="            wrappedBase.applyOverrideConfiguration(overrideConfig);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/testutils/BaseTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 20 (current min is 14): `android.view.WindowInsets#getSystemWindowInsetTop`"
+        message="Call requires API level 20 (current min is 19): `android.view.WindowInsets#getSystemWindowInsetTop`"
         errorLine1="        mSystemWindowInsetTop = insets.getSystemWindowInsetTop();"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/custom/CustomDrawerLayout.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES"
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeLocalBeforeAttachBaseActivity.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES"
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeLocalBeforeAttachBaseActivity.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 16): `android.content.res.Configuration#setLayoutDirection`"
-        errorLine1="        configuration.setLayoutDirection(locale)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 16): `android.content.res.Configuration#setLocale`"
-        errorLine1="        configuration.setLocale(locale)"
-        errorLine2="                      ~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 16): `android.content.res.Configuration#getLayoutDirection`"
-        errorLine1="        assertEquals(TextUtils.getLayoutDirectionFromLocale(CUSTOM_LOCALE), config.layoutDirection)"
-        errorLine2="                                                                                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 16): `android.text.TextUtils#getLayoutDirectionFromLocale`"
-        errorLine1="        assertEquals(TextUtils.getLayoutDirectionFromLocale(CUSTOM_LOCALE), config.layoutDirection)"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
     </issue>
 
     <issue
@@ -336,52 +264,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                info.setHomeAsUpIndicator.invoke(actionBar, drawable);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                info.setHomeActionContentDescription.invoke(actionBar, contentDescRes);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                info.setHomeActionContentDescription.invoke(actionBar, contentDescRes);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                        method.invoke(mTextView);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="            result = (T) method.invoke(object);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                mResolvedMethod.invoke(mResolvedContext, v);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -390,7 +273,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            mSetExclusiveCheckableMethod.invoke(mWrappedObject, checkable);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -399,7 +282,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    mDoBeforeTextChanged.invoke(view);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -408,7 +291,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    mDoAfterTextChanged.invoke(view);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -417,7 +300,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    mEnsureImeVisible.invoke(view, /* visible = */ true);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -426,7 +309,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    return (Boolean) mMethod.invoke(mRealOwner, item);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -435,20 +318,11 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    mMethod.invoke(mRealOwner, item);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/SupportMenuInflater.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                sComputeFitSystemWindowsMethod.invoke(view, inoutInsets, outLocalInsets);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ViewUtils.java"/>
     </issue>
 
     <issue
@@ -458,6 +332,63 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatProgressBarHelperTest.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    private static final boolean sCanApplyOverrideConfiguration = Build.VERSION.SDK_INT >= 17;"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                (Build.VERSION.SDK_INT >= 15 &amp;&amp; !ViewCompat.hasOnClickListeners(view))) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v16`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v16"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v17`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v18`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v18"/>
     </issue>
 
     <issue
@@ -8040,33 +7971,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean isLayoutRtl(View view) {"
         errorLine2="                                      ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ViewUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void computeFitSystemWindows(View view, Rect inoutInsets, Rect outLocalInsets) {"
-        errorLine2="                                               ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ViewUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void computeFitSystemWindows(View view, Rect inoutInsets, Rect outLocalInsets) {"
-        errorLine2="                                                          ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ViewUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void computeFitSystemWindows(View view, Rect inoutInsets, Rect outLocalInsets) {"
-        errorLine2="                                                                            ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ViewUtils.java"/>
     </issue>

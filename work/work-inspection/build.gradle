@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -30,7 +36,7 @@ dependencies {
     compileOnly("androidx.inspection:inspection:1.0.0")
     compileOnly(project(":lifecycle:lifecycle-runtime"))
     compileOnly(project(":work:work-runtime"))
-    compileOnly("androidx.room:room-runtime:2.5.0")
+    compileOnly("androidx.room:room-runtime:2.6.1")
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(project(":work:work-runtime"))
     androidTestImplementation(project(":work:work-runtime-ktx"))

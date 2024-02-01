@@ -348,6 +348,8 @@ class SaversTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("4") }
             withAnnotation(UrlAnnotation("url1")) { append("5") }
             withAnnotation(UrlAnnotation("url2")) { append("6") }
+            withAnnotation(LinkAnnotation.Url("url3")) { append("7") }
+            withAnnotation(LinkAnnotation.Clickable("tag3")) { append("8") }
         }
 
         val saved = with(AnnotatedStringSaver) { defaultSaverScope.save(original) }
@@ -371,6 +373,8 @@ class SaversTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("8") }
             withAnnotation(UrlAnnotation("url1")) { append("9") }
             withAnnotation(UrlAnnotation("url2")) { append("10") }
+            withAnnotation(LinkAnnotation.Url("url3")) { append("11") }
+            withAnnotation(LinkAnnotation.Clickable("tag3")) { append("12") }
         }
 
         val saved = with(AnnotatedStringSaver) { defaultSaverScope.save(original) }

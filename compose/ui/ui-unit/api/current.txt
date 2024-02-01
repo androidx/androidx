@@ -34,6 +34,7 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public long fixed(int width, int height);
     method @androidx.compose.runtime.Stable public long fixedHeight(int height);
     method @androidx.compose.runtime.Stable public long fixedWidth(int width);
+    method @androidx.compose.runtime.Stable public long restrictedConstraints(int minWidth, int maxWidth, int minHeight, int maxHeight, optional boolean prioritizeWidth);
   }
 
   public final class ConstraintsKt {
@@ -46,7 +47,7 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static long offset(long, optional int horizontal, optional int vertical);
   }
 
-  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface Density extends androidx.compose.ui.unit.FontScalable {
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface Density extends androidx.compose.ui.unit.FontScaling {
     method public float getDensity();
     method @androidx.compose.runtime.Stable public default int roundToPx(float);
     method @androidx.compose.runtime.Stable public default int roundToPx(long);
@@ -192,22 +193,16 @@ package androidx.compose.ui.unit {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalUnitApi {
   }
 
-  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface FontScalable {
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface FontScaling {
     method public float getFontScale();
     method @androidx.compose.runtime.Stable public default float toDp(long);
     method @androidx.compose.runtime.Stable public default long toSp(float);
     property public abstract float fontScale;
   }
 
-  public final class FontScalableKt {
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableNonLinearFontScalingInCompose();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableNonLinearFontScalingInCompose(boolean);
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final boolean DisableNonLinearFontScalingInCompose;
-  }
-
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
-    method @androidx.compose.runtime.Stable public operator int component1();
-    method @androidx.compose.runtime.Stable public operator int component2();
+    method @androidx.compose.runtime.Stable public inline operator int component1();
+    method @androidx.compose.runtime.Stable public inline operator int component2();
     method public long copy(optional int x, optional int y);
     method @androidx.compose.runtime.Stable public operator long div(float operand);
     method public int getX();

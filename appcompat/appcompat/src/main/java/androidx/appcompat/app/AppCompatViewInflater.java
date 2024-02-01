@@ -419,7 +419,7 @@ public class AppCompatViewInflater {
 
     private void backportAccessibilityAttributes(@NonNull Context context, @NonNull View view,
             @NonNull AttributeSet attrs) {
-        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT > 28) {
+        if (Build.VERSION.SDK_INT > 28) {
             return;
         }
 

@@ -48,7 +48,7 @@ class PlayCompositionSignalSdk30AndAboveTest(
     private val primitive: PrimitiveAtom,
 ) {
     private val fakeVibrator = FullVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @Test
     fun play_vibratesWithSupportedPrimitives() {
@@ -104,7 +104,7 @@ class PlayCompositionSignalBelowSdk30Test(
     private val primitive: PrimitiveAtom,
 ) {
     private val fakeVibrator = FullVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @Test
     fun play_doesNotVibrate() {
@@ -136,7 +136,7 @@ class PlayCompositionSignalBelowSdk30Test(
 @SmallTest
 class PlayCompositionSignalPartialPrimitiveSdkSupportTest {
     private val fakeVibrator = FullVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R, maxSdkVersion = Build.VERSION_CODES.R)
     @Test

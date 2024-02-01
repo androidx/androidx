@@ -16,6 +16,9 @@
 
 package androidx.graphics.shapes
 
+import androidx.collection.FloatList
+import androidx.collection.MutableFloatList
+
 /**
  * Checks if the given progress is in the given progress range, since progress is in the [0..1)
  * interval, and wraps, there is a special case when progressTo < progressFrom.
@@ -32,7 +35,7 @@ internal fun progressInRange(progress: Float, progressFrom: Float, progressTo: F
  * Maps from one set of progress values to another. This is used by DoubleMapper to retrieve the
  * value on one shape that maps to the appropriate value on the other.
  */
-internal fun linearMap(xValues: List<Float>, yValues: List<Float>, x: Float): Float {
+internal fun linearMap(xValues: FloatList, yValues: FloatList, x: Float): Float {
     require(x in 0f..1f) { "Invalid progress: $x" }
     val segmentStartIndex = xValues.indices.first {
         progressInRange(x, xValues[it], xValues[(it + 1) % xValues.size])
@@ -75,10 +78,14 @@ internal fun linearMap(xValues: List<Float>, yValues: List<Float>, x: Float): Fl
  * used to insert new curves and match curves overall.
  */
 internal class DoubleMapper(vararg mappings: Pair<Float, Float>) {
-    private val sourceValues = mappings.map { it.first }
-    private val targetValues = mappings.map { it.second }
+    private val sourceValues = MutableFloatList(mappings.size)
+    private val targetValues = MutableFloatList(mappings.size)
 
     init {
+        for (i in mappings.indices) {
+            sourceValues.add(mappings[i].first)
+            targetValues.add(mappings[i].second)
+        }
         validateProgress(sourceValues)
         validateProgress(targetValues)
     }
@@ -98,8 +105,9 @@ internal class DoubleMapper(vararg mappings: Pair<Float, Float>) {
     }
 }
 
-internal fun validateProgress(p: List<Float>) {
-    require(p.all { it in 0f..1f }) {
+// TODO(performance): Make changes to satisfy the lint warnings for unnecessary iterators creation.
+internal fun validateProgress(p: FloatList) {
+    require(p.fold(true) { res, curr -> res && curr in 0f..1f }) {
         "FloatMapping - Progress outside of range: " + p.joinToString()
     }
     val wraps = (1 until p.size).count { p[it] < p[it - 1] }

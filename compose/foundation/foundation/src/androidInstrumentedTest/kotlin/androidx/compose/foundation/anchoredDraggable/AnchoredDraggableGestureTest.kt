@@ -16,6 +16,9 @@
 
 package androidx.compose.foundation.anchoredDraggable
 
+import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -33,7 +36,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -81,7 +87,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -152,7 +159,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -223,7 +231,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -275,7 +284,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -322,6 +332,69 @@ class AnchoredDraggableGestureTest {
     }
 
     @Test
+    fun anchoredDraggable_negative_offset_targetState() {
+        val positionalThreshold = 0.5f
+        val absThreshold = abs(positionalThreshold)
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = { distance -> distance * positionalThreshold },
+            velocityThreshold = DefaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
+        )
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Box(
+                    Modifier
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
+                            state = state,
+                            orientation = Orientation.Horizontal
+                        )
+                        .onSizeChanged { layoutSize ->
+                            val anchors = DraggableAnchors {
+                                A at 0f
+                                B at -layoutSize.width.toFloat()
+                            }
+                            state.updateAnchors(anchors)
+                        }
+                        .offset {
+                            IntOffset(
+                                state
+                                    .requireOffset()
+                                    .roundToInt(), 0
+                            )
+                        }
+                        .background(Color.Red)
+                )
+            }
+        }
+
+        val positionOfA = state.anchors.positionOf(A)
+        val positionOfB = state.anchors.positionOf(B)
+        val distance = abs(positionOfA - positionOfB)
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
+            .performTouchInput { swipeLeft(startX = right, endX = left) }
+        rule.waitForIdle()
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        state.dispatchRawDelta(distance * (absThreshold * 1.1f))
+        rule.waitForIdle()
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
+    }
+
+    @Test
     fun anchoredDraggable_positionalThresholds_fractional_targetState() {
         val positionalThreshold = 0.5f
         val absThreshold = abs(positionalThreshold)
@@ -329,7 +402,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -409,7 +483,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -490,7 +565,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { positionalThresholdPx },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -574,7 +650,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { positionalThresholdPx },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -658,7 +735,8 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = { velocityPx / 2f },
-                animationSpec = tween()
+                snapAnimationSpec = tween(),
+                decayAnimationSpec = DefaultDecayAnimationSpec
             )
             state.updateAnchors(
                 DraggableAnchors {
@@ -682,7 +760,8 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 velocityThreshold = { velocityPx },
                 positionalThreshold = { Float.POSITIVE_INFINITY },
-                animationSpec = tween()
+                snapAnimationSpec = tween(),
+                decayAnimationSpec = DefaultDecayAnimationSpec
             )
             state.updateAnchors(
                 DraggableAnchors {
@@ -697,13 +776,51 @@ class AnchoredDraggableGestureTest {
         }
 
     @Test
+    fun anchoredDraggable_dragAndSwipeBackWithVelocity_velocityHigherThanThreshold() =
+        runBlocking(AutoTestFrameClock()) {
+            val velocity = 100.dp
+            val velocityPx = with(rule.density) { velocity.toPx() }
+            val state = AnchoredDraggableState(
+                initialValue = B,
+                velocityThreshold = { velocityPx },
+                positionalThreshold = { 0f },
+                snapAnimationSpec = tween(),
+                decayAnimationSpec = DefaultDecayAnimationSpec
+            )
+            state.updateAnchors(
+                DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                }
+            )
+
+            // starting from anchor B, drag the component to the left and settle with a
+            // positive velocity (higher than threshold). Result should be settling back to anchor B
+            state.dispatchRawDelta(-60f)
+            assertThat(state.requireOffset()).isEqualTo(140)
+            state.settle(velocityPx)
+            assertThat(state.currentValue).isEqualTo(B)
+
+            state.animateTo(A)
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // starting from anchor A, drag the component to the right and with a negative velocity
+            // (higher than threshold). Result should be settling back to anchor A
+            state.dispatchRawDelta(60f)
+            assertThat(state.requireOffset()).isEqualTo(60)
+            state.settle(-velocityPx)
+            assertThat(state.currentValue).isEqualTo(A)
+        }
+
+    @Test
     fun anchoredDraggable_velocityThreshold_swipe_velocityHigherThanThreshold_advances() {
         val velocityThreshold = 100.dp
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -755,7 +872,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
             positionalThreshold = { Float.POSITIVE_INFINITY },
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -810,7 +928,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = { 0f },
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         state.updateAnchors(anchors)
         rule.setContent {
@@ -866,9 +985,10 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            anchors = anchors,
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
-        state.updateAnchors(anchors)
         lateinit var scope: CoroutineScope
         rule.setContent {
             WithTouchSlop(touchSlop = 0f) {
@@ -909,8 +1029,158 @@ class AnchoredDraggableGestureTest {
             .performTouchInput {
                 down(Offset.Zero)
             }
+        rule.waitForIdle()
 
         assertThat(state.targetValue).isEqualTo(B) // B is the closest now so we should target it
+    }
+
+    @Test
+    fun anchoredDraggable_animationNotCancelledByDrag_startDragImmediatelyIsFalse() {
+        rule.mainClock.autoAdvance = false
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 250f
+            C at 500f
+        }
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
+            velocityThreshold = DefaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            anchors = anchors,
+            decayAnimationSpec = DefaultDecayAnimationSpec
+        )
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            WithTouchSlop(touchSlop = 0f) {
+                scope = rememberCoroutineScope()
+                Box(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier
+                            .requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .anchoredDraggable(
+                                state = state,
+                                orientation = Orientation.Horizontal,
+                                startDragImmediately = false,
+                            )
+                            .offset {
+                                IntOffset(
+                                    state
+                                        .requireOffset()
+                                        .roundToInt(), 0
+                                )
+                            }
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        scope.launch { state.animateTo(C) }
+
+        rule.mainClock.advanceTimeUntil {
+            state.requireOffset() > abs(state.requireOffset() - anchors.positionOf(B))
+        } // Advance until our closest anchor is B
+        assertThat(state.targetValue).isEqualTo(C)
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
+            .performTouchInput {
+                down(Offset.Zero)
+            }
+        rule.waitForIdle()
+
+        assertThat(state.targetValue).isEqualTo(C) // Animation will continue to C
+    }
+
+    @Test
+    fun anchoredDraggable_updatesState() {
+        val positionalThreshold = 0.5f
+        val state1 = AnchoredDraggableState(
+            initialValue = A,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 250f
+                C at 500f
+            },
+            positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+            velocityThreshold = DefaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
+        )
+        val state2 = AnchoredDraggableState(
+            initialValue = B,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 250f
+            },
+            positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+            velocityThreshold = DefaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
+        )
+
+        var state by mutableStateOf(state1)
+
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Box(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier
+                            .requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .anchoredDraggable(
+                                state = state,
+                                orientation = Orientation.Horizontal
+                            )
+                            .offset {
+                                IntOffset(
+                                    state
+                                        .requireOffset()
+                                        .roundToInt(), 0
+                                )
+                            }
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+
+        val positionOfA = state.anchors.positionOf(A)
+        val positionOfB = state.anchors.positionOf(B)
+        val distance = abs(positionOfA - positionOfB)
+
+        // dragging across the positional threshold to settle at anchor B
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
+            .performTouchInput {
+                down(Offset(0f, 0f))
+                moveBy(Offset(x = distance * positionalThreshold * 1.1f, y = 0f))
+                up()
+            }
+        rule.waitForIdle()
+
+        // assert that changes reflected on state1
+        assertThat(state1.requireOffset()).isEqualTo(positionOfB)
+
+        // attaching state2 instead of state1
+        state = state2
+        rule.waitForIdle()
+
+        // dragging across the positional threshold to settle at anchor A
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
+            .performTouchInput {
+                down(Offset(0f, 0f))
+                moveBy(Offset(x = -distance * positionalThreshold * 1.1f, y = 0f))
+                up()
+            }
+        rule.waitForIdle()
+
+        // assert that no more changes reflected on state1
+        assertThat(state1.requireOffset()).isEqualTo(positionOfB)
+        // assert that changes reflected on state2
+        assertThat(state2.requireOffset()).isEqualTo(positionOfA)
     }
 
     private val DefaultPositionalThreshold: (totalDistance: Float) -> Float = {
@@ -918,6 +1188,9 @@ class AnchoredDraggableGestureTest {
     }
 
     private val DefaultVelocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } }
+
+    private val DefaultDecayAnimationSpec: DecayAnimationSpec<Float> =
+        SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec()
 }
 
 private val NoOpDensity = object : Density {

@@ -16,6 +16,7 @@
 
 package androidx.camera.effects.internal
 
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Rect
@@ -32,6 +33,7 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.effects.Frame
 import androidx.camera.effects.OverlayEffect
+import androidx.camera.effects.internal.Utils.lockCanvas
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.core.util.Consumer
@@ -149,18 +151,18 @@ class SurfaceProcessorImplDeviceTest {
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(frameReceived!!.size).isEqualTo(size)
         assertThat(frameReceived!!.cropRect).isEqualTo(transformationInfo.cropRect)
-        assertThat(frameReceived!!.mirroring).isEqualTo(transformationInfo.mirroring)
+        assertThat(frameReceived!!.isMirroring).isEqualTo(transformationInfo.isMirroring)
         assertThat(frameReceived!!.sensorToBufferTransform)
             .isEqualTo(transformationInfo.sensorToBufferTransform)
         assertThat(frameReceived!!.rotationDegrees).isEqualTo(ROTATION_DEGREES)
     }
 
     @Test
-    fun canvasInvalidated_overlayDrawnToOutput(): Unit = runBlocking {
+    fun getOverlayCanvas_overlayDrawnToOutput(): Unit = runBlocking {
         val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
             processor.setOnDrawListener { frame ->
-                // Act: invalidate overlay canvas and draw color.
-                frame.invalidateOverlayCanvas().drawColor(OVERLAY_COLOR)
+                // Act: get the overlay canvas and draw color.
+                frame.getOverlayCanvas().drawColor(OVERLAY_COLOR)
                 true
             }
         }
@@ -170,17 +172,21 @@ class SurfaceProcessorImplDeviceTest {
     }
 
     @Test
-    fun canvasNotInvalidated_overlayNotDrawnToOutput() = runBlocking {
+    fun doNotGetOverlayCanvas_overlayNotDrawnToOutput() = runBlocking {
+        var canvas: Canvas? = null
         val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
-            processor.setOnDrawListener { frame ->
-                // Act: draw color on overlay canvas without invalidating.
-                frame.overlayCanvas.drawColor(OVERLAY_COLOR)
+            processor.setOnDrawListener { _ ->
+                // Act: draw color on overlay canvas without getting it.
+                canvas = lockCanvas(processor.overlaySurface)
+                canvas!!.drawColor(OVERLAY_COLOR)
                 true
             }
         }
         // Assert: output receives frame with input color
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertOutputColor(INPUT_COLOR)
+        // Cleanup: unlock Canvas
+        processor.overlaySurface.unlockCanvasAndPost(canvas!!)
     }
 
     @Test
@@ -236,7 +242,7 @@ class SurfaceProcessorImplDeviceTest {
         val cachedFrame = processor.buffer.frames.single()
 
         // Act: draw the cached frame.
-        val drawFuture = processor.drawFrame(cachedFrame.timestampNs)
+        val drawFuture = processor.drawFrameAsync(cachedFrame.timestampNanos)
 
         // Assert: the future completes with RESULT_SUCCESS and the output receives the frame.
         assertThat(drawFuture.get()).isEqualTo(OverlayEffect.RESULT_SUCCESS)
@@ -250,7 +256,7 @@ class SurfaceProcessorImplDeviceTest {
         val frame = processor.buffer.frames.single()
 
         // Act: draw the frame with a wrong timestamp.
-        val drawFuture = processor.drawFrame(frame.timestampNs - 1)
+        val drawFuture = processor.drawFrameAsync(frame.timestampNanos - 1)
 
         // Assert: the future completes with RESULT_FRAME_NOT_FOUND and the output does not receive
         // the frame.
@@ -269,7 +275,7 @@ class SurfaceProcessorImplDeviceTest {
         val frame = processor.buffer.frames.single()
 
         // Act: draw the frame.
-        val drawFuture = processor.drawFrame(frame.timestampNs)
+        val drawFuture = processor.drawFrameAsync(frame.timestampNanos)
 
         // Assert: the future completes with RESULT_CANCELLED_BY_CALLER and the output does not
         // receive the frame.
@@ -297,7 +303,7 @@ class SurfaceProcessorImplDeviceTest {
         }
 
         // Act: draw the buffered frame.
-        val drawFuture = processor.drawFrame(frame.timestampNs)
+        val drawFuture = processor.drawFrameAsync(frame.timestampNanos)
 
         // Assert: the future completes with RESULT_INVALID_SURFACE and the output does not
         // receive the frame.
@@ -312,7 +318,7 @@ class SurfaceProcessorImplDeviceTest {
         processor.release()
 
         // Act: release the processor and draw a frame.
-        val drawFuture = processor.drawFrame(0)
+        val drawFuture = processor.drawFrameAsync(0)
 
         // Assert: the future completes with an exception.
         try {

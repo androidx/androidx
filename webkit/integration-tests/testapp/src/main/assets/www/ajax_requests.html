@@ -15,6 +15,13 @@
 -->
 <head>
     <title>Load html over XMLHttpRequest</title>
+</head>
+<body>
+    <!-- Ensure HTML elements exist before executing JavaScript -->
+    <h1 id="title">Loaded HTML should appear below on success</h1>
+    <hr>
+    <div id="assets_html"></div>
+    <div id="res_html"></div>
 
     <!-- Load html file from android_assets -->
     <script type="text/javascript">
@@ -51,12 +58,5 @@
         xhr.open("GET", 'https://example.com/androidx_webkit/example/res/raw/some_text.html', true);
         xhr.send();
     </script>
-</head>
-
-<body>
-    <h1 id="title">Loaded HTML should appear below on success</h1>
-    <hr>
-    <div id="assets_html"></div>
-    <div id="res_html"></div>
 </body>
 </html>

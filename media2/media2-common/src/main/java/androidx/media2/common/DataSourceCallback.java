@@ -26,13 +26,16 @@ import java.io.IOException;
  * For supplying media data, implement this if your app has special requirements for the way media
  * data is obtained.
  *
- * <p class="note">Methods of this interface may be called on multiple different
- * threads. There will be a thread synchronization point between each call to ensure that
- * modifications to the state of your DataSourceCallback are visible to future calls. This means
- * you don't need to do your own synchronization unless you're modifying the
- * DataSourceCallback from another thread while it's being used by the media library.</p>
+ * <p class="note">Methods of this interface may be called on multiple different threads. There will
+ * be a thread synchronization point between each call to ensure that modifications to the state of
+ * your DataSourceCallback are visible to future calls. This means you don't need to do your own
+ * synchronization unless you're modifying the DataSourceCallback from another thread while it's
+ * being used by the media library.
  *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public abstract class DataSourceCallback implements Closeable {
     /**
      * Called to request data from the given position.

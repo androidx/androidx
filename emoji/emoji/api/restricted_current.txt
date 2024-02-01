@@ -76,7 +76,7 @@ package androidx.emoji.text {
   @IntDef({androidx.emoji.text.EmojiCompat.REPLACE_STRATEGY_DEFAULT, androidx.emoji.text.EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT, androidx.emoji.text.EmojiCompat.REPLACE_STRATEGY_ALL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface EmojiCompat.ReplaceStrategy {
   }
 
-  @AnyThread @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class EmojiMetadata {
+  @AnyThread @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class EmojiMetadata {
     method public void draw(android.graphics.Canvas, float, float, android.graphics.Paint);
     method public int getCodepointAt(int);
     method public int getCodepointsLength();
@@ -97,7 +97,7 @@ package androidx.emoji.text {
   @IntDef({androidx.emoji.text.EmojiMetadata.HAS_GLYPH_UNKNOWN, androidx.emoji.text.EmojiMetadata.HAS_GLYPH_ABSENT, androidx.emoji.text.EmojiMetadata.HAS_GLYPH_EXISTS}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface EmojiMetadata.HasGlyph {
   }
 
-  @RequiresApi(19) public abstract class EmojiSpan extends android.text.style.ReplacementSpan {
+  public abstract class EmojiSpan extends android.text.style.ReplacementSpan {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public final int getId();
     method public int getSize(android.graphics.Paint, CharSequence!, int, int, android.graphics.Paint.FontMetricsInt!);
   }
@@ -127,7 +127,7 @@ package androidx.emoji.text {
     method public abstract long getRetryDelay();
   }
 
-  @AnyThread @RequiresApi(19) public final class MetadataRepo {
+  @AnyThread public final class MetadataRepo {
     method public static androidx.emoji.text.MetadataRepo! create(android.content.res.AssetManager, String!) throws java.io.IOException;
     method public static androidx.emoji.text.MetadataRepo! create(android.graphics.Typeface, java.io.InputStream) throws java.io.IOException;
     method public static androidx.emoji.text.MetadataRepo! create(android.graphics.Typeface, java.nio.ByteBuffer) throws java.io.IOException;
@@ -135,7 +135,7 @@ package androidx.emoji.text {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.text.emoji.flatbuffer.MetadataList! getMetadataList();
   }
 
-  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TypefaceEmojiSpan extends androidx.emoji.text.EmojiSpan {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TypefaceEmojiSpan extends androidx.emoji.text.EmojiSpan {
     ctor public TypefaceEmojiSpan(androidx.emoji.text.EmojiMetadata!);
     method public void draw(android.graphics.Canvas, CharSequence!, @IntRange(from=0) int, @IntRange(from=0) int, float, int, int, int, android.graphics.Paint);
   }

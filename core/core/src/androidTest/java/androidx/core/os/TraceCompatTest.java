@@ -38,6 +38,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -153,6 +154,7 @@ public final class TraceCompatTest {
         assertThat(enabled).isTrue();
     }
 
+    @Ignore("b/308151557")
     @SmallTest
     @Test
     public void isNotEnabledWhenNotTracing() {

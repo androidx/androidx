@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 /**
  * An object that paints text onto a [Canvas].
@@ -299,7 +299,7 @@ class TextDelegate(
     }
 }
 
-internal fun Float.ceilToIntPx(): Int = ceil(this).roundToInt()
+internal fun Float.ceilToIntPx(): Int = ceil(this).fastRoundToInt()
 
 /**
  * Returns the [TextDelegate] passed as a [current] param if the input didn't change

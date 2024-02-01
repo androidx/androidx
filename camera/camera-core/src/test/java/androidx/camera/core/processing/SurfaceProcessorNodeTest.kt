@@ -37,6 +37,7 @@ import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.TransformUtils
 import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
+import androidx.camera.core.impl.utils.TransformUtils.getRotatedSize
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
@@ -116,6 +117,69 @@ class SurfaceProcessorNodeTest {
             videoSurfaceRequest.deferrableSurface.close()
         }
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun respectInputCropRect_outputCropRectIsBasedOnInput() {
+        // Arrange: create a input edge and a out config. The out config's crop rect contains the
+        // input edge's crop rect.
+        val inputEdge = SurfaceEdge(
+            PREVIEW,
+            INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+            StreamSpec.builder(INPUT_SIZE).build(),
+            Matrix(),
+            true,
+            Rect(160, 120, 480, 360), // 320 x 240 crop rect in the center
+            0,
+            ROTATION_NOT_SPECIFIED,
+            true
+        )
+        val outCropRect = Rect(80, 60, 560, 420)
+        val outConfig = OutConfig.of(
+            inputEdge.targets,
+            inputEdge.format,
+            outCropRect,
+            rectToSize(outCropRect),
+            inputEdge.rotationDegrees,
+            inputEdge.isMirroring,
+            true
+        )
+        createSurfaceProcessorNode()
+        // Act: transform input.
+        val out = node.transform(SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig)))
+        // Assert: output crop rect is based on input crop rect AND the OutConfig crop rect.
+        assertThat(out[outConfig]!!.cropRect).isEqualTo(Rect(80, 60, 400, 300))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun outConfigCropRectDoesNotContainInput_throwException() {
+        // Arrange: create a input edge and a out config. The out config's crop rect does not
+        // contain the input edge's crop rect.
+        val inputEdge = SurfaceEdge(
+            PREVIEW,
+            INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+            StreamSpec.builder(INPUT_SIZE).build(),
+            Matrix(),
+            true,
+            Rect(160, 120, 480, 360), // 320 x 240 crop rect in the center
+            0,
+            ROTATION_NOT_SPECIFIED,
+            true
+        )
+        // A crop rect that is smaller than the input's.
+        val smallCropRect = Rect(170, 120, 480, 360)
+        val outConfig = OutConfig.of(
+            inputEdge.targets,
+            inputEdge.format,
+            smallCropRect,
+            rectToSize(smallCropRect),
+            inputEdge.rotationDegrees,
+            inputEdge.isMirroring,
+            true
+        )
+        createSurfaceProcessorNode()
+        // Act: transform input which throws exception.
+        node.transform(SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig)))
     }
 
     @Test
@@ -206,7 +270,7 @@ class SurfaceProcessorNodeTest {
             inputEdge.cropRect,
             TransformUtils.getRotatedSize(inputEdge.cropRect, inputEdge.rotationDegrees),
             inputEdge.rotationDegrees,
-            inputEdge.mirroring
+            inputEdge.isMirroring
         )
         nodeInput = SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig))
         // Act.
@@ -298,12 +362,12 @@ class SurfaceProcessorNodeTest {
             assertThat(previewOutput.streamSpec.resolution).isEqualTo(rectToSize(expectedCropRect))
             assertThat(previewOutput.cropRect).isEqualTo(expectedCropRect)
             assertThat(previewOutput.rotationDegrees).isEqualTo(0)
-            assertThat(previewOutput.mirroring).isFalse()
+            assertThat(previewOutput.isMirroring).isFalse()
             val videoOutput = nodeOutput[videoOutConfig]!!
             assertThat(videoOutput.streamSpec.resolution).isEqualTo(VIDEO_SIZE)
             assertThat(videoOutput.cropRect).isEqualTo(sizeToRect(VIDEO_SIZE))
             assertThat(videoOutput.rotationDegrees).isEqualTo(rotationDegrees)
-            assertThat(videoOutput.mirroring).isTrue()
+            assertThat(videoOutput.isMirroring).isTrue()
 
             // Clean up.
             nodeInput.surfaceEdge.close()
@@ -359,7 +423,7 @@ class SurfaceProcessorNodeTest {
         assertThat(previewTransformInfo.cropRect).isEqualTo(Rect(0, 0, 400, 600))
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(0)
         assertThat(previewSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(previewSurfaceOutput.mirroring).isFalse()
+        assertThat(previewSurfaceOutput.isMirroring).isFalse()
         assertThat(previewSurfaceOutput.camera).isNotNull()
 
         val videoSurfaceOutput =
@@ -370,7 +434,7 @@ class SurfaceProcessorNodeTest {
         assertThat(videoTransformInfo.cropRect).isEqualTo(sizeToRect(VIDEO_SIZE))
         assertThat(videoTransformInfo.rotationDegrees).isEqualTo(270)
         assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(videoSurfaceOutput.mirroring).isTrue()
+        assertThat(videoSurfaceOutput.isMirroring).isTrue()
         assertThat(videoSurfaceOutput.camera).isNotNull()
     }
 
@@ -395,13 +459,13 @@ class SurfaceProcessorNodeTest {
         assertThat(previewSurfaceOutput.rotationDegrees).isEqualTo(INPUT_ROTATION_DEGREES)
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(180)
         assertThat(previewSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(previewSurfaceOutput.mirroring).isFalse()
+        assertThat(previewSurfaceOutput.isMirroring).isFalse()
         val videoSurfaceOutput =
             surfaceProcessorInternal.surfaceOutputs[VIDEO_CAPTURE]!! as SurfaceOutputImpl
         assertThat(videoSurfaceOutput.rotationDegrees).isEqualTo(VIDEO_ROTATION_DEGREES)
         assertThat(videoTransformInfo.rotationDegrees).isEqualTo(90)
         assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(videoSurfaceOutput.mirroring).isTrue()
+        assertThat(videoSurfaceOutput.isMirroring).isTrue()
 
         // Act: update rotation degrees
         inputSurface.updateTransformation(180)
@@ -432,13 +496,13 @@ class SurfaceProcessorNodeTest {
         assertThat(previewSurfaceOutput.rotationDegrees).isEqualTo(INPUT_ROTATION_DEGREES)
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(180)
         assertThat(previewSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(previewSurfaceOutput.mirroring).isTrue()
+        assertThat(previewSurfaceOutput.isMirroring).isTrue()
         val videoSurfaceOutput =
             surfaceProcessorInternal.surfaceOutputs[VIDEO_CAPTURE]!! as SurfaceOutputImpl
         assertThat(videoSurfaceOutput.rotationDegrees).isEqualTo(VIDEO_ROTATION_DEGREES)
         assertThat(videoTransformInfo.rotationDegrees).isEqualTo(90)
         assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(videoSurfaceOutput.mirroring).isTrue()
+        assertThat(videoSurfaceOutput.isMirroring).isTrue()
 
         // Act: update rotation degrees
         inputSurface.updateTransformation(180)

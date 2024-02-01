@@ -29,13 +29,14 @@ import androidx.camera.video.Quality;
  *     Description: The captured video is stretched while selecting the quality is greater or
  *                  equality to FHD resolution
  *     Device(s): Samsung J2 (sm-j260f), Samsung J4 (sm-j400g), Samsung J5 (sm-j530f),
- *     Samsung J7 Nxt (sm-j701f), Samsung J7 Prime (sm-g610m) API level 27 or above,
+ *     Samsung J6 (sm-j600g), Samsung J7 Nxt (sm-j701f),
+ *     Samsung J7 Prime (sm-g610m) API level 27 or above,
  *     Samsung J7 (sm-J710mn) API level 27 or above
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {
     static boolean load() {
-        return isSamsungJ2() || isSamsungJ4() || isSamsungJ5() || isSamsungJ7Nxt()
+        return isSamsungJ2() || isSamsungJ4() || isSamsungJ5() || isSamsungJ6() || isSamsungJ7Nxt()
                 || isSamsungJ7PrimeApi27Above() || isSamsungJ7Api27Above();
     }
 
@@ -49,6 +50,10 @@ public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {
 
     private static boolean isSamsungJ5() {
         return "Samsung".equalsIgnoreCase(Build.BRAND) && "SM-J530F".equalsIgnoreCase(Build.MODEL);
+    }
+
+    private static boolean isSamsungJ6() {
+        return "Samsung".equalsIgnoreCase(Build.BRAND) && "sm-j600g".equalsIgnoreCase(Build.MODEL);
     }
 
     private static boolean isSamsungJ7Nxt() {
@@ -72,8 +77,8 @@ public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {
         if (isSamsungJ4()) {
             return quality == Quality.FHD || quality == Quality.UHD;
         }
-        if (isSamsungJ2() || isSamsungJ5() || isSamsungJ7Nxt() || isSamsungJ7PrimeApi27Above()
-                || isSamsungJ7Api27Above()) {
+        if (isSamsungJ2() || isSamsungJ5() || isSamsungJ6() || isSamsungJ7Nxt()
+                || isSamsungJ7PrimeApi27Above() || isSamsungJ7Api27Above()) {
             return quality == Quality.FHD;
         }
         return false;

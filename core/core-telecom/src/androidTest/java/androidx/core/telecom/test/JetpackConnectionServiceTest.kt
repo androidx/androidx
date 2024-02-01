@@ -22,6 +22,7 @@ import android.telecom.ConnectionRequest
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
@@ -177,7 +178,8 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
             TestUtils.mOnDisconnectLambda,
             TestUtils.mOnSetActiveLambda,
             TestUtils.mOnSetInActiveLambda,
-            CompletableDeferred()
+            CompletableDeferred(),
+            VoipExtensionManager(mContext, null, callChannels, listOf())
         )
         // add to the list of pendingRequests
         JetpackConnectionService.mPendingConnectionRequests.add(pr)

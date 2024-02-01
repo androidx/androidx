@@ -61,7 +61,7 @@ class PagerPrefetcherTest(
     fun notPrefetchingForwardInitially() {
         composePager()
 
-        rule.onNodeWithTag("${paramConfig.beyondBoundsPageCount + 2}")
+        rule.onNodeWithTag("${paramConfig.outOfBoundsPageCount + 2}")
             .assertDoesNotExist()
     }
 
@@ -87,7 +87,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("$preFetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${paramConfig.beyondBoundsPageCount + preFetchIndex + 1}")
+        rule.onNodeWithTag("${paramConfig.outOfBoundsPageCount + preFetchIndex + 1}")
             .assertDoesNotExist()
     }
 
@@ -106,7 +106,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("$preFetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${preFetchIndex - paramConfig.beyondBoundsPageCount - 1}")
+        rule.onNodeWithTag("${preFetchIndex - paramConfig.outOfBoundsPageCount - 1}")
             .assertDoesNotExist()
     }
 
@@ -130,7 +130,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("$preFetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${paramConfig.beyondBoundsPageCount + preFetchIndex + 1}")
+        rule.onNodeWithTag("${paramConfig.outOfBoundsPageCount + preFetchIndex + 1}")
             .assertDoesNotExist()
     }
 
@@ -155,7 +155,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("$preFetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${preFetchIndex - paramConfig.beyondBoundsPageCount - 1}")
+        rule.onNodeWithTag("${preFetchIndex - paramConfig.outOfBoundsPageCount - 1}")
             .assertDoesNotExist()
     }
 
@@ -174,7 +174,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${prefetchIndex - paramConfig.beyondBoundsPageCount - 3}")
+        rule.onNodeWithTag("${prefetchIndex - paramConfig.outOfBoundsPageCount - 3}")
             .assertDoesNotExist()
 
         rule.runOnIdle {
@@ -189,7 +189,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${prefetchIndex + paramConfig.beyondBoundsPageCount + 3}")
+        rule.onNodeWithTag("${prefetchIndex + paramConfig.outOfBoundsPageCount + 3}")
             .assertDoesNotExist()
     }
 
@@ -220,7 +220,7 @@ class PagerPrefetcherTest(
             .assertIsDisplayed()
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${prefetchIndex + paramConfig.beyondBoundsPageCount + 1}")
+        rule.onNodeWithTag("${prefetchIndex + paramConfig.outOfBoundsPageCount + 1}")
             .assertDoesNotExist()
     }
 
@@ -251,7 +251,7 @@ class PagerPrefetcherTest(
             .assertIsDisplayed()
         rule.onNodeWithTag("${preFetchIndex - 1}")
             .assertExists()
-        rule.onNodeWithTag("${preFetchIndex - 1 - paramConfig.beyondBoundsPageCount - 1}")
+        rule.onNodeWithTag("${preFetchIndex - 1 - paramConfig.outOfBoundsPageCount - 1}")
             .assertDoesNotExist()
     }
 
@@ -272,7 +272,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${prefetchIndex - paramConfig.beyondBoundsPageCount - 3}")
+        rule.onNodeWithTag("${prefetchIndex - paramConfig.outOfBoundsPageCount - 3}")
             .assertDoesNotExist()
 
         rule.runOnIdle {
@@ -287,7 +287,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
-        rule.onNodeWithTag("${prefetchIndex + paramConfig.beyondBoundsPageCount + 3}")
+        rule.onNodeWithTag("${prefetchIndex + paramConfig.outOfBoundsPageCount + 3}")
             .assertDoesNotExist()
     }
 
@@ -307,9 +307,9 @@ class PagerPrefetcherTest(
             .assertIsDisplayed()
         rule.onNodeWithTag("${initialIndex + 1}")
             .assertIsDisplayed()
-        rule.onNodeWithTag("${initialIndex - paramConfig.beyondBoundsPageCount - 2}")
+        rule.onNodeWithTag("${initialIndex - paramConfig.outOfBoundsPageCount - 2}")
             .assertDoesNotExist()
-        rule.onNodeWithTag("${initialIndex + paramConfig.beyondBoundsPageCount + 2}")
+        rule.onNodeWithTag("${initialIndex + paramConfig.outOfBoundsPageCount + 2}")
             .assertDoesNotExist()
 
         rule.runOnIdle {
@@ -323,7 +323,7 @@ class PagerPrefetcherTest(
 
         rule.onNodeWithTag("${prefetchIndex + 1}")
             .assertExists()
-        rule.onNodeWithTag("${prefetchIndex - paramConfig.beyondBoundsPageCount - 3}")
+        rule.onNodeWithTag("${prefetchIndex - paramConfig.outOfBoundsPageCount - 3}")
             .assertDoesNotExist()
 
         rule.runOnIdle {
@@ -496,7 +496,7 @@ class PagerPrefetcherTest(
             modifier = Modifier.mainAxisSize(pageSizeDp * 1.5f),
             reverseLayout = reverseLayout,
             contentPadding = contentPadding,
-            beyondBoundsPageCount = paramConfig.beyondBoundsPageCount,
+            outOfBoundsPageCount = paramConfig.outOfBoundsPageCount,
             initialPage = initialPage,
             initialPageOffsetFraction = initialPageOffsetFraction,
             pageCount = { 100 },
@@ -540,10 +540,10 @@ class PagerPrefetcherTest(
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun params(): Array<Any> = arrayOf(
-            ParamConfig(Orientation.Vertical, beyondBoundsPageCount = 0),
-            ParamConfig(Orientation.Vertical, beyondBoundsPageCount = 1),
-            ParamConfig(Orientation.Horizontal, beyondBoundsPageCount = 0),
-            ParamConfig(Orientation.Horizontal, beyondBoundsPageCount = 1)
+            ParamConfig(Orientation.Vertical, outOfBoundsPageCount = 0),
+            ParamConfig(Orientation.Vertical, outOfBoundsPageCount = 1),
+            ParamConfig(Orientation.Horizontal, outOfBoundsPageCount = 0),
+            ParamConfig(Orientation.Horizontal, outOfBoundsPageCount = 1)
         )
     }
 }

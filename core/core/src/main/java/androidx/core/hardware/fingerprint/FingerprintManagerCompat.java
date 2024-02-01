@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
+import android.os.CancellationSignal;
 import android.os.Handler;
 
 import androidx.annotation.DoNotInline;
@@ -28,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
-import androidx.core.os.CancellationSignal;
 
 import java.security.Signature;
 
@@ -102,6 +102,33 @@ public class FingerprintManagerCompat {
      * @param cancel an object that can be used to cancel authentication
      * @param callback an object to receive authentication events
      * @param handler an optional handler for events
+     * @deprecated Use
+     * {@link #authenticate(CryptoObject, int, CancellationSignal, AuthenticationCallback, Handler)}
+     */
+    @Deprecated
+    @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
+    public void authenticate(@Nullable CryptoObject crypto, int flags,
+            @Nullable androidx.core.os.CancellationSignal cancel,
+            @NonNull AuthenticationCallback callback,
+            @Nullable Handler handler) {
+        authenticate(crypto, flags,
+                cancel != null ? (CancellationSignal) cancel.getCancellationSignalObject() : null,
+                callback, handler);
+    }
+
+    /**
+     * Request authentication of a crypto object. This call warms up the fingerprint hardware
+     * and starts scanning for a fingerprint. It terminates when
+     * {@link AuthenticationCallback#onAuthenticationError(int, CharSequence)} or
+     * {@link AuthenticationCallback#onAuthenticationSucceeded(AuthenticationResult)} is called, at
+     * which point the object is no longer valid. The operation can be canceled by using the
+     * provided cancel object.
+     *
+     * @param crypto object associated with the call or null if none required.
+     * @param flags optional flags; should be 0
+     * @param cancel an object that can be used to cancel authentication
+     * @param callback an object to receive authentication events
+     * @param handler an optional handler for events
      */
     @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
     public void authenticate(@Nullable CryptoObject crypto, int flags,
@@ -110,10 +137,7 @@ public class FingerprintManagerCompat {
         if (Build.VERSION.SDK_INT >= 23) {
             final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
             if (fp != null) {
-                android.os.CancellationSignal cancellationSignal = cancel != null
-                        ? (android.os.CancellationSignal) cancel.getCancellationSignalObject()
-                        : null;
-                Api23Impl.authenticate(fp, wrapCryptoObject(crypto), cancellationSignal, flags,
+                Api23Impl.authenticate(fp, wrapCryptoObject(crypto), cancel, flags,
                         wrapCallback(callback), handler);
             }
         }
@@ -290,7 +314,7 @@ public class FingerprintManagerCompat {
         @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
         @DoNotInline
         static void authenticate(Object fingerprintManager, Object crypto,
-                android.os.CancellationSignal cancel, int flags, Object callback, Handler handler) {
+                CancellationSignal cancel, int flags, Object callback, Handler handler) {
             ((FingerprintManager) fingerprintManager).authenticate(
                     (FingerprintManager.CryptoObject) crypto, cancel, flags,
                     (FingerprintManager.AuthenticationCallback) callback, handler);

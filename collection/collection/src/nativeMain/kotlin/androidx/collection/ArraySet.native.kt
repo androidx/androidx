@@ -43,7 +43,8 @@ import androidx.collection.internal.EMPTY_OBJECTS
  * @constructor Creates a new empty ArraySet. The default capacity of an array map is 0, and
  * will grow once items are added to it.
  */
-public actual class ArraySet<E> actual constructor(
+// JvmOverloads is required on constructor to match expect declaration
+public actual class ArraySet<E> @kotlin.jvm.JvmOverloads actual constructor(
     capacity: Int
 ) : MutableCollection<E>, MutableSet<E> {
 

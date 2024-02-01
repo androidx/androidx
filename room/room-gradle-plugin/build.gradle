@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.SdkResourceGenerator
 
@@ -45,11 +52,12 @@ dependencies {
     testImplementation(libs.testParameterInjector)
 
     testPlugin("com.android.tools.build:gradle:7.3.0")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043:linux")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043:osx")
     testPlugin(libs.kotlinGradlePluginz)
     testPlugin(libs.kspGradlePluginz)
 }
-
-SdkResourceGenerator.generateForHostTest(project)
 
 // Configure the generating task of plugin-under-test-metadata.properties to
 // include additional dependencies for the injected plugin classpath that
@@ -62,6 +70,7 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
 // Configure publishing tasks to be dependencies of 'test' so those artifacts are available for
 // the test project executed with Gradle Test Kit.
 tasks.findByPath("test").dependsOn(
+        tasks.findByPath(":annotation:annotation:publish"),
         tasks.findByPath(":annotation:annotation-experimental:publish"),
         tasks.findByPath(":room:room-common:publish"),
         tasks.findByPath(":room:room-runtime:publish"),
@@ -86,8 +95,4 @@ androidx {
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2023"
     description = "Android Room Gradle Plugin"
-}
-
-validatePlugins {
-    enableStricterValidation = true
 }

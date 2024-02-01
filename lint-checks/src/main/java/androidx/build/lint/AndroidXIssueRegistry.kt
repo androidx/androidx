@@ -78,6 +78,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 PrereleaseSdkCoreDependencyDetector.ISSUE,
                 DeprecationMismatchDetector.ISSUE,
                 RestrictToDetector.RESTRICTED,
+                ObsoleteCompatDetector.ISSUE,
+                ReplaceWithDetector.ISSUE,
             )
         }
     }

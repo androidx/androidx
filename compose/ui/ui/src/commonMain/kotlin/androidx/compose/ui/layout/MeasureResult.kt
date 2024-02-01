@@ -13,5 +13,7 @@ interface MeasureResult {
     val width: Int
     val height: Int
     val alignmentLines: Map<AlignmentLine, Int>
+    val rulers: (RulerScope.() -> Unit)?
+        get() = null
     fun placeChildren()
 }

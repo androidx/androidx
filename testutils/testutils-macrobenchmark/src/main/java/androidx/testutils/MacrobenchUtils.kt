@@ -70,7 +70,10 @@ val STARTUP_MODES = listOf(
 fun getStartupMetrics() =
     listOf(
         StartupTimingMetric(),
-        TraceSectionMetric("StartupTracingInitializer"),
+        TraceSectionMetric(
+            "StartupTracingInitializer",
+            mode = TraceSectionMetric.Mode.First
+        ),
         MemoryUsageMetric(MemoryUsageMetric.Mode.Last)
     )
 

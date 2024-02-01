@@ -3,19 +3,19 @@ package androidx.appactions.builtintypes.properties {
 
   @androidx.appsearch.annotation.Document(name="bitprop:ByDay") public final class ByDay {
     ctor public ByDay(androidx.appactions.builtintypes.types.DayOfWeek dayOfWeek);
-    method @androidx.appsearch.annotation.Document.StringProperty(serializer=DayOfWeekAsCanonicalUrlSerializer::class) public androidx.appactions.builtintypes.types.DayOfWeek? getAsDayOfWeek();
+    method @androidx.appsearch.annotation.Document.StringProperty(serializer=DayOfWeekAsCanonicalUrlSerializer::class) public androidx.appactions.builtintypes.types.DayOfWeek? asDayOfWeek();
     property @androidx.appsearch.annotation.Document.StringProperty(serializer=DayOfWeekAsCanonicalUrlSerializer::class) public final androidx.appactions.builtintypes.types.DayOfWeek? asDayOfWeek;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:EndDate") public final class EndDate {
     ctor public EndDate(java.time.LocalDate date);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? getAsDate();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? asDate();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public final java.time.LocalDate? asDate;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:EndTime") public final class EndTime {
     ctor public EndTime(java.time.LocalTime time);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public java.time.LocalTime? getAsTime();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public java.time.LocalTime? asTime();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public final java.time.LocalTime? asTime;
   }
 
@@ -23,9 +23,9 @@ package androidx.appactions.builtintypes.properties {
     ctor public ExceptDate(java.time.Instant instant);
     ctor public ExceptDate(java.time.LocalDate date);
     ctor public ExceptDate(java.time.LocalDateTime localDateTime);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? getAsDate();
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=InstantAsEpochMilliSerializer::class) public java.time.Instant? getAsInstant();
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateTimeAsUtcEpochSecondSerializer::class) public java.time.LocalDateTime? getAsLocalDateTime();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? asDate();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=InstantAsEpochMilliSerializer::class) public java.time.Instant? asInstant();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateTimeAsUtcEpochSecondSerializer::class) public java.time.LocalDateTime? asLocalDateTime();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.ExceptDate.Mapper<R> mapper);
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public final java.time.LocalDate? asDate;
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=InstantAsEpochMilliSerializer::class) public final java.time.Instant? asInstant;
@@ -41,25 +41,25 @@ package androidx.appactions.builtintypes.properties {
 
   @androidx.appsearch.annotation.Document(name="bitprop:Name") public final class Name {
     ctor public Name(String text);
-    method @androidx.appsearch.annotation.Document.StringProperty public String? getAsText();
+    method @androidx.appsearch.annotation.Document.StringProperty public String? asText();
     property @androidx.appsearch.annotation.Document.StringProperty public final String? asText;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:RepeatFrequency") public final class RepeatFrequency {
     ctor public RepeatFrequency(java.time.Duration duration);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=DurationAsNanosSerializer::class) public java.time.Duration? getAsDuration();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=DurationAsNanosSerializer::class) public java.time.Duration? asDuration();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=DurationAsNanosSerializer::class) public final java.time.Duration? asDuration;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:StartDate") public final class StartDate {
     ctor public StartDate(java.time.LocalDate date);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? getAsDate();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? asDate();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public final java.time.LocalDate? asDate;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:StartTime") public final class StartTime {
     ctor public StartTime(java.time.LocalTime time);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public java.time.LocalTime? getAsTime();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public java.time.LocalTime? asTime();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public final java.time.LocalTime? asTime;
   }
 
@@ -110,7 +110,7 @@ package androidx.appactions.builtintypes.types {
   public abstract class AbstractAlarm<Self extends androidx.appactions.builtintypes.types.AbstractAlarm<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractAlarm.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Alarm {
     ctor public AbstractAlarm(androidx.appactions.builtintypes.types.Alarm alarm);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final androidx.appactions.builtintypes.types.Schedule? getAlarmSchedule();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
@@ -121,7 +121,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final androidx.appactions.builtintypes.types.Schedule? alarmSchedule;
     property public final String identifier;
     property public final Boolean? isAlarmEnabled;
@@ -135,7 +135,7 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromAlarm(androidx.appactions.builtintypes.types.Alarm alarm);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setAlarmEnabled(Boolean? boolean);
@@ -144,14 +144,14 @@ package androidx.appactions.builtintypes.types {
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractCommonExecutionStatus<Self extends androidx.appactions.builtintypes.types.AbstractCommonExecutionStatus<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractCommonExecutionStatus.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.CommonExecutionStatus {
     ctor public AbstractCommonExecutionStatus(androidx.appactions.builtintypes.types.CommonExecutionStatus commonExecutionStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String getNamespace();
@@ -160,7 +160,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String namespace;
@@ -172,21 +172,21 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromCommonExecutionStatus(androidx.appactions.builtintypes.types.CommonExecutionStatus commonExecutionStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setIdentifier(String text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractExecutionStatus<Self extends androidx.appactions.builtintypes.types.AbstractExecutionStatus<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractExecutionStatus.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.ExecutionStatus {
     ctor public AbstractExecutionStatus(androidx.appactions.builtintypes.types.ExecutionStatus executionStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String getNamespace();
@@ -195,7 +195,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String namespace;
@@ -207,21 +207,21 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromExecutionStatus(androidx.appactions.builtintypes.types.ExecutionStatus executionStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setIdentifier(String text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractGenericErrorStatus<Self extends androidx.appactions.builtintypes.types.AbstractGenericErrorStatus<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractGenericErrorStatus.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.GenericErrorStatus {
     ctor public AbstractGenericErrorStatus(androidx.appactions.builtintypes.types.GenericErrorStatus genericErrorStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String getNamespace();
@@ -230,7 +230,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String namespace;
@@ -242,21 +242,21 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromGenericErrorStatus(androidx.appactions.builtintypes.types.GenericErrorStatus genericErrorStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setIdentifier(String text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractIntangible<Self extends androidx.appactions.builtintypes.types.AbstractIntangible<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractIntangible.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Intangible {
     ctor public AbstractIntangible(androidx.appactions.builtintypes.types.Intangible intangible);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String getNamespace();
@@ -265,7 +265,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String namespace;
@@ -277,21 +277,21 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromIntangible(androidx.appactions.builtintypes.types.Intangible intangible);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setIdentifier(String text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractObjectCreationLimitReachedStatus<Self extends androidx.appactions.builtintypes.types.AbstractObjectCreationLimitReachedStatus<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractObjectCreationLimitReachedStatus.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus {
     ctor public AbstractObjectCreationLimitReachedStatus(androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus objectCreationLimitReachedStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String getNamespace();
@@ -300,7 +300,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String namespace;
@@ -312,21 +312,21 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromObjectCreationLimitReachedStatus(androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus objectCreationLimitReachedStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setIdentifier(String text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractPerson<Self extends androidx.appactions.builtintypes.types.AbstractPerson<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractPerson.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Person {
     ctor public AbstractPerson(androidx.appactions.builtintypes.types.Person person);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String? getEmail();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
@@ -337,7 +337,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String? email;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
@@ -351,7 +351,7 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromPerson(androidx.appactions.builtintypes.types.Person person);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setEmail(String? text);
@@ -360,14 +360,14 @@ package androidx.appactions.builtintypes.types {
     method public final Self setNamespace(String namespace);
     method public final Self setTelephoneNumber(String? text);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractSchedule<Self extends androidx.appactions.builtintypes.types.AbstractSchedule<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractSchedule.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Schedule {
     ctor public AbstractSchedule(androidx.appactions.builtintypes.types.Schedule schedule);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
     method public final java.util.List<java.lang.Long> getByMonthDays();
     method public final java.util.List<java.lang.Long> getByMonthWeeks();
@@ -388,7 +388,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
     property public final java.util.List<java.lang.Long> byMonthDays;
     property public final java.util.List<java.lang.Long> byMonthWeeks;
@@ -424,7 +424,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self clearByMonthWeeks();
     method public final Self clearByMonths();
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setEndDate(androidx.appactions.builtintypes.properties.EndDate? endDate);
@@ -439,14 +439,14 @@ package androidx.appactions.builtintypes.types {
     method public final Self setStartDate(androidx.appactions.builtintypes.properties.StartDate? startDate);
     method public final Self setStartTime(androidx.appactions.builtintypes.properties.StartTime? startTime);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractSuccessStatus<Self extends androidx.appactions.builtintypes.types.AbstractSuccessStatus<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractSuccessStatus.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.SuccessStatus {
     ctor public AbstractSuccessStatus(androidx.appactions.builtintypes.types.SuccessStatus successStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String getNamespace();
@@ -455,7 +455,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String namespace;
@@ -467,21 +467,21 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromSuccessStatus(androidx.appactions.builtintypes.types.SuccessStatus successStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setIdentifier(String text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractThing<Self extends androidx.appactions.builtintypes.types.AbstractThing<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractThing.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Thing {
     ctor public AbstractThing(androidx.appactions.builtintypes.types.Thing thing);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String getNamespace();
@@ -490,7 +490,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String namespace;
@@ -502,21 +502,21 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromThing(androidx.appactions.builtintypes.types.Thing thing);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setIdentifier(String text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractTimer<Self extends androidx.appactions.builtintypes.types.AbstractTimer<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractTimer.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Timer {
     ctor public AbstractTimer(androidx.appactions.builtintypes.types.Timer timer);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final java.time.Duration? getDuration();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
@@ -526,7 +526,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final java.time.Duration? duration;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
@@ -539,7 +539,7 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromTimer(androidx.appactions.builtintypes.types.Timer timer);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setDuration(java.time.Duration? duration);
@@ -547,14 +547,14 @@ package androidx.appactions.builtintypes.types {
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
   public abstract class AbstractUnsupportedOperationStatus<Self extends androidx.appactions.builtintypes.types.AbstractUnsupportedOperationStatus<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractUnsupportedOperationStatus.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.UnsupportedOperationStatus {
     ctor public AbstractUnsupportedOperationStatus(androidx.appactions.builtintypes.types.UnsupportedOperationStatus unsupportedOperationStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method public final String getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String getNamespace();
@@ -563,7 +563,7 @@ package androidx.appactions.builtintypes.types {
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property public final String identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String namespace;
@@ -575,14 +575,14 @@ package androidx.appactions.builtintypes.types {
     method public final Built build();
     method protected abstract Built buildFromUnsupportedOperationStatus(androidx.appactions.builtintypes.types.UnsupportedOperationStatus unsupportedOperationStatus);
     method public final boolean equals(Object? other);
-    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object?> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setIdentifier(String text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String namespace);
     method public final String toString();
-    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object?> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
@@ -711,10 +711,10 @@ package androidx.appactions.builtintypes.types {
   @androidx.appsearch.annotation.Document(name="bit:Person", parent={Thing::class}) public interface Person extends androidx.appactions.builtintypes.types.Thing {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
     method @androidx.appsearch.annotation.Document.StringProperty public default String? getEmail();
-    method @androidx.appsearch.annotation.Document.StringProperty(name="telephone") public default String? getTelephoneNumber();
+    method @androidx.appsearch.annotation.Document.StringProperty public default String? getTelephoneNumber();
     method public androidx.appactions.builtintypes.types.Person.Builder<?> toBuilder();
     property @androidx.appsearch.annotation.Document.StringProperty public default String? email;
-    property @androidx.appsearch.annotation.Document.StringProperty(name="telephone") public default String? telephoneNumber;
+    property @androidx.appsearch.annotation.Document.StringProperty public default String? telephoneNumber;
     field public static final androidx.appactions.builtintypes.types.Person.Companion Companion;
   }
 
@@ -730,10 +730,10 @@ package androidx.appactions.builtintypes.types {
 
   @androidx.appsearch.annotation.Document(name="bit:Schedule", parent={Intangible::class}) public interface Schedule extends androidx.appactions.builtintypes.types.Intangible {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.DocumentProperty(name="byDay") public default java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
-    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonthDay") public default java.util.List<java.lang.Long> getByMonthDays();
-    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonthWeek") public default java.util.List<java.lang.Long> getByMonthWeeks();
-    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonth") public default java.util.List<java.lang.Long> getByMonths();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public default java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
+    method @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> getByMonthDays();
+    method @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> getByMonthWeeks();
+    method @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> getByMonths();
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.EndDate? getEndDate();
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.EndTime? getEndTime();
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.ExceptDate? getExceptDate();
@@ -743,10 +743,10 @@ package androidx.appactions.builtintypes.types {
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.StartDate? getStartDate();
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.StartTime? getStartTime();
     method public androidx.appactions.builtintypes.types.Schedule.Builder<?> toBuilder();
-    property @androidx.appsearch.annotation.Document.DocumentProperty(name="byDay") public default java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
-    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonthDay") public default java.util.List<java.lang.Long> byMonthDays;
-    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonthWeek") public default java.util.List<java.lang.Long> byMonthWeeks;
-    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonth") public default java.util.List<java.lang.Long> byMonths;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public default java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
+    property @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> byMonthDays;
+    property @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> byMonthWeeks;
+    property @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> byMonths;
     property @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.EndDate? endDate;
     property @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.EndTime? endTime;
     property @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.ExceptDate? exceptDate;

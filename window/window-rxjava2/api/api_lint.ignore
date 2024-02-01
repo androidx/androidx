@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-ContextFirst: androidx.window.rxjava2.layout.WindowInfoTrackerRx#windowLayoutInfoFlowable(androidx.window.layout.WindowInfoTracker, android.content.Context) parameter #1:
-    Context is distinct, so it must be the first argument (method `windowLayoutInfoFlowable`)
-ContextFirst: androidx.window.rxjava2.layout.WindowInfoTrackerRx#windowLayoutInfoObservable(androidx.window.layout.WindowInfoTracker, android.content.Context) parameter #1:
-    Context is distinct, so it must be the first argument (method `windowLayoutInfoObservable`)

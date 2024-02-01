@@ -20,6 +20,8 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
+import android.os.Build
 import android.util.ArrayMap
 import android.view.Surface
 import androidx.annotation.GuardedBy
@@ -37,13 +39,15 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeout
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.media.AndroidImageWriter
+import androidx.camera.camera2.pipe.media.ImageWriterWrapper
 import androidx.camera.camera2.pipe.writeParameters
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.runBlocking
 
 internal interface Camera2CaptureSequenceProcessorFactory {
     fun create(
@@ -137,15 +141,7 @@ internal class Camera2CaptureSequenceProcessor(
 
             val requestTemplate = request.template ?: template
 
-            // Create the request builder. There is a risk this will throw an exception or return
-            // null
-            // if the CameraDevice has been closed or disconnected. If this fails, indicate that the
-            // request was not submitted.
-            val requestBuilder = session.device.createCaptureRequest(requestTemplate)
-            if (requestBuilder == null) {
-                Log.info { "  Failed to create a CaptureRequest.Builder from $requestTemplate!" }
-                return null
-            }
+            val requestBuilder = buildCaptureRequestBuilder(request, requestTemplate) ?: return null
 
             // Apply the output surfaces to the requestBuilder
             var hasSurface = false
@@ -162,22 +158,33 @@ internal class Camera2CaptureSequenceProcessor(
             // surface per request.
             check(hasSurface)
 
-            // Apply default parameters to the builder first.
-            requestBuilder.writeParameters(defaultParameters)
+            if (request.inputRequest != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                checkNotNull(imageWriter) {
+                    "Failed to create ImageWriter for capture session: $session"
+                }
+                // TODO(b/321603591): Queue image closer to when capture request is submitted
+                imageWriter.queueInputImage(request.inputRequest.image)
 
-            // Apply request parameters to the builder.
-            requestBuilder.writeParameters(request.parameters)
+                // Apply request parameters to the builder.
+                requestBuilder.writeParameters(request.parameters)
+            } else {
+                // Apply default parameters to the builder first.
+                requestBuilder.writeParameters(defaultParameters)
 
-            // Finally, write required parameters to the request builder. This will override any
-            // value that has ben previously set.
-            //
-            // TODO(sushilnath@): Implement one of the two options. (1) Apply the 3A parameters
-            // from internal 3A state machine at last and provide a flag in the Request object to
-            // specify when the clients want to explicitly override some of the 3A parameters
-            // directly. Add code to handle the flag. (2) Let clients override the 3A parameters
-            // freely and when that happens intercept those parameters from the request and keep the
-            // internal 3A state machine in sync.
-            requestBuilder.writeParameters(requiredParameters)
+                // Apply request parameters to the builder.
+                requestBuilder.writeParameters(request.parameters)
+
+                // Finally, write required parameters to the request builder. This will override any
+                // value that has ben previously set.
+                //
+                // TODO(sushilnath@): Implement one of the two options. (1) Apply the 3A parameters
+                // from internal 3A state machine at last and provide a flag in the Request object to
+                // specify when the clients want to explicitly override some of the 3A parameters
+                // directly. Add code to handle the flag. (2) Let clients override the 3A parameters
+                // freely and when that happens intercept those parameters from the request and keep the
+                // internal 3A state machine in sync.
+                requestBuilder.writeParameters(requiredParameters)
+            }
 
             // The tag must be set for every request. We use it to lookup listeners for the
             // individual requests so that each request can specify individual listeners.
@@ -302,7 +309,16 @@ internal class Camera2CaptureSequenceProcessor(
             if (shouldWaitForRepeatingRequest) {
                 lastSingleRepeatingRequestSequence?.let {
                     Log.debug { "Waiting for the last repeating request sequence $it" }
-                    runBlocking { it.awaitStarted() }
+                    // On certain devices, the submitted repeating request sequence may not give us
+                    // onCaptureStarted() or onCaptureSequenceAborted() [1]. Hence we wrap the wait
+                    // under a timeout to prevent us from waiting forever.
+                    //
+                    // [1] b/307588161 - [ANR] at
+                    //                   androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor.close
+                    runBlockingWithTimeout(
+                        threads.backgroundDispatcher,
+                        WAIT_FOR_REPEATING_TIMEOUT_MS
+                    ) { it.awaitStarted() }
                 }
             }
             closed = true
@@ -312,6 +328,27 @@ internal class Camera2CaptureSequenceProcessor(
     override fun toString(): String {
         return "Camera2RequestProcessor-$debugId"
     }
+
+    /** The [ImageWriterWrapper] is created once per capture session when the capture
+     * session is created, assuming it's a reprocessing session.
+     */
+    private val imageWriter =
+        if (streamGraph.inputs.isNotEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val inputStream = streamGraph.inputs.first()
+            val sessionInputSurface = session.inputSurface
+            checkNotNull(sessionInputSurface) {
+                "inputSurface is required to create instance of imageWriter."
+            }
+            AndroidImageWriter.create(
+                sessionInputSurface,
+                inputStream.id,
+                inputStream.maxImages,
+                inputStream.format,
+                threads.camera2Handler
+            )
+        } else {
+            null
+        }
 
     private fun validateRequestList(
         requests: List<Request>,
@@ -438,6 +475,53 @@ internal class Camera2CaptureSequenceProcessor(
             check(hasSurface)
         }
         return true
+    }
+
+    /**
+     * Create a reprocessing request builder if the request is a reprocessing request.
+     * Otherwise, create a regular request builder. There is a risk this will throw an
+     * exception or return null if the CameraDevice has been closed or disconnected.
+     * If this fails, indicate that the request was not submitted.
+     */
+    private fun buildCaptureRequestBuilder(
+        request: Request,
+        requestTemplate: RequestTemplate
+    ): CaptureRequest.Builder? {
+        val requestBuilder = if (request.inputRequest != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val totalCaptureResult =
+                    request.inputRequest.frameInfo.unwrapAs(TotalCaptureResult::class)
+                checkNotNull(totalCaptureResult) {
+                    "Failed to unwrap FrameInfo ${request.inputRequest.frameInfo} as " +
+                        "TotalCaptureResult"
+                }
+                session.device.createReprocessCaptureRequest(totalCaptureResult)
+            } else {
+                null
+            }
+        } else {
+            session.device.createCaptureRequest(requestTemplate)
+        }
+
+        if (requestBuilder == null) {
+            if (request.inputRequest != null) {
+                Log.info {
+                    "Failed to create a ReprocessingCaptureRequest.Builder " +
+                        "from ${request.inputRequest.frameInfo}!"
+                }
+            } else {
+                Log.info {
+                    "Failed to create a CaptureRequest.Builder " +
+                        "from $requestTemplate!"
+                }
+            }
+            return null
+        }
+        return requestBuilder
+    }
+
+    companion object {
+        private const val WAIT_FOR_REPEATING_TIMEOUT_MS = 2_000L // 2s
     }
 }
 

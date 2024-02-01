@@ -165,7 +165,7 @@
     <string name="gas_station" msgid="1203313937444666161">"Benzin İstasyonu"</string>
     <string name="short_route" msgid="4831864276538141265">"Kısa rota"</string>
     <string name="less_busy" msgid="310625272281710983">"Daha sakin"</string>
-    <string name="hov_friendly" msgid="6956152104754594971">"Toplu taşımaya uygun"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"Yüksek yolcu kapasiteliye uygun"</string>
     <string name="long_route" msgid="4737969235741057506">"Uzun rota"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"Navigasyonu başlatmaya devam et"</string>
     <string name="continue_route" msgid="5172258139245088080">"Rotaya devam et"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Rota seçenekleri"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Otoyollar kullanılmasın"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Feribot kullanılmasın"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Harita Demoları"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"İçerik Bulunan Harita Demoları"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mesaj Şablonu İçeren Harita Demosu"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Izgara Şablonu İçeren Harita Demosu"</string>
 </resources>

@@ -37,7 +37,6 @@ import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -80,7 +79,6 @@ class InCallAudioTest : BaseTelecomTest() {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore
     fun testAddCallAssertModeInCommunication() {
         setUpV2Test()
         runBlocking_addCall_assertAudioModeInCommunication()
@@ -98,7 +96,6 @@ class InCallAudioTest : BaseTelecomTest() {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore
     fun testAddCallAssertModeInCommunication_BackwardsCompat() {
         setUpBackwardsCompatTest()
         runBlocking_addCall_assertAudioModeInCommunication()

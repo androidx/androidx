@@ -221,7 +221,7 @@ ContextFirst: androidx.core.view.ViewConfigurationCompat#shouldShowMenuShortcuts
 
 ExecutorRegistration: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler):
     Registration methods should have overload that accepts delivery Executor: `getFont`
-ExecutorRegistration: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler):
+ExecutorRegistration: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, android.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler):
     Registration methods should have overload that accepts delivery Executor: `authenticate`
 ExecutorRegistration: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
     Registration methods should have overload that accepts delivery Executor: `setOnCancelListener`
@@ -325,7 +325,7 @@ ListenerInterface: androidx.core.view.OneShotPreDrawListener:
 
 ListenerLast: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler) parameter #3:
     Listeners should always be at end of argument list (method `getFont`)
-ListenerLast: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler) parameter #4:
+ListenerLast: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, android.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler) parameter #4:
     Listeners should always be at end of argument list (method `authenticate`)
 ListenerLast: androidx.core.provider.FontsContractCompat#requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler) parameter #3:
     Listeners should always be at end of argument list (method `requestFont`)
@@ -933,6 +933,22 @@ NoClone: androidx.core.app.NotificationCompat.Action.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.core.app.NotificationCompat.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
+
+
+NotCloseable: androidx.core.app.FrameMetricsAggregator:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class androidx.core.app.FrameMetricsAggregator
+NotCloseable: androidx.core.util.Pools.Pool:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.core.util.Pools.Pool
+NotCloseable: androidx.core.util.Pools.SimplePool:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.core.util.Pools.SimplePool
+NotCloseable: androidx.core.util.Pools.SynchronizedPool:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.core.util.Pools.SynchronizedPool
+NotCloseable: androidx.core.view.DragAndDropPermissionsCompat:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.core.view.DragAndDropPermissionsCompat
+NotCloseable: androidx.core.view.WindowInsetsAnimationControllerCompat:
+    Classes that release resources (finish()) should implement AutoCloseable and CloseGuard: class androidx.core.view.WindowInsetsAnimationControllerCompat
+NotCloseable: androidx.core.widget.EdgeEffectCompat:
+    Classes that release resources (finish()) should implement AutoCloseable and CloseGuard: class androidx.core.widget.EdgeEffectCompat
 
 
 NullableCollection: androidx.core.app.ActivityOptionsCompat#toBundle():

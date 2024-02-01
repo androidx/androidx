@@ -16,14 +16,12 @@ jobs:
     steps:
       - name: "Setup global constants"
         id: global-constants
-        # The configuration-cache cannot be used due to state excluded when caching Gradle User Home
         run: |
           set -x
           GRADLEW_FLAGS="-Dorg.gradle.internal.http.connectionTimeout=60000 \
             -Dorg.gradle.internal.http.socketTimeout=60000                  \
             -Dorg.gradle.internal.repository.max.retries=20                 \
             -Dorg.gradle.internal.repository.initial.backoff=500            \
-            --no-configuration-cache                                        \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
       - name: Publish build scans link
@@ -40,6 +38,7 @@ jobs:
     env:
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+      GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
       - name: Pull request format
         uses: 'androidx/check-pr-format-action@main'
@@ -88,7 +87,7 @@ jobs:
           echo "::set-output name=files::$AFFECTED_FILES"
 
       - name: "Setup Gradle"
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3-beta
         with:
           # Only save Gradle User Home state for builds on the 'androidx-main' branch.
           # Builds on other branches will only read existing entries from the cache.
@@ -97,16 +96,18 @@ jobs:
           # Don't reuse cache entries from any other Job.
           gradle-home-cache-strict-match: true
 
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
           # Limit the size of the cache entry.
           # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
-          gradle-home-cache-excludes: | 
+          gradle-home-cache-excludes: |
             caches/jars-9
             caches/transforms-3
 
       - name: "ktlint"
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        working-directory: activity
+        working-directory: playground-projects/ktlint-playground
         run: ./gradlew -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
 
   build-modules:
@@ -126,9 +127,10 @@ jobs:
     needs: [setup, lint]
     env:
       artifact-id: ${{matrix.project}}
-      project-root: ${{matrix.project-root || matrix.project}}
+      project-root: playground-projects/${{matrix.project-root || matrix.project}}-playground
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+      GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
@@ -145,9 +147,10 @@ jobs:
         if: ${{ steps.check-ci-config.outputs.enabled == 'true' }}
         with:
           project: ${{ matrix.project }}
-          project-root: ${{matrix.project-root || matrix.project }}
+          project-root: ${{ env.project-root }}
           gradle-cache-password: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
           gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
           gradle-flags: ${{ needs.setup.outputs.gradlew_flags }}
       # Upload artifacts task should be in the build-single-project
       # action but they have a tendency to fail and continue-on-error

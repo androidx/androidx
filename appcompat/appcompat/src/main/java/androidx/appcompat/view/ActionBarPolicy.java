@@ -23,7 +23,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
-import android.view.ViewConfiguration;
 
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
@@ -74,11 +73,7 @@ public class ActionBarPolicy {
     }
 
     public boolean showsOverflowMenuButton() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return true;
-        } else {
-            return !ViewConfiguration.get(mContext).hasPermanentMenuKey();
-        }
+        return true;
     }
 
     public int getEmbeddedMenuWidthLimit() {

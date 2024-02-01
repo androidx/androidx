@@ -32,7 +32,15 @@ internal abstract class Feature(val cubics: List<Cubic>) {
      */
     internal class Edge(cubics: List<Cubic>) : Feature(cubics) {
         override fun transformed(f: PointTransformer) =
-            Edge(cubics.map { it.transformed(f) })
+            Edge(
+                buildList {
+                    // Performance: Builds the list by avoiding creating an unnecessary Iterator to
+                    // iterate through the cubics List.
+                    for (i in cubics.indices) {
+                        add(cubics[i].transformed(f))
+                    }
+                }
+            )
 
         override fun toString(): String = "Edge"
     }
@@ -52,7 +60,13 @@ internal abstract class Feature(val cubics: List<Cubic>) {
     ) : Feature(cubics) {
         override fun transformed(f: PointTransformer): Feature {
             return Corner(
-                cubics.map { it.transformed(f = f) },
+                buildList {
+                    // Performance: Builds the list by avoiding creating an unnecessary Iterator to
+                    // iterate through the cubics List.
+                    for (i in cubics.indices) {
+                        add(cubics[i].transformed(f))
+                    }
+                },
                 vertex.transformed(f),
                 roundedCenter.transformed(f),
                 convex

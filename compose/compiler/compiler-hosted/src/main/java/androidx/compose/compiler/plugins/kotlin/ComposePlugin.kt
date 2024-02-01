@@ -16,6 +16,8 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
+import androidx.compose.compiler.plugins.kotlin.analysis.StabilityConfigParser
+import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.k1.ComposableCallChecker
 import androidx.compose.compiler.plugins.kotlin.k1.ComposableDeclarationChecker
 import androidx.compose.compiler.plugins.kotlin.k1.ComposableTargetChecker
@@ -62,11 +64,23 @@ object ComposeConfiguration {
         CompilerConfigurationKey<String>("Directory to save compose build reports")
     val INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Enable optimization to treat remember as an intrinsic")
+    val NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_KEY =
+        CompilerConfigurationKey<Boolean>(
+            "Enabled optimization to remove groups around non-skipping functions"
+        )
     val SUPPRESS_KOTLIN_VERSION_COMPATIBILITY_CHECK = CompilerConfigurationKey<String?>(
         "Version of Kotlin for which version compatibility check should be suppressed"
     )
     val DECOYS_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Generate decoy methods in IR transform")
+    val STRONG_SKIPPING_ENABLED_KEY =
+        CompilerConfigurationKey<Boolean>("Enable strong skipping mode")
+    val STABILITY_CONFIG_PATH_KEY =
+        CompilerConfigurationKey<String>(
+            "Path to stability configuration file"
+        )
+    val TRACE_MARKERS_ENABLED_KEY =
+        CompilerConfigurationKey<Boolean>("Include composition trace markers in generated code")
 }
 
 @OptIn(ExperimentalCompilerApi::class)
@@ -123,6 +137,13 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             required = false,
             allowMultipleOccurrences = false
         )
+        val NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_OPTION = CliOption(
+            optionName = "nonSkippingGroupOptimization",
+            valueDescription = "<true|false>",
+            description = "Remove groups around non-skipping composable functions",
+            required = false,
+            allowMultipleOccurrences = false
+        )
         val SUPPRESS_KOTLIN_VERSION_CHECK_ENABLED_OPTION = CliOption(
             "suppressKotlinVersionCompatibilityCheck",
             "<true|false>",
@@ -137,6 +158,27 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             required = false,
             allowMultipleOccurrences = false
         )
+        val STRONG_SKIPPING_OPTION = CliOption(
+            "experimentalStrongSkipping",
+            "<true|false>",
+            "Enable experimental strong skipping mode",
+            required = false,
+            allowMultipleOccurrences = false
+        )
+        val STABLE_CONFIG_PATH_OPTION = CliOption(
+            "stabilityConfigurationPath",
+            "<path>",
+            "Path to stability configuration file",
+            required = false,
+            allowMultipleOccurrences = true
+        )
+        val TRACE_MARKERS_OPTION = CliOption(
+            "traceMarkersEnabled",
+            "<true|false>",
+            "Include composition trace markers in generate code",
+            required = false,
+            allowMultipleOccurrences = false
+        )
     }
 
     override val pluginId = PLUGIN_ID
@@ -148,8 +190,12 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
         METRICS_DESTINATION_OPTION,
         REPORTS_DESTINATION_OPTION,
         INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_OPTION,
+        NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_OPTION,
         SUPPRESS_KOTLIN_VERSION_CHECK_ENABLED_OPTION,
         DECOYS_ENABLED_OPTION,
+        STRONG_SKIPPING_OPTION,
+        STABLE_CONFIG_PATH_OPTION,
+        TRACE_MARKERS_OPTION
     )
 
     override fun processOption(
@@ -185,12 +231,28 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             ComposeConfiguration.INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY,
             value == "true"
         )
+        NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_OPTION -> configuration.put(
+            ComposeConfiguration.NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_KEY,
+            value == "true"
+        )
         SUPPRESS_KOTLIN_VERSION_CHECK_ENABLED_OPTION -> configuration.put(
             ComposeConfiguration.SUPPRESS_KOTLIN_VERSION_COMPATIBILITY_CHECK,
             value
         )
         DECOYS_ENABLED_OPTION -> configuration.put(
             ComposeConfiguration.DECOYS_ENABLED_KEY,
+            value == "true"
+        )
+        STRONG_SKIPPING_OPTION -> configuration.put(
+            ComposeConfiguration.STRONG_SKIPPING_ENABLED_KEY,
+            value == "true"
+        )
+        STABLE_CONFIG_PATH_OPTION -> configuration.put(
+            ComposeConfiguration.STABILITY_CONFIG_PATH_KEY,
+            value
+        )
+        TRACE_MARKERS_OPTION -> configuration.put(
+            ComposeConfiguration.TRACE_MARKERS_ENABLED_KEY,
             value == "true"
         )
         else -> throw CliOptionProcessingException("Unknown option: ${option.optionName}")
@@ -220,7 +282,7 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
     companion object {
         fun checkCompilerVersion(configuration: CompilerConfiguration): Boolean {
             try {
-                val KOTLIN_VERSION_EXPECTATION = "1.9.10"
+                val KOTLIN_VERSION_EXPECTATION = "1.9.22"
                 KotlinCompilerVersion.getVersion()?.let { version ->
                     val msgCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
                     val suppressKotlinVersionCheck = configuration.get(
@@ -323,7 +385,8 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
         }
 
         fun createComposeIrExtension(
-            configuration: CompilerConfiguration
+            configuration: CompilerConfiguration,
+            moduleMetricsFactory: ((StabilityInferencer) -> ModuleMetrics)? = null
         ): ComposeIrGenerationExtension {
             val liveLiteralsEnabled = configuration.getBoolean(
                 ComposeConfiguration.LIVE_LITERALS_ENABLED_KEY,
@@ -339,6 +402,10 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
             )
             val intrinsicRememberEnabled = configuration.get(
                 ComposeConfiguration.INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY,
+                true
+            )
+            val nonSkippingGroupOptimizationEnabled = configuration.get(
+                ComposeConfiguration.NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_KEY,
                 false
             )
             val decoysEnabled = configuration.getBoolean(
@@ -355,19 +422,49 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
             val validateIr = configuration.getBoolean(
                 JVMConfigurationKeys.VALIDATE_IR
             )
+
             val useK2 = configuration.languageVersionSettings.languageVersion.usesK2
+            val strongSkippingEnabled = configuration.get(
+                ComposeConfiguration.STRONG_SKIPPING_ENABLED_KEY,
+                false
+            )
+
+            val stabilityConfigPath = configuration.get(
+                ComposeConfiguration.STABILITY_CONFIG_PATH_KEY,
+                ""
+            )
+            val traceMarkersEnabled = configuration.get(
+                ComposeConfiguration.TRACE_MARKERS_ENABLED_KEY,
+                true
+            )
+
+            val msgCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+            val stableTypeMatchers = try {
+                StabilityConfigParser.fromFile(stabilityConfigPath).stableTypeMatchers
+            } catch (e: Exception) {
+                msgCollector?.report(
+                    CompilerMessageSeverity.ERROR,
+                    e.message ?: "Error parsing stability configuration"
+                )
+                emptySet()
+            }
 
             return ComposeIrGenerationExtension(
                 liveLiteralsEnabled = liveLiteralsEnabled,
                 liveLiteralsV2Enabled = liveLiteralsV2Enabled,
                 generateFunctionKeyMetaClasses = generateFunctionKeyMetaClasses,
                 sourceInformationEnabled = sourceInformationEnabled,
+                traceMarkersEnabled = traceMarkersEnabled,
                 intrinsicRememberEnabled = intrinsicRememberEnabled,
+                nonSkippingGroupOptimizationEnabled = nonSkippingGroupOptimizationEnabled,
                 decoysEnabled = decoysEnabled,
                 metricsDestination = metricsDestination,
                 reportsDestination = reportsDestination,
                 validateIr = validateIr,
                 useK2 = useK2,
+                strongSkippingEnabled = strongSkippingEnabled,
+                stableTypeMatchers = stableTypeMatchers,
+                moduleMetricsFactory = moduleMetricsFactory
             )
         }
     }

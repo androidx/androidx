@@ -19,12 +19,9 @@ package androidx.appsearch.utils;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
-import android.os.Build;
 import android.provider.Settings;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -40,21 +37,7 @@ public class BootCountUtil {
      * Returns the current boot count of the device if available. Otherwise return -1.
      */
     public static int getCurrentBootCount(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return Api17Impl.getCurrentBootCount(context);
-        }
-
-        return -1;
-    }
-
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private static final class Api17Impl {
-        @DoNotInline
-        static int getCurrentBootCount(@NonNull Context context) {
-            return Settings.Global.getInt(context.getContentResolver(),
-                    Settings.Global.BOOT_COUNT, -1);
-        }
-
-        private Api17Impl() {}
+        return Settings.Global.getInt(context.getContentResolver(),
+                Settings.Global.BOOT_COUNT, -1);
     }
 }

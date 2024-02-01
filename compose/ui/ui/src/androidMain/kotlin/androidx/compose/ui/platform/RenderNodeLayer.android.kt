@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -61,7 +62,11 @@ internal class RenderNodeLayer(
                 ownerView.notifyLayerIsDirty(this, value)
             }
         }
-    private val outlineResolver = OutlineResolver(ownerView.density)
+    private val outlineResolver = Snapshot.withoutReadObservation {
+        // we don't really care about observation here as density is applied manually
+        // not observing the density changes saves performance on recording reads
+        OutlineResolver(ownerView.density)
+    }
     private var isDestroyed = false
     private var drawnWithZ = false
 
@@ -86,7 +91,11 @@ internal class RenderNodeLayer(
         RenderNodeApi29(ownerView)
     } else {
         RenderNodeApi23(ownerView)
-    }.apply { setHasOverlappingRendering(true) }
+    }.apply {
+        setHasOverlappingRendering(true)
+        // in compose the default is to not clip.
+        clipToBounds = false
+    }
 
     override val layerId: Long
         get() = renderNode.uniqueId
@@ -168,19 +177,17 @@ internal class RenderNodeLayer(
         if (maybeChangedFields and Fields.CompositingStrategy != 0) {
             renderNode.compositingStrategy = scope.compositingStrategy
         }
-        // Note that we an safely leave Fields.Alpha out of this because it
-        val shapeChanged = if (maybeChangedFields and Fields.OutlineAffectingFields != 0) {
-            outlineResolver.update(
-                scope.shape,
-                renderNode.alpha,
-                renderNode.clipToOutline,
-                renderNode.elevation,
-                layoutDirection,
-                density
-            ).also {
-                renderNode.setOutline(outlineResolver.outline)
-            }
-        } else false
+        val shapeChanged = outlineResolver.update(
+            scope.shape,
+            scope.alpha,
+            clipToOutline,
+            scope.shadowElevation,
+            layoutDirection,
+            density
+        )
+        if (outlineResolver.cacheIsDirty) {
+            renderNode.setOutline(outlineResolver.outline)
+        }
         val isClippingManually = clipToOutline && !outlineResolver.outlineClipSupported
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate()

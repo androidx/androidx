@@ -20,6 +20,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.test.uiautomator.util.Patterns;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -352,7 +353,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> descContains(@NonNull String substring) {
-        return descMatches(RegexHelper.getPatternContains(substring));
+        return descMatches(Patterns.contains(substring));
     }
 
     /**
@@ -361,7 +362,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> descStartsWith(@NonNull String substring) {
-        return descMatches(RegexHelper.getPatternStartsWith(substring));
+        return descMatches(Patterns.startsWith(substring));
     }
 
     /**
@@ -370,7 +371,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> descEndsWith(@NonNull String substring) {
-        return descMatches(RegexHelper.getPatternEndsWith(substring));
+        return descMatches(Patterns.endsWith(substring));
     }
 
     /**
@@ -436,7 +437,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> textContains(@NonNull String substring) {
-        return textMatches(RegexHelper.getPatternContains(substring));
+        return textMatches(Patterns.contains(substring));
     }
 
     /**
@@ -445,7 +446,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> textStartsWith(@NonNull String substring) {
-        return textMatches(RegexHelper.getPatternStartsWith(substring));
+        return textMatches(Patterns.startsWith(substring));
     }
 
     /**
@@ -454,7 +455,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> textEndsWith(@NonNull String substring) {
-        return textMatches(RegexHelper.getPatternEndsWith(substring));
+        return textMatches(Patterns.endsWith(substring));
     }
 
 

@@ -17,10 +17,16 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +38,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -143,7 +151,8 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
                 pagerState.animateScrollToPage(nextPage)
             }
-            rule.mainClock.advanceTimeUntil { pagerState.currentPage == nextPage }
+            rule.waitForIdle()
+            assertTrue { pagerState.currentPage == nextPage }
             confirmPageIsInCorrectPosition(pagerState.currentPage)
         }
     }
@@ -156,16 +165,17 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
                 pagerState.animateScrollToPage(page, offset)
             }
+            rule.waitForIdle()
         }
 
         // Arrange
         createPager(modifier = Modifier.fillMaxSize())
 
         // Act
-        animateScrollToPageWithOffset(10, 0.5f)
+        animateScrollToPageWithOffset(10, 0.49f)
 
         // Assert
-        confirmPageIsInCorrectPosition(pagerState.currentPage, 10, pageOffset = 0.5f)
+        confirmPageIsInCorrectPosition(pagerState.currentPage, 10, pageOffset = 0.49f)
 
         // Act
         animateScrollToPageWithOffset(4, 0.2f)
@@ -296,7 +306,8 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
                     animationSpec = differentAnimation
                 )
             }
-            rule.mainClock.advanceTimeUntil { pagerState.currentPage == nextPage }
+            rule.waitForIdle()
+            assertTrue { pagerState.currentPage == nextPage }
             confirmPageIsInCorrectPosition(pagerState.currentPage)
         }
     }
@@ -422,15 +433,19 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
         }
 
         // Assert
-        assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage + 1)
-        assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+        rule.runOnIdle {
+            assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage + 1)
+            assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+        }
 
         // Reset
         rule.mainClock.autoAdvance = true
         onPager().performTouchInput { up() }
         rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage) }
         rule.runOnIdle {
-            runBlocking { pagerState.scrollToPage(5) }
+            scope.launch {
+                pagerState.scrollToPage(5)
+            }
         }
 
         rule.mainClock.autoAdvance = false
@@ -443,8 +458,10 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
         }
 
         // Assert
-        assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage - 1)
-        assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+        rule.runOnIdle {
+            assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage - 1)
+            assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+        }
 
         rule.mainClock.autoAdvance = true
         onPager().performTouchInput { up() }
@@ -452,7 +469,7 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
     }
 
     @Test
-    fun targetPage_performingFling_shouldGoToPredictedPage() {
+    fun targetPage_performingFlingWithSnapFlingBehavior_shouldGoToPredictedPage() {
         // Arrange
 
         createPager(
@@ -494,6 +511,96 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
 
         rule.mainClock.autoAdvance = true
         rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage) }
+    }
+
+    @Test
+    fun targetPage_performingFlingWithCustomFling_shouldGoToPredictedPage() {
+        // Arrange
+        var flingPredictedPage = -1
+        val myCustomFling = object : TargetedFlingBehavior {
+            val decay = splineBasedDecay<Float>(rule.density)
+
+            override suspend fun ScrollScope.performFling(
+                initialVelocity: Float,
+                onRemainingDistanceUpdated: (Float) -> Unit
+            ): Float {
+                val finalOffset = decay.calculateTargetValue(
+                    0.0f,
+                    initialVelocity
+                )
+                val pageDisplacement = finalOffset / pagerState.pageSizeWithSpacing
+                val targetPage = pageDisplacement.roundToInt() + pagerState.currentPage
+                flingPredictedPage = targetPage
+                return if (abs(initialVelocity) > 1f) {
+                    var velocityLeft = initialVelocity
+                    var lastValue = 0f
+                    val animationState = AnimationState(
+                        initialValue = 0f,
+                        initialVelocity = initialVelocity,
+                    )
+                    animationState.animateDecay(decay) {
+                        onRemainingDistanceUpdated(finalOffset - value)
+                        val delta = value - lastValue
+                        val consumed = scrollBy(delta)
+                        lastValue = value
+                        velocityLeft = this.velocity
+                        // avoid rounding errors and stop if anything is unconsumed
+                        if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
+                    }
+                    velocityLeft
+                } else {
+                    initialVelocity
+                }
+            }
+        }
+
+        createPager(
+            pageCount = { 100 },
+            modifier = Modifier.fillMaxSize(),
+            flingBehavior = myCustomFling
+        )
+        rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage) }
+
+        // Act
+        // Moving forward
+        rule.mainClock.autoAdvance = false
+        val forwardDelta = pagerSize * scrollForwardSign.toFloat()
+        onPager().performTouchInput {
+            swipeWithVelocityAcrossMainAxis(20000f, forwardDelta)
+        }
+        rule.mainClock.advanceTimeUntil { flingPredictedPage != -1 }
+        var targetPage = pagerState.targetPage
+
+        // wait for targetPage to change
+        rule.mainClock.advanceTimeUntil { pagerState.targetPage != targetPage }
+
+        // Assert
+        // Check if target page changed
+        rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(flingPredictedPage) }
+        rule.mainClock.autoAdvance = true // let time run
+        // Check if we actually stopped in the predicted page
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(flingPredictedPage) }
+
+        // Act
+        // Moving backward
+        flingPredictedPage = -1
+        rule.mainClock.autoAdvance = false
+        val backwardDelta = -pagerSize * scrollForwardSign.toFloat()
+        onPager().performTouchInput {
+            swipeWithVelocityAcrossMainAxis(20000f, backwardDelta)
+        }
+        rule.mainClock.advanceTimeUntil { flingPredictedPage != -1 }
+        targetPage = pagerState.targetPage
+
+        // wait for targetPage to change
+        rule.mainClock.advanceTimeUntil { pagerState.targetPage != targetPage }
+
+        // Assert
+        // Check if target page changed
+        rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(flingPredictedPage) }
+        rule.mainClock.autoAdvance = true // let time run
+        // Check if we actually stopped in the predicted page
+        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(flingPredictedPage) }
     }
 
     @Test

@@ -50,9 +50,10 @@ def chooseBuildSrcBuildDir(subdir = "") {
 
 def chooseOutDir(subdir = "") {
     chooseBuildSrcBuildDir()
+    project.layout.buildDirectory.set(new File(project.ext.outDir, subdir))
     subprojects {
-        // Change buildDir first so that all plugins pick up the new value.
-        project.layout.buildDirectory.set(new File("$project.parent.buildDir/../$project.name/build"))
+        // Expected out directory structure for :foo:bar is out/androidx/foo/bar
+        it.buildDir = new File(outDir, "${subdir}/androidx/${it.path.replace(":", "/")}/build")
     }
 }
 

@@ -19,7 +19,6 @@ package androidx.appcompat.app
 import android.content.Context
 import android.content.res.Configuration
 import android.location.LocationManager
-import android.os.Build
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
@@ -38,7 +37,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.LifecycleOwnerUtils.waitForRecreation
 import androidx.testutils.waitForExecution
@@ -236,7 +234,6 @@ class NightModeTestCase(private val setMode: NightSetMode) {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testDialogCleansUpAutoMode() = rule.runOnUiThread {
         val dialog = AppCompatDialog(rule.activity)
         val delegate = dialog.delegate as AppCompatDelegateImpl
@@ -284,10 +281,6 @@ class NightModeTestCase(private val setMode: NightSetMode) {
 
         @Parameterized.Parameters
         @JvmStatic
-        fun data() = if (Build.VERSION.SDK_INT >= 17) {
-            listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
-        } else {
-            listOf(NightSetMode.DEFAULT)
-        }
+        fun data() = listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
     }
 }

@@ -58,6 +58,15 @@ class AndroidTestConfigBuilderTest {
     }
 
     @Test
+    fun testXmlAgainstGoldenWithInitialSetupApks() {
+        builder.initialSetupApks(listOf("init-placeholder.apk"))
+        MatcherAssert.assertThat(
+            builder.buildXml(),
+            CoreMatchers.`is`(goldenConfigWithInitialSetupApks)
+        )
+    }
+
+    @Test
     fun testXmlAgainstGoldenMicrobenchmark() {
         builder.isMicrobenchmark(true)
         MatcherAssert.assertThat(
@@ -69,6 +78,8 @@ class AndroidTestConfigBuilderTest {
     @Test
     fun testXmlAgainstGoldenMacroBenchmark() {
         builder.isMacrobenchmark(true)
+        builder.instrumentationArgsMap["androidx.test.argument1"] = "something1"
+        builder.instrumentationArgsMap["androidx.test.argument2"] = "something2"
         MatcherAssert.assertThat(
             builder.buildXml(),
             CoreMatchers.`is`(goldenDefaultConfigMacroBenchmark)
@@ -77,6 +88,8 @@ class AndroidTestConfigBuilderTest {
 
     @Test
     fun testJsonAgainstGoldenDefault() {
+        builder.instrumentationArgsMap["androidx.test.argument1"] = "something1"
+        builder.instrumentationArgsMap["androidx.test.argument2"] = "something2"
         MatcherAssert.assertThat(
             builder.buildJson(),
             CoreMatchers.`is`("""
@@ -89,6 +102,14 @@ class AndroidTestConfigBuilderTest {
                   "testApk": "placeholder.apk",
                   "testApkSha256": "123456",
                   "instrumentationArgs": [
+                    {
+                      "key": "androidx.test.argument1",
+                      "value": "something1"
+                    },
+                    {
+                      "key": "androidx.test.argument2",
+                      "value": "something2"
+                    },
                     {
                       "key": "notAnnotation",
                       "value": "androidx.test.filters.FlakyTest"
@@ -338,6 +359,40 @@ private val goldenDefaultConfig = """
     </configuration>
 """.trimIndent()
 
+private val goldenConfigWithInitialSetupApks = """
+    <?xml version="1.0" encoding="utf-8"?>
+    <!-- Copyright (C) 2020 The Android Open Source Project
+    Licensed under the Apache License, Version 2.0 (the "License")
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions
+    and limitations under the License.-->
+    <configuration description="Runs tests for the module">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
+    <option name="min-api-level" value="15" />
+    </object>
+    <option name="test-suite-tag" value="placeholder_tag" />
+    <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
+    <option name="wifi:disable" value="true" />
+    <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
+    <include name="google/unbundled/common/setup" />
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+    <option name="cleanup-apks" value="true" />
+    <option name="install-arg" value="-t" />
+    <option name="test-file-name" value="init-placeholder.apk" />
+    <option name="test-file-name" value="placeholder.apk" />
+    </target_preparer>
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+    <option name="runner" value="com.example.Runner"/>
+    <option name="package" value="com.androidx.placeholder.Placeholder" />
+    </test>
+    </configuration>
+""".trimIndent()
+
 private val goldenDefaultConfigBenchmark = """
     <?xml version="1.0" encoding="utf-8"?>
     <!-- Copyright (C) 2020 The Android Open Source Project
@@ -397,6 +452,8 @@ private val goldenDefaultConfigMacroBenchmark = """
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
     <option name="wifi:disable" value="true" />
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
+    <option name="instrumentation-arg" key="androidx.test.argument1" value="something1" />
+    <option name="instrumentation-arg" key="androidx.test.argument2" value="something2" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
     <include name="google/unbundled/common/setup" />

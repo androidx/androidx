@@ -31,7 +31,6 @@ import android.window.BackEvent
 import androidx.activity.BackEventCompat
 import androidx.annotation.AnimRes
 import androidx.annotation.LayoutRes
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
@@ -404,7 +403,7 @@ class FragmentAnimationTest {
         assertThat(fragment1.view).isNotNull()
         assertThat(fragment1.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(fragment1.requireView().alpha).isWithin(0f).of(1f)
-        assertThat(ViewCompat.isAttachedToWindow(fragment1.requireView())).isTrue()
+        assertThat(fragment1.requireView().isAttachedToWindow()).isTrue()
 
         fragment2.startPostponedEnterTransition()
         activityRule.waitForExecution()
@@ -446,7 +445,7 @@ class FragmentAnimationTest {
         assertThat(fragment1.view).isNotNull()
         assertThat(fragment1.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(fragment1.requireView().alpha).isWithin(0f).of(1f)
-        assertThat(ViewCompat.isAttachedToWindow(fragment1.requireView())).isTrue()
+        assertThat(fragment1.requireView().isAttachedToWindow()).isTrue()
         assertThat(fragment1.isAdded).isTrue()
 
         assertThat(fragment2.view).isNull()

@@ -17,9 +17,16 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.Handle
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.geometry.isUnspecified
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.junit4.ComposeTestRule
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
 import com.google.common.truth.Truth.assertWithMessage
 
@@ -48,7 +55,7 @@ internal fun SemanticsNodeInteraction.assertHandlePositionMatches(
 ) {
     val node = fetchSemanticsNode()
     with(node.layoutInfo.density) {
-        val positionFound = node.config[SelectionHandleInfoKey].position
+        val positionFound = node.getSelectionHandleInfo().position
         val positionFoundX = positionFound.x.toDp()
         val positionFoundY = positionFound.y.toDp()
         val message = "Expected position ($expectedX, $expectedY), " +
@@ -63,9 +70,102 @@ internal fun SemanticsNodeInteraction.assertHandlePositionMatches(
 internal fun SemanticsNodeInteraction.assertHandleAnchorMatches(
     anchor: SelectionHandleAnchor
 ) {
-    val node = fetchSemanticsNode()
-    val actualAnchor = node.config[SelectionHandleInfoKey].anchor
-    val message = "Expected anchor ($anchor), " +
-        "but found ($actualAnchor)"
+    val actualAnchor = fetchSemanticsNode().getSelectionHandleInfo().anchor
+    val message = "Expected anchor ($anchor), but found ($actualAnchor)"
     assertWithMessage(message).that(actualAnchor).isEqualTo(anchor)
+}
+
+internal fun SemanticsNode.getSelectionHandleInfo(): SelectionHandleInfo {
+    val message = "Expected node to have SelectionHandleInfo."
+    assertWithMessage(message).that(SelectionHandleInfoKey in config).isTrue()
+    return config[SelectionHandleInfoKey]
+}
+
+internal fun ComposeTestRule.withHandlePressed(
+    handle: Handle,
+    block: HandlePressedScope.() -> Unit
+) {
+    onNode(isSelectionHandle(handle)).run {
+        assertExists()
+        performTouchInput { down(center) }
+        HandlePressedScope(this@withHandlePressed, this@run).block()
+        performTouchInput { up() }
+    }
+}
+
+// TODO(b/308691180) The necessity of this class is due to the test input mechanism using root
+//  coordinates as its base rather than screen coordinates. As the handle moves, so does the
+//  root, so we have to take into account the root changing positions into our gestures.
+//  Once the test input mechanism supports screen coordinates, this class should be able to be
+//  refactored to contain less logic or removed completely.
+internal class HandlePressedScope(
+    private val rule: ComposeTestRule,
+    private val interaction: SemanticsNodeInteraction,
+) {
+    // position of the popup before the previous move, relative to the container.
+    private var previousPopupPosition: Offset = Offset.Unspecified
+
+    // position of the gesture in progress, relative to the container.
+    private var gesturePosition: Offset = fetchHandleInfo().position
+
+    fun setInitialGesturePosition(initialGesturePosition: Offset) {
+        check(gesturePosition.isUnspecified) {
+            "Can't set the gesture position if it is already specified. " +
+                "You should only set the position if the handle is invisible " +
+                "and only after instantiation."
+        }
+        check(initialGesturePosition.isSpecified) {
+            "Can't initialize the gesture position to unspecified."
+        }
+        gesturePosition = initialGesturePosition
+    }
+
+    fun fetchHandleInfo(): SelectionHandleInfo =
+        interaction.fetchSemanticsNode().getSelectionHandleInfo()
+
+    fun moveHandleTo(containerOffset: Offset) {
+        checkGesturePositionSpecified()
+        val delta = containerOffset - gesturePosition
+        moveHandleBy(delta)
+    }
+
+    private fun moveHandleBy(delta: Offset) {
+        checkGesturePositionSpecified()
+        val currentPopupPosition = fetchHandleInfo().position
+        val popupDelta =
+            if (previousPopupPosition.isSpecified && currentPopupPosition.isSpecified) {
+                currentPopupPosition - previousPopupPosition
+            } else {
+                Offset.Zero
+            }
+
+        // Avoid updating previous position from specified to unspecified.
+        // In these cases, the handle disappears, but does not move positions,
+        // so we should maintain the previous position.
+        if (currentPopupPosition.isSpecified || previousPopupPosition.isUnspecified) {
+            previousPopupPosition = currentPopupPosition
+        }
+
+        // Since the underlying input framework uses the local coordinates of the gesture,
+        // and the window may have moved under it, we have to apply the window movement to our
+        // gesture as well to get the gesture to truly match our intention at the screen level.
+        val adjustedDelta = delta - popupDelta
+        performTouchInput {
+            moveBy(adjustedDelta)
+            gesturePosition += delta
+        }
+        rule.waitForIdle()
+    }
+
+    private fun checkGesturePositionSpecified() {
+        check(gesturePosition.isSpecified) {
+            "gesturePosition must be specified. If you try to move an invisible handle, " +
+                "you must specify the initialGesturePosition yourself (The last spot it was" +
+                "at before it turned invisible)."
+        }
+    }
+
+    private fun performTouchInput(block: TouchInjectionScope.() -> Unit) {
+        interaction.performTouchInput(block)
+    }
 }

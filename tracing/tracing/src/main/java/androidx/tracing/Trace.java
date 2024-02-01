@@ -96,7 +96,7 @@ public final class Trace {
      * API 31.
      */
     public static void forceEnableAppTracing() {
-        if (Build.VERSION.SDK_INT >= 18 && Build.VERSION.SDK_INT < 31) {
+        if (Build.VERSION.SDK_INT < 31) {
             try {
                 if (!sHasAppTracingEnabled) {
                     sHasAppTracingEnabled = true; // only attempt once
@@ -126,9 +126,7 @@ public final class Trace {
      * @param label The name of the code section to appear in the trace.
      */
     public static void beginSection(@NonNull String label) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            TraceApi18Impl.beginSection(truncatedTraceSectionLabel(label));
-        }
+        android.os.Trace.beginSection(truncatedTraceSectionLabel(label));
     }
 
     /**
@@ -140,9 +138,7 @@ public final class Trace {
      * called from the same thread.
      */
     public static void endSection() {
-        if (Build.VERSION.SDK_INT >= 18) {
-            TraceApi18Impl.endSection();
-        }
+        android.os.Trace.endSection();
     }
 
     /**
@@ -215,77 +211,69 @@ public final class Trace {
         }
     }
 
-    @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
+    @SuppressWarnings({"JavaReflectionMemberAccess", "BanUncheckedReflection"})
     private static boolean isEnabledFallback() {
-        if (Build.VERSION.SDK_INT >= 18) {
-            try {
-                if (sIsTagEnabledMethod == null) {
-                    Field traceTagAppField = android.os.Trace.class.getField("TRACE_TAG_APP");
-                    sTraceTagApp = traceTagAppField.getLong(null);
-                    sIsTagEnabledMethod =
-                            android.os.Trace.class.getMethod("isTagEnabled", long.class);
-                }
-                return (boolean) sIsTagEnabledMethod.invoke(null, sTraceTagApp);
-            } catch (Exception exception) {
-                handleException("isTagEnabled", exception);
+        try {
+            if (sIsTagEnabledMethod == null) {
+                Field traceTagAppField = android.os.Trace.class.getField("TRACE_TAG_APP");
+                sTraceTagApp = traceTagAppField.getLong(null);
+                sIsTagEnabledMethod =
+                        android.os.Trace.class.getMethod("isTagEnabled", long.class);
             }
+            return (boolean) sIsTagEnabledMethod.invoke(null, sTraceTagApp);
+        } catch (Exception exception) {
+            handleException("isTagEnabled", exception);
         }
         // Never enabled on < API 18
         return false;
     }
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
+    @SuppressWarnings({"JavaReflectionMemberAccess", "BanUncheckedReflection"})
     private static void beginAsyncSectionFallback(@NonNull String methodName, int cookie) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            try {
-                if (sAsyncTraceBeginMethod == null) {
-                    sAsyncTraceBeginMethod = android.os.Trace.class.getMethod(
-                            "asyncTraceBegin",
-                            long.class,
-                            String.class, int.class
-                    );
-                }
-                sAsyncTraceBeginMethod.invoke(null, sTraceTagApp, methodName, cookie);
-            } catch (Exception exception) {
-                handleException("asyncTraceBegin", exception);
+        try {
+            if (sAsyncTraceBeginMethod == null) {
+                sAsyncTraceBeginMethod = android.os.Trace.class.getMethod(
+                        "asyncTraceBegin",
+                        long.class,
+                        String.class, int.class
+                );
             }
+            sAsyncTraceBeginMethod.invoke(null, sTraceTagApp, methodName, cookie);
+        } catch (Exception exception) {
+            handleException("asyncTraceBegin", exception);
         }
     }
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
+    @SuppressWarnings({"JavaReflectionMemberAccess", "BanUncheckedReflection"})
     private static void endAsyncSectionFallback(@NonNull String methodName, int cookie) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            try {
-                if (sAsyncTraceEndMethod == null) {
-                    sAsyncTraceEndMethod = android.os.Trace.class.getMethod(
-                            "asyncTraceEnd",
-                            long.class,
-                            String.class, int.class
-                    );
-                }
-                sAsyncTraceEndMethod.invoke(null, sTraceTagApp, methodName, cookie);
-            } catch (Exception exception) {
-                handleException("asyncTraceEnd", exception);
+        try {
+            if (sAsyncTraceEndMethod == null) {
+                sAsyncTraceEndMethod = android.os.Trace.class.getMethod(
+                        "asyncTraceEnd",
+                        long.class,
+                        String.class, int.class
+                );
             }
+            sAsyncTraceEndMethod.invoke(null, sTraceTagApp, methodName, cookie);
+        } catch (Exception exception) {
+            handleException("asyncTraceEnd", exception);
         }
     }
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
+    @SuppressWarnings({"JavaReflectionMemberAccess", "BanUncheckedReflection"})
     private static void setCounterFallback(@NonNull String counterName, int counterValue) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            try {
-                if (sTraceCounterMethod == null) {
-                    sTraceCounterMethod = android.os.Trace.class.getMethod(
-                            "traceCounter",
-                            long.class,
-                            String.class,
-                            int.class
-                    );
-                }
-                sTraceCounterMethod.invoke(null, sTraceTagApp, counterName, counterValue);
-            } catch (Exception exception) {
-                handleException("traceCounter", exception);
+        try {
+            if (sTraceCounterMethod == null) {
+                sTraceCounterMethod = android.os.Trace.class.getMethod(
+                        "traceCounter",
+                        long.class,
+                        String.class,
+                        int.class
+                );
             }
+            sTraceCounterMethod.invoke(null, sTraceTagApp, counterName, counterValue);
+        } catch (Exception exception) {
+            handleException("traceCounter", exception);
         }
     }
 

@@ -15,6 +15,8 @@ Calculating task graph as configuration cache cannot be reused because the set o
 # > Task :listTaskOutputs
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
 BUILD SUCCESSFUL in .*
+> Task :benchmark:integration-tests:macrobenchmark-target:compileReleaseKotlin
+e: java.rmi.NoSuchObjectException: no such object in table
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
 Note\: Some input files use unchecked or unsafe operations\.
@@ -30,6 +32,8 @@ See the profiling report at: file://\$GRADLE_USER_HOME/daemon/.*/reports/profile
 Configuration cache entry reused\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
 Configuration cache entry stored\.
+Calculating task graph as no cached configuration is available for tasks.*
+Calculating task graph as configuration cache cannot be reused because properties file .*local\.properties has changed\.
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$[^ ]+ uses or overrides a deprecated API\.
@@ -317,6 +321,14 @@ WARN: .*\/unzippedJvmSources\/androidx\/test\/core\/app\/ActivityScenario\.java:
 WARN: .*\/unzippedJvmSources\/androidx\/test\/core\/app\/ActivityScenario\.java:UnknownLine Missing @param tag for parameter `startActivityIntent` in DFunction launch
 WARN: .*\/unzippedJvmSources\/androidx\/test\/core\/app\/ActivityScenario\.java:UnknownLine Missing @param tag for parameter `startActivityIntent` in DFunction launchActivityForResult
 WARN: .*\/unzippedJvmSources\/androidx\/test\/espresso\/contrib\/DrawerActions\.java:[0-9]+ Failed to resolve See <a href="http:\/\/developer\.android\.com\/design\/patterns\/navigation-drawer\.html">Navigation in DClass DrawerActions
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws UnsupportedDeviceOperationException in DFunction setBookMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws DeviceControllerOperationException in DFunction setBookMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws UnsupportedDeviceOperationException in DFunction setClosedMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws DeviceControllerOperationException in DFunction setClosedMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws UnsupportedDeviceOperationException in DFunction setFlatMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws DeviceControllerOperationException in DFunction setFlatMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws UnsupportedDeviceOperationException in DFunction setTabletopMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws DeviceControllerOperationException in DFunction setTabletopMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedJvmSources\/androidx\/test\/espresso\/contrib\/PickerActions\.java:[0-9]+ Failed to resolve See <a href="http:\/\/developer\.android\.com\/guide\/topics\/ui\/controls\/pickers\.html">Pickers API in DClass PickerActions
 WARN: .*\/unzippedJvmSources\/androidx\/test\/espresso\/DataInteraction\.java:[0-9]+ Missing @param tag for parameter `atPosition` in DFunction displayDataMatcher
 WARN: .*\/unzippedJvmSources\/androidx\/test\/espresso\/DataInteraction\.java:[0-9]+ Missing @param tag for parameter `rootMatcher` in DFunction displayDataMatcher
@@ -408,6 +420,7 @@ WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/animatio
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/material\/AndroidMenu\.android\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/graphics\/AndroidPath\.android\.kt:[0-9]+ Missing @param tag for parameter `operation` in DFunction op
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/text\/font\/AndroidFont\.kt:[0-9]+ Missing @param tag for parameter `variationSettings` in DFunction AndroidFont
+WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/text\/font\/AndroidFont\.android\.kt:[0-9]+ Missing @param tag for parameter `variationSettings` in DFunction AndroidFont
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/constraintlayout\/compose\/MotionCarousel\.kt:[0-9]+ Missing @param tag for parameter `motionScene` in DFunction MotionCarousel
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/datastore\/DataStoreDelegate\.kt:UnknownLine Missing @param tag for parameter `serializer` in DFunction dataStore
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/datastore\/migrations\/SharedPreferencesMigration\.kt:[0-9]+ Missing @param tag for parameter `shouldRunMigration` in DFunction SharedPreferencesMigration
@@ -484,8 +497,14 @@ WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/datastore\/prefere
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/compose\/LazyPagingItems\.kt:[0-9]+ Failed to resolve See PagingSource\.invalidate in DFunction refresh\. Did you mean PagingSource#invalidate\?
 WARN: .*\/unzippedMultiplatformSources\/desktopMain\/androidx\/compose\/material\/DesktopMenu\.desktop\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
 WARN: .*\/unzippedMultiplatformSources\/jvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
+WARN: .*\/unzippedMultiplatformSources\/commonJvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
 WARN: .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/annotation\/RestrictTo\.nonJvm\.kt:UnknownLine Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: File location could not be determined\. Failed to resolve See <a href="https:\/\/developer\.android\.com\/training\/transitions">Transition API Guide<\/a> in DPackage androidx\.transition
+# Task docs-*:unzipJvmSources
+# paging and wear have multiple libraries depending on the same samples library, which can cause the samples library to be unzipped multiple times
+Encountered duplicate path "androidx/paging/samples/.*
+Encountered duplicate path "androidx/wear/compose/material/samples/.*
+Encountered duplicate path "androidx/wear/watchface/samples/.*
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # ./gradlew tasks warns as we have warnings present
@@ -520,13 +539,13 @@ thread\.resume\(\);
 thread\.suspend\(\);
 [0-9]+ warnings
 # When konan is downloading a dependency from another file, don't warn about it.
-\(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
+\(KonanProperties\) Downloading dependency: file:.*/prebuilts/androidx/konan/.*
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
 Download file:\.\./\.\./.*
-Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ s [0-9]+ ms
+Download kotlin\-native\-prebuilt\-.*.gz finished\, took .*
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
-Extracting dependency: .*\.konan/cache.*
+Extracting dependency: .*\.konan/dependencies/cache.*
 # > Task :commonizeNativeDistribution
 # Linux builds cannot build mac, hence we get this warning.
 # see: https://github.com/JetBrains/kotlin/blob/master/native/commonizer/README.md
@@ -576,3 +595,8 @@ at com\.android\.tools\.lint\.client\.api\.JarFileIssueRegistry\$Factory\.get\$d
 at com\.android\.tools\.lint\.client\.api\.LintDriver\.registerCustomDetectors\(LintDriver\.kt:[0-9]+\)
 at com\.android\.tools\.lint\.client\.api\.LintDriver\.initializeExtraRegistries\(LintDriver\.kt:[0-9]+\)
 at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
+# temporary diagnostic for b/307738543
+docs-public:docs starting
+docs-public:docs completing
+docs-tip-of-tree:docs starting
+docs-tip-of-tree:docs completing

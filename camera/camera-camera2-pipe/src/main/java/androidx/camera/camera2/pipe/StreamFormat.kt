@@ -41,6 +41,7 @@ value class StreamFormat(val value: Int) {
         val FLEX_RGBA_8888: StreamFormat = StreamFormat(0x2A)
         val HEIC: StreamFormat = StreamFormat(0x48454946)
         val JPEG: StreamFormat = StreamFormat(0x100)
+        val JPEG_R: StreamFormat = StreamFormat(0x1005)
         val NV16: StreamFormat = StreamFormat(0x10)
         val NV21: StreamFormat = StreamFormat(0x11)
         val RAW10: StreamFormat = StreamFormat(0x25)
@@ -52,6 +53,7 @@ value class StreamFormat(val value: Int) {
         val Y12: StreamFormat = StreamFormat(0x32315659)
         val Y16: StreamFormat = StreamFormat(0x20363159)
         val Y8: StreamFormat = StreamFormat(0x20203859)
+        val YCBCR_P010: StreamFormat = StreamFormat(0x36)
         val YUV_420_888: StreamFormat = StreamFormat(0x23)
         val YUV_422_888: StreamFormat = StreamFormat(0x27)
         val YUV_444_888: StreamFormat = StreamFormat(0x28)
@@ -85,6 +87,7 @@ value class StreamFormat(val value: Int) {
                 Y12 -> return 12
                 Y16 -> return 16
                 Y8 -> return 8
+                YCBCR_P010 -> return 16
                 YUV_420_888 -> return 12
                 YUV_422_888 -> return 16
                 YUV_444_888 -> return 24
@@ -112,6 +115,7 @@ value class StreamFormat(val value: Int) {
                 FLEX_RGBA_8888 -> return "FLEX_RGBA_8888"
                 HEIC -> return "HEIC"
                 JPEG -> return "JPEG"
+                JPEG_R -> return "JPEG_R"
                 NV16 -> return "NV16"
                 NV21 -> return "NV21"
                 RAW10 -> return "RAW10"
@@ -123,6 +127,7 @@ value class StreamFormat(val value: Int) {
                 Y12 -> return "Y12"
                 Y16 -> return "Y16"
                 Y8 -> return "Y8"
+                YCBCR_P010 -> return "YCBCR_P010"
                 YUV_420_888 -> return "YUV_420_888"
                 YUV_422_888 -> return "YUV_422_888"
                 YUV_444_888 -> return "YUV_444_888"

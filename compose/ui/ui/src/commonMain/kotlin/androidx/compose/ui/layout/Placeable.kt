@@ -136,6 +136,7 @@ abstract class Placeable : Measured {
      * mirroring is not desired, [place] should be used instead.
      */
     // TODO(b/150276678): using the PlacementScope to place outside the layout pass is not working.
+    @PlacementScopeMarker
     abstract class PlacementScope {
         /**
          * Keeps the parent layout node's width to make the automatic mirroring of the position
@@ -167,6 +168,13 @@ abstract class Placeable : Measured {
          */
         open val coordinates: LayoutCoordinates?
             get() = null
+
+        /**
+         * Returns the value for this [Ruler] or [defaultValue] if it wasn't
+         * [provided][RulerScope.provides]. [Ruler] values are unavailable while calculating
+         * [AlignmentLine]s.
+         */
+        open fun Ruler.current(defaultValue: Float): Float = defaultValue
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
@@ -386,6 +394,9 @@ private class LookaheadCapablePlacementScope(
             }
             return coords
         }
+
+    override fun Ruler.current(defaultValue: Float): Float =
+        within.findRulerValue(this, defaultValue)
 }
 
 /**

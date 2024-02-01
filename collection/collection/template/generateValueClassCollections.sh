@@ -2,6 +2,14 @@
 
 # To add another value class to generate, add a new value to the end of each of these lists.
 
+# TODO For Color collections, we don't want to expose them until there's a public API exposure,
+#       or if there's a lot of duplicate copies generated internally.
+#       When we do want to have one single public instance of the Color collections,
+#       It should be hosted in the targetPackage "androidx.compose.ui.graphics" package
+#       with visibility "public" located at outputDirectory
+#       "../../../compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics"
+#       Until then, there should be no issue with having a couple internal instances.
+
 # The value class to generate collections for (e.g. Color or Offset).
 valueClasses=(
   "Color"
@@ -9,7 +17,7 @@ valueClasses=(
 
 # The destination package for the collection classes.
 targetPackages=(
-  "androidx.compose.ui.graphics"
+  "androidx.compose.foundation.demos.collection"
 )
 
 # The backing field in the value class that converts it to a primitive (e.g. packedValue).
@@ -29,7 +37,7 @@ toParams=(
 
 # The visibility of the top-level classes and functions (e.g. public or internal)
 visibilities=(
-  "public"
+  "internal"
 )
 
 # The package in which the value class resides (e.g. androidx.compose.ui.ui.collection).
@@ -39,7 +47,7 @@ valuePackages=(
 
 # Where the resulting files are output, relative to the directory this script is in.
 outputDirectories=(
-  "../../../compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics"
+  "../../../compose/foundation/foundation/integration-tests/foundation-demos/src/main/java/androidx/compose/foundation/demos/collection"
 )
 
 scriptDir=$(dirname "${PWD}/${0}")
@@ -58,7 +66,9 @@ do
   firstLower=$(echo "${class:0:1}" | tr '[:upper:]' '[:lower:]')
   lowerCaseClass="${firstLower}${class:1}"
 
-  outputSetPath=$(realpath "${scriptDir}/${outputDirectory}/${class}Set.kt")
+  realOutputDirectory="$(realpath "${scriptDir}/${outputDirectory}")"
+
+  outputSetPath="${realOutputDirectory}/${class}Set.kt"
   echo "generating ${outputSetPath}"
   sed -e "s/PACKAGE/${targetPackage}/" -e "s/VALUE_CLASS/${class}/g" \
     -e "s/vALUE_CLASS/${lowerCaseClass}/g" -e "s/BACKING_PROPERTY/${backingProperty}/g" \
@@ -67,7 +77,7 @@ do
     "${scriptDir}/ValueClassSet.kt.template" \
     > "${outputSetPath}"
 
-  outputListPath=$(realpath "${scriptDir}/${outputDirectory}/${class}List.kt")
+  outputListPath="${realOutputDirectory}/${class}List.kt"
   echo "generating ${outputListPath}"
   sed -e "s/PACKAGE/${targetPackage}/" -e "s/VALUE_CLASS/${class}/g" \
     -e "s/vALUE_CLASS/${lowerCaseClass}/g" -e "s/BACKING_PROPERTY/${backingProperty}/g" \

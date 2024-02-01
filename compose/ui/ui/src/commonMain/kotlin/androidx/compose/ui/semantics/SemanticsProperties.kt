@@ -98,16 +98,24 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.isContainer
      */
-    @Deprecated("Use `isTraversalGroup` instead.",
-        replaceWith = ReplaceWith("IsTraversalGroup"),
-    )
+    @Deprecated("Use `isTraversalGroup` and `isOpaque` instead.")
     val IsContainer: SemanticsPropertyKey<Boolean>
         get() = IsTraversalGroup
 
     /**
      * @see SemanticsPropertyReceiver.isTraversalGroup
      */
-    val IsTraversalGroup = AccessibilityKey<Boolean>("IsTraversalGroup")
+    val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
+
+    /**
+     * @see SemanticsPropertyReceiver.isOpaque
+     */
+    val IsOpaque = AccessibilityKey<Unit>(
+        name = "IsOpaque",
+        mergePolicy = { parentValue, _ ->
+            parentValue
+        }
+    )
 
     /**
      * @see SemanticsPropertyReceiver.invisibleToUser
@@ -123,7 +131,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.traversalIndex
      */
-    val TraversalIndex = AccessibilityKey<Float>(
+    val TraversalIndex = SemanticsPropertyKey<Float>(
         name = "TraversalIndex",
         mergePolicy = { parentValue, _ ->
             // Never merge traversal indices
@@ -203,9 +211,9 @@ object SemanticsProperties {
     )
 
     /**
-     * @see SemanticsPropertyReceiver.originalText
+     * @see SemanticsPropertyReceiver.textSubstitution
      */
-    val OriginalText = SemanticsPropertyKey<AnnotatedString>(name = "OriginalText")
+    val TextSubstitution = SemanticsPropertyKey<AnnotatedString>(name = "TextSubstitution")
 
     /**
      * @see SemanticsPropertyReceiver.isShowingTextSubstitution
@@ -251,6 +259,11 @@ object SemanticsProperties {
      * @see SemanticsPropertyReceiver.indexForKey
      */
     val IndexForKey = SemanticsPropertyKey<(Any) -> Int>("IndexForKey")
+
+    /**
+     * @see SemanticsPropertyReceiver.editable
+     */
+    val Editable = SemanticsPropertyKey<Unit>("Editable")
 }
 
 /**
@@ -327,6 +340,15 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.onImeAction
      */
     val OnImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
+
+    // b/322269946
+    @Suppress("unused")
+    @Deprecated(
+        message = "Maintained for binary compatibility. " +
+            "Use `SemanticsActions.OnImeAction` instead.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    val PerformImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
 
     /**
      * @see SemanticsPropertyReceiver.copyText
@@ -787,6 +809,43 @@ value class LiveRegionMode private constructor(@Suppress("unused") private val v
  */
 interface SemanticsPropertyReceiver {
     operator fun <T> set(key: SemanticsPropertyKey<T>, value: T)
+
+    /**
+     * Unset an individual property.
+     *
+     * Note: this can only unset properties originally on the same modifier chain, not properties
+     * merged from children (for those, use [clearAndSetSemantics] instead). And because the
+     * semantics system processes modifier chains back-to-front, the unset must be ordered earlier
+     * on the modifier chain if it's in a separate `semantics {}` block.
+
+     * 1. Examples of correct uses (resulting in empty semantics):
+     *
+     *   ```
+     *   Modifier.semantics { heading(); unset(SemanticsProperties.Heading) }
+     *   Modifier.semantics { unset(SemanticsProperties.Heading) }.semantics { heading() }
+     *   ```
+     *
+     * 2. Examples of ineffective, no-op uses (where the heading remains instead of being unset):
+     *
+     *   ```
+     *   Modifier.semantics { unset(SemanticsProperties.Heading); heading() } // order
+     *   Modifier.semantics { heading() }.semantics { unset(SemanticsProperties.Heading) } // order
+     *   Box(Modifier.semantics(mergeDescendants = true) { unset(SemanticsProperties.Heading) }) {
+     *       Box(Modifier.semantics { heading() }) // not originally on the same modifier chain`
+     *   }
+     *
+     * 3. Examples of complex cases where there is more than one set:
+     *
+     *   ```
+     *   // Result is empty semantics:
+     *   Modifier.semantics { unset(SemanticsProperties.TestTag) }.testTag("b").testTag("a")
+     *
+     *   // Result is testTag = "b":`
+     *   Modifier.testTag("b").semantics { unset(SemanticsProperties.TestTag) }.testTag("a")
+     *   ```
+     */
+    @ExperimentalComposeUiApi
+    fun <T> unset(key: SemanticsPropertyKey<T>)
 }
 
 /**
@@ -816,7 +875,7 @@ var SemanticsPropertyReceiver.contentDescription: String
 var SemanticsPropertyReceiver.stateDescription by SemanticsProperties.StateDescription
 
 /**
- * The semantics is represents a range of possible values with a current value.
+ * The semantics represents a range of possible values with a current value.
  * For example, when used on a slider control, this will allow screen readers to communicate
  * the slider's state.
  */
@@ -879,18 +938,44 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
  *
  * @see SemanticsProperties.IsContainer
  */
-@Deprecated("Use `isTraversalGroup` instead.",
-    replaceWith = ReplaceWith("isTraversalGroup"),
-)
-var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
+@Deprecated("Use `isTraversalGroup` and `isOpaque` instead.")
+@get:Deprecated("Use `isTraversalGroup` and `isOpaque` instead.")
+@set:Deprecated("Use `isTraversalGroup` and `isOpaque` instead.")
+@OptIn(ExperimentalComposeUiApi::class)
+var SemanticsPropertyReceiver.isContainer: Boolean
+    get() = throwSemanticsGetNotSupported()
+    set(bool) {
+        isTraversalGroup = bool
+        if (bool) {
+            this[SemanticsProperties.IsOpaque] = Unit
+        } else {
+            unset(SemanticsProperties.IsOpaque)
+        }
+    }
 
 /**
- * Whether this semantics node is a traversal group. This is defined as a node whose function
- * is to serve as a boundary or border in organizing its children.
+ * Whether this semantics node is a traversal group.
+ *
+ * See https://developer.android.com/jetpack/compose/accessibility#modify-traversal-order
  *
  * @see SemanticsProperties.IsTraversalGroup
  */
 var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversalGroup
+
+/**
+ * Non-mergeable property used to mark that whether a node is semantically opaque.
+ *
+ * In other words, whether nodes fully covered by it ought to be pruned from the a11y tree.  (Note
+ * that most semantic properties other than testTag also have this effect, so it should be rarely
+ * needed.)
+ *
+ * If true, then a11y nodes behind will be pruned unless this node's graphics alpha is 0.
+ *
+ * @see SemanticsProperties.IsOpaque
+ */
+fun SemanticsPropertyReceiver.isOpaque() {
+    this[SemanticsProperties.IsOpaque] = Unit
+}
 
 /**
  * Whether this node is specially known to be invisible to the user.
@@ -979,8 +1064,6 @@ var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
 /**
  * Text of the semantics node. It must be real text instead of developer-set content description.
  *
- * Represents the text substitution if [SemanticsActions.ShowTextSubstitution] is called.
- *
  * @see SemanticsPropertyReceiver.editableText
  */
 var SemanticsPropertyReceiver.text: AnnotatedString
@@ -990,11 +1073,10 @@ var SemanticsPropertyReceiver.text: AnnotatedString
     }
 
 /**
- * Original text of the semantics node. This property is only available after calling
- * [SemanticsActions.ShowTextSubstitution]. The value should be equal to the [text] before calling
+ * Text substitution of the semantics node. This property is only available after calling
  * [SemanticsActions.SetTextSubstitution].
  */
-var SemanticsPropertyReceiver.originalText by SemanticsProperties.OriginalText
+var SemanticsPropertyReceiver.textSubstitution by SemanticsProperties.TextSubstitution
 
 /**
  * Whether this element is showing the text substitution. This property is only available after
@@ -1079,6 +1161,13 @@ fun SemanticsPropertyReceiver.error(description: String) {
  */
 fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
     this[SemanticsProperties.IndexForKey] = mapping
+}
+
+/**
+ * Whether this semantics node is editable, e.g. an editable text field.
+ */
+fun SemanticsPropertyReceiver.editable() {
+    this[SemanticsProperties.Editable] = Unit
 }
 
 /**
@@ -1273,6 +1362,20 @@ fun SemanticsPropertyReceiver.onImeAction(
     action: (() -> Boolean)?
 ) {
     this[SemanticsProperties.ImeAction] = imeActionType
+    this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
+}
+
+// b/322269946
+@Suppress("unused")
+@Deprecated(
+    message = "Maintained for binary compatibility. " +
+        "Use `SemanticsPropertyReceiver.onImeAction` instead.",
+    level = DeprecationLevel.HIDDEN,
+)
+fun SemanticsPropertyReceiver.performImeAction(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
     this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
 }
 

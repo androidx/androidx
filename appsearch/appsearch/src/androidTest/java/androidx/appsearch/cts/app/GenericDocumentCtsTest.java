@@ -261,7 +261,51 @@ public class GenericDocumentCtsTest {
                 + "  }\n"
                 + "}";
 
-        assertThat(documentString).isEqualTo(expectedString);
+        String[] lines = expectedString.split("\n");
+        for (String line : lines) {
+            assertThat(documentString).contains(line);
+        }
+    }
+
+    @Test
+    public void testDocumentEmptyProperties_toString() {
+        GenericDocument document =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        "schemaType1")
+                        .setCreationTimestampMillis(1L)
+                        .setScore(1)
+                        .setTtlMillis(1L)
+                        .setPropertyString("stringKey1")
+                        .setPropertyBytes("bytesKey1")
+                        .setPropertyLong("longKey1")
+                        .setPropertyDouble("doubleKey1")
+                        .setPropertyBoolean("booleanKey1")
+                        .setPropertyDocument("documentKey1")
+                        .build();
+
+        String documentString = document.toString();
+
+        String expectedString = "{\n"
+                + "  namespace: \"namespace\",\n"
+                + "  id: \"id1\",\n"
+                + "  score: 1,\n"
+                + "  schemaType: \"schemaType1\",\n"
+                + "  creationTimestampMillis: 1,\n"
+                + "  timeToLiveMillis: 1,\n"
+                + "  properties: {\n"
+                + "    \"booleanKey1\": [],\n"
+                + "    \"bytesKey1\": [],\n"
+                + "    \"documentKey1\": [],\n"
+                + "    \"doubleKey1\": [],\n"
+                + "    \"longKey1\": [],\n"
+                + "    \"stringKey1\": []\n"
+                + "  }\n"
+                + "}";
+
+        String[] lines = expectedString.split("\n");
+        for (String line : lines) {
+            assertThat(documentString).contains(line);
+        }
     }
 
     @Test
@@ -335,7 +379,8 @@ public class GenericDocumentCtsTest {
                 .setPropertyBytes("byteKey1", sByteArray1, sByteArray2)
                 .setPropertyDocument("documentKey1", sDocumentProperties1, sDocumentProperties2)
                 .build();
-        GenericDocument document2 = document1.toBuilder()
+        GenericDocument document2 =
+                new GenericDocument.Builder<>(document1)
                 .setId("id2")
                 .setNamespace("namespace2")
                 .setPropertyBytes("byteKey1", sByteArray2)

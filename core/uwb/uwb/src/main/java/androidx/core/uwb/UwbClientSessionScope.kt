@@ -56,4 +56,15 @@ interface UwbClientSessionScope {
      * before starting again.
      */
     val localAddress: UwbAddress
+
+    /**
+     * Dynamically reconfigures range data notification config to an active ranging session.
+     *
+     * @throws [IllegalStateException] if the ranging is inactive.
+     *
+     * Otherwise, this method will return successfully, then clients are expected to handle
+     * [RangingResult.RangingResultPeerDisconnected] with the controlee as parameter of the
+     * callback.
+     */
+    suspend fun reconfigureRangeDataNtf(configType: Int, proximityNear: Int, proximityFar: Int)
 }

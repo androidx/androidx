@@ -113,6 +113,8 @@ internal fun getTextLayoutResultMock(
     }
 
     val multiParagraph = mock<MultiParagraph> {
+        on { lineCount }.thenAnswer { _ -> lineBreaks.size + 1 }
+
         on { getBidiRunDirection(any()) }.thenAnswer { invocation ->
             val offset = invocation.arguments[0] as Int
             if (rtlCharRanges.any { offset in it })
@@ -275,6 +277,7 @@ internal class FakeSelectable : Selectable {
     var endYHandleDirection = Direction.ON
     var rawPreviousHandleOffset = -1 // -1 = no previous offset
     var layoutCoordinatesToReturn: LayoutCoordinates? = null
+    var boundingBoxes: Map<Int, Rect> = emptyMap()
 
     private val selectableKey = 1L
     private val fakeSelectAllSelection: Selection = Selection(
@@ -322,7 +325,7 @@ internal class FakeSelectable : Selectable {
     }
 
     override fun getBoundingBox(offset: Int): Rect {
-        return Rect.Zero
+        return boundingBoxes[offset] ?: Rect.Zero
     }
 
     override fun getLineLeft(offset: Int): Float {

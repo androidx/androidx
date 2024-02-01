@@ -243,7 +243,6 @@ public class MonotonicCurveFit extends CurveFit {
                 break;
             }
         }
-        return;
     }
 
     @Override

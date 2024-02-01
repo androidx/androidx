@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -62,7 +63,10 @@ import javax.tools.Diagnostic.Kind;
  */
 @SupportedAnnotationTypes({APPSEARCH_ANNOTATION_PKG + "." + DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedOptions({AppSearchCompiler.OUTPUT_DIR_OPTION})
+@SupportedOptions({
+        AppSearchCompiler.OUTPUT_DIR_OPTION,
+        AppSearchCompiler.RESTRICT_GENERATED_CODE_TO_LIB_OPTION
+})
 public class AppSearchCompiler extends BasicAnnotationProcessor {
     /**
      * This property causes us to write output to a different folder instead of the usual filer
@@ -70,6 +74,18 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
      */
     @VisibleForTesting
     static final String OUTPUT_DIR_OPTION = "AppSearchCompiler.OutputDir";
+
+    /**
+     * This property causes us to annotate the generated classes with
+     * {@link androidx.annotation.RestrictTo} with the scope
+     * {@link androidx.annotation.RestrictTo.Scope#LIBRARY}.
+     *
+     * <p>In practice, this annotation only affects AndroidX tooling and so this option may only
+     * be useful to other AndroidX libs.
+     */
+    @VisibleForTesting
+    static final String RESTRICT_GENERATED_CODE_TO_LIB_OPTION =
+            "AppSearchCompiler.RestrictGeneratedCodeToLib";
 
     @Override
     @NonNull
@@ -149,8 +165,12 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
                     // module.
                     String classSuffix = generateStringSetHash(
                             classNames, /* delimiter= */ ",") + "_" + mRoundIndex;
-                    writeJavaFile(DocumentMapGenerator.generate(mProcessingEnv,
-                            documentMapClassPackage, classSuffix, mDocumentClassMap));
+                    writeJavaFile(DocumentMapGenerator.generate(
+                            mProcessingEnv,
+                            documentMapClassPackage,
+                            classSuffix,
+                            mDocumentClassMap,
+                            getRestrictGeneratedCodeToLibOption()));
                 }
             } catch (NoSuchAlgorithmException | IOException e) {
                 mProcessingEnv.getMessager().printMessage(Kind.ERROR,
@@ -162,7 +182,7 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
         }
 
         private void writeJavaFile(JavaFile javaFile) throws IOException {
-            String outputDir = mProcessingEnv.getOptions().get(OUTPUT_DIR_OPTION);
+            String outputDir = getOutputDirOption();
             if (outputDir == null || outputDir.isEmpty()) {
                 javaFile.writeTo(mProcessingEnv.getFiler());
             } else {
@@ -205,7 +225,9 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
                 // Non-AutoValue AppSearch Document class.
                 model = DocumentModel.createPojoModel(mProcessingEnv, element);
             }
-            CodeGenerator generator = CodeGenerator.generate(mProcessingEnv, model);
+
+            CodeGenerator generator = new CodeGenerator(
+                    mProcessingEnv, model, getRestrictGeneratedCodeToLibOption());
             try {
                 writeJavaFile(generator.createJavaFile());
             } catch (IOException e) {
@@ -219,6 +241,16 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
                     model.getSchemaName(), k -> new ArrayList<>());
             documentClassList.add(
                     mProcessingEnv.getElementUtils().getBinaryName(element).toString());
+        }
+
+        private boolean getRestrictGeneratedCodeToLibOption() {
+            return Boolean.parseBoolean(
+                    mProcessingEnv.getOptions().get(RESTRICT_GENERATED_CODE_TO_LIB_OPTION));
+        }
+
+        @Nullable
+        private String getOutputDirOption() {
+            return mProcessingEnv.getOptions().get(OUTPUT_DIR_OPTION);
         }
 
         /**

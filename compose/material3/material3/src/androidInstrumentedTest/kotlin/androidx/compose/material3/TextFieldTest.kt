@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.material3
 
 import android.content.Context
 import android.os.Build
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -32,6 +36,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -57,14 +62,17 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
+import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -78,16 +86,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
@@ -98,18 +104,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.atLeastOnce
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
@@ -585,6 +588,40 @@ class TextFieldTest {
 
         // click to focus
         rule.onNodeWithTag(TextFieldTag).performClick()
+    }
+
+    @Test
+    fun testTextField_placeholderColor_whenInputEmptyAndFocused() {
+        var focused = false
+        rule.setMaterialContent(lightColorScheme()) {
+            val text = remember { mutableStateOf("") }
+            TextField(
+                modifier = Modifier.testTag(TextFieldTag),
+                value = text.value,
+                onValueChange = { text.value = it },
+                colors = TextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color.Red,
+                    unfocusedPlaceholderColor = Color.Green,
+                ),
+                placeholder = {
+                    Text("Placeholder")
+                    assertThat(LocalContentColor.current)
+                        .isEqualTo(if (focused) Color.Red else Color.Green)
+                },
+            )
+        }
+
+        // click to focus
+        focused = true
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        // enter some text (placeholder hidden)
+        rule.onNodeWithTag(TextFieldTag).performTextInput("input")
+        rule.runOnIdle {}
+
+        // delete the text (placeholder shown)
+        rule.onNodeWithTag(TextFieldTag).performTextClearance()
+        rule.runOnIdle {}
     }
 
     @Test
@@ -1239,17 +1276,29 @@ class TextFieldTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun testTextField_imeActionAndKeyboardTypePropagatedDownstream() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
+        var editorInfo: EditorInfo? = null
+        val sessionHandler = object : PlatformTextInputSession {
+            override val view: View =
+                View(InstrumentationRegistry.getInstrumentation().targetContext)
+
+            override suspend fun startInputMethod(
+                request: PlatformTextInputMethodRequest
+            ): Nothing {
+                EditorInfo().also {
+                    request.createInputConnection(it)
+                    editorInfo = it
+                }
+                awaitCancellation()
+            }
+        }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
+            PlatformTextInputMethodTestOverride(sessionHandler) {
                 val text = remember { mutableStateOf("") }
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.testTag(TextFieldTag),
                     value = text.value,
                     onValueChange = { text.value = it },
@@ -1264,17 +1313,13 @@ class TextFieldTest {
         rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdle {
-            verify(platformTextInputService, atLeastOnce()).startInput(
-                value = any(),
-                imeOptions = eq(
-                    ImeOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Go
-                    )
-                ),
-                onEditCommand = any(),
-                onImeActionPerformed = any()
-            )
+            @Suppress("NAME_SHADOWING")
+            val editorInfo = editorInfo ?: throw AssertionError("Input session never started")
+            val expectedOptions = EditorInfo.IME_ACTION_GO
+            val expectedInputType = EditorInfo.TYPE_CLASS_TEXT or
+                EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            assertThat(editorInfo.imeOptions and expectedOptions).isEqualTo(expectedOptions)
+            assertThat(editorInfo.inputType and expectedInputType).isEqualTo(expectedInputType)
         }
     }
 
@@ -1845,6 +1890,21 @@ class TextFieldTest {
 
         rule.runOnIdle {
             assertThat(callbackCounter).isEqualTo(1)
+        }
+    }
+    @Test
+    fun testTextFields_noCrashConstraintsInfinity() {
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Column(modifier = Modifier.height(IntrinsicSize.Min).horizontalScroll(
+                rememberScrollState()
+            )) {
+                TextField(
+                    value = "Cat",
+                    onValueChange = {},
+                    leadingIcon = { Text("Icon") }
+                )
+            }
         }
     }
 }

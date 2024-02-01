@@ -176,12 +176,9 @@ class CachedLocalSdkStorageTest {
     private fun disabledLowSpaceModeThreshold(): Long =
         availableBytes() - 10_000_000
 
-    @Suppress("DEPRECATION")
     private fun availableBytes(): Long {
         val path = Environment.getDataDirectory()
         val stat = StatFs(path.path)
-        val blockSize = stat.blockSize.toLong()
-        val availableBlocks = stat.availableBlocks.toLong()
-        return availableBlocks * blockSize
+        return stat.availableBytes
     }
 }

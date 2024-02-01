@@ -23,6 +23,13 @@ import kotlin.math.max
 import kotlin.math.sqrt
 
 /**
+ * Maximum duration in Milliseconds.
+ *
+ * This takes into account that the duration will be converted to nanos.
+ */
+private const val MAX_LONG_MILLIS: Long = Long.MAX_VALUE / 1_000_000
+
+/**
  * Returns the estimated time that the spring will last be at [delta]
  * @suppress
  */
@@ -32,13 +39,20 @@ fun estimateAnimationDurationMillis(
     initialVelocity: Float,
     initialDisplacement: Float,
     delta: Float
-): Long = estimateAnimationDurationMillis(
-    stiffness = stiffness.toDouble(),
-    dampingRatio = dampingRatio.toDouble(),
-    initialVelocity = initialVelocity.toDouble(),
-    initialDisplacement = initialDisplacement.toDouble(),
-    delta = delta.toDouble()
-)
+): Long {
+    if (dampingRatio == 0f) {
+        // No damping, duration is infinite (max value).
+        return MAX_LONG_MILLIS
+    }
+
+    return estimateAnimationDurationMillis(
+        stiffness = stiffness.toDouble(),
+        dampingRatio = dampingRatio.toDouble(),
+        initialVelocity = initialVelocity.toDouble(),
+        initialDisplacement = initialDisplacement.toDouble(),
+        delta = delta.toDouble()
+    )
+}
 
 /**
  * Returns the estimated time that the spring will last be at [delta]

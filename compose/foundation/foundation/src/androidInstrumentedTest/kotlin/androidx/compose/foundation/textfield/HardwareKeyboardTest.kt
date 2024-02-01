@@ -24,25 +24,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -51,7 +50,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -581,27 +579,25 @@ class HardwareKeyboardTest {
         singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
-        val inputService = TextInputService(mock())
-        val focusRequester = FocusRequester()
+        lateinit var clipboardManager: ClipboardManager
         rule.setContent {
-            LocalClipboardManager.current.setText(AnnotatedString("InitialTestText"))
-            CompositionLocalProvider(
-                LocalTextInputService provides inputService
-            ) {
-                BasicTextField(
-                    value = value.value,
-                    textStyle = TextStyle(
-                        fontFamily = TEST_FONT_FAMILY,
-                        fontSize = 10.sp
-                    ),
-                    modifier = modifier.focusRequester(focusRequester),
-                    onValueChange = onValueChange,
-                    singleLine = singleLine,
-                )
-            }
+            clipboardManager = LocalClipboardManager.current
+            BasicTextField(
+                value = value.value,
+                textStyle = TextStyle(
+                    fontFamily = TEST_FONT_FAMILY,
+                    fontSize = 10.sp
+                ),
+                modifier = modifier.testTag("textfield"),
+                onValueChange = onValueChange,
+                singleLine = singleLine,
+            )
         }
 
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.onNodeWithTag("textfield").requestFocus()
+        rule.runOnIdle {
+            clipboardManager.setText(AnnotatedString("InitialTestText"))
+        }
 
         sequence(SequenceScope(value) { rule.onNode(hasSetTextAction()) })
     }

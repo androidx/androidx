@@ -107,6 +107,12 @@ package androidx.wear.tiles {
     method @Deprecated public androidx.wear.tiles.ActionBuilders.LoadAction.Builder setRequestState(androidx.wear.tiles.StateBuilders.State);
   }
 
+  public final class ActiveTileIdentifier {
+    ctor public ActiveTileIdentifier(android.content.ComponentName, int);
+    method public android.content.ComponentName getComponentName();
+    method public int getInstanceId();
+  }
+
   @Deprecated public final class ColorBuilders {
     method @Deprecated public static androidx.wear.tiles.ColorBuilders.ColorProp argb(@ColorInt int);
   }
@@ -1021,6 +1027,7 @@ package androidx.wear.tiles {
 
   public abstract class TileService extends android.app.Service {
     ctor public TileService();
+    method public static com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.wear.tiles.ActiveTileIdentifier!>!> getActiveTilesAsync(android.content.Context, java.util.concurrent.Executor);
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
     method public android.os.IBinder? onBind(android.content.Intent);
     method @Deprecated @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
@@ -1036,7 +1043,7 @@ package androidx.wear.tiles {
   }
 
   public interface TileUpdateRequester {
-    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileService>);
+    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileService!>);
   }
 
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TilesExperimental {

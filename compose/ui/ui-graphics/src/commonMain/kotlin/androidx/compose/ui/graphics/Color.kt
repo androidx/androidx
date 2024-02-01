@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.colorspace.Rgb
 import androidx.compose.ui.graphics.colorspace.connect
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.min
@@ -76,25 +77,25 @@ import kotlin.math.min
  * ```
  * | Component | Name        | Size    | Range                 |
  * |-----------|-------------|---------|-----------------------|
- * | [RGB][ColorSpace.Model.Rgb] color model |
+ * | [RGB][ColorSpace.Model.Rgb] color model                   |
  * | R         | Red         | 16 bits | `[-65504.0, 65504.0]` |
  * | G         | Green       | 16 bits | `[-65504.0, 65504.0]` |
  * | B         | Blue        | 16 bits | `[-65504.0, 65504.0]` |
  * | A         | Alpha       | 10 bits | `[0..1023]`           |
  * |           | Color space | 6 bits  | `[0..63]`             |
- * | [SRGB][ColorSpaces.Srgb] color space |
+ * | [SRGB][ColorSpaces.Srgb] color space                      |
  * | R         | Red         | 8 bits  | `[0..255]`            |
  * | G         | Green       | 8 bits  | `[0..255]`            |
  * | B         | Blue        | 8 bits  | `[0..255]`            |
  * | A         | Alpha       | 8 bits  | `[0..255]`            |
  * | X         | Unused      | 32 bits | `[0]`                 |
- * | [XYZ][ColorSpace.Model.Xyz] color model |
+ * | [XYZ][ColorSpace.Model.Xyz] color model                   |
  * | X         | X           | 16 bits | `[-65504.0, 65504.0]` |
  * | Y         | Y           | 16 bits | `[-65504.0, 65504.0]` |
  * | Z         | Z           | 16 bits | `[-65504.0, 65504.0]` |
  * | A         | Alpha       | 10 bits | `[0..1023]`           |
  * |           | Color space | 6 bits  | `[0..63]`             |
- * | [Lab][ColorSpace.Model.Lab] color model |
+ * | [Lab][ColorSpace.Model.Lab] color model                   |
  * | L         | L           | 16 bits | `[-65504.0, 65504.0]` |
  * | a         | a           | 16 bits | `[-65504.0, 65504.0]` |
  * | b         | b           | 16 bits | `[-65504.0, 65504.0]` |
@@ -136,12 +137,10 @@ value class Color(val value: ULong) {
      * @return A non-null color instance in the specified color space
      */
     fun convert(colorSpace: ColorSpace): Color {
-        val thisColorSpace = this.colorSpace
-        if (colorSpace == thisColorSpace) {
-            return this // nothing to convert
-        }
-        val connector = thisColorSpace.connect(colorSpace)
-        return connector.transformToColor(red, green, blue, alpha)
+        // If the destination color space is the same as this color's color space,
+        // the connector we get will be the identity connector
+        val connector = this.colorSpace.connect(colorSpace)
+        return connector.transformToColor(this)
     }
 
     /**
@@ -162,8 +161,7 @@ value class Color(val value: ULong) {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 48) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 48) and 0xffffUL).toShort())
-                    .toFloat()
+                halfToFloat(((value shr 48) and 0xffffUL).toShort())
             }
         }
 
@@ -185,8 +183,7 @@ value class Color(val value: ULong) {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 40) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 32) and 0xffffUL).toShort())
-                    .toFloat()
+                halfToFloat(((value shr 32) and 0xffffUL).toShort())
             }
         }
 
@@ -208,8 +205,7 @@ value class Color(val value: ULong) {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 32) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 16) and 0xffffUL).toShort())
-                    .toFloat()
+                halfToFloat(((value shr 16) and 0xffffUL).toShort())
             }
         }
 
@@ -230,20 +226,25 @@ value class Color(val value: ULong) {
             }
         }
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component1(): Float = red
+    inline operator fun component1(): Float = red
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component2(): Float = green
+    inline operator fun component2(): Float = green
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component3(): Float = blue
+    inline operator fun component3(): Float = blue
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component4(): Float = alpha
+    inline operator fun component4(): Float = alpha
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component5(): ColorSpace = colorSpace
+    inline operator fun component5(): ColorSpace = colorSpace
 
     /**
      * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace]
@@ -344,7 +345,9 @@ value class Color(val value: ULong) {
             alpha: Float = 1f,
             colorSpace: Rgb = ColorSpaces.Srgb
         ): Color {
-            require(hue in 0f..360f && saturation in 0f..1f && value in 0f..1f) {
+            requirePrecondition(
+                hue in 0f..360f && saturation in 0f..1f && value in 0f..1f
+            ) {
                 "HSV ($hue, $saturation, $value) must be in range (0..360, 0..1, 0..1)"
             }
             val red = hsvToRgbComponent(5, hue, saturation, value)
@@ -376,7 +379,9 @@ value class Color(val value: ULong) {
             alpha: Float = 1f,
             colorSpace: Rgb = ColorSpaces.Srgb
         ): Color {
-            require(hue in 0f..360f && saturation in 0f..1f && lightness in 0f..1f) {
+            requirePrecondition(
+                hue in 0f..360f && saturation in 0f..1f && lightness in 0f..1f
+            ) {
                 "HSL ($hue, $saturation, $lightness) must be in range (0..360, 0..1, 0..1)"
             }
             val red = hslToRgbComponent(0, hue, saturation, lightness)
@@ -393,9 +398,13 @@ value class Color(val value: ULong) {
     }
 }
 
+// Same as Color.Unspecified.packedValue, but avoids a getstatic
+@PublishedApi
+internal const val UnspecifiedColor = 0x10UL
+
 /**
  * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
- * components. The default [color space][ColorSpace] is [SRGB][ColorSpaces.Srgb] and
+ * components. The default [color space][ColorSpace] is [sRGB][ColorSpaces.Srgb] and
  * the default [alpha] is `1.0` (opaque). [colorSpace] must have a [ColorSpace.componentCount] of
  * 3.
  */
@@ -407,7 +416,7 @@ fun Color(
     alpha: Float = 1f,
     colorSpace: ColorSpace = ColorSpaces.Srgb
 ): Color {
-    require(
+    requirePrecondition(
         red in colorSpace.getMinValue(0)..colorSpace.getMaxValue(0) &&
             green in colorSpace.getMinValue(1)..colorSpace.getMaxValue(1) &&
             blue in colorSpace.getMinValue(2)..colorSpace.getMaxValue(2) &&
@@ -419,41 +428,79 @@ fun Color(
     if (colorSpace.isSrgb) {
         val argb = (
             ((alpha * 255.0f + 0.5f).toInt() shl 24) or
-                ((red * 255.0f + 0.5f).toInt() shl 16) or
-                ((green * 255.0f + 0.5f).toInt() shl 8) or
-                (blue * 255.0f + 0.5f).toInt()
-            )
-        return Color(value = (argb.toULong() and 0xffffffffUL) shl 32)
+            ((red * 255.0f + 0.5f).toInt() shl 16) or
+            ((green * 255.0f + 0.5f).toInt() shl 8) or
+            (blue * 255.0f + 0.5f).toInt()
+        )
+        return Color(argb.toULong() shl 32)
     }
 
-    require(colorSpace.componentCount == 3) {
+    requirePrecondition(colorSpace.componentCount == 3) {
         "Color only works with ColorSpaces with 3 components"
     }
 
     val id = colorSpace.id
-    require(id != ColorSpace.MinId) {
+    requirePrecondition(id != ColorSpace.MinId) {
         "Unknown color space, please use a color space in ColorSpaces"
     }
 
-    val r = Float16(red)
-    val g = Float16(green)
-    val b = Float16(blue)
+    val r = floatToHalf(red)
+    val g = floatToHalf(green)
+    val b = floatToHalf(blue)
 
     val a = (max(0.0f, min(alpha, 1.0f)) * 1023.0f + 0.5f).toInt()
 
-    // Suppress sign extension
     return Color(
-        value = (
-            ((r.halfValue.toULong() and 0xffffUL) shl 48) or (
-                (g.halfValue.toULong() and 0xffffUL) shl 32
-                ) or (
-                (b.halfValue.toULong() and 0xffffUL) shl 16
-                ) or (
-                (a.toULong() and 0x3ffUL) shl 6
-                ) or (
-                id.toULong() and 0x3fUL
-                )
-            )
+        (
+            ((r.toLong() and 0xffffL) shl 48) or
+            ((g.toLong() and 0xffffL) shl 32) or
+            ((b.toLong() and 0xffffL) shl 16) or
+            ((a.toLong() and 0x03ffL) shl 6) or
+            (id.toLong() and 0x003fL)
+        ).toULong()
+    )
+}
+
+/**
+ * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
+ * components. This function is equivalent to [Color] but doesn't perform any check/validation
+ * of the parameters. It is meant to be used when the color space and values are known to
+ * be valid by construction, for instance when lerping colors.
+ */
+@Stable
+internal fun UncheckedColor(
+    red: Float,
+    green: Float,
+    blue: Float,
+    alpha: Float = 1f,
+    colorSpace: ColorSpace = ColorSpaces.Srgb
+): Color {
+    if (colorSpace.isSrgb) {
+        val argb = (
+            ((alpha * 255.0f + 0.5f).toInt() shl 24) or
+            ((red * 255.0f + 0.5f).toInt() shl 16) or
+            ((green * 255.0f + 0.5f).toInt() shl 8) or
+            (blue * 255.0f + 0.5f).toInt()
+        )
+        return Color(argb.toULong() shl 32)
+    }
+
+    val r = floatToHalf(red)
+    val g = floatToHalf(green)
+    val b = floatToHalf(blue)
+
+    val a = (max(0.0f, min(alpha, 1.0f)) * 1023.0f + 0.5f).toInt()
+
+    val id = colorSpace.id
+
+    return Color(
+        (
+            ((r.toLong() and 0xffffL) shl 48) or
+            ((g.toLong() and 0xffffL) shl 32) or
+            ((b.toLong() and 0xffffL) shl 16) or
+            ((a.toLong() and 0x03ffL) shl 6) or
+            (id.toLong() and 0x003fL)
+        ).toULong()
     )
 }
 
@@ -467,7 +514,7 @@ fun Color(
  */
 @Stable
 fun Color(@ColorInt color: Int): Color {
-    return Color(value = color.toULong() shl 32)
+    return Color(color.toULong() shl 32)
 }
 
 /**
@@ -484,7 +531,7 @@ fun Color(@ColorInt color: Int): Color {
  */
 @Stable
 fun Color(color: Long): Color {
-    return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
+    return Color((color shl 32).toULong())
 }
 
 /**
@@ -506,7 +553,8 @@ fun Color(
     @IntRange(from = 0, to = 0xFF) blue: Int,
     @IntRange(from = 0, to = 0xFF) alpha: Int = 0xFF
 ): Color {
-    val color = ((alpha and 0xFF) shl 24) or
+    val color =
+        ((alpha and 0xFF) shl 24) or
         ((red and 0xFF) shl 16) or
         ((green and 0xFF) shl 8) or
         (blue and 0xFF)
@@ -535,12 +583,12 @@ fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: 
     val endA = endColor.green
     val endB = endColor.blue
 
-    val interpolated = Color(
-        alpha = lerp(startAlpha, endAlpha, fraction),
-        red = lerp(startL, endL, fraction),
-        green = lerp(startA, endA, fraction),
-        blue = lerp(startB, endB, fraction),
-        colorSpace = colorSpace
+    val interpolated = UncheckedColor(
+        lerp(startL, endL, fraction),
+        lerp(startA, endA, fraction),
+        lerp(startB, endB, fraction),
+        lerp(startAlpha, endAlpha, fraction),
+        colorSpace
     )
     return interpolated.convert(stop.colorSpace)
 }
@@ -568,7 +616,7 @@ fun Color.compositeOver(background: Color): Color {
     val g = compositeComponent(fg.green, background.green, fgA, bgA, a)
     val b = compositeComponent(fg.blue, background.blue, fgA, bgA, a)
 
-    return Color(r, g, b, a, background.colorSpace)
+    return UncheckedColor(r, g, b, a, background.colorSpace)
 }
 
 /**
@@ -609,7 +657,7 @@ private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, a
 @Stable
 fun Color.luminance(): Float {
     val colorSpace = colorSpace
-    require(colorSpace.model == ColorModel.Rgb) {
+    requirePrecondition(colorSpace.model == ColorModel.Rgb) {
         "The specified color must be encoded in an RGB color space. " +
             "The supplied color space is ${colorSpace.model}"
     }
@@ -619,11 +667,7 @@ fun Color.luminance(): Float {
     val g = eotf(green.toDouble())
     val b = eotf(blue.toDouble())
 
-    return saturate(((0.2126 * r) + (0.7152 * g) + (0.0722 * b)).toFloat())
-}
-
-private fun saturate(v: Float): Float {
-    return if (v <= 0.0f) 0.0f else (if (v >= 1.0f) 1.0f else v)
+    return (((0.2126 * r) + (0.7152 * g) + (0.0722 * b)).toFloat()).fastCoerceIn(0.0f, 1.0f)
 }
 
 /**
@@ -643,13 +687,13 @@ fun Color.toArgb(): Int {
  * `false` when this is [Color.Unspecified].
  */
 @Stable
-inline val Color.isSpecified: Boolean get() = value != Color.Unspecified.value
+inline val Color.isSpecified: Boolean get() = value != UnspecifiedColor
 
 /**
  * `true` when this is [Color.Unspecified].
  */
 @Stable
-inline val Color.isUnspecified: Boolean get() = value == Color.Unspecified.value
+inline val Color.isUnspecified: Boolean get() = value == UnspecifiedColor
 
 /**
  * If this color [isSpecified] then this is returned, otherwise [block] is executed and its result

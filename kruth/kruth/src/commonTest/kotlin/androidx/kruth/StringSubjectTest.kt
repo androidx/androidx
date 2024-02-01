@@ -164,6 +164,172 @@ class StringSubjectTest {
     }
 
     @Test
+    fun stringMatchesString() {
+        assertThat("abcaaadev").matches(".*aaa.*")
+    }
+
+    @Test
+    fun stringMatchesStringWithFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abcaqadev").matches(".*aaa.*")
+        }
+    }
+
+    @Test
+    fun stringMatchesStringFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).matches(".*aaa.*")
+        }
+    }
+
+    @Test
+    fun stringMatchesStringLiteralFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("\$abc").matches("\$abc")
+        }
+    }
+
+    @Test
+    fun stringMatchesPattern() {
+        assertThat("abcaaadev").matches(".*aaa.*".toRegex())
+    }
+
+    @Test
+    fun stringMatchesPatternWithFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abcaqadev").matches(".*aaa.*".toRegex())
+        }
+    }
+
+    @Test
+    fun stringMatchesPatternFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).matches(".*aaa.*".toRegex())
+        }
+    }
+
+    @Test
+    fun stringMatchesPatternLiteralFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("\$abc").matches("\$abc".toRegex())
+        }
+    }
+
+    @Test
+    fun stringDoesNotMatchString() {
+        assertThat("abcaqadev").doesNotMatch(".*aaa.*")
+    }
+
+    @Test
+    fun stringDoesNotMatchStringWithFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abcaaadev").doesNotMatch(".*aaa.*")
+        }
+    }
+
+    @Test
+    fun stringDoesNotMatchStringFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).doesNotMatch(".*aaa.*")
+        }
+    }
+
+    @Test
+    fun stringDoesNotMatchPattern() {
+        assertThat("abcaqadev").doesNotMatch(".*aaa.*".toRegex())
+    }
+
+    @Test
+    fun stringDoesNotMatchPatternWithFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abcaaadev").doesNotMatch(".*aaa.*".toRegex())
+        }
+    }
+
+    @Test
+    fun stringDoesNotMatchPatternFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).doesNotMatch(".*aaa.*".toRegex())
+        }
+    }
+
+    @Test
+    fun stringContainsMatchStringUsesFind() {
+        assertThat("aba").containsMatch("[b]")
+        assertThat("aba").containsMatch("[b]".toRegex())
+    }
+
+    @Test
+    fun stringContainsMatchString() {
+        assertThat("aba").containsMatch(".*b.*")
+        assertFailsWith<AssertionError> {
+            assertThat("aaa").containsMatch(".*b.*")
+        }
+    }
+
+    @Test
+    fun stringContainsMatchStringFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).containsMatch(".*b.*")
+        }
+    }
+
+    @Test
+    fun stringContainsMatchPattern() {
+        assertThat("aba").containsMatch(".*b.*".toRegex())
+        assertFailsWith<AssertionError> {
+            assertThat("aaa").containsMatch(".*b.*".toRegex())
+        }
+    }
+
+    @Test
+    fun stringContainsMatchPatternFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).containsMatch(".*b.*".toRegex())
+        }
+    }
+
+    @Test
+    fun stringDoesNotContainMatchString() {
+        assertThat("aaa").doesNotContainMatch(".*b.*")
+        assertFailsWith<AssertionError> {
+            assertThat("aba").doesNotContainMatch(".*b.*")
+        }
+        assertFailsWith<AssertionError> {
+            assertThat("zzabazz").doesNotContainMatch(".b.")
+        }
+    }
+
+    @Test
+    fun stringDoesNotContainMatchStringUsesFind() {
+        assertFailsWith<AssertionError> {
+            assertThat("aba").doesNotContainMatch("[b]")
+        }
+    }
+
+    @Test
+    fun stringDoesNotContainMatchStringUsesFindFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).doesNotContainMatch("[b]")
+        }
+    }
+
+    @Test
+    fun stringDoesNotContainMatchPattern() {
+        assertThat("zzaaazz").doesNotContainMatch(".b.".toRegex())
+        assertFailsWith<AssertionError> {
+            assertThat("zzabazz").doesNotContainMatch(".b.".toRegex())
+        }
+    }
+
+    @Test
+    fun stringDoesNotContainMatchPatternFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).doesNotContainMatch(".b.".toRegex())
+        }
+    }
+
+    @Test
     fun stringEqualityIgnoringCase() {
         assertThat("café").ignoringCase().isEqualTo("CAFÉ")
     }
