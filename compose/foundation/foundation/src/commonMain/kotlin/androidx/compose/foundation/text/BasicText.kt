@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.modifiers.SelectionController
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringNode
 import androidx.compose.foundation.text.modifiers.TextStringSimpleElement
+import androidx.compose.foundation.text.modifiers.fixedCoerceHeightAndWidthForBits
 import androidx.compose.foundation.text.modifiers.hasLinks
 import androidx.compose.foundation.text.selection.LocalSelectionRegistrar
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -525,7 +526,10 @@ private fun measureWithTextRangeMeasureConstraints(
                 textRangeLayoutMeasureScope.measure()
             }
             val placeable = measurable.measure(
-                Constraints.fixed(rangeMeasureResult.width, rangeMeasureResult.height)
+                Constraints.fixedCoerceHeightAndWidthForBits(
+                    rangeMeasureResult.width,
+                    rangeMeasureResult.height
+                )
             )
             Pair(placeable, rangeMeasureResult.place)
         }
