@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -1021,12 +1022,13 @@ class DraggableTest {
     fun equalInputs_shouldResolveToEquals() {
         val state = DraggableState { }
 
-        val firstModifier = Modifier.draggable(state, Orientation.Horizontal)
-        val secondModifier = Modifier.draggable(state, Orientation.Vertical)
-        val thirdModifier = Modifier.draggable(state, Orientation.Horizontal)
-
-        assertThat(firstModifier).isEqualTo(thirdModifier)
-        assertThat(firstModifier).isNotEqualTo(secondModifier)
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.draggable(state, Orientation.Horizontal)
+            } else {
+                Modifier.draggable(state, Orientation.Vertical)
+            }
+        }
     }
 
     private fun setDraggableContent(draggableFactory: @Composable () -> Modifier) {
