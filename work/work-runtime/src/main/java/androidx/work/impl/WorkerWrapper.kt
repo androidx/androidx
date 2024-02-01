@@ -42,6 +42,7 @@ import androidx.work.impl.utils.WorkForegroundRunnable
 import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
+import androidx.work.impl.utils.safeAccept
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.logd
 import androidx.work.loge
@@ -185,15 +186,11 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 )
             } catch (e: Throwable) {
                 loge(TAG) { "Could not create Worker ${workSpec.workerClassName}" }
-                try {
-                    configuration.workerInitializationExceptionHandler?.accept(
-                        WorkerExceptionInfo(workSpec.workerClassName, params, e)
-                    )
-                } catch (exception: Exception) {
-                    loge(TAG, exception) {
-                        "Exception handler threw an exception"
-                    }
-                }
+
+                configuration.workerInitializationExceptionHandler?.safeAccept(
+                    WorkerExceptionInfo(workSpec.workerClassName, params, e),
+                    TAG
+                )
                 setFailedAndResolve(Failure())
                 return
             }
@@ -255,45 +252,23 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                         logd(TAG) { "${workSpec.workerClassName} returned a $futureResult." }
                         futureResult
                     }
-                } catch (exception: InterruptedException) {
-                    loge(TAG, exception) {
+                } catch (exception: CancellationException) {
+                    // Cancellations need to be treated with care here because innerFuture
+                    // cancellations will bubble up, and we need to gracefully handle that.
+                    logi(TAG, exception) { "$workDescription was cancelled" }
+                } catch (exception: Exception) {
+                    val exceptionToReport = if (exception is ExecutionException) {
+                        exception.cause ?: exception
+                    } else {
+                        exception
+                    }
+                    loge(TAG, exceptionToReport) {
                         "$workDescription failed because it threw an exception/error"
                     }
-                    try {
-                        configuration.workerExecutionExceptionHandler?.accept(
-                            WorkerExceptionInfo(workSpec.workerClassName, params, exception)
-                        )
-                    } catch (exception: Exception) {
-                        loge(TAG, exception) {
-                            "Exception handler threw an exception"
-                        }
-                    }
-                } catch (exception: Exception) {
-                    when (exception) {
-                        is CancellationException -> {
-                            // Cancellations need to be treated with care here because innerFuture
-                            // cancellations will bubble up, and we need to gracefully handle that.
-                            logi(TAG, exception) { "$workDescription was cancelled" }
-                        }
-                        is ExecutionException -> {
-                            loge(TAG, exception) {
-                                "$workDescription failed because it threw an exception/error"
-                            }
-                        }
-                    }
-                    try {
-                        configuration.workerExecutionExceptionHandler?.accept(
-                            WorkerExceptionInfo(
-                                workSpec.workerClassName,
-                                params,
-                                exception.cause ?: exception
-                            )
-                        )
-                    } catch (exception: Exception) {
-                        loge(TAG, exception) {
-                            "Exception handler threw an exception"
-                        }
-                    }
+                    configuration.workerExecutionExceptionHandler?.safeAccept(
+                        WorkerExceptionInfo(workSpec.workerClassName, params, exceptionToReport),
+                        TAG
+                    )
                 } finally {
                     onWorkFinished(result)
                 }

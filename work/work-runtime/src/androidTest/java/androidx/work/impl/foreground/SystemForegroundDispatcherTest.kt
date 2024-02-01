@@ -28,10 +28,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
-import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
-import androidx.work.WorkerParameters
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.StartStopToken
@@ -47,11 +45,10 @@ import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.schedulers
 import androidx.work.impl.testutils.TestConstraintTracker
 import androidx.work.impl.utils.SynchronousExecutor
-import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.worker.NeverResolvedWorker
 import androidx.work.worker.TestWorker
-import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -459,14 +456,5 @@ class SystemForegroundDispatcherTest {
             WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
         assertThat(fakeChargingTracker.isTracking, `is`(true))
-    }
-}
-
-class NeverResolvedWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(context, workerParams) {
-    override fun startWork(): ListenableFuture<Result> {
-        return SettableFuture.create()
     }
 }

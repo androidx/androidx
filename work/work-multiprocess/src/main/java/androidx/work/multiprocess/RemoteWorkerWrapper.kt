@@ -24,6 +24,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
 import androidx.work.impl.utils.futures.SettableFuture
+import androidx.work.impl.utils.safeAccept
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CancellationException
@@ -57,16 +58,13 @@ internal fun RemoteWorkerWrapper(
                     .createWorkerWithDefaultFallback(context, workerClassName, workerParameters)
             } catch (throwable: Throwable) {
                 future.setException(throwable)
-                try {
-                    configuration.workerInitializationExceptionHandler?.let {
-                        taskExecutor.executeOnTaskThread {
-                            it.accept(WorkerExceptionInfo(
-                                workerClassName, workerParameters, throwable))
-                        }
+                configuration.workerInitializationExceptionHandler?.let { handler ->
+                    taskExecutor.executeOnTaskThread {
+                        handler.safeAccept(
+                            WorkerExceptionInfo(workerClassName, workerParameters, throwable),
+                            ListenableWorkerImpl.TAG
+                        )
                     }
-                } catch (exception: Exception) {
-                    val message = "Exception handler threw an exception: $exception"
-                    Logger.get().error(ListenableWorkerImpl.TAG, message)
                 }
                 return@execute
             }
