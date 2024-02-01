@@ -16,9 +16,6 @@
 
 package androidx.kruth
 
-import androidx.kruth.Fact.Companion.fact
-import androidx.kruth.Fact.Companion.simpleFact
-
 /**
  * Propositions for [Iterable] subjects.
  *
@@ -60,7 +57,7 @@ open class IterableSubject<T> internal constructor(
         requireNonNull(actual) { "Expected to be empty, but was null" }
 
         if (!actual.isEmpty()) {
-            failWithoutActual(simpleFact("Expected to be empty"))
+            failWithoutActual("Expected to be empty")
         }
     }
 
@@ -69,16 +66,16 @@ open class IterableSubject<T> internal constructor(
         requireNonNull(actual) { "Expected not to be empty, but was null" }
 
         if (actual.isEmpty()) {
-            failWithoutActual(simpleFact("Expected to be not empty"))
+            failWithoutActual("Expected to be not empty")
         }
     }
 
     /** Fails if the subject does not have the given size. */
     fun hasSize(expectedSize: Int) {
-        require(expectedSize >= 0) { "expectedSize($expectedSize) must be >= 0" }
+        require(expectedSize >= 0) { "expectedSize must be >= 0, but was $expectedSize" }
         requireNonNull(actual) { "Expected to have size $expectedSize, but was null" }
 
-        check("count()").that(actual.count()).isEqualTo(expectedSize)
+        metadata.assertEquals(expectedSize, actual.count())
     }
 
     /** Checks (with a side-effect failure) that the subject contains the supplied item. */
@@ -89,13 +86,11 @@ open class IterableSubject<T> internal constructor(
             val matchingItems = actual.retainMatchingToString(listOf(element))
             if (matchingItems.isNotEmpty()) {
                 failWithoutActual(
-                    fact("expected to contain", element),
-                    fact("an instance of", element.typeName()),
-                    simpleFact("but did not"),
-                    fact("though it did contain", matchingItems)
+                    "Expected to contain $element, but did not. " +
+                        "Though it did contain $matchingItems"
                 )
             } else {
-                failWithActual("expected to contain", element)
+                failWithoutActual("Expected to contain $element, but did not")
             }
         }
     }
@@ -105,7 +100,7 @@ open class IterableSubject<T> internal constructor(
         requireNonNull(actual) { "Expected not to contain $element, but was null" }
 
         if (element in actual) {
-            failWithoutActual(simpleFact("Expected not to contain $element"))
+            failWithoutActual("Expected not to contain $element")
         }
     }
 
@@ -116,9 +111,7 @@ open class IterableSubject<T> internal constructor(
         val duplicates = actual.groupBy { it }.values.filter { it.size > 1 }
 
         if (duplicates.isNotEmpty()) {
-            failWithoutActual(
-                simpleFact("Expected not to contain duplicates, but contained $duplicates")
-            )
+            failWithoutActual("Expected not to contain duplicates, but contained $duplicates")
         }
     }
 
@@ -142,12 +135,11 @@ open class IterableSubject<T> internal constructor(
         val matchingItems = actual.retainMatchingToString(expected)
         if (matchingItems.isNotEmpty()) {
             failWithoutActual(
-                fact("expected to contain any of", expected),
-                simpleFact("but did not"),
-                fact("though it did contain", matchingItems)
+                "Expected to contain any of $expected, but did not. " +
+                    "Though it did contain $matchingItems"
             )
         } else {
-            failWithActual("expected to contain any of", expected)
+            failWithoutActual("Expected to contain any of $expected, but did not")
         }
     }
 
@@ -200,13 +192,11 @@ open class IterableSubject<T> internal constructor(
         if (missing.isNotEmpty()) {
             val nearMissing = actualList.retainMatchingToString(missing)
 
-            // TODO(dustinlam): Message is still a bit different from Truth.
-            failWithActual(
-                fact("missing", missing),
-                simpleFact(""),
-                fact("though it did contain", nearMissing),
-                simpleFact("---"),
-                fact("expected to contain at least", expected)
+            failWithoutActual(
+                """
+                    Expected to contain at least $expected, but did not.
+                    Missing $missing, though it did contain $nearMissing.
+                """.trimIndent()
             )
         }
 
@@ -216,8 +206,8 @@ open class IterableSubject<T> internal constructor(
 
         return FailingOrdered(metadata) {
             buildString {
-                append("required elements were all found, but order was wrong")
-                append("expected order for required elements $expected.")
+                append("Required elements were all found, but order was wrong.")
+                append("Expected order: $expected.")
 
                 if (actualList.any { it !in expected }) {
                     append("Actual order: $actualList.")
@@ -298,17 +288,15 @@ open class IterableSubject<T> internal constructor(
                      * already made. So we expose a special method for this and call it from here.
                      *
                      * TODO(b/135918662): Consider always throwing ComparisonFailure if there is exactly one
-                     *  missing and exactly one extra element, even if there were additional (matching)
-                     *  elements. However, this will probably be useful less often, and it will be tricky to
-                     *  explain. First, what would we say, "value of: iterable.onlyElementThatDidNotMatch()?"
-                     *  And second, it feels weirder to call out a single element when the expected and actual
-                     *  values had multiple elements. Granted, Fuzzy Truth already does this, so maybe it's OK?
-                     *  But Fuzzy Truth doesn't (yet) make the mismatched value so prominent.
+                     * missing and exactly one extra element, even if there were additional (matching)
+                     * elements. However, this will probably be useful less often, and it will be tricky to
+                     * explain. First, what would we say, "value of: iterable.onlyElementThatDidNotMatch()?"
+                     * And second, it feels weirder to call out a single element when the expected and actual
+                     * values had multiple elements. Granted, Fuzzy Truth already does this, so maybe it's OK?
+                     * But Fuzzy Truth doesn't (yet) make the mismatched value so prominent.
                      */
                     failWithoutActual(
-                        simpleFact(
-                            "Expected $actualElement to be equal to $requiredElement, but was not"
-                        )
+                        "Expected $actualElement to be equal to $requiredElement, but was not"
                     )
                 }
 
@@ -341,6 +329,7 @@ open class IterableSubject<T> internal constructor(
                      * This containsExactly() call is a success. But the iterables were not in the same order,
                      * so return an object that will fail the test if the user calls inOrder().
                      */
+
                     return FailingOrdered(metadata) {
                         """
                              Contents match. Expected the order to also match, but was not.
@@ -351,12 +340,12 @@ open class IterableSubject<T> internal constructor(
                 }
 
                 failWithActual(
-                    fact("missing", missing),
-                    simpleFact(""),
-                    fact("unexpected", extra),
-                    simpleFact("---"),
-                    fact("expected", required),
-                    fact("but was", actual)
+                    """
+                        Contents do not match.
+                        Expected: $required.
+                        Missing: $missing.
+                        Unexpected: $extra.
+                    """.trimIndent()
                 )
             }
 
@@ -366,21 +355,24 @@ open class IterableSubject<T> internal constructor(
         // Here, we must have reached the end of one of the iterators without finding any
         // pairs of elements that differ. If the actual iterator still has elements, they're
         // extras. If the required iterator has elements, they're missing elements.
+
         if (actualIter.hasNext()) {
-            failWithoutActual(
-                fact("unexpected", actualIter.asSequence().toList()),
-                simpleFact("---"),
-                fact("expected", required),
-                fact("but was", actual)
+            failWithActual(
+                """
+                    Contents do not match.
+                    Expected: $required.
+                    Unexpected: ${actualIter.asSequence().toList()}.
+                """.trimIndent()
             )
         }
 
         if (requiredIter.hasNext()) {
-            failWithoutActual(
-                fact("missing", requiredIter.asSequence().toList()),
-                simpleFact("---"),
-                fact("expected", required),
-                fact("but was", actual)
+            failWithActual(
+                """
+                    Contents do not match.
+                    Expected: $required.
+                    Missing: ${requiredIter.asSequence().toList()}.
+                """.trimIndent()
             )
         }
 
@@ -426,9 +418,7 @@ open class IterableSubject<T> internal constructor(
         val present = excluded.intersect(actual)
 
         if (present.isNotEmpty()) {
-            failWithActual(
-                simpleFact("Expected not to contain any of $excluded but contained $present.")
-            )
+            failWithActual("Expected not to contain any of $excluded but contained $present.")
         }
     }
 
@@ -509,7 +499,7 @@ open class IterableSubject<T> internal constructor(
             .zipWithNext(::Pair)
             .forEach { (a, b) ->
                 if (!predicate(a, b)) {
-                    failWithActual(simpleFact(message(a, b)))
+                    failWithActual(message(a, b))
                 }
             }
     }
@@ -537,13 +527,11 @@ open class IterableSubject<T> internal constructor(
         val nonIterables = iterable.filterNot { it is Iterable<*> }
         if (nonIterables.isNotEmpty()) {
             failWithoutActual(
-                simpleFact(
-                    "The actual value is an Iterable, and you've written a test that compares it " +
-                        "to some objects that are not Iterables. Did you instead mean to check " +
-                        "whether its *contents* match any of the *contents* of the given values? " +
-                        "If so, call containsNoneOf(...)/containsNoneIn(...) instead. " +
-                        "Non-iterables: $nonIterables"
-                )
+                "The actual value is an Iterable, and you've written a test that compares it to " +
+                    "some objects that are not Iterables. Did you instead mean to check " +
+                    "whether its *contents* match any of the *contents* of the given values? " +
+                    "If so, call containsNoneOf(...)/containsNoneIn(...) instead. " +
+                    "Non-iterables: $nonIterables"
             )
         }
     }

@@ -21,8 +21,7 @@ import kotlin.contracts.contract
 
 /**
  * Same as [requireNotNull] but throws [NullPointerException] instead of [IllegalArgumentException].
- *
- * Used for better behaviour compatibility with Truth, which uses Guava's checkNotNull.
+ * Used for better behaviour compatibility with Truth.
  */
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T : Any> requireNonNull(
@@ -66,9 +65,6 @@ internal fun Iterable<*>.hasMatchingToStringPair(items: Iterable<*>): Boolean =
         retainMatchingToString(items).isNotEmpty()
     }
 
-// TODO(b/317811086): Truth does some extra String processing here for nested classes and Subjects
-//  for j2cl that we do not yet have implemented. It is possible we don't need anything, but we need
-//  to double check and add a test.
 internal fun Any?.typeName(): String =
     when (this) {
         null -> {
