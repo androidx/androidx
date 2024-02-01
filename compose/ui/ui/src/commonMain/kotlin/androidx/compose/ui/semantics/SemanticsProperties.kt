@@ -341,6 +341,18 @@ object SemanticsActions {
      */
     val OnImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
 
+    // b/322269946
+    @Suppress("unused")
+    @Deprecated(
+        message = "Use `SemanticsActions.OnImeAction` instead.",
+        replaceWith = ReplaceWith(
+            "OnImeAction",
+            "androidx.compose.ui.semantics.SemanticsActions.OnImeAction",
+        ),
+        level = DeprecationLevel.ERROR,
+    )
+    val PerformImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
+
     /**
      * @see SemanticsPropertyReceiver.copyText
      */
@@ -1353,6 +1365,24 @@ fun SemanticsPropertyReceiver.onImeAction(
     action: (() -> Boolean)?
 ) {
     this[SemanticsProperties.ImeAction] = imeActionType
+    this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
+}
+
+// b/322269946
+@Suppress("unused")
+@Deprecated(
+    message = "Use `SemanticsPropertyReceiver.onImeAction` instead.",
+    replaceWith = ReplaceWith(
+        "onImeAction(imeActionType = ImeAction.Default, label = label, action = action)",
+        "androidx.compose.ui.semantics.onImeAction",
+        "androidx.compose.ui.text.input.ImeAction",
+    ),
+    level = DeprecationLevel.ERROR,
+)
+fun SemanticsPropertyReceiver.performImeAction(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
     this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
 }
 
