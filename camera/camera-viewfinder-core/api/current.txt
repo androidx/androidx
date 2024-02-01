@@ -37,6 +37,8 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
     method public int getLensFacing();
     method public android.util.Size getResolution();
     method public int getSensorOrientation();
+    method public suspend Object? getSurface(kotlin.coroutines.Continuation<? super android.view.Surface>);
+    method public com.google.common.util.concurrent.ListenableFuture<android.view.Surface> getSurfaceAsync();
     method public void markSurfaceSafeToRelease();
     method public void provideSurface(android.view.Surface surface, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Result?> resultListener);
     method public boolean willNotProvideSurface();

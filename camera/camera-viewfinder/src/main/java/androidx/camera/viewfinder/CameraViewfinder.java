@@ -379,7 +379,7 @@ public final class CameraViewfinder extends FrameLayout {
 
         if (mCurrentSurfaceRequest != null
                 && surfaceRequest.equals(mCurrentSurfaceRequest)) {
-            return mCurrentSurfaceRequest.getSurface().getSurfaceAsync();
+            return mCurrentSurfaceRequest.getSurfaceAsync();
         }
 
         if (mCurrentSurfaceRequest != null) {
@@ -387,7 +387,7 @@ public final class CameraViewfinder extends FrameLayout {
         }
 
         ListenableFuture<Surface> surfaceListenableFuture =
-                surfaceRequest.getSurface().getSurfaceAsync();
+                surfaceRequest.getSurfaceAsync();
         mCurrentSurfaceRequest = surfaceRequest;
 
         provideSurfaceIfReady();

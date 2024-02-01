@@ -83,7 +83,7 @@ class SurfaceViewImplementationTest {
     @After
     fun tearDown() {
         if (::mSurfaceRequest.isInitialized) {
-            mSurfaceRequest.getSurface().close()
+            mSurfaceRequest.markSurfaceSafeToRelease();
         }
     }
 
@@ -95,8 +95,8 @@ class SurfaceViewImplementationTest {
             mImplementation.onSurfaceRequested(mSurfaceRequest)
         }
 
-        mSurfaceRequest.getSurface().getSurfaceAsync().get(1000, TimeUnit.MILLISECONDS)
-        mSurfaceRequest.getSurface().close()
+        mSurfaceRequest.getSurfaceAsync().get(1000, TimeUnit.MILLISECONDS)
+        mSurfaceRequest.markSurfaceSafeToRelease();
     }
 
     @Throws(Throwable::class)
