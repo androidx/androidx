@@ -291,21 +291,11 @@ internal class TextFieldCoreModifierNode(
             val currSelection = textFieldState.visualText.selectionInChars
             val offsetToFollow = calculateOffsetToFollow(currSelection)
 
-            val cursorRectInScroller = if (offsetToFollow >= 0) {
-                getCursorRectInScroller(
-                    cursorOffset = offsetToFollow,
-                    textLayoutResult = textLayoutState.layoutResult,
-                    rtl = layoutDirection == LayoutDirection.Rtl,
-                    textFieldWidth = placeable.width
-                )
-            } else {
-                null
-            }
-
             updateScrollState(
-                cursorRect = cursorRectInScroller,
+                offsetToFollow = offsetToFollow,
                 containerSize = height,
-                textFieldSize = placeable.height
+                textFieldSize = placeable.height,
+                layoutDirection = layoutDirection
             )
 
             // only update the previous selection if this node is focused.
@@ -341,21 +331,11 @@ internal class TextFieldCoreModifierNode(
             val currSelection = textFieldState.visualText.selectionInChars
             val offsetToFollow = calculateOffsetToFollow(currSelection)
 
-            val cursorRectInScroller = if (offsetToFollow >= 0) {
-                getCursorRectInScroller(
-                    cursorOffset = offsetToFollow,
-                    textLayoutResult = textLayoutState.layoutResult,
-                    rtl = layoutDirection == LayoutDirection.Rtl,
-                    textFieldWidth = placeable.width
-                )
-            } else {
-                null
-            }
-
             updateScrollState(
-                cursorRect = cursorRectInScroller,
+                offsetToFollow = offsetToFollow,
                 containerSize = width,
-                textFieldSize = placeable.width
+                textFieldSize = placeable.width,
+                layoutDirection = layoutDirection
             )
 
             // only update the previous selection if this node is focused.
@@ -379,17 +359,34 @@ internal class TextFieldCoreModifierNode(
      * Updates the scroll state to make sure cursor is visible after text content, selection, or
      * layout changes. Only scroll changes won't trigger this.
      *
-     * @param cursorRect Rectangle area to bring into view. Pass null to skip this functionality.
+     * @param offsetToFollow The index of the character that needs to be followed and scrolled into
+     * view.
      * @param containerSize Either height or width of scrollable host, depending on scroll
-     * orientation
+     * orientation.
      * @param textFieldSize Either height or width of scrollable text field content, depending on
-     * scroll orientation
+     * scroll orientation.
      */
-    private fun updateScrollState(
-        cursorRect: Rect?,
+    private fun Density.updateScrollState(
+        offsetToFollow: Int,
         containerSize: Int,
         textFieldSize: Int,
+        layoutDirection: LayoutDirection
     ) {
+        val layoutResult = textLayoutState.layoutResult ?: return
+        val rawCursorRect = layoutResult.getCursorRect(
+            offsetToFollow.coerceIn(0..layoutResult.layoutInput.text.length)
+        )
+
+        val cursorRect = if (offsetToFollow >= 0) {
+            getCursorRectInScroller(
+                cursorRect = rawCursorRect,
+                rtl = layoutDirection == LayoutDirection.Rtl,
+                textFieldWidth = textFieldSize
+            )
+        } else {
+            null
+        }
+
         // update the maximum scroll value
         val difference = textFieldSize - containerSize
         scrollState.maxValue = difference
@@ -456,8 +453,14 @@ internal class TextFieldCoreModifierNode(
             // this call will respect the earlier set maxValue
             // no need to coerce again.
             // prefer to use immediate dispatch instead of suspending scroll calls
-            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            coroutineScope.launch(
+                DisabledMotionDurationScale,
+                start = CoroutineStart.UNDISPATCHED
+            ) {
                 scrollState.scrollBy(offsetDifference.roundToNext())
+                // make sure to use the cursor rect from text layout since bringIntoView does its
+                // own checks for RTL layouts.
+                textLayoutState.bringIntoViewRequester.bringIntoView(rawCursorRect)
             }
         }
     }
@@ -546,33 +549,34 @@ private object FixedMotionDurationScale : MotionDurationScale {
         get() = 1f
 }
 
+private object DisabledMotionDurationScale : MotionDurationScale {
+    override val scaleFactor: Float
+        get() = 0f
+}
+
 /**
- * Finds the rectangle area that corresponds to the visible cursor.
+ * Converts cursorRect in text layout coordinates to scroller coordinates by adding the default
+ * cursor thickness and calculating the relative positioning caused by the layout direction.
  *
- * @param cursorOffset Index of where cursor is at
- * @param textLayoutResult Current text layout to look for cursor rect.
+ * @param cursorRect Reported cursor rect by the text layout.
  * @param rtl True if layout direction is RightToLeft
  * @param textFieldWidth Total width of TextField composable
  */
 private fun Density.getCursorRectInScroller(
-    cursorOffset: Int,
-    textLayoutResult: TextLayoutResult?,
+    cursorRect: Rect,
     rtl: Boolean,
     textFieldWidth: Int
 ): Rect {
-    val cursorRect = textLayoutResult?.getCursorRect(
-        cursorOffset.coerceIn(0..textLayoutResult.layoutInput.text.length)
-    ) ?: Rect.Zero
     val thickness = DefaultCursorThickness.roundToPx()
 
     val cursorLeft = if (rtl) {
-        textFieldWidth - cursorRect.left - thickness
+        textFieldWidth - cursorRect.right
     } else {
         cursorRect.left
     }
 
     val cursorRight = if (rtl) {
-        textFieldWidth - cursorRect.left
+        textFieldWidth - cursorRect.right + thickness
     } else {
         cursorRect.left + thickness
     }
