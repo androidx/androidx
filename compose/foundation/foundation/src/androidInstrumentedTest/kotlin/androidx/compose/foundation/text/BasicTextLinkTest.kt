@@ -23,10 +23,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.testutils.expectError
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -480,6 +483,21 @@ class BasicTextLinkTest {
 
         rule.runOnIdle {
             assertThat(counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun linkMeasure_withExceededMaxConstraintSize_doesNotCrash() {
+        val textWithLink = buildAnnotatedString {
+            withAnnotation(Url("link")) { append("text ".repeat(25_000)) }
+        }
+
+        expectError<IllegalArgumentException>(expectError = false) {
+            setupContent {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    BasicText(text = textWithLink, modifier = Modifier.width(100.dp))
+                }
+            }
         }
     }
 
