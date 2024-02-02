@@ -57,7 +57,7 @@ class KeylineTest {
         }
 
         assertThat(keylineList[1].cutoff)
-            .isEqualTo(-MediumSize + (MediumSize * .75f).roundToInt())
+            .isEqualTo(MediumSize * 0.25f)
     }
 
     @Test
