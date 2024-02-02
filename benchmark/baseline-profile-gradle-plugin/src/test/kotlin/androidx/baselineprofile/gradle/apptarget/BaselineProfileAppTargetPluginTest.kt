@@ -202,3 +202,33 @@ class BaselineProfileAppTargetPluginTestWithAgp81 {
             }
     }
 }
+
+@RunWith(Parameterized::class)
+class BaselineProfileAppTargetPluginTestWithAgp80AndAbove(agpVersion: TestAgpVersion) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_0_0)
+    }
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
+
+    @Test
+    fun verifyUnitTestDisabled() {
+        projectSetup.appTarget.setBuildGradle(buildGradle)
+        projectSetup
+            .appTarget
+            .gradleRunner
+            .buildAndAssertThatOutput("test", "--dry-run") {
+                contains(":testDebugUnitTest ")
+                contains(":testReleaseUnitTest ")
+                contains(":testAnotherReleaseUnitTest ")
+                doesNotContain(":testNonMinifiedReleaseUnitTest ")
+                doesNotContain(":testBenchmarkReleaseUnitTest ")
+                doesNotContain(":testNonMinifiedAnotherReleaseUnitTest ")
+                doesNotContain(":testBenchmarkAnotherReleaseUnitTest ")
+            }
+    }
+}
