@@ -1007,6 +1007,8 @@ internal class SlotReader(
      */
     fun hasObjectKey(index: Int) = groups.hasObjectKey(index)
 
+    val hasObjectKey: Boolean get() = currentGroup < currentEnd && groups.hasObjectKey(currentGroup)
+
     /**
      * Get the object key for the current group or null if no key was provide
      */

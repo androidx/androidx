@@ -132,6 +132,7 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.ComposeCompilerApi public void endNode();
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void endProvider();
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void endProviders();
+    method @androidx.compose.runtime.ComposeCompilerApi public void endReplaceGroup();
     method @androidx.compose.runtime.ComposeCompilerApi public void endReplaceableGroup();
     method @androidx.compose.runtime.ComposeCompilerApi public androidx.compose.runtime.ScopeUpdateScope? endRestartGroup();
     method @androidx.compose.runtime.ComposeCompilerApi public void endReusableGroup();
@@ -164,6 +165,7 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.ComposeCompilerApi public void startNode();
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void startProvider(androidx.compose.runtime.ProvidedValue<?> value);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void startProviders(androidx.compose.runtime.ProvidedValue<?>[] values);
+    method @androidx.compose.runtime.ComposeCompilerApi public void startReplaceGroup(int key);
     method @androidx.compose.runtime.ComposeCompilerApi public void startReplaceableGroup(int key);
     method @androidx.compose.runtime.ComposeCompilerApi public androidx.compose.runtime.Composer startRestartGroup(int key);
     method @androidx.compose.runtime.ComposeCompilerApi public void startReusableGroup(int key, Object? dataKey);
