@@ -22,9 +22,7 @@ import java.time.DayOfWeek
 import java.time.format.TextStyle
 
 
-internal actual class PlatformDateFormat actual constructor(locale: CalendarLocale) {
-    private val locale = locale
-
+internal actual class PlatformDateFormat actual constructor(private val locale: CalendarLocale) {
     private val delegate = LegacyCalendarModelImpl(locale)
 
     actual val firstDayOfWeek: Int

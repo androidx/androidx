@@ -29,8 +29,7 @@ import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.timeIntervalSince1970
 
-internal actual class PlatformDateFormat actual constructor(locale: CalendarLocale) {
-    private val locale = locale
+internal actual class PlatformDateFormat actual constructor(private val locale: CalendarLocale) {
 
     actual val firstDayOfWeek: Int
         get() = firstDayOfWeek()
@@ -44,7 +43,7 @@ internal actual class PlatformDateFormat actual constructor(locale: CalendarLoca
 
         return NSDateFormatter().apply {
             setTimeZone(TimeZone.UTC.toNSTimeZone())
-            setLocale(locale)
+            setLocale(this@PlatformDateFormat.locale)
             setDateFormat(pattern)
         }.stringFromDate(nsDate)
     }
@@ -58,7 +57,7 @@ internal actual class PlatformDateFormat actual constructor(locale: CalendarLoca
 
         return NSDateFormatter().apply {
             setTimeZone(TimeZone.UTC.toNSTimeZone())
-            setLocale(locale)
+            setLocale(this@PlatformDateFormat.locale)
             setLocalizedDateFormatFromTemplate(skeleton)
         }.stringFromDate(nsDate)
     }
@@ -81,7 +80,7 @@ internal actual class PlatformDateFormat actual constructor(locale: CalendarLoca
     actual fun getDateInputFormat(): DateInputFormat {
 
         val pattern = NSDateFormatter().apply {
-            setLocale(locale)
+            setLocale(this@PlatformDateFormat.locale)
             setDateStyle(NSDateFormatterShortStyle)
         }.dateFormat
 
@@ -91,7 +90,7 @@ internal actual class PlatformDateFormat actual constructor(locale: CalendarLoca
     @Suppress("UNCHECKED_CAST")
     actual val weekdayNames: List<Pair<String, String>> get() {
         val formatter = NSDateFormatter().apply {
-            setLocale(locale)
+            setLocale(this@PlatformDateFormat.locale)
         }
 
         val fromSundayToSaturday = formatter.standaloneWeekdaySymbols

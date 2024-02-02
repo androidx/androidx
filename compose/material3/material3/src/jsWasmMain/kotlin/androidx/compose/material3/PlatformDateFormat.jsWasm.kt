@@ -24,9 +24,7 @@ import kotlinx.datetime.atTime
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
-internal actual class PlatformDateFormat actual constructor(locale: CalendarLocale) {
-    private val locale = locale
-
+internal actual class PlatformDateFormat actual constructor(private val locale: CalendarLocale) {
     actual val firstDayOfWeek: Int
         get() = firstDayOfWeek()
 
