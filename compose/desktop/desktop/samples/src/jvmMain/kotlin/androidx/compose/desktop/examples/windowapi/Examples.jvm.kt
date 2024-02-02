@@ -40,6 +40,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.loadSvgPainter
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.Density
@@ -60,6 +61,9 @@ import androidx.compose.ui.window.awaitApplication
 import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberNotification
 import androidx.compose.ui.window.rememberWindowState
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import java.awt.Dimension
 import java.awt.FileDialog
 import java.awt.Frame
@@ -539,6 +543,20 @@ fun hotKeys() = GlobalScope.launchApplication {
 
 fun saveWindowState() {
     // TODO
+}
+
+@OptIn(DelicateCoroutinesApi::class)
+fun lifecycle() = GlobalScope.launchApplication {
+    Window(
+        onCloseRequest = ::exitApplication
+    ) {
+        var log by remember { mutableStateOf("") }
+        LocalLifecycleOwner.current.lifecycle.addObserver(LifecycleEventObserver { source: LifecycleOwner, event: Lifecycle.Event ->
+            println("onStateChanged: ${event.name}")
+            log += "onStateChanged: ${event.name}\n"
+        })
+        Text(log)
+    }
 }
 
 @OptIn(DelicateCoroutinesApi::class)

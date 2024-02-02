@@ -23,6 +23,7 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.LayerType
 import androidx.compose.ui.awt.LocalLayerContainer
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
@@ -37,12 +38,16 @@ import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
 import androidx.compose.ui.window.sizeInPx
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ComponentEvent
 import java.awt.event.ComponentListener
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
+import java.awt.event.WindowListener
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities
 import kotlin.coroutines.AbstractCoroutineContextElement
@@ -73,7 +78,7 @@ internal class ComposeContainer(
 
     private val useSwingGraphics: Boolean = ComposeFeatureFlags.useSwingGraphics,
     private val layerType: LayerType = ComposeFeatureFlags.layerType,
-) : ComponentListener, WindowFocusListener {
+) : ComponentListener, WindowFocusListener, WindowListener, LifecycleOwner {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
         private set
@@ -119,6 +124,9 @@ internal class ComposeContainer(
         composeSceneFactory = ::createComposeScene,
     )
 
+    private val lifecycleRegistry = LifecycleRegistry(this)
+    override val lifecycle: Lifecycle get() = lifecycleRegistry
+
     val contentComponent by mediator::contentComponent
     val focusManager by mediator::focusManager
     val accessible by mediator::accessible
@@ -133,6 +141,7 @@ internal class ComposeContainer(
     val preferredSize by mediator::preferredSize
 
     init {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         setWindow(window)
         this.windowContainer = windowContainer
 
@@ -143,6 +152,7 @@ internal class ComposeContainer(
 
     fun dispose() {
         mediator.dispose()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         layers.fastForEach(DesktopComposeSceneLayer::close)
     }
 
@@ -159,6 +169,27 @@ internal class ComposeContainer(
         mediator.onChangeWindowFocus()
         layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowFocus)
     }
+
+    override fun windowOpened(e: WindowEvent) {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    }
+
+    override fun windowClosing(e: WindowEvent) = Unit
+
+    override fun windowClosed(e: WindowEvent) {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+    }
+
+    override fun windowIconified(e: WindowEvent) {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    }
+
+    override fun windowDeiconified(e: WindowEvent) {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    }
+
+    override fun windowActivated(e: WindowEvent) = Unit
+    override fun windowDeactivated(e: WindowEvent) = Unit
 
     private fun onChangeWindowBounds() {
         if (!container.isDisplayable) return
@@ -211,8 +242,10 @@ internal class ComposeContainer(
             return
         }
 
+        this.window?.removeWindowListener(this)
         this.window?.removeWindowFocusListener(this)
         window?.addWindowFocusListener(this)
+        window?.addWindowListener(this)
         this.window = window
 
         onChangeWindowFocus()
@@ -334,5 +367,6 @@ private fun ProvideContainerCompositionLocals(
     content: @Composable () -> Unit,
 ) = CompositionLocalProvider(
     LocalLayerContainer provides composeContainer.container,
+    LocalLifecycleOwner provides composeContainer,
     content = content
 )

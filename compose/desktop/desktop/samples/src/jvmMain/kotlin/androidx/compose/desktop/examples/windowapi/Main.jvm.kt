@@ -56,6 +56,7 @@ fun main() = application {
                 Button("setStatus", ::setStatus)
                 Button("hotkeys", ::hotKeys)
                 Button("saveWindowState", ::saveWindowState)
+                Button("lifecycle", ::lifecycle)
             }
             Column {
                 Button("menu", ::menu)
