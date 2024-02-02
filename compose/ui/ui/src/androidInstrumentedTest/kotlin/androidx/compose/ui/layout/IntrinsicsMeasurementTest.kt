@@ -543,4 +543,81 @@ class IntrinsicsMeasurementTest {
             assertThat(placeCount).isEqualTo(1)
         }
     }
+
+    @Test
+    fun measureWidthTooLarge() {
+        var exception: IllegalStateException? = null
+        val measurePolicy: MeasurePolicy = object : MeasurePolicy {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureResult {
+                return layout(0, 0) {}
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int = 1 shl 24
+        }
+        rule.setContent {
+            Layout(
+                Modifier
+                    .layout { measurable, _ ->
+                        try {
+                            measurable.maxIntrinsicWidth(100)
+                        } catch (e: IllegalStateException) {
+                            exception = e
+                        }
+                        layout(0, 0) {}
+                    }
+                    .layout { m, c ->
+                        val p = m.measure(c)
+                        layout(p.width, p.height) {
+                            p.place(0, 0)
+                        }
+                    }, measurePolicy = measurePolicy)
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
+    @Test
+    fun measureHeightTooLarge() {
+        var exception: IllegalStateException? = null
+        val measurePolicy: MeasurePolicy = object : MeasurePolicy {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureResult {
+                return layout(0, 0) {}
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int = 1 shl 24
+        }
+        rule.setContent {
+            Layout(
+                Modifier
+                    .layout { measurable, _ ->
+                        try {
+                            measurable.maxIntrinsicHeight(100)
+                        } catch (e: IllegalStateException) {
+                            exception = e
+                        }
+                        layout(0, 0) {}
+                    }
+                    .layout { m, c ->
+                        val p = m.measure(c)
+                        layout(p.width, p.height) {
+                            p.place(0, 0)
+                        }
+                    }, measurePolicy = measurePolicy
+            )
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
 }
