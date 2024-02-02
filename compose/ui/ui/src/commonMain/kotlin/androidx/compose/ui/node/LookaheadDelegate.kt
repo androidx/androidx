@@ -93,15 +93,33 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
         height: Int,
         alignmentLines: Map<AlignmentLine, Int>,
         placementBlock: PlacementScope.() -> Unit
-    ): MeasureResult = object : MeasureResult {
-        override val width: Int
-            get() = width
-        override val height: Int
-            get() = height
-        override val alignmentLines: Map<AlignmentLine, Int>
-            get() = alignmentLines
+    ): MeasureResult {
+        checkMeasuredSize(width, height)
+        return object : MeasureResult {
+            override val width: Int
+                get() = width
+            override val height: Int
+                get() = height
+            override val alignmentLines: Map<AlignmentLine, Int>
+                get() = alignmentLines
 
-        override fun placeChildren() = placementScope.placementBlock()
+            override fun placeChildren() {
+                placementScope.placementBlock()
+            }
+        }
+    }
+}
+
+// This is about 16 million pixels. That should be big enough. We'll treat anything bigger as an
+// error.
+private const val MaxLayoutDimension = (1 shl 24) - 1
+private const val MaxLayoutMask: Int = 0xFF00_0000.toInt()
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun checkMeasuredSize(width: Int, height: Int) {
+    check(width and MaxLayoutMask == 0 && height and MaxLayoutMask == 0) {
+        "Size($width x $height) is out of range. Each dimension must be between 0 and " +
+            "$MaxLayoutDimension."
     }
 }
 

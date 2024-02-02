@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.IntrinsicsMeasureScope
+import androidx.compose.ui.layout.LargeDimension
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -102,14 +103,16 @@ interface LayoutModifierNode : DelegatableNode {
     fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: Int
-    ): Int = NodeMeasuringIntrinsics.maxWidth(
-        { intrinsicMeasurable, constraints ->
-            measure(intrinsicMeasurable, constraints)
-        },
-        this,
-        measurable,
-        height
-    )
+    ): Int {
+        return NodeMeasuringIntrinsics.maxWidth(
+            { intrinsicMeasurable, constraints ->
+                measure(intrinsicMeasurable, constraints)
+            },
+            this,
+            measurable,
+            height
+        )
+    }
 
     /**
      * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
@@ -256,14 +259,17 @@ internal object NodeMeasuringIntrinsics {
                 } else {
                     measurable.minIntrinsicWidth(constraints.maxHeight)
                 }
-                return EmptyPlaceable(width, constraints.maxHeight)
+                val height =
+                    if (constraints.hasBoundedHeight) constraints.maxHeight else LargeDimension
+                return EmptyPlaceable(width, height)
             }
             val height = if (minMax == IntrinsicMinMax.Max) {
                 measurable.maxIntrinsicHeight(constraints.maxWidth)
             } else {
                 measurable.minIntrinsicHeight(constraints.maxWidth)
             }
-            return EmptyPlaceable(constraints.maxWidth, height)
+            val width = if (constraints.hasBoundedWidth) constraints.maxWidth else LargeDimension
+            return EmptyPlaceable(width, height)
         }
 
         override fun minIntrinsicWidth(height: Int): Int {

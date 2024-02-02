@@ -278,4 +278,38 @@ class MeasureOnlyTest {
             assertThat(view.height).isEqualTo(10)
         }
     }
+
+    @Test
+    fun measureWidthTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            Box(Modifier.layout { _, _ ->
+                try {
+                    layout(1 shl 24, 100) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            })
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
+    @Test
+    fun measureHeightTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            Box(Modifier.layout { _, _ ->
+                try {
+                    layout(100, 1 shl 24) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            })
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
 }
