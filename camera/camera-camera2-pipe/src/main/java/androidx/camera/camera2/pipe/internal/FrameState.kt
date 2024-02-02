@@ -214,12 +214,6 @@ internal class FrameState(
             outputNumber: Long,
             outputResult: OutputResult<FrameInfo>
         ) {
-            val output = outputResult.output
-            check(output == null || output.frameNumber.value == outputNumber) {
-                "Unexpected FrameInfo: $output " +
-                    "Expected ${output?.frameNumber?.value} to match $outputNumber!"
-            }
-
             internalResult.complete(outputResult)
             onFrameInfoComplete()
         }
@@ -245,10 +239,6 @@ internal class FrameState(
         ) {
             val output = outputResult.output
             if (output != null) {
-                check(output.timestamp == outputNumber) {
-                    "Unexpected image: $output! Expected ${output.timestamp} " +
-                        "to match $outputNumber!"
-                }
                 val sharedImage = SharedOutputImage.from(output)
                 if (!internalResult.completeWithOutput(sharedImage)) {
                     sharedImage.close()
