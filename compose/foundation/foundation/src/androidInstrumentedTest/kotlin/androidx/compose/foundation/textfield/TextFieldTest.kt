@@ -43,6 +43,7 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
+import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.input.InputMethodInterceptor
 import androidx.compose.runtime.CompositionLocalProvider
@@ -73,6 +74,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
@@ -141,6 +143,7 @@ import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -1577,6 +1580,57 @@ class TextFieldTest : FocusedWindowTest {
         rule.waitForIdle()
         assertThat(value.text).isEqualTo(tfvAfterBackspace.text)
         assertThat(value.selection).isEqualTo(tfvAfterBackspace.selection)
+    }
+
+    // Regression test for b/322851615
+    @Test
+    fun whenRemeasureInnerTextField_andNotDecorationBox_firstTapPlacesCursorAtCorrectOffset() {
+        var outerTextFieldRecomposed: Boolean
+        val innerDirection = mutableStateOf(LayoutDirection.Ltr)
+        val tfvState = mutableStateOf(TextFieldValue(text = "text"))
+        rule.setTextFieldTestContent {
+            outerTextFieldRecomposed = true
+            BasicTextField(
+                value = tfvState.value,
+                onValueChange = { tfvState.value = it },
+                modifier = Modifier.testTag(Tag),
+                decorationBox = { innerTextField ->
+                    CompositionLocalProvider(
+                        value = LocalLayoutDirection provides innerDirection.value,
+                        content = innerTextField,
+                    )
+                }
+            )
+        }
+
+        // For this test to work, we need to re-measure the inner part of the text field without
+        // causing a re-layout of the core text root box. We do this by changing the layout
+        // direction within the decoration box which will cause a re-layout of only the inner
+        // text field.
+        outerTextFieldRecomposed = false
+        innerDirection.value = LayoutDirection.Rtl
+        rule.waitForIdle()
+        innerDirection.value = LayoutDirection.Ltr
+        rule.waitForIdle()
+
+        // Failing here indicates that the strategy in use to put the text field into a
+        // state that could cause the regression has failed, making this test pointless.
+        // If a CL makes this test fail in pre-submit, this test can likely be marked as ignored,
+        // and then we can later come up with a new way to make this test, if necessary.
+        assertWithMessage("Outer text field should not recompose.")
+            .that(outerTextFieldRecomposed)
+            .isFalse()
+
+        val targetOffset = 2
+
+        val node = rule.onNodeWithTag(Tag)
+        val textLayoutResult = node.fetchTextLayoutResult()
+        val offset = textLayoutResult.getBoundingBox(targetOffset).centerLeft
+
+        node.performTouchInput { click(offset) }
+        rule.waitForIdle()
+
+        assertThat(tfvState.value.selection).isEqualTo(TextRange(targetOffset))
     }
 }
 
