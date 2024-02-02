@@ -172,6 +172,7 @@ class SessionProcessorManager(
 
     internal fun onCaptureSessionStart(requestProcessor: RequestProcessor) {
         sessionProcessor.onCaptureSessionStart(requestProcessor)
+        startRepeating(object : CaptureCallback {})
     }
 
     internal fun startRepeating(captureCallback: CaptureCallback) {

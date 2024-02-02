@@ -36,7 +36,6 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
-import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
@@ -62,7 +61,6 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.OutputConfig.SURFACE_GROUP_ID_NONE
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import androidx.camera.core.impl.SessionProcessor
-import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.stabilization.StabilizationMode
 import javax.inject.Inject
 import javax.inject.Provider
@@ -421,19 +419,6 @@ class UseCaseManager @Inject constructor(
                 control.useCaseCamera = camera
             }
 
-            if (sessionProcessorEnabled) {
-                val sessionProcessorSurfaces =
-                    sessionConfigAdapter.deferrableSurfaces.map {
-                        it as SessionProcessorSurface
-                    }
-                val requestProcessorAdapter = RequestProcessorAdapter(
-                    useCaseGraphConfig!!,
-                    sessionConfigAdapter.getValidSessionConfigOrNull(),
-                    sessionProcessorSurfaces,
-                    useCaseThreads.get().scope,
-                )
-                checkNotNull(sessionProcessorManager).onCaptureSessionStart(requestProcessorAdapter)
-            }
             camera?.setActiveResumeMode(activeResumeEnabled)
 
             refreshRunningUseCases()
