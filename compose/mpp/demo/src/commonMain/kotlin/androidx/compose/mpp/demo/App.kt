@@ -30,7 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.mpp.demo.bug.BugReproducers
 import androidx.compose.mpp.demo.components.Components
-import androidx.compose.mpp.demo.layers.PlatformLayers
 import androidx.compose.mpp.demo.textfield.android.AndroidTextFieldSamples
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.dp
 val MainScreen = Screen.Selection(
     "Demo",
     Components,
-    PlatformLayers,
     BugReproducers,
     Screen.Example("Example1") { Example1() },
     Screen.Example("ImageViewer") { ImageViewer() },

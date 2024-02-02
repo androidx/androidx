@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo.layers
+package androidx.compose.mpp.demo.components.popup
 
 import androidx.compose.mpp.demo.Screen
-import androidx.compose.mpp.demo.components.dialog.DialogWithTextField
-import androidx.compose.mpp.demo.components.dialog.FocusAndKeyInput
+import androidx.compose.mpp.demo.components.material3.ButtonWithDropdown
+import androidx.compose.mpp.demo.components.material3.TextFieldWithExposedDropdown
+import androidx.compose.ui.window.Popup
 
-/**
- * Test cases for platform layers
- * TODO remove after stabilizing platformLayers feature
- */
-val PlatformLayers = Screen.Selection(
-    "PlatformLayers",
-    DialogWithTextField,
-    FocusAndKeyInput,
+val Popups = Screen.Selection(
+    "Popups",
+    Screen.Example("ConfigurablePopup") { ConfigurablePopup() },
+    FixedSizePopup,
+    HalfScreenPopup,
+    Screen.Example("Dropdown inside Popup") {
+        Popup {
+            ButtonWithDropdown(5)
+        }
+    },
+    Screen.Example("ExposedDropdownMenuBox inside Popup") {
+        Popup {
+            TextFieldWithExposedDropdown()
+        }
+    }
 )

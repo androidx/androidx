@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,12 +41,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownMenu3Example() {
+internal fun DropdownMenu3Example() {
     Column(Modifier.padding(5.dp)) {
 
         Spacer(Modifier.height(50.dp))
@@ -60,64 +60,74 @@ fun DropdownMenu3Example() {
             horizontalArrangement = Arrangement.spacedBy(100.dp)
         ) {
             repeat(10) {
-                Column {
-                    var expanded by remember { mutableStateOf(false) }
-                    Button(
-                        onClick = { expanded = true },
-                        modifier = Modifier.width(180.dp)
-                    ) {
-                        Text("DropdownMenu3")
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier.width(180.dp),
-                        properties = PopupProperties(focusable = false)
-                    ) {
-                        repeat(it + 5) {
-                            DropdownMenuItem(
-                                text = { Text("Item $it") },
-                                onClick = { expanded = false }
-                            )
-                        }
-                    }
-                }
+                ButtonWithDropdown(it + 5)
             }
         }
 
         Spacer(Modifier.height(50.dp))
         Text("ExposedDropdownMenu")
+        TextFieldWithExposedDropdown()
+    }
+}
 
-        val options = List(5) { "Item $it" }
+@Composable
+internal fun ButtonWithDropdown(elementsCount: Int, width: Dp = 180.dp) {
+    Column {
         var expanded by remember { mutableStateOf(false) }
-        var selectedOptionText by remember { mutableStateOf(options[0]) }
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
+        Button(
+            onClick = { expanded = true },
+            modifier = Modifier.width(width)
         ) {
-            TextField(
-                modifier = Modifier.menuAnchor(),
-                readOnly = true,
-                value = selectedOptionText,
-                onValueChange = {},
-                label = { Text("ExposedDropdownMenuBox3") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-            ) {
-                options.forEach { selectionOption ->
-                    DropdownMenuItem(
-                        text = { Text(selectionOption) },
-                        onClick = {
-                            selectedOptionText = selectionOption
-                            expanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                    )
-                }
+            Text("DropdownMenu3")
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.width(width),
+            properties = PopupProperties(focusable = false)
+        ) {
+            repeat(elementsCount) {
+                DropdownMenuItem(
+                    text = { Text("Item $it") },
+                    onClick = { expanded = false }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun TextFieldWithExposedDropdown() {
+    val options = List(5) { "Item $it" }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(options[0]) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+    ) {
+        TextField(
+            modifier = Modifier.menuAnchor(),
+            readOnly = true,
+            value = selectedOptionText,
+            onValueChange = {},
+            label = { Text("ExposedDropdownMenuBox3") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            options.forEach { selectionOption ->
+                DropdownMenuItem(
+                    text = { Text(selectionOption) },
+                    onClick = {
+                        selectedOptionText = selectionOption
+                        expanded = false
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
             }
         }
     }

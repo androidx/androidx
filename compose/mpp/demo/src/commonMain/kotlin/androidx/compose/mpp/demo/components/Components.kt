@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import androidx.compose.mpp.demo.components.material3.DropdownMenu3Example
 import androidx.compose.mpp.demo.components.material3.ModalBottomSheet3Example
 import androidx.compose.mpp.demo.components.material3.ModalNavigationDrawerExample
 import androidx.compose.mpp.demo.components.material3.SearchBarExample
+import androidx.compose.mpp.demo.components.popup.Popups
 import androidx.compose.mpp.demo.textfield.TextFields
-import androidx.compose.ui.graphics.Color
 
 private val MaterialComponents = Screen.Selection(
     "material",
@@ -50,7 +50,7 @@ private val Material3Components = Screen.Selection(
 
 val Components = Screen.Selection(
     "Components",
-    Screen.Example("Popup") { PopupExample() },
+    Popups,
     Dialogs,
     TextFields,
     LazyLayouts,
