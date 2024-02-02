@@ -62,6 +62,7 @@ package androidx.compose.animation {
   }
 
   public final class AnimationModifierKt {
+    method public static androidx.compose.ui.Modifier animateContentSize(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> animationSpec, optional androidx.compose.ui.Alignment alignment, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.IntSize,? super androidx.compose.ui.unit.IntSize,kotlin.Unit>? finishedListener);
     method public static androidx.compose.ui.Modifier animateContentSize(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> animationSpec, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.IntSize,? super androidx.compose.ui.unit.IntSize,kotlin.Unit>? finishedListener);
   }
 

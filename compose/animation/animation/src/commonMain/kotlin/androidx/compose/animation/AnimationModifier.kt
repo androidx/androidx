@@ -27,6 +27,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -71,23 +72,61 @@ fun Modifier.animateContentSize(
     ),
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null
 ): Modifier =
-    this.clipToBounds() then SizeAnimationModifierElement(animationSpec, finishedListener)
+    this.clipToBounds() then
+        SizeAnimationModifierElement(animationSpec, Alignment.TopStart, finishedListener)
+
+/**
+ * This modifier animates its own size when its child modifier (or the child composable if it
+ * is already at the tail of the chain) changes size. This allows the parent modifier to observe
+ * a smooth size change, resulting in an overall continuous visual change.
+ *
+ * A [FiniteAnimationSpec] can be optionally specified for the size change animation. By default,
+ * [spring] will be used.
+ *
+ * An optional [finishedListener] can be supplied to get notified when the size change animation is
+ * finished. Since the content size change can be dynamic in many cases, both initial value and
+ * target value (i.e. final size) will be passed to the [finishedListener]. __Note:__ if the
+ * animation is interrupted, the initial value will be the size at the point of interruption. This
+ * is intended to help determine the direction of the size change (i.e. expand or collapse in x and
+ * y dimensions).
+ *
+ * @sample androidx.compose.animation.samples.AnimateContent
+ *
+ * @param animationSpec a finite animation that will be used to animate size change, [spring] by
+ *                      default
+ * @param alignment sets the alignment of the content during the animation. [Alignment.TopStart] by
+ *                  default.
+ * @param finishedListener an optional listener to be called when the content change animation is
+ *                         completed.
+ */
+fun Modifier.animateContentSize(
+    animationSpec: FiniteAnimationSpec<IntSize> = spring(
+        stiffness = Spring.StiffnessMediumLow
+    ),
+    alignment: Alignment = Alignment.TopStart,
+    finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
+): Modifier =
+    this.clipToBounds() then
+        SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
 
 private data class SizeAnimationModifierElement(
     val animationSpec: FiniteAnimationSpec<IntSize>,
+    val alignment: Alignment,
     val finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)?
 ) : ModifierNodeElement<SizeAnimationModifierNode>() {
     override fun create(): SizeAnimationModifierNode =
-        SizeAnimationModifierNode(animationSpec, finishedListener)
+        SizeAnimationModifierNode(animationSpec, alignment, finishedListener)
 
     override fun update(node: SizeAnimationModifierNode) {
         node.animationSpec = animationSpec
         node.listener = finishedListener
+        node.alignment = alignment
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "animateContentSize"
         properties["animationSpec"] = animationSpec
+        properties["alignment"] = alignment
         properties["finishedListener"] = finishedListener
     }
 }
@@ -102,6 +141,7 @@ internal val IntSize.isValid: Boolean
  */
 private class SizeAnimationModifierNode(
     var animationSpec: AnimationSpec<IntSize>,
+    var alignment: Alignment = Alignment.TopStart,
     var listener: ((startSize: IntSize, endSize: IntSize) -> Unit)? = null
 ) : LayoutModifierNodeWithPassThroughIntrinsics() {
     private var lookaheadSize: IntSize = InvalidSize
@@ -163,7 +203,12 @@ private class SizeAnimationModifierNode(
             }
         }
         return layout(width, height) {
-            placeable.placeRelative(0, 0)
+            val offset = alignment.align(
+                size = measuredSize,
+                space = IntSize(width, height),
+                layoutDirection = this@measure.layoutDirection
+            )
+            placeable.placeRelative(offset)
         }
     }
 
