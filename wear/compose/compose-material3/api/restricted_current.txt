@@ -89,12 +89,14 @@ package androidx.wear.compose.material3 {
   }
 
   public final class CardDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors cardColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors cardColors(optional long containerColor, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     method public float getAppImageSize();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors imageCardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageWithScrimBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedCardBorder(optional long outlineColor, optional float borderWidth);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors outlinedCardColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors outlinedCardColors(optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     property public final float AppImageSize;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
@@ -686,7 +688,9 @@ package androidx.wear.compose.material3 {
 
   public final class ToggleButtonDefaults {
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitToggleButtonColors splitToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitToggleButtonColors splitToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedSplitContainerColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedSplitContainerColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedSplitContainerColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedSplitContainerColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ToggleButtonColors toggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ToggleButtonColors toggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedIconColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedIconColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedIconColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedIconColor);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material3.ToggleButtonDefaults INSTANCE;
