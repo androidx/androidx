@@ -37,6 +37,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
 internal fun Modifier.cupertinoTextFieldPointer(
@@ -108,14 +109,25 @@ private fun getTapHandlerModifier(
                     )
                     if (currentState.handleState != HandleState.Selection) {
                         currentState.layoutResult?.let { layoutResult ->
-                            TextFieldDelegate.cupertinoSetCursorOffsetFocused(
-                                position = touchPointOffset,
-                                textLayoutResult = layoutResult,
-                                editProcessor = currentState.processor,
-                                offsetMapping = currentOffsetMapping,
-                                showContextMenu = {},
-                                onValueChange = currentState.onValueChange
-                            )
+                            // TODO: Research native behavior with any text transformations (which adds symbols like with using NSNumberFormatter)
+                            if (manager.visualTransformation != VisualTransformation.None) {
+                                TextFieldDelegate.setCursorOffset(
+                                    touchPointOffset,
+                                    layoutResult,
+                                    currentState.processor,
+                                    currentOffsetMapping,
+                                    currentState.onValueChange
+                                )
+                            } else {
+                                TextFieldDelegate.cupertinoSetCursorOffsetFocused(
+                                    position = touchPointOffset,
+                                    textLayoutResult = layoutResult,
+                                    editProcessor = currentState.processor,
+                                    offsetMapping = currentOffsetMapping,
+                                    showContextMenu = {},
+                                    onValueChange = currentState.onValueChange
+                                )
+                            }
                         }
                     } else {
                         currentManager.deselect(touchPointOffset)

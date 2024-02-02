@@ -114,6 +114,7 @@ internal class ComposeSceneInputHandler(
             button,
         )
         prepareForPointerInputEvent()
+        updatePointerPosition()
         syntheticEventSender.send(event)
         updatePointerPositions(event)
     }
@@ -123,7 +124,7 @@ internal class ComposeSceneInputHandler(
         return processKeyEvent(keyEvent)
     }
 
-    fun onLayout() {
+    fun updatePointerPosition() {
         syntheticEventSender.updatePointerPosition()
     }
 

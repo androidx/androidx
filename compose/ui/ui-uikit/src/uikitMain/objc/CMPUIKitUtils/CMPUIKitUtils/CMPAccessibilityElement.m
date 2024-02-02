@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Overrides default accessibilityContainer implementation.
 - (__nullable id)accessibilityContainer {
     // see https://github.com/flutter/flutter/issues/87247
-    // TODO: investigate if this bug is still present on supported iOS versions, if it's not, fuse `accessibilityContainer` and `resolveAccessibilityContainer` implementations into a single one (like in `CMPAccessibilityContainer`)
+    // TODO: investigate if this bug is still present on iOS versions supported by Compose, if it's not, fuse `accessibilityContainer` and `resolveAccessibilityContainer` implementations into a single one (like in `CMPAccessibilityContainer`)
     if (_inDealloc) {
         return nil;
     }
@@ -60,8 +60,48 @@ NS_ASSUME_NONNULL_BEGIN
     return [object accessibilityContainer];
 }
 
+- (NSArray<UIAccessibilityCustomAction *> *)accessibilityCustomActions {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (UIAccessibilityTraits)accessibilityTraits {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (NSString *__nullable)accessibilityIdentifier {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (NSString *__nullable)accessibilityHint {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (NSString *__nullable)accessibilityLabel {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (NSString *__nullable)accessibilityValue {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (CGRect)accessibilityFrame {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (BOOL)isAccessibilityElement {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
 - (BOOL)accessibilityActivate {
     CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (BOOL)accessibilityScroll:(UIAccessibilityScrollDirection)direction {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (void)accessibilityElementDidBecomeFocused {
+    [super accessibilityElementDidBecomeFocused];
 }
 
 @end

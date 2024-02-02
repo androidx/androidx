@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo.components
+package androidx.compose.mpp.demo.components.popup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -61,11 +61,12 @@ import androidx.compose.ui.window.PopupProperties
 import kotlin.math.roundToInt
 
 @Composable
-fun PopupExample() {
+fun ConfigurablePopup() {
     val scrollState = rememberScrollState()
-    Column(Modifier
-        .padding(5.dp)
-        .verticalScroll(scrollState)
+    Column(
+        Modifier
+            .padding(5.dp)
+            .verticalScroll(scrollState)
     ) {
         val properties = EditPopupProperties()
         val fillMaxSize = EditBooleanSetting("fillMaxSize", false)
@@ -107,7 +108,8 @@ fun PopupExample() {
                     Modifier.size(400.dp, 300.dp)
                 }
                 Box(modifier
-                    .background(Color.Yellow)
+                    .background(Color.Yellow.copy(0.8f))
+                    .border(2.dp, Color.Green)
                     .clickable { open = false }
                 ) {
                     val contentModifier = if (windowInsets) {

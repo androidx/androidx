@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ typedef NS_ENUM(NSInteger, CMPViewControllerLifecycleState) {
 - (void)scheduleHierarchyContainmentCheck {
     double delayInSeconds = 0.5;
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{        
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         switch (self->_lifecycleState) {
             case CMPViewControllerLifecycleStateInitalized:
             case CMPViewControllerLifecycleStateDestroyed:

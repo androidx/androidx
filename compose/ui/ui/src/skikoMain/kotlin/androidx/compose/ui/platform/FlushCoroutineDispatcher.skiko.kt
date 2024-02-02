@@ -76,12 +76,20 @@ internal class FlushCoroutineDispatcher(
      * performing in the [scope]
      */
     fun flush() = performRun {
-        synchronized(tasksLock) {
-            tasksCopy.addAll(tasks)
-            tasks.clear()
+        // Run tasks until they're empty in order to executed even ones that are added by the tasks
+        // pending at the start
+        while (true) {
+            synchronized(tasksLock) {
+                if (tasks.isEmpty())
+                    return@performRun
+
+                tasksCopy.addAll(tasks)
+                tasks.clear()
+            }
+
+            tasksCopy.forEach(Runnable::run)
+            tasksCopy.clear()
         }
-        tasksCopy.forEach(Runnable::run)
-        tasksCopy.clear()
     }
 
     // the lock is needed to be certain that all tasks will be completed after `flush` method

@@ -17,6 +17,7 @@
 package androidx.compose.ui.uikit
 
 import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.ui.platform.AccessibilitySyncOptions
 
 /**
  * Configuration of ComposeUIViewController behavior.
@@ -31,11 +32,21 @@ class ComposeUIViewControllerConfiguration {
      * Reassign this property with an object implementing [ComposeUIViewControllerDelegate] to receive
      * UIViewController lifetime events.
      */
-    var delegate = object : ComposeUIViewControllerDelegate {}
+    var delegate: ComposeUIViewControllerDelegate = object : ComposeUIViewControllerDelegate {}
 
     @ExperimentalComposeApi
     var platformLayers: Boolean = true
 
+    /**
+     * @see [AccessibilitySyncOptions]
+     *
+     * By default, accessibility sync is enabled when required by accessibility services and debug
+     * logging is disabled.
+     */
+    @ExperimentalComposeApi
+    var accessibilitySyncOptions: AccessibilitySyncOptions =
+        AccessibilitySyncOptions.WhenRequiredByAccessibilityServices(debugLogger = null)
+        
     /**
      * Determines whether the Compose view should have an opaque background.
      * Warning: disabling opaque layer may affect performance.

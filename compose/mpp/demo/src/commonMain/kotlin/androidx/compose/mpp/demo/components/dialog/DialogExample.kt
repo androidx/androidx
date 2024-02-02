@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo.components
+package androidx.compose.mpp.demo.components.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,6 +38,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
+import androidx.compose.mpp.demo.Screen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,13 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
-@Composable
-fun DialogExample() {
-
+internal val DialogExample = Screen.Example("Dialog", backgroundColor = Color.Transparent) {
     val scrollState = rememberScrollState()
-    Column(Modifier
-        .padding(5.dp)
-        .verticalScroll(scrollState)
+    Column(
+        Modifier
+            .padding(5.dp)
+            .verticalScroll(scrollState)
     ) {
         val properties = EditDialogProperties()
         val fillMaxSize = EditBooleanSetting("fillMaxSize", false)

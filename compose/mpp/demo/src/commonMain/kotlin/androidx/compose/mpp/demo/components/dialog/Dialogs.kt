@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+package androidx.compose.mpp.demo.components.dialog
 
-//! Project version number for CMPUIKitUtils.
-FOUNDATION_EXPORT double CMPUIKitUtilsVersionNumber;
+import androidx.compose.mpp.demo.Screen
 
-//! Project version string for CMPUIKitUtils.
-FOUNDATION_EXPORT const unsigned char CMPUIKitUtilsVersionString[];
-
-#import "CMPViewController.h"
-#import "CMPAccessibilityElement.h"
-#import "CMPAccessibilityContainer.h"
+val Dialogs = Screen.Selection(
+    "Dialogs",
+    DialogExample,
+    DialogWithTextField,
+    FocusAndKeyInput,
+)
