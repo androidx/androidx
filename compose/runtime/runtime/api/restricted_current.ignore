@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.runtime.Composer#endReplaceGroup():
+    Added method androidx.compose.runtime.Composer.endReplaceGroup()
+AddedAbstractMethod: androidx.compose.runtime.Composer#startReplaceGroup(int):
+    Added method androidx.compose.runtime.Composer.startReplaceGroup(int)
 AddedAbstractMethod: androidx.compose.runtime.ControlledComposition#abandonChanges():
     Added method androidx.compose.runtime.ControlledComposition.abandonChanges()
 
