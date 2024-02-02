@@ -375,6 +375,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     var runApiTasks: RunApiTasks = RunApiTasks.Auto
         get() = if (field == RunApiTasks.Auto && type != LibraryType.UNSET) type.checkApi else field
 
+    var doNotDocumentReason: String? = null
+
     var type: LibraryType = LibraryType.UNSET
     var failOnDeprecationWarnings = true
 

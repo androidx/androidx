@@ -342,11 +342,13 @@ dependencies {
     docs(project(":slice:slice-view"))
     docs(project(":slidingpanelayout:slidingpanelayout"))
     docs(project(":sqlite:sqlite"))
+    kmpDocs(project(":sqlite:sqlite-bundled"))
     docs(project(":sqlite:sqlite-framework"))
     docs(project(":sqlite:sqlite-ktx"))
     docs(project(":startup:startup-runtime"))
     docs(project(":swiperefreshlayout:swiperefreshlayout"))
     // androidx.test is not hosted in androidx
+    docs(project(":test:ext:junit-gtest"))
     docs(project(":test:uiautomator:uiautomator"))
     // androidx.textclassifier is not hosted in androidx
     docs(project(":tracing:tracing"))
