@@ -16,8 +16,8 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
-import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -36,7 +36,7 @@ import org.junit.runners.JUnit4
 class AidlValueGeneratorTest {
     @Test
     fun generate() {
-        val innerValue = AnnotatedValue(
+        val innerValue = AnnotatedDataClass(
             Type(packageName = "com.mysdk", simpleName = "InnerValue"),
             listOf(
                 ValueProperty("intProperty", Types.int),
@@ -45,7 +45,7 @@ class AidlValueGeneratorTest {
                 ValueProperty("maybeFloatProperty", Types.float.asNullable()),
             )
         )
-        val outerValue = AnnotatedValue(
+        val outerValue = AnnotatedDataClass(
             Type(packageName = "com.mysdk", simpleName = "OuterValue"),
             listOf(
                 ValueProperty("innerValue", innerValue.type),

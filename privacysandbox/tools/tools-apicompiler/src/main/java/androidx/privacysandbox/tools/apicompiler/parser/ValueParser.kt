@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler.parser
 
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import com.google.devtools.ksp.isPublic
@@ -60,7 +61,7 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
             )
         }
 
-        return AnnotatedValue(
+        return AnnotatedDataClass(
             type = typeParser.parseFromDeclaration(value),
             properties = value.getAllProperties().map(::parseProperty).toList()
         )

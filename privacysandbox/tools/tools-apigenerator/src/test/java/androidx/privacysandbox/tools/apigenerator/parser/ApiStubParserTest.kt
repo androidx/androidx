@@ -17,8 +17,8 @@
 package androidx.privacysandbox.tools.apigenerator.parser
 
 import androidx.privacysandbox.tools.apigenerator.mergedClasspath
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
-import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -83,20 +83,20 @@ class ApiStubParserTest {
                 """.trimMargin(),
         )
 
-        val expectedPayloadType = AnnotatedValue(
+        val expectedPayloadType = AnnotatedDataClass(
             type = Type("com.mysdk", "PayloadType"),
             properties = listOf(
                 ValueProperty("size", Types.long),
                 ValueProperty("appId", Types.string),
             )
         )
-        val expectedPayloadRequest = AnnotatedValue(
+        val expectedPayloadRequest = AnnotatedDataClass(
             type = Type("com.mysdk", "PayloadRequest"),
             properties = listOf(
                 ValueProperty("type", expectedPayloadType.type),
             )
         )
-        val expectedPayloadResponse = AnnotatedValue(
+        val expectedPayloadResponse = AnnotatedDataClass(
             type = Type("com.mysdk", "PayloadResponse"),
             properties = listOf(
                 ValueProperty("url", Types.string),

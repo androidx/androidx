@@ -18,8 +18,8 @@ package androidx.privacysandbox.tools.apicompiler.parser
 
 import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
 import androidx.privacysandbox.tools.apicompiler.util.parseSources
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
-import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -37,7 +37,7 @@ import org.junit.runners.JUnit4
 class ValueParserTest {
 
     @Test
-    fun parseValues_ok() {
+    fun parseDataClass_ok() {
         val source = Source.kotlin(
             "com/mysdk/MySdk.kt", """
                     package com.mysdk
@@ -74,14 +74,14 @@ class ValueParserTest {
                     )
                 ),
                 values = setOf(
-                    AnnotatedValue(
+                    AnnotatedDataClass(
                         type = Type(packageName = "com.mysdk", simpleName = "MySdkRequest"),
                         properties = listOf(
                             ValueProperty("id", Types.int),
                             ValueProperty("message", Types.string.asNullable()),
                         )
                     ),
-                    AnnotatedValue(
+                    AnnotatedDataClass(
                         type = Type(packageName = "com.mysdk", simpleName = "MySdkResponse"),
                         properties = listOf(
                             ValueProperty(
@@ -91,7 +91,7 @@ class ValueParserTest {
                             ValueProperty("isTrulyMagic", Types.boolean),
                         )
                     ),
-                    AnnotatedValue(
+                    AnnotatedDataClass(
                         type = Type(packageName = "com.mysdk", simpleName = "MagicPayload"),
                         properties = listOf(ValueProperty("magicList", Types.list(Types.long)))
                     ),

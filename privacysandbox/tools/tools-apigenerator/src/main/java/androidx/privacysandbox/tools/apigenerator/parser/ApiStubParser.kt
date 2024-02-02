@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apigenerator.parser
 
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
@@ -86,7 +87,7 @@ internal object ApiStubParser {
                     "@PrivacySandboxValue."
             )
         }
-        return AnnotatedValue(type, parseProperties(type, value))
+        return AnnotatedDataClass(type, parseProperties(type, value))
     }
 
     /** Parses properties and sorts them based on the order of constructor parameters. */

@@ -16,8 +16,8 @@
 
 package androidx.privacysandbox.tools.core.validator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
-import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -82,7 +82,7 @@ class ModelValidatorTest {
                 )
             ),
             values = setOf(
-                AnnotatedValue(
+                AnnotatedDataClass(
                     type = Type(packageName = "com.mysdk", simpleName = "Foo"),
                     properties = listOf(
                         ValueProperty(
@@ -91,7 +91,7 @@ class ModelValidatorTest {
                         )
                     ),
                 ),
-                AnnotatedValue(
+                AnnotatedDataClass(
                     type = Type(packageName = "com.mysdk", simpleName = "Bar"),
                     properties = emptyList(),
                 )
@@ -312,7 +312,7 @@ class ModelValidatorTest {
                 AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
             ),
             values = setOf(
-                AnnotatedValue(
+                AnnotatedDataClass(
                     type = Type(packageName = "com.mysdk", simpleName = "Foo"),
                     properties = listOf(
                         ValueProperty("bar", Type("com.mysdk", "Bar"))
