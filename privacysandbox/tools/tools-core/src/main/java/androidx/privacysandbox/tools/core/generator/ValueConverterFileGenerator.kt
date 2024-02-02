@@ -19,7 +19,7 @@ package androidx.privacysandbox.tools.core.generator
 import androidx.privacysandbox.tools.core.generator.GenerationTarget.SERVER
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
-import androidx.privacysandbox.tools.core.model.AnnotatedValue
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -42,7 +42,7 @@ class ValueConverterFileGenerator(
         const val fromParcelableMethodName = "fromParcelable"
     }
 
-    fun generate(value: AnnotatedValue) =
+    fun generate(value: AnnotatedDataClass) =
         FileSpec.builder(
             value.converterNameSpec().packageName,
             value.converterNameSpec().simpleName
@@ -51,7 +51,7 @@ class ValueConverterFileGenerator(
             addType(generateConverter(value))
         }
 
-    private fun generateConverter(value: AnnotatedValue): TypeSpec {
+    private fun generateConverter(value: AnnotatedDataClass): TypeSpec {
         if (target == SERVER) {
             return TypeSpec.classBuilder(value.converterNameSpec()).build {
                 primaryConstructor(
@@ -70,7 +70,7 @@ class ValueConverterFileGenerator(
         }
     }
 
-    private fun generateToParcelable(value: AnnotatedValue) =
+    private fun generateToParcelable(value: AnnotatedDataClass) =
         FunSpec.builder(toParcelableMethodName).build {
             addParameter("annotatedValue", value.type.poetTypeName())
             returns(value.parcelableNameSpec())
@@ -90,7 +90,7 @@ class ValueConverterFileGenerator(
             )
         }
 
-    private fun generateFromParcelable(value: AnnotatedValue) =
+    private fun generateFromParcelable(value: AnnotatedDataClass) =
         FunSpec.builder(fromParcelableMethodName).build {
             addParameter("parcelable", value.parcelableNameSpec())
             returns(value.type.poetTypeName())

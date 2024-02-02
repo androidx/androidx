@@ -16,8 +16,8 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
-import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
@@ -36,7 +36,7 @@ class ServerBinderCodeConverterTest {
                 )
             ),
             values = setOf(
-                AnnotatedValue(
+                AnnotatedDataClass(
                     type = Type(packageName = "com.mysdk", simpleName = "Value"),
                     properties = listOf()
                 )
