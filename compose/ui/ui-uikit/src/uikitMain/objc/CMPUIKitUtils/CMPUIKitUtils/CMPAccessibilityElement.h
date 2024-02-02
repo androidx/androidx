@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,27 @@ NS_ASSUME_NONNULL_BEGIN
 // Redeclared to make it visible to Kotlin for override purposes, workaround for the following issue:
 // https://youtrack.jetbrains.com/issue/KT-56001/Kotlin-Native-import-Objective-C-category-members-as-class-members-if-the-category-is-located-in-the-same-file
 
--(BOOL)accessibilityActivate CMP_MUST_BE_OVERRIDED;
+- (NSArray<UIAccessibilityCustomAction *> *)accessibilityCustomActions CMP_MUST_BE_OVERRIDED;
+
+- (UIAccessibilityTraits)accessibilityTraits CMP_MUST_BE_OVERRIDED;
+
+- (NSString *__nullable)accessibilityIdentifier CMP_MUST_BE_OVERRIDED;
+
+- (NSString *__nullable)accessibilityHint CMP_MUST_BE_OVERRIDED;
+
+- (NSString *__nullable)accessibilityLabel CMP_MUST_BE_OVERRIDED;
+
+- (NSString *__nullable)accessibilityValue CMP_MUST_BE_OVERRIDED;
+
+- (CGRect)accessibilityFrame CMP_MUST_BE_OVERRIDED;
+
+- (BOOL)isAccessibilityElement CMP_MUST_BE_OVERRIDED;
+
+- (BOOL)accessibilityActivate CMP_MUST_BE_OVERRIDED;
+
+- (void)accessibilityElementDidBecomeFocused;
+
+- (BOOL)accessibilityScroll:(UIAccessibilityScrollDirection)direction CMP_MUST_BE_OVERRIDED;
 
 @end
 
