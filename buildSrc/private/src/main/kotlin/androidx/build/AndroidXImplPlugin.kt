@@ -59,6 +59,7 @@ import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import com.android.build.gradle.tasks.factory.AndroidUnitTest
 import java.io.File
 import java.time.Duration
+import java.time.LocalDateTime
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -471,6 +472,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                         )
                 }
                 task.kotlinOptions.freeCompilerArgs += kotlinCompilerArgs
+                logScriptSources(task, project)
             }
 
             val isAndroidProject =
@@ -578,6 +580,30 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             AndroidMultiplatformApiTaskConfig,
             androidXExtension
         )
+    }
+
+    /**
+     * Temporary diagnostics for b/321949384
+     */
+    private fun logScriptSources(task: KotlinCompile, project: Project) {
+        if (getBuildId() == "0")
+            return // don't need to log when not running on the build server
+        val logFile = File(project.getDistributionDirectory(), "KotlinCompile-scriptSources.log")
+        fun writeScriptSources(label: String) {
+            val now = LocalDateTime.now()
+            @Suppress("INVISIBLE_MEMBER")
+            val scriptSources = task.scriptSources.files
+            logFile.appendText(
+                "${task.path} $label at $now with ${scriptSources.size} scriptSources: " +
+                "${scriptSources.joinToString()}\n"
+            )
+        }
+        task.doFirst {
+            writeScriptSources("starting")
+        }
+        task.doLast {
+            writeScriptSources("completed")
+        }
     }
 
     /**
