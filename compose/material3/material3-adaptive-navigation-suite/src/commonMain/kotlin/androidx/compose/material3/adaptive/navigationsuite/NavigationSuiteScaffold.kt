@@ -42,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -491,9 +492,9 @@ internal constructor(
 )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal expect val WindowAdaptiveInfoDefault: WindowAdaptiveInfo
+internal val WindowAdaptiveInfoDefault
     @Composable
-    get
+    get() = currentWindowAdaptiveInfo()
 
 private interface NavigationSuiteItemProvider {
     val itemsCount: Int
