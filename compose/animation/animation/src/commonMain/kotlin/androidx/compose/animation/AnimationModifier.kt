@@ -23,6 +23,7 @@ import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +69,8 @@ import kotlinx.coroutines.launch
  */
 fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(
-        stiffness = Spring.StiffnessMediumLow
+        stiffness = Spring.StiffnessMediumLow,
+        visibilityThreshold = IntSize.VisibilityThreshold
     ),
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null
 ): Modifier =
@@ -101,7 +103,8 @@ fun Modifier.animateContentSize(
  */
 fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(
-        stiffness = Spring.StiffnessMediumLow
+        stiffness = Spring.StiffnessMediumLow,
+        visibilityThreshold = IntSize.VisibilityThreshold
     ),
     alignment: Alignment = Alignment.TopStart,
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
