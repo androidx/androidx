@@ -1,3 +1,5 @@
 // Baseline format: 1.0
-RemovedClass: androidx.compose.ui.draganddrop.DragAndDropKt:
-    Removed class androidx.compose.ui.draganddrop.DragAndDropKt
+AddedMethod: androidx.compose.ui.semantics.SemanticsActions#getPerformImeAction():
+    Added method androidx.compose.ui.semantics.SemanticsActions.getPerformImeAction()
+AddedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String, kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Added method androidx.compose.ui.semantics.SemanticsPropertiesKt.performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver,String,kotlin.jvm.functions.Function0<java.lang.Boolean>)
