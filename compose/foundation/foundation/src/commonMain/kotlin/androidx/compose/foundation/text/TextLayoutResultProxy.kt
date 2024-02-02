@@ -21,7 +21,18 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
 
-internal class TextLayoutResultProxy(val value: TextLayoutResult) {
+internal class TextLayoutResultProxy(
+    val value: TextLayoutResult,
+    /*
+     * Measured bounds of the decoration box and inner text field. Together used to
+     * calculate the relative touch offset. Because touches are applied on the decoration box, we
+     * need to translate it to the inner text field coordinates.
+     */
+    /** The coordinates of the inner part of the text field, where the text is displayed. */
+    var innerTextFieldCoordinates: LayoutCoordinates? = null,
+    /** The coordinates of the decoration box, the outer bounds of the text field. */
+    var decorationBoxCoordinates: LayoutCoordinates? = null,
+) {
     // TextLayoutResult methods
     /**
      * Translates the position of the touch on the screen to the position in text. Because touch
@@ -65,14 +76,6 @@ internal class TextLayoutResultProxy(val value: TextLayoutResult) {
         return relativeOffset.x >= value.getLineLeft(line) &&
             relativeOffset.x <= value.getLineRight(line)
     }
-
-    // Shift offset
-    /** Measured bounds of the decoration box and inner text field. Together used to
-     * calculate the relative touch offset. Because touches are applied on the decoration box, we
-     * need to translate it to the inner text field coordinates.
-     */
-    var innerTextFieldCoordinates: LayoutCoordinates? = null
-    var decorationBoxCoordinates: LayoutCoordinates? = null
 
     /**
      * Translates the given [offset] from decoration box coordinates

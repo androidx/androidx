@@ -679,9 +679,8 @@ internal fun CoreTextField(
                             measurables: List<Measurable>,
                             constraints: Constraints
                         ): MeasureResult {
-                            val prevResult = Snapshot.withoutReadObservation {
-                                state.layoutResult?.value
-                            }
+                            val prevProxy = Snapshot.withoutReadObservation { state.layoutResult }
+                            val prevResult = prevProxy?.value
                             val (width, height, result) = TextFieldDelegate.layout(
                                 state.textDelegate,
                                 constraints,
@@ -689,7 +688,10 @@ internal fun CoreTextField(
                                 prevResult
                             )
                             if (prevResult != result) {
-                                state.layoutResult = TextLayoutResultProxy(result)
+                                state.layoutResult = TextLayoutResultProxy(
+                                    value = result,
+                                    decorationBoxCoordinates = prevProxy?.decorationBoxCoordinates,
+                                )
                                 onTextLayout(result)
                                 notifyFocusedRect(state, value, offsetMapping)
                             }
