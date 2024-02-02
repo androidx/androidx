@@ -16,24 +16,29 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="15.dp">
 
     <TextView
         android:id="@+id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"/>
+        android:layout_weight="0"
+        android:text="@string/compose_in_android_dynamically_loading_compose_using_window_manager_title"/>
 
     <TextView
         android:id="@+id/text2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"/>
+        android:layout_weight="0"
+        android:text="@string/compose_in_android_dynamically_loading_compose_using_window_manager_details"/>
 
     <Button
         android:id="@+id/button"
-        android:text="Click to unload/load ComposeView"
+        android:text="@string/compose_in_android_dynamically_loading_compose_using_window_manager_button_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"/>
+        android:layout_weight="0"
+        android:paddingEnd="10.dp"/>
+
 </LinearLayout>
