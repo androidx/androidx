@@ -733,6 +733,11 @@ internal class AndroidComposeView(
 
     override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
         if (focusOwner.rootState.hasFocus) return true
+
+        // b/318968220 When we clear focus on Pre P devices, request focus is called even when we
+        // are in touch mode. We fix this by assigning initial focus only in non-touch mode.
+        if (isInTouchMode) return false
+
         return focusOwner.takeFocus(
             focusDirection = toFocusDirection(direction) ?: Enter,
             previouslyFocusedRect = previouslyFocusedRect?.toComposeRect()
