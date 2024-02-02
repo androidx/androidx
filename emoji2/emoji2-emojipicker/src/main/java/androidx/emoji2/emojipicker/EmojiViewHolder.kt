@@ -64,7 +64,7 @@ internal class EmojiViewHolder(
     private fun showEmojiPopup(context: Context, clickedEmojiView: View): Boolean {
         val emojiPickerPopupView = EmojiPickerPopupView(
             context, /* attrs= */null, targetEmojiView = clickedEmojiView,
-            variants = emojiViewItem.variants, emojiViewOnClickListener = { view ->
+            targetEmojiItem = emojiViewItem, emojiViewOnClickListener = { view ->
                 val emojiPickedInPopup = (view as EmojiView).emoji.toString()
                 onEmojiPickedFromPopupListener(emojiPickedInPopup)
                 onEmojiPickedListener(makeEmojiViewItem(emojiPickedInPopup))
