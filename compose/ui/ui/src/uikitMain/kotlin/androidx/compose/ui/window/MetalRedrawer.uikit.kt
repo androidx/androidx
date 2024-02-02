@@ -25,14 +25,11 @@ import androidx.compose.ui.util.trace
 import kotlin.math.roundToInt
 import kotlinx.cinterop.*
 import org.jetbrains.skia.*
-import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSRunLoop
 import platform.Foundation.NSSelectorFromString
 import platform.Foundation.NSThread
 import platform.Metal.MTLCommandBufferProtocol
 import platform.QuartzCore.*
-import platform.UIKit.UIApplicationDidEnterBackgroundNotification
-import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.darwin.*
 import org.jetbrains.skia.Rect
 import platform.Foundation.NSLock
@@ -106,51 +103,6 @@ private class DisplayLinkConditions(
          * displayLink is not paused by the end of RuntimeLoop tick.
          */
         const val FRAMES_COUNT_TO_SCHEDULE_ON_NEED_REDRAW = 2
-    }
-}
-
-private class ApplicationStateListener(
-    /**
-     * Callback which will be called with `true` when the app becomes active, and `false` when the app goes background
-     */
-    private val callback: (Boolean) -> Unit
-) : NSObject() {
-    init {
-        val notificationCenter = NSNotificationCenter.defaultCenter
-
-        notificationCenter.addObserver(
-            this,
-            NSSelectorFromString(::applicationWillEnterForeground.name),
-            UIApplicationWillEnterForegroundNotification,
-            null
-        )
-
-        notificationCenter.addObserver(
-            this,
-            NSSelectorFromString(::applicationDidEnterBackground.name),
-            UIApplicationDidEnterBackgroundNotification,
-            null
-        )
-    }
-
-    @ObjCAction
-    fun applicationWillEnterForeground() {
-        callback(true)
-    }
-
-    @ObjCAction
-    fun applicationDidEnterBackground() {
-        callback(false)
-    }
-
-    /**
-     * Deregister from [NSNotificationCenter]
-     */
-    fun dispose() {
-        val notificationCenter = NSNotificationCenter.defaultCenter
-
-        notificationCenter.removeObserver(this, UIApplicationWillEnterForegroundNotification, null)
-        notificationCenter.removeObserver(this, UIApplicationDidEnterBackgroundNotification, null)
     }
 }
 
@@ -292,7 +244,7 @@ internal class MetalRedrawer(
         // and won't receive UIApplicationWillEnterForegroundNotification
         // so we compare the state with UIApplicationStateBackground instead of UIApplicationStateActive
         displayLinkConditions.isApplicationActive =
-            UIApplication.sharedApplication.applicationState != UIApplicationState.UIApplicationStateBackground
+            ApplicationStateListener.isApplicationActive
 
         caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoopCommonModes)
 
