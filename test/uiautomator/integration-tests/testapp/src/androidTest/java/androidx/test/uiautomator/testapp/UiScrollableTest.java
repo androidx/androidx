@@ -28,7 +28,6 @@ import androidx.test.uiautomator.UiSelector;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class UiScrollableTest extends BaseTest {
@@ -203,7 +202,6 @@ public class UiScrollableTest extends BaseTest {
         assertEquals(5, scrollable.getMaxSearchSwipes());
     }
 
-    @Ignore // b/266965027
     @Test
     public void testFlingForward() throws Exception {
         launchTestActivity(FlingTestActivity.class);
@@ -241,7 +239,6 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(scrollRegion.scrollForward());
     }
 
-    @Ignore // b/266965027
     @Test
     public void testFlingBackward() throws Exception {
         launchTestActivity(FlingTestActivity.class);
@@ -324,7 +321,6 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(topText.exists());
     }
 
-    @Ignore // b/266965027
     @Test
     public void testFlingToBeginning() throws Exception {
         launchTestActivity(FlingTestActivity.class);
@@ -378,7 +374,6 @@ public class UiScrollableTest extends BaseTest {
         assertTrue(bottomText.exists());
     }
 
-    @Ignore // b/266965027
     @Test
     public void testFlingToEnd() throws Exception {
         launchTestActivity(FlingTestActivity.class);

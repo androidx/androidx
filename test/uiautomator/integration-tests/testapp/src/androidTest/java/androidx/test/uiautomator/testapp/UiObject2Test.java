@@ -45,7 +45,6 @@ import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
 import org.junit.Assume;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -752,7 +751,6 @@ public class UiObject2Test extends BaseTest {
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
 
-    @Ignore // b/266617335
     @Test
     public void testFling_direction() {
         launchTestActivity(FlingTestActivity.class);
@@ -768,7 +766,6 @@ public class UiObject2Test extends BaseTest {
         assertTrue(flingRegion.wait(Until.textEquals("fling_left"), TIMEOUT_MS));
     }
 
-    @Ignore // b/281821418
     @Test
     public void testFling_directionAndSpeed() {
         launchTestActivity(FlingTestActivity.class);
