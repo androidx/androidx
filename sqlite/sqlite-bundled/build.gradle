@@ -24,6 +24,7 @@
 import androidx.build.AndroidXConfig
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
+import androidx.build.ProjectLayoutType
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
@@ -33,6 +34,8 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
+
+apply(from: "PrepareSqliteSourcesTask.groovy")
 
 // List of flags we use to compile SQLite.
 // See: https://www.sqlite.org/compile.html
@@ -55,25 +58,40 @@ def SQLITE_COMPILE_FLAGS = [
         "-DSQLITE_THREADSAFE=2",
 ]
 
-// Copy SQLite sources into a build directory. Even though this is not needed, it will be
-// nice to have them there so that we can swap them with SQLite amalgamation for Github.
-// TODO(b/306669673): Support GitHub builds
-def copySqliteSourcesTask = tasks.register("copySqliteSources", Copy) {
-    from(new File(AndroidXConfig.getExternalProjectPath(project), "sqlite/dist/orig")) {
-        include "sqlite3.c"
-        include "sqlite3.h"
+// see PrepareSqliteSourcesTask.groovy for implementation details of the register method
+// This task prepares a directory to build sqlite and bundle it with the artifact.
+// SQLite is in public domain: https://www.sqlite.org/copyright.html.
+// Including it inside the library implies relicencing it to Apache 2.0.
+def prepareSqliteSourcesTask = registerPrepareSqliteSourcesTask(
+        project, // project
+        "prepareSqliteSourcesTask" // task name
+) {
+    it.sqliteVersion.set("3.42.0")
+    it.sqliteReleaseYear.set(2023)
+    it.destinationDirectory.set(project.layout.buildDirectory.dir("sqlite3/src"))
+    if (!ProjectLayoutType.isPlayground(project)) {
+        it.sqlitePrebuiltsDirectory.set(
+                new File(AndroidXConfig.getExternalProjectPath(project), "sqlite/dist/orig")
+        )
     }
-    into(project.layout.buildDirectory.dir("sqlite3/src"))
 }
 
 configurations {
-    // Configuration for producing an shareable archive file of compiled SQLite. Only the Linux X64
+    // Configuration for producing a shareable archive file of compiled SQLite. Only the Linux X64
     // target of SQLite is produced hence the explicit name and attributes
     linuxSharedArchive {
         canBeConsumed = true
         canBeResolved = false
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.NATIVE_LINK))
+        }
+    }
+    // Configuration for producing a shareable directory that includes SQLite amalgamation sources.
+    sqliteSources {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, "sqlite-amalgamation"))
         }
     }
 }
@@ -99,12 +117,12 @@ androidXMultiplatform {
         configureEachTarget { nativeCompilation ->
             // add SQLite header
             nativeCompilation.includes.from(
-                    copySqliteSourcesTask.map { it.destinationDir }
+                    prepareSqliteSourcesTask.map { it.destinationDirectory }
             )
             // add SQLite sources
             nativeCompilation.sources.from(
-                    copySqliteSourcesTask.map {
-                        fileTree(it.destinationDir).matching { include "**/*.c" }
+                    prepareSqliteSourcesTask.map {
+                        fileTree(it.destinationDirectory).matching { include "**/*.c" }
                     }
             )
             // add SQLite compile flags
@@ -125,6 +143,10 @@ androidXMultiplatform {
             sqliteCompilation.sharedArchiveOutputFor(KonanTarget.LINUX_X64.INSTANCE)
         )
     }
+    artifacts.add(
+        "sqliteSources",
+        prepareSqliteSourcesTask.map { it.destinationDirectory }
+    )
 
     // Defince C++ compilation of JNI
     def jvmArtJniImplementation = createNativeCompilation("jvmArtJniImplementation") {
@@ -133,7 +155,7 @@ androidXMultiplatform {
             nativeCompilation.addJniHeaders()
             // add SQLite headers
             nativeCompilation.includes.from(
-                    copySqliteSourcesTask.map {it.destinationDir }
+                    prepareSqliteSourcesTask.map {it.destinationDirectory }
             )
             // add our JNI sources, i.e. the SQLite bindings
             nativeCompilation.sources.from(
