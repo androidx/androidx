@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.model.AnnotatedValue
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -26,13 +26,13 @@ import com.squareup.kotlinpoet.TypeSpec
  * Generates a file that defines a previously declared SDK value.
  */
 class ValueFileGenerator {
-    fun generate(value: AnnotatedValue) =
+    fun generate(value: AnnotatedDataClass) =
         FileSpec.builder(value.type.packageName, value.type.simpleName).build {
             addCommonSettings()
             addType(generateValue(value))
         }
 
-    private fun generateValue(value: AnnotatedValue) =
+    private fun generateValue(value: AnnotatedDataClass) =
         TypeSpec.classBuilder(value.type.poetClassName()).build {
             addModifiers(KModifier.DATA)
             primaryConstructor(value.properties.map {

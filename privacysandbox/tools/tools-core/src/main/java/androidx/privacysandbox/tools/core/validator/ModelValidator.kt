@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.validator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -113,6 +114,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
 
     private fun validateValuePropertyTypes() {
         for (value in api.values) {
+            if (value !is AnnotatedDataClass) { continue }
             for (property in value.properties) {
                 if (!isValidValuePropertyType(property.type)) {
                     errors.add(

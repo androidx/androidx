@@ -48,7 +48,11 @@ private fun AnnotatedInterface.containsSdkActivityLauncher(): Boolean {
 }
 
 private fun AnnotatedValue.containsSdkActivityLauncher(): Boolean =
-    properties.any { it.type.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
+    when (this) {
+        is AnnotatedEnumClass -> false
+        is AnnotatedDataClass ->
+            properties.any { it.type.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
+    }
 
 object Types {
     val unit = Type(packageName = "kotlin", simpleName = "Unit")
