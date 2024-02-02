@@ -36,11 +36,8 @@ class UncontainedTest {
             carouselMainAxisSize = carouselSize,
             itemSize = itemSize,
             itemSpacing = 0f
-        )!!
-        val strategy = Strategy.create(
-            carouselMainAxisSize = carouselSize,
-            keylineList = keylineList
         )
+        val strategy = Strategy { keylineList }.apply(carouselSize)
         val keylines = strategy.getDefaultKeylines()
         val anchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
 
@@ -62,11 +59,8 @@ class UncontainedTest {
             carouselMainAxisSize = carouselSize,
             itemSize = itemSize,
             itemSpacing = 0f
-        )!!
-        val strategy = Strategy.create(
-            carouselMainAxisSize = carouselSize,
-            keylineList = keylineList
         )
+        val strategy = Strategy { keylineList }.apply(carouselSize)
         val keylines = strategy.getDefaultKeylines()
         val anchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
 
@@ -91,11 +85,8 @@ class UncontainedTest {
             carouselMainAxisSize = carouselSize,
             itemSize = itemSize,
             itemSpacing = 0f
-        )!!
-        val strategy = Strategy.create(
-            carouselMainAxisSize = carouselSize,
-            keylineList = keylineList
         )
+        val strategy = Strategy { keylineList }.apply(carouselSize)
         val keylines = strategy.getDefaultKeylines()
 
         // The layout should be [xSmall-large-large-large-medium-xSmall] where medium is a size
@@ -127,11 +118,8 @@ class UncontainedTest {
             carouselMainAxisSize = carouselSize,
             itemSize = itemSize,
             itemSpacing = 0f
-        )!!
-        val strategy = Strategy.create(
-            carouselMainAxisSize = carouselSize,
-            keylineList = keylineList
         )
+        val strategy = Strategy { keylineList }.apply(carouselSize)
         val keylines = strategy.getDefaultKeylines()
 
         // The layout should be [xSmall-large-large-large-medium-xSmall]

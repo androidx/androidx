@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -48,7 +47,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 class CarouselTest {
 
     private lateinit var carouselState: CarouselState
@@ -90,6 +89,17 @@ class CarouselTest {
         }
     }
 
+    @Test
+    fun carousel_testInitialItem() {
+        // Arrange
+        createCarousel(initialItem = 5, orientation = Orientation.Horizontal)
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(carouselState.pagerState.currentPage).isEqualTo(5)
+        }
+    }
+
     @Composable
     internal fun Item(index: Int) {
         Box(
@@ -119,14 +129,14 @@ class CarouselTest {
             Carousel(
                 state = state,
                 orientation = orientation,
-                keylineList = { multiBrowseKeylineList(
-                    density,
-                    state.pagerState.layoutInfo.viewportSize.let {
-                        if (orientation == Orientation.Horizontal) it.width else it.height
-                    }.toFloat(),
-                    preferredItemSize = with(density) { 186.dp.toPx() },
-                    itemSpacing = 0f
-                ) },
+                keylineList = { availableSpace ->
+                    multiBrowseKeylineList(
+                        density = density,
+                        carouselMainAxisSize = availableSpace,
+                        preferredItemSize = with(density) { 186.dp.toPx() },
+                        itemSpacing = 0f,
+                    )
+                },
                 modifier = modifier.testTag(CarouselTestTag),
                 itemSpacing = 0.dp,
                 content = content,
