@@ -20,11 +20,14 @@ import androidx.build.AndroidXExtension
 import androidx.build.Release
 import androidx.build.RunApiTasks
 import androidx.build.Version
+import androidx.build.addToBuildOnServer
+import androidx.build.docs.CheckTipOfTreeDocsTask
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.java.JavaCompileInputs
 import androidx.build.metalava.MetalavaTasks
 import androidx.build.resources.ResourceTasks
 import androidx.build.stableaidl.setupWithStableAidlPlugin
+import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.tasks.ProcessLibraryManifest
@@ -140,6 +143,22 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
     afterEvaluate {
         if (!extension.shouldConfigureApiTasks()) {
             return@afterEvaluate
+        }
+
+        // Require docs to be set up unless opted-out
+        if (extension.doNotDocumentReason == null) {
+            val checkDocs = project.tasks.register(
+                "checkDocsTipOfTree",
+                CheckTipOfTreeDocsTask::class.java
+            ) { task ->
+                task.tipOfTreeBuildFile.set(
+                    project.rootProject.layout.projectDirectory
+                        .file("docs-tip-of-tree/build.gradle")
+                )
+                task.projectPathProvider.set(path)
+                task.cacheEvenIfNoOutputs()
+            }
+            project.addToBuildOnServer(checkDocs)
         }
 
         val builtApiLocation = project.getBuiltApiLocation()
