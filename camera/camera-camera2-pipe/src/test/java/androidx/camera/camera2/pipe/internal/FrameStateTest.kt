@@ -187,6 +187,20 @@ class FrameStateTest {
     }
 
     @Test
+    fun frameInfoResultCanBeCompletedWithAResultWithADifferentFrameNumber() {
+        frameState.frameInfoOutput.onOutputComplete(
+            FrameNumber(1),
+            frameTimestamp,
+            10,
+            1,
+            OutputResult.from(fakeFrameInfo)
+        )
+
+        assertThat(frameState.frameInfoOutput.status).isEqualTo(OutputStatus.AVAILABLE)
+        assertThat(frameState.frameInfoOutput.outputOrNull()).isSameInstanceAs(fakeFrameInfo)
+    }
+
+    @Test
     fun frameInfoResultAfterCanceledIsNull() {
         frameState.frameInfoOutput.decrement()
         frameState.frameInfoOutput.onOutputComplete(
