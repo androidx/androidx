@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.macrobenchmark.test
+package androidx.wear.benchmark.integration.macrobenchmark
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-
-internal val CONTENT_DESCRIPTION = "find-me"
 
 internal fun disableChargingExperience() {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
