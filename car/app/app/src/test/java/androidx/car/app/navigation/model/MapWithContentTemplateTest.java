@@ -77,8 +77,11 @@ public class MapWithContentTemplateTest {
         return new PaneTemplate.Builder(new Pane.Builder()
                 .addRow(row1)
                 .build())
-                .setTitle("Title")
-                .setHeaderAction(Action.BACK)
+                .setHeader(
+                        new Header.Builder()
+                                .setTitle("Title")
+                                .setStartHeaderAction(Action.BACK)
+                                .build())
                 .build();
     }
 

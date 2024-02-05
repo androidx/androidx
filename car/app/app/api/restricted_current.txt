@@ -1505,18 +1505,20 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PaneTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method public androidx.car.app.model.Action? getHeaderAction();
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.Pane getPane();
-    method public androidx.car.app.model.CarText? getTitle();
+    method @Deprecated public androidx.car.app.model.CarText? getTitle();
   }
 
   public static final class PaneTemplate.Builder {
     ctor public PaneTemplate.Builder(androidx.car.app.model.Pane);
     method public androidx.car.app.model.PaneTemplate build();
-    method public androidx.car.app.model.PaneTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.model.PaneTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
-    method public androidx.car.app.model.PaneTemplate.Builder setTitle(CharSequence);
+    method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.PaneTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setTitle(CharSequence);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ParkedOnlyOnClickListener implements androidx.car.app.model.OnClickListener {

@@ -26,8 +26,9 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -50,22 +51,55 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class PaneTemplate implements Template {
+
+    /**
+     * @deprecated use {@link Header.Builder#setTitle(CarText)}; mHeader replaces the need
+     * for this field.
+     */
+    @Deprecated
     @Nullable
     private final CarText mTitle;
     @Nullable
     private final Pane mPane;
+    /**
+     * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
+     * need for this field.
+     */
+    @Deprecated
     @Nullable
     private final Action mHeaderAction;
+    /**
+     * @deprecated use {@link Header.Builder#addEndHeaderAction(Action)} for each action; mHeader
+     * replaces the need for this field.
+     */
+    @Deprecated
     @Nullable
     private final ActionStrip mActionStrip;
+
+    /**
+     * Represents a Header object to set the startHeaderAction, the title and the endHeaderActions
+     *
+     * @see MessageTemplate.Builder#setHeader(Header)
+     */
+    @Nullable
+    @RequiresCarApi(7)
+    private final Header mHeader;
+
 
     /**
      * Returns the title of the template or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
+     *
+     * @deprecated use {@link Header.Builder#setTitle(CarText)}; mHeader replaces the need
+     * for this field.
      */
+    @Deprecated
     @Nullable
     public CarText getTitle() {
+        if (mHeader != null && mHeader.getTitle() != null) {
+            return mHeader.getTitle();
+        }
         return mTitle;
     }
 
@@ -74,9 +108,16 @@ public final class PaneTemplate implements Template {
      * {@code null} if not set.
      *
      * @see Builder#setHeaderAction(Action)
+     *
+     * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
+     * need for this field.
      */
+    @Deprecated
     @Nullable
     public Action getHeaderAction() {
+        if (mHeader != null && mHeader.getStartHeaderAction() != null) {
+            return mHeader.getStartHeaderAction();
+        }
         return mHeaderAction;
     }
 
@@ -84,9 +125,20 @@ public final class PaneTemplate implements Template {
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
      * @see Builder#setActionStrip(ActionStrip)
+     *
+     * @deprecated use {@link Header.Builder#addEndHeaderAction(Action) for each action}; mHeader
+     * replaces the need for this field.
      */
+    @Deprecated
     @Nullable
     public ActionStrip getActionStrip() {
+        if (mHeader != null && !mHeader.getEndHeaderActions().isEmpty()) {
+            ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
+            for (Action action: mHeader.getEndHeaderActions()) {
+                actionStripBuilder.addAction(action);
+            }
+            return actionStripBuilder.build();
+        }
         return mActionStrip;
     }
 
@@ -100,6 +152,17 @@ public final class PaneTemplate implements Template {
         return requireNonNull(mPane);
     }
 
+    /**
+     * Returns the {@link Header} to display in this template.
+     *
+     * @see PaneTemplate.Builder#setHeader(Header)
+     */
+    @RequiresCarApi(7)
+    @Nullable
+    public Header getHeader() {
+        return mHeader;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -108,7 +171,7 @@ public final class PaneTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mPane, mHeaderAction, mActionStrip);
+        return Objects.hash(mTitle, mPane, mHeaderAction, mActionStrip, mHeader);
     }
 
     @Override
@@ -124,7 +187,8 @@ public final class PaneTemplate implements Template {
         return Objects.equals(mTitle, otherTemplate.mTitle)
                 && Objects.equals(mPane, otherTemplate.mPane)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
+                && Objects.equals(mHeader, otherTemplate.mHeader);
     }
 
     PaneTemplate(Builder builder) {
@@ -132,6 +196,7 @@ public final class PaneTemplate implements Template {
         mPane = builder.mPane;
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
+        mHeader = builder.mHeader;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -140,6 +205,7 @@ public final class PaneTemplate implements Template {
         mPane = null;
         mHeaderAction = null;
         mActionStrip = null;
+        mHeader = null;
     }
 
     /** A builder of {@link PaneTemplate}. */
@@ -151,6 +217,8 @@ public final class PaneTemplate implements Template {
         Action mHeaderAction;
         @Nullable
         ActionStrip mActionStrip;
+        @Nullable
+        Header mHeader;
 
         /**
          * Sets the title of the template.
@@ -163,11 +231,42 @@ public final class PaneTemplate implements Template {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
+         *
+         * @deprecated Use {@link Header.Builder#setTitle(CarText)}
          */
+        @Deprecated
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_AND_ICON.validateOrThrow(mTitle);
+            return this;
+        }
+
+        /**
+         * Sets the {@link Header} for this template.
+         *
+         * <p>The end header actions will show up differently inside vs outside of a map template.
+         * See {@link Header.Builder#addEndHeaderAction} for more details.</p>
+         *
+         * @throws NullPointerException if {@code header} is null
+         */
+        @NonNull
+        @RequiresCarApi(7)
+        public Builder setHeader(@NonNull Header header) {
+            if (header.getStartHeaderAction() != null) {
+                mHeaderAction = header.getStartHeaderAction();
+            }
+            if (header.getTitle() != null) {
+                mTitle = header.getTitle();
+            }
+            if (!header.getEndHeaderActions().isEmpty()) {
+                ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
+                for (Action action: header.getEndHeaderActions()) {
+                    actionStripBuilder.addAction(action);
+                }
+                mActionStrip = actionStripBuilder.build();
+            }
+            mHeader = header;
             return this;
         }
 
@@ -184,7 +283,10 @@ public final class PaneTemplate implements Template {
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
+         *
+         * @deprecated Use {@link Header.Builder#setStartHeaderAction(Action)}
          */
+        @Deprecated
         @NonNull
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
@@ -206,7 +308,10 @@ public final class PaneTemplate implements Template {
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
+         *
+         * @deprecated Use {@link Header.Builder#addEndHeaderAction(Action) for each action}
          */
+        @Deprecated
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
