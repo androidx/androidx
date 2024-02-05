@@ -16,6 +16,8 @@
 
 package androidx.compose.material
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -1273,11 +1275,15 @@ class ModalBottomSheetTest {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
-        assertThat(sheetState.anchoredDraggableState.anchors
-            .hasAnchorFor(ModalBottomSheetValue.HalfExpanded))
+        assertThat(
+            sheetState.anchoredDraggableState.anchors
+                .hasAnchorFor(ModalBottomSheetValue.HalfExpanded)
+        )
             .isFalse()
-        assertThat(sheetState.anchoredDraggableState.anchors
-            .hasAnchorFor(ModalBottomSheetValue.Expanded))
+        assertThat(
+            sheetState.anchoredDraggableState.anchors
+                .hasAnchorFor(ModalBottomSheetValue.Expanded)
+        )
             .isFalse()
 
         scope.launch { sheetState.show() }
@@ -1327,5 +1333,103 @@ class ModalBottomSheetTest {
 
         assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Expanded)
         assertThat(sheetState.hasHalfExpandedState).isFalse()
+    }
+
+    @Test
+    fun modalBottomSheet_show_animatesToHalfExpandedFirstAndToExpandedAfter() {
+        lateinit var state: ModalBottomSheetState
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+            scope = rememberCoroutineScope()
+            ModalBottomSheetLayout(
+                sheetState = state,
+                sheetContent = { Box(Modifier.fillMaxSize()) },
+                content = { Box(Modifier.fillMaxSize()) }
+            )
+        }
+
+        assertThat(state.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
+        scope.launch { state.show() }
+        rule.waitForIdle()
+
+        assertThat(state.currentValue)
+            .isEqualTo(ModalBottomSheetValue.HalfExpanded)
+
+        scope.launch { state.show() }
+        rule.waitForIdle()
+        assertThat(state.currentValue)
+            .isEqualTo(ModalBottomSheetValue.Expanded)
+
+        // Call show again to verify that we stay at Expanded
+        scope.launch { state.show() }
+        rule.waitForIdle()
+        assertThat(state.currentValue)
+            .isEqualTo(ModalBottomSheetValue.Expanded)
+    }
+
+    @Test
+    fun modalBottomSheetLayout_progress() {
+        rule.mainClock.autoAdvance = false
+        lateinit var state: ModalBottomSheetState
+        lateinit var scope: CoroutineScope
+        val animationLengthMillis = 192
+        val amountOfFramesForAnimation = animationLengthMillis / 16
+        rule.setContent {
+            state = rememberModalBottomSheetState(
+                ModalBottomSheetValue.Hidden,
+                tween(animationLengthMillis, easing = LinearEasing)
+            )
+            scope = rememberCoroutineScope()
+            ModalBottomSheetLayout(
+                sheetState = state,
+                sheetContent = { Box(Modifier.fillMaxSize()) },
+                content = { Box(Modifier.fillMaxSize()) }
+            )
+        }
+
+        assertThat(state.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
+        assertThat(state.targetValue).isEqualTo(ModalBottomSheetValue.Hidden)
+        assertThat(state.progress(
+            from = ModalBottomSheetValue.Hidden, to = ModalBottomSheetValue.Expanded
+        )).isEqualTo(0f)
+
+        scope.launch { state.show() }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val hiddenToHalfExpandedProgress = state.progress(
+                from = ModalBottomSheetValue.Hidden, to = ModalBottomSheetValue.HalfExpanded
+            )
+            val hiddenToExpandedProgress = state.progress(
+                from = ModalBottomSheetValue.Hidden, to = ModalBottomSheetValue.Expanded
+            )
+            assertThat(hiddenToHalfExpandedProgress).isWithin(0.001f).of(frameFraction)
+            assertThat(hiddenToExpandedProgress).isWithin(0.001f).of(frameFraction / 2f)
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        scope.launch { state.hide() }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val hiddenToHalfExpandedProgress = state.progress(
+                from = ModalBottomSheetValue.Hidden, to = ModalBottomSheetValue.HalfExpanded
+            )
+            val hiddenToExpandedProgress = state.progress(
+                from = ModalBottomSheetValue.Hidden, to = ModalBottomSheetValue.Expanded
+            )
+            assertThat(hiddenToHalfExpandedProgress).isWithin(0.001f).of(1 - frameFraction)
+            // We start hiding from HalfExpanded, which in this test is situated at 50%, so we
+            // calculate the progress from 0.5
+            assertThat(hiddenToExpandedProgress).isWithin(0.001f).of(0.5f - (frameFraction / 2f))
+            rule.mainClock.advanceTimeByFrame()
+        }
     }
 }
