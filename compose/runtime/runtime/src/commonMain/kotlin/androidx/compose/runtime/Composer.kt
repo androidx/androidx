@@ -1597,6 +1597,7 @@ internal class ComposerImpl(
         finalizeCompose()
         reader.close()
         forciblyRecompose = false
+        providersInvalid = providersInvalidStack.pop().asBool()
     }
 
     /**
@@ -3928,6 +3929,12 @@ internal class ComposerImpl(
     @Suppress("NOTHING_TO_INLINE")
     private inline fun updateCompoundKeyWhenWeExitGroupKeyHash(groupKey: Int, rGroupIndex: Int) {
         compoundKeyHash = (((compoundKeyHash xor rGroupIndex) ror 3) xor groupKey.hashCode()) ror 3
+    }
+
+    // This is only used in tests to ensure the stacks do not silently leak.
+    internal fun stacksSize(): Int {
+        return entersStack.size + invalidateStack.size + providersInvalidStack.size +
+            pendingStack.size + parentStateStack.size
     }
 
     override val recomposeScope: RecomposeScope? get() = currentRecomposeScope
