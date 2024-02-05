@@ -22,6 +22,7 @@ import androidx.build.RunApiTasks
 import androidx.build.Version
 import androidx.build.addToBuildOnServer
 import androidx.build.docs.CheckTipOfTreeDocsTask
+import androidx.build.getSupportRootFolder
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.java.JavaCompileInputs
 import androidx.build.metalava.MetalavaTasks
@@ -152,8 +153,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                 CheckTipOfTreeDocsTask::class.java
             ) { task ->
                 task.tipOfTreeBuildFile.set(
-                    project.rootProject.layout.projectDirectory
-                        .file("docs-tip-of-tree/build.gradle")
+                    project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")
                 )
                 task.projectPathProvider.set(path)
                 task.cacheEvenIfNoOutputs()
