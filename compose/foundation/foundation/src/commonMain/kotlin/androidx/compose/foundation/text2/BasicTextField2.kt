@@ -189,7 +189,9 @@ fun BasicTextField2(
     // lambda.
 ) {
     // TODO https://youtrack.jetbrains.com/issue/COMPOSE-740/Implement-BasicTextField2
-    println("Compose Multiplatform doesn't support BasicTextField2 yet")
+    println("Compose Multiplatform doesn't support BasicTextField2 yet. " +
+        "Follow https://github.com/JetBrains/compose-multiplatform/issues/4218")
+
     val state = remember {
         TextFieldState(
             initialText = value,
@@ -336,7 +338,8 @@ fun BasicTextField2(
     // lambda.
 ) {
     // TODO https://youtrack.jetbrains.com/issue/COMPOSE-740/Implement-BasicTextField2
-    println("Compose Multiplatform doesn't support BasicTextField2 yet")
+    println("Compose Multiplatform doesn't support BasicTextField2 yet. " +
+        "Follow https://github.com/JetBrains/compose-multiplatform/issues/4218")
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val windowInfo = LocalWindowInfo.current

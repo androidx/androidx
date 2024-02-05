@@ -63,7 +63,8 @@ fun Modifier.dragAndDropSource(
     block: suspend DragAndDropSourceScope.() -> Unit
 ): Modifier {
     // TODO https://youtrack.jetbrains.com/issue/COMPOSE-743/Implement-commonMain-Dragdrop-developed-in-AOSP
-    println("Compose Multiplatform doesn't support Modifier.dragAndDropSource yet")
+    println("Compose Multiplatform doesn't support Modifier.dragAndDropSource yet. " +
+        "Follow https://github.com/JetBrains/compose-multiplatform/issues/4235")
     return this then DragAndDropSourceElement(
         drawDragDecoration = drawDragDecoration,
         dragAndDropSourceHandler = block,
