@@ -328,13 +328,16 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         private List<Pair<CaptureResult.Key, Object>> getFilteredResults(
                 TotalCaptureResult captureResult) {
             List<Pair<CaptureResult.Key, Object>> list = new ArrayList<>();
-            for (CaptureResult.Key key : captureResult.getKeys()) {
-                list.add(new Pair<>(key, captureResult.get(key)));
+            if (captureResult.get(CaptureResult.JPEG_ORIENTATION) != null) {
+                list.add(new Pair<>(CaptureResult.JPEG_ORIENTATION,
+                        captureResult.get(CaptureResult.JPEG_ORIENTATION)));
             }
-
+            if (captureResult.get(CaptureResult.JPEG_QUALITY) != null) {
+                list.add(new Pair<>(CaptureResult.JPEG_QUALITY,
+                        captureResult.get(CaptureResult.JPEG_QUALITY)));
+            }
             return list;
         }
-
 
         @Override
         public void onResolutionUpdate(@NonNull Size size) {
