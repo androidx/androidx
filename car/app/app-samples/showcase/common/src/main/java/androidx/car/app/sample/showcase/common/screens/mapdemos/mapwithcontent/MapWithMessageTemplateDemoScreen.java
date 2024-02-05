@@ -28,6 +28,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.MapController;
@@ -56,8 +57,9 @@ public class MapWithMessageTemplateDemoScreen extends Screen {
 
         MessageTemplate messageTemplate = new MessageTemplate.Builder("Continue to Google "
                 + "Kirkland Urban WA 98101?")
-                .setHeaderAction(Action.BACK)
-                .setTitle("Drive to Google Kirkland")
+                .setHeader(new Header.Builder().setStartHeaderAction(Action.BACK)
+                        .setTitle("Drive to Google Kirkland")
+                        .build())
                 .setIcon(new CarIcon.Builder(
                         IconCompat.createWithResource(
                                 getCarContext(),

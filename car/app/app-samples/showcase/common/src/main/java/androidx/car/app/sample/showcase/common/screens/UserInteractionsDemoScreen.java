@@ -24,6 +24,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
@@ -185,7 +186,9 @@ public final class UserInteractionsDemoScreen extends Screen {
 
         return new MessageTemplate.Builder(
                 getCarContext().getString(R.string.task_limit_reached_msg))
-                .setHeaderAction(BACK)
+                .setHeader(new Header.Builder().setTitle(getCarContext()
+                                .getString(R.string.latest_feature_title))
+                        .setStartHeaderAction(Action.BACK).build())
                 .addAction(
                         new Action.Builder()
                                 .setTitle(getCarContext().getString(

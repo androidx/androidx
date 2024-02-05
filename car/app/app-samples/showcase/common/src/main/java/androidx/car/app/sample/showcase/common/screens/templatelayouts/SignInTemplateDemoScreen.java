@@ -30,6 +30,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.InputCallback;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
@@ -118,9 +119,9 @@ public class SignInTemplateDemoScreen extends Screen {
         if (getCarContext().getCarAppApiLevel() < CarAppApiLevels.LEVEL_2) {
             return new MessageTemplate.Builder(
                     getCarContext().getString(R.string.sign_in_template_not_supported_text))
-                    .setTitle(getCarContext().getString(
+                    .setHeader(new Header.Builder().setTitle(getCarContext().getString(
                             R.string.sign_in_template_not_supported_title))
-                    .setHeaderAction(Action.BACK)
+                            .setStartHeaderAction(Action.BACK).build())
                     .build();
         }
         switch (mState) {
@@ -338,8 +339,9 @@ public class SignInTemplateDemoScreen extends Screen {
     private MessageTemplate getSignInCompletedMessageTemplate() {
         return new MessageTemplate.Builder(
                 getCarContext().getString(R.string.sign_in_complete_text))
-                .setTitle(getCarContext().getString(R.string.sign_in_complete_title))
-                .setHeaderAction(Action.BACK)
+                .setHeader(new Header.Builder().setStartHeaderAction(Action.BACK)
+                        .setTitle(getCarContext().getString(R.string.sign_in_complete_title))
+                        .build())
                 .addAction(new Action.Builder()
                         .setTitle(getCarContext().getString(R.string.sign_out_action_title))
                         .setOnClickListener(() -> {
