@@ -116,7 +116,7 @@ package androidx.navigation {
     method public androidx.navigation.NavDestination getDestination();
     method public String getId();
     method public androidx.lifecycle.Lifecycle getLifecycle();
-    method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
+    method @MainThread public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     property public final android.os.Bundle? arguments;
@@ -125,7 +125,7 @@ package androidx.navigation {
     property public final androidx.navigation.NavDestination destination;
     property public final String id;
     property public androidx.lifecycle.Lifecycle lifecycle;
-    property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
+    property @MainThread public final androidx.lifecycle.SavedStateHandle savedStateHandle;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
     property public androidx.lifecycle.ViewModelStore viewModelStore;
     field public static final androidx.navigation.NavBackStackEntry.Companion Companion;
