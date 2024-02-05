@@ -17,6 +17,8 @@
 package androidx.compose.material
 
 import android.os.SystemClock.sleep
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -1492,5 +1494,69 @@ class DrawerTest {
         hasDrawerContent = true // Recompose with drawer content
         rule.waitForIdle()
         assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Open)
+    }
+
+    @Test
+    fun bottomDrawer_progress() {
+        rule.mainClock.autoAdvance = false
+        lateinit var drawerState: BottomDrawerState
+        lateinit var scope: CoroutineScope
+        val animationLengthMillis = 192
+        val amountOfFramesForAnimation = animationLengthMillis / 16
+        rule.setContent {
+            drawerState = rememberBottomDrawerState(
+                BottomDrawerValue.Closed,
+                animationSpec = tween(animationLengthMillis, easing = LinearEasing)
+            )
+            scope = rememberCoroutineScope()
+            BottomDrawer(
+                drawerState = drawerState,
+                drawerContent = { Box(Modifier.fillMaxHeight(0.6f)) },
+                content = {}
+            )
+        }
+
+        assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Closed)
+        assertThat(drawerState.targetValue).isEqualTo(BottomDrawerValue.Closed)
+        assertThat(drawerState.progress(
+            from = BottomDrawerValue.Closed,
+            to = BottomDrawerValue.Open
+        )).isEqualTo(0f)
+
+        scope.launch { drawerState.open() }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val closedToOpenProgress = drawerState.progress(
+                from = BottomDrawerValue.Closed, to = BottomDrawerValue.Open
+            )
+            val openToClosedProgress = drawerState.progress(
+                from = BottomDrawerValue.Open, to = BottomDrawerValue.Closed
+            )
+            assertThat(closedToOpenProgress).isWithin(0.001f).of(frameFraction)
+            assertThat(openToClosedProgress).isWithin(0.001f).of(1 - frameFraction)
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        scope.launch { drawerState.close() }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val closedToOpenProgress = drawerState.progress(
+                from = BottomDrawerValue.Closed, to = BottomDrawerValue.Open
+            )
+            val openToClosedProgress = drawerState.progress(
+                from = BottomDrawerValue.Open, to = BottomDrawerValue.Closed
+            )
+            assertThat(closedToOpenProgress).isWithin(0.001f).of(1 - frameFraction)
+            assertThat(openToClosedProgress).isWithin(0.001f).of(frameFraction)
+            rule.mainClock.advanceTimeByFrame()
+        }
     }
 }
