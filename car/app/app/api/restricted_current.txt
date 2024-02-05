@@ -1421,13 +1421,14 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class MessageTemplate implements androidx.car.app.model.Template {
-    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.ActionStrip? getActionStrip();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarText? getDebugMessage();
-    method public androidx.car.app.model.Action? getHeaderAction();
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public androidx.car.app.model.CarText getMessage();
-    method public androidx.car.app.model.CarText? getTitle();
+    method @Deprecated public androidx.car.app.model.CarText? getTitle();
     method @androidx.car.app.annotations.RequiresCarApi(2) public boolean isLoading();
   }
 
@@ -1436,13 +1437,14 @@ package androidx.car.app.model {
     ctor public MessageTemplate.Builder(CharSequence);
     method public androidx.car.app.model.MessageTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate build();
-    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.MessageTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.MessageTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(String);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable);
-    method public androidx.car.app.model.MessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.MessageTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate.Builder setIcon(androidx.car.app.model.CarIcon);
     method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.MessageTemplate.Builder setLoading(boolean);
-    method public androidx.car.app.model.MessageTemplate.Builder setTitle(CharSequence);
+    method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setTitle(CharSequence);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Metadata {
