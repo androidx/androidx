@@ -18,6 +18,8 @@ package androidx.compose.ui.inspection.inspector
 
 import android.view.View
 import androidx.annotation.VisibleForTesting
+import androidx.collection.LongList
+import androidx.collection.mutableLongListOf
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
 import androidx.compose.ui.InternalComposeUiApi
@@ -563,13 +565,30 @@ class LayoutInspectorTree {
         return anchorId.toLong() - Int.MAX_VALUE.toLong() + RESERVED_FOR_GENERATED_IDS
     }
 
-    private fun belongsToView(layoutNodes: List<LayoutInfo>, view: View): Boolean =
-        layoutNodes.asSequence().flatMap { node ->
-            node.getModifierInfo().asSequence()
-                .map { it.extra }
-                .filterIsInstance<GraphicLayerInfo>()
-                .map { it.ownerViewId }
-        }.contains(view.uniqueDrawingId)
+    /**
+     * Returns true if the [layoutNodes] belong under the specified [view].
+     *
+     * For: popups & Dialogs we may encounter parts of a compose tree that belong under
+     * a different sub-composition. Consider these nodes to "belong" to the current sub-composition
+     * under [view] if the ownerViews contains [view] or doesn't contain any owner views at all.
+     */
+    private fun belongsToView(layoutNodes: List<LayoutInfo>, view: View): Boolean {
+        val ownerViewIds = ownerViews(layoutNodes)
+        return ownerViewIds.isEmpty() || ownerViewIds.contains(view.uniqueDrawingId)
+    }
+
+    private fun ownerViews(layoutNodes: List<LayoutInfo>): LongList {
+        val ownerViewIds = mutableLongListOf()
+        layoutNodes.forEach { node ->
+            node.getModifierInfo().forEach { info ->
+                val extra = info.extra
+                if (extra is GraphicLayerInfo) {
+                    ownerViewIds.add(extra.ownerViewId)
+                }
+            }
+        }
+        return ownerViewIds
+    }
 
     private fun addParameters(context: SourceContext, node: MutableInspectorNode) {
         context.parameters.forEach {
