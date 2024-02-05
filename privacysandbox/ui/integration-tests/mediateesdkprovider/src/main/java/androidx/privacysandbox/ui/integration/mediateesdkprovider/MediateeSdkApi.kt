@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.ui.integration.testsdkprovider
+package androidx.privacysandbox.ui.integration.mediateesdkprovider
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -24,7 +24,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.net.Uri
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -34,16 +33,12 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
-import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
-import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import java.util.concurrent.Executor
 
-class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
+class MediateeSdkApi(val sdkContext: Context) : ISdkApi.Stub() {
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var bannerAd: BannerAd
 
@@ -53,30 +48,7 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         withSlowDraw: Boolean,
         isViewMediated: Boolean
     ): Bundle {
-        if (!isViewMediated || SDK_INT < UPSIDE_DOWN_CAKE) {
-            bannerAd = BannerAd(isWebView, withSlowDraw, text)
-            return BannerAd(isWebView, withSlowDraw, text).toCoreLibInfo(sdkContext)
-        }
-        val sdkSandboxControllerCompat = SdkSandboxControllerCompat.from(sdkContext)
-        val sandboxedSdks = sdkSandboxControllerCompat.getSandboxedSdks()
-        var mediateeSandboxedSdkCompat: SandboxedSdkCompat? = null
-        sandboxedSdks.forEach {
-            sandboxedSdkCompat ->
-            if (sandboxedSdkCompat.getSdkInfo()?.name.equals(MEDIATEE_SDK)) {
-                mediateeSandboxedSdkCompat = sandboxedSdkCompat
-            }
-        }
-        if (mediateeSandboxedSdkCompat == null) {
-            return BannerAd(isWebView,
-                withSlowDraw,
-                text).toCoreLibInfo(sdkContext)
-        }
-        val mediateeSdkApi = asInterface(mediateeSandboxedSdkCompat!!.getInterface())
-        val bundle = mediateeSdkApi.loadAd(isWebView, text, withSlowDraw, /*isViewMediated=*/true)
-        val view = SandboxedSdkView(sdkContext)
-        val adapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(bundle)
-        view.setAdapter(adapter)
-        bannerAd = BannerAd(isWebView, withSlowDraw, text, view)
+        bannerAd = BannerAd(isWebView, withSlowDraw, text)
         return bannerAd.toCoreLibInfo(sdkContext)
     }
 
@@ -89,11 +61,11 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
             sdkContext.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
     }
 
+    // TODO(b/321830843) : Move logic to a helper file
     private inner class BannerAd(
         private val isWebView: Boolean,
         private val withSlowDraw: Boolean,
-        private val text: String,
-        private val mediatedView: View? = null
+        private val text: String
     ) :
         SandboxedUiAdapter {
         lateinit var sessionClientExecutor: Executor
@@ -111,36 +83,28 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
             sessionClient = client
             handler.post(Runnable lambda@{
                 Log.d(TAG, "Session requested")
-                if (mediatedView == null) {
-                    lateinit var adView: View
-                    if (isWebView) {
-                        // To test error cases.
-                        if (isAirplaneModeOn()) {
-                            clientExecutor.execute {
-                                client.onSessionError(
-                                    Throwable("Cannot load WebView in airplane mode.")
-                                )
-                            }
-                            return@lambda
+                lateinit var adView: View
+                if (isWebView) {
+                    // To test error cases.
+                    if (isAirplaneModeOn()) {
+                        clientExecutor.execute {
+                            client.onSessionError(
+                                Throwable("Cannot load WebView in airplane mode.")
+                            )
                         }
-                        val webView = WebView(context)
-                        webView.loadUrl(AD_URL)
-                        webView.layoutParams = ViewGroup.LayoutParams(
-                            initialWidth, initialHeight
-                        )
-                        adView = webView
-                    } else {
-                        adView = TestView(context, withSlowDraw, text)
+                        return@lambda
                     }
-                    clientExecutor.execute {
-                        Log.i(TAG, "Ad shown without mediation")
-                        client.onSessionOpened(BannerAdSession(adView))
-                    }
+                    val webView = WebView(context)
+                    webView.loadUrl(AD_URL)
+                    webView.layoutParams = ViewGroup.LayoutParams(
+                        initialWidth, initialHeight
+                    )
+                    adView = webView
                 } else {
-                    clientExecutor.execute {
-                        Log.i(TAG, "Mediated Ad shown")
-                        client.onSessionOpened(BannerAdSession(mediatedView))
-                    }
+                    adView = TestView(context, withSlowDraw, text)
+                }
+                clientExecutor.execute {
+                    client.onSessionOpened(BannerAdSession(adView))
                 }
             })
         }
@@ -175,6 +139,7 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         }
     }
 
+    // TODO(b/321830843) : Move logic to a helper file
     private inner class TestView(
         context: Context,
         private val withSlowDraw: Boolean,
@@ -214,8 +179,5 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
     companion object {
         private const val TAG = "TestSandboxSdk"
         private const val AD_URL = "https://www.google.com/"
-        private const val MEDIATEE_SDK =
-            "androidx.privacysandbox.ui.integration.mediateesdkprovider"
-        private const val UPSIDE_DOWN_CAKE = 34
     }
 }

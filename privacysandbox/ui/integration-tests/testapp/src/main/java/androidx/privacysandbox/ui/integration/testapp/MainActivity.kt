@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mNewAdButton: Button
     private lateinit var mResizeButton: Button
     private lateinit var mResizeSdkButton: Button
+    private lateinit var mLoadAdButton: Button
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
             Log.i(TAG, "Loading SDK")
             CoroutineScope(Dispatchers.Default).launch {
                 try {
+                    mSdkSandboxManager.loadSdk(MEDIATEE_SDK_NAME, Bundle())
                     val loadedSdk = mSdkSandboxManager.loadSdk(SDK_NAME, Bundle())
                     onLoadedSdk(loadedSdk)
                 } catch (e: LoadSdkCompatException) {
@@ -77,9 +79,6 @@ class MainActivity : AppCompatActivity() {
 
         mSandboxedSdkView1 = findViewById(R.id.rendered_view)
         mSandboxedSdkView1.addStateChangedListener(StateChangeListener(mSandboxedSdkView1))
-        mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ true, /*text=*/ "", /*withSlowDraw*/ false)
-        ))
 
         mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
         mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
@@ -88,9 +87,6 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             findViewById<LinearLayout>(R.id.bottom_banner_container).addView(mSandboxedSdkView2)
         }
-        mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Hey!", /*withSlowDraw*/ false)
-        ))
 
         resizableSandboxedSdkView = findViewById(R.id.new_ad_view)
         resizableSandboxedSdkView.addStateChangedListener(
@@ -98,15 +94,12 @@ class MainActivity : AppCompatActivity() {
 
         mNewAdButton = findViewById(R.id.new_ad_button)
 
-        resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Resize view",
-                /*withSlowDraw*/ true)))
-
         var count = 1
+        var loadMediatedAd = false
         mNewAdButton.setOnClickListener {
             resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
                 sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Ad #$count",
-                    /*withSlowDraw*/ true)))
+                    /*withSlowDraw*/ true, loadMediatedAd)))
             count++
         }
 
@@ -132,6 +125,35 @@ class MainActivity : AppCompatActivity() {
             val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
             sdkApi.requestResize(newWidth, newHeight)
         }
+
+        mLoadAdButton = findViewById(R.id.load_ad_button)
+        loadAllAds(sdkApi, loadMediatedAd)
+        // TODO(b/323888187): use new ad button with toggling for loading Ads.
+        mLoadAdButton.setOnClickListener {
+            if (loadMediatedAd) {
+                loadMediatedAd = false
+                mLoadAdButton.post { mLoadAdButton.setText("load mediated Ad") }
+            } else {
+                loadMediatedAd = true
+                mLoadAdButton.post { mLoadAdButton.setText("load non-mediated Ad") }
+            }
+            loadAllAds(sdkApi, loadMediatedAd)
+        }
+    }
+
+    private fun loadAllAds(sdkApi: ISdkApi, isViewMediated: Boolean) {
+        mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadAd(/*isWebView=*/ true, /*text=*/ "", /*withSlowDraw*/ false, isViewMediated)
+        ))
+
+        mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Hey!",
+                /*withSlowDraw*/ false, isViewMediated)
+        ))
+
+        resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Resize view",
+                /*withSlowDraw*/ true, isViewMediated)))
     }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
@@ -160,5 +182,7 @@ class MainActivity : AppCompatActivity() {
          * Name of the SDK to be loaded.
          */
         private const val SDK_NAME = "androidx.privacysandbox.ui.integration.testsdkprovider"
+        private const val MEDIATEE_SDK_NAME =
+            "androidx.privacysandbox.ui.integration.mediateesdkprovider"
     }
 }
