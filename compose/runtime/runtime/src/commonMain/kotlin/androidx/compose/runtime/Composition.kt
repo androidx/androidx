@@ -1267,6 +1267,9 @@ internal class CompositionImpl(
         composer.deactivate()
     }
 
+    // This is only used in tests to ensure the stacks do not silently leak.
+    internal fun composerStacksSizes(): Int = composer.stacksSize()
+
     /**
      * Helper for collecting remember observers for later strictly ordered dispatch.
      */

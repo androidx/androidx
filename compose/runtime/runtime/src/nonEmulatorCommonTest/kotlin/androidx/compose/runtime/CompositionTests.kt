@@ -4357,6 +4357,22 @@ class CompositionTests {
         revalidate()
     }
 
+    @Test
+    fun composerCleanup() = compositionTest {
+        var state by mutableStateOf(0)
+
+        compose {
+            Text("State = $state")
+        }
+
+        val stackSizes = (composition as CompositionImpl).composerStacksSizes()
+        repeat(100) {
+            state++
+            advance()
+        }
+        assertEquals(stackSizes, (composition as CompositionImpl).composerStacksSizes())
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
