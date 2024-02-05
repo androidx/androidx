@@ -181,7 +181,7 @@ expect abstract class RoomDatabase {
     /**
      * Journal modes for SQLite database.
      *
-     * @see Builder.setJournalMode
+     * @see Builder#setJournalMode
      */
     enum class JournalMode {
         /**

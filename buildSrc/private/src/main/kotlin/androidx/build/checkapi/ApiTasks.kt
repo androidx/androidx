@@ -26,6 +26,7 @@ import androidx.build.getSupportRootFolder
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.java.JavaCompileInputs
 import androidx.build.metalava.MetalavaTasks
+import androidx.build.multiplatformExtension
 import androidx.build.resources.ResourceTasks
 import androidx.build.stableaidl.setupWithStableAidlPlugin
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
@@ -156,6 +157,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                     project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")
                 )
                 task.projectPathProvider.set(path)
+                task.projectIsKmp.set(project.multiplatformExtension != null)
                 task.cacheEvenIfNoOutputs()
             }
             project.addToBuildOnServer(checkDocs)
