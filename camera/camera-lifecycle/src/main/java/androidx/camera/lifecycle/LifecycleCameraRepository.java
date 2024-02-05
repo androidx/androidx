@@ -309,7 +309,7 @@ final class LifecycleCameraRepository {
                 lifecycleCamera.getCameraUseCaseAdapter().setEffects(effects);
                 lifecycleCamera.bind(useCases);
             } catch (CameraUseCaseAdapter.CameraException e) {
-                throw new IllegalArgumentException(e.getMessage());
+                throw new IllegalArgumentException(e);
             }
 
             // The target LifecycleCamera has use case bound. If the target LifecycleOwner has been
