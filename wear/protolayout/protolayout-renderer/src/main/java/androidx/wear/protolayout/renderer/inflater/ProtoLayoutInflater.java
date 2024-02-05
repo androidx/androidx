@@ -53,6 +53,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
@@ -2542,18 +2543,22 @@ public final class ProtoLayoutInflater {
                 text.getText(),
                 t -> {
                     // Underlines are applied using a Spannable here, rather than setting paint bits
-                    // (or
-                    // using Paint#setTextUnderline). When multiple fonts are mixed on the same line
-                    // (especially when mixing anything with NotoSans-CJK), multiple underlines can
-                    // appear. Using UnderlineSpan instead though causes the correct behaviour to
-                    // happen
-                    // (only a
-                    // single underline).
+                    // (or using Paint#setTextUnderline). When multiple fonts are mixed on the same
+                    // line (especially when mixing anything with NotoSans-CJK), multiple
+                    // underlines can appear. Using UnderlineSpan instead though causes the
+                    // correct behaviour to happen (only a single underline).
                     SpannableStringBuilder ssb = new SpannableStringBuilder();
                     ssb.append(t);
 
                     if (text.getFontStyle().getUnderline().getValue()) {
                         ssb.setSpan(new UnderlineSpan(), 0, ssb.length(), Spanned.SPAN_MARK_MARK);
+                    }
+
+                    // When letter spacing, align and ellipsize are applied to text, the ellipsized
+                    // line is indented wrong. This adds the IndentationFixSpan in order to fix
+                    // the issue.
+                    if (shouldAttachIndentationFixSpan(text)) {
+                        attachIndentationFixSpan(ssb, /* layoutForMeasuring= */ null);
                     }
 
                     textView.setText(ssb);
@@ -2578,7 +2583,7 @@ public final class ProtoLayoutInflater {
 
         if (overflow.getValue() == TextOverflow.TEXT_OVERFLOW_ELLIPSIZE
                 && !text.getText().hasDynamicValue()) {
-            adjustMaxLinesForEllipsize(textView);
+            adjustMaxLinesForEllipsize(textView, shouldAttachIndentationFixSpan(text));
         }
 
         // Text auto size is not supported for dynamic text.
@@ -2669,6 +2674,78 @@ public final class ProtoLayoutInflater {
     }
 
     /**
+     * Checks whether the {@link IndentationFixSpan} needs to be attached to fix the alignment on
+     * text.
+     */
+    private static boolean shouldAttachIndentationFixSpan(@NonNull Text text) {
+        boolean hasLetterSpacing =
+                text.hasFontStyle()
+                        && text.getFontStyle().hasLetterSpacing()
+                        && text.getFontStyle().getLetterSpacing().getValue() != 0;
+        boolean hasEllipsize =
+                text.hasOverflow()
+                        && (text.getOverflow().getValue() == TextOverflow.TEXT_OVERFLOW_ELLIPSIZE
+                        || text.getOverflow().getValue()
+                        == TextOverflow.TEXT_OVERFLOW_ELLIPSIZE_END);
+        // Since default align is center, we need fix when either alignment is not set or it's set
+        // to center.
+        boolean isCenterAligned =
+                !text.hasMultilineAlignment()
+                        || text.getMultilineAlignment().getValue()
+                        == TextAlignment.TEXT_ALIGN_CENTER;
+        return hasLetterSpacing && hasEllipsize && isCenterAligned;
+    }
+
+    /**
+     * This fixes that issue by correctly indenting the ellipsized line by translating the canvas on
+     * the opposite direction.
+     *
+     * <p>When letter spacing, center alignment and ellipsize are all set to a TextView, depending
+     * on a length of overflow text, the last, ellipsized line starts getting cut of from the
+     * start side.
+     *
+     * <p>It should be applied to a text only when those three attributes are set.
+     */
+    private static void attachIndentationFixSpan(
+            @NonNull SpannableStringBuilder ssb, @Nullable StaticLayout layoutForMeasuring) {
+        if (ssb.length() == 0) {
+            return;
+        }
+
+        // Add additional span that accounts for the extra space that TextView adds when ellipsizing
+        // text.
+        IndentationFixSpan fixSpan =
+                layoutForMeasuring == null
+                        ? new IndentationFixSpan()
+                        : new IndentationFixSpan(layoutForMeasuring);
+        ssb.setSpan(fixSpan, ssb.length() - 1, ssb.length() - 1, /* flags= */ 0);
+    }
+
+    /**
+     * See {@link #attachIndentationFixSpan(SpannableStringBuilder, StaticLayout)}. This method uses
+     * {@link StaticLayout} for measurements.
+     */
+    private static void attachIndentationFixSpan(@NonNull TextView textView) {
+        // This is needed to be passed in as the original Layout would have ellipsize on
+        // a maxLines and only be updated after it's drawn, so we need to calculate
+        // padding based on the StaticLayout.
+        StaticLayout layoutForMeasuring =
+                StaticLayout.Builder.obtain(
+                                /* source= */ textView.getText(),
+                                /* start= */ 0,
+                                /* end= */ textView.getText().length(),
+                                /* paint= */ textView.getPaint(),
+                                /* width= */ textView.getMeasuredWidth())
+                        .setMaxLines(textView.getMaxLines())
+                        .setEllipsize(TruncateAt.END)
+                        .setIncludePad(false)
+                        .build();
+        SpannableStringBuilder ssb = new SpannableStringBuilder(textView.getText());
+        attachIndentationFixSpan(ssb, layoutForMeasuring);
+        textView.setText(ssb);
+    }
+
+    /**
      * Sorts out what maxLines should be if the text could possibly be truncated before maxLines is
      * reached.
      *
@@ -2677,12 +2754,17 @@ public final class ProtoLayoutInflater {
      * different than what TEXT_OVERFLOW_ELLIPSIZE_END does, as that option just ellipsizes the last
      * line of text.
      */
-    private void adjustMaxLinesForEllipsize(@NonNull TextView textView) {
+    private void adjustMaxLinesForEllipsize(
+            @NonNull TextView textView, boolean shouldAttachIndentationFixSpan) {
         textView.getViewTreeObserver()
                 .addOnPreDrawListener(
                         new OnPreDrawListener() {
                             @Override
                             public boolean onPreDraw() {
+                                if (textView.getText().length() == 0) {
+                                    return true;
+                                }
+
                                 ViewParent maybeParent = textView.getParent();
                                 if (!(maybeParent instanceof View)) {
                                     Log.d(
@@ -2705,6 +2787,10 @@ public final class ProtoLayoutInflater {
                                 // Update only if changed.
                                 if (availableLines < maxMaxLines) {
                                     textView.setMaxLines(availableLines);
+
+                                    if (shouldAttachIndentationFixSpan) {
+                                        attachIndentationFixSpan(textView);
+                                    }
                                 }
 
                                 // Cancel the current drawing pass.
