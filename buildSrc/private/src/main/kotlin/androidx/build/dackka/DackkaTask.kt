@@ -290,6 +290,15 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 "play" to "https://developer.android.com/reference/",
                 // From developer.android.com/reference/com/google/android/material/package-list
                 "material" to "https://developer.android.com/reference",
+                "okhttp3" to "https://square.github.io/okhttp/5.x/",
+                "truth" to "https://truth.dev/api/0.41/",
+                // From developer.android.com/reference/android/support/wearable/package-list
+                "wearable" to "https://developer.android.com/reference/",
+                // Filtered to just java.awt and javax packages (base java packages are included in
+                // the android package-list)
+                "javase8" to "https://docs.oracle.com/javase/8/docs/api/",
+                "javaee7" to "https://docs.oracle.com/javaee%2F7%2Fapi%2F%2F",
+                "findbugs" to "https://www.javadoc.io/doc/com.google.code.findbugs/jsr305/latest/",
                 // All package-lists below were created manually
                 "mlkit" to "https://developers.google.com/android/reference/",
                 "dagger" to "https://dagger.dev/api/latest/",
@@ -299,6 +308,15 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                     "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
                 "auto-value" to
                     "https://www.javadoc.io/doc/com.google.auto.value/auto-value/latest/",
+                "robolectric" to "https://robolectric.org/javadoc/4.10/",
+                "interactive-media" to
+                    "https://developers.google.com/interactive-media-ads/docs/sdks/android/" +
+                    "client-side/api/reference/com/google/ads/interactivemedia/v3",
+                "errorprone" to "https://errorprone.info/api/latest/",
+                "gms" to "https://developers.google.com/android/reference",
+                "checkerframework" to "https://checkerframework.org/api/",
+                "chromium" to
+                    "https://developer.android.com/develop/connectivity/cronet/reference/",
             )
     }
 }
