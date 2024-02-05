@@ -2542,7 +2542,11 @@ public abstract class WatchFaceService : WallpaperService() {
                 mutableWatchState.isVisible.value = visible || forceIsVisibleForTesting()
                 wslFlow.pendingVisibilityChanged = null
 
-                getWatchFaceImplOrNull()?.onVisibility(visible)
+                try {
+                    getWatchFaceImplOrNull()?.onVisibility(visible)
+                } catch (e: Exception) {
+                    Log.e(TAG, "WatchfaceImpl.onVisibility failed", e)
+                }
             }
 
         override fun invalidate() {
