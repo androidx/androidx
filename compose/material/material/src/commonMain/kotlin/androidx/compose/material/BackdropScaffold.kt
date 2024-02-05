@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-@file:Suppress("Deprecation") // b/274465184
-
 package androidx.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -42,7 +43,6 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.UiComposable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -53,6 +53,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
@@ -62,14 +63,13 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.zIndex
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -79,7 +79,6 @@ import kotlinx.coroutines.launch
 /**
  * Possible values of [BackdropScaffoldState].
  */
-@ExperimentalMaterialApi
 enum class BackdropValue {
     /**
      * Indicates the back layer is concealed and the front layer is active.
@@ -102,12 +101,11 @@ enum class BackdropValue {
  * @param snackbarHostState The [SnackbarHostState] used to show snackbars inside the scaffold.
  */
 @Suppress("Deprecation")
-@ExperimentalMaterialApi
 @Stable
 fun BackdropScaffoldState(
     initialValue: BackdropValue,
     density: Density,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = BackdropScaffoldDefaults.AnimationSpec,
     confirmValueChange: (BackdropValue) -> Boolean = { true },
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
 ) = BackdropScaffoldState(
@@ -127,7 +125,7 @@ fun BackdropScaffoldState(
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param snackbarHostState The [SnackbarHostState] used to show snackbars inside the scaffold.
  */
-@ExperimentalMaterialApi
+@OptIn(ExperimentalMaterialApi::class)
 @Stable
 class BackdropScaffoldState @Deprecated(
     "This constructor is deprecated. Density must be provided by the component. " +
@@ -144,7 +142,7 @@ class BackdropScaffoldState @Deprecated(
     )
 ) constructor(
     initialValue: BackdropValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = BackdropScaffoldDefaults.AnimationSpec,
     val confirmValueChange: (BackdropValue) -> Boolean = { true },
     val snackbarHostState: SnackbarHostState = SnackbarHostState(),
 ) {
@@ -193,6 +191,28 @@ class BackdropScaffoldState @Deprecated(
      * interrupted
      */
     suspend fun conceal() = anchoredDraggableState.animateTo(targetValue = Concealed)
+
+    /**
+     * The fraction of the offset between [from] and [to], as a fraction between [0f..1f], or 1f if
+     * [from] is equal to [to].
+     *
+     * @param from The starting value used to calculate the distance
+     * @param to The end value used to calculate the distance
+     */
+    @FloatRange(from = 0.0, to = 1.0)
+    fun progress(
+        from: BackdropValue,
+        to: BackdropValue
+    ): Float {
+        val fromOffset = anchoredDraggableState.anchors.positionOf(from)
+        val toOffset = anchoredDraggableState.anchors.positionOf(to)
+        val currentOffset = anchoredDraggableState.offset.coerceIn(
+            min(fromOffset, toOffset), // fromOffset might be > toOffset
+            max(fromOffset, toOffset)
+        )
+        val fraction = (currentOffset - fromOffset) / (toOffset - fromOffset)
+        return if (fraction.isNaN()) 1f else abs(fraction)
+    }
 
     internal val anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
@@ -256,10 +276,9 @@ class BackdropScaffoldState @Deprecated(
  * @param snackbarHostState The [SnackbarHostState] used to show snackbars inside the scaffold.
  */
 @Composable
-@ExperimentalMaterialApi
 fun rememberBackdropScaffoldState(
     initialValue: BackdropValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = BackdropScaffoldDefaults.AnimationSpec,
     confirmStateChange: (BackdropValue) -> Boolean = { true },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ): BackdropScaffoldState {
@@ -324,6 +343,7 @@ fun rememberBackdropScaffoldState(
  * @param frontLayerContent The content of the front layer.
  * @param modifier Optional [Modifier] for the root of the scaffold.
  * @param scaffoldState The state of the scaffold.
+ * @param snackbarHost The component hosting the snackbars shown inside the scaffold.
  * @param gesturesEnabled Whether or not the backdrop can be interacted with by gestures.
  * @param peekHeight The height of the visible part of the back layer when it is concealed.
  * @param headerHeight The minimum height of the front layer when it is inactive.
@@ -344,16 +364,16 @@ fun rememberBackdropScaffoldState(
  * @param frontLayerScrimColor The color of the scrim applied to the front layer when the back
  * layer is revealed. If the color passed is [Color.Unspecified], then a scrim will not be
  * applied and interaction with the front layer will not be blocked when the back layer is revealed.
- * @param snackbarHost The component hosting the snackbars shown inside the scaffold.
  */
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-@ExperimentalMaterialApi
 fun BackdropScaffold(
     appBar: @Composable () -> Unit,
     backLayerContent: @Composable () -> Unit,
     frontLayerContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     scaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(Concealed),
+    snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
     gesturesEnabled: Boolean = true,
     peekHeight: Dp = BackdropScaffoldDefaults.PeekHeight,
     headerHeight: Dp = BackdropScaffoldDefaults.HeaderHeight,
@@ -366,7 +386,6 @@ fun BackdropScaffold(
     frontLayerBackgroundColor: Color = MaterialTheme.colors.surface,
     frontLayerContentColor: Color = contentColorFor(frontLayerBackgroundColor),
     frontLayerScrimColor: Color = BackdropScaffoldDefaults.frontLayerScrimColor,
-    snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) }
 ) {
     // b/278692145 Remove this once deprecated methods without density are removed
     val density = LocalDensity.current
@@ -384,8 +403,10 @@ fun BackdropScaffold(
                 backLayerContent()
             }
         } else {
-            BackLayerTransition(scaffoldState.anchoredDraggableState.targetValue,
-                appBar, backLayerContent)
+            BackLayerTransition(
+                scaffoldState.anchoredDraggableState.targetValue,
+                appBar, backLayerContent
+            )
         }
     }
     val calculateBackLayerConstraints: (Constraints) -> Constraints = {
@@ -410,33 +431,29 @@ fun BackdropScaffold(
             if (stickyFrontLayer) {
                 revealedHeight = min(revealedHeight, backLayerHeight)
             }
+
             val nestedScroll = if (gesturesEnabled) {
                 Modifier.nestedScroll(scaffoldState.nestedScrollConnection)
             } else {
                 Modifier
             }
-
-            val calculateAnchors = { layoutSize: IntSize ->
-                val sheetHeight = layoutSize.height.toFloat()
-                val collapsedHeight = layoutSize.height - peekHeightPx
-                DraggableAnchors {
-                    if (sheetHeight == 0f || sheetHeight == peekHeightPx) {
-                        Concealed at collapsedHeight
-                    } else {
-                        Concealed at peekHeightPx
-                        Revealed at revealedHeight
-                    }
-                }
-            }
-            val swipeable = Modifier
-                .then(nestedScroll)
+            val swipeable = nestedScroll
                 .anchoredDraggable(
                     state = state,
                     orientation = Orientation.Vertical,
                     enabled = gesturesEnabled,
                 )
                 .onSizeChanged { layoutSize ->
-                    val newAnchors = calculateAnchors(layoutSize)
+                    val sheetHeight = layoutSize.height.toFloat()
+                    val collapsedHeight = layoutSize.height - peekHeightPx
+                    val newAnchors = DraggableAnchors {
+                        if (sheetHeight == 0f || sheetHeight == peekHeightPx) {
+                            Concealed at collapsedHeight
+                        } else {
+                            Concealed at peekHeightPx
+                            Revealed at revealedHeight
+                        }
+                    }
                     val newTarget = when (scaffoldState.targetValue) {
                         Concealed -> Concealed
                         Revealed -> if (newAnchors.hasAnchorFor(Revealed)) Revealed else Concealed
@@ -481,7 +498,7 @@ fun BackdropScaffold(
                                 scope.launch { scaffoldState.conceal() }
                             }
                         },
-                        visible = scaffoldState.anchoredDraggableState.targetValue == Revealed
+                        visible = scaffoldState.targetValue == Revealed
                     )
                 }
             }
@@ -533,7 +550,6 @@ private fun Scrim(
  * vertically, while they crossfade. It is very important that both are composed and measured,
  * even if invisible, and that this component is as large as both of them.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun BackLayerTransition(
     target: BackdropValue,
@@ -547,27 +563,38 @@ private fun BackLayerTransition(
     )
     val animationSlideOffset = with(LocalDensity.current) { AnimationSlideOffset.toPx() }
 
-    val appBarFloat = (animationProgress - 1).fastCoerceIn(0f, 1f)
-    val contentFloat = (1 - animationProgress).fastCoerceIn(0f, 1f)
-
     Box {
         Box(
             Modifier
-                .zIndex(appBarFloat)
-                .graphicsLayer(
-                    alpha = appBarFloat,
+                .layout { measurable, constraints ->
+                    val appBarFloat = (animationProgress - 1).fastCoerceIn(0f, 1f)
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0, zIndex = appBarFloat)
+                    }
+                }
+                .graphicsLayer {
+                    val appBarFloat = (animationProgress - 1).fastCoerceIn(0f, 1f)
+                    alpha = appBarFloat
                     translationY = (1 - appBarFloat) * animationSlideOffset
-                )
+                }
         ) {
             appBar()
         }
         Box(
             Modifier
-                .zIndex(contentFloat)
-                .graphicsLayer(
-                    alpha = contentFloat,
-                    translationY = (1 - contentFloat) * -animationSlideOffset
-                )
+                .layout { measurable, constraints ->
+                    val contentFloat = (1 - animationProgress).fastCoerceIn(0f, 1f)
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0, zIndex = contentFloat)
+                    }
+                }
+                .graphicsLayer {
+                    val contentFloat = (1 - animationProgress).fastCoerceIn(0f, 1f)
+                    alpha = contentFloat
+                    translationY = (1 - contentFloat) * animationSlideOffset
+                }
         ) {
             content()
         }
@@ -575,12 +602,11 @@ private fun BackLayerTransition(
 }
 
 @Composable
-@UiComposable
 private fun BackdropStack(
     modifier: Modifier,
-    backLayer: @Composable @UiComposable () -> Unit,
+    backLayer: @Composable () -> Unit,
     calculateBackLayerConstraints: (Constraints) -> Constraints,
-    frontLayer: @Composable @UiComposable (Constraints, Float) -> Unit
+    frontLayer: @Composable (Constraints, Float) -> Unit
 ) {
     SubcomposeLayout(modifier) { constraints ->
         val backLayerPlaceable =
@@ -643,6 +669,14 @@ object BackdropScaffoldDefaults {
      */
     val frontLayerScrimColor: Color
         @Composable get() = MaterialTheme.colors.surface.copy(alpha = 0.60f)
+
+    /**
+     * The default animation spec used by [BottomSheetScaffoldState].
+     */
+    val AnimationSpec: AnimationSpec<Float> = tween(
+        durationMillis = 300,
+        easing = FastOutSlowInEasing
+    )
 }
 
 private val AnimationSlideOffset = 20.dp
