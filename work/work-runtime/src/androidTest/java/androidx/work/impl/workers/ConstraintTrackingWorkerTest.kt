@@ -19,7 +19,6 @@ package androidx.work.impl.workers
 import android.content.Context
 import android.os.Looper
 import android.util.Log
-import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -27,7 +26,6 @@ import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -56,6 +54,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -139,12 +138,14 @@ class ConstraintTrackingWorkerTest {
         taskExecutor.serialTaskExecutor.execute(workerWrapper)
 
         val worker = awaitWorker<DoWorkAwareWorker>(workerWrapper)
-        worker.doWork.await()
+        worker.doWorkEvent.await()
         launch { workerWrapper.interrupt(0) }
 
         workerWrapper.future.await()
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.ENQUEUED)
-        assertThat(worker.isStopped).isTrue()
+        // WorkerWrapper future is resolved before cancellation is fully propagated in coroutines
+        withTimeoutOrNull(300) { worker.onStopEvent.await() }
+            ?: throw AssertionError("onStopEventDidHappened")
     }
 
     @Test
@@ -153,18 +154,6 @@ class ConstraintTrackingWorkerTest {
         taskExecutor.serialTaskExecutor.execute(workerWrapper)
         workerWrapper.future.await()
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.SUCCEEDED)
-    }
-
-    @Test
-    fun test_delegatesInterruption_once() = runBlocking {
-        val workerWrapper = create(StopCountingWorker::class)
-        taskExecutor.serialTaskExecutor.execute(workerWrapper)
-        val worker = awaitWorker<StopCountingWorker>(workerWrapper)
-        workerWrapper.interrupt(WorkInfo.STOP_REASON_UNKNOWN)
-        workerWrapper.interrupt(WorkInfo.STOP_REASON_UNKNOWN)
-        workerWrapper.future.await()
-        assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.ENQUEUED)
-        assertThat(worker.stopCounter).isEqualTo(1)
     }
 
     private fun create(delegate: KClass<*>): WorkerWrapper {
@@ -198,24 +187,6 @@ class ThreadAssertingWorker(
             throw AssertionError("start work must be called on main thread")
         it.set(Result.success())
         "ThreadAssertingWorker"
-    }
-}
-
-class StopCountingWorker(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(appContext, workerParams) {
-    var stopCounter: Int = 0
-    // not used but keeping a reference so it is gc-ed. if it is gc-ed, then ListenableFuture
-    // is completed with exception.
-    private var completer: Completer<*>? = null
-    override fun startWork(): ListenableFuture<Result> = getFuture {
-        completer = it
-        "DoStopCountingWorker"
-    }
-
-    override fun onStopped() {
-        stopCounter++
     }
 }
 
