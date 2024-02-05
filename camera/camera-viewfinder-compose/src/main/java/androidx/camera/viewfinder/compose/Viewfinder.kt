@@ -49,8 +49,22 @@ import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * Composable Viewfinder.
- * TODO(b/322420487): KDOC
+ * Displays a media stream with the given transformations for crop and rotation while maintaining
+ * proper scaling.
+ *
+ * Provides a [Surface] for the given [ViewfinderSurfaceRequest], surface can be accessed through
+ * [ViewfinderSurfaceRequest.getSurface].
+ *
+ * This has two underlying implementations either using an [AndroidEmbeddedExternalSurface] for
+ * [ImplementationMode.COMPATIBLE] or an [AndroidExternalSurface] for
+ * [ImplementationMode.PERFORMANCE].
+ *
+ * @param surfaceRequest Details about the surface being requested
+ * @param implementationMode Determines the underlying implementation of the [Surface].
+ * @param transformationInfo Specifies the required transformations for the media being displayed.
+ * @param modifier Modifier to be applied to the [Viewfinder]
+ *
+ * TODO(b/322420487): Add a sample with `@sample`
  */
 @Composable
 fun Viewfinder(
