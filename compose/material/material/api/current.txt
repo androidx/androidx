@@ -548,45 +548,41 @@ package androidx.compose.material {
   }
 
   public final class ModalBottomSheetDefaults {
+    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getAnimationSpec();
     method public float getElevation();
     method @androidx.compose.runtime.Composable public long getScrimColor();
+    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> AnimationSpec;
     property public final float Elevation;
     property @androidx.compose.runtime.Composable public final long scrimColor;
     field public static final androidx.compose.material.ModalBottomSheetDefaults INSTANCE;
   }
 
   public final class ModalBottomSheetKt {
-    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void ModalBottomSheetLayout(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> sheetContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.ModalBottomSheetState sheetState, optional boolean sheetGesturesEnabled, optional androidx.compose.ui.graphics.Shape sheetShape, optional float sheetElevation, optional long sheetBackgroundColor, optional long sheetContentColor, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @Deprecated @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.material.ModalBottomSheetState ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional boolean isSkipHalfExpanded);
-    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.material.ModalBottomSheetState ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, androidx.compose.ui.unit.Density density, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional boolean isSkipHalfExpanded);
-    method @Deprecated @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.ModalBottomSheetState rememberModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, boolean skipHalfExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
-    method @Deprecated @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.ModalBottomSheetState rememberModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
-    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.ModalBottomSheetState rememberModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHalfExpanded);
+    method @androidx.compose.runtime.Composable public static void ModalBottomSheetLayout(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> sheetContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.ModalBottomSheetState sheetState, optional boolean sheetGesturesEnabled, optional androidx.compose.ui.graphics.Shape sheetShape, optional float sheetElevation, optional long sheetBackgroundColor, optional long sheetContentColor, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static androidx.compose.material.ModalBottomSheetState rememberModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHalfExpanded);
   }
 
-  @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public final class ModalBottomSheetState {
-    ctor @Deprecated public ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional boolean isSkipHalfExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
-    ctor @Deprecated public ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
+  public final class ModalBottomSheetState {
+    ctor public ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, androidx.compose.ui.unit.Density density, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional boolean isSkipHalfExpanded);
     method public androidx.compose.material.ModalBottomSheetValue getCurrentValue();
-    method @FloatRange(from=0.0, to=1.0) public float getProgress();
+    method @Deprecated @FloatRange(from=0.0, to=1.0) public float getProgress();
     method public androidx.compose.material.ModalBottomSheetValue getTargetValue();
     method public suspend Object? hide(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public boolean isVisible();
+    method @FloatRange(from=0.0, to=1.0) public float progress(androidx.compose.material.ModalBottomSheetValue from, androidx.compose.material.ModalBottomSheetValue to);
     method public suspend Object? show(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final androidx.compose.material.ModalBottomSheetValue currentValue;
     property public final boolean isVisible;
-    property @SuppressCompatibility @FloatRange(from=0.0, to=1.0) @androidx.compose.material.ExperimentalMaterialApi public final float progress;
+    property @Deprecated @SuppressCompatibility @FloatRange(from=0.0, to=1.0) @androidx.compose.material.ExperimentalMaterialApi public final float progress;
     property public final androidx.compose.material.ModalBottomSheetValue targetValue;
     field public static final androidx.compose.material.ModalBottomSheetState.Companion Companion;
   }
 
   public static final class ModalBottomSheetState.Companion {
-    method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, boolean skipHalfExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
-    method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded);
     method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded, androidx.compose.ui.unit.Density density);
   }
 
-  @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public enum ModalBottomSheetValue {
+  public enum ModalBottomSheetValue {
     method public static androidx.compose.material.ModalBottomSheetValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material.ModalBottomSheetValue[] values();
     enum_constant public static final androidx.compose.material.ModalBottomSheetValue Expanded;
