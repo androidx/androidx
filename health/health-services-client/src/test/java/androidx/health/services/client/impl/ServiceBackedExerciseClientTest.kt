@@ -114,6 +114,14 @@ class ServiceBackedExerciseClientTest {
     }
 
     @Test
+    fun clearUpdateCallbackAsync_callbackNotRegistered_noOp() {
+        val resultFuture = client.clearUpdateCallbackAsync(callback)
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(resultFuture.get()).isNull()
+    }
+
+    @Test
     fun dataTypeInAvailabilityCallbackShouldMatchRequested_justSampleType_startExercise() {
         val exerciseConfig = ExerciseConfig(
             ExerciseType.WALKING,
