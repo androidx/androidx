@@ -19,6 +19,8 @@ package androidx.compose.ui.inspection.compose
 import android.content.res.Resources
 import android.view.View
 import android.view.ViewGroup
+import androidx.collection.LongList
+import androidx.collection.mutableLongListOf
 import androidx.compose.ui.R
 import androidx.compose.ui.inspection.framework.ancestors
 import androidx.compose.ui.inspection.framework.getChildren
@@ -96,10 +98,7 @@ class AndroidComposeViewWrapper(
         if (!skipSystemComposables) composeView
         else composeView.ancestors().first { !it.isSystemView() || it.isRoot() }
 
-    val viewsToSkip: List<Long> =
-        composeView.getChildren()
-            .filter { it.getTag(R.id.hide_in_inspector_tag) != null }
-            .map { it.uniqueDrawingId }
+    val viewsToSkip: LongList = createViewsToSkip(composeView)
 
     private val inspectorNodes = layoutInspectorTree.apply {
         this.hideSystemNodes = skipSystemComposables
@@ -110,4 +109,14 @@ class AndroidComposeViewWrapper(
 
     fun findParameters(anchorId: Int): InspectorNode? =
         layoutInspectorTree.findParameters(composeView, anchorId)
+
+    private fun createViewsToSkip(viewGroup: ViewGroup): LongList {
+        val result = mutableLongListOf()
+        viewGroup.getChildren().forEach { view ->
+            if (view.getTag(R.id.hide_in_inspector_tag) != null) {
+                result.add(view.uniqueDrawingId)
+            }
+        }
+        return result
+    }
 }
