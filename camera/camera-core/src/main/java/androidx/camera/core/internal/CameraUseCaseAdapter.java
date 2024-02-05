@@ -270,7 +270,7 @@ public final class CameraUseCaseAdapter implements Camera {
             try {
                 updateUseCases(appUseCases);
             } catch (IllegalArgumentException e) {
-                throw new CameraException(e.getMessage());
+                throw new CameraException(e);
             }
         }
     }
