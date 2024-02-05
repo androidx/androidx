@@ -25,6 +25,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CustomShapeActivity"
+            android:label="Custom Shapes Test - Views"
+            android:exported="true">
+        </activity>
 
     </application>
 
