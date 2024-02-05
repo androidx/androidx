@@ -16,9 +16,14 @@
 
 package androidx.compose.ui.input.pointer.util
 
-import androidx.compose.ui.input.pointer.PointerInputChange
+internal actual const val AssumePointerMoveStoppedMilliseconds: Int = 40
+internal actual const val HistorySize: Int = 20
 
 /**
- * Some platforms (e.g. iOS) ignore certain events during velocity calculation.
+ * Some platforms (e.g. iOS) filter certain gestures during velocity calculation.
  */
-internal actual fun VelocityTracker.shouldUse(event: PointerInputChange): Boolean = true
+internal actual fun VelocityTracker1D.shouldUseDataPoints(
+    points: FloatArray,
+    times: FloatArray,
+    count: Int
+): Boolean = true

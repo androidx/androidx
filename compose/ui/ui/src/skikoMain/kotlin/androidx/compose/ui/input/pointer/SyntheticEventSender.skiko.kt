@@ -225,6 +225,7 @@ internal class SyntheticEventSender(
         type,
         issuesEnterExit,
         scrollDelta = Offset(0f, 0f),
-        historical = emptyList() // we don't copy historical for synthetic
+        historical = emptyList(), // we don't copy historical for synthetic
+        originalEventPosition = position
     )
 }

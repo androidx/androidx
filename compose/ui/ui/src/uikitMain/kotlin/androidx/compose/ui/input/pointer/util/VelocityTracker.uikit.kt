@@ -16,9 +16,35 @@
 
 package androidx.compose.ui.input.pointer.util
 
-import androidx.compose.ui.input.pointer.PointerInputChange
+import kotlin.math.abs
+
+internal actual const val AssumePointerMoveStoppedMilliseconds: Int = 100
+internal actual const val HistorySize: Int = 40 // Increased to store history on 120 Hz devices
+
+private const val MinimumGestureDurationMilliseconds: Int = 50
+private const val MinimumGestureSpeed: Float = 1.0f // Minimum tracking speed, dp/ms
 
 /**
- * Some platforms (e.g. iOS) ignore certain events during velocity calculation.
+ * Some platforms (e.g. iOS) filter certain gestures during velocity calculation.
  */
-internal actual fun VelocityTracker.shouldUse(event: PointerInputChange): Boolean = event.pressed
+internal actual fun VelocityTracker1D.shouldUseDataPoints(
+    points: FloatArray,
+    times: FloatArray,
+    count: Int
+): Boolean {
+    if (count == 0) {
+        return false
+    }
+
+    val timeDelta = abs(times[0] - times[count - 1])
+    if (timeDelta < MinimumGestureDurationMilliseconds) {
+        return false
+    }
+
+    val distance = abs(points[0] - points[count - 1])
+    if (distance / timeDelta < MinimumGestureSpeed) {
+        return false
+    }
+
+    return true
+}

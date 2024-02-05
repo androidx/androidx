@@ -118,16 +118,17 @@ internal fun PointerInputEvent(
     timeMillis,
     pointers.map {
         PointerInputEventData(
-            it.id,
-            timeMillis,
-            it.position,
-            it.position,
-            it.pressed,
-            it.pressure,
-            it.type,
+            id = it.id,
+            uptime = timeMillis,
+            positionOnScreen = it.position,
+            position = it.position,
+            down = it.pressed,
+            pressure = it.pressure,
+            type = it.type,
             issuesEnterExit = it.type == PointerType.Mouse,
             historical = it.historical,
-            scrollDelta = scrollDelta
+            scrollDelta = scrollDelta,
+            originalEventPosition = it.position
         )
     },
     buttons,

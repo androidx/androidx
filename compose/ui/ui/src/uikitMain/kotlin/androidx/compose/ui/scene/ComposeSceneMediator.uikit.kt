@@ -627,9 +627,11 @@ private fun UIEvent.historicalChangesForTouch(
         // because it's the actual touch for which coalesced touches were requested
         touches.dropLast(1).map {
             val historicalTouch = it as UITouch
+            val position = historicalTouch.offsetInView(view, density)
             HistoricalChange(
                 uptimeMillis = (historicalTouch.timestamp * 1e3).toLong(),
-                position = historicalTouch.offsetInView(view, density)
+                position = position,
+                originalEventPosition = position
             )
         }
     } else {

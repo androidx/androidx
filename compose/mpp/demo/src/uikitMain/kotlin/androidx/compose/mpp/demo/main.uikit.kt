@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.AccessibilitySyncOptions
 import androidx.compose.ui.window.ComposeUIViewController
 import bugs.IosBugs
 import bugs.ProperContainmentDisposal
+import bugs.ComposeAndNativeScroll
 import bugs.StartRecompositionCheck
 import platform.UIKit.UIViewController
 
@@ -42,6 +43,7 @@ fun IosDemo(arg: String, makeHostingController: ((Int) -> UIViewController)? = n
                 NativeModalWithNaviationExample,
                 UIKitViewOrder,
                 ProperContainmentDisposal,
+                ComposeAndNativeScroll
             ) + listOf(makeHostingController).mapNotNull {
                 it?.let {
                     SwiftUIInteropExample(it)
