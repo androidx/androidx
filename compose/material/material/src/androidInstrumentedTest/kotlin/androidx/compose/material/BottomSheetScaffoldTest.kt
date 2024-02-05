@@ -17,6 +17,8 @@
 package androidx.compose.material
 
 import android.os.Build
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -64,6 +67,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -71,7 +77,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterialApi::class)
 class BottomSheetScaffoldTest {
 
     @get:Rule
@@ -92,7 +97,10 @@ class BottomSheetScaffoldTest {
         rule.setContent {
             BottomSheetScaffold(
                 sheetContent = {
-                    Box(Modifier.fillMaxSize().testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight
             ) {
@@ -112,7 +120,11 @@ class BottomSheetScaffoldTest {
                     bottomSheetState = rememberBottomSheetState(BottomSheetValue.Expanded)
                 ),
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight
             ) {
@@ -132,7 +144,11 @@ class BottomSheetScaffoldTest {
                     bottomSheetState = rememberBottomSheetState(BottomSheetValue.Collapsed)
                 ),
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight
             ) {
@@ -159,7 +175,11 @@ class BottomSheetScaffoldTest {
                     bottomSheetState = rememberBottomSheetState(BottomSheetValue.Expanded)
                 ),
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight
             ) {
@@ -188,7 +208,10 @@ class BottomSheetScaffoldTest {
                     ),
                     sheetContent = {
                         Box(
-                            Modifier.fillMaxWidth().requiredHeight(peekHeight).testTag(sheetContent)
+                            Modifier
+                                .fillMaxWidth()
+                                .requiredHeight(peekHeight)
+                                .testTag(sheetContent)
                         )
                     },
                     sheetPeekHeight = peekHeight
@@ -213,7 +236,11 @@ class BottomSheetScaffoldTest {
                     bottomSheetState = bottomSheetState
                 ),
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight,
                 content = { Text("Content") }
@@ -248,7 +275,11 @@ class BottomSheetScaffoldTest {
                     bottomSheetState = bottomSheetState
                 ),
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight,
                 content = { Text("Content") }
@@ -293,7 +324,11 @@ class BottomSheetScaffoldTest {
                     bottomSheetState = bottomSheetState,
                 ),
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight,
                 content = { Text("Content") }
@@ -335,7 +370,11 @@ class BottomSheetScaffoldTest {
                     bottomSheetState = bottomSheetState
                 ),
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetGesturesEnabled = false,
                 sheetPeekHeight = peekHeight,
@@ -450,7 +489,11 @@ class BottomSheetScaffoldTest {
             BottomSheetScaffold(
                 scaffoldState = scaffoldState,
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetGesturesEnabled = false,
                 sheetPeekHeight = peekHeight,
@@ -459,7 +502,8 @@ class BottomSheetScaffoldTest {
                         modifier = Modifier
                             .onGloballyPositioned { positioned ->
                                 fabSize = positioned.size
-                            }.testTag(fabTag),
+                            }
+                            .testTag(fabTag),
                         onClick = {}
                     ) {
                         Icon(Icons.Filled.Favorite, null)
@@ -498,7 +542,11 @@ class BottomSheetScaffoldTest {
             BottomSheetScaffold(
                 scaffoldState = scaffoldState,
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .testTag(sheetContent))
                 },
                 sheetGesturesEnabled = false,
                 sheetPeekHeight = peekHeight,
@@ -507,7 +555,8 @@ class BottomSheetScaffoldTest {
                         modifier = Modifier
                             .onGloballyPositioned { positioned ->
                                 fabSize = positioned.size
-                            }.testTag(fabTag),
+                            }
+                            .testTag(fabTag),
                         onClick = {}
                     ) {
                         Icon(Icons.Filled.Favorite, null)
@@ -549,7 +598,8 @@ class BottomSheetScaffoldTest {
                 BottomSheetScaffold(
                     topBar = {
                         Box(
-                            Modifier.requiredSize(10.dp)
+                            Modifier
+                                .requiredSize(10.dp)
                                 .shadow(4.dp)
                                 .zIndex(4f)
                                 .background(color = Color.White)
@@ -560,7 +610,8 @@ class BottomSheetScaffoldTest {
                     }
                 ) {
                     Box(
-                        Modifier.requiredSize(10.dp)
+                        Modifier
+                            .requiredSize(10.dp)
                             .background(color = Color.White)
                     )
                 }
@@ -584,7 +635,10 @@ class BottomSheetScaffoldTest {
         rule.setContent {
             BottomSheetScaffold(
                 sheetContent = {
-                    Box(Modifier.fillMaxWidth().requiredHeight(100.dp))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(100.dp))
                 },
                 sheetPeekHeight = peekHeight
             ) {
@@ -611,6 +665,61 @@ class BottomSheetScaffoldTest {
                 floatingActionButton = { },
                 content = { }
             )
+        }
+    }
+
+    @Test
+    fun bottomSheetScaffold_progress() {
+        rule.mainClock.autoAdvance = false
+        lateinit var state: BottomSheetState
+        lateinit var scope: CoroutineScope
+        val animationLengthMillis = 192
+        val amountOfFramesForAnimation = animationLengthMillis / 16
+        rule.setContent {
+            state = rememberBottomSheetState(
+                BottomSheetValue.Collapsed,
+                tween(animationLengthMillis, easing = LinearEasing)
+            )
+            scope = rememberCoroutineScope()
+            BottomSheetScaffold(
+                scaffoldState = rememberBottomSheetScaffoldState(state),
+                sheetContent = { Box(Modifier.fillMaxSize()) },
+                content = { Box(Modifier.fillMaxSize()) }
+            )
+        }
+
+        Truth.assertThat(state.currentValue).isEqualTo(BottomSheetValue.Collapsed)
+        Truth.assertThat(state.targetValue).isEqualTo(BottomSheetValue.Collapsed)
+        assertThat(state.progress(
+            from = BottomSheetValue.Collapsed, to = BottomSheetValue.Expanded
+        )).isEqualTo(0f)
+
+        scope.launch { state.expand() }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val collapsedToExpandedProgress = state.progress(
+                from = BottomSheetValue.Collapsed, to = BottomSheetValue.Expanded
+            )
+            assertThat(collapsedToExpandedProgress).isWithin(0.001f).of(frameFraction)
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        scope.launch { state.collapse() }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val collapsedToExpandedProgress = state.progress(
+                from = BottomSheetValue.Collapsed, to = BottomSheetValue.Expanded
+            )
+            assertThat(collapsedToExpandedProgress).isWithin(0.001f).of(1 - frameFraction)
+            rule.mainClock.advanceTimeByFrame()
         }
     }
 }
