@@ -733,7 +733,11 @@ private val hiddenAnnotationsKotlin: List<String> = listOf("kotlin.ExtensionFunc
 private val hiddenAnnotationsJava: List<String> = emptyList()
 
 // Annotations which mean the elements they are applied to should be hidden from the docs
-private val annotationsToHideApis: List<String> = listOf("androidx.annotation.RestrictTo")
+private val annotationsToHideApis: List<String> = listOf(
+    "androidx.annotation.RestrictTo",
+    // Appears in androidx.test sources
+    "dagger.internal.DaggerGenerated",
+)
 
 /** Data class that matches JSON structure of kotlin source set metadata */
 data class ProjectStructureMetadata(var sourceSets: List<SourceSetMetadata>)
