@@ -100,14 +100,12 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withModule
 import org.gradle.plugin.devel.plugins.JavaGradlePluginPlugin
 import org.gradle.plugin.devel.tasks.ValidatePlugins
-import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -1419,56 +1417,6 @@ fun String.asFilenamePrefix(): String {
  */
 fun <T : Task> Project.addToCheckTask(task: TaskProvider<T>) {
     project.tasks.named("check").configure { it.dependsOn(task) }
-}
-
-/** Expected to be called in afterEvaluate when all extensions are available */
-internal fun Project.hasAndroidTestSourceCode(): Boolean {
-    // com.android.test modules keep test code in main sourceset
-    extensions.findByType(TestExtension::class.java)?.let { testExtension ->
-        testExtension.sourceSets.findByName("main")?.let { sourceSet ->
-            if (!sourceSet.java.getSourceFiles().isEmpty) return true
-        }
-        // check kotlin-android main source set
-        extensions
-            .findByType(KotlinAndroidProjectExtension::class.java)
-            ?.sourceSets
-            ?.findByName("main")
-            ?.let { if (it.kotlin.files.isNotEmpty()) return true }
-        // Note, don't have to check for kotlin-multiplatform as it is not compatible with
-        // com.android.test modules
-    }
-
-    // check Java androidTest source set
-    extensions
-        .findByType(TestedExtension::class.java)
-        ?.sourceSets
-        ?.findByName("androidTest")
-        ?.let { sourceSet ->
-            // using getSourceFiles() instead of sourceFiles due to b/150800094
-            if (!sourceSet.java.getSourceFiles().isEmpty) return true
-        }
-
-    // check kotlin-android androidTest source set
-    extensions
-        .findByType(KotlinAndroidProjectExtension::class.java)
-        ?.sourceSets
-        ?.findByName("androidTest")
-        ?.let { if (it.kotlin.files.isNotEmpty()) return true }
-
-    // check kotlin-multiplatform androidInstrumentedTest target source sets
-    multiplatformExtension?.let { kmpExtension ->
-        val instrumentedTestSourceSets = kmpExtension
-            .targets
-            .filterIsInstance<KotlinAndroidTarget>()
-            .mapNotNull {
-                target -> target.compilations.findByName("debugAndroidTest")
-            }.flatMap { compilation -> compilation.allKotlinSourceSets }
-        if (instrumentedTestSourceSets.any { it.kotlin.files.isNotEmpty() }) {
-            return true
-        }
-    }
-
-    return false
 }
 
 fun Project.validateMultiplatformPluginHasNotBeenApplied() {
