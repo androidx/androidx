@@ -30,6 +30,7 @@ import androidx.car.app.hardware.info.CarInfo;
 import androidx.car.app.hardware.info.EnergyProfile;
 import androidx.car.app.hardware.info.Model;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
@@ -207,8 +208,10 @@ public final class CarHardwareInfoScreen extends Screen {
             paneBuilder.setLoading(true);
         }
         return new PaneTemplate.Builder(paneBuilder.build())
-                .setHeaderAction(Action.BACK)
-                .setTitle(getCarContext().getString(R.string.car_hardware_info))
+                .setHeader(new Header.Builder()
+                        .setStartHeaderAction(Action.BACK)
+                        .setTitle(getCarContext().getString(R.string.car_hardware_info))
+                        .build())
                 .build();
     }
 
