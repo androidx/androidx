@@ -88,7 +88,6 @@ For more information, check out <a href="https://developer.android.com/jetpack/c
 |                         | [NavigationRailItem]           | M3 navigation rail item                   |
 | **Progress indicators** | [LinearProgressIndicator]      | M3 linear progress indicator              |
 |                         | [CircularProgressIndicator]    | M3 circular progress indicator            |
-| **Pull refresh **       | [PullToRefreshContainer]       | M3 pull to refresh indicator              |
 | **Radio button**        | [RadioButton]                  | M3 radio button                           |
 | **Search Bar**          | [SearchBar]                    | M3 search bar                             |
 |                         | [DockedSearchBar]              | M3 docked search bar                      |
@@ -102,7 +101,11 @@ For more information, check out <a href="https://developer.android.com/jetpack/c
 | **Switch**              | [Switch]                       | M3 switch                                 |
 | **Tabs**                | [Tab]                          | M3 tab                                    |
 |                         | [LeadingIconTab]               | M3 leading icon tab                       |
-|                         | [TabRow]                       | M3 tab row                                |
+|                         | [PrimaryIndicator]             | M3 primary tab indicator                  |
+|                         | [PrimaryTabRow]                | M3 primary tab row                        |
+|                         | [SecondaryIndicator]           | M3 secondary tab indicator                |
+|                         | [SecondaryTabRow]              | M3 secondary tab row                      |
+|                         | [TabRow]                       | M3 fixed tab row                          |
 |                         | [ScrollableTabRow]             | M3 scrollable tab row                     |
 | **Text fields**         | [TextField]                    | M3 filled text field                      |
 |                         | [OutlinedTextField]            | M3 outlined text field                    |
