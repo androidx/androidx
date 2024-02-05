@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -59,7 +58,6 @@ internal fun Modifier.textFieldMinSize(style: TextStyle) = composed {
     minSizeState.update(layoutDirection, density, fontFamilyResolver, resolvedStyle, typeface)
 
     Modifier.layout { measurable, constraints ->
-        Modifier.defaultMinSize()
         val minSize = minSizeState.minSize
 
         val childConstraints = constraints.copy(
