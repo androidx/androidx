@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,22 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.box
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.Function1TypeSpec
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverTypeNames
-import androidx.room.ext.isNotVoid
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
 /**
- * Binder that knows how to write instant (blocking) upsert methods.
+ * Binder for suspending upsert methods.
  */
-class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
-    InsertOrUpsertMethodBinder(adapter) {
+class CoroutineUpsertMethodBinder(
+    val typeArg: XType,
+    adapter: InsertOrUpsertMethodAdapter?,
+    private val continuationParamName: String
+) : InsertOrUpsertMethodBinder(adapter) {
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
@@ -60,10 +63,9 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
             return
         }
         val connectionVar = scope.getTmpVar("_connection")
-        val returnPrefix = if (adapter.returnType.isNotVoid()) { "return " } else { "" }
         scope.builder.addStatement(
-            "$returnPrefix%M(%N, %L, %L, %L)",
-            RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+            "return %M(%N, %L, %L, %L, %L)",
+            RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
             dbProperty,
             false, // isReadOnly
             true, // inTransaction
@@ -83,7 +85,8 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
                     )
                 }.build()
                 this.addCode(functionCode)
-            }
+            },
+            continuationParamName
         )
     }
 
@@ -97,10 +100,11 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
             return
         }
         val connectionVar = scope.getTmpVar("_connection")
+
         scope.builder.apply {
             beginControlFlow(
                 "return %M(%N, %L, %L) { %L ->",
-                RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
                 dbProperty,
                 false, // isReadOnly
                 true, // inTransaction
@@ -122,13 +126,8 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        adapter?.generateMethodBodyCompat(
-            parameters = parameters,
-            adapters = adapters,
-            dbProperty = dbProperty,
-            scope = scope
-        )
+        error("Wrong convertAndReturn invoked")
     }
 
-    override fun isMigratedToDriver() = true
+    override fun isMigratedToDriver(): Boolean = true
 }

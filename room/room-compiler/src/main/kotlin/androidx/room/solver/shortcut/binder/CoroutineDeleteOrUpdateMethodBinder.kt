@@ -19,24 +19,28 @@ package androidx.room.solver.shortcut.binder
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.box
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.Function1TypeSpec
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverTypeNames
-import androidx.room.ext.isNotVoid
 import androidx.room.solver.CodeGenScope
-import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
+import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
 /**
- * Binder that knows how to write instant (blocking) upsert methods.
+ * Binder for suspending delete and update methods.
  */
-class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
-    InsertOrUpsertMethodBinder(adapter) {
+class CoroutineDeleteOrUpdateMethodBinder(
+    val typeArg: XType,
+    adapter: DeleteOrUpdateMethodAdapter?,
+    private val continuationParamName: String
+) : DeleteOrUpdateMethodBinder(adapter) {
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
@@ -60,10 +64,9 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
             return
         }
         val connectionVar = scope.getTmpVar("_connection")
-        val returnPrefix = if (adapter.returnType.isNotVoid()) { "return " } else { "" }
         scope.builder.addStatement(
-            "$returnPrefix%M(%N, %L, %L, %L)",
-            RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+            "return %M(%N, %L, %L, %L, %L)",
+            RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
             dbProperty,
             false, // isReadOnly
             true, // inTransaction
@@ -77,13 +80,14 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
                 val functionCode = functionScope.builder.apply {
                     adapter.generateMethodBody(
                         scope = functionScope,
-                        connectionVar = connectionVar,
                         parameters = parameters,
-                        adapters = adapters
+                        adapters = adapters,
+                        connectionVar = connectionVar
                     )
                 }.build()
                 this.addCode(functionCode)
-            }
+            },
+            continuationParamName
         )
     }
 
@@ -100,7 +104,7 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
         scope.builder.apply {
             beginControlFlow(
                 "return %M(%N, %L, %L) { %L ->",
-                RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
                 dbProperty,
                 false, // isReadOnly
                 true, // inTransaction
@@ -108,9 +112,9 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
             ).apply {
                 adapter.generateMethodBody(
                     scope = scope,
-                    connectionVar = connectionVar,
                     parameters = parameters,
-                    adapters = adapters
+                    adapters = adapters,
+                    connectionVar = connectionVar
                 )
             }.endControlFlow()
         }
@@ -118,17 +122,12 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
 
     override fun convertAndReturnCompat(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        adapter?.generateMethodBodyCompat(
-            parameters = parameters,
-            adapters = adapters,
-            dbProperty = dbProperty,
-            scope = scope
-        )
+        TODO("Will be removed")
     }
 
-    override fun isMigratedToDriver() = true
+    override fun isMigratedToDriver(): Boolean = true
 }

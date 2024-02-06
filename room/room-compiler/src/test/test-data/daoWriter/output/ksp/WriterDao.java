@@ -1,33 +1,37 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
-import androidx.room.EntityInsertionAdapter;
+import androidx.room.EntityInsertAdapter;
 import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteStatement;
+import androidx.room.util.DBUtil;
+import androidx.sqlite.SQLiteConnection;
+import androidx.sqlite.SQLiteStatement;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
+import java.lang.Void;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.processing.Generated;
+import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
 public final class WriterDao_Impl implements WriterDao {
     private final RoomDatabase __db;
 
-    private final EntityInsertionAdapter<User> __insertAdapterOfUser;
+    private final EntityInsertAdapter<User> __insertAdapterOfUser;
 
-    private final EntityInsertionAdapter<User> __insertAdapterOfUser_1;
+    private final EntityInsertAdapter<User> __insertAdapterOfUser_1;
 
-    private final EntityInsertionAdapter<User> __insertAdapterOfUser_2;
+    private final EntityInsertAdapter<User> __insertAdapterOfUser_2;
 
-    private final EntityInsertionAdapter<Book> __insertAdapterOfBook;
+    private final EntityInsertAdapter<Book> __insertAdapterOfBook;
 
     public WriterDao_Impl(@NonNull final RoomDatabase __db) {
         this.__db = __db;
-        this.__insertAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
+        this.__insertAdapterOfUser = new EntityInsertAdapter<User>() {
             @Override
             @NonNull
             protected String createQuery() {
@@ -35,15 +39,14 @@ public final class WriterDao_Impl implements WriterDao {
             }
 
             @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final User entity) {
+            protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
-                statement.bindString(2, entity.name);
-                statement.bindString(3, entity.getLastName());
+                statement.bindText(2, entity.name);
+                statement.bindText(3, entity.getLastName());
                 statement.bindLong(4, entity.age);
             }
         };
-        this.__insertAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
+        this.__insertAdapterOfUser_1 = new EntityInsertAdapter<User>() {
             @Override
             @NonNull
             protected String createQuery() {
@@ -51,15 +54,14 @@ public final class WriterDao_Impl implements WriterDao {
             }
 
             @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final User entity) {
+            protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
-                statement.bindString(2, entity.name);
-                statement.bindString(3, entity.getLastName());
+                statement.bindText(2, entity.name);
+                statement.bindText(3, entity.getLastName());
                 statement.bindLong(4, entity.age);
             }
         };
-        this.__insertAdapterOfUser_2 = new EntityInsertionAdapter<User>(__db) {
+        this.__insertAdapterOfUser_2 = new EntityInsertAdapter<User>() {
             @Override
             @NonNull
             protected String createQuery() {
@@ -67,15 +69,14 @@ public final class WriterDao_Impl implements WriterDao {
             }
 
             @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final User entity) {
+            protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
-                statement.bindString(2, entity.name);
-                statement.bindString(3, entity.getLastName());
+                statement.bindText(2, entity.name);
+                statement.bindText(3, entity.getLastName());
                 statement.bindLong(4, entity.age);
             }
         };
-        this.__insertAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
+        this.__insertAdapterOfBook = new EntityInsertAdapter<Book>() {
             @Override
             @NonNull
             protected String createQuery() {
@@ -83,8 +84,7 @@ public final class WriterDao_Impl implements WriterDao {
             }
 
             @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final Book entity) {
+            protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Book entity) {
                 statement.bindLong(1, entity.bookId);
                 statement.bindLong(2, entity.uid);
             }
@@ -93,65 +93,65 @@ public final class WriterDao_Impl implements WriterDao {
 
     @Override
     public void insertUser(final User user) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertAdapterOfUser.insert(user);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
-        }
+        DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+            @Override
+            @NonNull
+            public Void invoke(@NonNull final SQLiteConnection _connection) {
+                __insertAdapterOfUser.insert(_connection, user);
+                return null;
+            }
+        });
     }
 
     @Override
     public void insertUsers(final User user1, final List<User> others) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertAdapterOfUser.insert(user1);
-            __insertAdapterOfUser.insert(others);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
-        }
+        DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+            @Override
+            @NonNull
+            public Void invoke(@NonNull final SQLiteConnection _connection) {
+                __insertAdapterOfUser.insert(_connection, user1);
+                __insertAdapterOfUser.insert(_connection, others);
+                return null;
+            }
+        });
     }
 
     @Override
     public void insertUsers(final User[] users) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertAdapterOfUser_1.insert(users);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
-        }
+        DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+            @Override
+            @NonNull
+            public Void invoke(@NonNull final SQLiteConnection _connection) {
+                __insertAdapterOfUser_1.insert(_connection, users);
+                return null;
+            }
+        });
     }
 
     @Override
     public void insertTwoUsers(final User userOne, final User userTwo) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertAdapterOfUser_2.insert(userOne);
-            __insertAdapterOfUser_2.insert(userTwo);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
-        }
+        DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+            @Override
+            @NonNull
+            public Void invoke(@NonNull final SQLiteConnection _connection) {
+                __insertAdapterOfUser_2.insert(_connection, userOne);
+                __insertAdapterOfUser_2.insert(_connection, userTwo);
+                return null;
+            }
+        });
     }
 
     @Override
     public void insertUserAndBook(final User user, final Book book) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertAdapterOfUser.insert(user);
-            __insertAdapterOfBook.insert(book);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
-        }
+        DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+            @Override
+            @NonNull
+            public Void invoke(@NonNull final SQLiteConnection _connection) {
+                __insertAdapterOfUser.insert(_connection, user);
+                __insertAdapterOfBook.insert(_connection, book);
+                return null;
+            }
+        });
     }
 
     @NonNull

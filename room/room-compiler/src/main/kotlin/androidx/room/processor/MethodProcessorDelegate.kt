@@ -36,9 +36,9 @@ import androidx.room.solver.prepared.binder.CoroutinePreparedQueryResultBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
-import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
-import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder.Companion.createUpsertBinder
+import androidx.room.solver.shortcut.binder.CoroutineDeleteOrUpdateMethodBinder
+import androidx.room.solver.shortcut.binder.CoroutineInsertMethodBinder
+import androidx.room.solver.shortcut.binder.CoroutineUpsertMethodBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
@@ -247,30 +247,27 @@ class SuspendMethodProcessorDelegate(
     override fun findInsertMethodBinder(
         returnType: XType,
         params: List<ShortcutQueryParameter>
-    ) = createInsertBinder(
+    ) = CoroutineInsertMethodBinder(
         typeArg = returnType,
-        adapter = context.typeAdapterStore.findInsertAdapter(returnType, params)
-    ) { callableImpl, dbProperty ->
-        addCoroutineExecuteStatement(callableImpl, dbProperty)
-    }
+        adapter = context.typeAdapterStore.findInsertAdapter(returnType, params),
+        continuationParamName = continuationParam.name
+    )
 
     override fun findUpsertMethodBinder(
         returnType: XType,
         params: List<ShortcutQueryParameter>
-    ) = createUpsertBinder(
+    ) = CoroutineUpsertMethodBinder(
         typeArg = returnType,
-        adapter = context.typeAdapterStore.findUpsertAdapter(returnType, params)
-    ) { callableImpl, dbProperty ->
-        addCoroutineExecuteStatement(callableImpl, dbProperty)
-    }
+        adapter = context.typeAdapterStore.findUpsertAdapter(returnType, params),
+        continuationParamName = continuationParam.name
+    )
 
     override fun findDeleteOrUpdateMethodBinder(returnType: XType) =
-        createDeleteOrUpdateBinder(
+        CoroutineDeleteOrUpdateMethodBinder(
             typeArg = returnType,
-            adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(returnType)
-        ) { callableImpl, dbProperty ->
-            addCoroutineExecuteStatement(callableImpl, dbProperty)
-        }
+            adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(returnType),
+            continuationParamName = continuationParam.name
+        )
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(

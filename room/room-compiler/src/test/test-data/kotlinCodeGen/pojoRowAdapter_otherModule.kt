@@ -1,14 +1,14 @@
-import androidx.room.EntityInsertionAdapter
+import androidx.room.EntityInsertAdapter
 import androidx.room.RoomDatabase
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
 import kotlin.reflect.KClass
 
@@ -19,58 +19,52 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __insertAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+  private val __insertAdapterOfMyEntity: EntityInsertAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__insertAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+    this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `MyEntity` (`pk`,`primitive`,`string`,`nullableString`,`fieldString`,`nullableFieldString`,`variablePrimitive`,`variableString`,`variableNullableString`,`variableFieldString`,`variableNullableFieldString`) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
         statement.bindLong(2, entity.primitive)
-        statement.bindString(3, entity.string)
+        statement.bindText(3, entity.string)
         val _tmpNullableString: String? = entity.nullableString
         if (_tmpNullableString == null) {
           statement.bindNull(4)
         } else {
-          statement.bindString(4, _tmpNullableString)
+          statement.bindText(4, _tmpNullableString)
         }
-        statement.bindString(5, entity.fieldString)
+        statement.bindText(5, entity.fieldString)
         val _tmpNullableFieldString: String? = entity.nullableFieldString
         if (_tmpNullableFieldString == null) {
           statement.bindNull(6)
         } else {
-          statement.bindString(6, _tmpNullableFieldString)
+          statement.bindText(6, _tmpNullableFieldString)
         }
         statement.bindLong(7, entity.variablePrimitive)
-        statement.bindString(8, entity.variableString)
+        statement.bindText(8, entity.variableString)
         val _tmpVariableNullableString: String? = entity.variableNullableString
         if (_tmpVariableNullableString == null) {
           statement.bindNull(9)
         } else {
-          statement.bindString(9, _tmpVariableNullableString)
+          statement.bindText(9, _tmpVariableNullableString)
         }
-        statement.bindString(10, entity.variableFieldString)
+        statement.bindText(10, entity.variableFieldString)
         val _tmpVariableNullableFieldString: String? = entity.variableNullableFieldString
         if (_tmpVariableNullableFieldString == null) {
           statement.bindNull(11)
         } else {
-          statement.bindString(11, _tmpVariableNullableFieldString)
+          statement.bindText(11, _tmpVariableNullableFieldString)
         }
       }
     }
   }
 
-  public override fun addEntity(item: MyEntity) {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      __insertAdapterOfMyEntity.insert(item)
-      __db.setTransactionSuccessful()
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun addEntity(item: MyEntity): Unit = performBlocking(__db, false, true) {
+      _connection ->
+    __insertAdapterOfMyEntity.insert(_connection, item)
   }
 
   public override fun getEntity(): MyEntity {
