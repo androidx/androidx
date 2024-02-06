@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input
+package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.internal.OffsetMappingCalculator
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
