@@ -18,7 +18,6 @@ package androidx.compose.material3
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -830,7 +829,6 @@ private fun VerticalMonthsList(
                             ) ?: "-",
                             modifier = Modifier
                                 .padding(paddingValues = CalendarMonthSubheadPadding)
-                                .clickable { /* no-op (needed for customActions to operate */ }
                                 .semantics {
                                     customActions = customAccessibilityAction
                                 },
