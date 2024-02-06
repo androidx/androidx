@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4
 class KeyboardOptionsTest {
 
     @Test
-    fun test_toImeOption() {
+    fun toImeOptions_copiesRelevantProperties() {
         val platformImeOptions = PlatformImeOptions("privateImeOptions")
 
         val keyboardOptions = KeyboardOptions(

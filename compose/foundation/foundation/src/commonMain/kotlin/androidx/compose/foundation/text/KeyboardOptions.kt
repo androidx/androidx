@@ -95,7 +95,7 @@ class KeyboardOptions(
         keyboardType,
         imeAction,
         platformImeOptions,
-        true
+        shouldShowKeyboardOnFocus = true
     )
 
     /**
@@ -147,7 +147,10 @@ class KeyboardOptions(
             autoCorrect = autoCorrect,
             keyboardType = keyboardType,
             imeAction = imeAction,
-            platformImeOptions = platformImeOptions
+            platformImeOptions = platformImeOptions,
+            shouldShowKeyboardOnFocus = this.shouldShowKeyboardOnFocus,
+            // New properties must be added here even though this is deprecated. The deprecated copy
+            // constructors should still work on instances created with newer library versions.
         )
     }
 
@@ -166,7 +169,10 @@ class KeyboardOptions(
             autoCorrect = autoCorrect,
             keyboardType = keyboardType,
             imeAction = imeAction,
-            platformImeOptions = this.platformImeOptions
+            platformImeOptions = this.platformImeOptions,
+            shouldShowKeyboardOnFocus = this.shouldShowKeyboardOnFocus,
+            // New properties must be added here even though this is deprecated. The deprecated copy
+            // constructors should still work on instances created with newer library versions.
         )
     }
 
@@ -198,6 +204,6 @@ class KeyboardOptions(
         return "KeyboardOptions(capitalization=$capitalization, autoCorrect=$autoCorrect, " +
             "keyboardType=$keyboardType, imeAction=$imeAction, " +
             "platformImeOptions=$platformImeOptions, " +
-            "showKeyboardOnFocus=$shouldShowKeyboardOnFocus)"
+            "shouldShowKeyboardOnFocus=$shouldShowKeyboardOnFocus)"
     }
 }
