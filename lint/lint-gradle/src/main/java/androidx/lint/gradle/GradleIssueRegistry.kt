@@ -27,7 +27,7 @@ class GradleIssueRegistry : IssueRegistry() {
     override val api = CURRENT_API
 
     override val issues = listOf(
-        EagerTaskConfigurationDetector.ISSUE,
+        EagerConfigurationDetector.ISSUE,
     )
 
     override val vendor = Vendor(
