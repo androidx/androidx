@@ -21,7 +21,6 @@ import androidx.collection.MutableIntList
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.changelist.ChangeList
-import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
@@ -487,13 +486,19 @@ internal class CompositionImpl(
      * A map of observable objects to the [RecomposeScope]s that observe the object. If the key
      * object is modified the associated scopes should be invalidated.
      */
-    private val observations = ScopeMap<RecomposeScopeImpl>()
+    private val observations = ScopeMap<Any, RecomposeScopeImpl>()
 
     /**
      * Used for testing. Returns the objects that are observed
      */
     internal val observedObjects
         @TestOnly @Suppress("AsCollectionCall") get() = observations.map.asMap().keys
+
+    /**
+     * A set of scopes that were invalidated by a call from [recordModificationsOf].
+     * This set is only used in [addPendingInvalidationsLocked], and is reused between invocations.
+     */
+    private val invalidatedScopes = MutableScatterSet<RecomposeScopeImpl>()
 
     /**
      * A set of scopes that were invalidated conditionally (that is they were invalidated by a
@@ -506,7 +511,7 @@ internal class CompositionImpl(
     /**
      * A map of object read during derived states to the corresponding derived state.
      */
-    private val derivedStates = ScopeMap<DerivedState<*>>()
+    private val derivedStates = ScopeMap<Any, DerivedState<*>>()
 
     /**
      * Used for testing. Returns dependencies of derived states that are currently observed.
@@ -545,7 +550,7 @@ internal class CompositionImpl(
      * scopes that were already dismissed by composition and should be ignored in the next call
      * to [recordModificationsOf].
      */
-    private val observationsProcessed = ScopeMap<RecomposeScopeImpl>()
+    private val observationsProcessed = ScopeMap<Any, RecomposeScopeImpl>()
 
     /**
      * A map of the invalid [RecomposeScope]s. If this map is non-empty the current state of
@@ -554,7 +559,7 @@ internal class CompositionImpl(
      * scope. The scope is checked with these instances to ensure the value has changed. This is
      * used to only invalidate the scope if a [derivedStateOf] object changes.
      */
-    private var invalidations = IdentityArrayMap<RecomposeScopeImpl, IdentityArraySet<Any>?>()
+    private var invalidations = ScopeMap<RecomposeScopeImpl, Any>()
 
     /**
      * As [RecomposeScope]s are removed the corresponding entries in the observations set must be
@@ -723,17 +728,19 @@ internal class CompositionImpl(
 
     override fun composeContent(content: @Composable () -> Unit) {
         // TODO: This should raise a signal to any currently running recompose calls
-        // to halt and return
+        //   to halt and return
         guardChanges {
             synchronized(lock) {
                 drainPendingModificationsForCompositionLocked()
                 guardInvalidationsLocked { invalidations ->
                     val observer = observer()
-                    @Suppress("UNCHECKED_CAST")
-                    observer?.onBeginComposition(
-                        this,
-                        invalidations.asMap() as Map<RecomposeScope, Set<Any>?>
-                    )
+                    if (observer != null) {
+                        @Suppress("UNCHECKED_CAST")
+                        observer.onBeginComposition(
+                            this,
+                            invalidations.asMap() as Map<RecomposeScope, Set<Any>?>
+                        )
+                    }
                     composer.composeContent(invalidations, content)
                     observer?.onEndComposition(this)
                 }
@@ -833,11 +840,10 @@ internal class CompositionImpl(
 
     override fun prepareCompose(block: () -> Unit) = composer.prepareCompose(block)
 
-    private fun MutableScatterSet<RecomposeScopeImpl>?.addPendingInvalidationsLocked(
+    private fun addPendingInvalidationsLocked(
         value: Any,
         forgetConditionalScopes: Boolean
-    ): MutableScatterSet<RecomposeScopeImpl>? {
-        var set = this
+    ) {
         observations.forEachScopeOf(value) { scope ->
             if (
                 !observationsProcessed.remove(value, scope) &&
@@ -846,41 +852,36 @@ internal class CompositionImpl(
                 if (scope.isConditional && !forgetConditionalScopes) {
                     conditionallyInvalidatedScopes.add(scope)
                 } else {
-                    if (set == null) set = MutableScatterSet()
-                    set?.add(scope)
+                    invalidatedScopes.add(scope)
                 }
             }
         }
-        return set
     }
 
     private fun addPendingInvalidationsLocked(values: Set<Any>, forgetConditionalScopes: Boolean) {
-        var invalidated: MutableScatterSet<RecomposeScopeImpl>? = null
-
         values.fastForEach { value ->
             if (value is RecomposeScopeImpl) {
                 value.invalidateForResult(null)
             } else {
-                invalidated =
-                    invalidated.addPendingInvalidationsLocked(value, forgetConditionalScopes)
+                addPendingInvalidationsLocked(value, forgetConditionalScopes)
                 derivedStates.forEachScopeOf(value) {
-                    invalidated =
-                        invalidated.addPendingInvalidationsLocked(it, forgetConditionalScopes)
+                    addPendingInvalidationsLocked(it, forgetConditionalScopes)
                 }
             }
         }
 
+        val conditionallyInvalidatedScopes = conditionallyInvalidatedScopes
+        val invalidatedScopes = invalidatedScopes
         if (forgetConditionalScopes && conditionallyInvalidatedScopes.isNotEmpty()) {
             observations.removeScopeIf { scope ->
-                scope in conditionallyInvalidatedScopes || invalidated?.let { scope in it } == true
+                scope in conditionallyInvalidatedScopes || scope in invalidatedScopes
             }
             conditionallyInvalidatedScopes.clear()
             cleanUpDerivedStateObservations()
-        } else {
-            invalidated?.let {
-                observations.removeScopeIf { scope -> scope in it }
-                cleanUpDerivedStateObservations()
-            }
+        } else if (invalidatedScopes.isNotEmpty()) {
+            observations.removeScopeIf { scope -> scope in invalidatedScopes }
+            cleanUpDerivedStateObservations()
+            invalidatedScopes.clear()
         }
     }
 
@@ -1044,7 +1045,7 @@ internal class CompositionImpl(
     }
 
     private inline fun <T> guardInvalidationsLocked(
-        block: (changes: IdentityArrayMap<RecomposeScopeImpl, IdentityArraySet<Any>?>) -> T
+        block: (changes: ScopeMap<RecomposeScopeImpl, Any>) -> T
     ): T {
         val invalidations = takeInvalidations()
         return try {
@@ -1159,12 +1160,12 @@ internal class CompositionImpl(
                     return InvalidationResult.IMMINENT
                 }
 
-                // invalidations[scope] containing an explicit null means it was invalidated
+                // invalidations[scope] containing ScopeInvalidated means it was invalidated
                 // unconditionally.
                 if (instance == null) {
-                    invalidations[scope] = null
+                    invalidations.set(scope, ScopeInvalidated)
                 } else {
-                    invalidations.addValue(scope, instance)
+                    invalidations.add(scope, instance)
                 }
             }
             delegate
@@ -1193,9 +1194,9 @@ internal class CompositionImpl(
      * This takes ownership of the current invalidations and sets up a new array map to hold the
      * new invalidations.
      */
-    private fun takeInvalidations(): IdentityArrayMap<RecomposeScopeImpl, IdentityArraySet<Any>?> {
+    private fun takeInvalidations(): ScopeMap<RecomposeScopeImpl, Any> {
         val invalidations = invalidations
-        this.invalidations = IdentityArrayMap()
+        this.invalidations = ScopeMap()
         return invalidations
     }
 
@@ -1410,16 +1411,7 @@ internal class CompositionImpl(
     }
 }
 
-private fun <K : Any, V : Any> IdentityArrayMap<K, IdentityArraySet<V>?>.addValue(
-    key: K,
-    value: V
-) {
-    if (key in this) {
-        this[key]?.add(value)
-    } else {
-        this[key] = IdentityArraySet<V>().also { it.add(value) }
-    }
-}
+internal object ScopeInvalidated
 
 @ExperimentalComposeRuntimeApi
 internal class CompositionObserverHolder(
