@@ -410,8 +410,8 @@ WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedD
 WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
 WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
 WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `nextPageKey` in DFunction onResult
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `previousPageKey` in DFunction onResult
+WARN: .*\/unzipped.*\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `nextPageKey` in DFunction onResult
+WARN: .*\/unzipped.*\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `previousPageKey` in DFunction onResult
 WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
 WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
 WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams

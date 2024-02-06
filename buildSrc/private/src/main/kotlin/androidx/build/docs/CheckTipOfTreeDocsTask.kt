@@ -39,23 +39,44 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
     @get:Input
     abstract val projectPathProvider: Property<String>
 
+    @get:Input
+    abstract val projectIsKmp: Property<Boolean>
+
     @TaskAction
     fun exec() {
+        val projectPath = projectPathProvider.get()
         // Make sure not to allow a partial project path match, e.g. ":activity:activity" shouldn't
         // match ":activity:activity-ktx", both need to be listed separately.
-        val projectPath = projectPathProvider.get()
-        val fullExpectedText = "project(\"$projectPath\")"
-        if (!tipOfTreeBuildFile.asFile.get().readText().contains(fullExpectedText)) {
-            val message = "Project $projectPath not found in docs-tip-of-tree/build.gradle\n\n" +
-                "Use the project creation script (development/project-creator/create_project.py) " +
-                "when setting up a project to make sure all required steps are complete.\n\n" +
-                "The project should be added to docs-tip-of-tree/build.gradle as " +
-                "\'docs(project(\"$projectPath\"))\' (use 'kmpDocs' instead of 'docs' for KMP " +
-                "projects).\n\n" +
-                "If this project should not have published refdocs, first check that the library " +
-                "type listed in its build.gradle file is accurate. If it is, opt out of refdoc " +
-                "generation using \'doNotDocumentReason = \"some reason\"\' in the 'androidx' " +
-                "configuration section (this is not common)."
+        val projectDependency = "project(\"$projectPath\")"
+
+        val isKmp = projectIsKmp.get()
+        val fullExpectedText = if (isKmp) {
+            // Check that KMP projects are listed as KMP
+            "kmpDocs($projectDependency)"
+        } else {
+            // Don't require `docs($projectDependency)` because some projects are present as stubs.
+            projectDependency
+        }
+
+        val fileContents = tipOfTreeBuildFile.asFile.get().readText()
+        if (!fileContents.contains(fullExpectedText)) {
+            // If this is a KMP project, check if it is present but configured as non-KMP
+            val message = if (isKmp && fileContents.contains(projectDependency)) {
+                "KMP project $projectPath needs 'kmpDocs' in docs-tip-of-tree/build.gradle\n\n" +
+                    "Update the entry for $projectPath in docs-tip-of-tree/build.gradle to " +
+                    "'$fullExpectedText'."
+            } else {
+                "Project $projectPath not found in docs-tip-of-tree/build.gradle\n\n" +
+                    "Use the project creation script (development/project-creator/" +
+                    "create_project.py) when setting up a project to make sure all required " +
+                    "steps are complete.\n\n" +
+                    "The project should be added to docs-tip-of-tree/build.gradle as " +
+                    "\'$fullExpectedText\'.\n\n" +
+                    "If this project should not have published refdocs, first check that the " +
+                    "library type listed in its build.gradle file is accurate. If it is, opt out " +
+                    "of refdoc generation using \'doNotDocumentReason = \"some reason\"\' in the " +
+                    "'androidx' configuration section (this is not common)."
+            }
             throw GradleException(message)
         }
     }
