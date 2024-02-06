@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -260,7 +261,8 @@ internal class ThreePaneMotion internal constructor(
 private class ThreePaneScaffoldValueHolder(var value: ThreePaneScaffoldValue)
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private fun calculateThreePaneMotion(
+@VisibleForTesting
+internal fun calculateThreePaneMotion(
     previousScaffoldValue: ThreePaneScaffoldValue,
     currentScaffoldValue: ThreePaneScaffoldValue,
     paneOrder: ThreePaneScaffoldHorizontalOrder
@@ -277,38 +279,44 @@ private fun calculateThreePaneMotion(
     return when (previousExpandedCount) {
         1 -> when (PaneAdaptedValue.Expanded) {
             previousScaffoldValue[paneOrder.firstPane] -> {
-                ThreePaneScaffoldDefaults.panesRightMotion
+                ThreePaneScaffoldDefaults.movePanesToLeftMotion
             }
 
             previousScaffoldValue[paneOrder.thirdPane] -> {
-                ThreePaneScaffoldDefaults.panesLeftMotion
+                ThreePaneScaffoldDefaults.movePanesToRightMotion
             }
 
             currentScaffoldValue[paneOrder.thirdPane] -> {
-                ThreePaneScaffoldDefaults.panesRightMotion
+                ThreePaneScaffoldDefaults.movePanesToLeftMotion
             }
 
             else -> {
-                ThreePaneScaffoldDefaults.panesLeftMotion
+                ThreePaneScaffoldDefaults.movePanesToRightMotion
             }
         }
 
         2 -> when {
-            previousScaffoldValue[paneOrder.firstPane] != PaneAdaptedValue.Expanded -> {
-                ThreePaneScaffoldDefaults.panesLeftMotion
+            previousScaffoldValue[paneOrder.firstPane] == PaneAdaptedValue.Expanded &&
+                currentScaffoldValue[paneOrder.firstPane] == PaneAdaptedValue.Expanded -> {
+                // The first pane stays, the right two panes switch
+                ThreePaneScaffoldDefaults.switchRightTwoPanesMotion
             }
 
-            previousScaffoldValue[paneOrder.thirdPane] != PaneAdaptedValue.Expanded -> {
-                ThreePaneScaffoldDefaults.panesRightMotion
+            previousScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded &&
+                currentScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded -> {
+                // The third pane stays, the left two panes switch
+                ThreePaneScaffoldDefaults.switchLeftTwoPanesMotion
             }
 
-            previousScaffoldValue[paneOrder.secondPane] != PaneAdaptedValue.Expanded &&
-                currentScaffoldValue[paneOrder.firstPane] != PaneAdaptedValue.Expanded -> {
-                ThreePaneScaffoldDefaults.replaceLeftPaneMotion
+            // Implies the second pane stays hereafter
+            currentScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded -> {
+                // The third pane shows, all panes move left
+                ThreePaneScaffoldDefaults.movePanesToLeftMotion
             }
 
             else -> {
-                ThreePaneScaffoldDefaults.replaceRightPaneMotion
+                // The first pane shows, all panes move right
+                ThreePaneScaffoldDefaults.movePanesToRightMotion
             }
         }
 
@@ -882,7 +890,7 @@ internal object ThreePaneScaffoldDefaults {
     private val slideOutToLeft = slideOutHorizontally(PaneSpringSpec) { -it }
     private val slideOutToRight = slideOutHorizontally(PaneSpringSpec) { it }
 
-    val panesLeftMotion = ThreePaneMotion(
+    val movePanesToRightMotion = ThreePaneMotion(
         PaneSpringSpec,
         slideInFromLeft,
         slideOutToRight,
@@ -892,7 +900,7 @@ internal object ThreePaneScaffoldDefaults {
         slideOutToRight
     )
 
-    val panesRightMotion = ThreePaneMotion(
+    val movePanesToLeftMotion = ThreePaneMotion(
         PaneSpringSpec,
         slideInFromRight,
         slideOutToLeft,
@@ -903,7 +911,7 @@ internal object ThreePaneScaffoldDefaults {
     )
 
     // TODO(conradchen): figure out how to add delay and zOffset to spring animations
-    val replaceLeftPaneMotion = ThreePaneMotion(
+    val switchLeftTwoPanesMotion = ThreePaneMotion(
         PaneSpringSpec,
         slideInFromLeft,
         slideOutToLeft,
@@ -914,7 +922,7 @@ internal object ThreePaneScaffoldDefaults {
     )
 
     // TODO(conradchen): figure out how to add delay and zOffset to spring animations
-    val replaceRightPaneMotion = ThreePaneMotion(
+    val switchRightTwoPanesMotion = ThreePaneMotion(
         PaneSpringSpec,
         EnterTransition.None,
         ExitTransition.None,
