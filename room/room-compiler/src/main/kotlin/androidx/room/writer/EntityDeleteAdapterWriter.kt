@@ -29,13 +29,13 @@ import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Fields
 import androidx.room.vo.ShortcutEntity
 
-class EntityDeletionAdapterWriter private constructor(
+class EntityDeleteAdapterWriter private constructor(
     val tableName: String,
     val pojoTypeName: XTypeName,
     val fields: Fields
 ) {
     companion object {
-        fun create(entity: ShortcutEntity): EntityDeletionAdapterWriter {
+        fun create(entity: ShortcutEntity): EntityDeleteAdapterWriter {
             val fieldsToUse = if (entity.isPartialEntity) {
                 // When using partial entity, delete by values in pojo
                 entity.pojo.fields
@@ -43,7 +43,7 @@ class EntityDeletionAdapterWriter private constructor(
                 // When using entity, delete by primary key
                 entity.primaryKey.fields
             }
-            return EntityDeletionAdapterWriter(
+            return EntityDeleteAdapterWriter(
                 tableName = entity.tableName,
                 pojoTypeName = entity.pojo.typeName,
                 fields = fieldsToUse

@@ -17,17 +17,17 @@ import javax.annotation.processing.Generated;
 public final class WriterDao_Impl implements WriterDao {
     private final RoomDatabase __db;
 
-    private final EntityInsertionAdapter<User> __insertionAdapterOfUser;
+    private final EntityInsertionAdapter<User> __insertAdapterOfUser;
 
-    private final EntityInsertionAdapter<User> __insertionAdapterOfUser_1;
+    private final EntityInsertionAdapter<User> __insertAdapterOfUser_1;
 
-    private final EntityInsertionAdapter<User> __insertionAdapterOfUser_2;
+    private final EntityInsertionAdapter<User> __insertAdapterOfUser_2;
 
-    private final EntityInsertionAdapter<Book> __insertionAdapterOfBook;
+    private final EntityInsertionAdapter<Book> __insertAdapterOfBook;
 
     public WriterDao_Impl(@NonNull final RoomDatabase __db) {
         this.__db = __db;
-        this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
+        this.__insertAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -50,7 +50,7 @@ public final class WriterDao_Impl implements WriterDao {
                 statement.bindLong(4, entity.age);
             }
         };
-        this.__insertionAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
+        this.__insertAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -73,7 +73,7 @@ public final class WriterDao_Impl implements WriterDao {
                 statement.bindLong(4, entity.age);
             }
         };
-        this.__insertionAdapterOfUser_2 = new EntityInsertionAdapter<User>(__db) {
+        this.__insertAdapterOfUser_2 = new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -96,7 +96,7 @@ public final class WriterDao_Impl implements WriterDao {
                 statement.bindLong(4, entity.age);
             }
         };
-        this.__insertionAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
+        this.__insertAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -116,7 +116,7 @@ public final class WriterDao_Impl implements WriterDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __insertionAdapterOfUser.insert(user);
+            __insertAdapterOfUser.insert(user);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -128,8 +128,8 @@ public final class WriterDao_Impl implements WriterDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __insertionAdapterOfUser.insert(user1);
-            __insertionAdapterOfUser.insert(others);
+            __insertAdapterOfUser.insert(user1);
+            __insertAdapterOfUser.insert(others);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -141,7 +141,7 @@ public final class WriterDao_Impl implements WriterDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __insertionAdapterOfUser_1.insert(users);
+            __insertAdapterOfUser_1.insert(users);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -153,8 +153,8 @@ public final class WriterDao_Impl implements WriterDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __insertionAdapterOfUser_2.insert(userOne);
-            __insertionAdapterOfUser_2.insert(userTwo);
+            __insertAdapterOfUser_2.insert(userOne);
+            __insertAdapterOfUser_2.insert(userTwo);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -166,8 +166,8 @@ public final class WriterDao_Impl implements WriterDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __insertionAdapterOfUser.insert(user);
-            __insertionAdapterOfBook.insert(book);
+            __insertAdapterOfUser.insert(user);
+            __insertAdapterOfBook.insert(book);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();

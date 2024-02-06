@@ -15,12 +15,12 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __deletionAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
+  private val __deleteAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
 
   private val __updateAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__deletionAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    this.__deleteAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
       protected override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
 
       protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
@@ -43,7 +43,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      __deletionAdapterOfMyEntity.handle(item)
+      __deleteAdapterOfMyEntity.handle(item)
       __db.setTransactionSuccessful()
     } finally {
       __db.endTransaction()
@@ -55,7 +55,7 @@ public class MyDao_Impl(
     var _total: Int = 0
     __db.beginTransaction()
     try {
-      _total += __deletionAdapterOfMyEntity.handle(item)
+      _total += __deleteAdapterOfMyEntity.handle(item)
       __db.setTransactionSuccessful()
       return _total
     } finally {

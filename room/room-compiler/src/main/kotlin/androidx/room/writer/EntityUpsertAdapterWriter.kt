@@ -22,13 +22,13 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
 
-class EntityUpsertionAdapterWriter private constructor(
+class EntityUpsertAdapterWriter private constructor(
     val tableName: String,
     val pojo: Pojo
 ) {
     companion object {
-        fun create(entity: ShortcutEntity): EntityUpsertionAdapterWriter {
-            return EntityUpsertionAdapterWriter(
+        fun create(entity: ShortcutEntity): EntityUpsertAdapterWriter {
+            return EntityUpsertAdapterWriter(
                 tableName = entity.tableName,
                 pojo = entity.pojo
             )
@@ -40,16 +40,16 @@ class EntityUpsertionAdapterWriter private constructor(
         typeWriter: TypeWriter,
         dbProperty: XPropertySpec
     ): XCodeBlock {
-        val upsertionAdapter = RoomTypeNames.UPSERTION_ADAPTER.parametrizedBy(pojo.typeName)
-        val insertionHelper = EntityInsertionAdapterWriter.create(entity, "")
+        val upsertAdapter = RoomTypeNames.UPSERT_ADAPTER.parametrizedBy(pojo.typeName)
+        val insertHelper = EntityInsertAdapterWriter.create(entity, "")
             .createAnonymous(typeWriter, dbProperty)
         val updateHelper = EntityUpdateAdapterWriter.create(entity, "")
             .createAnonymous(typeWriter, dbProperty.name)
         return XCodeBlock.ofNewInstance(
             language = typeWriter.codeLanguage,
-            typeName = upsertionAdapter,
+            typeName = upsertAdapter,
             argsFormat = "%L, %L",
-            args = arrayOf(insertionHelper, updateHelper)
+            args = arrayOf(insertHelper, updateHelper)
         )
     }
 }

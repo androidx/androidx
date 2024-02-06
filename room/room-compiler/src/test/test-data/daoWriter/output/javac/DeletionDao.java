@@ -32,15 +32,15 @@ import kotlin.jvm.functions.Function1;
 public final class DeletionDao_Impl implements DeletionDao {
     private final RoomDatabase __db;
 
-    private final EntityDeletionOrUpdateAdapter<User> __deletionAdapterOfUser;
+    private final EntityDeletionOrUpdateAdapter<User> __deleteAdapterOfUser;
 
-    private final EntityDeletionOrUpdateAdapter<MultiPKeyEntity> __deletionAdapterOfMultiPKeyEntity;
+    private final EntityDeletionOrUpdateAdapter<MultiPKeyEntity> __deleteAdapterOfMultiPKeyEntity;
 
-    private final EntityDeletionOrUpdateAdapter<Book> __deletionAdapterOfBook;
+    private final EntityDeletionOrUpdateAdapter<Book> __deleteAdapterOfBook;
 
     public DeletionDao_Impl(@NonNull final RoomDatabase __db) {
         this.__db = __db;
-        this.__deletionAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
+        this.__deleteAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -52,7 +52,7 @@ public final class DeletionDao_Impl implements DeletionDao {
                 statement.bindLong(1, entity.uid);
             }
         };
-        this.__deletionAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
+        this.__deleteAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -74,7 +74,7 @@ public final class DeletionDao_Impl implements DeletionDao {
                 }
             }
         };
-        this.__deletionAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
+        this.__deleteAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -93,7 +93,7 @@ public final class DeletionDao_Impl implements DeletionDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __deletionAdapterOfUser.handle(user);
+            __deleteAdapterOfUser.handle(user);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -105,8 +105,8 @@ public final class DeletionDao_Impl implements DeletionDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __deletionAdapterOfUser.handle(user1);
-            __deletionAdapterOfUser.handleMultiple(others);
+            __deleteAdapterOfUser.handle(user1);
+            __deleteAdapterOfUser.handleMultiple(others);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -118,7 +118,7 @@ public final class DeletionDao_Impl implements DeletionDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __deletionAdapterOfUser.handleMultiple(users);
+            __deleteAdapterOfUser.handleMultiple(users);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -131,7 +131,7 @@ public final class DeletionDao_Impl implements DeletionDao {
         int _total = 0;
         __db.beginTransaction();
         try {
-            _total += __deletionAdapterOfUser.handle(user);
+            _total += __deleteAdapterOfUser.handle(user);
             __db.setTransactionSuccessful();
             return _total;
         } finally {
@@ -145,7 +145,7 @@ public final class DeletionDao_Impl implements DeletionDao {
         int _total = 0;
         __db.beginTransaction();
         try {
-            _total += __deletionAdapterOfUser.handle(user);
+            _total += __deleteAdapterOfUser.handle(user);
             __db.setTransactionSuccessful();
             return _total;
         } finally {
@@ -159,8 +159,8 @@ public final class DeletionDao_Impl implements DeletionDao {
         int _total = 0;
         __db.beginTransaction();
         try {
-            _total += __deletionAdapterOfUser.handle(user1);
-            _total += __deletionAdapterOfUser.handleMultiple(others);
+            _total += __deleteAdapterOfUser.handle(user1);
+            _total += __deleteAdapterOfUser.handleMultiple(others);
             __db.setTransactionSuccessful();
             return _total;
         } finally {
@@ -174,7 +174,7 @@ public final class DeletionDao_Impl implements DeletionDao {
         int _total = 0;
         __db.beginTransaction();
         try {
-            _total += __deletionAdapterOfUser.handleMultiple(users);
+            _total += __deleteAdapterOfUser.handleMultiple(users);
             __db.setTransactionSuccessful();
             return _total;
         } finally {
@@ -190,7 +190,7 @@ public final class DeletionDao_Impl implements DeletionDao {
             public Void call() throws Exception {
                 __db.beginTransaction();
                 try {
-                    __deletionAdapterOfUser.handle(user);
+                    __deleteAdapterOfUser.handle(user);
                     __db.setTransactionSuccessful();
                     return null;
                 } finally {
@@ -209,7 +209,7 @@ public final class DeletionDao_Impl implements DeletionDao {
                 int _total = 0;
                 __db.beginTransaction();
                 try {
-                    _total += __deletionAdapterOfUser.handle(user);
+                    _total += __deleteAdapterOfUser.handle(user);
                     __db.setTransactionSuccessful();
                     return _total;
                 } finally {
@@ -228,7 +228,7 @@ public final class DeletionDao_Impl implements DeletionDao {
                 int _total = 0;
                 __db.beginTransaction();
                 try {
-                    _total += __deletionAdapterOfUser.handle(user);
+                    _total += __deleteAdapterOfUser.handle(user);
                     __db.setTransactionSuccessful();
                     return _total;
                 } finally {
@@ -244,7 +244,7 @@ public final class DeletionDao_Impl implements DeletionDao {
         int _total = 0;
         __db.beginTransaction();
         try {
-            _total += __deletionAdapterOfMultiPKeyEntity.handle(entity);
+            _total += __deleteAdapterOfMultiPKeyEntity.handle(entity);
             __db.setTransactionSuccessful();
             return _total;
         } finally {
@@ -257,8 +257,8 @@ public final class DeletionDao_Impl implements DeletionDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __deletionAdapterOfUser.handle(user);
-            __deletionAdapterOfBook.handle(book);
+            __deleteAdapterOfUser.handle(user);
+            __deleteAdapterOfBook.handle(book);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();

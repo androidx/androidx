@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 
-class InsertionMethod(
+class InsertMethod(
     element: XMethodElement,
     @OnConflictStrategy val onConflict: Int,
     entities: Map<String, ShortcutEntity>,
