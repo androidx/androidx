@@ -682,7 +682,11 @@ private class ThreePaneContentMeasurePolicy(
                     width = cachedPanePlacement.measuredWidth,
                     height = partitionHeight
                 )
-            ).place(cachedPanePlacement.positionX, partitionTop)
+            ).place(
+                cachedPanePlacement.positionX,
+                partitionTop,
+                ThreePaneScaffoldDefaults.HiddenPaneZIndex
+            )
         }
     }
 
@@ -875,6 +879,12 @@ internal object ThreePaneScaffoldDefaults {
         )
 
     /**
+     * The negative z-index of hidden panes to make visible panes always show upon hidden panes
+     * during pane animations.
+     */
+    const val HiddenPaneZIndex = -0.1f
+
+    /**
      * A default [SpringSpec] for the panes motion.
      */
     // TODO(conradchen): open this to public when we support motion customization
@@ -910,7 +920,6 @@ internal object ThreePaneScaffoldDefaults {
         slideOutToLeft
     )
 
-    // TODO(conradchen): figure out how to add delay and zOffset to spring animations
     val switchLeftTwoPanesMotion = ThreePaneMotion(
         PaneSpringSpec,
         slideInFromLeft,
@@ -921,7 +930,6 @@ internal object ThreePaneScaffoldDefaults {
         ExitTransition.None
     )
 
-    // TODO(conradchen): figure out how to add delay and zOffset to spring animations
     val switchRightTwoPanesMotion = ThreePaneMotion(
         PaneSpringSpec,
         EnterTransition.None,
