@@ -189,14 +189,16 @@ fun RoundedPolygon.Companion.pill(
         throw IllegalArgumentException("Pill shapes must have positive width and height")
     }
 
+    val wHalf = width / 2
+    val hHalf = height / 2
     return RoundedPolygon(
         vertices = floatArrayOf(
-            -width + centerX, -height + centerY,
-            width + centerX, -height + centerY,
-            width + centerX, height + centerY,
-            -width + centerX, height + centerY,
+            wHalf + centerX, hHalf + centerY,
+            -wHalf + centerX, hHalf + centerY,
+            -wHalf + centerX, -hHalf + centerY,
+            wHalf + centerX, -hHalf + centerY,
         ),
-        rounding = CornerRounding(min(width, height), smoothing),
+        rounding = CornerRounding(min(wHalf, hHalf), smoothing),
         centerX = centerX, centerY = centerY
     )
 }
