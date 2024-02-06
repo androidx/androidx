@@ -30,6 +30,7 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -403,7 +404,11 @@ fun Popup(
         onKeyEvent
     }
     val onOutsidePointerEvent = if (properties.dismissOnClickOutside && onDismissRequest != null) {
-        { _: Boolean -> onDismissRequest() }
+        { eventType: PointerEventType ->
+            if (eventType == PointerEventType.Press) {
+                onDismissRequest()
+            }
+        }
     } else {
         null
     }
@@ -425,7 +430,7 @@ private fun PopupLayout(
     modifier: Modifier,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null,
     onKeyEvent: ((KeyEvent) -> Boolean)? = null,
-    onOutsidePointerEvent: ((Boolean) -> Unit)? = null,
+    onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val platformInsets = properties.insetsConfig.safeInsets

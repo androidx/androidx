@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.awt.toAwtColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.SwingSkiaLayerComponent
 import androidx.compose.ui.unit.Density
@@ -35,7 +36,6 @@ import java.awt.Rectangle
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import javax.swing.JLayeredPane
-import javax.swing.RootPaneContainer
 import javax.swing.SwingUtilities
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -90,7 +90,7 @@ internal class SwingComposeSceneLayer(
         }
 
     private var _mediator: ComposeSceneMediator? = null
-    private var outsidePointerCallback: ((Boolean) -> Unit)? = null
+    private var outsidePointerCallback: ((eventType: PointerEventType) -> Unit)? = null
 
     override var density: Density = density
         set(value) {
@@ -171,7 +171,7 @@ internal class SwingComposeSceneLayer(
     }
 
     override fun setOutsidePointerEventListener(
-        onOutsidePointerEvent: ((dismissRequest: Boolean) -> Unit)?
+        onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)?
     ) {
         outsidePointerCallback = onOutsidePointerEvent
     }
@@ -213,8 +213,15 @@ internal class SwingComposeSceneLayer(
 
     private fun onMouseEvent(event: MouseEvent) {
         // TODO: Filter/consume based on [focused] flag
-        val dismissRequest = event.button == MouseEvent.BUTTON1 && event.id == MouseEvent.MOUSE_RELEASED
-        outsidePointerCallback?.invoke(dismissRequest)
+        if (!event.isMainAction()) {
+            return
+        }
+        val eventType = when (event.id) {
+            MouseEvent.MOUSE_PRESSED -> PointerEventType.Press
+            MouseEvent.MOUSE_RELEASED -> PointerEventType.Release
+            else -> return
+        }
+        outsidePointerCallback?.invoke(eventType)
     }
 }
 
@@ -229,3 +236,6 @@ private fun IntRect.toAwtRectangle(density: Density): Rectangle {
         left, top, width, height
     )
 }
+
+private fun MouseEvent.isMainAction() =
+    button == MouseEvent.BUTTON1

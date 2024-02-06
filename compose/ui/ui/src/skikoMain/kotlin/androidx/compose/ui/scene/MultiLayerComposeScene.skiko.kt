@@ -499,7 +499,7 @@ private class MultiLayerComposeSceneImpl(
             inputHandler = inputHandler,
         )
         private var composition: Composition? = null
-        private var outsidePointerCallback: ((Boolean) -> Unit)? = null
+        private var outsidePointerCallback: ((eventType: PointerEventType) -> Unit)? = null
         private var isClosed = false
 
         override var density: Density by owner::density
@@ -571,7 +571,7 @@ private class MultiLayerComposeSceneImpl(
         }
 
         override fun setOutsidePointerEventListener(
-            onOutsidePointerEvent: ((Boolean) -> Unit)?,
+            onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)?,
         ) {
             outsidePointerCallback = onOutsidePointerEvent
         }
@@ -597,7 +597,10 @@ private class MultiLayerComposeSceneImpl(
         }
 
         fun onOutsidePointerEvent(event: PointerInputEvent) {
-            outsidePointerCallback?.invoke(event.isDismissRequest())
+            if (!event.isMainAction()) {
+                return
+            }
+            outsidePointerCallback?.invoke(event.eventType)
         }
     }
 }
@@ -607,9 +610,6 @@ private val PointerInputEvent.isGestureInProgress get() = pointers.fastAny { it.
 private fun PointerInputEvent.isMainAction() =
     button == PointerButton.Primary ||
         button == null && pointers.size == 1
-
-private fun PointerInputEvent.isDismissRequest() =
-    eventType == PointerEventType.Release && isMainAction()
 
 private class CopiedList<T>(
     private val populate: (MutableList<T>) -> Unit

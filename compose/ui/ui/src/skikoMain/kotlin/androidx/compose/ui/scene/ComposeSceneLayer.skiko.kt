@@ -24,6 +24,7 @@ import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -128,13 +129,11 @@ interface ComposeSceneLayer {
      * the [boundsInWindow] should be entirely handled by this layer, without activating this event.
      *
      * @param onOutsidePointerEvent The callback function that is invoked when a pointer event
-     * occurs outside. It accepts a boolean parameter to denote if the event is intended to close
-     * this layer. When the parameter is true, it typically signifies that it's the primary (left)
-     * mouse button or single pointer that executed a full click (press and release) outside
-     * of [boundsInWindow], and false in all other cases.
+     * occurs outside. It's called only on the primary (left) mouse button or single pointer
+     * gesture that started outside of [boundsInWindow].
      */
     fun setOutsidePointerEventListener(
-        onOutsidePointerEvent: ((dismissRequest: Boolean) -> Unit)? = null,
+        onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null,
     )
 
     /**

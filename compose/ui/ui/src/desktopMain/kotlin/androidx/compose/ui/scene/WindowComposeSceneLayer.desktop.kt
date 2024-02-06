@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.awt.toAwtColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
@@ -152,7 +153,9 @@ internal class WindowComposeSceneLayer(
         )
     }
 
-    override fun setOutsidePointerEventListener(onOutsidePointerEvent: ((dismissRequest: Boolean) -> Unit)?) {
+    override fun setOutsidePointerEventListener(
+        onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)?
+    ) {
         // TODO
     }
 

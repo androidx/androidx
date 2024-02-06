@@ -27,6 +27,7 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.InsetsConfig
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -146,8 +147,8 @@ actual fun Dialog(
         null
     }
     val onOutsidePointerEvent = if (properties.dismissOnClickOutside) {
-        { isDismissRequest: Boolean ->
-            if (isDismissRequest) {
+        { eventType: PointerEventType ->
+            if (eventType == PointerEventType.Release) {
                 onDismissRequest()
             }
         }
@@ -169,7 +170,7 @@ private fun DialogLayout(
     modifier: Modifier = Modifier,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null,
     onKeyEvent: ((KeyEvent) -> Boolean)? = null,
-    onOutsidePointerEvent: ((Boolean) -> Unit)? = null,
+    onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val platformInsets = properties.insetsConfig.safeInsets
