@@ -41,15 +41,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -348,7 +346,6 @@ fun BottomSheetScaffold(
     contentColor: Color = contentColorFor(backgroundColor),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val peekHeightPx = with(LocalDensity.current) { sheetPeekHeight.toPx() }
     Surface(
         modifier
             .fillMaxSize(),
@@ -357,8 +354,8 @@ fun BottomSheetScaffold(
     ) {
         BottomSheetScaffoldLayout(
             topBar = topBar,
-            body = content,
-            bottomSheet = { layoutHeight ->
+            body = { content(PaddingValues(bottom = sheetPeekHeight)) },
+            bottomSheet = {
                 val nestedScroll = if (sheetGesturesEnabled) {
                     Modifier
                         .nestedScroll(
@@ -375,20 +372,12 @@ fun BottomSheetScaffold(
                     modifier = nestedScroll
                         .fillMaxWidth()
                         .requiredHeightIn(min = sheetPeekHeight),
-                    calculateAnchors = { sheetSize ->
-                        val sheetHeight = sheetSize.height.toFloat()
-                        DraggableAnchors {
-                            Collapsed at layoutHeight - peekHeightPx
-                            if (sheetHeight > 0f && sheetHeight != peekHeightPx) {
-                                Expanded at layoutHeight - sheetHeight
-                            }
-                        }
-                    },
                     sheetBackgroundColor = sheetBackgroundColor,
                     sheetContentColor = sheetContentColor,
                     sheetElevation = sheetElevation,
                     sheetGesturesEnabled = sheetGesturesEnabled,
                     sheetShape = sheetShape,
+                    sheetPeekHeight = sheetPeekHeight,
                     content = sheetContent
                 )
             },
@@ -396,9 +385,9 @@ fun BottomSheetScaffold(
             snackbarHost = {
                 snackbarHost(scaffoldState.snackbarHostState)
             },
-            sheetOffset = { scaffoldState.bottomSheetState.requireOffset() },
             sheetPeekHeight = sheetPeekHeight,
             sheetState = scaffoldState.bottomSheetState,
+            sheetOffset = { scaffoldState.bottomSheetState.requireOffset() },
             floatingActionButtonPosition = floatingActionButtonPosition
         )
     }
@@ -409,30 +398,42 @@ fun BottomSheetScaffold(
 private fun BottomSheet(
     state: BottomSheetState,
     sheetGesturesEnabled: Boolean,
-    calculateAnchors: (sheetSize: IntSize) -> DraggableAnchors<BottomSheetValue>,
     sheetShape: Shape,
     sheetElevation: Dp,
     sheetBackgroundColor: Color,
     sheetContentColor: Color,
+    sheetPeekHeight: Dp,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    val peekHeightPx = with(LocalDensity.current) { sheetPeekHeight.toPx() }
     Surface(
         modifier
+            .draggableAnchors(
+                state.anchoredDraggableState,
+                Orientation.Vertical
+            ) { sheetSize, constraints ->
+                val layoutHeight = constraints.maxHeight
+                val sheetHeight = sheetSize.height.toFloat()
+                val newAnchors =
+                    DraggableAnchors {
+                        Collapsed at layoutHeight - peekHeightPx
+                        if (sheetHeight > 0f && sheetHeight != peekHeightPx) {
+                            Expanded at layoutHeight - sheetHeight
+                        }
+                    }
+                val newTarget = when (state.anchoredDraggableState.targetValue) {
+                    Collapsed -> Collapsed
+                    Expanded -> if (newAnchors.hasAnchorFor(Expanded)) Expanded else Collapsed
+                }
+                return@draggableAnchors newAnchors to newTarget
+            }
             .anchoredDraggable(
                 state = state.anchoredDraggableState,
                 orientation = Orientation.Vertical,
                 enabled = sheetGesturesEnabled,
             )
-            .onSizeChanged { layoutSize ->
-                val newAnchors = calculateAnchors(layoutSize)
-                val newTarget = when (state.anchoredDraggableState.targetValue) {
-                    Collapsed -> Collapsed
-                    Expanded -> if (newAnchors.hasAnchorFor(Expanded)) Expanded else Collapsed
-                }
-                state.anchoredDraggableState.updateAnchors(newAnchors, newTarget)
-            }
             .semantics {
                 // If we don't have anchors yet, or have only one anchor we don't want any
                 // accessibility actions
@@ -485,51 +486,51 @@ object BottomSheetScaffoldDefaults {
     )
 }
 
-private enum class BottomSheetScaffoldLayoutSlot { TopBar, Body, Sheet, Fab, Snackbar }
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun BottomSheetScaffoldLayout(
     topBar: @Composable (() -> Unit)?,
-    body: @Composable (innerPadding: PaddingValues) -> Unit,
-    bottomSheet: @Composable (layoutHeight: Int) -> Unit,
+    body: @Composable () -> Unit,
+    bottomSheet: @Composable () -> Unit,
     floatingActionButton: (@Composable () -> Unit)?,
     snackbarHost: @Composable () -> Unit,
     sheetPeekHeight: Dp,
-    floatingActionButtonPosition: FabPosition,
     sheetOffset: () -> Float,
+    floatingActionButtonPosition: FabPosition,
     sheetState: BottomSheetState,
 ) {
-    SubcomposeLayout { constraints ->
+    Layout(
+        contents = listOf<@Composable () -> Unit>(
+            topBar ?: { },
+            body,
+            bottomSheet,
+            floatingActionButton ?: { },
+            snackbarHost
+        )
+    ) { (
+        topBarMeasurables,
+        bodyMeasurables,
+        sheetMeasurables,
+        fabMeasurables,
+        snackbarHostMeasurables
+    ), constraints ->
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
-        val sheetPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Sheet) {
-            bottomSheet(layoutHeight)
-        }.fastMap { it.measure(looseConstraints) }
+        val sheetPlaceables = sheetMeasurables.fastMap { it.measure(looseConstraints) }
 
-        val topBarPlaceables = topBar?.let {
-            subcompose(BottomSheetScaffoldLayoutSlot.TopBar, topBar)
-                .fastMap { it.measure(looseConstraints) }
-        }
-        val topBarHeight = topBarPlaceables?.fastMaxBy { it.height }?.height ?: 0
+        val topBarPlaceables = topBarMeasurables.fastMap { it.measure(looseConstraints) }
+        val topBarHeight = topBarPlaceables.fastMaxBy { it.height }?.height ?: 0
 
         val bodyConstraints = looseConstraints.copy(maxHeight = layoutHeight - topBarHeight)
-        val bodyPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Body) {
-            body(PaddingValues(bottom = sheetPeekHeight))
-        }.fastMap { it.measure(bodyConstraints) }
+        val bodyPlaceables = bodyMeasurables.fastMap { it.measure(bodyConstraints) }
 
-        val fabPlaceable = floatingActionButton?.let { fab ->
-            subcompose(BottomSheetScaffoldLayoutSlot.Fab, fab).fastMap {
-                it.measure(looseConstraints)
-            }
-        }
-        val fabWidth = fabPlaceable?.fastMaxBy { it.width }?.width ?: 0
-        val fabHeight = fabPlaceable?.fastMaxBy { it.height }?.height ?: 0
+        val fabPlaceable = fabMeasurables.fastMap { it.measure(looseConstraints) }
+        val fabWidth = fabPlaceable.fastMaxBy { it.width }?.width ?: 0
+        val fabHeight = fabPlaceable.fastMaxBy { it.height }?.height ?: 0
 
-        val snackbarPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Snackbar, snackbarHost)
-            .fastMap { it.measure(looseConstraints) }
+        val snackbarPlaceables = snackbarHostMeasurables.fastMap { it.measure(looseConstraints) }
         val snackbarWidth = snackbarPlaceables.fastMaxBy { it.width }?.width ?: 0
         val snackbarHeight = snackbarPlaceables.fastMaxBy { it.height }?.height ?: 0
 
@@ -555,9 +556,9 @@ private fun BottomSheetScaffoldLayout(
 
             // Placement order is important for elevation
             bodyPlaceables.fastForEach { it.placeRelative(0, topBarHeight) }
-            topBarPlaceables?.fastForEach { it.placeRelative(0, 0) }
-            sheetPlaceables.fastForEach { it.placeRelative(0, sheetOffsetY) }
-            fabPlaceable?.fastForEach { it.placeRelative(fabOffsetX, fabOffsetY) }
+            topBarPlaceables.fastForEach { it.placeRelative(0, 0) }
+            sheetPlaceables.fastForEach { it.placeRelative(0, 0) }
+            fabPlaceable.fastForEach { it.placeRelative(fabOffsetX, fabOffsetY) }
             snackbarPlaceables.fastForEach { it.placeRelative(snackbarOffsetX, snackbarOffsetY) }
         }
     }

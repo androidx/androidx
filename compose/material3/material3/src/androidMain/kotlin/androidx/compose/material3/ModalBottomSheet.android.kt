@@ -35,7 +35,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -43,7 +42,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.SheetValue.Expanded
@@ -70,7 +68,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -84,7 +81,6 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -181,8 +177,7 @@ fun ModalBottomSheet(
         },
         windowInsets = windowInsets,
     ) {
-        BoxWithConstraints(Modifier.fillMaxSize()) {
-            val fullHeight = constraints.maxHeight
+        Box(Modifier.fillMaxSize(), propagateMinConstraints = false) {
             Scrim(
                 color = scrimColor,
                 onDismissRequest = animateToDismiss,
@@ -195,14 +190,6 @@ fun ModalBottomSheet(
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
                     .semantics { paneTitle = bottomSheetPaneTitle }
-                    .offset {
-                        IntOffset(
-                            0,
-                            sheetState
-                                .requireOffset()
-                                .toInt()
-                        )
-                    }
                     .nestedScroll(
                         remember(sheetState) {
                             ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
@@ -212,16 +199,40 @@ fun ModalBottomSheet(
                             )
                         }
                     )
+                    .draggableAnchors(
+                        sheetState.anchoredDraggableState,
+                        Orientation.Vertical
+                    ) { sheetSize, constraints ->
+                        val fullHeight = constraints.maxHeight.toFloat()
+                        val newAnchors = DraggableAnchors {
+                            Hidden at fullHeight
+                            if (sheetSize.height > (fullHeight / 2) &&
+                                !sheetState.skipPartiallyExpanded
+                            ) {
+                                PartiallyExpanded at fullHeight / 2f
+                            }
+                            if (sheetSize.height != 0) {
+                                Expanded at max(0f, fullHeight - sheetSize.height)
+                            }
+                        }
+                        val newTarget = when (sheetState.anchoredDraggableState.targetValue) {
+                            Hidden -> Hidden
+                            PartiallyExpanded, Expanded -> {
+                                val hasPartiallyExpandedState = newAnchors
+                                    .hasAnchorFor(PartiallyExpanded)
+                                val newTarget = if (hasPartiallyExpandedState) PartiallyExpanded
+                                else if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
+                                newTarget
+                            }
+                        }
+                        return@draggableAnchors newAnchors to newTarget
+                    }
                     .draggable(
                         state = sheetState.anchoredDraggableState.draggableState,
                         orientation = Orientation.Vertical,
                         enabled = sheetState.isVisible,
                         startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
                         onDragStopped = { settleToDismiss(it) }
-                    )
-                    .modalBottomSheetAnchors(
-                        sheetState = sheetState,
-                        fullHeight = fullHeight.toFloat()
                     ),
                 shape = shape,
                 color = containerColor,
@@ -393,35 +404,6 @@ private fun Scrim(
             drawRect(color = color, alpha = alpha)
         }
     }
-}
-
-@ExperimentalMaterial3Api
-private fun Modifier.modalBottomSheetAnchors(
-    sheetState: SheetState,
-    fullHeight: Float
-) = onSizeChanged { sheetSize ->
-
-    val newAnchors = DraggableAnchors {
-        Hidden at fullHeight
-        if (sheetSize.height > (fullHeight / 2) && !sheetState.skipPartiallyExpanded) {
-            PartiallyExpanded at fullHeight / 2f
-        }
-        if (sheetSize.height != 0) {
-            Expanded at max(0f, fullHeight - sheetSize.height)
-        }
-    }
-
-    val newTarget = when (sheetState.anchoredDraggableState.targetValue) {
-        Hidden -> Hidden
-        PartiallyExpanded, Expanded -> {
-            val hasPartiallyExpandedState = newAnchors.hasAnchorFor(PartiallyExpanded)
-            val newTarget = if (hasPartiallyExpandedState) PartiallyExpanded
-            else if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
-            newTarget
-        }
-    }
-
-    sheetState.anchoredDraggableState.updateAnchors(newAnchors, newTarget)
 }
 
 /**
