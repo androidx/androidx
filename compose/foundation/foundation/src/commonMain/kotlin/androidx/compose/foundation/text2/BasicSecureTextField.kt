@@ -26,7 +26,6 @@ import androidx.compose.foundation.text.KeyCommand
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.platformDefaultKeyMapping
-import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.ImeActionHandler
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
@@ -35,8 +34,9 @@ import androidx.compose.foundation.text2.input.TextFieldDecorator
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextObfuscationMode
+import androidx.compose.foundation.text2.input.internal.CodepointTransformation
+import androidx.compose.foundation.text2.input.internal.mask
 import androidx.compose.foundation.text2.input.internal.syncTextFieldState
-import androidx.compose.foundation.text2.input.mask
 import androidx.compose.foundation.text2.input.then
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider

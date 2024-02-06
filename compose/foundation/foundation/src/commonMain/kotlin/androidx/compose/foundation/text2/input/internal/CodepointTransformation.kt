@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input
+package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.appendCodePointX
-import androidx.compose.foundation.text2.input.internal.OffsetMappingCalculator
-import androidx.compose.foundation.text2.input.internal.charCount
-import androidx.compose.foundation.text2.input.internal.codePointAt
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.runtime.Stable
 
 /**
@@ -32,7 +30,7 @@ import androidx.compose.runtime.Stable
  */
 @ExperimentalFoundationApi
 @Stable
-fun interface CodepointTransformation {
+internal fun interface CodepointTransformation {
 
     /**
      * Transforms a single [codepoint] located at [codepointIndex] to another codepoint.
@@ -51,7 +49,7 @@ fun interface CodepointTransformation {
  */
 @ExperimentalFoundationApi
 @Stable
-fun CodepointTransformation.Companion.mask(character: Char): CodepointTransformation =
+internal fun CodepointTransformation.Companion.mask(character: Char): CodepointTransformation =
     MaskCodepointTransformation(character)
 
 @OptIn(ExperimentalFoundationApi::class)

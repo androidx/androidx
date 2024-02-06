@@ -40,15 +40,15 @@ import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.textFieldMinSize
-import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.OutputTransformation
-import androidx.compose.foundation.text2.input.SingleLineCodepointTransformation
 import androidx.compose.foundation.text2.input.TextFieldDecorator
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.internal.CodepointTransformation
+import androidx.compose.foundation.text2.input.internal.SingleLineCodepointTransformation
 import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldTextLayoutModifier
@@ -145,10 +145,9 @@ import androidx.compose.ui.unit.dp
  * is called. Note that this IME action may be different from what you specified in
  * [KeyboardOptions.imeAction].
  * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
- * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed without
- * specifying the [outputTransformation] parameter, a [CodepointTransformation] is automatically
- * applied. This transformation replaces any newline characters ('\n') within the text with regular
- * whitespace (' '), ensuring that the contents of the text field are presented in a single line.
+ * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed, all
+ * newline characters ('\n') within the text will be replaced with regular whitespace (' '),
+ * ensuring that the contents of the text field are presented in a single line.
  * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
  * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
  * or null if it cannot. The function reads the layout result from a snapshot state object, and will
@@ -163,8 +162,6 @@ import androidx.compose.ui.unit.dp
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, then no cursor will be drawn.
- * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
- * codepoints.
  * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
  * text field are presented.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
@@ -193,7 +190,6 @@ fun BasicTextField2(
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    codepointTransformation: CodepointTransformation? = null,
     outputTransformation: OutputTransformation? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
@@ -245,7 +241,6 @@ fun BasicTextField2(
         interactionSource = interactionSource,
         cursorBrush = cursorBrush,
         scrollState = scrollState,
-        codepointTransformation = codepointTransformation,
         outputTransformation = outputTransformation,
         decorator = decorator,
     )
@@ -297,10 +292,9 @@ fun BasicTextField2(
  * is called. Note that this IME action may be different from what you specified in
  * [KeyboardOptions.imeAction].
  * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
- * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed without
- * specifying the [codepointTransformation] parameter, a [CodepointTransformation] is automatically
- * applied. This transformation replaces any newline characters ('\n') within the text with regular
- * whitespace (' '), ensuring that the contents of the text field are presented in a single line.
+ * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed, all
+ * newline characters ('\n') within the text will be replaced with regular whitespace (' '),
+ * ensuring that the contents of the text field are presented in a single line.
  * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
  * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
  * or null if it cannot. The function reads the layout result from a snapshot state object, and will
@@ -315,8 +309,6 @@ fun BasicTextField2(
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, then no cursor will be drawn.
- * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
- * codepoints.
  * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
  * text field are presented.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
@@ -330,6 +322,55 @@ fun BasicTextField2(
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
 fun BasicTextField2(
+    state: TextFieldState,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    inputTransformation: InputTransformation? = null,
+    textStyle: TextStyle = TextStyle.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
+    cursorBrush: Brush = SolidColor(Color.Black),
+    outputTransformation: OutputTransformation? = null,
+    decorator: TextFieldDecorator? = null,
+    scrollState: ScrollState = rememberScrollState(),
+    // Last parameter must not be a function unless it's intended to be commonly used as a trailing
+    // lambda.
+) {
+    BasicTextField2(
+        state = state,
+        modifier = modifier,
+        enabled = enabled,
+        readOnly = readOnly,
+        inputTransformation = inputTransformation,
+        textStyle = textStyle,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        lineLimits = lineLimits,
+        onTextLayout = onTextLayout,
+        interactionSource = interactionSource,
+        cursorBrush = cursorBrush,
+        codepointTransformation = null,
+        outputTransformation = outputTransformation,
+        decorator = decorator,
+        scrollState = scrollState,
+    )
+}
+
+/**
+ * Internal core text field that accepts a [CodepointTransformation].
+ *
+ * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
+ * codepoints.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+// This takes a composable lambda, but it is not primarily a container.
+@Suppress("ComposableLambdaParameterPosition")
+@Composable
+internal fun BasicTextField2(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

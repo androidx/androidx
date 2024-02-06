@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.OutputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
@@ -28,7 +27,6 @@ import androidx.compose.foundation.text2.input.internal.IndexTransformationType.
 import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Replacement
 import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Untransformed
 import androidx.compose.foundation.text2.input.internal.undo.TextFieldEditUndoBehavior
-import androidx.compose.foundation.text2.input.toVisualText
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
