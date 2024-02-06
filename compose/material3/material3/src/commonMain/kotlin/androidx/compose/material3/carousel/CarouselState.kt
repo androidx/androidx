@@ -29,7 +29,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 
 /**
- * The state that can be used to control [VerticalCarousel] and [HorizontalCarousel].
+ * The state that can be used to control all types of carousels.
  *
  * @param currentItem the current item to be scrolled to.
  * @param currentItemOffsetFraction the current item offset as a fraction of the item size.
