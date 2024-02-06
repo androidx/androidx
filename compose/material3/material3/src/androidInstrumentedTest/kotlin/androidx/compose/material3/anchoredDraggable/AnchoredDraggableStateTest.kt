@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material.anchoredDraggable
+package androidx.compose.material3.anchoredDraggable
 
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.LinearEasing
@@ -26,16 +26,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.AnchoredDraggableState
-import androidx.compose.material.DraggableAnchors
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.anchoredDraggable
-import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
-import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
-import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
-import androidx.compose.material.animateTo
-import androidx.compose.material.draggableAnchors
-import androidx.compose.material.snapTo
+import androidx.compose.material3.AnchoredDraggableState
+import androidx.compose.material3.DraggableAnchors
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.anchoredDraggable
+import androidx.compose.material3.anchoredDraggable.AnchoredDraggableTestValue.A
+import androidx.compose.material3.anchoredDraggable.AnchoredDraggableTestValue.B
+import androidx.compose.material3.anchoredDraggable.AnchoredDraggableTestValue.C
+import androidx.compose.material3.animateTo
+import androidx.compose.material3.draggableAnchors
+import androidx.compose.material3.snapTo
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.SideEffect
@@ -84,7 +84,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 class AnchoredDraggableStateTest {
 
     @get:Rule

@@ -27,20 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -141,13 +132,11 @@ class SwipeToDismissBoxState(
     )
     @Suppress("DEPRECATION")
     fun isDismissed(direction: DismissDirection): Boolean {
-        return currentValue == (
-                if (direction == DismissDirection.StartToEnd) {
-                    SwipeToDismissBoxValue.StartToEnd
-                } else {
-                    SwipeToDismissBoxValue.EndToStart
-                }
-            )
+        val directionalDismissValue = when (direction) {
+            DismissDirection.StartToEnd -> SwipeToDismissBoxValue.StartToEnd
+            DismissDirection.EndToStart -> SwipeToDismissBoxValue.EndToStart
+        }
+        return currentValue == directionalDismissValue
     }
 
     /**
@@ -247,8 +236,10 @@ fun rememberSwipeToDismissBoxState(
     level = DeprecationLevel.WARNING,
     message = "Use SwipeToDismissBox instead",
     replaceWith =
-        ReplaceWith("SwipeToDismissBox(state, background, modifier, " +
-            "enableDismissFromStartToEnd, enableDismissFromEndToStart, dismissContent)")
+    ReplaceWith(
+        "SwipeToDismissBox(state, background, modifier, " +
+            "enableDismissFromStartToEnd, enableDismissFromEndToStart, dismissContent)"
+    )
 )
 @ExperimentalMaterial3Api
 fun SwipeToDismiss(
@@ -256,7 +247,8 @@ fun SwipeToDismiss(
     background: @Composable RowScope.() -> Unit,
     dismissContent: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
-    directions: Set<SwipeToDismissBoxValue> = setOf(SwipeToDismissBoxValue.EndToStart,
+    directions: Set<SwipeToDismissBoxValue> = setOf(
+        SwipeToDismissBoxValue.EndToStart,
         SwipeToDismissBoxValue.StartToEnd
     ),
 ) = SwipeToDismissBox(
@@ -309,11 +301,21 @@ fun SwipeToDismissBox(
         )
         Row(
             content = content,
-            modifier = Modifier.swipeToDismissBoxAnchors(
-                state,
-                enableDismissFromStartToEnd,
-                enableDismissFromEndToStart
-            )
+            modifier = Modifier.draggableAnchors(
+                state.anchoredDraggableState,
+                Orientation.Horizontal
+            ) { size, _ ->
+                val width = size.width.toFloat()
+                return@draggableAnchors DraggableAnchors {
+                    SwipeToDismissBoxValue.Settled at 0f
+                    if (enableDismissFromStartToEnd) {
+                        SwipeToDismissBoxValue.StartToEnd at width
+                    }
+                    if (enableDismissFromEndToStart) {
+                        SwipeToDismissBoxValue.EndToStart at -width
+                    }
+                } to state.targetValue
+            }
         )
     }
 }
@@ -376,104 +378,3 @@ enum class DismissValue {
 }
 
 private val DismissThreshold = 125.dp
-
-@OptIn(ExperimentalMaterial3Api::class)
-private fun Modifier.swipeToDismissBoxAnchors(
-    state: SwipeToDismissBoxState,
-    enableDismissFromStartToEnd: Boolean,
-    enableDismissFromEndToStart: Boolean
-) = this then SwipeToDismissAnchorsElement(
-    state,
-    enableDismissFromStartToEnd,
-    enableDismissFromEndToStart
-)
-
-@OptIn(ExperimentalMaterial3Api::class)
-private class SwipeToDismissAnchorsElement(
-    private val state: SwipeToDismissBoxState,
-    private val enableDismissFromStartToEnd: Boolean,
-    private val enableDismissFromEndToStart: Boolean,
-) : ModifierNodeElement<SwipeToDismissAnchorsNode>() {
-
-    override fun create() = SwipeToDismissAnchorsNode(
-        state,
-        enableDismissFromStartToEnd,
-        enableDismissFromEndToStart,
-    )
-
-    override fun update(node: SwipeToDismissAnchorsNode) {
-        node.state = state
-        node.enableDismissFromStartToEnd = enableDismissFromStartToEnd
-        node.enableDismissFromEndToStart = enableDismissFromEndToStart
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        other as SwipeToDismissAnchorsElement
-        if (state != other.state) return false
-        if (enableDismissFromStartToEnd != other.enableDismissFromStartToEnd) return false
-        if (enableDismissFromEndToStart != other.enableDismissFromEndToStart) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = state.hashCode()
-        result = 31 * result + enableDismissFromStartToEnd.hashCode()
-        result = 31 * result + enableDismissFromEndToStart.hashCode()
-        return result
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        debugInspectorInfo {
-            properties["state"] = state
-            properties["enableDismissFromStartToEnd"] = enableDismissFromStartToEnd
-            properties["enableDismissFromEndToStart"] = enableDismissFromEndToStart
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-private class SwipeToDismissAnchorsNode(
-    var state: SwipeToDismissBoxState,
-    var enableDismissFromStartToEnd: Boolean,
-    var enableDismissFromEndToStart: Boolean,
-) : Modifier.Node(), LayoutModifierNode {
-    private var didLookahead: Boolean = false
-
-    override fun onDetach() {
-        didLookahead = false
-    }
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult {
-        val placeable = measurable.measure(constraints)
-        // If we are in a lookahead pass, we only want to update the anchors here and not in
-        // post-lookahead. If there is no lookahead happening (!isLookingAhead && !didLookahead),
-        // update the anchors in the main pass.
-        if (isLookingAhead || !didLookahead) {
-            val width = placeable.width.toFloat()
-            val newAnchors = DraggableAnchors {
-                SwipeToDismissBoxValue.Settled at 0f
-                if (enableDismissFromStartToEnd) {
-                    SwipeToDismissBoxValue.StartToEnd at width
-                }
-                if (enableDismissFromEndToStart) {
-                    SwipeToDismissBoxValue.EndToStart at -width
-                }
-            }
-            state.anchoredDraggableState.updateAnchors(newAnchors)
-        }
-        didLookahead = isLookingAhead || didLookahead
-        return layout(placeable.width, placeable.height) {
-            // In a lookahead pass, we use the position of the current target as this is where any
-            // ongoing animations would move. If SwipeToDismissBox is in a settled state, lookahead
-            // and post-lookahead will converge.
-            val xOffset = if (isLookingAhead) {
-                state.anchoredDraggableState.anchors.positionOf(state.targetValue)
-            } else state.requireOffset()
-            placeable.place(xOffset.roundToInt(), 0)
-        }
-    }
-}
