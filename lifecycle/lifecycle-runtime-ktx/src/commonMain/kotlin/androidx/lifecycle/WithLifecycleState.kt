@@ -22,13 +22,14 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * A [CancellationException] that indicates that the [Lifecycle] associated with an operation
  * reached the [Lifecycle.State.DESTROYED] state before the operation could complete.
  */
-public class LifecycleDestroyedException : CancellationException()
+public class LifecycleDestroyedException : CancellationException(null as String?)
 
 /**
  * Run [block] with this [Lifecycle] in a [Lifecycle.State] of at least [state] and
