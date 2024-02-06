@@ -751,10 +751,8 @@ internal class AccessibilityMediator constructor(
 ) {
     private var isAlive = true
 
-    private var latestSyncOptions: AccessibilitySyncOptions = getAccessibilitySyncOptions()
-
-    val debugLogger: AccessibilityDebugLogger?
-        get() = latestSyncOptions.debugLogger
+    var debugLogger: AccessibilityDebugLogger? = null
+        private set
 
     var rootSemanticsNodeId: Int = -1
 
@@ -789,14 +787,20 @@ internal class AccessibilityMediator constructor(
             while (isAlive) {
                 var result: NodesSyncResult
 
-                latestSyncOptions = getAccessibilitySyncOptions()
+                val syncOptions = getAccessibilitySyncOptions()
 
-                val shouldPerformSync = when (latestSyncOptions) {
+                val shouldPerformSync = when (syncOptions) {
                     is AccessibilitySyncOptions.Never -> false
                     is AccessibilitySyncOptions.WhenRequiredByAccessibilityServices -> {
                         UIAccessibilityIsVoiceOverRunning()
                     }
                     is AccessibilitySyncOptions.Always -> true
+                }
+
+                debugLogger = if (shouldPerformSync) {
+                    syncOptions.debugLogger
+                } else {
+                    null
                 }
 
                 if (shouldPerformSync) {
