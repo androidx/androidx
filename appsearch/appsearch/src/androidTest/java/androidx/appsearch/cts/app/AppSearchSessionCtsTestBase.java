@@ -66,7 +66,6 @@ import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.collection.ArrayMap;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -423,6 +422,46 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testSetSchemaWithInvalidCycle_circularReferencesSupported() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SET_SCHEMA_CIRCULAR_REFERENCES));
+
+        // Create schema with invalid cycle: Person -> Organization -> Person... where all
+        // DocumentPropertyConfigs have setShouldIndexNestedProperties(true).
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("funder", "Person")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+
+        SetSchemaRequest setSchemaRequest =
+                new SetSchemaRequest.Builder().addSchemas(personSchema, organizationSchema).build();
+        ExecutionException executionException =
+                assertThrows(ExecutionException.class,
+                        () -> mDb1.setSchemaAsync(setSchemaRequest).get());
+        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) executionException.getCause();
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(exception).hasMessageThat().containsMatch("Invalid cycle|Infinite loop");
+    }
+
+    @Test
     public void testSetSchemaWithValidCycle_circularReferencesNotSupported() {
         assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.SET_SCHEMA_CIRCULAR_REFERENCES));
 
@@ -471,7 +510,6 @@ public abstract class AppSearchSessionCtsTestBase {
 // @exportToFramework:endStrip()
 
     /** Test indexing maximum properties into a schema. */
-    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/322356608
     @Test
     public void testSetSchema_maxProperties() throws Exception {
         int maxProperties = mDb1.getFeatures().getMaxIndexedProperties();
@@ -498,6 +536,73 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(cause).isInstanceOf(AppSearchException.class);
         assertThat(cause.getMessage()).isEqualTo("Too many properties to be indexed, max "
                 + "number of properties allowed: " + maxProperties);
+    }
+
+    @Test
+    public void testSetSchema_maxProperties_nestedSchemas() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SET_SCHEMA_CIRCULAR_REFERENCES));
+
+        int maxProperties = mDb1.getFeatures().getMaxIndexedProperties();
+        AppSearchSchema.Builder personSchemaBuilder = new AppSearchSchema.Builder("Person");
+        for (int i = 0; i < maxProperties / 3 + 1; i++) {
+            personSchemaBuilder.addProperty(new StringPropertyConfig.Builder("string" + i)
+                    .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                    .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                    .build());
+        }
+        personSchemaBuilder.addProperty(new DocumentPropertyConfig.Builder("worksFor",
+                "Organization")
+                .setShouldIndexNestedProperties(false)
+                .build());
+        personSchemaBuilder.addProperty(new DocumentPropertyConfig.Builder("address", "Address")
+                .setShouldIndexNestedProperties(true)
+                .build());
+
+        AppSearchSchema.Builder orgSchemaBuilder = new AppSearchSchema.Builder("Organization");
+        for (int i = 0; i < maxProperties / 3; i++) {
+            orgSchemaBuilder.addProperty(new StringPropertyConfig.Builder("string" + i)
+                    .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                    .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                    .build());
+        }
+        orgSchemaBuilder.addProperty(new DocumentPropertyConfig.Builder("funder", "Person")
+                .setShouldIndexNestedProperties(true)
+                .build());
+
+        AppSearchSchema.Builder addressSchemaBuilder = new AppSearchSchema.Builder("Address");
+        for (int i = 0; i < maxProperties / 3; i++) {
+            addressSchemaBuilder.addProperty(new StringPropertyConfig.Builder("string" + i)
+                    .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                    .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                    .build());
+        }
+
+        AppSearchSchema personSchema = personSchemaBuilder.build();
+        AppSearchSchema orgSchema = orgSchemaBuilder.build();
+        AppSearchSchema addressSchema = addressSchemaBuilder.build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(personSchema, orgSchema, addressSchema)
+                        .build()).get();
+        Set<AppSearchSchema> schemas = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(schemas).containsExactly(personSchema, orgSchema, addressSchema);
+
+        // Add one more property to bring the number of sections over the max limit
+        personSchemaBuilder.addProperty(new StringPropertyConfig.Builder("toomuch")
+                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                .build());
+        ExecutionException exception = assertThrows(ExecutionException.class,
+                () -> mDb1.setSchemaAsync(
+                        new SetSchemaRequest.Builder()
+                                .addSchemas(personSchemaBuilder.build(), orgSchema, addressSchema)
+                                .setForceOverride(true)
+                                .build()
+                ).get());
+        Throwable cause = exception.getCause();
+        assertThat(cause).isInstanceOf(AppSearchException.class);
+        assertThat(cause.getMessage()).contains("Too many properties to be indexed");
     }
 
 // @exportToFramework:startStrip()
