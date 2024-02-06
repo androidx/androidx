@@ -22,6 +22,10 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalSystemTheme
+import androidx.compose.ui.events.toSkikoDragEvent
+import androidx.compose.ui.events.toSkikoEvent
+import androidx.compose.ui.events.toSkikoScrollEvent
+import androidx.compose.ui.events.toSkikoTypeEvent
 import androidx.compose.ui.input.pointer.BrowserCursor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.native.ComposeLayer
@@ -39,9 +43,18 @@ import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import org.jetbrains.skiko.SkiaLayer
+import org.jetbrains.skiko.SkikoKeyboardEventKind
+import org.jetbrains.skiko.SkikoPointerEventKind
+import org.jetbrains.skiko.SkikoView
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.HTMLTitleElement
+import org.w3c.dom.events.Event
+import org.w3c.dom.events.KeyboardEvent
+import org.w3c.dom.events.MouseEvent
+import org.w3c.dom.events.WheelEvent
+import org.w3c.dom.TouchEvent
+
 
 @OptIn(InternalComposeApi::class)
 private class ComposeWindow(
@@ -84,8 +97,86 @@ private class ComposeWindow(
     var canvas = document.getElementById(canvasId) as HTMLCanvasElement
         private set
 
+    private fun <T : Event> HTMLCanvasElement.addTypedEvent(type: String, handler: (event: T, skikoView: SkikoView) -> Unit) {
+        addEventListener(type, { event ->
+            layer.layer?.skikoView?.let { skikoView -> handler(event as T, skikoView) }
+        })
+    }
+
+    private fun initEvents(canvas: HTMLCanvasElement) {
+        var offsetX = 0.0
+        var offsetY = 0.0
+        var isPointerPressed = false
+        canvas.addTypedEvent<TouchEvent>("touchstart") { event, skikoView ->
+            event.preventDefault()
+
+            canvas.getBoundingClientRect().apply {
+                offsetX = left
+                offsetY = top
+            }
+
+            val skikoEvent = event.toSkikoEvent(SkikoPointerEventKind.DOWN, offsetX, offsetY)
+            skikoView.onPointerEvent(skikoEvent)
+        }
+
+        canvas.addTypedEvent<TouchEvent>("touchmove") { event, skikoView ->
+            event.preventDefault()
+            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.MOVE, offsetX, offsetY))
+        }
+
+        canvas.addTypedEvent<TouchEvent>("touchend") { event, skikoView ->
+            event.preventDefault()
+            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP, offsetX, offsetY))
+        }
+
+        canvas.addTypedEvent<TouchEvent>("touchcancel") { event, skikoView ->
+            event.preventDefault()
+            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP, offsetX, offsetY))
+        }
+
+        canvas.addTypedEvent<MouseEvent>("mousedown") { event, skikoView ->
+            isPointerPressed = true
+            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.DOWN))
+        }
+
+        canvas.addTypedEvent<MouseEvent>("mouseup") { event, skikoView ->
+            isPointerPressed = false
+            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP))
+        }
+
+        canvas.addTypedEvent<MouseEvent>("mousemove") { event, skikoView ->
+            if (isPointerPressed) {
+                skikoView.onPointerEvent(event.toSkikoDragEvent())
+            } else {
+                skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.MOVE))
+            }
+        }
+
+        canvas.addTypedEvent<WheelEvent>("wheel") { event, skikoView ->
+            skikoView.onPointerEvent(event.toSkikoScrollEvent())
+        }
+
+        canvas.addEventListener("contextmenu", { event ->
+            event.preventDefault()
+        })
+
+        canvas.addTypedEvent<KeyboardEvent>("keydown") { event, skikoView ->
+            skikoView.onKeyboardEvent(event.toSkikoEvent(SkikoKeyboardEventKind.DOWN))
+
+            event.toSkikoTypeEvent()?.let { inputEvent ->
+                skikoView.input?.onInputEvent(inputEvent)
+            }
+        }
+
+        canvas.addTypedEvent<KeyboardEvent>("keyup") { event, skikoView ->
+            skikoView.onKeyboardEvent(event.toSkikoEvent(SkikoKeyboardEventKind.UP))
+        }
+    }
+
     init {
         layer.layer.attachTo(canvas)
+        initEvents(canvas)
+
         canvas.setAttribute("tabindex", "0")
         layer.layer.needRedraw()
 
