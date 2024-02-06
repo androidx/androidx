@@ -19,7 +19,6 @@ package androidx.compose.material3.carousel
 import androidx.annotation.VisibleForTesting
 import androidx.collection.FloatList
 import androidx.collection.mutableFloatListOf
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.lerp
@@ -35,68 +34,17 @@ internal object StrategyDefaults {
 }
 
 /**
- * Helper method to create a default start-aligned [Strategy] contained within the bounds of
- * [availableSpace] and based on the given [Arrangement].
- *
- * @param availableSpace the available space to contain the [Strategy] within
- * @param arrangement the arrangement containing information on the sizes and counts of the
- * items in the [Strategy].
- * @param anchorSize the size that the anchor keylines should be in the strategy. The smaller
- * this is, the more the item will shrink as it moves off-screen.
- */
-internal fun createStartAlignedStrategy(
-    availableSpace: Float,
-    arrangement: Arrangement,
-    anchorSize: Float,
-): Strategy {
-    val keylineList = keylineListOf(availableSpace, CarouselAlignment.Start) {
-        add(anchorSize, isAnchor = true)
-
-        repeat(arrangement.largeCount) { add(arrangement.largeSize) }
-        repeat(arrangement.mediumCount) { add(arrangement.mediumSize) }
-        repeat(arrangement.smallCount) { add(arrangement.smallSize) }
-
-        add(anchorSize, isAnchor = true)
-    }
-
-    return Strategy.create(availableSpace, keylineList)
-}
-
-/**
- * A class that provides [Strategy] instances to a scrollable component.
- *
- * [StrategyProvider.createStrategy] will be called any time properties which affect a carousel's
- * arrangement change. It is the implementation's responsibility to create an arrangement for the
- * given parameters and return a [Strategy] by calling [Strategy.create].
- */
-internal sealed class StrategyProvider() {
-
-    /**
-     * Create and return a new [Strategy] for the given carousel size.
-     *
-     * @param density The current density value
-     * @param carouselMainAxisSize the size of the carousel in the main axis in pixels
-     * @param itemSpacing The spacing in between the items that are not a part of the item size
-     */
-    internal abstract fun createStrategy(
-        density: Density,
-        carouselMainAxisSize: Float,
-        itemSpacing: Int,
-    ): Strategy?
-}
-
-/**
  * A class which supplies carousel with the appropriate [KeylineList] for any given scroll offset.
  *
  * All items in a carousel need the opportunity to pass through the focal keyline range. Depending
  * on where the focal range is located within the scrolling container, some items, like those at
  * the beginning or end of the list, might not reach the focal range. To account for this,
  * [Strategy] manages shifting the focal keylines to the beginning of the list when scrolled an
- * offset of 0 and the end of the list when scrolled to the list's max offset. [StrategyProvider]
- * needs only to create a "default" [KeylineList] (where keylines should be placed when scrolling
- * in the middle of the list) and call [Strategy.create] to have [Strategy] generate the steps
- * needed to move the focal range to the start and end of the scroll container. When scrolling, the
- * scrollable component can access the correct [KeylineList] for any given offset using
+ * offset of 0 and the end of the list when scrolled to the list's max offset. The only thing
+ * [Strategy] needs is a "default" [KeylineList] (where keylines should be placed when scrolling
+ * in the middle of the list) and [Strategy.create] will generate the steps needed to move the
+ * focal range to the start and end of the scroll container. When scrolling, the scrollable
+ * component can access the correct [KeylineList] for any given offset using
  * [getKeylineListForScrollOffset].
  *
  * @param defaultKeylines the [KeylineList] used when anywhere in the center of the list
@@ -211,7 +159,6 @@ internal class Strategy private constructor(
 
         /**
          * Creates a new [Strategy] based on a default [keylineList].
-         *
          * The [keylineList] passed to this method will be the keylines used when the carousel is
          * scrolled anywhere in the middle of the list (not the beginning or end). From these
          * default keylines, additional [KeylineList]s will be created which move the focal range
@@ -501,7 +448,8 @@ internal class Strategy private constructor(
             return ShiftPointRange(
                 fromStepIndex = 0,
                 toStepIndex = 0,
-                steppedInterpolation = 0f)
+                steppedInterpolation = 0f
+            )
         }
 
         private fun MutableList<Keyline>.move(srcIndex: Int, dstIndex: Int): MutableList<Keyline> {
