@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        if (extensionBuildTypes.findByName(newBuildTypeName) != null) {"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/baselineprofile/gradle/utils/BuildTypes.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="    if (extensionBuildTypes.findByName(buildTypeName) != null) {"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/baselineprofile/gradle/utils/BuildTypes.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                .findByName(fromVariantConfigurationName)"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/baselineprofile/gradle/utils/Dependencies.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                .findByName(toVariantConfigurationName)"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/baselineprofile/gradle/utils/Dependencies.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                .mapNotNull { ext.variants.findByName(it) }"
+        errorLine2="                                           ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/baselineprofile/gradle/consumer/PerVariantConsumerExtensionManager.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                val variantConfig = ext.variants.findByName(it) ?: return@mapNotNull null"
+        errorLine2="                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/baselineprofile/gradle/consumer/PerVariantConsumerExtensionManager.kt"/>
+    </issue>
+
+</issues>

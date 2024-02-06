@@ -28,19 +28,26 @@ internal val STUBS =
             """
                 package org.gradle.api.tasks
 
+                import groovy.lang.Closure
                 import org.gradle.api.DomainObjectCollection
+                import org.gradle.api.NamedDomainObjectCollection
                 import org.gradle.api.Task
 
-                class TaskContainer : DomainObjectCollection<Task>, TaskCollection<Task> {
+                class TaskContainer : DomainObjectCollection<Task>, TaskCollection<Task>, NamedDomainObjectCollection<Task> {
                     fun create(name: String) = Unit
                     fun register(name: String) = Unit
                     fun getByName(name: String) = Unit
                     fun named(name: String) = Unit
                     fun whenTaskAdded(action: Action<in T>)
+                    fun getByPath(path: String) = Unit
+                    fun findByPath(path: String) = Unit
+                    fun replace(name: String) = Unit
+                    fun remove(task: Task) = Unit
                 }
 
                 interface TaskCollection<T : Task> {
                     fun getAt(name: String) = Unit
+                    fun matching(closure: Closure) = Unit
                 }
             """.trimIndent()
         ),
@@ -48,21 +55,36 @@ internal val STUBS =
             """
                 package org.gradle.api
 
+                import groovy.lang.Closure
                 import org.gradle.api.tasks.TaskContainer
 
                 class Project {
                     val tasks: TaskContainer
                 }
 
+                interface NamedDomainObjectCollection<T> : Collection<T>, DomainObjectCollection<T>, Iterable<T> {
+                    fun findByName(name: String) = Unit
+                    fun findAll(closure: Closure) = Unit
+                }
+
                 interface DomainObjectCollection<T> {
                     fun all(action: Action<in T>)
                     fun configureEach(action: Action<in T>)
                     fun whenObjectAdded(action: Action<in T>)
+                    fun withType(cls: Class)
+                    fun withType(cls: Class, action: Action)
                 }
 
                 interface Action<T>
 
                 interface Task
+            """.trimIndent()
+        ),
+        kotlin(
+            """
+                package groovy.lang
+
+                class Closure
             """.trimIndent()
         )
     )

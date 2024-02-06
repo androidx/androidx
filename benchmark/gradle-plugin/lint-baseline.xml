@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        if (project.rootProject.tasks.findByName(&quot;lockClocks&quot;) == null) {"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/benchmark/gradle/BenchmarkPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        if (project.rootProject.tasks.findByName(&quot;unlockClocks&quot;) == null) {"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/benchmark/gradle/BenchmarkPlugin.kt"/>
+    </issue>
+
+</issues>
