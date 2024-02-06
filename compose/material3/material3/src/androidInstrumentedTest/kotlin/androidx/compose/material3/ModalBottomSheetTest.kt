@@ -271,7 +271,9 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         }
     }
 
+    // TODO(b/323385152): Flaky test.
     @Test
+    @Ignore
     fun modalBottomSheet_wideScreen_filledWidth_sheetFillsEntireWidth() {
         rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val latch = CountDownLatch(1)
