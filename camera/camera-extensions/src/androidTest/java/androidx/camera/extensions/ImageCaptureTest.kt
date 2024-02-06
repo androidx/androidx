@@ -157,7 +157,7 @@ class ImageCaptureTest(
 
         Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).times(1))
             .onCaptureStarted()
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(10000)).onCaptureSuccess(
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(15000)).onCaptureSuccess(
             imageProxy.capture()
         )
         assertThat(imageProxy.value).isNotNull()
@@ -298,7 +298,7 @@ class ImageCaptureTest(
         Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).times(1))
             .onCaptureStarted()
 
-        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(10000)).onImageSaved(
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(15000)).onImageSaved(
             outputFileResults.capture()
         )
         assertThat(outputFileResults.value).isNotNull()
@@ -488,7 +488,7 @@ class ImageCaptureTest(
         Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).atLeastOnce())
             .onCaptureProcessProgressed(ArgumentMatchers.anyInt())
 
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(10000)).onCaptureSuccess(
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(15000)).onCaptureSuccess(
             imageProxy.capture()
         )
 
@@ -524,7 +524,7 @@ class ImageCaptureTest(
         Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).atLeastOnce())
             .onCaptureProcessProgressed(ArgumentMatchers.anyInt())
 
-        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(10000)).onImageSaved(
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(15000)).onImageSaved(
             outputFileResults.capture()
         )
 

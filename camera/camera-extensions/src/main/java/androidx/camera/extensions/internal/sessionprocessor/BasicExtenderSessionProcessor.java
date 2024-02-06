@@ -299,6 +299,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                                 @Nullable String physicalCameraId) {
                             if (mPreviewProcessor != null) {
                                 mPreviewProcessor.notifyImage(imageReference);
+                            } else {
+                                imageReference.decrement();
                             }
                         }
                     });
@@ -596,6 +598,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                                     "onNextImageAvailable  outputStreamId=" + outputStreamId);
                             if (mStillCaptureProcessor != null) {
                                 mStillCaptureProcessor.notifyImage(imageReference);
+                            } else {
+                                imageReference.decrement();
                             }
 
                             if (mIsFirstFrame) {
