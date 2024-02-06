@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.apigenerator.parser
 
 import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
+import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
@@ -80,14 +81,20 @@ internal object ApiStubParser {
 
     private fun parseValue(value: KmClass): AnnotatedValue {
         val type = parseClassName(value.name)
+        val isEnum = value.kind == ClassKind.ENUM_CLASS
 
-        if (!value.isData) {
+        if (!value.isData && !isEnum) {
             throw PrivacySandboxParsingException(
-                "${type.qualifiedName} is not a Kotlin data class but it's annotated with " +
-                    "@PrivacySandboxValue."
+                "${type.qualifiedName} is not a Kotlin data class or enum class but it's " +
+                    "annotated with @PrivacySandboxValue."
             )
         }
-        return AnnotatedDataClass(type, parseProperties(type, value))
+        return if (value.isData) {
+            AnnotatedDataClass(type, parseProperties(type, value))
+        } else {
+            // TODO(b/323369085): Validate that enums don't have fields, methods, or inheritance
+            AnnotatedEnumClass(type, value.enumEntries.toList())
+        }
     }
 
     /** Parses properties and sorts them based on the order of constructor parameters. */
