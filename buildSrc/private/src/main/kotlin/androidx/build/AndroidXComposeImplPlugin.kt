@@ -36,23 +36,16 @@ import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.tasks.ClasspathNormalizer
-import org.gradle.api.attributes.Usage
-import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
-import org.jetbrains.kotlin.gradle.targets.js.KotlinJsCompilerAttribute
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.tooling.core.withClosure
 
 const val composeSourceOption =
@@ -150,6 +143,20 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 it.kotlinOptions {
                     freeCompilerArgs += "-opt-in=kotlinx.cinterop.ExperimentalForeignApi"
                     freeCompilerArgs += "-opt-in=kotlin.experimental.ExperimentalNativeApi"
+                }
+            }
+
+            // TODO: remove this (https://youtrack.jetbrains.com/issue/COMPOSE-939)
+            project.configurations.all {
+                val isWeb = it.name.startsWith("wasmJs") ||
+                    it.name.startsWith("js")
+                if (isWeb) {
+                    it.resolutionStrategy.eachDependency {
+                        if (it.requested.group.startsWith("org.jetbrains.kotlinx") &&
+                            it.requested.name.startsWith("kotlinx-coroutines-")) {
+                            it.useVersion("1.8.0-RC2")
+                        }
+                    }
                 }
             }
         }
