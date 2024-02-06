@@ -3,13 +3,14 @@
 package androidx.compose.ui.inspection.inspector
 
 import androidx.annotation.VisibleForTesting
+import androidx.collection.intSetOf
 import kotlin.math.absoluteValue
 
 @VisibleForTesting
 fun packageNameHash(packageName: String) =
     packageName.fold(0) { hash, char -> hash * 31 + char.code }.absoluteValue
 
-val systemPackages = setOf(
+val systemPackages = intSetOf(
     -1,
     packageNameHash("androidx.compose.animation"),
     packageNameHash("androidx.compose.animation.core"),

@@ -18,6 +18,10 @@ package androidx.compose.ui.inspection.inspector
 
 import android.view.View
 import androidx.annotation.VisibleForTesting
+import androidx.collection.LongList
+import androidx.collection.mutableIntObjectMapOf
+import androidx.collection.mutableLongListOf
+import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
 import androidx.compose.ui.InternalComposeUiApi
@@ -96,9 +100,9 @@ class LayoutInspectorTree {
     /** Map from owner node to child trees that are about to be stitched to this owner */
     private val ownerMap = IdentityHashMap<InspectorNode, MutableList<MutableInspectorNode>>()
     /** Map from semantics id to a list of merged semantics information */
-    private val semanticsMap = mutableMapOf<Int, List<RawParameter>>()
+    private val semanticsMap = mutableIntObjectMapOf<List<RawParameter>>()
     /* Map of seemantics id to a list of unmerged semantics information */
-    private val unmergedSemanticsMap = mutableMapOf<Int, List<RawParameter>>()
+    private val unmergedSemanticsMap = mutableIntObjectMapOf<List<RawParameter>>()
     /** Set of tree nodes that were stitched into another tree */
     private val stitched =
         Collections.newSetFromMap(IdentityHashMap<MutableInspectorNode, Boolean>())
@@ -563,13 +567,30 @@ class LayoutInspectorTree {
         return anchorId.toLong() - Int.MAX_VALUE.toLong() + RESERVED_FOR_GENERATED_IDS
     }
 
-    private fun belongsToView(layoutNodes: List<LayoutInfo>, view: View): Boolean =
-        layoutNodes.asSequence().flatMap { node ->
-            node.getModifierInfo().asSequence()
-                .map { it.extra }
-                .filterIsInstance<GraphicLayerInfo>()
-                .map { it.ownerViewId }
-        }.contains(view.uniqueDrawingId)
+    /**
+     * Returns true if the [layoutNodes] belong under the specified [view].
+     *
+     * For: popups & Dialogs we may encounter parts of a compose tree that belong under
+     * a different sub-composition. Consider these nodes to "belong" to the current sub-composition
+     * under [view] if the ownerViews contains [view] or doesn't contain any owner views at all.
+     */
+    private fun belongsToView(layoutNodes: List<LayoutInfo>, view: View): Boolean {
+        val ownerViewIds = ownerViews(layoutNodes)
+        return ownerViewIds.isEmpty() || ownerViewIds.contains(view.uniqueDrawingId)
+    }
+
+    private fun ownerViews(layoutNodes: List<LayoutInfo>): LongList {
+        val ownerViewIds = mutableLongListOf()
+        layoutNodes.forEach { node ->
+            node.getModifierInfo().forEach { info ->
+                val extra = info.extra
+                if (extra is GraphicLayerInfo) {
+                    ownerViewIds.add(extra.ownerViewId)
+                }
+            }
+        }
+        return ownerViewIds
+    }
 
     private fun addParameters(context: SourceContext, node: MutableInspectorNode) {
         context.parameters.forEach {
@@ -691,7 +712,7 @@ class LayoutInspectorTree {
          * Map from View owner to a pair of [InspectorNode] indicating the actual root,
          * and the node where the content should be stitched in.
          */
-        private val found = mutableMapOf<Long, InspectorNode>()
+        private val found = mutableLongObjectMapOf<InspectorNode>()
 
         /** Call this before converting a SlotTree for an AndroidComposeView */
         fun clear() {
