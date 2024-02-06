@@ -346,8 +346,8 @@ public class LocalStorage {
                         /* shouldRetrieveParentInfo= */ true
                 ),
                 initStatsBuilder,
-                new JetpackOptimizeStrategy(),
-                /*visibilityChecker=*/null);
+                /*visibilityChecker=*/ null,
+                new JetpackOptimizeStrategy());
 
         if (logger != null) {
             initStatsBuilder.setTotalLatencyMillis(
