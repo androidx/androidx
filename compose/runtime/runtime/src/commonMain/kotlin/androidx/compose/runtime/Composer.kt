@@ -22,13 +22,15 @@ package androidx.compose.runtime
 import androidx.collection.MutableIntIntMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableScatterMap
+import androidx.collection.MutableScatterSet
+import androidx.collection.ScatterSet
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.Composer.Companion.equals
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.changelist.ComposerChangeListWriter
 import androidx.compose.runtime.changelist.FixupList
-import androidx.compose.runtime.collection.IdentityArrayMap
-import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.IntMap
+import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 import androidx.compose.runtime.snapshots.currentSnapshot
@@ -127,7 +129,6 @@ private class Pending(
         multiMap<Any, KeyInfo>(keyInfos.size).also {
             for (index in 0 until keyInfos.size) {
                 val keyInfo = keyInfos[index]
-                @Suppress("ReplacePutWithAssignment")
                 it.put(keyInfo.joinedKey, keyInfo)
             }
         }
@@ -234,8 +235,10 @@ private class Invalidation(
      * unconditionally invalid. If it contains instances it is only invalid if at least on of the
      * instances is changed. This is used to track `DerivedState<*>` changes and only treat the
      * scope as invalid if the instance has changed.
+     *
+     * Can contain a [ScatterSet] of instances, single instance or null.
      */
-    var instances: IdentityArraySet<Any>?
+    var instances: Any?
 ) {
     fun isInvalid(): Boolean = scope.isInvalidFor(instances)
 }
@@ -320,7 +323,7 @@ class MovableContentStateReference internal constructor(
     internal val composition: ControlledComposition,
     internal val slotTable: SlotTable,
     internal val anchor: Anchor,
-    internal var invalidations: List<Pair<RecomposeScopeImpl, IdentityArraySet<Any>?>>,
+    internal var invalidations: List<Pair<RecomposeScopeImpl, Any?>>,
     internal val locals: PersistentCompositionLocalMap
 )
 
@@ -2141,7 +2144,6 @@ internal class ComposerImpl(
                 if (writer.groupKey(current) == compositionLocalMapKey &&
                     writer.groupObjectKey(current) == compositionLocalMap
                 ) {
-                    @Suppress("UNCHECKED_CAST")
                     val providers = writer.groupAux(current) as PersistentCompositionLocalMap
                     providerCache = providers
                     return providers
@@ -2155,7 +2157,6 @@ internal class ComposerImpl(
                 if (reader.groupKey(current) == compositionLocalMapKey &&
                     reader.groupObjectKey(current) == compositionLocalMap
                 ) {
-                    @Suppress("UNCHECKED_CAST")
                     val providers = providerUpdates?.get(current)
                         ?: reader.groupAux(current) as PersistentCompositionLocalMap
                     providerCache = providers
@@ -3382,7 +3383,7 @@ internal class ComposerImpl(
         from: ControlledComposition? = null,
         to: ControlledComposition? = null,
         index: Int? = null,
-        invalidations: List<Pair<RecomposeScopeImpl, IdentityArraySet<Any>?>> = emptyList(),
+        invalidations: List<Pair<RecomposeScopeImpl, Any?>> = emptyList(),
         block: () -> R
     ): R {
         val savedIsComposing = isComposing
@@ -3392,9 +3393,7 @@ internal class ComposerImpl(
             nodeIndex = 0
             invalidations.fastForEach { (scope, instances) ->
                 if (instances != null) {
-                    instances.fastForEach { instance ->
-                        tryImminentInvalidation(scope, instance)
-                    }
+                    tryImminentInvalidation(scope, instances)
                 } else {
                     tryImminentInvalidation(scope, null)
                 }
@@ -3437,7 +3436,7 @@ internal class ComposerImpl(
      * [content].
      */
     internal fun composeContent(
-        invalidationsRequested: IdentityArrayMap<RecomposeScopeImpl, IdentityArraySet<Any>?>,
+        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
         content: @Composable () -> Unit
     ) {
         runtimeCheck(changes.isEmpty()) { "Expected applyChanges() to have been called" }
@@ -3459,7 +3458,7 @@ internal class ComposerImpl(
      * applied by [ControlledComposition.applyChanges] to have an effect.
      */
     internal fun recompose(
-        invalidationsRequested: IdentityArrayMap<RecomposeScopeImpl, IdentityArraySet<Any>?>
+        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
     ): Boolean {
         runtimeCheck(changes.isEmpty()) { "Expected applyChanges() to have been called" }
         // even if invalidationsRequested is empty we still need to recompose if the Composer has
@@ -3467,7 +3466,7 @@ internal class ComposerImpl(
         // there were a change for a state which was used by the child composition. such changes
         // will be tracked and added into `invalidations` list.
         if (
-            invalidationsRequested.isNotEmpty() ||
+            invalidationsRequested.size > 0 ||
             invalidations.isNotEmpty() ||
             forciblyRecompose
         ) {
@@ -3478,16 +3477,23 @@ internal class ComposerImpl(
     }
 
     private fun doCompose(
-        invalidationsRequested: IdentityArrayMap<RecomposeScopeImpl, IdentityArraySet<Any>?>,
+        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
         content: (@Composable () -> Unit)?
     ) {
         runtimeCheck(!isComposing) { "Reentrant composition is not supported" }
         trace("Compose:recompose") {
             compositionToken = currentSnapshot().id
             providerUpdates = null
-            invalidationsRequested.forEach { scope, set ->
-                val location = scope.anchor?.location ?: return
-                invalidations.add(Invalidation(scope, location, set))
+            invalidationsRequested.map.forEach { scope, instances ->
+                scope as RecomposeScopeImpl
+                val location = scope.anchor?.location ?: return@forEach
+                invalidations.add(
+                    Invalidation(
+                        scope,
+                        location,
+                        instances.takeUnless { it === ScopeInvalidated }
+                    )
+                )
             }
             invalidations.sortWith(InvalidationLocationAscending)
             nodeIndex = 0
@@ -3497,7 +3503,6 @@ internal class ComposerImpl(
                 startRoot()
 
                 // vv Experimental for forced
-                @Suppress("UNCHECKED_CAST")
                 val savedContent = nextSlot()
                 if (savedContent !== content && content != null) {
                     updateValue(content as Any?)
@@ -3550,23 +3555,6 @@ internal class ComposerImpl(
     private fun validateNodeNotExpected() {
         runtimeCheck(!nodeExpected) { "A call to createNode(), emitNode() or useNode() expected" }
     }
-
-    /**
-     * Record whether any groups were stared. If no groups were started then the root group
-     * doesn't need to be started or ended either.
-     */
-    private var startedGroup = false
-
-    /**
-     * During late change calculation the group start/end is handled by [insertMovableContentReferences]
-     * directly instead of requiring implicit starts/end groups to be inserted.
-     */
-    private var implicitRootStart = true
-
-    /**
-     * A stack of the location of the groups that were started.
-     */
-    private val startedGroups = IntStack()
 
     private fun recordInsert(anchor: Anchor) {
         if (insertFixups.isEmpty()) {
@@ -3738,8 +3726,6 @@ internal class ComposerImpl(
      * A holder that will dispose of its [CompositionContext] when it leaves the composition
      * that will not have its reference made visible to user code.
      */
-    // This warning becomes an error if its advice is followed since Composer needs its type param
-    @Suppress("RemoveRedundantQualifierName")
     private class CompositionContextHolder(
         val ref: ComposerImpl.CompositionContextImpl
     ) : ReusableRememberObserver {
@@ -4255,16 +4241,22 @@ private fun MutableList<Invalidation>.insertIfMissing(
             Invalidation(
                 scope,
                 location,
-                instance?.let { i ->
-                    IdentityArraySet<Any>().also { it.add(i) }
-                }
+                instance
             )
         )
     } else {
-        if (instance == null) {
-            get(index).instances = null
-        } else {
-            get(index).instances?.add(instance)
+        val invalidation = get(index)
+        when (val oldInstance = invalidation.instances) {
+            null -> invalidation.instances = instance
+            is MutableScatterSet<*> -> {
+                @Suppress("UNCHECKED_CAST")
+                oldInstance as MutableScatterSet<Any?>
+                oldInstance.add(instance)
+            }
+
+            else -> {
+                invalidation.instances = mutableScatterSetOf(oldInstance, instance)
+            }
         }
     }
 }
