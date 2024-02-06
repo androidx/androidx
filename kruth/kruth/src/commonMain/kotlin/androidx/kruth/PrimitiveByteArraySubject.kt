@@ -49,8 +49,7 @@ class PrimitiveByteArraySubject internal constructor(
 
     /** Converts this [PrimitiveByteArraySubject] to [IterableSubject].*/
     fun asList(): IterableSubject<Byte> {
-        metadata.assertNotNull(actual)
-
+        requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)
     }
 }

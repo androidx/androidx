@@ -52,8 +52,7 @@ class PrimitiveIntArraySubject internal constructor(
 
     /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject].*/
     fun asList(): IterableSubject<Int> {
-        metadata.assertNotNull(actual)
-
+        requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)
     }
 }
