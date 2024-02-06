@@ -646,6 +646,34 @@ package androidx.wear.compose.material3 {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
+  public interface TimeSource {
+    method @androidx.compose.runtime.Composable public String getCurrentTime();
+    property @androidx.compose.runtime.Composable public abstract String currentTime;
+  }
+
+  public final class TimeTextDefaults {
+    method public void CurvedTextSeparator(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedTextStyle? curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
+    method @androidx.compose.runtime.Composable public void TextSeparator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding();
+    method @androidx.compose.runtime.Composable public String timeFormat();
+    method public androidx.wear.compose.material3.TimeSource timeSource(String timeFormat);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long background, optional long color, optional long fontSize);
+    field public static final androidx.wear.compose.material3.TimeTextDefaults INSTANCE;
+    field public static final String TimeFormat12Hours = "h:mm";
+    field public static final String TimeFormat24Hours = "HH:mm";
+  }
+
+  public final class TimeTextKt {
+    method @androidx.compose.runtime.Composable public static void TimeText(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.CurvedModifier curvedModifier, optional androidx.wear.compose.material3.TimeSource timeSource, optional androidx.compose.ui.text.TextStyle timeTextStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.TimeTextScope,kotlin.Unit> content);
+  }
+
+  public abstract sealed class TimeTextScope {
+    method public abstract void composable(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public abstract void separator(optional androidx.compose.ui.text.TextStyle? style);
+    method public abstract void text(String text, optional androidx.compose.ui.text.TextStyle? style);
+    method public abstract void time();
+  }
+
   @androidx.compose.runtime.Immutable public final class ToggleButtonColors {
     ctor public ToggleButtonColors(long checkedContainerColor, long checkedContentColor, long uncheckedContainerColor, long uncheckedContentColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor);
     ctor public ToggleButtonColors(long checkedContainerColor, long checkedContentColor, long checkedSecondaryContentColor, long checkedIconColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedSecondaryContentColor, long uncheckedIconColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedSecondaryContentColor, long disabledCheckedIconColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedSecondaryContentColor, long disabledUncheckedIconColor);

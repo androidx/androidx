@@ -16,10 +16,12 @@
 
 package androidx.wear.compose.materialcore
 
+import android.text.format.DateFormat
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -40,3 +42,10 @@ fun isRoundDevice(): Boolean {
         configuration.isScreenRound
     }
 }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun currentTimeMillis(): Long = System.currentTimeMillis()
