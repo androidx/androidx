@@ -344,9 +344,6 @@ internal class AndroidComposeView(
     private val motionEventAdapter = MotionEventAdapter()
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
-    // TODO(mount): reinstate when coroutines are supported by IR compiler
-    // private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
-
     /**
      * Used for updating LocalConfiguration when configuration changes - consume LocalConfiguration
      * instead of changing this observer if you are writing a component that adapts to
@@ -945,6 +942,34 @@ internal class AndroidComposeView(
             }
             else -> {}
         }
+    }
+
+    override fun addView(child: View?) = addView(child, -1)
+
+    override fun addView(child: View?, index: Int) =
+        addView(child, index, child!!.layoutParams ?: generateDefaultLayoutParams())
+
+    override fun addView(child: View?, width: Int, height: Int) =
+        addView(
+            child,
+            -1,
+            generateDefaultLayoutParams().also { it.width = width; it.height = height }
+        )
+
+    override fun addView(child: View?, params: LayoutParams?) = addView(child, -1, params)
+
+    /**
+     * Directly adding _real_ [View]s to this view is not supported for external consumers, so we
+     * can use the non-layout-invalidating [addViewInLayout] for when we need to add utility
+     * container views, such as [viewLayersContainer].
+     */
+    override fun addView(child: View?, index: Int, params: LayoutParams?) {
+        addViewInLayout(
+            child,
+            index,
+            params,
+            /* preventRequestLayout = */ true
+        )
     }
 
     /**

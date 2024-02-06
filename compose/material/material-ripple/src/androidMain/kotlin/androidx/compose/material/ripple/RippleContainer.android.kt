@@ -87,6 +87,11 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
         setMeasuredDimension(0, 0)
     }
 
+    @Suppress("MissingSuperCall")
+    override fun requestLayout() {
+        // RippleHostViews don't partake in layout, and shouldn't invalidate layout
+    }
+
     /**
      * @return a [RippleHostView] for [this] [RippleHostKey]. This result will
      * be cached if possible, to allow re-using the same [RippleHostView].

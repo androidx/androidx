@@ -134,7 +134,6 @@ import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -1760,6 +1759,43 @@ class AndroidViewTest {
         }
     }
 
+    @Test
+    @LargeTest
+    fun androidView_attachingDoesNotCauseRelayout() {
+        lateinit var root: RequestLayoutTrackingFrameLayout
+        lateinit var composeView: ComposeView
+        lateinit var viewInsideCompose: View
+        var showAndroidView by mutableStateOf(false)
+
+        rule.activityRule.scenario.onActivity { activity ->
+            root = RequestLayoutTrackingFrameLayout(activity)
+            composeView = ComposeView(activity)
+            viewInsideCompose = View(activity)
+
+            activity.setContentView(root)
+            root.addView(composeView)
+            composeView.setContent {
+                Box(Modifier.fillMaxSize()) {
+                    if (showAndroidView) {
+                        AndroidView({ viewInsideCompose })
+                    }
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            assertThat(viewInsideCompose.parent).isNull()
+            assertThat(root.requestLayoutCalled).isTrue()
+            root.requestLayoutCalled = false
+            showAndroidView = true
+        }
+
+        rule.runOnIdle {
+            assertThat(viewInsideCompose.parent).isNotNull()
+            assertThat(root.requestLayoutCalled).isFalse()
+        }
+    }
+
     @ExperimentalComposeUiApi
     @Composable
     private inline fun <T : View> ReusableAndroidViewWithLifecycleTracking(
@@ -1874,4 +1910,13 @@ class AndroidViewTest {
             value,
             displayMetrics
         ).roundToInt()
+
+    private class RequestLayoutTrackingFrameLayout(context: Context) : FrameLayout(context) {
+        var requestLayoutCalled = false
+
+        override fun requestLayout() {
+            super.requestLayout()
+            requestLayoutCalled = true
+        }
+    }
 }
