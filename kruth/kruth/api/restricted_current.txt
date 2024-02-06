@@ -48,38 +48,17 @@ package androidx.kruth {
   }
 
   public final class Fact {
-    method public static androidx.kruth.Fact fact(String key);
-    method public static androidx.kruth.Fact fact(String key, optional Object? value);
-    method public String getKey();
-    method public String? getValue();
-    method public static String makeMessage(java.util.List<java.lang.String> messages, java.util.List<androidx.kruth.Fact> facts);
+    method public static androidx.kruth.Fact fact(String key, Object? value);
     method public static androidx.kruth.Fact simpleFact(String key);
-    property public final String key;
-    property public final String? value;
     field public static final androidx.kruth.Fact.Companion Companion;
   }
 
   public static final class Fact.Companion {
-    method public androidx.kruth.Fact fact(String key);
-    method public androidx.kruth.Fact fact(String key, optional Object? value);
-    method public String makeMessage(java.util.List<java.lang.String> messages, java.util.List<androidx.kruth.Fact> facts);
+    method public androidx.kruth.Fact fact(String key, Object? value);
     method public androidx.kruth.Fact simpleFact(String key);
   }
 
   public final class FailureMetadata {
-    method public androidx.kruth.FailureStrategy component1();
-    method public java.util.List<java.lang.String> component2();
-    method public androidx.kruth.FailureMetadata copy(androidx.kruth.FailureStrategy failureStrategy, java.util.List<java.lang.String> messagesToPrepend);
-    method public static androidx.kruth.FailureMetadata forFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
-    method public androidx.kruth.FailureStrategy getFailureStrategy();
-    method public java.util.List<java.lang.String> getMessagesToPrepend();
-    property public final androidx.kruth.FailureStrategy failureStrategy;
-    property public final java.util.List<java.lang.String> messagesToPrepend;
-    field public static final androidx.kruth.FailureMetadata.Companion Companion;
-  }
-
-  public static final class FailureMetadata.Companion {
-    method public androidx.kruth.FailureMetadata forFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
   }
 
   public fun interface FailureStrategy {
@@ -278,7 +257,7 @@ package androidx.kruth {
     method public void contains(CharSequence charSequence);
     method public void containsMatch(String regex);
     method public void containsMatch(kotlin.text.Regex regex);
-    method public void doesNotContain(CharSequence string);
+    method public void doesNotContain(CharSequence charSequence);
     method public void doesNotContainMatch(String regex);
     method public void doesNotContainMatch(kotlin.text.Regex regex);
     method public void doesNotMatch(String regex);
@@ -295,7 +274,7 @@ package androidx.kruth {
 
   public final class StringSubject.CaseInsensitiveStringComparison {
     method public void contains(CharSequence? expected);
-    method public void doesNotContain(CharSequence? expected);
+    method public void doesNotContain(CharSequence expected);
     method public void isEqualTo(String? expected);
     method public void isNotEqualTo(String? unexpected);
   }
@@ -303,13 +282,11 @@ package androidx.kruth {
   public class Subject<T> {
     ctor public Subject(T? actual, optional androidx.kruth.FailureMetadata metadata);
     method protected final androidx.kruth.StandardSubjectBuilder check();
-    method @kotlin.PublishedApi internal final void doFail(String message);
-    method protected final Void failWithActual(androidx.kruth.Fact... facts);
-    method protected final Void failWithActual(String key);
-    method protected final Void failWithActual(String key, optional Object? value);
-    method protected final Void failWithoutActual(androidx.kruth.Fact... facts);
-    method protected final Void failWithoutActual(String key);
-    method protected final Void failWithoutActual(String key, optional Object? value);
+    method protected final androidx.kruth.StandardSubjectBuilder check(String format, java.lang.Object... args);
+    method @kotlin.PublishedApi internal final Void doFail(androidx.kruth.Fact... facts);
+    method protected final Void failWithActual(androidx.kruth.Fact first, androidx.kruth.Fact... rest);
+    method protected final Void failWithActual(String key, Object? value);
+    method protected final Void failWithoutActual(androidx.kruth.Fact first, androidx.kruth.Fact... rest);
     method public final T? getActual();
     method public final androidx.kruth.FailureMetadata getMetadata();
     method public void isAnyOf(Object? first, Object? second, java.lang.Object?... rest);

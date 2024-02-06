@@ -62,31 +62,21 @@ ChangedType: androidx.kruth.StandardSubjectBuilder#fail():
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ClassSubject to androidx.kruth.Subject<T>
-ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ComparableSubject<ComparableT> to androidx.kruth.ComparableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
 ChangedType: androidx.kruth.Subject#failWithActual(String, Object):
     Method androidx.kruth.Subject.failWithActual has changed return type from void to java.lang.Void
+ChangedType: androidx.kruth.Subject#failWithActual(androidx.kruth.Fact, androidx.kruth.Fact...):
+    Method androidx.kruth.Subject.failWithActual has changed return type from void to java.lang.Void
+ChangedType: androidx.kruth.Subject#failWithoutActual(androidx.kruth.Fact, androidx.kruth.Fact...):
+    Method androidx.kruth.Subject.failWithoutActual has changed return type from void to java.lang.Void
 ChangedType: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.FailureMetadata, ActualT):
     Method androidx.kruth.Subject.Factory.createSubject has changed return type from SubjectT (extends androidx.kruth.Subject) to SubjectT (extends androidx.kruth.Subject<? extends ActualT>)
 ChangedType: androidx.kruth.ThrowableSubject#hasCauseThat():
     Method androidx.kruth.ThrowableSubject.hasCauseThat has changed return type from androidx.kruth.ThrowableSubject to androidx.kruth.ThrowableSubject<java.lang.Throwable>
 
 
-InvalidNullConversion: androidx.kruth.MapSubject#containsEntry(K, V) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.kruth.MapSubject.containsEntry(K key, V value)
-InvalidNullConversion: androidx.kruth.MapSubject#containsEntry(K, V) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.kruth.MapSubject.containsEntry(K key, V value)
-InvalidNullConversion: androidx.kruth.MapSubject#doesNotContainEntry(K, V) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.kruth.MapSubject.doesNotContainEntry(K key, V value)
-InvalidNullConversion: androidx.kruth.MapSubject#doesNotContainEntry(K, V) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.kruth.MapSubject.doesNotContainEntry(K key, V value)
-InvalidNullConversion: androidx.kruth.SimpleSubjectBuilder#that(T) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter actual in androidx.kruth.SimpleSubjectBuilder.that(T actual)
-InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(T) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter actual in androidx.kruth.StandardSubjectBuilder.that(T actual)
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#withMessage(String) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter messageToPrepend in androidx.kruth.StandardSubjectBuilder.withMessage(String messageToPrepend)
 InvalidNullConversion: androidx.kruth.StringSubject#contains(CharSequence) parameter #0:
@@ -94,7 +84,7 @@ InvalidNullConversion: androidx.kruth.StringSubject#contains(CharSequence) param
 InvalidNullConversion: androidx.kruth.StringSubject#containsMatch(String) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.containsMatch(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotContain(CharSequence) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter string in androidx.kruth.StringSubject.doesNotContain(CharSequence string)
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter charSequence in androidx.kruth.StringSubject.doesNotContain(CharSequence charSequence)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotContainMatch(String) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.doesNotContainMatch(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotMatch(String) parameter #0:
@@ -105,6 +95,8 @@ InvalidNullConversion: androidx.kruth.StringSubject#matches(String) parameter #0
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.matches(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#startsWith(String) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter string in androidx.kruth.StringSubject.startsWith(String string)
+InvalidNullConversion: androidx.kruth.StringSubject.CaseInsensitiveStringComparison#doesNotContain(CharSequence) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter expected in androidx.kruth.StringSubject.CaseInsensitiveStringComparison.doesNotContain(CharSequence expected)
 InvalidNullConversion: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.FailureMetadata, ActualT) parameter #1:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter actual in androidx.kruth.Subject.Factory.createSubject(androidx.kruth.FailureMetadata metadata, ActualT actual)
 
@@ -217,12 +209,6 @@ RemovedMethod: androidx.kruth.Subject#Subject(androidx.kruth.FailureMetadata, Ob
     Removed constructor androidx.kruth.Subject(androidx.kruth.FailureMetadata,Object)
 RemovedMethod: androidx.kruth.Subject#actualCustomStringRepresentation():
     Removed method androidx.kruth.Subject.actualCustomStringRepresentation()
-RemovedMethod: androidx.kruth.Subject#check(String, java.lang.Object...):
-    Removed method androidx.kruth.Subject.check(String,java.lang.Object...)
-RemovedMethod: androidx.kruth.Subject#failWithActual(androidx.kruth.Fact, androidx.kruth.Fact...):
-    Removed method androidx.kruth.Subject.failWithActual(androidx.kruth.Fact,androidx.kruth.Fact...)
-RemovedMethod: androidx.kruth.Subject#failWithoutActual(androidx.kruth.Fact, androidx.kruth.Fact...):
-    Removed method androidx.kruth.Subject.failWithoutActual(androidx.kruth.Fact,androidx.kruth.Fact...)
 RemovedMethod: androidx.kruth.Subject#ignoreCheck():
     Removed method androidx.kruth.Subject.ignoreCheck()
 RemovedMethod: androidx.kruth.Subject#isInstanceOf(Class<?>):
