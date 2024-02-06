@@ -151,47 +151,95 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
         jclass pathsClass = env->FindClass(JNI_CLASS_NAME);
         if (pathsClass == nullptr) return JNI_ERR;
 
-        static const JNINativeMethod methods[] = {
-            {
-                (char*) "createInternalPathIterator",
-                (char*) "(Landroid/graphics/Path;IF)J",
-                reinterpret_cast<void*>(createPathIterator)
-            },
-            {
-                (char*) "destroyInternalPathIterator",
-                (char*) "(J)V",
-                reinterpret_cast<void*>(destroyPathIterator)
-            },
-            {
-                (char*) "internalPathIteratorHasNext",
-                (char*) "(J)Z",
-                reinterpret_cast<void*>(pathIteratorHasNext)
-            },
-            {
-                (char*) "internalPathIteratorNext",
-                (char*) "(J[FI)I",
-                reinterpret_cast<void*>(pathIteratorNext)
-            },
-            {
-                (char*) "internalPathIteratorPeek",
-                (char*) "(J)I",
-                reinterpret_cast<void*>(pathIteratorPeek)
-            },
-            {
-                (char*) "internalPathIteratorRawSize",
-                (char*) "(J)I",
-                reinterpret_cast<void*>(pathIteratorRawSize)
-            },
-            {
-                (char*) "internalPathIteratorSize",
-                (char*) "(J)I",
-                reinterpret_cast<void*>(pathIteratorSize)
-            },
-        };
+        jint result;
 
-        int result = env->RegisterNatives(
-                pathsClass, methods, sizeof(methods) / sizeof(JNINativeMethod)
-        );
+        const uint32_t apiLevel = android_get_device_api_level();
+        if (apiLevel >= 26) { // Android 8.0
+            static const JNINativeMethod methods[] = {
+                    {
+                            (char *) "createInternalPathIterator",
+                            (char *) "(Landroid/graphics/Path;IF)J",
+                            reinterpret_cast<void *>(createPathIterator)
+                    },
+                    {
+                            (char *) "destroyInternalPathIterator",
+                            (char *) "(J)V",
+                            reinterpret_cast<void *>(destroyPathIterator)
+                    },
+                    {
+                            (char *) "internalPathIteratorHasNext",
+                            (char *) "(J)Z",
+                            reinterpret_cast<void *>(pathIteratorHasNext)
+                    },
+                    {
+                            (char *) "internalPathIteratorNext",
+                            (char *) "(J[FI)I",
+                            reinterpret_cast<void *>(pathIteratorNext)
+                    },
+                    {
+                            (char *) "internalPathIteratorPeek",
+                            (char *) "(J)I",
+                            reinterpret_cast<void *>(pathIteratorPeek)
+                    },
+                    {
+                            (char *) "internalPathIteratorRawSize",
+                            (char *) "(J)I",
+                            reinterpret_cast<void *>(pathIteratorRawSize)
+                    },
+                    {
+                            (char *) "internalPathIteratorSize",
+                            (char *) "(J)I",
+                            reinterpret_cast<void *>(pathIteratorSize)
+                    },
+            };
+
+            result = env->RegisterNatives(
+                    pathsClass, methods, sizeof(methods) / sizeof(JNINativeMethod)
+            );
+        } else {
+            // Before Android 8, rely on the !bang JNI notation to speed up our JNI calls
+            static const JNINativeMethod methods[] = {
+                    {
+                            (char *) "createInternalPathIterator",
+                            (char *) "(Landroid/graphics/Path;IF)J",
+                            reinterpret_cast<void *>(createPathIterator)
+                    },
+                    {
+                            (char *) "destroyInternalPathIterator",
+                            (char *) "(J)V",
+                            reinterpret_cast<void *>(destroyPathIterator)
+                    },
+                    {
+                            (char *) "internalPathIteratorHasNext",
+                            (char *) "!(J)Z",
+                            reinterpret_cast<void *>(pathIteratorHasNext)
+                    },
+                    {
+                            (char *) "internalPathIteratorNext",
+                            (char *) "!(J[FI)I",
+                            reinterpret_cast<void *>(pathIteratorNext)
+                    },
+                    {
+                            (char *) "internalPathIteratorPeek",
+                            (char *) "!(J)I",
+                            reinterpret_cast<void *>(pathIteratorPeek)
+                    },
+                    {
+                            (char *) "internalPathIteratorRawSize",
+                            (char *) "!(J)I",
+                            reinterpret_cast<void *>(pathIteratorRawSize)
+                    },
+                    {
+                            (char *) "internalPathIteratorSize",
+                            (char *) "!(J)I",
+                            reinterpret_cast<void *>(pathIteratorSize)
+                    },
+            };
+
+            result = env->RegisterNatives(
+                    pathsClass, methods, sizeof(methods) / sizeof(JNINativeMethod)
+            );
+        }
         if (result != JNI_OK) return result;
 
         env->DeleteLocalRef(pathsClass);
