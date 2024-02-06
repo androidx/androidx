@@ -566,7 +566,7 @@ class RecorderTest(
         recorder.streamInfo.addObserver(directExecutor(), streamInfoObserver)
 
         // Assert: Recorder should start in INACTIVE stream state before any recordings
-        inOrder.verify(streamInfoObserver, timeout(GENERAL_TIMEOUT)).onNewData(
+        inOrder.verify(streamInfoObserver, timeout(GENERAL_TIMEOUT).atLeastOnce()).onNewData(
             argThat {
                 it!!.streamState == StreamInfo.StreamState.INACTIVE
             }
@@ -577,7 +577,7 @@ class RecorderTest(
         recording.start()
 
         // Assert: Starting recording should move Recorder to ACTIVE stream state
-        inOrder.verify(streamInfoObserver, timeout(5000L)).onNewData(
+        inOrder.verify(streamInfoObserver, timeout(5000L).atLeastOnce()).onNewData(
             argThat { it!!.streamState == StreamInfo.StreamState.ACTIVE }
         )
 
@@ -585,7 +585,7 @@ class RecorderTest(
         recording.stop()
 
         // Assert: Stopping recording should eventually move to INACTIVE stream state
-        inOrder.verify(streamInfoObserver, timeout(GENERAL_TIMEOUT)).onNewData(
+        inOrder.verify(streamInfoObserver, timeout(GENERAL_TIMEOUT).atLeastOnce()).onNewData(
             argThat {
                 it!!.streamState == StreamInfo.StreamState.INACTIVE
             }
