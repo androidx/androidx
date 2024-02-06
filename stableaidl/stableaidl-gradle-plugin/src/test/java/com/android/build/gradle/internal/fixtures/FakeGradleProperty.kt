@@ -108,10 +108,6 @@ class FakeGradleProperty<T>(private var value: T? = null) : Property<T> {
         throw NotImplementedError()
     }
 
-    override fun update(transform: Transformer<out Provider<out T>?, in Provider<T>>) {
-        throw NotImplementedError()
-    }
-
     override fun <U : Any?, R : Any?> zip(
         p0: Provider<U>,
         p1: BiFunction<in T, in U, out R>
