@@ -555,6 +555,10 @@ fun TextFieldState.clearText() {
  *
  * To get access to a [Flow] of [TextFieldState.text] over time, use [textAsFlow].
  *
+ * Warning: Do not update the value of the [TextFieldState] from [block]. If you want to perform
+ * either a side effect when text is changed, or filter it in some way, use an
+ * [InputTransformation].
+ *
  * @sample androidx.compose.foundation.samples.BasicTextField2ForEachTextValueSample
  *
  * @see textAsFlow
