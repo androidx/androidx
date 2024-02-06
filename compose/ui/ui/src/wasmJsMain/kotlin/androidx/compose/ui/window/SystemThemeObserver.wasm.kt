@@ -19,13 +19,58 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.SystemTheme
+import org.w3c.dom.MediaQueryList
+import org.w3c.dom.MediaQueryListEvent
 import org.w3c.dom.Window
+import org.w3c.dom.events.Event
 
-internal actual fun getSystemThemeObserver(window: Window): SystemThemeObserver {
-    return object : SystemThemeObserver {
-        override val currentSystemTheme: State<SystemTheme>
-            get() = mutableStateOf(SystemTheme.Unknown)
+internal class SystemThemeObserverImpl(window : Window) : SystemThemeObserver {
 
-        override fun dispose() {}
+    override val currentSystemTheme: State<SystemTheme>
+        get() = _currentSystemTheme
+
+    private val media: MediaQueryList by lazy {
+        window.matchMedia("(prefers-color-scheme: dark)")
+    }
+
+    private val _currentSystemTheme = mutableStateOf(
+        when {
+            !isMatchMediaSupported() -> SystemTheme.Unknown
+            media.matches -> SystemTheme.Dark
+            else -> SystemTheme.Light
+        }
+    )
+
+    private val listener: (Event) -> Unit = { event ->
+        _currentSystemTheme.value = if ((event as MediaQueryListEvent).matches)
+            SystemTheme.Dark else SystemTheme.Light
+    }
+
+    override fun dispose() {
+        if (isMatchMediaSupported()){
+            try {
+                media.removeEventListener("change", listener)
+            } catch (t : Throwable){
+                media.removeListener(listener)
+            }
+        }
+    }
+
+    init {
+        if (isMatchMediaSupported()) {
+            try {
+                media.addEventListener("change", listener)
+            } catch (t: Throwable) {
+                media.addListener(listener)
+            }
+        }
     }
 }
+
+internal actual fun getSystemThemeObserver(window: Window): SystemThemeObserver =
+    SystemThemeObserverImpl(window)
+
+// supported by all browsers since 2015
+// https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia
+@JsFun("() => window.matchMedia != undefined")
+private external fun isMatchMediaSupported(): Boolean
