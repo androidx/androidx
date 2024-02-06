@@ -42,6 +42,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -155,7 +157,10 @@ fun ModalBottomSheetSample() {
                                 Icons.Default.Favorite,
                                 contentDescription = "Localized description"
                             )
-                        }
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                        ),
                     )
                 }
             }
@@ -238,7 +243,10 @@ fun BottomSheetScaffoldNestedScrollSample() {
                                 Icons.Default.Favorite,
                                 contentDescription = "Localized description"
                             )
-                        }
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                        ),
                     )
                 }
             }
