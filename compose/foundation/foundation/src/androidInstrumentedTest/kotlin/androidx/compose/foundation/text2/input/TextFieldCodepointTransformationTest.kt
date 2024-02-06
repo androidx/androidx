@@ -19,6 +19,8 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text2.BasicTextField2
+import androidx.compose.foundation.text2.input.internal.CodepointTransformation
+import androidx.compose.foundation.text2.input.internal.mask
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue

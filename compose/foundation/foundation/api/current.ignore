@@ -19,6 +19,8 @@ RemovedClass: androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt:
     Removed class androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt
 RemovedClass: androidx.compose.foundation.text2.input.AllCapsTransformationKt:
     Removed class androidx.compose.foundation.text2.input.AllCapsTransformationKt
+RemovedClass: androidx.compose.foundation.text2.input.CodepointTransformationKt:
+    Removed class androidx.compose.foundation.text2.input.CodepointTransformationKt
 RemovedClass: androidx.compose.foundation.text2.input.MaxLengthTransformationKt:
     Removed class androidx.compose.foundation.text2.input.MaxLengthTransformationKt
 
