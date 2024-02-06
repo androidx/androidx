@@ -51,6 +51,7 @@ import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
+import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -59,7 +60,6 @@ import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.TakenAction;
-import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.cts.app.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
@@ -970,12 +970,12 @@ public abstract class AppSearchSessionCtsTestBase {
         Arrays.fill(cert2, (byte) 2);
         PackageIdentifier pkg1 = new PackageIdentifier("package1", cert1);
         PackageIdentifier pkg2 = new PackageIdentifier("package2", cert2);
-        VisibilityConfig config1 = new VisibilityConfig.Builder()
+        SchemaVisibilityConfig config1 = new SchemaVisibilityConfig.Builder()
                 .setPubliclyVisibleTargetPackage(pkg1)
-                .addVisibleToPermissions(ImmutableSet.of(1, 2)).build();
-        VisibilityConfig config2 = new VisibilityConfig.Builder()
+                .addRequiredPermissions(ImmutableSet.of(1, 2)).build();
+        SchemaVisibilityConfig config2 = new SchemaVisibilityConfig.Builder()
                 .setPubliclyVisibleTargetPackage(pkg2)
-                .addVisibleToPermissions(ImmutableSet.of(3, 4)).build();
+                .addRequiredPermissions(ImmutableSet.of(3, 4)).build();
         SetSchemaRequest request = new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA)
                 .addSchemaTypeVisibleToConfig("builtin:Email", config1)
                 .addSchemaTypeVisibleToConfig("builtin:Email", config2)
@@ -993,8 +993,8 @@ public abstract class AppSearchSessionCtsTestBase {
         assumeFalse(mDb1.getFeatures()
                 .isFeatureSupported(Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG));
 
-        VisibilityConfig config = new VisibilityConfig.Builder()
-                .addVisibleToPermissions(ImmutableSet.of(1, 2)).build();
+        SchemaVisibilityConfig config = new SchemaVisibilityConfig.Builder()
+                .addRequiredPermissions(ImmutableSet.of(1, 2)).build();
         SetSchemaRequest request = new SetSchemaRequest.Builder()
                 .addSchemas(new AppSearchSchema.Builder("Email").build())
                 .addSchemaTypeVisibleToConfig("Email", config).build();

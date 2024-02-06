@@ -5581,7 +5581,7 @@ public class AppSearchImplTest {
 
                 for (PackageIdentifier packageIdentifier :
                         visibilityStore.getVisibility(prefixedSchema)
-                                .getVisibilityConfig().getVisibleToPackages()) {
+                                .getVisibilityConfig().getAllowedPackages()) {
                     if (packageIdentifier.getPackageName().equals(fakeListeningPackage)) {
                         return true;
                     }

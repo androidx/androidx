@@ -32,7 +32,7 @@ import java.util.Set;
 
 /**
  * The config class that holds all required permissions for a caller need to hold to access the
- * schema which the outer {@link VisibilityConfig} represents.
+ * schema which the outer {@link SchemaVisibilityConfig} represents.
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -53,7 +53,8 @@ public final class VisibilityPermissionConfig extends AbstractSafeParcelable {
     /**
      * Schema for the VisibilityStore's documents.
      *
-     * <p>NOTE: If you update this, also update {@link VisibilityConfig#SCHEMA_VERSION_LATEST}.
+     * <p>NOTE: If you update this, also update schema version number in
+     * VisibilityToDocumentConverter
      */
     public static final AppSearchSchema
             SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
@@ -84,7 +85,7 @@ public final class VisibilityPermissionConfig extends AbstractSafeParcelable {
 
     /**
      * Sets a set of Android Permissions that caller must hold to access the schema that the
-     * outer {@link VisibilityConfig} represents.
+     * outer {@link SchemaVisibilityConfig} represents.
      */
     public VisibilityPermissionConfig(@NonNull Set<Integer> allRequiredPermissions) {
         mAllRequiredPermissions = toInts(Objects.requireNonNull(allRequiredPermissions));
@@ -92,7 +93,7 @@ public final class VisibilityPermissionConfig extends AbstractSafeParcelable {
 
     /**
      * Returns an array of Android Permissions that caller mush hold to access the schema that the
-     * outer {@link VisibilityConfig} represents.
+     * outer {@link SchemaVisibilityConfig} represents.
      */
     @Nullable
     public Set<Integer> getAllRequiredPermissions() {

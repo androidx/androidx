@@ -45,68 +45,68 @@ import java.util.Set;
  */
 @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
 @SafeParcelable.Class(creator = "VisibilityConfigCreator")
-public final class VisibilityConfig extends AbstractSafeParcelable {
+public final class SchemaVisibilityConfig extends AbstractSafeParcelable {
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final Parcelable.Creator<VisibilityConfig> CREATOR =
+    public static final Parcelable.Creator<SchemaVisibilityConfig> CREATOR =
             new VisibilityConfigCreator();
 
     @NonNull
     @Field(id = 1)
-    final List<PackageIdentifierParcel> mVisibleToPackages;
+    final List<PackageIdentifierParcel> mAllowedPackages;
 
     @NonNull
     @Field(id = 2)
-    final List<VisibilityPermissionConfig> mVisibleToPermissions;
+    final List<VisibilityPermissionConfig> mRequiredPermissions;
 
     @Nullable
     @Field(id = 3)
     final PackageIdentifierParcel mPubliclyVisibleTargetPackage;
 
     @Nullable private Integer mHashCode;
-    @Nullable private List<PackageIdentifier> mVisibleToPackagesCached;
-    @Nullable private Set<Set<Integer>> mVisibleToPermissionsCached;
+    @Nullable private List<PackageIdentifier> mAllowedPackagesCached;
+    @Nullable private Set<Set<Integer>> mRequiredPermissionsCached;
 
     @Constructor
-    VisibilityConfig(
-            @Param(id = 1) @NonNull List<PackageIdentifierParcel> visibleToPackages,
-            @Param(id = 2) @NonNull List<VisibilityPermissionConfig> visibleToPermissions,
+    SchemaVisibilityConfig(
+            @Param(id = 1) @NonNull List<PackageIdentifierParcel> allowedPackages,
+            @Param(id = 2) @NonNull List<VisibilityPermissionConfig> requiredPermissions,
             @Param(id = 3) @Nullable PackageIdentifierParcel publiclyVisibleTargetPackage) {
-        mVisibleToPackages = Objects.requireNonNull(visibleToPackages);
-        mVisibleToPermissions = Objects.requireNonNull(visibleToPermissions);
+        mAllowedPackages = Objects.requireNonNull(allowedPackages);
+        mRequiredPermissions = Objects.requireNonNull(requiredPermissions);
         mPubliclyVisibleTargetPackage = publiclyVisibleTargetPackage;
     }
 
      /** Returns a list of {@link PackageIdentifier}s of packages that can access this schema. */
     @NonNull
-    public List<PackageIdentifier> getVisibleToPackages() {
-        if (mVisibleToPackagesCached == null) {
-            mVisibleToPackagesCached = new ArrayList<>(mVisibleToPackages.size());
-            for (int i = 0; i < mVisibleToPackages.size(); i++) {
-                mVisibleToPackagesCached.add(new PackageIdentifier(mVisibleToPackages.get(i)));
+    public List<PackageIdentifier> getAllowedPackages() {
+        if (mAllowedPackagesCached == null) {
+            mAllowedPackagesCached = new ArrayList<>(mAllowedPackages.size());
+            for (int i = 0; i < mAllowedPackages.size(); i++) {
+                mAllowedPackagesCached.add(new PackageIdentifier(mAllowedPackages.get(i)));
             }
         }
-        return mVisibleToPackagesCached;
+        return mAllowedPackagesCached;
     }
 
     /**
      * Returns an array of Integers representing Android Permissions as defined in
      * {@link SetSchemaRequest.AppSearchSupportedPermission} that the caller must hold to access the
-     * schema this {@link VisibilityConfig} represents.
+     * schema this {@link SchemaVisibilityConfig} represents.
      */
     @NonNull
-    public Set<Set<Integer>> getVisibleToPermissions() {
-        if (mVisibleToPermissionsCached == null) {
-            mVisibleToPermissionsCached = new ArraySet<>(mVisibleToPermissions.size());
-            for (int i = 0; i < mVisibleToPermissions.size(); i++) {
-                VisibilityPermissionConfig permissionConfig = mVisibleToPermissions.get(i);
+    public Set<Set<Integer>> getRequiredPermissions() {
+        if (mRequiredPermissionsCached == null) {
+            mRequiredPermissionsCached = new ArraySet<>(mRequiredPermissions.size());
+            for (int i = 0; i < mRequiredPermissions.size(); i++) {
+                VisibilityPermissionConfig permissionConfig = mRequiredPermissions.get(i);
                 Set<Integer> requiredPermissions = permissionConfig.getAllRequiredPermissions();
                 if (requiredPermissions != null) {
-                    mVisibleToPermissionsCached.add(requiredPermissions);
+                    mRequiredPermissionsCached.add(requiredPermissions);
                 }
             }
         }
-        return mVisibleToPermissionsCached;
+        return mRequiredPermissionsCached;
     }
 
     /**
@@ -132,10 +132,10 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof VisibilityConfig)) return false;
-        VisibilityConfig that = (VisibilityConfig) o;
-        return Objects.equals(mVisibleToPackages, that.mVisibleToPackages)
-                && Objects.equals(mVisibleToPermissions, that.mVisibleToPermissions)
+        if (!(o instanceof SchemaVisibilityConfig)) return false;
+        SchemaVisibilityConfig that = (SchemaVisibilityConfig) o;
+        return Objects.equals(mAllowedPackages, that.mAllowedPackages)
+                && Objects.equals(mRequiredPermissions, that.mRequiredPermissions)
                 && Objects.equals(
                         mPubliclyVisibleTargetPackage, that.mPubliclyVisibleTargetPackage);
     }
@@ -144,59 +144,61 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     public int hashCode() {
         if (mHashCode == null) {
             mHashCode = Objects.hash(
-                    mVisibleToPackages,
-                    mVisibleToPermissions,
+                    mAllowedPackages,
+                    mRequiredPermissions,
                     mPubliclyVisibleTargetPackage);
         }
         return mHashCode;
     }
 
-    /** The builder class of {@link VisibilityConfig}. */
+    /** The builder class of {@link SchemaVisibilityConfig}. */
     @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
     public static final class Builder {
-        private List<PackageIdentifierParcel> mVisibleToPackages = new ArrayList<>();
-        private List<VisibilityPermissionConfig> mVisibleToPermissions = new ArrayList<>();
+        private List<PackageIdentifierParcel> mAllowedPackages = new ArrayList<>();
+        private List<VisibilityPermissionConfig> mRequiredPermissions = new ArrayList<>();
         private PackageIdentifierParcel mPubliclyVisibleTargetPackage;
         private boolean mBuilt;
 
-        /** Creates a {@link Builder} for a {@link VisibilityConfig}. */
+        /** Creates a {@link Builder} for a {@link SchemaVisibilityConfig}. */
         public Builder() {}
 
         /**
-         * Creates a {@link Builder} copying the values from an existing {@link VisibilityConfig}.
+         * Creates a {@link Builder} copying the values from an existing
+         * {@link SchemaVisibilityConfig}.
          *
          * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder(@NonNull VisibilityConfig visibilityConfig) {
-            Objects.requireNonNull(visibilityConfig);
-            mVisibleToPackages = new ArrayList<>(visibilityConfig.mVisibleToPackages);
-            mVisibleToPermissions = new ArrayList<>(visibilityConfig.mVisibleToPermissions);
-            mPubliclyVisibleTargetPackage = visibilityConfig.mPubliclyVisibleTargetPackage;
+        public Builder(@NonNull SchemaVisibilityConfig schemaVisibilityConfig) {
+            Objects.requireNonNull(schemaVisibilityConfig);
+            mAllowedPackages = new ArrayList<>(schemaVisibilityConfig.mAllowedPackages);
+            mRequiredPermissions = new ArrayList<>(schemaVisibilityConfig.mRequiredPermissions);
+            mPubliclyVisibleTargetPackage = schemaVisibilityConfig.mPubliclyVisibleTargetPackage;
         }
 
         /** Add {@link PackageIdentifier} of packages which has access to this schema. */
         @CanIgnoreReturnValue
         @NonNull
-        public Builder addVisibleToPackage(@NonNull PackageIdentifier packageIdentifier) {
+        public Builder addAllowedPackage(@NonNull PackageIdentifier packageIdentifier) {
             Objects.requireNonNull(packageIdentifier);
             resetIfBuilt();
-            mVisibleToPackages.add(packageIdentifier.getPackageIdentifierParcel());
+            mAllowedPackages.add(packageIdentifier.getPackageIdentifierParcel());
             return this;
         }
 
         /** Clears the list of packages which have access to this schema. */
         @CanIgnoreReturnValue
         @NonNull
-        public Builder clearVisibleToPackages() {
+        public Builder clearAllowedPackages() {
             resetIfBuilt();
-            mVisibleToPackages.clear();
+            mAllowedPackages.clear();
             return this;
         }
 
         /**
          * Adds a set of required Android {@link android.Manifest.permission} combination a
-         * package needs to hold to access the schema this {@link VisibilityConfig} represents.
+         * package needs to hold to access the schema this {@link SchemaVisibilityConfig}
+         * represents.
          *
          * <p> If the querier holds ALL of the required permissions in this combination, they will
          * have access to read {@link GenericDocument} objects of the given schema type.
@@ -204,7 +206,7 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
          * <p> You can call this method repeatedly to add multiple permission combinations, and the
          * querier will have access if they holds ANY of the combinations.
          *
-         * <p>Merged Set available from {@link #getVisibleToPermissions()}.
+         * <p>Merged Set available from {@link #getRequiredPermissions()}.
          *
          * @see SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility for
          * supported Permissions.
@@ -212,19 +214,21 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         @SuppressWarnings("RequiresPermission")  // No permission required to call this method
         @CanIgnoreReturnValue
         @NonNull
-        public Builder addVisibleToPermissions(@NonNull Set<Integer> visibleToPermissions) {
+        public Builder addRequiredPermissions(@NonNull Set<Integer> visibleToPermissions) {
             Objects.requireNonNull(visibleToPermissions);
             resetIfBuilt();
-            mVisibleToPermissions.add(new VisibilityPermissionConfig(visibleToPermissions));
+            mRequiredPermissions.add(new VisibilityPermissionConfig(visibleToPermissions));
             return this;
         }
 
-        /** Clears all required permissions combinations set to this {@link VisibilityConfig}.  */
+        /**
+         * Clears all required permissions combinations set to this {@link SchemaVisibilityConfig}.
+         */
         @CanIgnoreReturnValue
         @NonNull
-        public Builder clearVisibleToPermissions() {
+        public Builder clearRequiredPermissions() {
             resetIfBuilt();
-            mVisibleToPermissions.clear();
+            mRequiredPermissions.clear();
             return this;
         }
 
@@ -261,19 +265,19 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
 
         private void resetIfBuilt() {
             if (mBuilt) {
-                mVisibleToPackages = new ArrayList<>(mVisibleToPackages);
-                mVisibleToPermissions = new ArrayList<>(mVisibleToPermissions);
+                mAllowedPackages = new ArrayList<>(mAllowedPackages);
+                mRequiredPermissions = new ArrayList<>(mRequiredPermissions);
                 mBuilt = false;
             }
         }
 
-        /** Build a {@link VisibilityConfig} */
+        /** Build a {@link SchemaVisibilityConfig} */
         @NonNull
-        public VisibilityConfig build() {
+        public SchemaVisibilityConfig build() {
             mBuilt = true;
-            return new VisibilityConfig(
-                    mVisibleToPackages,
-                    mVisibleToPermissions,
+            return new SchemaVisibilityConfig(
+                    mAllowedPackages,
+                    mRequiredPermissions,
                     mPubliclyVisibleTargetPackage);
         }
     }
