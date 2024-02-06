@@ -18,8 +18,12 @@ package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
@@ -179,6 +183,90 @@ internal fun calculateThreePaneMotion(
     }
 }
 
+internal class DelayedSpringSpec<T>(
+    dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    stiffness: Float = Spring.StiffnessMedium,
+    private val delayedRatio: Float,
+    visibilityThreshold: T? = null
+) : FiniteAnimationSpec<T> {
+    private val originalSpringSpec = spring(dampingRatio, stiffness, visibilityThreshold)
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedFiniteAnimationSpec<V> =
+        DelayedVectorizedSpringSpec(originalSpringSpec.vectorize(converter), delayedRatio)
+}
+
+private class DelayedVectorizedSpringSpec<V : AnimationVector>(
+    val originalVectorizedSpringSpec: VectorizedFiniteAnimationSpec<V>,
+    val delayedRatio: Float,
+) : VectorizedFiniteAnimationSpec<V> {
+    var delayedTimeNanos: Long = 0
+    var cachedInitialValue: V? = null
+    var cachedTargetValue: V? = null
+    var cachedInitialVelocity: V? = null
+    var cachedOriginalDurationNanos: Long = 0
+
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
+        updateDelayedTimeNanosIfNeeded(initialValue, targetValue, initialVelocity)
+        return if (playTimeNanos <= delayedTimeNanos) {
+            initialValue
+        } else {
+            originalVectorizedSpringSpec.getValueFromNanos(
+                playTimeNanos - delayedTimeNanos,
+                initialValue,
+                targetValue,
+                initialVelocity
+            )
+        }
+    }
+
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
+        updateDelayedTimeNanosIfNeeded(initialValue, targetValue, initialVelocity)
+        return if (playTimeNanos <= delayedTimeNanos) {
+            initialVelocity
+        } else {
+            originalVectorizedSpringSpec.getVelocityFromNanos(
+                playTimeNanos - delayedTimeNanos,
+                initialValue,
+                targetValue,
+                initialVelocity
+            )
+        }
+    }
+
+    override fun getDurationNanos(initialValue: V, targetValue: V, initialVelocity: V): Long {
+        updateDelayedTimeNanosIfNeeded(initialValue, targetValue, initialVelocity)
+        return cachedOriginalDurationNanos + delayedTimeNanos
+    }
+
+    private fun updateDelayedTimeNanosIfNeeded(
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ) {
+        if (initialValue != cachedInitialValue ||
+            targetValue != cachedTargetValue ||
+            initialVelocity != cachedInitialVelocity) {
+            cachedOriginalDurationNanos = originalVectorizedSpringSpec.getDurationNanos(
+                initialValue,
+                targetValue,
+                initialVelocity
+            )
+            delayedTimeNanos = (cachedOriginalDurationNanos * delayedRatio).toLong()
+        }
+    }
+}
+
 @ExperimentalMaterial3AdaptiveApi
 internal object ThreePaneMotionDefaults {
     /**
@@ -192,8 +280,18 @@ internal object ThreePaneMotionDefaults {
             visibilityThreshold = IntOffset.VisibilityThreshold
         )
 
+    val PaneSpringSpecDelayed: DelayedSpringSpec<IntOffset> =
+        DelayedSpringSpec(
+            dampingRatio = 0.8f,
+            stiffness = 600f,
+            delayedRatio = 0.1f,
+            visibilityThreshold = IntOffset.VisibilityThreshold
+        )
+
     private val slideInFromLeft = slideInHorizontally(PaneSpringSpec) { -it }
+    private val slideInFromLeftDelayed = slideInHorizontally(PaneSpringSpecDelayed) { -it }
     private val slideInFromRight = slideInHorizontally(PaneSpringSpec) { it }
+    private val slideInFromRightDelayed = slideInHorizontally(PaneSpringSpecDelayed) { it }
     private val slideOutToLeft = slideOutHorizontally(PaneSpringSpec) { -it }
     private val slideOutToRight = slideOutHorizontally(PaneSpringSpec) { it }
 
@@ -219,9 +317,9 @@ internal object ThreePaneMotionDefaults {
 
     val switchLeftTwoPanesMotion = ThreePaneMotion(
         PaneSpringSpec,
-        slideInFromLeft,
+        slideInFromLeftDelayed,
         slideOutToLeft,
-        slideInFromLeft,
+        slideInFromLeftDelayed,
         slideOutToLeft,
         EnterTransition.None,
         ExitTransition.None
@@ -231,9 +329,9 @@ internal object ThreePaneMotionDefaults {
         PaneSpringSpec,
         EnterTransition.None,
         ExitTransition.None,
-        slideInFromRight,
+        slideInFromRightDelayed,
         slideOutToRight,
-        slideInFromRight,
+        slideInFromRightDelayed,
         slideOutToRight
     )
 }
