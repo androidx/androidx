@@ -19,6 +19,9 @@ package androidx.compose.animation.core.samples
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.DeferredTargetAnimation
+import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.calculateTargetValue
@@ -27,18 +30,29 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -48,7 +62,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.layout.approachLayout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
@@ -217,5 +234,71 @@ fun AnimatableFadeIn() {
             )
         }
         this.graphicsLayer(alpha = alphaAnimation.value)
+    }
+}
+
+@OptIn(ExperimentalAnimatableApi::class, ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun DeferredTargetAnimationSample() {
+    // Creates a custom modifier that animates the constraints and measures child with the
+    // animated constraints. This modifier is built on top of `Modifier.approachLayout` to approach
+    // th destination size determined by the lookahead pass. A resize animation will be kicked off
+    // whenever the lookahead size changes, to animate children from current size to destination
+    // size. Fixed constraints created based on the animation value will be used to measure
+    // child, so the child layout gradually changes its animated constraints until the approach
+    // completes.
+    fun Modifier.animateConstraints(
+        sizeAnimation: DeferredTargetAnimation<IntSize, AnimationVector2D>,
+        coroutineScope: CoroutineScope
+    ) = this.approachLayout(
+        isMeasurementApproachComplete = { lookaheadSize ->
+            // Update the target of the size animation.
+            sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
+            // Return true if the size animation has no pending target change and has finished
+            // running.
+            sizeAnimation.isIdle
+        }
+    ) { measurable, _ ->
+        // In the measurement approach, the goal is to gradually reach the destination size
+        // (i.e. lookahead size). To achieve that, we use an animation to track the current
+        // size, and animate to the destination size whenever it changes. Once the animation
+        // finishes, the approach is complete.
+
+        // First, update the target of the animation, and read the current animated size.
+        val (width, height) = sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
+        // Then create fixed size constraints using the animated size
+        val animatedConstraints = Constraints.fixed(width, height)
+        // Measure child with animated constraints.
+        val placeable = measurable.measure(animatedConstraints)
+        layout(placeable.width, placeable.height) {
+            placeable.place(0, 0)
+        }
+    }
+
+    var fullWidth by remember { mutableStateOf(false) }
+
+    // Creates a size animation with a target unknown at the time of instantiation.
+    val sizeAnimation = remember { DeferredTargetAnimation(IntSize.VectorConverter) }
+    val coroutineScope = rememberCoroutineScope()
+    Row(
+        (if (fullWidth) Modifier.fillMaxWidth() else Modifier.width(100.dp))
+            .height(200.dp)
+            // Use the custom modifier created above to animate the constraints passed
+            // to the child, and therefore resize children in an animation.
+            .animateConstraints(sizeAnimation, coroutineScope)
+            .clickable { fullWidth = !fullWidth }) {
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .background(Color(0xffff6f69)),
+        )
+        Box(
+            Modifier
+                .weight(2f)
+                .fillMaxHeight()
+                .background(Color(0xffffcc5c))
+        )
     }
 }

@@ -832,7 +832,9 @@ class PlacementLayoutCoordinatesTest {
                 Layout(content = {
                     Box(
                         Modifier
-                            .intermediateLayout { measurable, constraints ->
+                            .approachLayout({
+                                intermediateLayoutBlockCalls > 20
+                            }) { measurable, constraints ->
                                 val p = measurable.measure(constraints)
                                 layout(p.width, p.height) {
                                     coordinates?.let(coordinatesAction)

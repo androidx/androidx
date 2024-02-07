@@ -32,7 +32,7 @@ import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
-import androidx.compose.ui.layout.IntermediateLayoutModifierNode
+import androidx.compose.ui.layout.ApproachLayoutModifierNode
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.OnPlacedModifier
@@ -87,7 +87,7 @@ internal object Nodes {
     @JvmStatic
     inline val GlobalPositionAware get() = NodeKind<GlobalPositionAwareModifierNode>(0b1 shl 8)
     @JvmStatic
-    inline val IntermediateMeasure get() = NodeKind<IntermediateLayoutModifierNode>(0b1 shl 9)
+    inline val IntermediateMeasure get() = NodeKind<ApproachLayoutModifierNode>(0b1 shl 9)
     @JvmStatic
     inline val FocusTarget get() = NodeKind<FocusTargetNode>(0b1 shl 10)
     @JvmStatic
@@ -183,7 +183,7 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     if (node is GlobalPositionAwareModifierNode) {
         mask = mask or Nodes.GlobalPositionAware
     }
-    if (node is IntermediateLayoutModifierNode) {
+    if (node is ApproachLayoutModifierNode) {
         mask = mask or Nodes.IntermediateMeasure
     }
     if (node is FocusTargetNode) {
