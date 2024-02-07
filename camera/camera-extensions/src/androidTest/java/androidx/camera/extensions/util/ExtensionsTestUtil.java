@@ -32,7 +32,10 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.impl.Config;
 import androidx.camera.extensions.ExtensionMode;
@@ -62,14 +65,18 @@ public class ExtensionsTestUtil {
             SESSION_CAPTURE_CALLBACK_OPTION =
             Config.Option.create("camera2.cameraCaptureSession.captureCallback",
                     CameraCaptureSession.CaptureCallback.class);
+    public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
+    public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
 
     /**
-     * Returns the parameters which contains the combination of implementationType, extensions
-     * mode and lens facing.
+     * Returns the parameters which contains the combination of CameraXConfig
+     * name, CameraXConfig, implementationType, extensions mode and lens facing.
      */
     @NonNull
     public static Collection<Object[]> getAllImplExtensionsLensFacingCombinations(
-            @NonNull Context context, boolean excludeUnavailableModes) {
+            @NonNull Context context,
+            boolean excludeUnavailableModes
+    ) {
         ExtensionsTestlibControl.ImplementationType implType =
                 ExtensionsTestlibControl.getInstance().getImplementationType();
 
@@ -92,8 +99,9 @@ public class ExtensionsTestUtil {
         });
 
         if (implType == OEM_IMPL) {
-            return excludeUnavailableModes ? filterOutUnavailableMode(context, basicOrOemImplList)
-                    : basicOrOemImplList;
+            List<Object[]> allList = excludeUnavailableModes ? filterOutUnavailableMode(context,
+                    basicOrOemImplList) : basicOrOemImplList;
+            return getConfigPrependedCombinations(allList);
         }
 
         List<Object[]> advancedList = Arrays.asList(new Object[][]{
@@ -119,7 +127,8 @@ public class ExtensionsTestUtil {
 
         // Reset to basic in case advanced is used accidentally.
         ExtensionsTestlibControl.getInstance().setImplementationType(TESTLIB_BASIC);
-        return allList;
+
+        return getConfigPrependedCombinations(allList);
     }
 
     private static List<Object[]> filterOutUnavailableMode(Context context,
@@ -156,6 +165,24 @@ public class ExtensionsTestUtil {
             } catch (Exception e) {
             }
         }
+    }
+
+    private static List<Object[]> getConfigPrependedCombinations(List<Object[]> combinations) {
+        CameraXConfig camera2Config = Camera2Config.defaultConfig();
+        CameraXConfig cameraPipeConfig = CameraPipeConfig.defaultConfig();
+        List<Object[]> combinationsWithConfig = new ArrayList<Object[]>();
+        for (Object[] combination: combinations) {
+            List<Object> combinationCamera2 = new ArrayList<Object>(
+                    Arrays.asList(CAMERA2_IMPLEMENTATION_OPTION, camera2Config));
+            combinationCamera2.addAll(Arrays.asList(combination));
+            combinationsWithConfig.add(combinationCamera2.toArray());
+
+            List<Object> combinationCameraPipe = new ArrayList<Object>(
+                    Arrays.asList(CAMERA_PIPE_IMPLEMENTATION_OPTION, cameraPipeConfig));
+            combinationCameraPipe.addAll(Arrays.asList(combination));
+            combinationsWithConfig.add(combinationCameraPipe.toArray());
+        }
+        return combinationsWithConfig;
     }
 
     /**

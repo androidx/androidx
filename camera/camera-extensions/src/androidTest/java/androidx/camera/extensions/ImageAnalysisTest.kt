@@ -21,9 +21,9 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Pair
 import android.util.Size
-import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -33,7 +33,9 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.util.ExtensionsTestUtil
+import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -59,21 +61,32 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class ImageAnalysisTest(
+    private val implName: String,
+    private val cameraXConfig: CameraXConfig,
     private val implType: ExtensionsTestlibControl.ImplementationType,
     @ExtensionMode.Mode private val extensionMode: Int,
     @CameraSelector.LensFacing private val lensFacing: Int
 ) {
     companion object {
         val context: Context = ApplicationProvider.getApplicationContext()
+
         @JvmStatic
-        @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
-        val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
+        @Parameterized.Parameters(
+            name = "cameraXConfig = {0}, implType = {2}, mode = {3}, facing = {4}"
+        )
+        fun data(): Collection<Array<Any>> {
+            return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
+        }
     }
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraXConfig)
     )
 
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -92,6 +105,7 @@ class ImageAnalysisTest(
             )
         )
 
+        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
@@ -128,8 +142,9 @@ class ImageAnalysisTest(
             baseCameraSelector,
             extensionMode
         )
-        Assume.assumeTrue(extensionsManager
-            .isImageAnalysisSupported(extensionsCameraSelector, extensionMode))
+        Assume.assumeTrue(
+            extensionsManager.isImageAnalysisSupported(extensionsCameraSelector, extensionMode)
+        )
 
         val analysisLatch = CountDownLatch(2)
         withContext(Dispatchers.Main) {
@@ -185,16 +200,21 @@ class ImageAnalysisTest(
 
                 override fun getSupportedPreviewOutputResolutions(): List<Pair<Int, Array<Size>>> {
                     return listOf(
-                        Pair(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                        Pair(
+                            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                             getOutputSizes(
-                                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE))
+                                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                            )
+                        )
                     )
                 }
 
                 override fun getSupportedCaptureOutputResolutions(): List<Pair<Int, Array<Size>>> {
                     return listOf(
-                        Pair(ImageFormat.JPEG,
-                            getOutputSizes(ImageFormat.JPEG))
+                        Pair(
+                            ImageFormat.JPEG,
+                            getOutputSizes(ImageFormat.JPEG)
+                        )
                     )
                 }
             }
@@ -204,8 +224,10 @@ class ImageAnalysisTest(
             baseCameraSelector,
             extensionMode
         )
-        assertThat(extensionsManager
-            .isImageAnalysisSupported(baseCameraSelector, extensionMode)).isTrue()
+        assertThat(
+            extensionsManager
+                .isImageAnalysisSupported(baseCameraSelector, extensionMode)
+        ).isTrue()
         withContext(Dispatchers.Main) {
             val preview = Preview.Builder().build()
             val imageCapture = ImageCapture.Builder().build()
@@ -213,9 +235,9 @@ class ImageAnalysisTest(
 
             // 2. Act
             cameraProvider.bindToLifecycle(
-                    fakeLifecycleOwner,
-                    extensionsCameraSelector,
-                    preview, imageCapture, imageAnalysis
+                fakeLifecycleOwner,
+                extensionsCameraSelector,
+                preview, imageCapture, imageAnalysis
             )
 
             // 3. Assert
@@ -241,16 +263,21 @@ class ImageAnalysisTest(
 
                 override fun getSupportedPreviewOutputResolutions(): List<Pair<Int, Array<Size>>> {
                     return listOf(
-                        Pair(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                        Pair(
+                            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                             getOutputSizes(
-                                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE))
+                                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                            )
+                        )
                     )
                 }
 
                 override fun getSupportedCaptureOutputResolutions(): List<Pair<Int, Array<Size>>> {
                     return listOf(
-                        Pair(ImageFormat.JPEG,
-                            getOutputSizes(ImageFormat.JPEG))
+                        Pair(
+                            ImageFormat.JPEG,
+                            getOutputSizes(ImageFormat.JPEG)
+                        )
                     )
                 }
             }
@@ -260,8 +287,10 @@ class ImageAnalysisTest(
             baseCameraSelector,
             extensionMode
         )
-        assertThat(extensionsManager
-            .isImageAnalysisSupported(baseCameraSelector, extensionMode)).isFalse()
+        assertThat(
+            extensionsManager
+                .isImageAnalysisSupported(baseCameraSelector, extensionMode)
+        ).isFalse()
         withContext(Dispatchers.Main) {
             val preview = Preview.Builder().build()
             val imageCapture = ImageCapture.Builder().build()

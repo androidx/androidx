@@ -24,6 +24,7 @@ import androidx.annotation.NonNull
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.MutableStateObservable
@@ -34,7 +35,9 @@ import androidx.camera.extensions.internal.ExtensionsUtils
 import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.internal.Version
 import androidx.camera.extensions.util.ExtensionsTestUtil
+import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeUseCase
@@ -55,6 +58,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -63,10 +67,16 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class ExtensionsManagerTest(
+    private val implName: String,
+    private val cameraXConfig: CameraXConfig,
     private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
 ) {
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
+    )
 
     private val context = InstrumentationRegistry.getInstrumentation().context
 
@@ -86,6 +96,7 @@ class ExtensionsManagerTest(
             )
         )
 
+        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
@@ -112,10 +123,14 @@ class ExtensionsManagerTest(
 
     companion object {
         val context: Context = ApplicationProvider.getApplicationContext()
+
         @JvmStatic
-        @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
-        val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, false)
+        @Parameterized.Parameters(
+            name = "cameraXConfig = {0}, implType = {2}, mode = {3}, facing = {4}"
+        )
+        fun data(): Collection<Array<Any>> {
+            return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, false)
+        }
     }
 
     @Test
@@ -302,7 +317,7 @@ class ExtensionsManagerTest(
                 return true
             }
 
-            override fun getEstimatedCaptureLatencyRange(size: Size?): Range<Long>? {
+            override fun getEstimatedCaptureLatencyRange(size: Size?): Range<Long> {
                 return estimatedCaptureLatency
             }
         }
@@ -310,9 +325,11 @@ class ExtensionsManagerTest(
             fakeVendorExtender
         }
 
-        assertThat(extensionsManager.getEstimatedCaptureLatencyRange(
-            baseCameraSelector,
-            extensionMode)
+        assertThat(
+            extensionsManager.getEstimatedCaptureLatencyRange(
+                baseCameraSelector,
+                extensionMode
+            )
         ).isEqualTo(estimatedCaptureLatency)
     }
 
@@ -329,9 +346,11 @@ class ExtensionsManagerTest(
                 != ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
         )
 
-        assertThat(extensionsManager.getEstimatedCaptureLatencyRange(
+        assertThat(
+            extensionsManager.getEstimatedCaptureLatencyRange(
                 baseCameraSelector,
-                extensionMode)
+                extensionMode
+            )
         ).isNull()
     }
 
@@ -483,9 +502,11 @@ class ExtensionsManagerTest(
                 == ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
         )
 
-        assertThat(extensionsManager.isImageAnalysisSupported(
-            baseCameraSelector,
-            extensionMode)
+        assertThat(
+            extensionsManager.isImageAnalysisSupported(
+                baseCameraSelector,
+                extensionMode
+            )
         ).isFalse()
     }
 
@@ -517,11 +538,14 @@ class ExtensionsManagerTest(
                 == ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
         )
 
-        assertThat(extensionsManager.isImageAnalysisSupported(
-            baseCameraSelector,
-            extensionMode)
+        assertThat(
+            extensionsManager.isImageAnalysisSupported(
+                baseCameraSelector,
+                extensionMode
+            )
         ).isTrue()
     }
+
     @Test
     fun isImageAnalysisSupportedIsFalse_whenExtensionAvailabilityIsNotAvailable() {
         extensionsManager = ExtensionsManager.getInstanceAsync(
@@ -535,9 +559,11 @@ class ExtensionsManagerTest(
                 != ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
         )
 
-        assertThat(extensionsManager.isImageAnalysisSupported(
-            baseCameraSelector,
-            extensionMode)
+        assertThat(
+            extensionsManager.isImageAnalysisSupported(
+                baseCameraSelector,
+                extensionMode
+            )
         ).isFalse()
     }
 
@@ -569,7 +595,7 @@ class ExtensionsManagerTest(
             }
 
             override fun isPostviewAvailable(): Boolean {
-                return true;
+                return true
             }
         }
         extensionsManager.setVendorExtenderFactory {
@@ -598,7 +624,7 @@ class ExtensionsManagerTest(
             }
 
             override fun isCaptureProcessProgressAvailable(): Boolean {
-                return true;
+                return true
             }
         }
         extensionsManager.setVendorExtenderFactory {
@@ -637,8 +663,10 @@ class ExtensionsManagerTest(
         var vendorExtender = ExtensionsTestUtil.createVendorExtender(extensionMode)
         val cameraId = (cameraInfo as CameraInfoInternal).cameraId
 
-        return vendorExtender.isExtensionAvailable(cameraId,
-            ExtensionsUtils.getCameraCharacteristicsMap(cameraInfo))
+        return vendorExtender.isExtensionAvailable(
+            cameraId,
+            ExtensionsUtils.getCameraCharacteristicsMap(cameraInfo)
+        )
     }
 
     private fun createVideoCapture(): VideoCapture<TestVideoOutput> {
@@ -658,6 +686,7 @@ class ExtensionsManagerTest(
         override fun onSurfaceRequested(@NonNull request: SurfaceRequest) {
             surfaceRequest = request
         }
+
         override fun getMediaSpec() = mediaSpecObservable
         override fun onSourceStateChanged(@NonNull sourceState: VideoOutput.SourceState) {
             this.sourceState = sourceState
