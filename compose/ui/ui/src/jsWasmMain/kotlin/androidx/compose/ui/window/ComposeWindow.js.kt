@@ -94,8 +94,7 @@ private class ComposeWindow(
     )
     private val systemThemeObserver = getSystemThemeObserver(window)
 
-    var canvas = document.getElementById(canvasId) as HTMLCanvasElement
-        private set
+    val canvas = document.getElementById(canvasId) as HTMLCanvasElement
 
     private fun <T : Event> HTMLCanvasElement.addTypedEvent(type: String, handler: (event: T, skikoView: SkikoView) -> Unit) {
         addEventListener(type, { event ->
@@ -193,12 +192,6 @@ private class ComposeWindow(
     }
 
     fun resize(newSize: IntSize) {
-        // TODO: avoid node cloning. We clone now to workaround multiple event listeners being applied on every resize event.
-        //  Consider fixing in skiko.
-        val oldCanvas = canvas
-        canvas = oldCanvas.cloneNode(true) as HTMLCanvasElement
-        oldCanvas.parentElement!!.replaceChild(canvas, oldCanvas)
-
         canvas.width = newSize.width
         canvas.height = newSize.height
         _windowInfo.containerSize = IntSize(canvas.width, canvas.height)
