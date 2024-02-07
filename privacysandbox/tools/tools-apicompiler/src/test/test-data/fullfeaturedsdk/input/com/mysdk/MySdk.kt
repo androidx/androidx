@@ -83,10 +83,17 @@ data class Request(
     val myInterface: MyInterface,
     val myUiInterface: MyUiInterface,
     val activityLauncher: SdkActivityLauncher,
+    val flag: RequestFlag,
 )
 
 @PrivacySandboxValue
 data class InnerValue(val numbers: List<Int>, val maybeNumber: Int?)
+
+@PrivacySandboxValue
+enum class RequestFlag {
+    SLOW,
+    FAST,
+}
 
 @PrivacySandboxValue
 data class Response(

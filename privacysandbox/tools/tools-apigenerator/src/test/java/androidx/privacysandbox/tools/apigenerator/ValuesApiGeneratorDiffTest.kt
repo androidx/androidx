@@ -31,6 +31,7 @@ class ValuesApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
         "com/sdkwithvalues/ParcelableInnerSdkValue.java",
         "com/sdkwithvalues/ParcelableSdkRequest.java",
         "com/sdkwithvalues/ParcelableSdkResponse.java",
+        "com/sdkwithvalues/ParcelableRequestFlag.java",
         "com/sdkwithvalues/ICancellationSignal.java",
         "com/sdkwithvalues/ParcelableStackFrame.java",
         "com/sdkwithvalues/PrivacySandboxThrowableParcel.java",

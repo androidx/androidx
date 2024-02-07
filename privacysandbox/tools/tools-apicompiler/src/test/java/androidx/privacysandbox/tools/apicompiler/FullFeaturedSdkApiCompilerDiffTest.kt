@@ -51,6 +51,7 @@ class FullFeaturedSdkApiCompilerDiffTest : AbstractApiCompilerDiffTest() {
         "com/mysdk/ParcelableResponse.java",
         "com/mysdk/ParcelableStackFrame.java",
         "com/mysdk/ParcelableInnerValue.java",
+        "com/mysdk/ParcelableRequestFlag.java",
         "com/mysdk/PrivacySandboxThrowableParcel.java",
     )
 }
