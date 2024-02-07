@@ -73,7 +73,7 @@ class LazyListFocusMoveTest(param: FocusDirectionWrapper) {
 
     // We need to wrap the inline class parameter in another class because Java can't instantiate
     // the inline class.
-    class FocusDirectionWrapper(val direction: FocusDirection)
+    data class FocusDirectionWrapper(val direction: FocusDirection)
 
     class Param(
         val reverseLayout: Boolean,
