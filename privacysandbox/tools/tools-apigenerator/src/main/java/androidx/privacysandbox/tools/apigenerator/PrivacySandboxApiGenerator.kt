@@ -33,7 +33,6 @@ import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
-import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.containsSdkActivityLauncher
 import androidx.privacysandbox.tools.core.model.getOnlyService
@@ -180,13 +179,10 @@ class PrivacySandboxApiGenerator {
         val valueFileGenerator = ValueFileGenerator()
         val valueConverterFileGenerator =
             ValueConverterFileGenerator(binderCodeConverter, GenerationTarget.CLIENT)
-        api.values
-            // TODO(b/323369085): Generate value converters for enum classes
-            .filterIsInstance<AnnotatedDataClass>()
-            .forEach {
-                valueFileGenerator.generate(it).writeTo(output)
-                valueConverterFileGenerator.generate(it).writeTo(output)
-            }
+        api.values.forEach {
+            valueFileGenerator.generate(it).writeTo(output)
+            valueConverterFileGenerator.generate(it).writeTo(output)
+        }
     }
 
     private fun generateCoreLibInfoConverters(api: ParsedApi, output: File) {
