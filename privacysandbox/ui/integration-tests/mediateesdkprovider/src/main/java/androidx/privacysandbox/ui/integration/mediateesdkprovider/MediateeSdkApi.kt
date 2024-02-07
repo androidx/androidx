@@ -28,46 +28,25 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
-import android.webkit.WebView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
+import androidx.privacysandbox.ui.integration.testaidl.IMediateeSdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import java.util.concurrent.Executor
 
-class MediateeSdkApi(val sdkContext: Context) : ISdkApi.Stub() {
+class MediateeSdkApi(val sdkContext: Context) : IMediateeSdkApi.Stub() {
     private val handler = Handler(Looper.getMainLooper())
-    private lateinit var bannerAd: BannerAd
 
-    override fun loadAd(
-        isWebView: Boolean,
-        text: String,
-        withSlowDraw: Boolean,
-        isViewMediated: Boolean
-    ): Bundle {
-        bannerAd = BannerAd(isWebView, withSlowDraw, text)
+    override fun loadTestAdWithWaitInsideOnDraw(count: Int): Bundle {
+        var bannerAd = BannerAd(count)
         return bannerAd.toCoreLibInfo(sdkContext)
-    }
-
-    override fun requestResize(width: Int, height: Int) {
-        bannerAd.requestResize(width, height)
-    }
-
-    private fun isAirplaneModeOn(): Boolean {
-        return Settings.Global.getInt(
-            sdkContext.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
     }
 
     // TODO(b/321830843) : Move logic to a helper file
     private inner class BannerAd(
-        private val isWebView: Boolean,
-        private val withSlowDraw: Boolean,
-        private val text: String
-    ) :
-        SandboxedUiAdapter {
+        private val count: Int
+    ) : SandboxedUiAdapter {
         lateinit var sessionClientExecutor: Executor
         lateinit var sessionClient: SandboxedUiAdapter.SessionClient
         override fun openSession(
@@ -83,39 +62,16 @@ class MediateeSdkApi(val sdkContext: Context) : ISdkApi.Stub() {
             sessionClient = client
             handler.post(Runnable lambda@{
                 Log.d(TAG, "Session requested")
-                lateinit var adView: View
-                if (isWebView) {
-                    // To test error cases.
-                    if (isAirplaneModeOn()) {
-                        clientExecutor.execute {
-                            client.onSessionError(
-                                Throwable("Cannot load WebView in airplane mode.")
-                            )
-                        }
-                        return@lambda
-                    }
-                    val webView = WebView(context)
-                    webView.loadUrl(AD_URL)
-                    webView.layoutParams = ViewGroup.LayoutParams(
-                        initialWidth, initialHeight
-                    )
-                    adView = webView
-                } else {
-                    adView = TestView(context, withSlowDraw, text)
-                }
+                var adView = TestView(context, count)
                 clientExecutor.execute {
                     client.onSessionOpened(BannerAdSession(adView))
                 }
             })
         }
 
-        fun requestResize(width: Int, height: Int) {
-            sessionClientExecutor.execute {
-                sessionClient.onResizeRequested(width, height)
-            }
-        }
-
-        private inner class BannerAdSession(private val adView: View) : SandboxedUiAdapter.Session {
+        private inner class BannerAdSession(
+            private val adView: View
+        ) : SandboxedUiAdapter.Session {
             override val view: View
                 get() = adView
 
@@ -142,16 +98,14 @@ class MediateeSdkApi(val sdkContext: Context) : ISdkApi.Stub() {
     // TODO(b/321830843) : Move logic to a helper file
     private inner class TestView(
         context: Context,
-        private val withSlowDraw: Boolean,
-        private val text: String
+        private val count: Int
     ) : View(context) {
 
         @SuppressLint("BanThreadSleep")
         override fun onDraw(canvas: Canvas) {
             // We are adding sleep to test the synchronization of the app and the sandbox view's
             // size changes.
-            if (withSlowDraw)
-                Thread.sleep(500)
+            Thread.sleep(500)
             super.onDraw(canvas)
 
             val paint = Paint()
@@ -160,6 +114,7 @@ class MediateeSdkApi(val sdkContext: Context) : ISdkApi.Stub() {
                 Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
             )
 
+            val text = "Mediated Ad #$count"
             canvas.drawText(text, 75F, 75F, paint)
 
             setOnClickListener {
