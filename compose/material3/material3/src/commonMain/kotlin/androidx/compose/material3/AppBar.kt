@@ -727,13 +727,7 @@ object TopAppBarDefaults {
         get() {
             return defaultTopAppBarColorsCached ?: TopAppBarColors(
                 containerColor = fromToken(TopAppBarSmallTokens.ContainerColor),
-                scrolledContainerColor =
-                if (fromToken(TopAppBarSmallTokens.ContainerColor) == surface) {
-                    surfaceColorAtElevation(
-                        elevation = TopAppBarSmallTokens.OnScrollContainerElevation)
-                } else {
-                    fromToken(TopAppBarSmallTokens.ContainerColor)
-                },
+                scrolledContainerColor = fromToken(TopAppBarSmallTokens.OnScrollContainerColor),
                 navigationIconContentColor = fromToken(TopAppBarSmallTokens.LeadingIconColor),
                 titleContentColor = fromToken(TopAppBarSmallTokens.HeadlineColor),
                 actionIconContentColor = fromToken(TopAppBarSmallTokens.TrailingIconColor),
@@ -765,10 +759,7 @@ object TopAppBarDefaults {
     @Composable
     fun smallTopAppBarColors(
         containerColor: Color = TopAppBarSmallTokens.ContainerColor.value,
-        scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
-            backgroundColor = containerColor,
-            elevation = TopAppBarSmallTokens.OnScrollContainerElevation
-        ),
+        scrolledContainerColor: Color = TopAppBarSmallTokens.OnScrollContainerColor.value,
         navigationIconContentColor: Color = TopAppBarSmallTokens.LeadingIconColor.value,
         titleContentColor: Color = TopAppBarSmallTokens.HeadlineColor.value,
         actionIconContentColor: Color = TopAppBarSmallTokens.TrailingIconColor.value,
@@ -829,15 +820,9 @@ object TopAppBarDefaults {
             return defaultCenterAlignedTopAppBarColorsCached ?: TopAppBarColors(
                 containerColor = fromToken(TopAppBarSmallCenteredTokens.ContainerColor),
                 scrolledContainerColor =
-                if (fromToken(TopAppBarSmallCenteredTokens.ContainerColor) == surface) {
-                    surfaceColorAtElevation(
-                        elevation = TopAppBarSmallTokens.OnScrollContainerElevation
-                    )
-                } else {
-                    fromToken(TopAppBarSmallCenteredTokens.ContainerColor)
-                },
+                    fromToken(TopAppBarSmallCenteredTokens.OnScrollContainerColor),
                 navigationIconContentColor =
-                fromToken(TopAppBarSmallCenteredTokens.LeadingIconColor),
+                    fromToken(TopAppBarSmallCenteredTokens.LeadingIconColor),
                 titleContentColor = fromToken(TopAppBarSmallCenteredTokens.HeadlineColor),
                 actionIconContentColor = fromToken(TopAppBarSmallCenteredTokens.TrailingIconColor),
             ).also {
@@ -884,12 +869,7 @@ object TopAppBarDefaults {
         get() {
             return defaultMediumTopAppBarColorsCached ?: TopAppBarColors(
                 containerColor = fromToken(TopAppBarMediumTokens.ContainerColor),
-            scrolledContainerColor =
-            if (fromToken(TopAppBarMediumTokens.ContainerColor) == surface) {
-                surfaceColorAtElevation(elevation = TopAppBarSmallTokens.OnScrollContainerElevation)
-            } else {
-                fromToken(TopAppBarMediumTokens.ContainerColor)
-            },
+            scrolledContainerColor = fromToken(TopAppBarSmallTokens.OnScrollContainerColor),
             navigationIconContentColor = fromToken(TopAppBarMediumTokens.LeadingIconColor),
             titleContentColor = fromToken(TopAppBarMediumTokens.HeadlineColor),
             actionIconContentColor = fromToken(TopAppBarMediumTokens.TrailingIconColor),
@@ -937,14 +917,7 @@ object TopAppBarDefaults {
         get() {
             return defaultLargeTopAppBarColorsCached ?: TopAppBarColors(
                 containerColor = fromToken(TopAppBarLargeTokens.ContainerColor),
-                scrolledContainerColor =
-                if (fromToken(TopAppBarLargeTokens.ContainerColor) == surface) {
-                    surfaceColorAtElevation(
-                        elevation = TopAppBarSmallTokens.OnScrollContainerElevation
-                    )
-                } else {
-                    fromToken(TopAppBarLargeTokens.ContainerColor)
-                },
+                scrolledContainerColor = fromToken(TopAppBarSmallTokens.OnScrollContainerColor),
                 navigationIconContentColor = fromToken(TopAppBarLargeTokens.LeadingIconColor),
                 titleContentColor = fromToken(TopAppBarLargeTokens.HeadlineColor),
                 actionIconContentColor = fromToken(TopAppBarLargeTokens.TrailingIconColor),
@@ -1296,7 +1269,7 @@ object BottomAppBarDefaults {
     val containerColor: Color @Composable get() = BottomAppBarTokens.ContainerColor.value
 
     /** Default elevation used for [BottomAppBar] */
-    val ContainerElevation: Dp = BottomAppBarTokens.ContainerElevation
+    val ContainerElevation: Dp = 0.dp
 
     /**
      * Default padding used for [BottomAppBar] when content are default size (24dp) icons in
