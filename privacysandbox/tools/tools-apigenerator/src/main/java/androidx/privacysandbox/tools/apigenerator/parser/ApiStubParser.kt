@@ -89,11 +89,44 @@ internal object ApiStubParser {
                     "annotated with @PrivacySandboxValue."
             )
         }
+        val superTypes = value.supertypes.asSequence().map { it.classifier }
+            .filterIsInstance<KmClassifier.Class>()
+            .map { it.name }
+            .filter { it !in listOf("kotlin/Enum", "kotlin/Any") }
+            .map { parseClassName(it) }.toList()
+        if (superTypes.isNotEmpty()) {
+            throw PrivacySandboxParsingException(
+                "Error in ${type.qualifiedName}: values annotated with @PrivacySandboxValue may " +
+                    "not inherit other types (${
+                        superTypes.joinToString(limit = 3) { it.simpleName }
+                    })"
+            )
+        }
+
         return if (value.isData) {
             AnnotatedDataClass(type, parseProperties(type, value))
         } else {
-            // TODO(b/323369085): Validate that enums don't have fields, methods, or inheritance
+            validateEnum(value, type)
             AnnotatedEnumClass(type, value.enumEntries.toList())
+        }
+    }
+
+    private fun validateEnum(value: KmClass, type: Type) {
+        if (value.properties.isNotEmpty()) {
+            throw PrivacySandboxParsingException(
+                "Error in ${type.qualifiedName}: enum classes annotated with " +
+                    "@PrivacySandboxValue may not declare properties (${
+                        value.properties.joinToString(limit = 3) { it.name }
+                    })"
+            )
+        }
+        if (value.functions.isNotEmpty()) {
+            throw PrivacySandboxParsingException(
+                "Error in ${type.qualifiedName}: enum classes annotated with " +
+                    "@PrivacySandboxValue may not declare methods (${
+                        value.functions.joinToString(limit = 3) { it.name }
+                    })"
+            )
         }
     }
 

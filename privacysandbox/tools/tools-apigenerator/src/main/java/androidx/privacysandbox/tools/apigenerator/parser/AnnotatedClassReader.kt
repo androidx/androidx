@@ -52,6 +52,7 @@ internal object AnnotatedClassReader {
             if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
                 services.add(parseKotlinMetadata(classNode))
             }
+            // TODO(b/323369085): Validate that enum variants don't have methods
             if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
                 values.add(parseKotlinMetadata(classNode))
             }
