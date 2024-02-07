@@ -22,6 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -42,7 +43,7 @@ dependencies {
 androidx {
     name = "Gradle lint checks"
     type = LibraryType.LINT
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2024"
     description = "Lint checks to verify usage of Gradle APIs."
 }
-
