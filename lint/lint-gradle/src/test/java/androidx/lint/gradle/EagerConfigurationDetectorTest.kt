@@ -392,4 +392,26 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
 
         check(input).expect(expected)
     }
+
+    @Test
+    fun `Test usage of TaskProvider#get`() {
+        val input = kotlin(
+            """
+                import org.gradle.api.Project
+
+                fun configure(project: Project) {
+                    project.tasks.register("example").get()
+                }
+            """.trimIndent()
+        )
+
+        val expected = """
+            src/test.kt:4: Error: Avoid using eager method get [EagerGradleConfiguration]
+                project.tasks.register("example").get()
+                                                  ~~~
+            1 errors, 0 warnings
+        """.trimIndent()
+
+        check(input).expect(expected)
+    }
 }
