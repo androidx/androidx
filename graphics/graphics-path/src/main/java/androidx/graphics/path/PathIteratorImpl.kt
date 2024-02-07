@@ -21,6 +21,7 @@ import android.graphics.PathIterator as PlatformPathIterator
 import android.graphics.PointF
 import androidx.annotation.RequiresApi
 import androidx.graphics.path.PathIterator.ConicEvaluation
+import dalvik.annotation.optimization.FastNative
 
 /**
  * Base class for API-version-specific PathIterator implementation classes. All functionality
@@ -228,9 +229,11 @@ internal class PathIteratorPreApi34Impl(
     private external fun destroyInternalPathIterator(internalPathIterator: Long)
 
     @Suppress("KotlinJniMissingFunction")
+    @FastNative
     private external fun internalPathIteratorHasNext(internalPathIterator: Long): Boolean
 
     @Suppress("KotlinJniMissingFunction")
+    @FastNative
     private external fun internalPathIteratorNext(
         internalPathIterator: Long,
         points: FloatArray,
@@ -238,12 +241,15 @@ internal class PathIteratorPreApi34Impl(
     ): Int
 
     @Suppress("KotlinJniMissingFunction")
+    @FastNative
     private external fun internalPathIteratorPeek(internalPathIterator: Long): Int
 
     @Suppress("KotlinJniMissingFunction")
+    @FastNative
     private external fun internalPathIteratorRawSize(internalPathIterator: Long): Int
 
     @Suppress("KotlinJniMissingFunction")
+    @FastNative
     private external fun internalPathIteratorSize(internalPathIterator: Long): Int
 
     /**
