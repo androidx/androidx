@@ -92,7 +92,7 @@ fun lifecycleEventEffectSample() {
 fun lifecycleStartEffectSample() {
     @Composable
     fun Analytics(dataAnalytics: DataAnalytics) {
-        LifecycleStartEffect {
+        LifecycleStartEffect(dataAnalytics) {
             val timeTracker = dataAnalytics.startTimeTracking()
 
             onStopOrDispose {
@@ -109,7 +109,7 @@ fun lifecycleStartEffectSample() {
 fun lifecycleResumeEffectSample() {
     @Composable
     fun Analytics(dataAnalytics: DataAnalytics) {
-        LifecycleResumeEffect {
+        LifecycleResumeEffect(dataAnalytics) {
             val timeTracker = dataAnalytics.startTimeTracking()
 
             onPauseOrDispose {
