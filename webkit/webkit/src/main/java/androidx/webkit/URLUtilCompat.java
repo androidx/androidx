@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * @see android.webkit.URLUtil
  */
 @SuppressWarnings("AcronymName") // Compat class for similarly named URLUtil in Android SDK
-public class URLUtilCompat {
+public final class URLUtilCompat {
 
     private URLUtilCompat() {} // Class should not be instantiated
 

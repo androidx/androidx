@@ -144,7 +144,7 @@ package androidx.webkit {
     method public abstract boolean stop(java.io.OutputStream?, java.util.concurrent.Executor);
   }
 
-  public class URLUtilCompat {
+  public final class URLUtilCompat {
     method public static String? getFilenameFromContentDisposition(String);
     method public static String guessFileName(String, String?, String?);
   }
