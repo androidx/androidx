@@ -1624,57 +1624,59 @@ class LookaheadScopeTest {
         var boxId by mutableStateOf(1)
         rule.setContent {
             CompositionLocalProvider(LocalDensity.provides(Density(1f))) {
-                val movableContent = remember {
-                    movableContentOf {
-                        Box(
-                            Modifier
-                                .intermediateLayout { measurable, constraints ->
-                                    measurable
-                                        .measure(constraints)
-                                        .run {
-                                            layout(width, height) {
-                                                coordinates?.let {
-                                                    positionInScope =
-                                                        lookaheadScopeCoordinates
-                                                            .localLookaheadPositionOf(
-                                                                it
-                                                            )
-                                                            .round()
+                LookaheadScope {
+                    val movableContent = remember {
+                        movableContentOf {
+                            Box(
+                                Modifier
+                                    .intermediateLayout { measurable, constraints ->
+                                        measurable
+                                            .measure(constraints)
+                                            .run {
+                                                layout(width, height) {
+                                                    coordinates?.let {
+                                                        positionInScope =
+                                                            lookaheadScopeCoordinates
+                                                                .localLookaheadPositionOf(
+                                                                    it
+                                                                )
+                                                                .round()
+                                                    }
                                                 }
                                             }
-                                        }
-                                }
-                                .size(200.dp))
+                                    }
+                                    .size(200.dp))
+                        }
                     }
-                }
-                Box {
-                    LookaheadScope {
-                        Box(Modifier.offset(100.dp, 5.dp)) {
-                            if (boxId == 1) {
-                                movableContent()
+                    Box {
+                        LookaheadScope {
+                            Box(Modifier.offset(100.dp, 5.dp)) {
+                                if (boxId == 1) {
+                                    movableContent()
+                                }
                             }
                         }
                     }
-                }
-                Box(Modifier.offset(40.dp, 200.dp)) {
-                    if (boxId == 2) {
-                        movableContent()
+                    Box(Modifier.offset(40.dp, 200.dp)) {
+                        if (boxId == 2) {
+                            movableContent()
+                        }
                     }
-                }
-                Box(Modifier
-                    .offset(50.dp, 50.dp)
-                    .intermediateLayout { measurable, constraints ->
-                        measurable
-                            .measure(constraints)
-                            .run {
-                                layout(width, height) {
-                                    place(0, 0)
+                    Box(Modifier
+                        .offset(50.dp, 50.dp)
+                        .intermediateLayout { measurable, constraints ->
+                            measurable
+                                .measure(constraints)
+                                .run {
+                                    layout(width, height) {
+                                        place(0, 0)
+                                    }
                                 }
-                            }
-                    }
-                    .offset(60.dp, 60.dp)) {
-                    if (boxId == 3) {
-                        movableContent()
+                        }
+                        .offset(60.dp, 60.dp)) {
+                        if (boxId == 3) {
+                            movableContent()
+                        }
                     }
                 }
             }
@@ -1683,9 +1685,7 @@ class LookaheadScopeTest {
         assertEquals(IntOffset(100, 5), positionInScope)
         boxId++
         rule.waitForIdle()
-        // Expect no offset when moving intermediateLayout out of LookaheadScope, as the implicitly
-        // created lookahead scope will have the same coordinates as intermediateLayout
-        assertEquals(IntOffset(0, 0), positionInScope)
+        assertEquals(IntOffset(40, 200), positionInScope)
         boxId++
         rule.waitForIdle()
         // Expect the lookaheadScope to be created by the ancestor intermediateLayoutModifier
@@ -1777,59 +1777,6 @@ class LookaheadScopeTest {
                                     }
                             )
                         }
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun lookaheadScopeInImplicitScope() {
-        rule.setContent {
-            Box(Modifier.offset(20.dp, 30.dp)) {
-                Box(
-                    Modifier
-                        .offset(50.dp, 25.dp)
-                        .intermediateLayout { measurable, constraints ->
-                            measureWithLambdas(prePlacement = {
-                                assertEquals(
-                                    coordinates!!.parentCoordinates,
-                                    lookaheadScopeCoordinates
-                                )
-                            })(measurable, constraints)
-                        }
-                        .offset(15.dp, 20.dp)
-                ) {
-                    LookaheadScope {
-                        val explicitLookaheadScope = this
-                        Box(
-                            Modifier
-                                .intermediateLayout { measurable, constraints ->
-                                    measureWithLambdas(prePlacement = {
-                                        val innerLookaheadCoords =
-                                            with(explicitLookaheadScope) {
-                                                lookaheadScopeCoordinates
-                                            }
-                                        assertEquals(
-                                            innerLookaheadCoords,
-                                            lookaheadScopeCoordinates
-                                        )
-                                    })(measurable, constraints)
-                                }
-                                .size(50.dp)
-                                .intermediateLayout { measurable, constraints ->
-                                    measureWithLambdas(prePlacement = {
-                                        val innerLookaheadCoords =
-                                            with(explicitLookaheadScope) {
-                                                lookaheadScopeCoordinates
-                                            }
-                                        assertEquals(
-                                            innerLookaheadCoords,
-                                            lookaheadScopeCoordinates
-                                        )
-                                    })(measurable, constraints)
-                                }
-                        )
                     }
                 }
             }

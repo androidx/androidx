@@ -77,7 +77,7 @@ fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit)
     "IntermediateMeasureScope has been renamed to ApproachMeasureScope",
     replaceWith = ReplaceWith("ApproachMeasureScope")
 )
-interface IntermediateMeasureScope : ApproachMeasureScope, CoroutineScope
+interface IntermediateMeasureScope : ApproachMeasureScope, CoroutineScope, LookaheadScope
 
 @ExperimentalComposeUiApi
 @Deprecated(
@@ -188,8 +188,9 @@ private class IntermediateLayoutModifierNodeImpl(
     private var intermediateMeasureScope: IntermediateMeasureScopeImpl? = null
 
     private inner class IntermediateMeasureScopeImpl(
-        val approachScope: ApproachMeasureScope
-    ) : IntermediateMeasureScope, ApproachMeasureScope by approachScope, CoroutineScope {
+        val approachScope: ApproachMeasureScopeImpl
+    ) : IntermediateMeasureScope, LookaheadScope by approachScope,
+        ApproachMeasureScope by approachScope, CoroutineScope {
         override val coroutineContext: CoroutineContext
             get() = this@IntermediateLayoutModifierNodeImpl.coroutineScope.coroutineContext
     }
@@ -208,7 +209,7 @@ private class IntermediateLayoutModifierNodeImpl(
     ): MeasureResult {
         val scope = intermediateMeasureScope
         val newScope = if (scope?.approachScope != this) {
-            IntermediateMeasureScopeImpl(this)
+            IntermediateMeasureScopeImpl(this as ApproachMeasureScopeImpl)
         } else {
             scope
         }
