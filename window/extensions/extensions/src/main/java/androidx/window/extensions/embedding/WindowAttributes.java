@@ -19,6 +19,7 @@ package androidx.window.extensions.embedding;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 
 import java.lang.annotation.Retention;
@@ -28,7 +29,7 @@ import java.util.Objects;
 /**
  * The attributes of the embedded Activity Window.
  */
-public class WindowAttributes {
+public final class WindowAttributes {
 
     /**
      * The dim effect is applying on the {@link ActivityStack} of the Activity window when
@@ -50,31 +51,43 @@ public class WindowAttributes {
             DIM_AREA_ON_TASK
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface DimArea {
+    @interface DimAreaBehavior {
     }
 
-    @DimArea
-    private final int mDimArea;
+    @DimAreaBehavior
+    private final int mDimAreaBehavior;
 
     /**
      * The {@link WindowAttributes} constructor.
      *
-     * @param dimArea the type of area that the dim layer is applying.
+     * @param dimAreaBehavior the type of area that the dim layer is applying.
      */
     @RequiresVendorApiLevel(level = 5)
-    public WindowAttributes(@DimArea int dimArea) {
-        mDimArea = dimArea;
+    public WindowAttributes(@DimAreaBehavior int dimAreaBehavior) {
+        mDimAreaBehavior = dimAreaBehavior;
     }
 
     /**
-     * Returns the {@link DimArea} to use when dim behind the Activity window is
+     * Returns the {@link DimAreaBehavior} to use when dim behind the Activity window is
      * needed.
-     * @return The dim area.
+     * @return The dim area behavior.
      */
-    @DimArea
+    @DimAreaBehavior
+    @RequiresVendorApiLevel(level = 5)
+    public int getDimAreaBehavior() {
+        return mDimAreaBehavior;
+    }
+
+    /**
+     * TODO(b/324092846): Keeping this API for now to prevent the WM extension library build break
+     * once the aar file is updated. Will remove this API once the aar file is updated and the WM
+     * extension library starts using the new {@link #getDimAreaBehavior} API.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @DimAreaBehavior
     @RequiresVendorApiLevel(level = 5)
     public int getDimArea() {
-        return mDimArea;
+        return mDimAreaBehavior;
     }
 
     @Override
@@ -82,17 +95,17 @@ public class WindowAttributes {
         if (this == obj) return true;
         if (obj == null || !(obj instanceof WindowAttributes)) return false;
         final WindowAttributes other = (WindowAttributes) obj;
-        return mDimArea == other.getDimArea();
+        return mDimAreaBehavior == other.getDimAreaBehavior();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mDimArea);
+        return Objects.hash(mDimAreaBehavior);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "dimArea=" + mDimArea;
+        return "dimAreaBehavior=" + mDimAreaBehavior;
     }
 }

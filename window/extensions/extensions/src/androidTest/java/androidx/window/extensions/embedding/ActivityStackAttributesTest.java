@@ -34,7 +34,7 @@ public class ActivityStackAttributesTest {
     public void testActivityStackAttributesDefaults() {
         final ActivityStackAttributes defaultAttrs = new ActivityStackAttributes.Builder().build();
         assertThat(defaultAttrs.getRelativeBounds().isEmpty()).isTrue();
-        assertThat(defaultAttrs.getWindowAttributes().getDimArea())
+        assertThat(defaultAttrs.getWindowAttributes().getDimAreaBehavior())
                 .isEqualTo(DIM_AREA_ON_ACTIVITY_STACK);
     }
 

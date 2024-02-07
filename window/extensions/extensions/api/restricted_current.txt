@@ -272,9 +272,9 @@ package androidx.window.extensions.embedding {
     field public static final int FINISH_NEVER = 0; // 0x0
   }
 
-  public class WindowAttributes {
+  public final class WindowAttributes {
     ctor public WindowAttributes(int);
-    method public int getDimArea();
+    method public int getDimAreaBehavior();
     field public static final int DIM_AREA_ON_ACTIVITY_STACK = 1; // 0x1
     field public static final int DIM_AREA_ON_TASK = 2; // 0x2
   }

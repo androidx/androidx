@@ -233,7 +233,7 @@ class EmbeddingAdapterTest {
         adapter.embeddingConfiguration = EmbeddingConfiguration(dimArea)
         val oemSplitAttributes = adapter.translateSplitAttributes(SplitAttributes.Builder().build())
 
-        assertEquals(dimArea.value, oemSplitAttributes.windowAttributes.dimArea)
+        assertEquals(dimArea.value, oemSplitAttributes.windowAttributes.dimAreaBehavior)
     }
 
     private fun createTestOEMSplitInfo(

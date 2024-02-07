@@ -118,8 +118,8 @@ public class ActivityStackAttributes {
 
         /**
          * Sets the window attributes. If this value is not specified, the
-         * {@link WindowAttributes#getDimArea()} will be only applied on the {@link ActivityStack}
-         * of the requested activity.
+         * {@link WindowAttributes#getDimAreaBehavior()} will be only applied on the
+         * {@link ActivityStack} of the requested activity.
          *
          * @param attributes The {@link WindowAttributes}
          * @return This {@code Builder}.

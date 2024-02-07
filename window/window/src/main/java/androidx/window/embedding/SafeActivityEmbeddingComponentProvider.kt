@@ -145,7 +145,7 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [AnimationBackground.createColorBackground]
      * - [AnimationBackground.ANIMATION_BACKGROUND_DEFAULT]
      * - [ParentContainerInfo]
-     * - [WindowAttributes.getDimArea]
+     * - [WindowAttributes.getDimAreaBehavior]
      * - [SplitAttributes.getWindowAttributes]
      * - [SplitAttributes.Builder.setWindowAttributes]
      * - [SplitPinRule.isSticky]
