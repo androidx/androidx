@@ -2043,7 +2043,7 @@ package androidx.compose.ui.layout {
     property public static final androidx.compose.ui.layout.HorizontalAlignmentLine LastBaseline;
   }
 
-  public sealed interface ApproachIntrinsicMeasureScope extends androidx.compose.ui.layout.LookaheadScope androidx.compose.ui.layout.IntrinsicMeasureScope {
+  public sealed interface ApproachIntrinsicMeasureScope extends androidx.compose.ui.layout.IntrinsicMeasureScope {
     method public long getLookaheadConstraints();
     method public long getLookaheadSize();
     property public abstract long lookaheadConstraints;
@@ -2143,7 +2143,7 @@ package androidx.compose.ui.layout {
     ctor public HorizontalRuler();
   }
 
-  @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public interface IntermediateMeasureScope extends androidx.compose.ui.layout.ApproachMeasureScope kotlinx.coroutines.CoroutineScope {
+  @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public interface IntermediateMeasureScope extends androidx.compose.ui.layout.ApproachMeasureScope kotlinx.coroutines.CoroutineScope androidx.compose.ui.layout.LookaheadScope {
   }
 
   public interface IntrinsicMeasurable {

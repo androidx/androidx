@@ -186,11 +186,12 @@ fun LookaheadLayoutCoordinatesSample() {
                     // Uses the target offset to start an offset animation
                     val animatedOffset = offsetAnimation.updateTarget(target, coroutineScope)
                     // Calculates the *current* offset within the given LookaheadScope
-                    val placementOffset =
+                    val placementOffset = with(lookaheadScope) {
                         lookaheadScopeCoordinates.localPositionOf(
                             coordinates,
                             Offset.Zero
                         ).round()
+                    }
                     // Calculates the delta between animated position in scope and current
                     // position in scope, and places the child at the delta offset. This puts
                     // the child layout at the animated position.
