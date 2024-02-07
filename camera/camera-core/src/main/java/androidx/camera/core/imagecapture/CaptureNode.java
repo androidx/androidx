@@ -119,6 +119,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                     }
                 });
             }
+
             @Override
             public void onCaptureProcessProgressed(int captureConfigId, int progress) {
                 mainThreadExecutor().execute(() -> {
@@ -397,7 +398,9 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         abstract boolean isVirtualCamera();
 
         /**
-         * Whether the pipeline is connected to a virtual camera.
+         * The {@link ImageReaderProxyProvider} associated with the node. When the value exists,
+         * the node will use it to create the {@link ImageReaderProxy} that connects to
+         * the camera.
          */
         @Nullable
         abstract ImageReaderProxyProvider getImageReaderProxyProvider();
