@@ -108,11 +108,12 @@ object MenuDefaults {
                 textColor = fromToken(MenuTokens.ListItemLabelTextColor),
                 leadingIconColor = fromToken(MenuTokens.ListItemLeadingIconColor),
                 trailingIconColor = fromToken(MenuTokens.ListItemTrailingIconColor),
-                disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor),
+                disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor)
+                .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
                 disabledLeadingIconColor = fromToken(MenuTokens.ListItemDisabledLeadingIconColor)
-                    .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
+                .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
                 disabledTrailingIconColor = fromToken(MenuTokens.ListItemDisabledTrailingIconColor)
-                    .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
+                .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
             ).also {
                 defaultMenuItemColorsCached = it
             }
