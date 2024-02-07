@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive.navigationsuite
+package androidx.compose.material3.adaptive
 
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.Posture
-import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.runtime.Composable
 import androidx.window.core.layout.WindowSizeClass
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal actual val WindowAdaptiveInfoDefault: WindowAdaptiveInfo = WindowAdaptiveInfo(
-    windowSizeClass = WindowSizeClass(1000, 1000),
-    windowPosture = Posture()
-)
+/**
+ * Calculates and returns [WindowAdaptiveInfo] of the provided context. It's a convenient function
+ * that uses the default [WindowSizeClass] constructor and the default [Posture] calculation
+ * functions to retrieve [WindowSizeClass] and [Posture].
+ *
+ * @return [WindowAdaptiveInfo] of the provided context
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+expect fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo

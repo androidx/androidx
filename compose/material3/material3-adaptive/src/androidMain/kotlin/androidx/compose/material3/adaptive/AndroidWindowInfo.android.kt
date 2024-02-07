@@ -32,16 +32,9 @@ import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.flow.map
 
-/**
- * Calculates and returns [WindowAdaptiveInfo] of the provided context. It's a convenient function
- * that uses the default [WindowSizeClass] constructor and the default [calculatePosture]
- * functions to retrieve [WindowSizeClass] and [Posture].
- *
- * @return [WindowAdaptiveInfo] of the provided context
- */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
+actual fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
     val windowSize = with(LocalDensity.current) {
         currentWindowSize().toSize().toDpSize()
     }
