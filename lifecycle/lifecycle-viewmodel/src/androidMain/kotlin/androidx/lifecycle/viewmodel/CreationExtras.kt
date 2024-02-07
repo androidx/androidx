@@ -39,7 +39,7 @@ public abstract class CreationExtras internal constructor() {
     /**
      * Empty [CreationExtras]
      */
-    object Empty : CreationExtras() {
+    public object Empty : CreationExtras() {
         override fun <T> get(key: Key<T>): T? = null
     }
 }

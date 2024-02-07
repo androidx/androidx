@@ -22,13 +22,13 @@ import android.app.Application
  *
  * Subclasses must have a constructor which accepts [Application] as the only parameter.
  */
-open class AndroidViewModel(private val application: Application) : ViewModel() {
+public open class AndroidViewModel(private val application: Application) : ViewModel() {
 
     /**
      * Return the application.
      */
     @Suppress("UNCHECKED_CAST")
-    open fun <T : Application> getApplication(): T {
+    public open fun <T : Application> getApplication(): T {
         return application as T
     }
 }
