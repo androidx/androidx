@@ -78,6 +78,7 @@ inline fun Layout(
 ) {
     val compositeKeyHash = currentCompositeKeyHash
     val localMap = currentComposer.currentCompositionLocalMap
+    val materialized = currentComposer.materialize(modifier)
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
@@ -85,8 +86,8 @@ inline fun Layout(
             set(localMap, SetResolvedCompositionLocals)
             @OptIn(ExperimentalComposeUiApi::class)
             set(compositeKeyHash, SetCompositeKeyHash)
+            set(materialized, SetModifier)
         },
-        skippableUpdate = materializerOf(modifier),
         content = content
     )
 }
