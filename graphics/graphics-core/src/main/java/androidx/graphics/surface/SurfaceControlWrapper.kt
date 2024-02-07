@@ -190,10 +190,6 @@ internal class JniBindings {
 
         @JvmStatic
         @JniVisible
-        external fun nIsHwuiUsingVulkanRenderer(): Boolean
-
-        @JvmStatic
-        @JniVisible
         external fun nGetPreviousReleaseFenceFd(surfaceControl: Long, transactionStats: Long): Int
 
         @JvmStatic
