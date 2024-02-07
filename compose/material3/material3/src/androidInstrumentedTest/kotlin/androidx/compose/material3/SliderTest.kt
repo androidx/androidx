@@ -508,7 +508,7 @@ class SliderTest {
 
         rule.onNodeWithTag(tag)
             .assertWidthIsEqualTo(SliderTokens.HandleWidth)
-            .assertHeightIsEqualTo(SliderTokens.HandleHeight)
+            .assertHeightIsEqualTo(SliderTokens.InactiveTrackHeight)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -1325,7 +1325,7 @@ class SliderTest {
 
         rule.runOnIdle {
             Truth.assertThat(recompositionCounter.outerRecomposition).isEqualTo(1)
-            Truth.assertThat(recompositionCounter.innerRecomposition).isEqualTo(4)
+            Truth.assertThat(recompositionCounter.innerRecomposition).isEqualTo(3)
         }
     }
 
