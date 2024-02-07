@@ -254,21 +254,21 @@ package androidx.fragment.app {
     method public static Class<? extends androidx.fragment.app.Fragment!> loadFragmentClass(ClassLoader, String);
   }
 
-  public abstract class FragmentHostCallback<E> extends androidx.fragment.app.FragmentContainer {
-    ctor public FragmentHostCallback(android.content.Context, android.os.Handler, int);
-    method public void onDump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
-    method public android.view.View? onFindViewById(int);
-    method public abstract E? onGetHost();
+  public abstract class FragmentHostCallback<H> extends androidx.fragment.app.FragmentContainer {
+    ctor public FragmentHostCallback(android.content.Context context, android.os.Handler handler, int windowAnimations);
+    method public void onDump(String prefix, java.io.FileDescriptor? fd, java.io.PrintWriter writer, String[]? args);
+    method public android.view.View? onFindViewById(int id);
+    method public abstract H onGetHost();
     method public android.view.LayoutInflater onGetLayoutInflater();
     method public int onGetWindowAnimations();
     method public boolean onHasView();
     method public boolean onHasWindowAnimations();
-    method @Deprecated public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String![], int);
-    method public boolean onShouldSaveFragmentState(androidx.fragment.app.Fragment);
-    method public boolean onShouldShowRequestPermissionRationale(String);
-    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int);
-    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle?);
-    method @Deprecated public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment fragment, String[] permissions, int requestCode);
+    method public boolean onShouldSaveFragmentState(androidx.fragment.app.Fragment fragment);
+    method public boolean onShouldShowRequestPermissionRationale(String permission);
+    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment fragment, android.content.Intent intent, int requestCode);
+    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment fragment, android.content.Intent intent, int requestCode, android.os.Bundle? options);
+    method @Deprecated @kotlin.jvm.Throws(exceptionClasses=SendIntentException::class) public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment fragment, android.content.IntentSender intent, int requestCode, android.content.Intent? fillInIntent, int flagsMask, int flagsValues, int extraFlags, android.os.Bundle? options) throws android.content.IntentSender.SendIntentException;
     method public void onSupportInvalidateOptionsMenu();
   }
 
