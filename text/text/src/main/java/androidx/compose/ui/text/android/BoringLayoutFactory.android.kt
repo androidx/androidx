@@ -174,6 +174,8 @@ private object BoringLayoutFactory33 {
         )
     }
 
+    @JvmStatic
+    @DoNotInline
     fun isFallbackLineSpacingEnabled(layout: BoringLayout): Boolean {
         return layout.isFallbackLineSpacingEnabled
     }
