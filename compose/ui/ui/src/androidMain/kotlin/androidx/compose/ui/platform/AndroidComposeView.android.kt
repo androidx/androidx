@@ -1507,10 +1507,7 @@ internal class AndroidComposeView(
         viewTreeObserver.addOnTouchModeChangeListener(touchModeChangeListener)
 
         if (SDK_INT >= S) {
-            AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(
-                this,
-                AndroidComposeViewTranslationCallback()
-            )
+            AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(this)
         }
     }
 
@@ -2125,26 +2122,26 @@ internal class AndroidComposeView(
          */
         val savedStateRegistryOwner: SavedStateRegistryOwner
     )
+}
 
-    @RequiresApi(S)
-    private class AndroidComposeViewTranslationCallback : ViewTranslationCallback {
-        override fun onShowTranslation(view: View): Boolean {
-            val androidComposeView = view as AndroidComposeView
-            androidComposeView.contentCaptureManager.onShowTranslation()
-            return true
-        }
+@RequiresApi(S)
+private object AndroidComposeViewTranslationCallback : ViewTranslationCallback {
+    override fun onShowTranslation(view: View): Boolean {
+        val androidComposeView = view as AndroidComposeView
+        androidComposeView.contentCaptureManager.onShowTranslation()
+        return true
+    }
 
-        override fun onHideTranslation(view: View): Boolean {
-            val androidComposeView = view as AndroidComposeView
-            androidComposeView.contentCaptureManager.onHideTranslation()
-            return true
-        }
+    override fun onHideTranslation(view: View): Boolean {
+        val androidComposeView = view as AndroidComposeView
+        androidComposeView.contentCaptureManager.onHideTranslation()
+        return true
+    }
 
-        override fun onClearTranslation(view: View): Boolean {
-            val androidComposeView = view as AndroidComposeView
-            androidComposeView.contentCaptureManager.onClearTranslation()
-            return true
-        }
+    override fun onClearTranslation(view: View): Boolean {
+        val androidComposeView = view as AndroidComposeView
+        androidComposeView.contentCaptureManager.onClearTranslation()
+        return true
     }
 }
 
@@ -2202,8 +2199,8 @@ private object AndroidComposeViewForceDarkModeQ {
 internal object AndroidComposeViewTranslationCallbackS {
     @DoNotInline
     @RequiresApi(S)
-    fun setViewTranslationCallback(view: View, translationCallback: ViewTranslationCallback) {
-        view.setViewTranslationCallback(translationCallback)
+    fun setViewTranslationCallback(view: View) {
+        view.setViewTranslationCallback(AndroidComposeViewTranslationCallback)
     }
 
     @DoNotInline
