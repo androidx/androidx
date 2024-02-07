@@ -13,51 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.util
 
-
-package androidx.core.util;
-
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.IntRange
 
 /**
  * Helper class for creating pools of objects. An example use looks like this:
- * <pre>
- * public class MyPooledClass {
+ * ```
+ * class MyPooledClass {
  *
- *     private static final SynchronizedPool<MyPooledClass> sPool =
- *             new SynchronizedPool<MyPooledClass>(10);
- *
- *     public static MyPooledClass obtain() {
- *         MyPooledClass instance = sPool.acquire();
- *         return (instance != null) ? instance : new MyPooledClass();
+ *     fun recycle() {
+ *         // Clear state if needed, then return this instance to the Pool
+ *         pool.release(this)
  *     }
  *
- *     public void recycle() {
- *          // Clear state if needed.
- *          sPool.release(this);
- *     }
+ *     companion object {
+ *         private val pool = Pools.SynchronizedPool<MyPooledClass>(10)
  *
- *     . . .
+ *         fun obtain() : MyPooledClass {
+ *             // Get an instance from the Pool or
+ *             // construct a new one if none are available
+ *             return pool.acquire() ?: MyPooledClass()
+ *         }
+ *     }
  * }
- * </pre>
- *
+ * ```
  */
-public final class Pools {
-
+class Pools private constructor() {
     /**
      * Interface for managing a pool of objects.
      *
-     * @param <T> The pooled type.
+     * @param T The pooled type.
      */
-    public interface Pool<T> {
-
+    interface Pool<T : Any> {
         /**
          * @return An instance from the pool if such, null otherwise.
          */
-        @Nullable
-        T acquire();
+        fun acquire(): T?
 
         /**
          * Release an instance to the pool.
@@ -67,104 +59,75 @@ public final class Pools {
          *
          * @throws IllegalStateException If the instance is already in the pool.
          */
-        boolean release(@NonNull T instance);
-    }
-
-    private Pools() {
-        /* do nothing - hiding constructor */
+        fun release(instance: T): Boolean
     }
 
     /**
      * Simple (non-synchronized) pool of objects.
      *
-     * @param <T> The pooled type.
+     * @param maxPoolSize The maximum pool size
+     * @param T The pooled type.
      */
-    public static class SimplePool<T> implements Pool<T> {
-        private final Object[] mPool;
-
-        private int mPoolSize;
-
+    open class SimplePool<T : Any>(
         /**
-         * Creates a new instance.
-         *
-         * @param maxPoolSize The max pool size.
-         *
-         * @throws IllegalArgumentException If the max pool size is less than zero.
+         * The max pool size
          */
-        public SimplePool(int maxPoolSize) {
-            if (maxPoolSize <= 0) {
-                throw new IllegalArgumentException("The max pool size must be > 0");
-            }
-            mPool = new Object[maxPoolSize];
+        @IntRange(from = 1) maxPoolSize: Int
+    ) : Pool<T> {
+        private val pool: Array<Any?>
+        private var poolSize = 0
+
+        init {
+            require(maxPoolSize > 0) { "The max pool size must be > 0" }
+            pool = arrayOfNulls(maxPoolSize)
         }
 
-        @Override
-        @SuppressWarnings("unchecked")
-        public T acquire() {
-            if (mPoolSize > 0) {
-                final int lastPooledIndex = mPoolSize - 1;
-                T instance = (T) mPool[lastPooledIndex];
-                mPool[lastPooledIndex] = null;
-                mPoolSize--;
-                return instance;
+        override fun acquire(): T? {
+            if (poolSize > 0) {
+                val lastPooledIndex = poolSize - 1
+                @Suppress("UNCHECKED_CAST")
+                val instance = pool[lastPooledIndex] as T
+                pool[lastPooledIndex] = null
+                poolSize--
+                return instance
             }
-            return null;
+            return null
         }
 
-        @Override
-        public boolean release(@NonNull T instance) {
-            if (isInPool(instance)) {
-                throw new IllegalStateException("Already in the pool!");
+        override fun release(instance: T): Boolean {
+            check(!isInPool(instance)) { "Already in the pool!" }
+            if (poolSize < pool.size) {
+                pool[poolSize] = instance
+                poolSize++
+                return true
             }
-            if (mPoolSize < mPool.length) {
-                mPool[mPoolSize] = instance;
-                mPoolSize++;
-                return true;
-            }
-            return false;
+            return false
         }
 
-        private boolean isInPool(@NonNull T instance) {
-            for (int i = 0; i < mPoolSize; i++) {
-                if (mPool[i] == instance) {
-                    return true;
+        private fun isInPool(instance: T): Boolean {
+            for (i in 0 until poolSize) {
+                if (pool[i] === instance) {
+                    return true
                 }
             }
-            return false;
+            return false
         }
     }
 
     /**
-     * Synchronized) pool of objects.
+     * Synchronized pool of objects.
      *
-     * @param <T> The pooled type.
+     * @param maxPoolSize The maximum pool size
+     * @param T The pooled type.
      */
-    public static class SynchronizedPool<T> extends SimplePool<T> {
-        private final Object mLock = new Object();
-
-        /**
-         * Creates a new instance.
-         *
-         * @param maxPoolSize The max pool size.
-         *
-         * @throws IllegalArgumentException If the max pool size is less than zero.
-         */
-        public SynchronizedPool(int maxPoolSize) {
-            super(maxPoolSize);
+    open class SynchronizedPool<T : Any>(maxPoolSize: Int) : SimplePool<T>(maxPoolSize) {
+        private val lock = Any()
+        override fun acquire(): T? {
+            synchronized(lock) { return super.acquire() }
         }
 
-        @Override
-        public T acquire() {
-            synchronized (mLock) {
-                return super.acquire();
-            }
-        }
-
-        @Override
-        public boolean release(@NonNull T instance) {
-            synchronized (mLock) {
-                return super.release(instance);
-            }
+        override fun release(instance: T): Boolean {
+            synchronized(lock) { return super.release(instance) }
         }
     }
 }
