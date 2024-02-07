@@ -106,7 +106,7 @@ class PreviewTest(
         }
 
         repeat(5) {
-            camera.simulateCaptureFrame()
+            camera.simulateCaptureFrameAsync().get(3, TimeUnit.SECONDS)
         }
 
         assertThat(countDownLatch.await(3, TimeUnit.SECONDS)).isTrue()
