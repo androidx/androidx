@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
@@ -53,6 +54,7 @@ import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ApproachMeasureScope
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.approachLayout
 import androidx.compose.ui.unit.Constraints
@@ -182,6 +184,8 @@ interface ProgressProvider<T> {
     val progress: Float
 }
 
+context(LookaheadScope)
+@SuppressLint("PrimitiveInCollection")
 @OptIn(ExperimentalComposeUiApi::class)
 fun <T> Modifier.sharedElementBasedOnProgress(provider: ProgressProvider<T>) = composed {
     val sizeMap = remember { mutableMapOf<T, IntSize>() }

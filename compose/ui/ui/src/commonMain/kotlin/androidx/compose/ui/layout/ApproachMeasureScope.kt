@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.IntSize
 /**
  * The receiver scope of a layout's intrinsic approach measurements lambdas.
  */
-sealed interface ApproachIntrinsicMeasureScope : LookaheadScope, IntrinsicMeasureScope {
+sealed interface ApproachIntrinsicMeasureScope : IntrinsicMeasureScope {
 
     /**
      * Constraints used to measure the layout in the lookahead pass.
@@ -49,19 +49,9 @@ sealed interface ApproachIntrinsicMeasureScope : LookaheadScope, IntrinsicMeasur
  * measurements and placements approach their destination.
  *
  * [ApproachMeasureScope.lookaheadSize] provides the target size of the layout.
- * [ApproachMeasureScope] is also a [LookaheadScope], thus allowing layouts to
- * read their lookahead [LayoutCoordinates] during placement using
- * [LookaheadScope.toLookaheadCoordinates], as well as the lookahead [LayoutCoordinates] of the
- * closest lookahead scope via [LookaheadScope.lookaheadScopeCoordinates].
  * By knowing the target size and position, layout adjustments such as animations can be defined
  * in [ApproachLayoutModifierNode] to morph the layout gradually in both size and position
  * to arrive at its precalculated bounds.
- *
- * Note that [ApproachMeasureScope] is the closest lookahead scope in the tree.
- * This [LookaheadScope] enables convenient query of the layout's relative position to the
- * [LookaheadScope]. Hence it becomes straightforward to animate position relative to the closest
- * scope, which usually yields a natural looking animation, unless there are specific UX
- * requirements to change position relative to a particular [LookaheadScope].
  */
 @ExperimentalComposeUiApi
 sealed interface ApproachMeasureScope : ApproachIntrinsicMeasureScope, MeasureScope
@@ -69,7 +59,7 @@ sealed interface ApproachMeasureScope : ApproachIntrinsicMeasureScope, MeasureSc
 internal class ApproachMeasureScopeImpl(
     val coordinator: LayoutModifierNodeCoordinator,
     var approachNode: ApproachLayoutModifierNode,
-) : ApproachMeasureScope, MeasureScope by coordinator {
+) : ApproachMeasureScope, MeasureScope by coordinator, LookaheadScope {
     override val lookaheadConstraints: Constraints
         get() = requireNotNull(coordinator.lookaheadConstraints) {
             "Error: Lookahead constraints requested before lookahead measure."
@@ -114,6 +104,7 @@ internal class ApproachMeasureScopeImpl(
         return object : MeasureResult {
             override val width = width
             override val height = height
+
             @Suppress("PrimitiveInCollection")
             override val alignmentLines = alignmentLines
             override val rulers = rulers
