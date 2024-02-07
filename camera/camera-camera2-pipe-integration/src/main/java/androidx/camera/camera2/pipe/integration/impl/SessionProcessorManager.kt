@@ -20,10 +20,12 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
@@ -37,7 +39,6 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurfaces
 import androidx.camera.core.impl.OutputSurface
 import androidx.camera.core.impl.OutputSurfaceConfiguration
-import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessor.CaptureCallback
@@ -57,11 +58,32 @@ class SessionProcessorManager(
     private val cameraInfoInternal: CameraInfoInternal,
     private val scope: CoroutineScope,
 ) {
+    private val lock = Any()
+
+    @GuardedBy("lock")
+    private var captureSessionStarted = false
+
+    @GuardedBy("lock")
     private var sessionOptions = CaptureRequestOptions.Builder().build()
+
+    @GuardedBy("lock")
     private var stillCaptureOptions = CaptureRequestOptions.Builder().build()
+
+    @GuardedBy("lock")
+    private var requestProcessor: RequestProcessorAdapter? = null
+
+    @GuardedBy("lock")
+    private var pendingCaptureConfigs: List<CaptureConfig>? = null
+
+    @GuardedBy("lock")
+    private var pendingCaptureCallbacks: List<CaptureCallback>? = null
+
+    @GuardedBy("lock")
     internal var sessionConfig: SessionConfig? = null
-        set(value) {
+        set(value) = synchronized(lock) {
             field = checkNotNull(value)
+            if (!captureSessionStarted) return
+            checkNotNull(requestProcessor).sessionConfig = value
             sessionOptions =
                 CaptureRequestOptions.Builder.from(value.implementationOptions).build()
             updateOptions()
@@ -170,12 +192,42 @@ class SessionProcessorManager(
         useCaseManager.tryResumeUseCaseManager(useCaseManagerConfig)
     }
 
-    internal fun onCaptureSessionStart(requestProcessor: RequestProcessor) {
+    internal fun onCaptureSessionStart(requestProcessor: RequestProcessorAdapter) {
+        var captureConfigsToIssue: List<CaptureConfig>?
+        var captureCallbacksToIssue: List<CaptureCallback>?
+        synchronized(lock) {
+            check(!captureSessionStarted)
+            requestProcessor.sessionConfig = sessionConfig
+            this.requestProcessor = requestProcessor
+            captureSessionStarted = true
+
+            captureConfigsToIssue = pendingCaptureConfigs
+            captureCallbacksToIssue = pendingCaptureCallbacks
+            pendingCaptureConfigs = null
+            pendingCaptureCallbacks = null
+        }
+        Log.debug { "Invoking SessionProcessor#onCaptureSessionStart" }
         sessionProcessor.onCaptureSessionStart(requestProcessor)
+        startRepeating(object : CaptureCallback {})
+        captureConfigsToIssue?.let { captureConfigs ->
+            submitCaptureConfigs(captureConfigs, checkNotNull(captureCallbacksToIssue))
+        }
     }
 
     internal fun startRepeating(captureCallback: CaptureCallback) {
+        synchronized(lock) {
+            if (!captureSessionStarted) return
+        }
+        Log.debug { "Invoking SessionProcessor#startRepeating" }
         sessionProcessor.startRepeating(captureCallback)
+    }
+
+    internal fun stopRepeating() {
+        synchronized(lock) {
+            if (!captureSessionStarted) return
+        }
+        Log.debug { "Invoking SessionProcessor#stopRepeating" }
+        sessionProcessor.stopRepeating()
     }
 
     internal fun submitCaptureConfigs(
@@ -183,6 +235,13 @@ class SessionProcessorManager(
         captureCallbacks: List<CaptureCallback>,
     ) {
         check(captureConfigs.size == captureCallbacks.size)
+        synchronized(lock) {
+            if (!captureSessionStarted) {
+                pendingCaptureConfigs = captureConfigs
+                pendingCaptureCallbacks = captureCallbacks
+                return
+            }
+        }
         for ((config, callback) in captureConfigs.zip(captureCallbacks)) {
             if (config.templateType == CameraDevice.TEMPLATE_STILL_CAPTURE) {
                 val builder = CaptureRequestOptions.Builder.from(config.implementationOptions)
@@ -203,8 +262,10 @@ class SessionProcessorManager(
                         )!!.toByte()
                     )
                 }
-                stillCaptureOptions = builder.build()
-                updateOptions()
+                synchronized(lock) {
+                    stillCaptureOptions = builder.build()
+                    updateOptions()
+                }
                 Log.debug { "Invoking SessionProcessor.startCapture()" }
                 sessionProcessor.startCapture(config.isPostviewEnabled, callback)
             } else {

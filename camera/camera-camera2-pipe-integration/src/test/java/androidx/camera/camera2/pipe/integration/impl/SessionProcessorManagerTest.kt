@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.FakeTestUseCase
+import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.TestDeferrableSurface
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
@@ -120,7 +121,7 @@ class SessionProcessorManagerTest {
         }
 
         override fun onCaptureSessionStart(requestProcessor: RequestProcessor) {
-            TODO("Not yet implemented")
+            Log.debug { "$this#onCaptureSessionStart" }
         }
 
         override fun onCaptureSessionEnd() {
@@ -128,11 +129,12 @@ class SessionProcessorManagerTest {
         }
 
         override fun startRepeating(callback: CaptureCallback): Int {
-            TODO("Not yet implemented")
+            Log.debug { "$this#startRepeating" }
+            return 0
         }
 
         override fun stopRepeating() {
-            TODO("Not yet implemented")
+            Log.debug { "$this#stopRepeating" }
         }
 
         override fun startCapture(
@@ -228,6 +230,9 @@ class SessionProcessorManagerTest {
             listOf(fakePreviewUseCase, fakeImageCaptureUseCase)
         ).join()
         sessionProcessorManager.sessionConfig = SessionConfig.Builder().build()
+
+        val mockRequestProcessorAdapter: RequestProcessorAdapter = mock()
+        sessionProcessorManager.onCaptureSessionStart(mockRequestProcessorAdapter)
 
         val jpegRotation = 90
         val jpegQuality = 95

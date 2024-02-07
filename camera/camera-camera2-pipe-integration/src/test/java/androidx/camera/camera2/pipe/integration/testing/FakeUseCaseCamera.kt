@@ -40,6 +40,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.SessionConfig
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -110,7 +111,8 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         tags: Map<String, Any>,
         streams: Set<StreamId>?,
         template: RequestTemplate?,
-        listeners: Set<Request.Listener>
+        listeners: Set<Request.Listener>,
+        sessionConfig: SessionConfig?,
     ): Deferred<Unit> {
         setConfigCalls.add(RequestParameters(type, config, tags))
         return CompletableDeferred(Unit)
