@@ -427,6 +427,11 @@ public class TestCasesGenerator {
                         .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                         .build());
         testCases.put(
+                "overflow_text_center_golden" + goldenSuffix,
+                new Text.Builder(context, longText)
+                        .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_CENTER)
+                        .build());
+        testCases.put(
                 "overflow_ellipsize_maxlines_notreached" + goldenSuffix,
                 new Box.Builder()
                         .setWidth(dp(100))
@@ -437,8 +442,6 @@ public class TestCasesGenerator {
                                         // Line height = 20sp
                                         .setTypography(Typography.TYPOGRAPHY_BODY1)
                                         .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
-                                        .setMultilineAlignment(
-                                                LayoutElementBuilders.TEXT_ALIGN_START)
                                         .setMaxLines(6)
                                         .build())
                         .build());
@@ -454,8 +457,6 @@ public class TestCasesGenerator {
                                         .setTypography(Typography.TYPOGRAPHY_BODY1)
                                         .setOverflow(
                                                 LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
-                                        .setMultilineAlignment(
-                                                LayoutElementBuilders.TEXT_ALIGN_START)
                                         .setMaxLines(6)
                                         .build())
                         .build());
