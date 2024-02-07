@@ -25,13 +25,13 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class MultiBrowseTest {
 
-    private val density = Density(1f)
+    private val Density = Density(1f)
 
     @Test
     fun testMultiBrowse_doesNotResizeLargeWhenEnoughRoom() {
         val itemSize = 120f // minSmallItemSize = 40.dp * 3
         val keylineList = multiBrowseKeylineList(
-            density = density,
+            density = Density,
             carouselMainAxisSize = 500f,
             preferredItemSize = itemSize,
             itemSpacing = 0f
@@ -48,7 +48,7 @@ class MultiBrowseTest {
     fun testMultiBrowse_resizesItemLargerThanContainerToFit1Small() {
         val itemSize = 200f
         val keylineList = multiBrowseKeylineList(
-            density = density,
+            density = Density,
             carouselMainAxisSize = 100f,
             preferredItemSize = itemSize,
             itemSpacing = 0f
@@ -58,7 +58,7 @@ class MultiBrowseTest {
             carouselMainAxisSize = 100f,
             keylineList = keylineList
         )
-        val minSmallItemSize: Float = with(density) { StrategyDefaults.minSmallSize.toPx() }
+        val minSmallItemSize: Float = with(Density) { StrategyDefaults.MinSmallSize.toPx() }
         val keylines = strategy.getDefaultKeylines()
 
         // If the item size given is larger than the container, the adjusted keyline list from
@@ -73,9 +73,9 @@ class MultiBrowseTest {
 
     @Test
     fun testMultiBrowse_hasNoSmallItemsIfNotEnoughRoom() {
-        val minSmallItemSize: Float = with(density) { StrategyDefaults.minSmallSize.toPx() }
+        val minSmallItemSize: Float = with(Density) { StrategyDefaults.MinSmallSize.toPx() }
         val keylineList = multiBrowseKeylineList(
-            density = density,
+            density = Density,
             carouselMainAxisSize = minSmallItemSize,
             preferredItemSize = 200f,
             itemSpacing = 0f
@@ -94,7 +94,7 @@ class MultiBrowseTest {
     @Test
     fun testMultiBrowse_isNullIfAvailableSpaceIsZero() {
         val keylineList = multiBrowseKeylineList(
-            density = density,
+            density = Density,
             carouselMainAxisSize = 0f,
             preferredItemSize = 200f,
             itemSpacing = 0f
@@ -104,11 +104,11 @@ class MultiBrowseTest {
 
     @Test
     fun testMultiBrowse_adjustsMediumSizeToBeProportional() {
-        val maxSmallItemSize: Float = with(density) { StrategyDefaults.maxSmallSize.toPx() }
+        val maxSmallItemSize: Float = with(Density) { StrategyDefaults.MaxSmallSize.toPx() }
         val preferredItemSize = 200f
         val carouselSize = preferredItemSize * 2 + maxSmallItemSize * 2
         val keylineList = multiBrowseKeylineList(
-            density = density,
+            density = Density,
             carouselMainAxisSize = carouselSize,
             preferredItemSize = preferredItemSize,
             itemSpacing = 0f
