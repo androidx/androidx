@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.animation.core
+package androidx.compose.ui.graphics
+
+import androidx.annotation.RestrictTo
 import kotlin.math.max
 import kotlin.math.min
 
@@ -22,11 +24,12 @@ import kotlin.math.min
 
 /**
  * Interval in an [IntervalTree]. The interval is defined between a [start] and an [end]
- * coordinates, whose meanings are defined by the caller. An interval can also hold
+ * coordinate, whose meanings are defined by the caller. An interval can also hold
  * arbitrary [data] to be used to looking at the result of queries with
  * [IntervalTree.findOverlaps].
  */
-internal class Interval<T>(val start: Float, val end: Float, val data: T? = null) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+open class Interval<T>(val start: Float, val end: Float, val data: T? = null) {
     /**
      * Returns trues if this interval overlaps with another interval.
      */
@@ -68,6 +71,9 @@ internal class Interval<T>(val start: Float, val end: Float, val data: T? = null
     }
 }
 
+/**
+ * Represents an empty/invalid interval.
+ */
 internal val EmptyInterval: Interval<Any?> = Interval(Float.MAX_VALUE, Float.MIN_VALUE, null)
 
 /**
@@ -76,17 +82,16 @@ internal val EmptyInterval: Interval<Any?> = Interval(Float.MAX_VALUE, Float.MIN
  * queries like finding all the segments in a path that overlap with a given vertical
  * interval.
  */
-internal class IntervalTree<T> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+class IntervalTree<T> {
     // Note: this interval tree is implemented as a binary red/black tree that gets
     // re-balanced on updates. There's nothing notable about this particular data
     // structure beyond what can be found in various descriptions of binary search
     // trees and red/black trees
 
-    private val terminator = Node(
-        Interval(Float.MAX_VALUE, Float.MIN_VALUE, null),
-        TreeColor.Black
-    )
+    private val terminator = Node(Float.MAX_VALUE, Float.MIN_VALUE, null, TreeColor.Black)
     private var root = terminator
+    private val stack = ArrayList<Node>()
 
     /**
      * Clears this tree and prepares it for reuse. After calling [clear], any call to
@@ -113,23 +118,9 @@ internal class IntervalTree<T> {
         end: Float = start
     ): Interval<T> {
         if (root !== terminator) {
-            return findFirstOverlap(root, start, end)
-        }
-        @Suppress("UNCHECKED_CAST")
-        return EmptyInterval as Interval<T>
-    }
-
-    private fun findFirstOverlap(
-        node: Node,
-        start: Float,
-        end: Float
-    ): Interval<T> {
-        if (node.interval.overlaps(start, end)) return node.interval
-        if (node.left !== terminator && node.left.max >= start) {
-            return findFirstOverlap(node.left, start, end)
-        }
-        if (node.right !== terminator && node.right.min <= end) {
-            return findFirstOverlap(node.right, start, end)
+            forEach(start, end) { interval ->
+                return interval
+            }
         }
         @Suppress("UNCHECKED_CAST")
         return EmptyInterval as Interval<T>
@@ -154,24 +145,43 @@ internal class IntervalTree<T> {
         end: Float = start,
         results: MutableList<Interval<T>> = mutableListOf()
     ): MutableList<Interval<T>> {
-        if (root !== terminator) {
-            findOverlaps(root, start, end, results)
+        forEach(start, end) { interval ->
+            results.add(interval)
         }
         return results
     }
 
-    private fun findOverlaps(
-        node: Node,
+    /**
+     * Executes [block] for each interval that overlaps the specified [interval].
+     */
+    internal inline fun forEach(
+        interval: ClosedFloatingPointRange<Float>,
+        block: (Interval<T>) -> Unit
+    ) = forEach(interval.start, interval.endInclusive, block)
+
+    /**
+     * Executes [block] for each interval that overlaps with the interval defined by [start]
+     * and [end]. [start] *must* be lesser than or equal to [end].
+     */
+    internal inline fun forEach(
         start: Float,
-        end: Float,
-        results: MutableList<Interval<T>>
+        end: Float = start,
+        block: (Interval<T>) -> Unit
     ) {
-        if (node.interval.overlaps(start, end)) results.add(node.interval)
-        if (node.left !== terminator && node.left.max >= start) {
-            findOverlaps(node.left, start, end, results)
-        }
-        if (node.right !== terminator && node.right.min <= end) {
-            findOverlaps(node.right, start, end, results)
+        if (root !== terminator) {
+            val s = stack
+            s.add(root)
+            while (s.size > 0) {
+                val node = s.removeLast()
+                if (node.overlaps(start, end)) block(node)
+                if (node.left !== terminator && node.left.max >= start) {
+                    s.add(node.left)
+                }
+                if (node.right !== terminator && node.right.min <= end) {
+                    s.add(node.right)
+                }
+            }
+            s.clear()
         }
     }
 
@@ -198,7 +208,7 @@ internal class IntervalTree<T> {
             override fun next(): Interval<T> {
                 val node = next
                 next = next.next()
-                return node.interval
+                return node
             }
         }
     }
@@ -207,7 +217,18 @@ internal class IntervalTree<T> {
      * Adds the specified [Interval] to the interval tree.
      */
     operator fun plusAssign(interval: Interval<T>) {
-        val node = Node(interval)
+        addInterval(interval.start, interval.end, interval.data)
+    }
+
+    /**
+     * Adds the interval defined between a [start] and an [end] coordinate.
+     *
+     * @param start The start coordinate of the interval
+     * @param end The end coordinate of the interval, must be >= [start]
+     * @param data Data to associate with the interval
+     */
+    fun addInterval(start: Float, end: Float, data: T?) {
+        val node = Node(start, end, data, TreeColor.Red)
 
         // Update the tree without doing any balancing
         var current = root
@@ -215,7 +236,7 @@ internal class IntervalTree<T> {
 
         while (current !== terminator) {
             parent = current
-            current = if (node.interval.start <= current.interval.start) {
+            current = if (node.start <= current.start) {
                 current.left
             } else {
                 current.right
@@ -227,7 +248,7 @@ internal class IntervalTree<T> {
         if (parent === terminator) {
             root = node
         } else {
-            if (node.interval.start <= parent.interval.start) {
+            if (node.start <= parent.start) {
                 parent.left = node
             } else {
                 parent.right = node
@@ -337,19 +358,24 @@ internal class IntervalTree<T> {
     private fun updateNodeData(node: Node) {
         var current = node
         while (current !== terminator) {
-            current.min = min(current.interval.start, min(current.left.min, current.right.min))
-            current.max = max(current.interval.end, max(current.left.max, current.right.max))
+            current.min = min(current.start, min(current.left.min, current.right.min))
+            current.max = max(current.end, max(current.left.max, current.right.max))
             current = current.parent
         }
     }
 
-    private enum class TreeColor {
+    internal enum class TreeColor {
         Red, Black
     }
 
-    private inner class Node(val interval: Interval<T>, var color: TreeColor = TreeColor.Red) {
-        var min: Float = interval.start
-        var max: Float = interval.end
+    internal inner class Node(
+        start: Float,
+        end: Float,
+        data: T?,
+        var color: TreeColor
+    ) : Interval<T>(start, end, data) {
+        var min: Float = start
+        var max: Float = end
 
         var left: Node = terminator
         var right: Node = terminator
