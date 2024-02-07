@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.material.Text

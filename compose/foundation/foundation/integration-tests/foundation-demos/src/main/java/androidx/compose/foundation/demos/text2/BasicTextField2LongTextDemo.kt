@@ -20,9 +20,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.loremIpsumWords
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
-import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

@@ -176,7 +176,7 @@ internal class LegacyTextInputMethodRequest(
     internal var focusedRect: AndroidRect? = null
 
     private val cursorAnchorInfoController =
-        CursorAnchorInfoController(localToScreen, inputMethodManager)
+        LegacyCursorAnchorInfoController(localToScreen, inputMethodManager)
 
     init {
         if (DEBUG) {

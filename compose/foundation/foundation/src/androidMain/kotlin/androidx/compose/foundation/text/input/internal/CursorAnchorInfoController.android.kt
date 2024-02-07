@@ -16,40 +16,95 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import android.os.Build
 import android.view.inputmethod.CursorAnchorInfo
+import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InputConnection.CURSOR_UPDATE_FILTER_CHARACTER_BOUNDS
+import android.view.inputmethod.InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS
+import android.view.inputmethod.InputConnection.CURSOR_UPDATE_FILTER_INSERTION_MARKER
+import android.view.inputmethod.InputConnection.CURSOR_UPDATE_FILTER_VISIBLE_LINE_BOUNDS
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.selection.visibleBounds
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.setFrom
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TextFieldValue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 internal class CursorAnchorInfoController(
-    private val localToScreen: (Matrix) -> Unit,
-    private val inputMethodManager: InputMethodManager
+    private val textFieldState: TransformedTextFieldState,
+    private val textLayoutState: TextLayoutState,
+    private val composeImm: ComposeInputMethodManager,
+    private val monitorScope: CoroutineScope,
 ) {
-    private val lock = Any()
-
     private var monitorEnabled = false
     private var hasPendingImmediateRequest = false
+    private var monitorJob: Job? = null
 
     private var includeInsertionMarker = false
     private var includeCharacterBounds = false
     private var includeEditorBounds = false
     private var includeLineBounds = false
 
-    private var textFieldValue: TextFieldValue? = null
-    private var textLayoutResult: TextLayoutResult? = null
-    private var offsetMapping: OffsetMapping? = null
-    private var innerTextFieldBounds: Rect? = null
-    private var decorationBoxBounds: Rect? = null
-
     private val builder = CursorAnchorInfo.Builder()
     private val matrix = Matrix()
     private val androidMatrix = android.graphics.Matrix()
 
     /**
-     * Requests [CursorAnchorInfo] updates to be provided to the [InputMethodManager].
+     * Requests [CursorAnchorInfo] updates to be provided to the [ComposeInputMethodManager].
+     */
+    fun requestUpdates(cursorUpdateMode: Int) {
+        val immediate = cursorUpdateMode and InputConnection.CURSOR_UPDATE_IMMEDIATE != 0
+        val monitor = cursorUpdateMode and InputConnection.CURSOR_UPDATE_MONITOR != 0
+
+        // Before Android T, filter flags are not used, and insertion marker and character bounds
+        // info are always included.
+        var includeInsertionMarker = true
+        var includeCharacterBounds = true
+        var includeEditorBounds = false
+        var includeLineBounds = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            includeInsertionMarker = cursorUpdateMode and CURSOR_UPDATE_FILTER_INSERTION_MARKER != 0
+            includeCharacterBounds = cursorUpdateMode and CURSOR_UPDATE_FILTER_CHARACTER_BOUNDS != 0
+            includeEditorBounds = cursorUpdateMode and CURSOR_UPDATE_FILTER_EDITOR_BOUNDS != 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                includeLineBounds =
+                    cursorUpdateMode and CURSOR_UPDATE_FILTER_VISIBLE_LINE_BOUNDS != 0
+            }
+            // If no filter flags are used, then all info should be included.
+            if (
+                !includeInsertionMarker &&
+                !includeCharacterBounds &&
+                !includeEditorBounds &&
+                !includeLineBounds
+            ) {
+                includeInsertionMarker = true
+                includeCharacterBounds = true
+                includeEditorBounds = true
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    includeLineBounds = true
+                }
+            }
+        }
+
+        requestUpdates(
+            immediate = immediate,
+            monitor = monitor,
+            includeInsertionMarker = includeInsertionMarker,
+            includeCharacterBounds = includeCharacterBounds,
+            includeEditorBounds = includeEditorBounds,
+            includeLineBounds = includeLineBounds
+        )
+    }
+
+    /**
+     * Requests [CursorAnchorInfo] updates to be provided to the [ComposeInputMethodManager].
      *
      * Combinations of [immediate] and [monitor] are used to specify when to provide updates. If
      * these are both false, then no further updates will be provided.
@@ -65,14 +120,14 @@ internal class CursorAnchorInfoController(
      * @param includeEditorBounds whether to include editor bounds information
      * @param includeLineBounds whether to include line bounds information
      */
-    fun requestUpdate(
+    private fun requestUpdates(
         immediate: Boolean,
         monitor: Boolean,
         includeInsertionMarker: Boolean,
         includeCharacterBounds: Boolean,
         includeEditorBounds: Boolean,
         includeLineBounds: Boolean
-    ) = synchronized(lock) {
+    ) {
         this.includeInsertionMarker = includeInsertionMarker
         this.includeCharacterBounds = includeCharacterBounds
         this.includeEditorBounds = includeEditorBounds
@@ -80,80 +135,68 @@ internal class CursorAnchorInfoController(
 
         if (immediate) {
             hasPendingImmediateRequest = true
-            if (textFieldValue != null) {
-                updateCursorAnchorInfo()
-            }
+            calculateCursorAnchorInfo()?.let(composeImm::updateCursorAnchorInfo)
         }
         monitorEnabled = monitor
+        startOrStopMonitoring()
     }
 
     /**
-     * Notify the controller of layout and position changes.
-     *
-     * @param textFieldValue the text field's [TextFieldValue]
-     * @param offsetMapping the offset mapping for the visual transformation
-     * @param textLayoutResult the text field's [TextLayoutResult]
-     * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
-     *   empty rectangle if the text field is not visible
-     * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an
-     *   empty rectangle if the decoration box is not visible
+     * If [monitorEnabled] is rue, observes changes to [textLayoutState] and monitor state (from
+     * [requestUpdates]) and sends updates to the [composeImm] as required until cancelled.
+     * Otherwise, cancels any monitor [Job].
      */
-    fun updateTextLayoutResult(
-        textFieldValue: TextFieldValue,
-        offsetMapping: OffsetMapping,
-        textLayoutResult: TextLayoutResult,
-        innerTextFieldBounds: Rect,
-        decorationBoxBounds: Rect
-    ) = synchronized(lock) {
-        this.textFieldValue = textFieldValue
-        this.offsetMapping = offsetMapping
-        this.textLayoutResult = textLayoutResult
-        this.innerTextFieldBounds = innerTextFieldBounds
-        this.decorationBoxBounds = decorationBoxBounds
-
-        if (hasPendingImmediateRequest || monitorEnabled) {
-            updateCursorAnchorInfo()
+    private fun startOrStopMonitoring() {
+        if (monitorEnabled) {
+            if (monitorJob?.isActive != true) {
+                monitorJob = monitorScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    // TODO (b/291327369) Confirm that we are sending updates at the right time.
+                    snapshotFlow { calculateCursorAnchorInfo() }
+                        .drop(1)
+                        .filterNotNull()
+                        .collect { composeImm.updateCursorAnchorInfo(it) }
+                }
+            }
+        } else {
+            monitorJob?.cancel()
+            monitorJob = null
         }
     }
 
-    /**
-     * Invalidate the last received layout and position data.
-     *
-     * This should be called when the [TextFieldValue] has changed, so the last received layout and
-     * position data is no longer valid. [CursorAnchorInfo] updates will not be sent until new
-     * layout and position data is received.
-     */
-    fun invalidate() = synchronized(lock) {
-        textFieldValue = null
-        offsetMapping = null
-        textLayoutResult = null
-        innerTextFieldBounds = null
-        decorationBoxBounds = null
-    }
+    private fun calculateCursorAnchorInfo(): CursorAnchorInfo? {
+        // State reads
+        val coreCoordinates = textLayoutState.coreNodeCoordinates
+            ?.takeIf { it.isAttached }
+            ?: return null
+        val decorationBoxCoordinates = textLayoutState.decoratorNodeCoordinates
+            ?.takeIf { it.isAttached }
+            ?: return null
+        val textLayoutResult = textLayoutState.layoutResult
+            ?: return null
+        val text = textFieldState.visualText
 
-    private fun updateCursorAnchorInfo() {
-        if (!inputMethodManager.isActive()) return
-
-        matrix.reset()
         // Updates matrix to transform text field local coordinates to screen coordinates.
-        localToScreen(matrix)
+        matrix.reset()
+        coreCoordinates.transformToScreen(matrix)
         androidMatrix.setFrom(matrix)
 
-        inputMethodManager.updateCursorAnchorInfo(
-            builder.build(
-                textFieldValue!!,
-                offsetMapping!!,
-                textLayoutResult!!,
-                androidMatrix,
-                innerTextFieldBounds!!,
-                decorationBoxBounds!!,
-                includeInsertionMarker,
-                includeCharacterBounds,
-                includeEditorBounds,
-                includeLineBounds
-            )
+        val innerTextFieldBounds: Rect = coreCoordinates.visibleBounds()
+        val decorationBoxBounds: Rect = coreCoordinates.localBoundingBoxOf(
+            decorationBoxCoordinates,
+            clipBounds = false
         )
-
-        hasPendingImmediateRequest = false
+        return builder.build(
+            text,
+            text.selectionInChars,
+            text.compositionInChars,
+            textLayoutResult,
+            androidMatrix,
+            innerTextFieldBounds,
+            decorationBoxBounds,
+            includeInsertionMarker,
+            includeCharacterBounds,
+            includeEditorBounds,
+            includeLineBounds
+        )
     }
 }

@@ -1526,6 +1526,16 @@ package androidx.compose.foundation.shape {
 
 package androidx.compose.foundation.text {
 
+  public final class BasicSecureTextFieldKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicSecureTextField(androidx.compose.foundation.text.input.TextFieldState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.text.input.ImeActionHandler? onSubmit, optional int imeAction, optional int textObfuscationMode, optional int keyboardType, optional boolean enabled, optional androidx.compose.foundation.text.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.text.input.TextFieldDecorator? decorator, optional androidx.compose.foundation.ScrollState scrollState);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicSecureTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.text.input.ImeActionHandler? onSubmit, optional int imeAction, optional int textObfuscationMode, optional int keyboardType, optional boolean enabled, optional androidx.compose.foundation.text.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.text.input.TextFieldDecorator? decorator, optional androidx.compose.foundation.ScrollState scrollState);
+  }
+
+  public final class BasicTextField2Kt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicTextField2(androidx.compose.foundation.text.input.TextFieldState state, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.foundation.text.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional androidx.compose.foundation.text.input.TextFieldLineLimits lineLimits, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional androidx.compose.foundation.text.input.OutputTransformation? outputTransformation, optional androidx.compose.foundation.text.input.TextFieldDecorator? decorator, optional androidx.compose.foundation.ScrollState scrollState);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicTextField2(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.foundation.text.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional androidx.compose.foundation.text.input.TextFieldLineLimits lineLimits, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional androidx.compose.foundation.text.input.OutputTransformation? outputTransformation, optional androidx.compose.foundation.text.input.TextFieldDecorator? decorator, optional androidx.compose.foundation.ScrollState scrollState);
+  }
+
   public final class BasicTextFieldKt {
     method @Deprecated @androidx.compose.runtime.Composable public static void BasicTextField(androidx.compose.ui.text.input.TextFieldValue value, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> decorationBox);
     method @androidx.compose.runtime.Composable public static void BasicTextField(androidx.compose.ui.text.input.TextFieldValue value, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional int minLines, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> decorationBox);
@@ -1627,43 +1637,7 @@ package androidx.compose.foundation.text {
 
 }
 
-package androidx.compose.foundation.text.selection {
-
-  public final class SelectionContainerKt {
-    method @androidx.compose.runtime.Composable public static void DisableSelection(kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void SelectionContainer(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-  }
-
-  @androidx.compose.runtime.Immutable public final class TextSelectionColors {
-    ctor public TextSelectionColors(long handleColor, long backgroundColor);
-    method public long getBackgroundColor();
-    method public long getHandleColor();
-    property public final long backgroundColor;
-    property public final long handleColor;
-  }
-
-  public final class TextSelectionColorsKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.text.selection.TextSelectionColors> getLocalTextSelectionColors();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.text.selection.TextSelectionColors> LocalTextSelectionColors;
-  }
-
-}
-
-package androidx.compose.foundation.text2 {
-
-  public final class BasicSecureTextFieldKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicSecureTextField(androidx.compose.foundation.text2.input.TextFieldState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.text2.input.ImeActionHandler? onSubmit, optional int imeAction, optional int textObfuscationMode, optional int keyboardType, optional boolean enabled, optional androidx.compose.foundation.text2.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.text2.input.TextFieldDecorator? decorator, optional androidx.compose.foundation.ScrollState scrollState);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicSecureTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.text2.input.ImeActionHandler? onSubmit, optional int imeAction, optional int textObfuscationMode, optional int keyboardType, optional boolean enabled, optional androidx.compose.foundation.text2.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.text2.input.TextFieldDecorator? decorator, optional androidx.compose.foundation.ScrollState scrollState);
-  }
-
-  public final class BasicTextField2Kt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicTextField2(androidx.compose.foundation.text2.input.TextFieldState state, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.foundation.text2.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional androidx.compose.foundation.text2.input.TextFieldLineLimits lineLimits, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional androidx.compose.foundation.text2.input.OutputTransformation? outputTransformation, optional androidx.compose.foundation.text2.input.TextFieldDecorator? decorator, optional androidx.compose.foundation.ScrollState scrollState);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicTextField2(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.foundation.text2.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional androidx.compose.foundation.text2.input.TextFieldLineLimits lineLimits, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional androidx.compose.foundation.text2.input.OutputTransformation? outputTransformation, optional androidx.compose.foundation.text2.input.TextFieldDecorator? decorator, optional androidx.compose.foundation.ScrollState scrollState);
-  }
-
-}
-
-package androidx.compose.foundation.text2.input {
+package androidx.compose.foundation.text.input {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface ImeActionHandler {
     method public boolean onImeAction(int action);
@@ -1671,26 +1645,26 @@ package androidx.compose.foundation.text2.input {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface InputTransformation {
     method public default androidx.compose.foundation.text.KeyboardOptions? getKeyboardOptions();
-    method public void transformInput(androidx.compose.foundation.text2.input.TextFieldCharSequence originalValue, androidx.compose.foundation.text2.input.TextFieldBuffer valueWithChanges);
+    method public void transformInput(androidx.compose.foundation.text.input.TextFieldCharSequence originalValue, androidx.compose.foundation.text.input.TextFieldBuffer valueWithChanges);
     property public default androidx.compose.foundation.text.KeyboardOptions? keyboardOptions;
-    field public static final androidx.compose.foundation.text2.input.InputTransformation.Companion Companion;
+    field public static final androidx.compose.foundation.text.input.InputTransformation.Companion Companion;
   }
 
-  public static final class InputTransformation.Companion implements androidx.compose.foundation.text2.input.InputTransformation {
-    method public void transformInput(androidx.compose.foundation.text2.input.TextFieldCharSequence originalValue, androidx.compose.foundation.text2.input.TextFieldBuffer valueWithChanges);
+  public static final class InputTransformation.Companion implements androidx.compose.foundation.text.input.InputTransformation {
+    method public void transformInput(androidx.compose.foundation.text.input.TextFieldCharSequence originalValue, androidx.compose.foundation.text.input.TextFieldBuffer valueWithChanges);
   }
 
   public final class InputTransformationKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation allCaps(androidx.compose.foundation.text2.input.InputTransformation, androidx.compose.ui.text.intl.Locale locale);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation byValue(androidx.compose.foundation.text2.input.InputTransformation, kotlin.jvm.functions.Function2<? super java.lang.CharSequence,? super java.lang.CharSequence,? extends java.lang.CharSequence> transformation);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation maxLengthInChars(androidx.compose.foundation.text2.input.InputTransformation, int maxLength);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation maxLengthInCodepoints(androidx.compose.foundation.text2.input.InputTransformation, int maxLength);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation then(androidx.compose.foundation.text2.input.InputTransformation, androidx.compose.foundation.text2.input.InputTransformation next);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation? thenOrNull(androidx.compose.foundation.text2.input.InputTransformation?, androidx.compose.foundation.text2.input.InputTransformation? next);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation allCaps(androidx.compose.foundation.text.input.InputTransformation, androidx.compose.ui.text.intl.Locale locale);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation byValue(androidx.compose.foundation.text.input.InputTransformation, kotlin.jvm.functions.Function2<? super java.lang.CharSequence,? super java.lang.CharSequence,? extends java.lang.CharSequence> transformation);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLengthInChars(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLengthInCodepoints(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation then(androidx.compose.foundation.text.input.InputTransformation, androidx.compose.foundation.text.input.InputTransformation next);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation? thenOrNull(androidx.compose.foundation.text.input.InputTransformation?, androidx.compose.foundation.text.input.InputTransformation? next);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface OutputTransformation {
-    method public void transformOutput(androidx.compose.foundation.text2.input.TextFieldBuffer);
+    method public void transformOutput(androidx.compose.foundation.text.input.TextFieldBuffer);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class TextFieldBuffer implements java.lang.Appendable {
@@ -1699,7 +1673,7 @@ package androidx.compose.foundation.text2.input {
     method public Appendable append(CharSequence? text, int start, int end);
     method public CharSequence asCharSequence();
     method public char charAt(int index);
-    method public androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList getChanges();
+    method public androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList getChanges();
     method public int getCodepointLength();
     method public int getLength();
     method public long getSelectionInChars();
@@ -1713,7 +1687,7 @@ package androidx.compose.foundation.text2.input {
     method public void revertAllChanges();
     method public void selectCharsIn(long range);
     method public void selectCodepointsIn(long range);
-    property public final androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList changes;
+    property public final androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList changes;
     property public final int codepointLength;
     property public final boolean hasSelection;
     property public final int length;
@@ -1729,12 +1703,12 @@ package androidx.compose.foundation.text2.input {
   }
 
   public final class TextFieldBufferKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void delete(androidx.compose.foundation.text2.input.TextFieldBuffer, int start, int end);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static inline void forEachChange(androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static inline void forEachChangeReversed(androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void insert(androidx.compose.foundation.text2.input.TextFieldBuffer, int index, String text);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void placeCursorAtEnd(androidx.compose.foundation.text2.input.TextFieldBuffer);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void selectAll(androidx.compose.foundation.text2.input.TextFieldBuffer);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void delete(androidx.compose.foundation.text.input.TextFieldBuffer, int start, int end);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static inline void forEachChange(androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static inline void forEachChangeReversed(androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void insert(androidx.compose.foundation.text.input.TextFieldBuffer, int index, String text);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void placeCursorAtEnd(androidx.compose.foundation.text.input.TextFieldBuffer);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void selectAll(androidx.compose.foundation.text.input.TextFieldBuffer);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface TextFieldCharSequence extends java.lang.CharSequence {
@@ -1748,7 +1722,7 @@ package androidx.compose.foundation.text2.input {
   }
 
   public final class TextFieldCharSequenceKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldCharSequence TextFieldCharSequence(optional String text, optional long selection);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text.input.TextFieldCharSequence TextFieldCharSequence(optional String text, optional long selection);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public fun interface TextFieldDecorator {
@@ -1756,15 +1730,15 @@ package androidx.compose.foundation.text2.input {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public sealed interface TextFieldLineLimits {
-    field public static final androidx.compose.foundation.text2.input.TextFieldLineLimits.Companion Companion;
+    field public static final androidx.compose.foundation.text.input.TextFieldLineLimits.Companion Companion;
   }
 
   public static final class TextFieldLineLimits.Companion {
-    method public androidx.compose.foundation.text2.input.TextFieldLineLimits getDefault();
-    property public final androidx.compose.foundation.text2.input.TextFieldLineLimits Default;
+    method public androidx.compose.foundation.text.input.TextFieldLineLimits getDefault();
+    property public final androidx.compose.foundation.text.input.TextFieldLineLimits Default;
   }
 
-  @androidx.compose.runtime.Immutable public static final class TextFieldLineLimits.MultiLine implements androidx.compose.foundation.text2.input.TextFieldLineLimits {
+  @androidx.compose.runtime.Immutable public static final class TextFieldLineLimits.MultiLine implements androidx.compose.foundation.text.input.TextFieldLineLimits {
     ctor public TextFieldLineLimits.MultiLine(optional int minHeightInLines, optional int maxHeightInLines);
     method public int getMaxHeightInLines();
     method public int getMinHeightInLines();
@@ -1772,40 +1746,40 @@ package androidx.compose.foundation.text2.input {
     property public final int minHeightInLines;
   }
 
-  public static final class TextFieldLineLimits.SingleLine implements androidx.compose.foundation.text2.input.TextFieldLineLimits {
-    field public static final androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine INSTANCE;
+  public static final class TextFieldLineLimits.SingleLine implements androidx.compose.foundation.text.input.TextFieldLineLimits {
+    field public static final androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine INSTANCE;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class TextFieldState {
     ctor public TextFieldState(optional String initialText, optional long initialSelectionInChars);
-    method @kotlin.PublishedApi internal void commitEdit(androidx.compose.foundation.text2.input.TextFieldBuffer newValue);
-    method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text2.input.TextFieldBuffer,kotlin.Unit> block);
-    method public androidx.compose.foundation.text2.input.TextFieldCharSequence getText();
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text2.input.UndoState getUndoState();
-    method @kotlin.PublishedApi internal androidx.compose.foundation.text2.input.TextFieldBuffer startEdit(androidx.compose.foundation.text2.input.TextFieldCharSequence value);
-    property public final androidx.compose.foundation.text2.input.TextFieldCharSequence text;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final androidx.compose.foundation.text2.input.UndoState undoState;
+    method @kotlin.PublishedApi internal void commitEdit(androidx.compose.foundation.text.input.TextFieldBuffer newValue);
+    method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text.input.TextFieldBuffer,kotlin.Unit> block);
+    method public androidx.compose.foundation.text.input.TextFieldCharSequence getText();
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.UndoState getUndoState();
+    method @kotlin.PublishedApi internal androidx.compose.foundation.text.input.TextFieldBuffer startEdit(androidx.compose.foundation.text.input.TextFieldCharSequence value);
+    property public final androidx.compose.foundation.text.input.TextFieldCharSequence text;
+    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final androidx.compose.foundation.text.input.UndoState undoState;
   }
 
-  public static final class TextFieldState.Saver implements androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text2.input.TextFieldState,java.lang.Object> {
-    method public androidx.compose.foundation.text2.input.TextFieldState? restore(Object value);
-    method public Object? save(androidx.compose.runtime.saveable.SaverScope, androidx.compose.foundation.text2.input.TextFieldState value);
-    field public static final androidx.compose.foundation.text2.input.TextFieldState.Saver INSTANCE;
+  public static final class TextFieldState.Saver implements androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text.input.TextFieldState,java.lang.Object> {
+    method public androidx.compose.foundation.text.input.TextFieldState? restore(Object value);
+    method public Object? save(androidx.compose.runtime.saveable.SaverScope, androidx.compose.foundation.text.input.TextFieldState value);
+    field public static final androidx.compose.foundation.text.input.TextFieldState.Saver INSTANCE;
   }
 
   public final class TextFieldStateKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void clearText(androidx.compose.foundation.text2.input.TextFieldState);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend Object? forEachTextValue(androidx.compose.foundation.text2.input.TextFieldState, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.text2.input.TextFieldCharSequence,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<?>);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.text2.input.TextFieldState rememberTextFieldState(optional String initialText, optional long initialSelectionInChars);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text2.input.TextFieldState, String text);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndSelectAll(androidx.compose.foundation.text2.input.TextFieldState, String text);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static kotlinx.coroutines.flow.Flow<androidx.compose.foundation.text2.input.TextFieldCharSequence> textAsFlow(androidx.compose.foundation.text2.input.TextFieldState);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void clearText(androidx.compose.foundation.text.input.TextFieldState);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend Object? forEachTextValue(androidx.compose.foundation.text.input.TextFieldState, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.text.input.TextFieldCharSequence,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<?>);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState(optional String initialText, optional long initialSelectionInChars);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text.input.TextFieldState, String text);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndSelectAll(androidx.compose.foundation.text.input.TextFieldState, String text);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static kotlinx.coroutines.flow.Flow<androidx.compose.foundation.text.input.TextFieldCharSequence> textAsFlow(androidx.compose.foundation.text.input.TextFieldState);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @kotlin.jvm.JvmInline public final value class TextObfuscationMode {
     method public int getValue();
     property public final int value;
-    field public static final androidx.compose.foundation.text2.input.TextObfuscationMode.Companion Companion;
+    field public static final androidx.compose.foundation.text.input.TextObfuscationMode.Companion Companion;
   }
 
   public static final class TextObfuscationMode.Companion {
@@ -1825,6 +1799,28 @@ package androidx.compose.foundation.text2.input {
     method public void undo();
     property public final boolean canRedo;
     property public final boolean canUndo;
+  }
+
+}
+
+package androidx.compose.foundation.text.selection {
+
+  public final class SelectionContainerKt {
+    method @androidx.compose.runtime.Composable public static void DisableSelection(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void SelectionContainer(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Immutable public final class TextSelectionColors {
+    ctor public TextSelectionColors(long handleColor, long backgroundColor);
+    method public long getBackgroundColor();
+    method public long getHandleColor();
+    property public final long backgroundColor;
+    property public final long handleColor;
+  }
+
+  public final class TextSelectionColorsKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.text.selection.TextSelectionColors> getLocalTextSelectionColors();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.text.selection.TextSelectionColors> LocalTextSelectionColors;
   }
 
 }
