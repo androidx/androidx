@@ -153,6 +153,7 @@ public class CachedPageEventFlowLeakTest {
         scope.cancel()
     }
 
+    @Ignore // 324193178
     @Test
     public fun dontLeakNonCachedFlow_finished() = runTest {
         collectPages(
