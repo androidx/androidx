@@ -31,11 +31,13 @@ internal val STUBS =
                 import groovy.lang.Closure
                 import org.gradle.api.DomainObjectCollection
                 import org.gradle.api.NamedDomainObjectCollection
+                import org.gradle.api.provider.Provider
                 import org.gradle.api.Task
+                import org.gradle.api.tasks.TaskProvider
 
                 class TaskContainer : DomainObjectCollection<Task>, TaskCollection<Task>, NamedDomainObjectCollection<Task> {
                     fun create(name: String) = Unit
-                    fun register(name: String) = Unit
+                    fun register(name: String): TaskProvider<Task> = TODO()
                     fun getByName(name: String) = Unit
                     fun named(name: String) = Unit
                     fun whenTaskAdded(action: Action<in T>)
@@ -48,6 +50,16 @@ internal val STUBS =
                 interface TaskCollection<T : Task> {
                     fun getAt(name: String) = Unit
                     fun matching(closure: Closure) = Unit
+                }
+                interface TaskProvider<T : Task> : Provider<T>
+
+            """.trimIndent()
+        ),
+        kotlin(
+            """
+                package org.gradle.api.provider
+                interface Provider<T> {
+                    fun get() : T
                 }
             """.trimIndent()
         ),
