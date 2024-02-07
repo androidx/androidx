@@ -18,5 +18,4 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.ui.Modifier
 
-internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier =
-    TODO("implement js textFieldMagnifier")
+internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier = this

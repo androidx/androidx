@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
@@ -28,6 +29,7 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeScenePointer
+import androidx.compose.ui.scene.platformContext
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +37,7 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoInput
 import org.jetbrains.skiko.SkikoKeyboardEvent
+import org.jetbrains.skiko.SkikoPointerDevice
 import org.jetbrains.skiko.SkikoPointerEvent
 import org.jetbrains.skiko.SkikoPointerEventKind
 import org.jetbrains.skiko.SkikoView
@@ -63,10 +66,13 @@ internal class ComposeLayer(
         }
 
         override fun onPointerEvent(event: SkikoPointerEvent) {
-            if (supportsMultitouch) {
+            if (event.pointers.firstOrNull()?.device == SkikoPointerDevice.TOUCH) {
+                if (scene.platformContext.inputModeManager.inputMode != InputMode.Touch) {
+                    scene.platformContext.inputModeManager.requestInputMode(InputMode.Touch)
+                }
                 onPointerEventWithMultitouch(event)
             } else {
-                // macos and web don't work properly when using onPointerEventWithMultitouch
+                // macos and desktop`s web don't work properly when using onPointerEventWithMultitouch
                 onPointerEventNoMultitouch(event)
             }
         }
