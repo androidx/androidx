@@ -27,24 +27,16 @@ import androidx.compose.foundation.AndroidEmbeddedExternalSurface
 import androidx.compose.foundation.AndroidExternalSurface
 import androidx.compose.foundation.AndroidExternalSurfaceScope
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.setFrom
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -73,19 +65,12 @@ fun Viewfinder(
     transformationInfo: TransformationInfo,
     modifier: Modifier = Modifier
 ) {
-    var parentViewSize by remember { mutableStateOf(IntSize.Zero) }
     val resolution = surfaceRequest.resolution
-
-    IntSize(transformationInfo.cropRectRight - transformationInfo.cropRectLeft,
-        transformationInfo.cropRectTop - transformationInfo.cropRectBottom)
 
     Box(
         modifier = modifier
-            .onSizeChanged {
-                parentViewSize = it
-            }
             .clipToBounds()
-            .wrapContentSize(unbounded = true, align = Alignment.Center)
+            .fillMaxSize()
     ) {
         key(surfaceRequest) {
             TransformedSurface(
@@ -100,7 +85,6 @@ fun Viewfinder(
 
                     // TODO(b/322420176): Properly handle onSurfaceChanged()
                 },
-                getParentSize = { parentViewSize },
             )
         }
     }
@@ -109,7 +93,7 @@ fun Viewfinder(
 // TODO(b/322420450): Properly release surface when this is cancelled
 private suspend fun ViewfinderSurfaceRequest.provideSurface(surface: Surface): Surface =
     suspendCancellableCoroutine {
-        this.provideSurface(surface, Runnable::run) { result ->
+        this.provideSurface(surface, Runnable::run) { result: ViewfinderSurfaceRequest.Result? ->
             it.resume(requireNotNull(result) {
                 "Expected non-null result from ViewfinderSurfaceRequest, but received null."
             }.surface)
@@ -123,7 +107,6 @@ private fun TransformedSurface(
     transformationInfo: TransformationInfo,
     implementationMode: ImplementationMode,
     onInit: AndroidExternalSurfaceScope.() -> Unit,
-    getParentSize: () -> IntSize
 ) {
     // For TextureView, correct the orientation to match the target rotation.
     val correctionMatrix = Matrix()
@@ -136,42 +119,51 @@ private fun TransformedSurface(
         )
     }
 
-    val getSurfaceRectInViewFinder = {
-        SurfaceTransformationUtil.getTransformedSurfaceRect(
-            resolution,
-            transformationInfo,
-            getParentSize().toSize()
-        )
-    }
+    val surfaceModifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(
+                Constraints.fixed(resolution.width, resolution.height)
+            )
 
-    val getViewFinderScaleX = { getSurfaceRectInViewFinder().width() / resolution.width }
-    val getViewFinderScaleY = { getSurfaceRectInViewFinder().height() / resolution.height }
+            // When the child placeable is larger than the parent's constraints, rather
+            // than the child overflowing through the right or bottom of the parent, it overflows
+            // evenly on all sides, as if it's placed exactly in the center of the parent.
+            // To compensate for this, we must offset the child by the amount it overflows
+            // so it is consistently placed in the top left corner of the parent before
+            // we apply scaling and translation in the graphics layer.
+            val widthOffset = 0.coerceAtLeast((placeable.width - constraints.maxWidth) / 2)
+            val heightOffset = 0.coerceAtLeast((placeable.height - constraints.maxHeight) / 2)
+            layout(placeable.width, placeable.height) {
+                placeable.placeWithLayer(widthOffset, heightOffset) {
+                    val surfaceRectInViewfinder =
+                        SurfaceTransformationUtil.getTransformedSurfaceRect(
+                            resolution,
+                            transformationInfo,
+                            Size(constraints.maxWidth, constraints.maxHeight)
+                        )
 
-    val heightDp = with(LocalDensity.current) { resolution.height.toDp() }
-    val widthDp = with(LocalDensity.current) { resolution.width.toDp() }
+                    transformOrigin = TransformOrigin(0f, 0f)
+                    scaleX = surfaceRectInViewfinder.width() / resolution.width
+                    scaleY = surfaceRectInViewfinder.height() / resolution.height
 
-    val getModifier: () -> Modifier = {
-        Modifier
-            .height(heightDp)
-            .width(widthDp)
-            .scale(getViewFinderScaleX(), getViewFinderScaleY())
-    }
+                    translationX = surfaceRectInViewfinder.left
+                    translationY = surfaceRectInViewfinder.top
+                }
+            }
+        }
 
     when (implementationMode) {
         ImplementationMode.PERFORMANCE -> {
             AndroidExternalSurface(
-                modifier = getModifier(),
+                modifier = surfaceModifier,
                 onInit = onInit
             )
         }
         ImplementationMode.COMPATIBLE -> {
             AndroidEmbeddedExternalSurface(
-                modifier = getModifier(),
+                modifier = surfaceModifier,
                 transform = correctionMatrix,
                 onInit = onInit
             )
         }
     }
 }
-
-private fun IntSize.toSize() = Size(this.width, this.height)
