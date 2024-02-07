@@ -18,6 +18,8 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.evaluateCubic
+import androidx.compose.ui.graphics.findFirstCubicRoot
 import androidx.compose.ui.util.fastCoerceIn
 
 /**

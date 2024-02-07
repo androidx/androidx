@@ -717,6 +717,16 @@ package androidx.compose.ui.graphics {
     property public final int NonZero;
   }
 
+  public final class PathHitTester {
+    ctor public PathHitTester();
+    method public operator boolean contains(long position);
+    method public void updatePath(androidx.compose.ui.graphics.Path path, optional float tolerance);
+  }
+
+  public final class PathHitTesterKt {
+    method public static androidx.compose.ui.graphics.PathHitTester PathHitTester(androidx.compose.ui.graphics.Path path, optional float tolerance);
+  }
+
   public interface PathIterator extends java.util.Iterator<androidx.compose.ui.graphics.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
     method public int calculateSize(optional boolean includeConvertedConics);
     method public androidx.compose.ui.graphics.PathIterator.ConicEvaluation getConicEvaluation();
@@ -800,6 +810,11 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.PathSegment getDoneSegment();
     property public static final androidx.compose.ui.graphics.PathSegment CloseSegment;
     property public static final androidx.compose.ui.graphics.PathSegment DoneSegment;
+  }
+
+  public final class PathSvgKt {
+    method public static void addSvg(androidx.compose.ui.graphics.Path, String pathData);
+    method public static String toSvg(androidx.compose.ui.graphics.Path, optional boolean asDocument);
   }
 
   public final class PixelMap {

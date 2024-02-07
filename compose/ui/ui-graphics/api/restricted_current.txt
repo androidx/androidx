@@ -188,6 +188,14 @@ package androidx.compose.ui.graphics {
     method public static android.graphics.Canvas.VertexMode toAndroidVertexMode(int);
   }
 
+  public final class BezierKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static long computeHorizontalBounds(androidx.compose.ui.graphics.PathSegment segment, float[] roots, optional int index);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float evaluateCubic(float p1, float p2, float t);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float evaluateY(androidx.compose.ui.graphics.PathSegment segment, float t);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float findFirstCubicRoot(float p0, float p1, float p2, float p3);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float findFirstRoot(androidx.compose.ui.graphics.PathSegment segment, float fraction);
+  }
+
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class BlendMode {
     field public static final androidx.compose.ui.graphics.BlendMode.Companion Companion;
   }
@@ -523,6 +531,33 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.PixelMap toPixelMap(androidx.compose.ui.graphics.ImageBitmap, optional int startX, optional int startY, optional int width, optional int height, optional int[] buffer, optional int bufferOffset, optional int stride);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class Interval<T> {
+    ctor public Interval(float start, float end, optional T? data);
+    method public final operator boolean contains(float value);
+    method public final T? getData();
+    method public final float getEnd();
+    method public final float getStart();
+    method public final boolean overlaps(androidx.compose.ui.graphics.Interval<T> other);
+    method public final boolean overlaps(float start, float end);
+    property public final T? data;
+    property public final float end;
+    property public final float start;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class IntervalTree<T> {
+    ctor public IntervalTree();
+    method public void addInterval(float start, float end, T? data);
+    method public void clear();
+    method public operator boolean contains(float value);
+    method public operator boolean contains(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> interval);
+    method public androidx.compose.ui.graphics.Interval<T> findFirstOverlap(float start, optional float end);
+    method public androidx.compose.ui.graphics.Interval<T> findFirstOverlap(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> interval);
+    method public java.util.List<androidx.compose.ui.graphics.Interval<T>> findOverlaps(float start, optional float end, optional java.util.List<androidx.compose.ui.graphics.Interval<T>> results);
+    method public java.util.List<androidx.compose.ui.graphics.Interval<T>> findOverlaps(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> interval, optional java.util.List<androidx.compose.ui.graphics.Interval<T>> results);
+    method public operator java.util.Iterator<androidx.compose.ui.graphics.Interval<T>> iterator();
+    method public operator void plusAssign(androidx.compose.ui.graphics.Interval<T> interval);
+  }
+
   @androidx.compose.runtime.Immutable public final class LightingColorFilter extends androidx.compose.ui.graphics.ColorFilter {
     ctor public LightingColorFilter(long multiply, long add);
     method public long getAdd();
@@ -753,6 +788,16 @@ package androidx.compose.ui.graphics {
     property public final int NonZero;
   }
 
+  public final class PathHitTester {
+    ctor public PathHitTester();
+    method public operator boolean contains(long position);
+    method public void updatePath(androidx.compose.ui.graphics.Path path, optional float tolerance);
+  }
+
+  public final class PathHitTesterKt {
+    method public static androidx.compose.ui.graphics.PathHitTester PathHitTester(androidx.compose.ui.graphics.Path path, optional float tolerance);
+  }
+
   public interface PathIterator extends java.util.Iterator<androidx.compose.ui.graphics.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
     method public int calculateSize(optional boolean includeConvertedConics);
     method public androidx.compose.ui.graphics.PathIterator.ConicEvaluation getConicEvaluation();
@@ -836,6 +881,11 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.PathSegment getDoneSegment();
     property public static final androidx.compose.ui.graphics.PathSegment CloseSegment;
     property public static final androidx.compose.ui.graphics.PathSegment DoneSegment;
+  }
+
+  public final class PathSvgKt {
+    method public static void addSvg(androidx.compose.ui.graphics.Path, String pathData);
+    method public static String toSvg(androidx.compose.ui.graphics.Path, optional boolean asDocument);
   }
 
   public final class PixelMap {
