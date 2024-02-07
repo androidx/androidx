@@ -55,7 +55,7 @@ class AsCollectionDetector : Detector(), SourceCodeScanner {
             val methodName = node.methodName ?: return
             if (methodName in MethodNames) {
                 val receiverType = node.receiverType as? PsiClassReferenceType ?: return
-                val qualifiedName = receiverType.reference.qualifiedName ?: return
+                val qualifiedName = receiverType.canonicalText
                 val indexOfAngleBracket = qualifiedName.indexOf('<')
                 if (indexOfAngleBracket > 0 &&
                     qualifiedName.substring(0, indexOfAngleBracket) in CollectionClasses
