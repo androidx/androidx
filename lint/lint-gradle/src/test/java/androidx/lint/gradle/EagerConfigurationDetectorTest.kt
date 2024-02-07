@@ -54,6 +54,22 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
     }
 
     @Test
+    fun `Test usage of unrelated create method`() {
+        val input = kotlin(
+            """
+                interface Bar
+                class Foo : Bar {
+                    fun create() = Unit
+                }
+                fun foo() {
+                    Foo().create()
+                }
+            """.trimIndent()
+        )
+        check(input).expectClean()
+    }
+
+    @Test
     fun `Test usage of TaskContainer#getByName`() {
         val input = kotlin(
             """

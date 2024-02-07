@@ -25,6 +25,8 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassType
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 
@@ -40,15 +42,12 @@ class EagerConfigurationDetector : Detector(), Detector.UastScanner {
     override fun createUastHandler(context: JavaContext): UElementHandler = object :
         UElementHandler() {
         override fun visitCallExpression(node: UCallExpression) {
-            val (containingClassName, replacementMethod) = REPLACEMENTS[node.methodName] ?: return
-            val method = node.resolve() ?: return
-            val containingClass = method.containingClass ?: return
+            val methodName = node.methodName
+            val (containingClassName, replacementMethod) = REPLACEMENTS[methodName] ?: return
+            val containingClass = (node.receiverType as? PsiClassType)?.resolve() ?: return
             // Check that the called method is from the expected class (or a child class) and not an
             // unrelated method with the same name).
-            if (
-                containingClass.qualifiedName != containingClassName &&
-                containingClass.supers.none { it.qualifiedName == containingClassName }
-            ) return
+            if (!containingClass.isInstanceOf(containingClassName)) return
 
             val fix = replacementMethod?.let {
                 fix()
@@ -60,8 +59,8 @@ class EagerConfigurationDetector : Detector(), Detector.UastScanner {
                     .autoFix(robot = false, independent = false)
                     .build()
             }
-            val message = replacementMethod?.let { "Use $it instead of ${method.name}" }
-                ?: "Avoid using eager method ${method.name}"
+            val message = replacementMethod?.let { "Use $it instead of $methodName" }
+                ?: "Avoid using eager method $methodName"
 
             val incident = Incident(context)
                 .issue(ISSUE)
@@ -72,6 +71,11 @@ class EagerConfigurationDetector : Detector(), Detector.UastScanner {
             context.report(incident)
         }
     }
+
+    /** Checks if the class is [qualifiedName] or has [qualifiedName] as a super type. */
+    fun PsiClass.isInstanceOf(qualifiedName: String): Boolean =
+        // Recursion will stop when this hits Object, which has no [supers]
+        qualifiedName == this.qualifiedName || supers.any { it.isInstanceOf(qualifiedName) }
 
     companion object {
         private const val TASK_CONTAINER = "org.gradle.api.tasks.TaskContainer"
