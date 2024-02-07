@@ -51,12 +51,15 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
@@ -466,6 +469,19 @@ class ToggleButtonTest {
     }
 
     @Test
+    fun toggle_button_is_selectable() {
+        rule.setContent {
+            ToggleButtonWithDefaults(
+                toggleControl = null,
+                selectionControl = { TestImage() },
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        rule.onNode(isSelectable()).assertExists()
+    }
+
+    @Test
     fun toggle_button_is_correctly_disabled() {
         rule.setContent {
             ToggleButtonWithDefaults(
@@ -514,6 +530,20 @@ class ToggleButtonTest {
     }
 
     @Test
+    fun toggle_button_is_selected_correctly() {
+        rule.setContent {
+            ToggleButtonWithDefaults(
+                checked = true,
+                toggleControl = null,
+                selectionControl = { TestImage() },
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assertIsSelected()
+    }
+
+    @Test
     fun toggle_button_responds_to_toggle_on() {
         rule.setContent {
             val (checked, onCheckedChange) = remember { mutableStateOf(false) }
@@ -549,6 +579,27 @@ class ToggleButtonTest {
             .assertIsOn()
             .performClick()
             .assertIsOff()
+    }
+
+    @Test
+    fun toggle_button_responds_to_selection() {
+        rule.setContent {
+            val (checked, onCheckedChange) = remember { mutableStateOf(false) }
+            ToggleButtonWithDefaults(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                toggleControl = null,
+                selectionControl = { TestImage() },
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertIsNotSelected()
+            .performClick()
+            .assertIsSelected()
     }
 
     @Test
@@ -1037,7 +1088,8 @@ private fun ToggleButtonWithDefaults(
             text = "Label"
         )
     },
-    selectionControl: @Composable () -> Unit = { TestImage() },
+    toggleControl: (@Composable () -> Unit)? = { TestImage() },
+    selectionControl: (@Composable () -> Unit)? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     background: @Composable (enabled: Boolean, checked: Boolean) -> Modifier = { _, _ ->
@@ -1058,7 +1110,8 @@ private fun ToggleButtonWithDefaults(
     checked = checked,
     onCheckedChange = onCheckedChange,
     label = label,
-    toggleControl = selectionControl,
+    toggleControl = toggleControl,
+    selectionControl = selectionControl,
     modifier = modifier,
     icon = icon,
     secondaryLabel = secondaryLabel,
@@ -1083,7 +1136,8 @@ private fun SplitToggleButtonWithDefaults(
         )
     },
     onClick: () -> Unit = {},
-    selectionControl: @Composable BoxScope.() -> Unit = { TestImage() },
+    toggleControl: (@Composable BoxScope.() -> Unit)? = { TestImage() },
+    selectionControl: (@Composable BoxScope.() -> Unit)? = null,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> = { _, _ ->
         remember { mutableStateOf(BACKGROUND_COLOR) }
@@ -1107,7 +1161,8 @@ private fun SplitToggleButtonWithDefaults(
     onCheckedChange = onCheckedChange,
     label = label,
     onClick = onClick,
-    toggleControl = selectionControl,
+    toggleControl = toggleControl,
+    selectionControl = selectionControl,
     modifier = modifier,
     secondaryLabel = secondaryLabel,
     backgroundColor = backgroundColor,

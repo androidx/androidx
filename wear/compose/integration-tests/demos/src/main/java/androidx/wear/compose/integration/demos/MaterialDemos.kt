@@ -73,6 +73,7 @@ import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContent
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
+import androidx.wear.compose.material.samples.SplitToggleChipWithRadioButton
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.StepperWithCustomSemanticsSample
@@ -485,7 +486,12 @@ val WearMaterialDemos = DemoCategory(
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 SplitToggleChipWithCheckbox()
                             }
-                        }
+                        },
+                        ComposableDemo("SplitToggleChip With RadioButton") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                SplitToggleChipWithRadioButton()
+                            }
+                        },
                     )
                 ),
                 DemoCategory(

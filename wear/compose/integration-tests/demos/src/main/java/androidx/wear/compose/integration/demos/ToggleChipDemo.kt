@@ -61,11 +61,11 @@ fun ToggleChips(
     var checkBoxIconCustomColorChecked by remember { mutableStateOf(true) }
     var switchIconChecked by remember { mutableStateOf(true) }
     var switchIconCustomColorChecked by remember { mutableStateOf(true) }
-    var radioIconChecked by remember { mutableStateOf(true) }
-    var radioIconWithSecondaryChecked by remember { mutableStateOf(true) }
+    var radioIconSelected by remember { mutableStateOf(true) }
+    var radioIconWithSecondarySelected by remember { mutableStateOf(true) }
     var splitWithCheckboxIconChecked by remember { mutableStateOf(true) }
     var splitWithSwitchIconChecked by remember { mutableStateOf(true) }
-    var splitWithRadioIconChecked by remember { mutableStateOf(true) }
+    var splitWithRadioIconSelected by remember { mutableStateOf(true) }
 
     var switchIconWithSecondaryChecked by remember { mutableStateOf(true) }
     var switchIconWithIconChecked by remember { mutableStateOf(true) }
@@ -166,18 +166,13 @@ fun ToggleChips(
         }
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                // Call the selectionControl variation, with default selectionControl = RadioButton
                 ToggleChip(
                     label = {
                         Text("Radio", maxLines = 2, overflow = TextOverflow.Ellipsis)
                     },
-                    checked = radioIconChecked,
-                    toggleControl = {
-                        RadioButton(
-                            selected = radioIconChecked,
-                            enabled = enabled,
-                        )
-                    },
-                    onCheckedChange = { radioIconChecked = it },
+                    selected = radioIconSelected,
+                    onSelected = { radioIconSelected = it },
                     enabled = enabled,
                 )
             }
@@ -195,10 +190,10 @@ fun ToggleChips(
                     secondaryLabel = {
                         Text("CustomColor", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
-                    checked = radioIconWithSecondaryChecked,
-                    toggleControl = {
+                    selected = radioIconWithSecondarySelected,
+                    selectionControl = {
                         RadioButton(
-                            selected = radioIconWithSecondaryChecked,
+                            selected = radioIconWithSecondarySelected,
                             enabled = enabled,
                             colors = RadioButtonDefaults.colors(
                                 selectedRingColor = MaterialTheme.colors.primary,
@@ -208,7 +203,7 @@ fun ToggleChips(
                             ),
                         )
                     },
-                    onCheckedChange = { radioIconWithSecondaryChecked = it },
+                    onSelected = { radioIconWithSecondarySelected = it },
                     enabled = enabled,
                     colors = ToggleChipDefaults.toggleChipColors(
                         checkedToggleControlColor = AlternatePrimaryColor3,
@@ -375,16 +370,11 @@ fun ToggleChips(
         }
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                // Call the selectionControl variation, with default selectionControl = RadioButton
                 SplitToggleChip(
                     label = { Text("Split with Radio") },
-                    checked = splitWithRadioIconChecked,
-                    toggleControl = {
-                        RadioButton(
-                            selected = splitWithRadioIconChecked,
-                            enabled = enabled,
-                        )
-                    },
-                    onCheckedChange = { splitWithRadioIconChecked = it },
+                    selected = splitWithRadioIconSelected,
+                    onSelected = { splitWithRadioIconSelected = it },
                     onClick = {
                         Toast.makeText(
                             applicationContext, "Text was clicked",
