@@ -51,7 +51,8 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
         if (supportExtraFullConfigurationsSamsungDevice()) {
             return getLimitedDeviceExtraSupportedFullConfigurations(hardwareLevel)
         }
-        return if (supportExtraLevel3ConfigurationsGoogleDevice()) {
+        return if (supportExtraLevel3ConfigurationsGoogleDevice() ||
+                supportExtraLevel3ConfigurationsSamsungDevice()) {
             listOf(LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION)
         } else emptyList()
     }
@@ -242,9 +243,16 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                 "PIXEL 7 PRO"
             )
 
+        private val SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS: Set<String> =
+            setOf(
+                "SM-S926B", // Galaxy S24+
+                "SM-S928U" // Galaxy S24 Ultra
+            )
+
         fun isEnabled(): Boolean {
             return (isSamsungS7 || supportExtraFullConfigurationsSamsungDevice() ||
-                supportExtraLevel3ConfigurationsGoogleDevice())
+                supportExtraLevel3ConfigurationsGoogleDevice() ||
+                supportExtraLevel3ConfigurationsSamsungDevice())
         }
 
         internal val isSamsungS7: Boolean
@@ -269,6 +277,16 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             }
             val capitalModelName = Build.MODEL.uppercase()
             return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_GOOGLE_MODELS.contains(capitalModelName)
+        }
+
+        internal fun supportExtraLevel3ConfigurationsSamsungDevice(): Boolean {
+            if (!"samsung".equals(Build.BRAND, ignoreCase = true)) {
+                return false;
+            }
+
+            val capitalModelName = Build.MODEL.uppercase();
+
+            return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS.contains(capitalModelName);
         }
 
         internal fun createFullYuvPrivYuvConfiguration(): SurfaceCombination {
