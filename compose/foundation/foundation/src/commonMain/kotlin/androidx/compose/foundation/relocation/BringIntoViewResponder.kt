@@ -23,9 +23,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.modifierLocalMapOf
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.findNearestAncestor
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
 import kotlinx.coroutines.coroutineScope
@@ -36,9 +38,8 @@ import kotlinx.coroutines.launch
  * the item is visible on screen. To apply a responder to an element, pass it to the
  * [bringIntoViewResponder] modifier.
  *
- * When a component calls [BringIntoViewRequester.bringIntoView], the
- * [BringIntoView ModifierLocal][ModifierLocalBringIntoViewParent] is read to gain access to the
- * [BringIntoViewResponder], which is responsible for, in order:
+ * When a component calls [BringIntoViewRequester.bringIntoView], the nearest
+ * [BringIntoViewResponder] is found, which is responsible for, in order:
  *
  * 1. Calculating a rectangle that its parent responder should bring into view by returning it from
  *    [calculateRectForParent].
@@ -137,22 +138,30 @@ private class BringIntoViewResponderElement(
 
 /**
  * A modifier that holds state and modifier implementations for [bringIntoViewResponder]. It has
- * access to the next [BringIntoViewParent] via [BringIntoViewChildNode] and additionally
+ * access to the next [BringIntoViewParent] via [findBringIntoViewParent] and additionally
  * provides itself as the [BringIntoViewParent] for subsequent modifiers. This class is responsible
  * for recursively propagating requests up the responder chain.
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class BringIntoViewResponderNode(
     var responder: BringIntoViewResponder
-) : BringIntoViewChildNode(), BringIntoViewParent {
+) : Modifier.Node(), BringIntoViewParent, LayoutAwareModifierNode, TraversableNode {
+
+    override val traverseKey: Any
+        get() = TraverseKey
+
     override val shouldAutoInvalidate: Boolean = false
 
-    override val providedValues: ModifierLocalMap =
-        modifierLocalMapOf(ModifierLocalBringIntoViewParent to this)
+    // TODO(b/324613946) Get rid of this check.
+    private var hasBeenPlaced = false
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        hasBeenPlaced = true
+    }
 
     /**
-     * Responds to a child's request by first converting [boundsProvider] into this node's [LayoutCoordinates]
-     * and then, concurrently, calling the [responder] and the [parent] to handle the request.
+     * Responds to a child's request by first converting [boundsProvider] into this node's
+     * [LayoutCoordinates] and then, concurrently, calling the [responder] and the [parent] to
+     * handle the request.
      */
     override suspend fun bringChildIntoView(
         childCoordinates: LayoutCoordinates,
@@ -192,7 +201,8 @@ internal class BringIntoViewResponderNode(
             // responder's coroutine.
             launch {
                 if (isAttached) {
-                    parent.bringChildIntoView(
+                    val parent = findBringIntoViewParent()
+                    parent?.bringChildIntoView(
                         childCoordinates = requireLayoutCoordinates(),
                         boundsProvider = parentRect
                     )
@@ -200,6 +210,18 @@ internal class BringIntoViewResponderNode(
             }
         }
     }
+
+    companion object TraverseKey
+}
+
+/**
+ * Finds the nearest ancestor [BringIntoViewResponderNode], or returns [defaultBringIntoViewParent]
+ * if none can be found. Returns null if the node is not attached.
+ */
+internal fun DelegatableNode.findBringIntoViewParent(): BringIntoViewParent? {
+    if (!node.isAttached) return null
+    return (findNearestAncestor(BringIntoViewResponderNode) as BringIntoViewParent?)
+        ?: defaultBringIntoViewParent()
 }
 
 /**
@@ -214,14 +236,4 @@ private fun LayoutCoordinates.localRectOf(
 
     // Translate the rect to this parent's local coordinates.
     return rect.translate(localRect.topLeft)
-}
-
-/**
- * Returns true if [other] is fully contained inside this [Rect], using inclusive bound checks.
- */
-private fun Rect.completelyOverlaps(other: Rect): Boolean {
-    return left <= other.left &&
-        top <= other.top &&
-        right >= other.right &&
-        bottom >= other.bottom
 }
