@@ -245,7 +245,7 @@ dependencies {
     kmpDocs(project(":lifecycle:lifecycle-runtime-ktx"))
     docs(project(":lifecycle:lifecycle-runtime-testing"))
     docs(project(":lifecycle:lifecycle-service"))
-    docs(project(":lifecycle:lifecycle-viewmodel"))
+    kmpDocs(project(":lifecycle:lifecycle-viewmodel"))
     docs(project(":lifecycle:lifecycle-viewmodel-compose"))
     samples(project(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
     docs(project(":lifecycle:lifecycle-viewmodel-ktx"))
