@@ -79,6 +79,7 @@ class EagerConfigurationDetector : Detector(), Detector.UastScanner {
 
     companion object {
         private const val TASK_CONTAINER = "org.gradle.api.tasks.TaskContainer"
+        private const val TASK_PROVIDER = "org.gradle.api.tasks.TaskProvider"
         private const val DOMAIN_OBJECT_COLLECTION = "org.gradle.api.DomainObjectCollection"
         private const val TASK_COLLECTION = "org.gradle.api.tasks.TaskCollection"
         private const val NAMED_DOMAIN_OBJECT_COLLECTION =
@@ -101,6 +102,7 @@ class EagerConfigurationDetector : Detector(), Detector.UastScanner {
             "iterator" to Pair(TASK_CONTAINER, null),
             "findAll" to Pair(NAMED_DOMAIN_OBJECT_COLLECTION, null),
             "matching" to Pair(TASK_COLLECTION, null),
+            "get" to Pair(TASK_PROVIDER, null),
         )
 
         val ISSUE = Issue.create(

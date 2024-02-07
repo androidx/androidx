@@ -75,6 +75,15 @@
 
     <issue
         id="EagerGradleConfiguration"
+        message="Avoid using eager method get"
+        errorLine1="        val allHostTests = project.tasks.register(&quot;allHostTests&quot;).get()"
+        errorLine2="                                                                  ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
         message="Use configureEach instead of all"
         errorLine1="        configurations.all { configuration ->"
         errorLine2="                       ~~~">
@@ -291,6 +300,15 @@
 
     <issue
         id="EagerGradleConfiguration"
+        message="Avoid using eager method get"
+        errorLine1="                        .get() as ProcessLibraryManifest"
+        errorLine2="                         ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/checkapi/ApiTasks.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
         message="Avoid using eager method findByName"
         errorLine1="                    container.findByName(configName)"
         errorLine2="                              ~~~~~~~~~~">
@@ -303,6 +321,24 @@
         message="Use configureEach instead of all"
         errorLine1="    variants.all { variant ->"
         errorLine2="             ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/ErrorProneConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method get"
+        errorLine1="        val jvmJarTask = jvmJarTaskProvider.get()"
+        errorLine2="                                            ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/ErrorProneConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method get"
+        errorLine1="                val compileTask = compileTaskProvider.get()"
+        errorLine2="                                                      ~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/ErrorProneConfiguration.kt"/>
     </issue>
@@ -485,6 +521,15 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/PublishingHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method get"
+        errorLine1="            val verifyOutputsTask = verifyOutputs.get()"
+        errorLine2="                                                  ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/Release.kt"/>
     </issue>
 
     <issue
