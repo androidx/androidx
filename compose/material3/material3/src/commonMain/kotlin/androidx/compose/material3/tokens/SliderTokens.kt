@@ -34,12 +34,12 @@ internal object SliderTokens {
     val FocusHandleColor = ColorSchemeKeyTokens.Primary
     val HandleColor = ColorSchemeKeyTokens.Primary
     val HandleElevation = ElevationTokens.Level1
-    val HandleHeight = 20.0.dp
+    val HandleHeight = 44.0.dp
     val HandleShape = ShapeKeyTokens.CornerFull
-    val HandleWidth = 20.0.dp
+    val HandleWidth = 4.0.dp
     val HoverHandleColor = ColorSchemeKeyTokens.Primary
     val InactiveTrackColor = ColorSchemeKeyTokens.SurfaceVariant
-    val InactiveTrackHeight = 4.0.dp
+    val InactiveTrackHeight = 16.0.dp
     val InactiveTrackShape = ShapeKeyTokens.CornerFull
     val LabelContainerColor = ColorSchemeKeyTokens.Primary
     val LabelContainerElevation = ElevationTokens.Level0
