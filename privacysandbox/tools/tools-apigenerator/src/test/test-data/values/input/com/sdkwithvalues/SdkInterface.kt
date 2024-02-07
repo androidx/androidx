@@ -32,12 +32,19 @@ data class InnerSdkValue(
 )
 
 @PrivacySandboxValue
+enum class RequestFlag {
+    UP,
+    DOWN,
+}
+
+@PrivacySandboxValue
 data class SdkRequest(
     val id: Long,
     val innerValue: InnerSdkValue,
     val maybeInnerValue: InnerSdkValue?,
     val moreValues: List<InnerSdkValue>,
     val activityLauncher: SdkActivityLauncher,
+    val requestFlag: RequestFlag,
 )
 
 @PrivacySandboxValue
