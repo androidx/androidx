@@ -504,6 +504,83 @@ class ApiStubParserTest {
         )
     }
 
+    @Test
+    fun enumClassWithMethods_throws() {
+        val source = Source.kotlin(
+            "com/mysdk/TestSandboxSdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
+                    @PrivacySandboxService
+                    interface MySdk
+                    @PrivacySandboxValue
+                    enum class MyEnum {
+                       FOO,
+                       BAR;
+                       fun enumMethod() = "should throw"
+                    }
+                """
+        )
+
+        assertThrows<PrivacySandboxParsingException> {
+            compileAndParseApi(source)
+        }.hasMessageThat().contains(
+            "Error in com.mysdk.MyEnum: enum classes annotated with " +
+                "@PrivacySandboxValue may not declare methods (enumMethod)"
+        )
+    }
+
+    @Test
+    fun enumClassWithFields_throws() {
+        val source = Source.kotlin(
+            "com/mysdk/TestSandboxSdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
+                    @PrivacySandboxService
+                    interface MySdk
+                    @PrivacySandboxValue
+                    enum class MyEnum(val enumField: Int) {
+                       FOO(123),
+                       BAR(456),
+                    }
+                """
+        )
+
+        assertThrows<PrivacySandboxParsingException> {
+            compileAndParseApi(source)
+        }.hasMessageThat().contains(
+            "Error in com.mysdk.MyEnum: enum classes annotated with @PrivacySandboxValue may not " +
+                "declare properties (enumField)"
+        )
+    }
+
+    @Test
+    fun enumClassImplementingInterface_throws() {
+        val source = Source.kotlin(
+            "com/mysdk/TestSandboxSdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
+                    @PrivacySandboxService
+                    interface MySdk
+                    interface MyCustomInterface
+                    @PrivacySandboxValue
+                    enum class MyEnum : MyCustomInterface {
+                       FOO,
+                       BAR,
+                    }
+                """
+        )
+
+        assertThrows<PrivacySandboxParsingException> {
+            compileAndParseApi(source)
+        }.hasMessageThat().contains(
+            "Error in com.mysdk.MyEnum: values annotated with @PrivacySandboxValue " +
+                "may not inherit other types (MyCustomInterface)"
+        )
+    }
+
     private fun compileAndParseApi(vararg sources: Source): ParsedApi {
         val classpath = mergedClasspath(assertCompiles(sources.toList()))
         return ApiStubParser.parse(classpath)
