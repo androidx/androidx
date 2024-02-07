@@ -821,8 +821,9 @@ constructor(
                     // init may not have completed.
                     if (initComplete) {
                         onDraw()
+                    } else {
+                        scheduleDraw()
                     }
-                    scheduleDraw()
                 }
             }
         }
