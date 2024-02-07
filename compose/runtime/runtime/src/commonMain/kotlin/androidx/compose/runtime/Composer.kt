@@ -4234,22 +4234,28 @@ private fun MutableList<Invalidation>.insertIfMissing(
             Invalidation(
                 scope,
                 location,
-                instance
+                // Only derived state instance is important for composition
+                instance.takeIf { it is DerivedState<*> }
             )
         )
     } else {
         val invalidation = get(index)
-        when (val oldInstance = invalidation.instances) {
-            null -> invalidation.instances = instance
-            is MutableScatterSet<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                oldInstance as MutableScatterSet<Any?>
-                oldInstance.add(instance)
-            }
+        // Only derived state instance is important for composition
+        if (instance is DerivedState<*>) {
+            when (val oldInstance = invalidation.instances) {
+                null -> invalidation.instances = instance
+                is MutableScatterSet<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    oldInstance as MutableScatterSet<Any?>
+                    oldInstance.add(instance)
+                }
 
-            else -> {
-                invalidation.instances = mutableScatterSetOf(oldInstance, instance)
+                else -> {
+                    invalidation.instances = mutableScatterSetOf(oldInstance, instance)
+                }
             }
+        } else {
+            invalidation.instances = null
         }
     }
 }

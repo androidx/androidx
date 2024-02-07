@@ -1160,12 +1160,21 @@ internal class CompositionImpl(
                     return InvalidationResult.IMMINENT
                 }
 
-                // invalidations[scope] containing ScopeInvalidated means it was invalidated
-                // unconditionally.
+                // Observer requires a map of scope -> states, so we have to fill it if observer
+                // is set.
+                val observer = observer()
                 if (instance == null) {
+                    // invalidations[scope] containing ScopeInvalidated means it was invalidated
+                    // unconditionally.
+                    invalidations.set(scope, ScopeInvalidated)
+                } else if (observer == null && instance !is DerivedState<*>) {
+                    // If observer is not set, we only need to add derived states to invalidation,
+                    // as regular states are always going to invalidate.
                     invalidations.set(scope, ScopeInvalidated)
                 } else {
-                    invalidations.add(scope, instance)
+                    if (!invalidations.anyScopeOf(scope) { it === ScopeInvalidated }) {
+                        invalidations.add(scope, instance)
+                    }
                 }
             }
             delegate
