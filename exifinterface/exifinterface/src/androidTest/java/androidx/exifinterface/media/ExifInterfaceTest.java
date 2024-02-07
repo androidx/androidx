@@ -100,6 +100,8 @@ public class ExifInterfaceTest {
     private static final String PNG_WITH_EXIF_BYTE_ORDER_II = "png_with_exif_byte_order_ii.png";
     private static final String PNG_WITHOUT_EXIF = "png_without_exif.png";
     private static final String WEBP_WITH_EXIF = "webp_with_exif.webp";
+    private static final String INVALID_WEBP_WITH_JPEG_APP1_MARKER =
+            "invalid_webp_with_jpeg_app1_marker.webp";
     private static final String WEBP_WITHOUT_EXIF_WITH_ANIM_DATA =
             "webp_with_anim_without_exif.webp";
     private static final String WEBP_WITHOUT_EXIF = "webp_without_exif.webp";
@@ -122,6 +124,7 @@ public class ExifInterfaceTest {
             R.raw.png_with_exif_byte_order_ii,
             R.raw.png_without_exif,
             R.raw.webp_with_exif,
+            R.raw.invalid_webp_with_jpeg_app1_marker,
             R.raw.webp_with_anim_without_exif,
             R.raw.webp_without_exif,
             R.raw.webp_lossless_without_exif,
@@ -139,6 +142,7 @@ public class ExifInterfaceTest {
             PNG_WITH_EXIF_BYTE_ORDER_II,
             PNG_WITHOUT_EXIF,
             WEBP_WITH_EXIF,
+            INVALID_WEBP_WITH_JPEG_APP1_MARKER,
             WEBP_WITHOUT_EXIF_WITH_ANIM_DATA,
             WEBP_WITHOUT_EXIF,
             WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING,
@@ -529,6 +533,15 @@ public class ExifInterfaceTest {
     public void testWebpWithExif() throws Throwable {
         readFromFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
         writeToFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
+    }
+
+    @Test
+    @LargeTest
+    public void testWebpWithExifApp1() throws Throwable {
+        readFromFilesWithExif(INVALID_WEBP_WITH_JPEG_APP1_MARKER,
+                R.array.invalid_webp_with_jpeg_app1_marker);
+        writeToFilesWithExif(INVALID_WEBP_WITH_JPEG_APP1_MARKER,
+                R.array.invalid_webp_with_jpeg_app1_marker);
     }
 
     @Test

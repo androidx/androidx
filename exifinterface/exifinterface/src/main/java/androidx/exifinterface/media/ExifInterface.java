@@ -6219,6 +6219,16 @@ public class ExifInterface {
                     // TODO: Need to handle potential OutOfMemoryError
                     byte[] payload = new byte[chunkSize];
                     in.readFully(payload);
+
+                    // Skip a JPEG APP1 marker that some image libraries incorrectly include in the
+                    // Exif data in WebP images (e.g.
+                    // https://github.com/ImageMagick/ImageMagick/issues/3140)
+                    if (startsWith(payload, IDENTIFIER_EXIF_APP1)) {
+                        int adjustedChunkSize = chunkSize - IDENTIFIER_EXIF_APP1.length;
+                        payload = Arrays.copyOfRange(payload, IDENTIFIER_EXIF_APP1.length,
+                                adjustedChunkSize);
+                    }
+
                     // Save offset to EXIF data for handling thumbnail and attribute offsets.
                     mOffsetToExifData = bytesRead;
                     readExifSegment(payload, IFD_TYPE_PRIMARY);
