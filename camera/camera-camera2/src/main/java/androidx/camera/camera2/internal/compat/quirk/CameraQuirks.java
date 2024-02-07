@@ -64,6 +64,9 @@ public class CameraQuirks {
         if (CamcorderProfileResolutionQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new CamcorderProfileResolutionQuirk(cameraCharacteristicsCompat));
         }
+        if (CaptureNoResponseQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new CaptureNoResponseQuirk());
+        }
         if (ImageCaptureWashedOutImageQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new ImageCaptureWashedOutImageQuirk());
         }
