@@ -68,10 +68,7 @@ fun getApiFileVersion(version: Version): Version {
                 "Did you mean $suggestedVersion?"
         )
     }
-    var extra = ""
-    if (version.patch == 0 && version.extra != null) {
-        extra = version.extra!!
-    }
+    val extra = if (version.patch != 0) "" else version.extra ?: ""
     return Version(version.major, version.minor, 0, extra)
 }
 
