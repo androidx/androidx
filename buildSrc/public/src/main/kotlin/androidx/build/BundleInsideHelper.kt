@@ -23,6 +23,7 @@ import org.apache.tools.zip.ZipOutputStream
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Usage
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -30,6 +31,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
@@ -38,6 +40,7 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 object BundleInsideHelper {
     val CONFIGURATION_NAME = "bundleInside"
     val REPACKAGE_TASK_NAME = "repackageBundledJars"
+
     /**
      * Creates a configuration for the users to use that will be used to bundle these dependency
      * jars inside of libs/ directory inside of the aar.
@@ -182,7 +185,7 @@ object BundleInsideHelper {
     }
 
     /**
-     * Creates a configuration for users to use that will be used bundle these dependency jars
+     * Creates a configuration for users to use that will bundle the dependency jars
      * inside of this lint check's jar. This is required because lintPublish does not currently
      * support dependencies, so instead we need to bundle any dependencies with the lint jar
      * manually. (b/182319899)
@@ -207,26 +210,17 @@ object BundleInsideHelper {
         val bundle = createBundleConfiguration()
         val compileOnly = configurations.getByName("compileOnly")
         val testImplementation = configurations.getByName("testImplementation")
-        // bundleInside dependencies should be included as compileOnly as well
-        compileOnly.setExtendsFrom(listOf(bundle))
-        testImplementation.setExtendsFrom(listOf(bundle))
 
-        tasks.named("jar").configure { jarTask ->
-            jarTask as Jar
-            jarTask.dependsOn(bundle)
-            jarTask.from({
-                bundle
-                    // The stdlib is already bundled with lint, so no need to include it manually
-                    // in the lint.jar if any dependencies here depend on it
-                    .filter { !it.name.contains("kotlin-stdlib") }
-                    .map { file ->
-                        if (file.isDirectory) {
-                            file
-                        } else {
-                            zipTree(file)
-                        }
-                    }
-            })
+        compileOnly.extendsFrom(bundle)
+        testImplementation.extendsFrom(bundle)
+
+        val extractTask = tasks.register("extractBundleJars", ExtractJarTask::class.java) { task ->
+            task.description = "Extracts all JARs from the bundle configuration."
+            task.jarFiles.setFrom(bundle.incoming.artifactView { }.files)
+            task.outputDir.set(layout.buildDirectory.dir("extractedJars"))
+        }
+        tasks.named("jar", Jar::class.java).configure {
+            it.from(extractTask.flatMap { it.outputDir })
         }
     }
 
@@ -254,8 +248,15 @@ object BundleInsideHelper {
     }
 
     private fun Project.createBundleConfiguration(): Configuration {
-        val bundle = configurations.create(CONFIGURATION_NAME)
-        bundle.isCanBeConsumed = false
+        val bundle = configurations.create(CONFIGURATION_NAME) {
+            it.attributes {
+                   it.attribute(
+                         Usage.USAGE_ATTRIBUTE,
+                        objects.named<Usage>(Usage.JAVA_RUNTIME)
+                   )
+            }
+            it.isCanBeConsumed = false
+        }
         return bundle
     }
 
