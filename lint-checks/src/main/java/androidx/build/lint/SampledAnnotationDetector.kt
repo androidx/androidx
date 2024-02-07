@@ -248,7 +248,7 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
         if ((source as? KtModifierListOwner)?.hasActualModifier() == true) {
             analyze(source) {
                 val member = (source as? KtDeclaration)?.getSymbol() ?: return
-                val expect = member.getExpectForActual() ?: return
+                val expect = member.getExpectsForActual().singleOrNull() ?: return
                 (expect.psi as? KtDeclaration)?.docComment?.let {
                     handleSampleLink(it)
                 }

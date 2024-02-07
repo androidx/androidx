@@ -60,15 +60,20 @@ src/androidx/ObsoleteCompatMethod.java:38: Error: Obsolete compat method should 
         """.trimIndent()
 
         val expectedAutoFix = """
-Fix for src/androidx/ObsoleteCompatMethod.java line 33: Add @deprecated Javadoc annotation:
-@@ -32 +32
+Fix for src/androidx/ObsoleteCompatMethod.java line 33: Replace obsolete compat method:
+@@ -20 +20
++ import androidx.annotation.ReplaceWith;
+@@ -32 +33
 +      * @deprecated Call {@link Object#hashCode()} directly.
+@@ -33 +35
 +     @Deprecated
-+     @androidx.annotation.ReplaceWith(expression = "obj.hashCode()")
-Fix for src/androidx/ObsoleteCompatMethod.java line 38: Add @deprecated Javadoc annotation:
-@@ -38 +38
++     @ReplaceWith(expression = "obj.hashCode()")
+Fix for src/androidx/ObsoleteCompatMethod.java line 38: Replace obsolete compat method:
+@@ -20 +20
++ import androidx.annotation.ReplaceWith;
+@@ -38 +39
 +     @Deprecated
-+     @androidx.annotation.ReplaceWith(expression = "obj.hashCode()")
++     @ReplaceWith(expression = "obj.hashCode()")
 +     /** @deprecated Call {@link Object#hashCode()} directly. */
         """.trimIndent()
         /* ktlint-enable max-line-length */
@@ -91,9 +96,11 @@ src/androidx/ObsoleteCompatMethodMissingReplaceWith.java:32: Error: Obsolete com
         """.trimIndent()
 
         val expectedAutoFix = """
-Fix for src/androidx/ObsoleteCompatMethodMissingReplaceWith.java line 32: Annotate with @ReplaceWith:
-@@ -31 +31
-+     @androidx.annotation.ReplaceWith(expression = "obj.hashCode()")
+Autofix for src/androidx/ObsoleteCompatMethodMissingReplaceWith.java line 32: Replace obsolete compat method:
+@@ -18 +18
++ import androidx.annotation.ReplaceWith;
+@@ -31 +32
++     @ReplaceWith(expression = "obj.hashCode()")
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -115,7 +122,7 @@ src/androidx/ObsoleteCompatMethodMissingDeprecated.java:37: Error: Obsolete comp
         """.trimIndent()
 
         val expectedAutoFix = """
-Fix for src/androidx/ObsoleteCompatMethodMissingDeprecated.java line 37: Annotate with @Deprecated:
+Autofix for src/androidx/ObsoleteCompatMethodMissingDeprecated.java line 37: Replace obsolete compat method:
 @@ -36 +36
 +     @Deprecated
         """.trimIndent()
@@ -142,10 +149,10 @@ src/androidx/ObsoleteCompatMethodMissingJavadoc.java:44: Error: Obsolete compat 
         """.trimIndent()
 
         val expectedAutoFix = """
-Fix for src/androidx/ObsoleteCompatMethodMissingJavadoc.java line 37: Add @deprecated Javadoc annotation:
+Autofix for src/androidx/ObsoleteCompatMethodMissingJavadoc.java line 37: Replace obsolete compat method:
 @@ -34 +34
 +      * @deprecated Call {@link Object#hashCode()} directly.
-Fix for src/androidx/ObsoleteCompatMethodMissingJavadoc.java line 44: Add @deprecated Javadoc annotation:
+Autofix for src/androidx/ObsoleteCompatMethodMissingJavadoc.java line 44: Replace obsolete compat method:
 @@ -42 +42
 +     /** @deprecated Call {@link Object#hashCode()} directly. */
         """.trimIndent()
@@ -172,11 +179,12 @@ src/androidx/ObsoleteCompatMethodMissingDeprecatedAndJavadoc.java:42: Error: Obs
         """.trimIndent()
 
         val expectedAutoFix = """
-Fix for src/androidx/ObsoleteCompatMethodMissingDeprecatedAndJavadoc.java line 36: Add @deprecated Javadoc annotation:
+Fix for src/androidx/ObsoleteCompatMethodMissingDeprecatedAndJavadoc.java line 36: Replace obsolete compat method:
 @@ -34 +34
 +      * @deprecated Call {@link Object#hashCode()} directly.
+@@ -35 +36
 +     @Deprecated
-Fix for src/androidx/ObsoleteCompatMethodMissingDeprecatedAndJavadoc.java line 42: Add @deprecated Javadoc annotation:
+Fix for src/androidx/ObsoleteCompatMethodMissingDeprecatedAndJavadoc.java line 42: Replace obsolete compat method:
 @@ -41 +41
 +     @Deprecated
 +     /** @deprecated Call {@link Object#hashCode()} directly. */

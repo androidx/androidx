@@ -27,10 +27,17 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.intellij.psi.impl.source.PsiClassReferenceType
+import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.calls.KtSimpleFunctionCall
+import org.jetbrains.kotlin.analysis.api.calls.singleFunctionCallOrNull
+import org.jetbrains.kotlin.analysis.api.types.KtFunctionalType
 import org.jetbrains.kotlin.psi.KtCallElement
+import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UElement
 import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.UUnknownExpression
@@ -108,18 +115,21 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             // below will be Function0 even if in the actual source it has a scope. Return early to
             // avoid false positives.
             parentExpression.resolve() ?: return
-
-            // If the expression has no receiver, it is not a lambda invocation
-            val functionType = expression.receiverType as? PsiClassReferenceType ?: return
-
-            // Find the functional type of the parent argument, for example () -> Unit (Function0)
-            val argumentType = node.getExpressionType() as? PsiClassReferenceType ?: return
+            val resolved = expression.resolve() ?: return
+            if (resolved.name != OperatorNameConventions.INVOKE.identifier) return
 
             // Return if the receiver of the lambda argument and the lambda itself don't match. This
             // happens if the functional types are different, for example a lambda with 0 parameters
             // (Function0) and a lambda with 1 parameter (Function1). Similarly for two lambdas
             // with 0 parameters, but one that has a receiver scope (SomeScope.() -> Unit).
-            if (functionType != argumentType) return
+            val expressionSourcePsi = expression.sourcePsi as? KtCallElement ?: return
+            analyze(expressionSourcePsi) {
+                val functionType = dispatchReceiverType(expressionSourcePsi) ?: return
+                val argumentType = toLambdaFunctionalType(node) ?: return
+                  // TODO enable subType checking
+//                if (!(functionType isSubTypeOf argumentType)) return
+                if (!(functionType isEqualTo argumentType)) return
+            }
 
             val expectedComposable = node.isComposable
 
@@ -127,7 +137,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             val sourcePsi = expression.sourcePsi as? KtCallElement ?: return
             val resolvedLambdaSource = sourcePsi.calleeExpression?.toUElement()
                 ?.tryResolve()?.toUElement()
-                // Sometimes the above will give us a method (representing the getter for a
+                // Sometimes the above will give us a method (representing the getter for a`
                 // property), when the actual backing element is a property. Going to the source
                 // and back should give us the actual UVariable we are looking for.
                 ?.sourcePsi.toUElement()
@@ -146,7 +156,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             context.report(
                 ISSUE,
                 node,
-                context.getNameLocation(expression),
+                context.getNameLocation(expression as UElement),
                 "Creating an unnecessary lambda to emit a captured lambda"
             )
         }
@@ -170,4 +180,19 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             )
         )
     }
+}
+
+private fun KtAnalysisSession.dispatchReceiverType(callElement: KtCallElement): KtFunctionalType? =
+    callElement.resolveCall()
+        ?.singleFunctionCallOrNull()
+        ?.takeIf { it is KtSimpleFunctionCall && it.isImplicitInvoke }
+        ?.partiallyAppliedSymbol
+        ?.dispatchReceiver
+        ?.type as? KtFunctionalType
+
+private fun KtAnalysisSession.toLambdaFunctionalType(
+    lambdaExpression: ULambdaExpression
+): KtFunctionalType? {
+    val sourcePsi = lambdaExpression.sourcePsi as? KtLambdaExpression ?: return null
+    return sourcePsi.getKtType() as? KtFunctionalType
 }

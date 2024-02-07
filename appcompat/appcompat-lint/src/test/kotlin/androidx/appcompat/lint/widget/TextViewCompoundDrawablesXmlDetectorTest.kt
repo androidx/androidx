@@ -107,7 +107,7 @@ res/layout-v23/text_view.xml:9: Warning: Use app:$appAttrName instead of android
             )
             .expectFixDiffs(
                 """
-Fix for res/layout-v23/text_view.xml line 9: Set $appAttrName="$attrValue":
+Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of android:
 @@ -3 +3
 +     xmlns:app="http://schemas.android.com/apk/res-auto"
 @@ -10 +11

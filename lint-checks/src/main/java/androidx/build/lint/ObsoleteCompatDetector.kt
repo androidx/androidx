@@ -96,7 +96,7 @@ private class CompatMethodHandler(val context: JavaContext) : UElementHandler() 
             ?.unwrapReceiver()
         if (firstParameter != receiver) return
 
-        val lintFix = LintFix.create().composite()
+        val lintFix = LintFix.create().composite().name("Replace obsolete compat method")
 
         if (!hasDeprecatedDoc) {
             val docLink = when (expression.selector) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.4.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha07)" variant="all" version="8.4.0-alpha07">
 
     <issue
         id="OnClick"
@@ -60,7 +60,7 @@
 
     <issue
         id="NewApi"
-        message="`&lt;class>` requires API level 24 (current min is 19)"
+        message="Custom drawables requires API level 24 (current min is 19)"
         errorLine1="    class=&quot;com.example.androidx.drawable.MyDrawable&quot;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

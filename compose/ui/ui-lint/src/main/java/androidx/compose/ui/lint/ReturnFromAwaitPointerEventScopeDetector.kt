@@ -28,11 +28,21 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.detector.api.isIncorrectImplicitReturnInLambda
+import com.intellij.psi.LambdaUtil
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiType
+import com.intellij.psi.PsiWildcardType
 import java.util.EnumSet
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.ULocalVariable
 import org.jetbrains.uast.UReturnExpression
+import org.jetbrains.uast.UVariable
+import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.skipParenthesizedExprUp
 
 class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
@@ -44,7 +54,8 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
         if (!method.isInPackageName(Names.Ui.Pointer.PackageName)) return
         val methodParent = skipParenthesizedExprUp(node.uastParent)
         val isAssignedToVariable = methodParent is ULocalVariable
-        val isReturnExpression = methodParent is UReturnExpression
+        val isReturnExpression = methodParent is UReturnExpression &&
+            !methodParent.isIncorrectImplicitReturnInLambdaWorkaround()
 
         if (isAssignedToVariable || isReturnExpression) {
             context.report(
@@ -76,3 +87,47 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
         )
     }
 }
+
+// TODO: cleanup (perhaps after AGP 8.4.0-alpha09 b/323952048)
+private fun UReturnExpression.isIncorrectImplicitReturnInLambdaWorkaround(): Boolean {
+    if (isIncorrectImplicitReturnInLambda()) return true
+    val block = uastParent as UBlockExpression
+    // Check if this is the last expression of the lambda body
+    if (block.expressions.lastOrNull() != this) return false
+    // Make sure the lambda body belongs to a lambda
+    if (block.uastParent !is ULambdaExpression) return false
+    val lambda = block.uastParent as ULambdaExpression
+    val lambdaReturnType =
+        lambda
+            .getReturnType()
+            .let { returnType ->
+                if (returnType is PsiWildcardType) returnType.bound else returnType
+            }
+            ?.canonicalText ?: return false
+    // Already checked Unit, Nothing, void, Void
+    if (lambdaReturnType != "java.lang.Object") return false
+    val ktLambda = lambda.sourcePsi as? KtLambdaExpression
+    return ktLambda?.let {
+        analyze(it) {
+            ktLambda.getExpectedType()?.isSuspendFunctionType
+        }
+    } ?: false
+}
+
+// utils "borrowed" from com.android.tools.lint.detector.api until we no longer need the workaround
+
+private fun ULambdaExpression.getReturnType(): PsiType? {
+    val lambdaType = getLambdaType()
+    return LambdaUtil.getFunctionalInterfaceReturnType(lambdaType)
+}
+
+private fun ULambdaExpression.getLambdaType(): PsiType? =
+    functionalInterfaceType
+        ?: getExpressionType()
+        ?: uastParent?.let {
+            when (it) {
+                is UVariable -> it.type
+                is UCallExpression -> it.getParameterForArgument(this)?.type
+                else -> null
+            }
+        }

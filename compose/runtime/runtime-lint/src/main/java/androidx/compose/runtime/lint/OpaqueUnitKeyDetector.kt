@@ -108,17 +108,15 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
     ) {
         val rootExpression = methodInvocation.resolveRootExpression()
         val rootExpressionLocation = context.getLocation(rootExpression)
-
+        val name = "Move expression outside of `${method.name}`'s arguments " +
+            "and pass `Unit` explicitly"
         context.report(
             OpaqueUnitKey,
             argument,
             context.getLocation(argument),
             "Implicitly passing `Unit` as argument to ${parameter.name}",
             fix()
-                .name(
-                    "Move expression outside of `${method.name}`'s arguments " +
-                        "and pass `Unit` explicitly"
-                )
+                .name(name)
                 .composite(
                     if (rootExpression.isInPhysicalBlock()) {
                         // If we're in a block where we can add an expression without breaking any
@@ -141,6 +139,7 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
                         // }
                         // ```
                         fix()
+                            .name(name)
                             .composite(
                                 fix()
                                     .replace()
