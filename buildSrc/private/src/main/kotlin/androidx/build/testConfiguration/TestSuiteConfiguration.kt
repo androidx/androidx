@@ -25,6 +25,7 @@ import androidx.build.getFileInTestConfigDirectory
 import androidx.build.getPrivacySandboxFilesDirectory
 import androidx.build.getSupportRootFolder
 import androidx.build.hasBenchmarkPlugin
+import androidx.build.isMacrobenchmark
 import androidx.build.isPresubmitBuild
 import androidx.build.multiplatformExtension
 import com.android.build.api.artifact.Artifacts
@@ -124,10 +125,9 @@ fun Project.createTestConfigurationGenerationTask(
             task.presubmit.set(isPresubmitBuild())
             task.instrumentationArgs.putAll(instrumentationRunnerArgs)
             task.minSdk.set(minSdk)
-            val hasBenchmarkPlugin = hasBenchmarkPlugin()
-            task.hasBenchmarkPlugin.set(hasBenchmarkPlugin)
+            task.hasBenchmarkPlugin.set(hasBenchmarkPlugin())
+            task.macrobenchmark.set(isMacrobenchmark())
             task.testRunner.set(testRunner)
-            task.testProjectPath.set(path)
             // Skip task if getTestSourceSetsForAndroid is empty, even if
             //  androidXExtension.deviceTests.enabled is set to true
             task.androidTestSourceCodeCollection.from(getTestSourceSetsForAndroid())
