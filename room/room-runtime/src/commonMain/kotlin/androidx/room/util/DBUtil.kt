@@ -20,6 +20,7 @@
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
+import androidx.room.PooledConnection
 import androidx.room.RoomDatabase
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
@@ -70,5 +71,35 @@ fun dropFtsSyncTriggers(connection: SQLiteConnection) {
         if (triggerName.startsWith("room_fts_content_sync_")) {
             connection.execSQL("DROP TRIGGER IF EXISTS $triggerName")
         }
+    }
+}
+
+/**
+ * Returns the ROWID of the last row insert from the database connection which invoked the
+ * function.
+ *
+ * See (official SQLite documentation)[http://www.sqlite.org/lang_corefunc.html#last_insert_rowid]
+ * for details.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+suspend fun PooledConnection.getLastInsertedRowId(): Long {
+    return this.usePrepared("SELECT last_insert_rowid()") {
+        it.step()
+        it.getLong(0)
+    }
+}
+
+/**
+ * Returns the number of database rows that were changed or inserted or deleted by the most
+ * recently completed INSERT, DELETE, or UPDATE statement.
+ *
+ * See the (official SQLite documentation)[http://www.sqlite.org/lang_corefunc.html#changes] for
+ * details.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+suspend fun PooledConnection.getTotalChangedRows(): Long {
+    return this.usePrepared("SELECT changes()") {
+        it.step()
+        it.getLong(0)
     }
 }

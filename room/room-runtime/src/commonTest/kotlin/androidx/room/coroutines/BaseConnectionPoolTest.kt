@@ -23,6 +23,8 @@ import androidx.room.deferredTransaction
 import androidx.room.exclusiveTransaction
 import androidx.room.execSQL
 import androidx.room.immediateTransaction
+import androidx.room.util.getLastInsertedRowId
+import androidx.room.util.getTotalChangedRows
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
@@ -121,6 +123,44 @@ abstract class BaseConnectionPoolTest {
             }
         }
         assertThat(count).isEqualTo(20)
+        pool.close()
+    }
+
+    @Test
+    fun readLastRowId() = runTest {
+        val driver = setupDriver()
+        val pool = newConnectionPool(driver = driver, maxNumOfReaders = 1, maxNumOfWriters = 1)
+        pool.useWriterConnection { connection ->
+            connection.execSQL("CREATE TABLE Test (col)")
+            connection.usePrepared("INSERT INTO Test (col) VALUES (?)") {
+                it.bindNull(1)
+                assertThat(it.step()).isFalse() // SQLITE_DONE
+            }
+            connection.usePrepared("INSERT INTO Test (col) VALUES (?)") {
+                it.bindNull(1)
+                assertThat(it.step()).isFalse() // SQLITE_DONE
+            }
+            val lastRowId = connection.getLastInsertedRowId()
+            assertThat(lastRowId).isEqualTo(2)
+        }
+        pool.close()
+    }
+
+    @Test
+    fun changes() = runTest {
+        val driver = setupDriver()
+        val pool = newConnectionPool(driver = driver, maxNumOfReaders = 1, maxNumOfWriters = 1)
+        pool.useWriterConnection { connection ->
+            connection.execSQL("CREATE TABLE Test (col)")
+            connection.usePrepared("INSERT INTO Test (col) VALUES (?),(?),(?)") {
+                it.bindNull(1)
+                it.bindNull(2)
+                it.bindNull(3)
+                assertThat(it.step()).isFalse() // SQLITE_DONE
+            }
+            val changes = connection.getTotalChangedRows()
+            assertThat(changes).isEqualTo(3)
+        }
         pool.close()
     }
 
