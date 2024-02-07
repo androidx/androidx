@@ -359,6 +359,12 @@ internal abstract class LookaheadDelegate(
     override val coordinates: LayoutCoordinates
         get() = lookaheadLayoutCoordinates
 
+    internal val size: IntSize
+        get() = IntSize(width, height)
+
+    internal val constraints: Constraints
+        get() = measurementConstraints
+
     val lookaheadLayoutCoordinates = LookaheadLayoutCoordinates(this)
     override val alignmentLinesOwner: AlignmentLinesOwner
         get() = coordinator.layoutNode.layoutDelegate.lookaheadAlignmentLinesOwner!!

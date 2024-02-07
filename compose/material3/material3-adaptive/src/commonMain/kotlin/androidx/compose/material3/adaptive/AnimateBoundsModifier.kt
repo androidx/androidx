@@ -72,6 +72,7 @@ internal fun Modifier.animateBounds(
     // intermediateLayout is expected to produce intermediate stages of a layout transform.
     // When the measure block is invoked after lookahead pass, the lookahead size of the
     // child will be accessible as a parameter to the measure block.
+    @Suppress("DEPRECATION") // TODO: Update intermediateLayout usage to approachLayout
     this
         .drawWithContent {
             drawContent()

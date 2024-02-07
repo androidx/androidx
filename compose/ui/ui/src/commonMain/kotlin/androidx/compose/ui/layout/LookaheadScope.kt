@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Applier
@@ -30,17 +32,22 @@ import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * [LookaheadScope] starts a scope in which all layouts scope will receive a lookahead pass
- * preceding the main measure/layout pass. This lookahead pass will calculate the layout
- * size and position for all child layouts, and make the lookahead results available in
- * [Modifier.intermediateLayout]. [Modifier.intermediateLayout] gets invoked in the main
- * pass to allow transient layout changes in the main pass that gradually morph the layout
- * over the course of multiple frames until it catches up with lookahead.
+ * [LookaheadScope] creates a scope in which all layouts will first determine their destination
+ * layout through a lookahead pass, followed by an _approach_ pass to run the measurement
+ * and placement approach defined in [approachLayout] or [ApproachLayoutModifierNode], in order to
+ * gradually reach the destination.
+ *
+ * Note: [LookaheadScope] does not introduce a new [Layout] to the [content] passed in.
+ * All the [Layout]s in the [content] will have the same parent as they would without
+ * [LookaheadScope].
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
+ * @see ApproachLayoutModifierNode
+ * @see approachLayout
  *
  * @param content The child composable to be laid out.
  */
@@ -65,36 +72,102 @@ fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit)
     )
 }
 
-/**
- * Creates an intermediate layout intended to help morph the layout from the current layout
- * to the lookahead (i.e. pre-calculated future) layout.
- *
- * This modifier will be invoked _after_ lookahead pass and will have access to the lookahead
- * results in [measure]. Therefore:
- * 1) [intermediateLayout] measure/layout logic will not affect lookahead pass, but only be
- * invoked during the main measure/layout pass,
- * and 2) [measure] block can define intermediate changes that morphs the layout in the
- * main pass gradually until it converges lookahead pass.
- *
- * @sample androidx.compose.ui.samples.IntermediateLayoutSample
- */
 @ExperimentalComposeUiApi
+@Deprecated(
+    "IntermediateMeasureScope has been renamed to ApproachMeasureScope",
+    replaceWith = ReplaceWith("ApproachMeasureScope")
+)
+interface IntermediateMeasureScope : ApproachMeasureScope, CoroutineScope
+
+@ExperimentalComposeUiApi
+@Deprecated(
+    "intermediateLayout has been replaced with approachLayout, and requires an" +
+        "additional parameter to signal if the approach is complete.",
+    replaceWith = ReplaceWith(
+        "approachLayout(isMeasurementApproachComplete = ," +
+            "approachMeasure = measure)"
+    )
+)
 fun Modifier.intermediateLayout(
+    @Suppress("DEPRECATION")
     measure: IntermediateMeasureScope.(
         measurable: Measurable,
         constraints: Constraints,
     ) -> MeasureResult,
-): Modifier = this then IntermediateLayoutElement(measure)
+) = this then IntermediateLayoutElement(measure)
 
+/**
+ * Creates an approach layout intended to help gradually approach the destination layout calculated
+ * in the lookahead pass. This can be particularly helpful when the destination layout is
+ * anticipated to change drastically and would consequently result in visual disruptions.
+ *
+ * In order to create a smooth approach, an interpolation (often through animations) can be used
+ * in [approachMeasure] to interpolate the measurement or placement from a previously recorded size
+ * and/or position to the destination/target size and/or position. The destination size is
+ * available in [ApproachMeasureScope] as [ApproachMeasureScope.lookaheadSize]. And the target
+ * position can also be acquired in [ApproachMeasureScope] during placement by using
+ * [LookaheadScope.localLookaheadPositionOf] with the layout's
+ * [Placeable.PlacementScope.coordinates]. The sample code below illustrates how that can be
+ * achieved.
+ *
+ * [isMeasurementApproachComplete] signals whether the measurement has already reached the
+ * destination size. It will be queried after the destination has been determined by the lookahead
+ * pass, before [approachMeasure] is invoked. The lookahead size is provided to
+ * [isMeasurementApproachComplete] for convenience in deciding whether the destination size has
+ * been reached.
+ *
+ * [isPlacementApproachComplete] indicates whether the position has approached
+ * destination defined by the lookahead, hence it's a signal to the system for whether additional
+ * approach placements are necessary. [isPlacementApproachComplete] will be invoked after the
+ * destination position has been determined by lookahead pass, and before the placement phase in
+ * [approachMeasure].
+ *
+ * Once both [isMeasurementApproachComplete] and [isPlacementApproachComplete] return true, the
+ * system may skip approach pass until additional approach passes are necessary as indicated by
+ * [isMeasurementApproachComplete] and [isPlacementApproachComplete].
+ *
+ * **IMPORTANT**:
+ * It is important to be accurate in [isPlacementApproachComplete] and
+ * [isMeasurementApproachComplete]. A prolonged indication of incomplete approach will prevent the
+ * system from potentially skipping approach pass when possible.
+ *
+ * @see ApproachLayoutModifierNode
+ * @sample androidx.compose.ui.samples.approachLayoutSample
+ */
+@ExperimentalComposeUiApi
+fun Modifier.approachLayout(
+    isMeasurementApproachComplete: (lookaheadSize: IntSize) -> Boolean,
+    isPlacementApproachComplete: Placeable.PlacementScope.(
+        lookaheadCoordinates: LayoutCoordinates
+    ) -> Boolean = defaultPlacementApproachComplete,
+    approachMeasure: ApproachMeasureScope.(
+        measurable: Measurable,
+        constraints: Constraints,
+    ) -> MeasureResult,
+): Modifier = this then ApproachLayoutElement(
+    isMeasurementApproachComplete = isMeasurementApproachComplete,
+    isPlacementApproachComplete = isPlacementApproachComplete,
+    approachMeasure = approachMeasure
+)
+
+private val defaultPlacementApproachComplete: Placeable.PlacementScope.(
+    lookaheadCoordinates: LayoutCoordinates
+) -> Boolean = { true }
+
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalComposeUiApi::class)
 private data class IntermediateLayoutElement(
     val measure: IntermediateMeasureScope.(
         measurable: Measurable,
         constraints: Constraints,
     ) -> MeasureResult,
-) : ModifierNodeElement<IntermediateLayoutModifierNode>() {
-    override fun create() = IntermediateLayoutModifierNode(measure)
-    override fun update(node: IntermediateLayoutModifierNode) {
+) : ModifierNodeElement<IntermediateLayoutModifierNodeImpl>() {
+    override fun create() =
+        IntermediateLayoutModifierNodeImpl(
+            measure,
+        )
+
+    override fun update(node: IntermediateLayoutModifierNodeImpl) {
         node.measureBlock = measure
     }
 
@@ -104,35 +177,106 @@ private data class IntermediateLayoutElement(
     }
 }
 
-/**
- * [IntermediateMeasureScope] provides access to lookahead results to allow
- * [intermediateLayout] to leverage lookahead results to define intermediate measurements
- * and placements to gradually converge with lookahead.
- *
- * [IntermediateMeasureScope.lookaheadSize] provides the target size of the layout.
- * [IntermediateMeasureScope] is also a [LookaheadScope], thus allowing layouts to
- * read their lookahead [LayoutCoordinates] during placement using
- * [LookaheadScope.toLookaheadCoordinates], as well as the lookahead [LayoutCoordinates] of the
- * closest lookahead scope via [LookaheadScope.lookaheadScopeCoordinates].
- * By knowing the target size and position, layout adjustments such as animations can be defined
- * in [intermediateLayout] to morph the layout gradually in both size and position
- * to arrive at its precalculated bounds.
- *
- * Note that [IntermediateMeasureScope] is the closest lookahead scope in the tree.
- * This [LookaheadScope] enables convenient query of the layout's relative position to the
- * [LookaheadScope]. Hence it becomes straightforward to animate position relative to the closest
- * scope, which usually yields a natural looking animation, unless there are specific UX
- * requirements to change position relative to a particular [LookaheadScope].
- *
- * [IntermediateMeasureScope] is a CoroutineScope, as a convenient scope for all the
- * coroutine-based intermediate changes (e.g. animations) to be launched from.
- */
-@ExperimentalComposeUiApi
-sealed interface IntermediateMeasureScope : LookaheadScope, CoroutineScope, MeasureScope {
-    /**
-     * Indicates the target size of the [intermediateLayout].
-     */
-    val lookaheadSize: IntSize
+@Suppress("DEPRECATION")
+@OptIn(ExperimentalComposeUiApi::class)
+private class IntermediateLayoutModifierNodeImpl(
+    var measureBlock: IntermediateMeasureScope.(
+        measurable: Measurable,
+        constraints: Constraints,
+    ) -> MeasureResult,
+) : ApproachLayoutModifierNode, Modifier.Node() {
+    private var intermediateMeasureScope: IntermediateMeasureScopeImpl? = null
+
+    private inner class IntermediateMeasureScopeImpl(
+        val approachScope: ApproachMeasureScope
+    ) : IntermediateMeasureScope, ApproachMeasureScope by approachScope, CoroutineScope {
+        override val coroutineContext: CoroutineContext
+            get() = this@IntermediateLayoutModifierNodeImpl.coroutineScope.coroutineContext
+    }
+
+    override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
+        // Important: Returning false here is strongly discouraged as it'll prevent layout
+        // performance optimization. This ModifierNodeImpl is only intended to help devs transition
+        // over to the new ApproachLayoutNodeModifier, and it'll be removed after a couple of
+        // releases.
+        return false
+    }
+
+    override fun ApproachMeasureScope.approachMeasure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val scope = intermediateMeasureScope
+        val newScope = if (scope?.approachScope != this) {
+            IntermediateMeasureScopeImpl(this)
+        } else {
+            scope
+        }
+        intermediateMeasureScope = newScope
+        return with(newScope) {
+            measureBlock(measurable, constraints)
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private data class ApproachLayoutElement(
+    val approachMeasure: ApproachMeasureScope.(
+        measurable: Measurable,
+        constraints: Constraints,
+    ) -> MeasureResult,
+    val isMeasurementApproachComplete: (IntSize) -> Boolean,
+    val isPlacementApproachComplete: Placeable.PlacementScope.(
+        lookaheadCoordinates: LayoutCoordinates
+    ) -> Boolean = defaultPlacementApproachComplete,
+) : ModifierNodeElement<ApproachLayoutModifierNodeImpl>() {
+    override fun create() =
+        ApproachLayoutModifierNodeImpl(
+            approachMeasure,
+            isMeasurementApproachComplete,
+            isPlacementApproachComplete
+        )
+
+    override fun update(node: ApproachLayoutModifierNodeImpl) {
+        node.measureBlock = approachMeasure
+        node.isMeasurementApproachComplete = isMeasurementApproachComplete
+        node.isPlacementApproachComplete = isPlacementApproachComplete
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "approachLayout"
+        properties["approachMeasure"] = approachMeasure
+        properties["isMeasurementApproachComplete"] = isMeasurementApproachComplete
+        properties["isPlacementApproachComplete"] = isPlacementApproachComplete
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private class ApproachLayoutModifierNodeImpl(
+    var measureBlock: ApproachMeasureScope.(
+        measurable: Measurable,
+        constraints: Constraints,
+    ) -> MeasureResult,
+    var isMeasurementApproachComplete: (IntSize) -> Boolean,
+    var isPlacementApproachComplete:
+    Placeable.PlacementScope.(LayoutCoordinates) -> Boolean,
+) : ApproachLayoutModifierNode, Modifier.Node() {
+    override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
+        return isMeasurementApproachComplete.invoke(lookaheadSize)
+    }
+
+    override fun Placeable.PlacementScope.isPlacementApproachComplete(
+        lookaheadCoordinates: LayoutCoordinates
+    ): Boolean {
+        return isPlacementApproachComplete.invoke(this, lookaheadCoordinates)
+    }
+
+    override fun ApproachMeasureScope.approachMeasure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        return measureBlock(measurable, constraints)
+    }
 }
 
 /**

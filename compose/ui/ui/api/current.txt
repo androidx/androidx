@@ -2043,6 +2043,27 @@ package androidx.compose.ui.layout {
     property public static final androidx.compose.ui.layout.HorizontalAlignmentLine LastBaseline;
   }
 
+  public sealed interface ApproachIntrinsicMeasureScope extends androidx.compose.ui.layout.LookaheadScope androidx.compose.ui.layout.IntrinsicMeasureScope {
+    method public long getLookaheadConstraints();
+    method public long getLookaheadSize();
+    property public abstract long lookaheadConstraints;
+    property public abstract long lookaheadSize;
+  }
+
+  public interface ApproachLayoutModifierNode extends androidx.compose.ui.node.LayoutModifierNode {
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public androidx.compose.ui.layout.MeasureResult approachMeasure(androidx.compose.ui.layout.ApproachMeasureScope, androidx.compose.ui.layout.Measurable measurable, long constraints);
+    method public boolean isMeasurementApproachComplete(long lookaheadSize);
+    method public default boolean isPlacementApproachComplete(androidx.compose.ui.layout.Placeable.PlacementScope, androidx.compose.ui.layout.LayoutCoordinates lookaheadCoordinates);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default int maxApproachIntrinsicHeight(androidx.compose.ui.layout.ApproachIntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default int maxApproachIntrinsicWidth(androidx.compose.ui.layout.ApproachIntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height);
+    method public default androidx.compose.ui.layout.MeasureResult measure(androidx.compose.ui.layout.MeasureScope, androidx.compose.ui.layout.Measurable measurable, long constraints);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default int minApproachIntrinsicHeight(androidx.compose.ui.layout.ApproachIntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default int minApproachIntrinsicWidth(androidx.compose.ui.layout.ApproachIntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height);
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface ApproachMeasureScope extends androidx.compose.ui.layout.ApproachIntrinsicMeasureScope androidx.compose.ui.layout.MeasureScope {
+  }
+
   public interface BeyondBoundsLayout {
     method public <T> T? layout(int direction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope,? extends T?> block);
   }
@@ -2122,9 +2143,7 @@ package androidx.compose.ui.layout {
     ctor public HorizontalRuler();
   }
 
-  @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface IntermediateMeasureScope extends androidx.compose.ui.layout.LookaheadScope kotlinx.coroutines.CoroutineScope androidx.compose.ui.layout.MeasureScope {
-    method public long getLookaheadSize();
-    property public abstract long lookaheadSize;
+  @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public interface IntermediateMeasureScope extends androidx.compose.ui.layout.ApproachMeasureScope kotlinx.coroutines.CoroutineScope {
   }
 
   public interface IntrinsicMeasurable {
@@ -2240,7 +2259,8 @@ package androidx.compose.ui.layout {
 
   public final class LookaheadScopeKt {
     method @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static void LookaheadScope(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LookaheadScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier intermediateLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntermediateMeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measure);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier approachLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntSize,java.lang.Boolean> isMeasurementApproachComplete, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.Placeable.PlacementScope,? super androidx.compose.ui.layout.LayoutCoordinates,java.lang.Boolean> isPlacementApproachComplete, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.ApproachMeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> approachMeasure);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier intermediateLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntermediateMeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measure);
   }
 
   public interface Measurable extends androidx.compose.ui.layout.IntrinsicMeasurable {

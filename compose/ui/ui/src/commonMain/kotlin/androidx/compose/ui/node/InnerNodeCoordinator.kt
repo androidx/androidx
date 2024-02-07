@@ -36,6 +36,7 @@ internal class TailModifierNode : Modifier.Node() {
         // definition.
         aggregateChildKindSet = 0
     }
+
     // BackwardsCompatNode uses this to determine if it is in a "chain update" or not. If attach
     // has been run on the tail node, then we can assume that it is a chain update. Importantly,
     // this is different than using isAttached.
@@ -116,17 +117,25 @@ internal class InnerNodeCoordinator(
         }
     }
 
-    override fun measure(constraints: Constraints): Placeable = performingMeasure(constraints) {
-        // before rerunning the user's measure block reset previous measuredByParent for children
-        layoutNode.forEachChild {
-            it.measurePassDelegate.measuredByParent = LayoutNode.UsageByParent.NotUsed
-        }
+    override fun measure(constraints: Constraints): Placeable {
+        @Suppress("NAME_SHADOWING") val constraints =
+            if (forceMeasureWithLookaheadConstraints) {
+                lookaheadDelegate!!.constraints
+            } else {
+                constraints
+            }
+        return performingMeasure(constraints) {
+            // before rerunning the user's measure block reset previous measuredByParent for children
+            layoutNode.forEachChild {
+                it.measurePassDelegate.measuredByParent = LayoutNode.UsageByParent.NotUsed
+            }
 
-        measureResult = with(layoutNode.measurePolicy) {
-            measure(layoutNode.childMeasurables, constraints)
+            measureResult = with(layoutNode.measurePolicy) {
+                measure(layoutNode.childMeasurables, constraints)
+            }
+            onMeasured()
+            this
         }
-        onMeasured()
-        this
     }
 
     override fun minIntrinsicWidth(height: Int) =

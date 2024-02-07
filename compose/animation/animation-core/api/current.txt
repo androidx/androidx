@@ -276,6 +276,15 @@ package androidx.compose.animation.core {
     method public static <T> androidx.compose.animation.core.DecayAnimationSpec<T> generateDecayAnimationSpec(androidx.compose.animation.core.FloatDecayAnimationSpec);
   }
 
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimatableApi public final class DeferredTargetAnimation<T, V extends androidx.compose.animation.core.AnimationVector> {
+    ctor public DeferredTargetAnimation(androidx.compose.animation.core.TwoWayConverter<T,V> vectorConverter);
+    method public T? getPendingTarget();
+    method public boolean isIdle();
+    method public T updateTarget(T target, kotlinx.coroutines.CoroutineScope coroutineScope, optional androidx.compose.animation.core.FiniteAnimationSpec<T> animationSpec);
+    property public final boolean isIdle;
+    property public final T? pendingTarget;
+  }
+
   public interface DurationBasedAnimationSpec<T> extends androidx.compose.animation.core.FiniteAnimationSpec<T> {
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
   }
@@ -364,6 +373,9 @@ package androidx.compose.animation.core {
     property public static final androidx.compose.animation.core.Easing FastOutSlowInEasing;
     property public static final androidx.compose.animation.core.Easing LinearEasing;
     property public static final androidx.compose.animation.core.Easing LinearOutSlowInEasing;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for Transition. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimatableApi {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for AnimationSpec. " + "It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationSpecApi {
