@@ -411,6 +411,50 @@
         <item>0</item>
         <item>0</item>
     </array>
+    <array name="invalid_webp_with_jpeg_app1_marker">
+        <!--Whether thumbnail exists-->
+        <item>false</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>false</item>
+        <!--Whether GPS LatLong information exists-->
+        <item>false</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0.0</item>
+        <item>0.0</item>
+        <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>false</item>
+        <item>0</item>
+        <item>0</item>
+        <item />
+        <item />
+        <item>0.0</item>
+        <item />
+        <item>0.0</item>
+        <item>0.0</item>
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item>0</item>
+        <item>0</item>
+        <item />
+        <item>8</item>
+        <item>0</item>
+        <item>false</item>
+        <item>0</item>
+        <item>0</item>
+    </array>
     <array name="heif_with_exif">
         <!--Whether thumbnail exists-->
         <item>false</item>
