@@ -51,7 +51,6 @@ import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.disabled
@@ -181,31 +180,19 @@ fun Modifier.clickable(
     onClickLabel: String? = null,
     role: Role? = null,
     onClick: () -> Unit
-) = inspectable(
-    inspectorInfo = debugInspectorInfo {
-        name = "clickable"
-        properties["interactionSource"] = interactionSource
-        properties["indication"] = indication
-        properties["enabled"] = enabled
-        properties["onClickLabel"] = onClickLabel
-        properties["role"] = role
-        properties["onClick"] = onClick
-    }
-) {
-    clickableWithIndicationIfNeeded(
+) = clickableWithIndicationIfNeeded(
+    enabled = enabled,
+    interactionSource = interactionSource,
+    indication = indication
+) { intSource, indicationNodeFactory ->
+    ClickableElement(
+        interactionSource = intSource,
+        indicationNodeFactory = indicationNodeFactory,
         enabled = enabled,
-        interactionSource = interactionSource,
-        indication = indication
-    ) { interactionSource, indicationNodeFactory ->
-        ClickableElement(
-            interactionSource = interactionSource,
-            indicationNodeFactory = indicationNodeFactory,
-            enabled = enabled,
-            onClickLabel = onClickLabel,
-            role = role,
-            onClick = onClick
-        )
-    }
+        onClickLabel = onClickLabel,
+        role = role,
+        onClick = onClick
+    )
 }
 
 /**
@@ -348,37 +335,22 @@ fun Modifier.combinedClickable(
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
     onClick: () -> Unit
-) = inspectable(
-    inspectorInfo = debugInspectorInfo {
-        name = "combinedClickable"
-        properties["indication"] = indication
-        properties["interactionSource"] = interactionSource
-        properties["enabled"] = enabled
-        properties["onClickLabel"] = onClickLabel
-        properties["role"] = role
-        properties["onClick"] = onClick
-        properties["onDoubleClick"] = onDoubleClick
-        properties["onLongClick"] = onLongClick
-        properties["onLongClickLabel"] = onLongClickLabel
-    }
-) {
-    clickableWithIndicationIfNeeded(
+) = clickableWithIndicationIfNeeded(
+    enabled = enabled,
+    interactionSource = interactionSource,
+    indication = indication
+) { intSource, indicationNodeFactory ->
+    CombinedClickableElement(
+        interactionSource = intSource,
+        indicationNodeFactory = indicationNodeFactory,
         enabled = enabled,
-        interactionSource = interactionSource,
-        indication = indication
-    ) { interactionSource, indicationNodeFactory ->
-        CombinedClickableElement(
-            interactionSource = interactionSource,
-            indicationNodeFactory = indicationNodeFactory,
-            enabled = enabled,
-            onClickLabel = onClickLabel,
-            role = role,
-            onClick = onClick,
-            onLongClickLabel = onLongClickLabel,
-            onLongClick = onLongClick,
-            onDoubleClick = onDoubleClick
-        )
-    }
+        onClickLabel = onClickLabel,
+        role = role,
+        onClick = onClick,
+        onLongClickLabel = onLongClickLabel,
+        onLongClick = onLongClick,
+        onDoubleClick = onDoubleClick
+    )
 }
 
 /**
@@ -526,7 +498,15 @@ private class ClickableElement(
     }
 
     // Defined in the factory functions with inspectable
-    override fun InspectorInfo.inspectableProperties() = Unit
+    override fun InspectorInfo.inspectableProperties() {
+        name = "clickable"
+        properties["enabled"] = enabled
+        properties["onClick"] = onClick
+        properties["onClickLabel"] = onClickLabel
+        properties["role"] = role
+        properties["interactionSource"] = interactionSource
+        properties["indicationNodeFactory"] = indicationNodeFactory
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -594,7 +574,18 @@ private class CombinedClickableElement(
     }
 
     // Defined in the factory functions with inspectable
-    override fun InspectorInfo.inspectableProperties() = Unit
+    override fun InspectorInfo.inspectableProperties() {
+        name = "combinedClickable"
+        properties["indicationNodeFactory"] = indicationNodeFactory
+        properties["interactionSource"] = interactionSource
+        properties["enabled"] = enabled
+        properties["onClickLabel"] = onClickLabel
+        properties["role"] = role
+        properties["onClick"] = onClick
+        properties["onDoubleClick"] = onDoubleClick
+        properties["onLongClick"] = onLongClick
+        properties["onLongClickLabel"] = onLongClickLabel
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

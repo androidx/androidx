@@ -30,7 +30,6 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.toggleableState
@@ -134,31 +133,19 @@ fun Modifier.toggleable(
     enabled: Boolean = true,
     role: Role? = null,
     onValueChange: (Boolean) -> Unit
-) = inspectable(
-    inspectorInfo = debugInspectorInfo {
-        name = "toggleable"
-        properties["value"] = value
-        properties["interactionSource"] = interactionSource
-        properties["indication"] = indication
-        properties["enabled"] = enabled
-        properties["role"] = role
-        properties["onValueChange"] = onValueChange
-    }
-) {
-    clickableWithIndicationIfNeeded(
+) = clickableWithIndicationIfNeeded(
+    enabled = enabled,
+    interactionSource = interactionSource,
+    indication = indication
+) { intSource, indicationNodeFactory ->
+    ToggleableElement(
+        value = value,
+        interactionSource = intSource,
+        indicationNodeFactory = indicationNodeFactory,
         enabled = enabled,
-        interactionSource = interactionSource,
-        indication = indication
-    ) { interactionSource, indicationNodeFactory ->
-        ToggleableElement(
-            value = value,
-            interactionSource = interactionSource,
-            indicationNodeFactory = indicationNodeFactory,
-            enabled = enabled,
-            role = role,
-            onValueChange = onValueChange
-        )
-    }
+        role = role,
+        onValueChange = onValueChange
+    )
 }
 
 private class ToggleableElement(
@@ -189,8 +176,15 @@ private class ToggleableElement(
         )
     }
 
-    // Defined in the factory functions with inspectable
-    override fun InspectorInfo.inspectableProperties() = Unit
+    override fun InspectorInfo.inspectableProperties() {
+        name = "toggleable"
+        properties["value"] = value
+        properties["interactionSource"] = interactionSource
+        properties["indicationNodeFactory"] = indicationNodeFactory
+        properties["enabled"] = enabled
+        properties["role"] = role
+        properties["onValueChange"] = onValueChange
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -375,31 +369,19 @@ fun Modifier.triStateToggleable(
     enabled: Boolean = true,
     role: Role? = null,
     onClick: () -> Unit
-) = inspectable(
-    inspectorInfo = debugInspectorInfo {
-        name = "triStateToggleable"
-        properties["state"] = state
-        properties["interactionSource"] = interactionSource
-        properties["indication"] = indication
-        properties["enabled"] = enabled
-        properties["role"] = role
-        properties["onClick"] = onClick
-    }
-) {
-    clickableWithIndicationIfNeeded(
+) = clickableWithIndicationIfNeeded(
+    enabled = enabled,
+    interactionSource = interactionSource,
+    indication = indication
+) { intSource, indicationNodeFactory ->
+    TriStateToggleableElement(
+        state = state,
+        interactionSource = intSource,
+        indicationNodeFactory = indicationNodeFactory,
         enabled = enabled,
-        interactionSource = interactionSource,
-        indication = indication
-    ) { interactionSource, indicationNodeFactory ->
-        TriStateToggleableElement(
-            state = state,
-            interactionSource = interactionSource,
-            indicationNodeFactory = indicationNodeFactory,
-            enabled = enabled,
-            role = role,
-            onClick = onClick
-        )
-    }
+        role = role,
+        onClick = onClick
+    )
 }
 
 private class TriStateToggleableElement(
@@ -431,7 +413,15 @@ private class TriStateToggleableElement(
     }
 
     // Defined in the factory functions with inspectable
-    override fun InspectorInfo.inspectableProperties() = Unit
+    override fun InspectorInfo.inspectableProperties() {
+        name = "triStateToggleable"
+        properties["state"] = state
+        properties["interactionSource"] = interactionSource
+        properties["indicationNodeFactory"] = indicationNodeFactory
+        properties["enabled"] = enabled
+        properties["role"] = role
+        properties["onClick"] = onClick
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

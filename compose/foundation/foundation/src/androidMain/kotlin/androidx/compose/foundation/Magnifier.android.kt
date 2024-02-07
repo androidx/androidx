@@ -41,8 +41,6 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Density
@@ -151,19 +149,7 @@ internal fun Modifier.magnifier(
         // Magnifier is only supported in >=28. So avoid doing all the work to manage the magnifier
         // state if it's not needed.
         // TODO(b/202739980) Investigate supporting Magnifier on earlier versions.
-        inspectable(
-            // Publish inspector info even if magnification isn't supported.
-            inspectorInfo = debugInspectorInfo {
-                name = "magnifier (not supported)"
-                properties["sourceCenter"] = sourceCenter
-                properties["magnifierCenter"] = magnifierCenter
-                properties["zoom"] = zoom
-                properties["size"] = size
-                properties["cornerRadius"] = cornerRadius
-                properties["elevation"] = elevation
-                properties["clippingEnabled"] = clippingEnabled
-            }
-        ) { this }
+        this
     }
 }
 
