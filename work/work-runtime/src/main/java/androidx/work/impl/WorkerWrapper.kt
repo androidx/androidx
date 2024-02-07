@@ -173,6 +173,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             workSpec.runAttemptCount,
             workSpec.generation,
             configuration.executor,
+            configuration.workerCoroutineContext,
             workTaskExecutor,
             configuration.workerFactory,
             WorkProgressUpdater(workDatabase, workTaskExecutor),

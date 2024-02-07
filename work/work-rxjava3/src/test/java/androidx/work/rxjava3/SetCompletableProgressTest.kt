@@ -27,6 +27,7 @@ import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
 import java.util.UUID
 import java.util.concurrent.Executor
+import kotlin.coroutines.EmptyCoroutineContext
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -69,6 +70,7 @@ class SetCompletableProgressTest {
         1,
         0,
         executor,
+        EmptyCoroutineContext,
         RxWorkerTest.InstantWorkTaskExecutor(),
         DefaultWorkerFactory,
         progressUpdater,

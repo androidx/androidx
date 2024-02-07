@@ -29,6 +29,7 @@ package androidx.work {
     method public androidx.work.RunnableScheduler getRunnableScheduler();
     method public androidx.core.util.Consumer<java.lang.Throwable>? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
+    method public kotlin.coroutines.CoroutineContext getWorkerCoroutineContext();
     method public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? getWorkerExecutionExceptionHandler();
     method public androidx.work.WorkerFactory getWorkerFactory();
     method public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? getWorkerInitializationExceptionHandler();
@@ -43,6 +44,7 @@ package androidx.work {
     property public final androidx.work.RunnableScheduler runnableScheduler;
     property public final androidx.core.util.Consumer<java.lang.Throwable>? schedulingExceptionHandler;
     property public final java.util.concurrent.Executor taskExecutor;
+    property public final kotlin.coroutines.CoroutineContext workerCoroutineContext;
     property public final androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerExecutionExceptionHandler;
     property public final androidx.work.WorkerFactory workerFactory;
     property public final androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerInitializationExceptionHandler;
@@ -65,6 +67,7 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler runnableScheduler);
     method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> schedulingExceptionHandler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor taskExecutor);
+    method public androidx.work.Configuration.Builder setWorkerCoroutineContext(kotlinx.coroutines.CoroutineDispatcher dispatcher);
     method public androidx.work.Configuration.Builder setWorkerExecutionExceptionHandler(androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo> workerExceptionHandler);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory workerFactory);
     method public androidx.work.Configuration.Builder setWorkerInitializationExceptionHandler(androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo> workerExceptionHandler);
