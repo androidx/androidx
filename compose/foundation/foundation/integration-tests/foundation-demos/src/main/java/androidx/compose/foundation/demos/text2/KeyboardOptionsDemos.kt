@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.Button
@@ -76,7 +76,7 @@ private fun EditLine(
     text: String = ""
 ) {
     val state = remember { TextFieldState(text) }
-    BasicTextField2(
+    BasicTextField(
         modifier = demoTextFieldModifiers,
         state = state,
         keyboardOptions = KeyboardOptions(
@@ -94,7 +94,7 @@ private fun ShowKeyboardOnFocus(showKeyboardOnFocus: Boolean) {
 
         val state = remember { TextFieldState("") }
         val focusRequester = remember { FocusRequester() }
-        BasicTextField2(
+        BasicTextField(
             modifier = demoTextFieldModifiers.focusRequester(focusRequester),
             state = state,
             keyboardOptions = KeyboardOptions(

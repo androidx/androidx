@@ -34,7 +34,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
@@ -248,7 +248,7 @@ class TextFieldDragAndDropTest {
                             }
                         })
                 ) {
-                    BasicTextField2(
+                    BasicTextField(
                         state = rememberTextFieldState(),
                         textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
                         lineLimits = TextFieldLineLimits.SingleLine,
@@ -321,7 +321,7 @@ class TextFieldDragAndDropTest {
                             }
                         })
                 ) {
-                    BasicTextField2(
+                    BasicTextField(
                         state = rememberTextFieldState(),
                         textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
                         lineLimits = TextFieldLineLimits.SingleLine,
@@ -500,7 +500,7 @@ class TextFieldDragAndDropTest {
                 }
             ) {
                 isHovered = interactionSource?.collectIsHoveredAsState()
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = mergedStyle,
                     lineLimits = TextFieldLineLimits.SingleLine,

@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
@@ -135,9 +135,9 @@ private fun IconDemoColumn(overrideDescendants: Boolean) {
         TextField(mod, { mod = it }, iconMod)
 
         val nonModTfs = rememberTextFieldState("BTF2, icon not set")
-        BasicTextField2(nonModTfs, borderMod)
+        BasicTextField(nonModTfs, borderMod)
 
         val modTfs = rememberTextFieldState("BTF2, icon crosshair")
-        BasicTextField2(modTfs, iconMod)
+        BasicTextField(modTfs, iconMod)
     }
 }

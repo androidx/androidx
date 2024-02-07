@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
@@ -62,12 +62,12 @@ fun SwapFieldSameStateDemo() {
             Text("Swap")
         }
         if (swapped) {
-            BasicTextField2(
+            BasicTextField(
                 state,
                 Modifier.border(1.dp, Color.Magenta)
             )
         } else {
-            BasicTextField2(
+            BasicTextField(
                 state,
                 Modifier.border(1.dp, Color.Blue)
             )
@@ -76,31 +76,31 @@ fun SwapFieldSameStateDemo() {
 }
 
 @Composable
-fun BasicTextField2Demos() {
+fun BasicTextFieldDemos() {
     Column(
         Modifier
             .imePadding()
             .verticalScroll(rememberScrollState())
     ) {
-        TagLine(tag = "Plain BasicTextField2")
-        PlainBasicTextField2()
+        TagLine(tag = "Plain BasicTextField")
+        PlainBasicTextField()
 
-        TagLine(tag = "Single Line BasicTextField2")
-        SingleLineBasicTextField2()
+        TagLine(tag = "Single Line BasicTextField")
+        SingleLineBasicTextField()
 
-        TagLine(tag = "Multi Line BasicTextField2")
-        MultiLineBasicTextField2()
+        TagLine(tag = "Multi Line BasicTextField")
+        MultiLineBasicTextField()
 
-        TagLine(tag = "State toggling BasicTextField2")
-        StateTogglingBasicTextField2()
+        TagLine(tag = "State toggling BasicTextField")
+        StateTogglingBasicTextField()
 
-        TagLine(tag = "BasicTextField2 Edit Controls")
-        BasicTextField2EditControls()
+        TagLine(tag = "BasicTextField Edit Controls")
+        BasicTextFieldEditControls()
     }
 }
 
 @Composable
-fun BasicTextField2ValueCallbackDemo() {
+fun BasicTextFieldValueCallbackDemo() {
     Column(
         Modifier
             .imePadding()
@@ -117,7 +117,7 @@ fun BasicTextField2ValueCallbackDemo() {
 @Composable
 private fun SimpleValueCallbackDemo() {
     var text by remember { mutableStateOf("") }
-    BasicTextField2(
+    BasicTextField(
         value = text,
         onValueChange = { text = it },
         modifier = demoTextFieldModifiers
@@ -127,7 +127,7 @@ private fun SimpleValueCallbackDemo() {
 @Composable
 private fun CapitalizeValueCallbackDemo() {
     var text by remember { mutableStateOf("") }
-    BasicTextField2(
+    BasicTextField(
         value = text,
         onValueChange = { text = it.toUpperCase(Locale.current) },
         modifier = demoTextFieldModifiers
@@ -137,16 +137,16 @@ private fun CapitalizeValueCallbackDemo() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PlainBasicTextField2() {
+fun PlainBasicTextField() {
     val state = remember { TextFieldState() }
-    BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
+    BasicTextField(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SingleLineBasicTextField2() {
+fun SingleLineBasicTextField() {
     val state = remember { TextFieldState() }
-    BasicTextField2(
+    BasicTextField(
         state = state,
         modifier = demoTextFieldModifiers,
         textStyle = TextStyle(fontSize = fontSize8),
@@ -156,9 +156,9 @@ fun SingleLineBasicTextField2() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MultiLineBasicTextField2() {
+fun MultiLineBasicTextField() {
     val state = remember { TextFieldState() }
-    BasicTextField2(
+    BasicTextField(
         state = state,
         modifier = demoTextFieldModifiers,
         textStyle = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Center),
@@ -171,7 +171,7 @@ fun MultiLineBasicTextField2() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun StateTogglingBasicTextField2() {
+fun StateTogglingBasicTextField() {
     var counter by remember { mutableIntStateOf(0) }
     val states = remember { listOf(TextFieldState(), TextFieldState()) }
     val state = states[counter]
@@ -180,12 +180,12 @@ fun StateTogglingBasicTextField2() {
         counter %= 2
     })
 
-    BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
+    BasicTextField(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BasicTextField2EditControls() {
+fun BasicTextFieldEditControls() {
     var enabled by remember { mutableStateOf(true) }
     var readOnly by remember { mutableStateOf(false) }
     val state = remember { TextFieldState("Content goes here") }
@@ -201,7 +201,7 @@ fun BasicTextField2EditControls() {
             Checkbox(checked = readOnly, onCheckedChange = { readOnly = it })
         }
 
-        BasicTextField2(
+        BasicTextField(
             state,
             demoTextFieldModifiers,
             textStyle = LocalTextStyle.current,

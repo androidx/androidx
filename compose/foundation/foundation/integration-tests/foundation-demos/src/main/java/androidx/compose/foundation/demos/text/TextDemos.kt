@@ -17,13 +17,13 @@
 package androidx.compose.foundation.demos.text
 
 import androidx.compose.foundation.demos.text2.BasicSecureTextFieldDemos
-import androidx.compose.foundation.demos.text2.BasicTextField2CustomPinFieldDemo
-import androidx.compose.foundation.demos.text2.BasicTextField2Demos
-import androidx.compose.foundation.demos.text2.BasicTextField2FilterDemos
-import androidx.compose.foundation.demos.text2.BasicTextField2InScrollableDemo
-import androidx.compose.foundation.demos.text2.BasicTextField2LongTextDemo
-import androidx.compose.foundation.demos.text2.BasicTextField2OutputTransformationDemos
-import androidx.compose.foundation.demos.text2.BasicTextField2ValueCallbackDemo
+import androidx.compose.foundation.demos.text2.BasicTextFieldCustomPinFieldDemo
+import androidx.compose.foundation.demos.text2.BasicTextFieldDemos
+import androidx.compose.foundation.demos.text2.BasicTextFieldFilterDemos
+import androidx.compose.foundation.demos.text2.BasicTextFieldInScrollableDemo
+import androidx.compose.foundation.demos.text2.BasicTextFieldLongTextDemo
+import androidx.compose.foundation.demos.text2.BasicTextFieldOutputTransformationDemos
+import androidx.compose.foundation.demos.text2.BasicTextFieldValueCallbackDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardActionsDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
@@ -31,10 +31,10 @@ import androidx.compose.foundation.demos.text2.NestedReceiveContentDemo
 import androidx.compose.foundation.demos.text2.ScrollableDemos
 import androidx.compose.foundation.demos.text2.ScrollableDemosRtl
 import androidx.compose.foundation.demos.text2.SwapFieldSameStateDemo
-import androidx.compose.foundation.demos.text2.TextField2CursorNotBlinkingInUnfocusedWindowDemo
+import androidx.compose.foundation.demos.text2.TextFieldCursorNotBlinkingInUnfocusedWindowDemo
 import androidx.compose.foundation.demos.text2.TextFieldLineLimitsDemos
 import androidx.compose.foundation.demos.text2.TextFieldReceiveContentDemo
-import androidx.compose.foundation.samples.BasicTextField2UndoSample
+import androidx.compose.foundation.samples.BasicTextFieldUndoSample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 
@@ -109,7 +109,7 @@ val TextDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "Text Input",
+            "Legacy Text Input (BasicTextFieldv1)",
             listOf(
                 ComposableDemo("Basic input fields") { InputFieldDemo() },
                 ComposableDemo("Capitalization/AutoCorrect") {
@@ -153,10 +153,10 @@ val TextDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "BasicTextField2",
+            "Text Input (BasicTextFieldv2)",
             listOf(
-                ComposableDemo("Basic text input") { BasicTextField2Demos() },
-                ComposableDemo("Value/callback overload") { BasicTextField2ValueCallbackDemo() },
+                ComposableDemo("Basic text input") { BasicTextFieldDemos() },
+                ComposableDemo("Value/callback overload") { BasicTextFieldValueCallbackDemo() },
                 ComposableDemo("Keyboard Options") { KeyboardOptionsDemos() },
                 ComposableDemo("Keyboard Actions") { KeyboardActionsDemos() },
                 ComposableDemo("Decoration Box") { DecorationBoxDemos() },
@@ -165,21 +165,21 @@ val TextDemos = DemoCategory(
                     ComposableDemo("Ltr") { ScrollableDemos() },
                     ComposableDemo("Rtl") { ScrollableDemosRtl() },
                 )),
-                ComposableDemo("Inside Scrollable") { BasicTextField2InScrollableDemo() },
-                ComposableDemo("Filters") { BasicTextField2FilterDemos() },
+                ComposableDemo("Inside Scrollable") { BasicTextFieldInScrollableDemo() },
+                ComposableDemo("Filters") { BasicTextFieldFilterDemos() },
                 DemoCategory("Receive Content", listOf(
                     ComposableDemo("Basic") { TextFieldReceiveContentDemo() },
                     ComposableDemo("Nested") { NestedReceiveContentDemo() },
                 )),
                 ComposableDemo("Output transformation") {
-                    BasicTextField2OutputTransformationDemos()
+                    BasicTextFieldOutputTransformationDemos()
                 },
                 ComposableDemo("Secure Field") { BasicSecureTextFieldDemos() },
                 ComposableDemo("Swap the field but reuse the state") { SwapFieldSameStateDemo() },
-                ComposableDemo("Custom PIN field") { BasicTextField2CustomPinFieldDemo() },
-                ComposableDemo("Undo/Redo") { BasicTextField2UndoSample() },
-                ComposableDemo("Long text") { BasicTextField2LongTextDemo() },
-                ComposableDemo("Cursor") { TextField2CursorNotBlinkingInUnfocusedWindowDemo() }
+                ComposableDemo("Custom PIN field") { BasicTextFieldCustomPinFieldDemo() },
+                ComposableDemo("Undo/Redo") { BasicTextFieldUndoSample() },
+                ComposableDemo("Long text") { BasicTextFieldLongTextDemo() },
+                ComposableDemo("Cursor") { TextFieldCursorNotBlinkingInUnfocusedWindowDemo() }
             )
         ),
         DemoCategory(

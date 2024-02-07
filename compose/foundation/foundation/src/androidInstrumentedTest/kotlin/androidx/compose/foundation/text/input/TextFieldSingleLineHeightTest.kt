@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.isSelectionHandle
@@ -56,7 +56,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
         val state = TextFieldState("")
         var reportedSize: IntSize = IntSize.Zero
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier.onSizeChanged {
@@ -81,7 +81,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
         val state = TextFieldState(defaultText)
         var reportedSize: IntSize = IntSize.Zero
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier.onSizeChanged {
@@ -105,7 +105,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
     fun singleLineTextField_withTallText_showsCursorHandle_whenClicked() {
         val state = TextFieldState(tallText)
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier.testTag(TextfieldTag)
@@ -121,7 +121,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
     fun multiLineTextField_withTallText_showsCursorHandle_whenClicked() {
         val state = TextFieldState(tallText)
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.MultiLine(1, 1),
                 modifier = Modifier.testTag(TextfieldTag)

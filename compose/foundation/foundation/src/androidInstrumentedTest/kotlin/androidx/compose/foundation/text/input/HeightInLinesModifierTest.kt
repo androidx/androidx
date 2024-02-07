@@ -23,7 +23,7 @@ import android.graphics.Typeface
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT
 import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
@@ -344,7 +344,7 @@ class HeightInLinesModifierTest {
                 onGlobalHeightPositioned(it.size.height)
             }
         ) {
-            BasicTextField2(
+            BasicTextField(
                 state = remember { TextFieldState(text) },
                 textStyle = textStyle,
                 lineLimits = lineLimits,

@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.internal.CodepointTransformation
 import androidx.compose.foundation.text.input.internal.mask
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
@@ -60,14 +60,14 @@ class TextFieldCodepointTransformationTest {
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
-    private val Tag = "BasicTextField2"
+    private val Tag = "BasicTextField"
 
     @Test
     fun textField_rendersTheResultOf_codepointTransformation() {
         val state = TextFieldState()
         state.setTextAndPlaceCursorAtEnd("Hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 codepointTransformation = { _, codepoint -> codepoint + 1 },
                 modifier = Modifier.testTag(Tag)
@@ -82,7 +82,7 @@ class TextFieldCodepointTransformationTest {
         val state = TextFieldState()
         state.setTextAndPlaceCursorAtEnd("Hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 codepointTransformation = { index, codepoint ->
                     if (index % 2 == 0) codepoint + 1 else codepoint - 1
@@ -101,7 +101,7 @@ class TextFieldCodepointTransformationTest {
         state.setTextAndPlaceCursorAtEnd("Hello")
         var codepointTransformation: CodepointTransformation? by mutableStateOf(null)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 codepointTransformation = codepointTransformation,
                 modifier = Modifier.testTag(Tag)
@@ -121,7 +121,7 @@ class TextFieldCodepointTransformationTest {
         state.setTextAndPlaceCursorAtEnd("Hello")
         var mask by mutableStateOf('-')
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 codepointTransformation = CodepointTransformation.mask(mask),
                 modifier = Modifier.testTag(Tag)
@@ -143,7 +143,7 @@ class TextFieldCodepointTransformationTest {
             CodepointTransformation.mask('*')
         )
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 codepointTransformation = codepointTransformation,
                 modifier = Modifier.testTag(Tag)
@@ -162,7 +162,7 @@ class TextFieldCodepointTransformationTest {
         val state = TextFieldState()
         state.setTextAndPlaceCursorAtEnd("Hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 codepointTransformation = CodepointTransformation.mask('*'),
                 modifier = Modifier.testTag(Tag)
@@ -180,7 +180,7 @@ class TextFieldCodepointTransformationTest {
         val state = TextFieldState()
         state.setTextAndPlaceCursorAtEnd("Hello\nWorld")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier.testTag(Tag)
@@ -197,7 +197,7 @@ class TextFieldCodepointTransformationTest {
         val state = TextFieldState()
         state.setTextAndPlaceCursorAtEnd("Hello\rWorld")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier.testTag(Tag)
@@ -212,7 +212,7 @@ class TextFieldCodepointTransformationTest {
         val state = TextFieldState()
         state.setTextAndPlaceCursorAtEnd("Hello\nWorld")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 codepointTransformation = { _, codepoint -> codepoint },
@@ -227,7 +227,7 @@ class TextFieldCodepointTransformationTest {
     fun surrogateToNonSurrogate_singleCodepoint_isTransformed() {
         val state = TextFieldState(SingleSurrogateCodepointString)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -241,7 +241,7 @@ class TextFieldCodepointTransformationTest {
     fun surrogateToNonSurrogate_multipleCodepoints_areTransformed() {
         val state = TextFieldState(SingleSurrogateCodepointString + SingleSurrogateCodepointString)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -255,7 +255,7 @@ class TextFieldCodepointTransformationTest {
     fun surrogateToNonSurrogate_withNonSurrogates_areTransformed() {
         val state = TextFieldState("a${SingleSurrogateCodepointString}b")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -269,7 +269,7 @@ class TextFieldCodepointTransformationTest {
     fun nonSurrogateToSurrogate_singleCodepoint_isTransformed() {
         val state = TextFieldState("a")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithSurrogate
@@ -283,7 +283,7 @@ class TextFieldCodepointTransformationTest {
     fun nonSurrogateToSurrogate_multipleCodepoints_areTransformed() {
         val state = TextFieldState("ab")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithSurrogate
@@ -297,7 +297,7 @@ class TextFieldCodepointTransformationTest {
     fun nonSurrogateToSurrogate_withNonSurrogates_areTransformed() {
         val state = TextFieldState("abc")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = { i, codepoint ->
@@ -313,7 +313,7 @@ class TextFieldCodepointTransformationTest {
     fun surrogateToNonSurrogate_singleCodepoint_selectionIsMappedAroundCodepoint() {
         val state = TextFieldState(SingleSurrogateCodepointString)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -333,7 +333,7 @@ class TextFieldCodepointTransformationTest {
     fun nonSurrogateToSurrogate_singleCodepoint_selectionIsMappedAroundCodepoint() {
         val state = TextFieldState("a")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithSurrogate
@@ -359,7 +359,7 @@ class TextFieldCodepointTransformationTest {
     fun multipleCodepoints_selectionIsMappedAroundCodepoints() {
         val state = TextFieldState("a${SingleSurrogateCodepointString}c")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = { i, codepoint ->
@@ -414,7 +414,7 @@ class TextFieldCodepointTransformationTest {
     fun cursorTraversal_withArrowKeys() {
         val state = TextFieldState("a${SingleSurrogateCodepointString}c")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = { i, codepoint ->
@@ -449,7 +449,7 @@ class TextFieldCodepointTransformationTest {
     fun expandSelectionForward_withArrowKeys() {
         val state = TextFieldState("a${SingleSurrogateCodepointString}c")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = { i, codepoint ->
@@ -491,7 +491,7 @@ class TextFieldCodepointTransformationTest {
     fun expandSelectionBackward_withArrowKeys() {
         val state = TextFieldState("a${SingleSurrogateCodepointString}c")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = { i, codepoint ->
@@ -533,7 +533,7 @@ class TextFieldCodepointTransformationTest {
     fun insertNonSurrogates_intoSurrogateMask_fromKeyEvents() {
         val state = TextFieldState("a$SingleSurrogateCodepointString")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithSurrogate
@@ -560,7 +560,7 @@ class TextFieldCodepointTransformationTest {
     fun insertNonSurrogates_intoNonSurrogateMask_fromKeyEvents() {
         val state = TextFieldState("a$SingleSurrogateCodepointString")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -587,7 +587,7 @@ class TextFieldCodepointTransformationTest {
     fun insertText_intoSurrogateMask_fromSemantics() {
         val state = TextFieldState("a$SingleSurrogateCodepointString")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithSurrogate
@@ -613,7 +613,7 @@ class TextFieldCodepointTransformationTest {
     fun insertNonSurrogates_intoNonSurrogateMask_fromSemantics() {
         val state = TextFieldState("a$SingleSurrogateCodepointString")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -639,7 +639,7 @@ class TextFieldCodepointTransformationTest {
     fun insertText_intoSurrogateMask_fromIme() {
         val state = TextFieldState("a$SingleSurrogateCodepointString")
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithSurrogate
@@ -670,7 +670,7 @@ class TextFieldCodepointTransformationTest {
     fun insertText_intoNonSurrogateMask_fromIme() {
         val state = TextFieldState("a$SingleSurrogateCodepointString")
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -701,7 +701,7 @@ class TextFieldCodepointTransformationTest {
     fun removeNonSurrogate_fromNonSurrogateMask_usingKeyEvents_mixedInput() {
         val state = TextFieldState("${SingleSurrogateCodepointString.repeat(2)}aa")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -725,7 +725,7 @@ class TextFieldCodepointTransformationTest {
     fun removeSurrogate_fromNonSurrogateMask_usingKeyEvents_mixedInput() {
         val state = TextFieldState("aa${SingleSurrogateCodepointString.repeat(2)}")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithNonSurrogate
@@ -749,7 +749,7 @@ class TextFieldCodepointTransformationTest {
     fun removeNonSurrogate_fromSurrogateMask_usingKeyEvents_mixedInput() {
         val state = TextFieldState("a${SingleSurrogateCodepointString.repeat(2)}a")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithSurrogate
@@ -773,7 +773,7 @@ class TextFieldCodepointTransformationTest {
     fun removeSurrogate_fromSurrogateMask_usingKeyEvents_mixedInput() {
         val state = TextFieldState("aa${SingleSurrogateCodepointString.repeat(2)}")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 codepointTransformation = MaskWithSurrogate

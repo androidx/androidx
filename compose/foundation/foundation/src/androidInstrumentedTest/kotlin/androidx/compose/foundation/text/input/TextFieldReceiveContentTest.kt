@@ -31,7 +31,7 @@ import androidx.compose.foundation.content.createClipData
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboardManager
 import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.runtime.CompositionLocalProvider
@@ -62,7 +62,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Tests InputConnection#commitContent calls from BasicTextField2 to receiveContent modifier.
+ * Tests InputConnection#commitContent calls from BasicTextField to receiveContent modifier.
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -74,13 +74,13 @@ class TextFieldReceiveContentTest {
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
-    private val tag = "BasicTextField2"
+    private val tag = "BasicTextField"
 
     @SdkSuppress(minSdkVersion = 25)
     @Test
     fun commitContentReturnsFalse_whenNoReceiveContentConfigured() {
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = rememberTextFieldState(), modifier = Modifier.testTag(tag))
+            BasicTextField(state = rememberTextFieldState(), modifier = Modifier.testTag(tag))
         }
         rule.onNodeWithTag(tag).requestFocus()
         inputMethodInterceptor.withInputConnection {
@@ -98,7 +98,7 @@ class TextFieldReceiveContentTest {
     @Test
     fun preformPrivateCommandReturnsFalse_whenNoReceiveContentConfigured() {
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = rememberTextFieldState(), modifier = Modifier.testTag(tag))
+            BasicTextField(state = rememberTextFieldState(), modifier = Modifier.testTag(tag))
         }
         rule.onNodeWithTag(tag).requestFocus()
         inputMethodInterceptor.onIdle { editorInfo, inputConnection ->
@@ -120,7 +120,7 @@ class TextFieldReceiveContentTest {
     @Test
     fun singleReceiveContent_configuresEditorInfo() {
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
@@ -137,7 +137,7 @@ class TextFieldReceiveContentTest {
     @Test
     fun singleReceiveContent_duplicateMediaTypes_appliedUniquely() {
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
@@ -168,7 +168,7 @@ class TextFieldReceiveContentTest {
     fun multiReceiveContent_mergesMediaTypes() {
         inputMethodInterceptor.setContent {
             Box(modifier = Modifier.receiveContent(setOf(MediaType.Text)) { null }) {
-                BasicTextField2(
+                BasicTextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
@@ -194,7 +194,7 @@ class TextFieldReceiveContentTest {
             Box(modifier = Modifier.receiveContent(
                 setOf(MediaType.Text, MediaType.Image)
             ) { null }) {
-                BasicTextField2(
+                BasicTextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
@@ -225,7 +225,7 @@ class TextFieldReceiveContentTest {
                     }
                 })
             ) {
-                BasicTextField2(
+                BasicTextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
@@ -249,7 +249,7 @@ class TextFieldReceiveContentTest {
     fun singleReceiveContent_isCalledAfterCommitContent() {
         var transferableContent: TransferableContent? = null
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
@@ -295,7 +295,7 @@ class TextFieldReceiveContentTest {
     fun singleReceiveContent_permissionIsRequested() {
         var transferableContent: TransferableContent? = null
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
@@ -334,7 +334,7 @@ class TextFieldReceiveContentTest {
         var childTransferableContent: TransferableContent? = null
         var parentTransferableContent: TransferableContent? = null
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
@@ -379,7 +379,7 @@ class TextFieldReceiveContentTest {
         var childTransferableContent: TransferableContent? = null
         var parentTransferableContent: TransferableContent? = null
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
@@ -418,7 +418,7 @@ class TextFieldReceiveContentTest {
         lateinit var transferableContent: TransferableContent
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
@@ -451,7 +451,7 @@ class TextFieldReceiveContentTest {
         val state = TextFieldState()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier
                         .testTag(tag)
@@ -490,7 +490,7 @@ class TextFieldReceiveContentTest {
 
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier
                         .testTag(tag)
@@ -544,7 +544,7 @@ class TextFieldReceiveContentTest {
                 LocalClipboardManager provides clipboardManager,
                 LocalTextToolbar provides textToolbar
             ) {
-                BasicTextField2(
+                BasicTextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)

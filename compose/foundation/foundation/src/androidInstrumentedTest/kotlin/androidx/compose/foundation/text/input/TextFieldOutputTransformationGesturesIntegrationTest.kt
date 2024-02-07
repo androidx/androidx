@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -51,13 +51,13 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
-    private val Tag = "BasicTextField2"
+    private val Tag = "BasicTextField"
 
     @Test
     fun clickingAroundReplacement_movesCursorToEdgesOfReplacement() {
         val text = TextFieldState("zaz", initialSelectionInChars = TextRange(0))
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = text,
                 modifier = Modifier.testTag(Tag),
                 textStyle = TextStyle(
@@ -105,7 +105,7 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
         val replacement = "bbbb\nbb"
         val indexOfA = text.text.indexOf('a')
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = text,
                 modifier = Modifier.testTag(Tag),
                 textStyle = TextStyle(
@@ -144,7 +144,7 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
     fun clickingAroundReplacement_movesCursorToEdgesOfInsertion() {
         val text = TextFieldState("zz", initialSelectionInChars = TextRange(0))
         inputMethodInterceptor.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = text,
                 modifier = Modifier.testTag(Tag),
                 textStyle = TextStyle(

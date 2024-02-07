@@ -20,7 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.BasicSecureTextField
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
@@ -717,7 +717,7 @@ class TextFieldKeyEventTest {
                 LocalClipboardManager provides clipboardManager,
             ) {
                 if (!secure) {
-                    BasicTextField2(
+                    BasicTextField(
                         state = state,
                         textStyle = TextStyle(
                             fontFamily = TEST_FONT_FAMILY,

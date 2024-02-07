@@ -21,7 +21,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -61,7 +61,7 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * Tests for long click interactions on BasicTextField2.
+ * Tests for long click interactions on BasicTextField.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
@@ -70,7 +70,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
-    private val TAG = "BasicTextField2"
+    private val TAG = "BasicTextField"
 
     private val fontSize = 10.sp
 
@@ -79,7 +79,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     @Test
     fun emptyTextField_longPressDoesNotShowCursor() {
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = rememberTextFieldState(),
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -95,7 +95,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_requestsFocus_beforePointerIsReleased() {
         val state = TextFieldState("Hello, World!")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -115,7 +115,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPressOnEmptyRegion_showsCursorAtTheEnd() {
         val state = TextFieldState("abc")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier
@@ -147,7 +147,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
                 LocalTextToolbar provides textToolbar,
                 LocalClipboardManager provides clipboardManager
             ) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = defaultTextStyle,
                     modifier = Modifier
@@ -170,7 +170,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPressOnWord_selectsWord() {
         val state = TextFieldState("abc def ghi")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -190,7 +190,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPressOnWhitespace_doesNotSelectWhitespace() {
         val state = TextFieldState("abc def ghi")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -214,7 +214,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
         lateinit var scope: CoroutineScope
         rule.setTextFieldTestContent {
             scope = rememberCoroutineScope()
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 scrollState = scrollState,
@@ -239,7 +239,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPressOnDecoratedTextField_selectsWord() {
         val state = TextFieldState("abc def ghi")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG),
@@ -269,7 +269,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_dragToRight_selectsCurrentAndNextWord_ltr() {
         val state = TextFieldState("abc def ghi")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -289,7 +289,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_dragToLeft_selectsCurrentAndPreviousWord_ltr() {
         val state = TextFieldState("abc def ghi")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -309,7 +309,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_dragDown_selectsFromCurrentToTargetWord_ltr() {
         val state = TextFieldState("abc def\nabc def\nabc def")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -329,7 +329,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_dragUp_selectsFromCurrentToTargetWord_ltr() {
         val state = TextFieldState("abc def\nabc def\nabc def")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -349,7 +349,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_startingFromEndPadding_dragToLeft_selectsLastWord_ltr() {
         val state = TextFieldState("abc def")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier
@@ -373,7 +373,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_dragToRight_selectsCurrentAndPreviousWord_rtl() {
         val state = TextFieldState(rtlText3)
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -393,7 +393,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_dragToLeft_selectsCurrentAndNextWord_rtl() {
         val state = TextFieldState(rtlText3)
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -413,7 +413,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_dragDown_selectsFromCurrentToTargetWord_rtl() {
         val state = TextFieldState("$rtlText2\n$rtlText2\n$rtlText2")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -433,7 +433,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_dragUp_selectsFromCurrentToTargetWord_rtl() {
         val state = TextFieldState("$rtlText2\n$rtlText2\n$rtlText2")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG)
@@ -454,7 +454,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
         val state = TextFieldState(rtlText2)
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = defaultTextStyle,
                     modifier = Modifier
@@ -477,7 +477,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_startDraggingToScrollRight_startHandleDoesNotShow_ltr() {
         val state = TextFieldState("abc def ghi ".repeat(10))
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 lineLimits = TextFieldLineLimits.SingleLine,
@@ -513,7 +513,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_startDraggingToScrollDown_startHandleDoesNotShow_ltr() {
         val state = TextFieldState("abc def ghi ".repeat(10))
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 lineLimits = TextFieldLineLimits.MultiLine(1, 3),
@@ -549,7 +549,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_startDraggingToScrollLeft_endHandleDoesNotShow_ltr() {
         val state = TextFieldState("abc def ghi ".repeat(10))
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 lineLimits = TextFieldLineLimits.SingleLine,
@@ -587,7 +587,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
     fun longPress_startDraggingToScrollUp_endHandleDoesNotShow_ltr() {
         val state = TextFieldState("abc def ghi ".repeat(10))
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 lineLimits = TextFieldLineLimits.MultiLine(1, 3),

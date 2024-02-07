@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -78,7 +78,7 @@ internal class TextFieldFocusTest {
     private fun TextFieldApp(dataList: List<FocusTestData>) {
         for (data in dataList) {
             val state = remember { TextFieldState() }
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier
                     .focusRequester(data.focusRequester)
@@ -134,7 +134,7 @@ internal class TextFieldFocusTest {
         val tag = "textField"
         rule.setContent {
             val state = remember { TextFieldState() }
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 enabled = enabled.value,
                 modifier = Modifier
@@ -237,7 +237,7 @@ internal class TextFieldFocusTest {
                     focusRequester.requestFocus()
                 }
 
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier.focusRequester(focusRequester)
                 )
@@ -395,7 +395,7 @@ internal class TextFieldFocusTest {
                     }
                     Row {
                         TestFocusableElement(id = "left")
-                        TestBasicTextField2(id = "1", requestFocus = true)
+                        TestBasicTextField(id = "1", requestFocus = true)
                         TestFocusableElement(id = "right")
                     }
                     Row(horizontalArrangement = Arrangement.Center) {
@@ -426,7 +426,7 @@ internal class TextFieldFocusTest {
     }
 
     @Composable
-    private fun TestBasicTextField2(
+    private fun TestBasicTextField(
         id: String,
         requestFocus: Boolean = false
     ) {
@@ -439,7 +439,7 @@ internal class TextFieldFocusTest {
         }
         val modifier = if (requestFocus) Modifier.focusRequester(focusRequester) else Modifier
 
-        BasicTextField2(
+        BasicTextField(
             state = state,
             modifier = modifier
                 .testTag("test-text-field-$id")
