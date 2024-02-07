@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        project.plugins.all { plugin ->"
+        errorLine2="                        ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXComposeImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="            multiplatformExtension.sourceSets.all {"
+        errorLine2="                                              ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXComposeImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                if (multiplatformExtension.targets.findByName(&quot;jvm&quot;) != null) {"
+        errorLine2="                                                   ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXComposeImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                if (multiplatformExtension.targets.findByName(&quot;desktop&quot;) != null) {"
+        errorLine2="                                                   ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXComposeImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        project.plugins.all { plugin ->"
+        errorLine2="                        ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="                    libraryExtension.buildTypes.all { buildType ->"
+        errorLine2="                                                ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of whenTaskAdded"
+        errorLine1="        project.tasks.whenTaskAdded { task ->"
+        errorLine2="                      ~~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        project.plugins.all { plugin ->"
+        errorLine2="                        ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        configurations.all { configuration ->"
+        errorLine2="                       ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                target.compilations.findByName(&quot;test&quot;)?.compileKotlinTaskName == name"
+        errorLine2="                                    ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="            project.agpVariants.all { variant ->"
+        errorLine2="                                ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                    (sourceSets.findByName(&quot;main&quot;)?.kotlin"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        project.configurations.all { configuration ->"
+        errorLine2="                               ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        buildTypes.all { buildType ->"
+        errorLine2="                   ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        project.configurations.all { configuration ->"
+        errorLine2="                               ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        project.configurations.all { configuration ->"
+        errorLine2="                               ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        sourceSets.findByName(&quot;main&quot;)!!.manifest.srcFile(&quot;src/androidMain/AndroidManifest.xml&quot;)"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="            .findByName(&quot;androidTest&quot;)!!"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        kmpExtension.targets.all { kotlinTarget ->"
+        errorLine2="                             ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="            kotlinTarget.compilations.all {"
+        errorLine2="                                      ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="            project.configurations.all { config ->"
+        errorLine2="                                   ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        testExtension.sourceSets.findByName(&quot;main&quot;)?.let { sourceSet ->"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="            ?.findByName(&quot;main&quot;)"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        ?.findByName(&quot;androidTest&quot;)"
+        errorLine2="          ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        ?.findByName(&quot;androidTest&quot;)"
+        errorLine2="          ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                target -> target.compilations.findByName(&quot;debugAndroidTest&quot;)"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="            val androidConfiguration = project.configurations.findByName(&quot;implementation&quot;)"
+        errorLine2="                                                              ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="    configurations.all { configuration ->"
+        errorLine2="                   ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        if (project.tasks.findByName(&quot;check&quot;) != null) {"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXMultiplatformExtension.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        project.configurations.all { configuration ->"
+        errorLine2="                               ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXPlaygroundRootImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use register instead of create"
+        errorLine1="        val buildOnServerTask = tasks.create(BUILD_ON_SERVER_TASK, BuildOnServerTask::class.java)"
+        errorLine2="                                      ~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXRootImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="                    subproject.configurations.all { configuration ->"
+        errorLine2="                                              ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXRootImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                    container.findByName(configName)"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/license/CheckExternalDependencyLicensesTask.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="    variants.all { variant ->"
+        errorLine2="             ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/ErrorProneConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        this.configurations.all { c ->"
+        errorLine2="                            ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/GradleTransformWorkaround.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                checkNotNull(compilations.findByName(compilationName)) {"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/java/JavaCompileInputs.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        configurations.findByName(&quot;ktlint&quot;)"
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/Ktlint.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        if (project.tasks.findByName(&quot;check&quot;) != null) {"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/Ktlint.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="    project.plugins.all { plugin ->"
+        errorLine2="                    ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/LintConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                .mapNotNull { configName -> project.configurations.findByName(configName) }"
+        errorLine2="                                                                   ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/LintConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                .mapNotNull { target -> target.compilations.findByName(kmpCompilationName) }"
+        errorLine2="                                                            ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/LintConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="    multiplatformExtension.targets.findByName(&quot;android&quot;) ?: return"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/LintConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        multiplatformExtension.sourceSets.findByName(&quot;androidMain&quot;)"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/LintConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        components.all { component ->"
+        errorLine2="                   ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="    tasks.findByName(taskName) ?: throw GradleException("
+        errorLine2="          ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use named instead of getByName"
+        errorLine1="                tasks.getByName(&quot;publishPluginMavenPublicationToMavenRepository&quot;).doFirst {"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use named instead of getByName"
+        errorLine1="                    tasks.getByName(&quot;publishMavenPublicationToMavenRepository&quot;).doFirst {"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="        publications.withType(MavenPublication::class.java).all { publication ->"
+        errorLine2="                                                            ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="    multiplatformExtension.targets.all { target ->"
+        errorLine2="                                   ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="    val kotlinComponent = components.findByName(&quot;kotlin&quot;) as SoftwareComponentInternal"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        configurations.findByName(&quot;metalava&quot;)"
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/metalava/MetalavaRunner.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="    libraryExtension.libraryVariants.all { variant ->"
+        errorLine2="                                     ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/resources/PublicResourcesStubHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="    val release = components.findByName(&quot;release&quot;)"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/PublishingHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="    val javaComponent = components.findByName(&quot;java&quot;)"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/PublishingHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of all"
+        errorLine1="    libraryVariants.all { variant ->"
+        errorLine2="                    ~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/Release.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="    val samplesConfiguration = project.configurations.findByName(&quot;samples&quot;)"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/Samples.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="            appliesShadowPlugin() &amp;&amp; project.configurations.findByName(&quot;shadowed&quot;) == null"
+        errorLine2="                                                            ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/sbom/Sbom.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        val resolved = project.configurations.findByName(configurationName)"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/sbom/Sbom.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of whenObjectAdded"
+        errorLine1="        configurations.whenObjectAdded {"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/SourceJarTaskHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use configureEach instead of whenObjectAdded"
+        errorLine1="                it.artifacts.whenObjectAdded { _ ->"
+        errorLine2="                             ~~~~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/SourceJarTaskHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                javaExtension.sourceSets.findByName(&quot;main&quot;)?.let {"
+        errorLine2="                                         ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/SourceJarTaskHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="                    kmpExtension.sourceSets.findByName(sourceSetName)?.let { sourceSet ->"
+        errorLine2="                                            ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/SourceJarTaskHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="    compilations.findByName(MAIN_COMPILATION_NAME) ?: compilations.getByName(&quot;debug&quot;)"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/SourceJarTaskHelper.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        .findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!"
+        errorLine2="         ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Avoid using eager method findByName"
+        errorLine1="        project.rootProject.tasks.findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
+    </issue>
+
+</issues>

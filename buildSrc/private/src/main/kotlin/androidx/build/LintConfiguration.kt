@@ -342,6 +342,7 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             }
         } else {
             disable.add("BanUncheckedReflection")
+            disable.add("BanConcurrentHashMap")
         }
 
         // Only show ObsoleteCompatMethod in the IDE.

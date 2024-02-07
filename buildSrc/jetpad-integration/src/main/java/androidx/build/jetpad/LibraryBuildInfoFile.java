@@ -38,7 +38,7 @@ import java.util.Objects;
  * @property dependencies a list of dependencies on other androidx libraries
  * @property checks arraylist of [Check]s that is used by Jetpad
  */
-public class LibraryBuildInfoFile {
+public final class LibraryBuildInfoFile {
     public String groupId;
     public String artifactId;
     public String version;
@@ -55,7 +55,7 @@ public class LibraryBuildInfoFile {
     /**
      * @property isTipOfTree boolean that specifies whether the dependency is tip-of-tree
      */
-    public static class Dependency implements Serializable {
+    public static final class Dependency implements Serializable {
         public String groupId;
         public String artifactId;
         public String version;
@@ -78,7 +78,7 @@ public class LibraryBuildInfoFile {
         }
     }
 
-    public class Check {
+    public static final class Check {
         public String name;
         public boolean passing;
     }
