@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.annotation.InspectableProperty.ValueType#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.annotation.InspectableProperty.ValueType.valueOf
+ParameterNameChange: androidx.annotation.RestrictTo.Scope#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.annotation.RestrictTo.Scope.valueOf
