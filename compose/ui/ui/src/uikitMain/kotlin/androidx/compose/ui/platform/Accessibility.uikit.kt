@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGRectMake
 import platform.UIKit.NSStringFromCGRect
 import platform.UIKit.UIAccessibilityCustomAction
+import platform.UIKit.UIAccessibilityFocusedElement
 import platform.UIKit.UIAccessibilityIsVoiceOverRunning
 import platform.UIKit.UIAccessibilityLayoutChangedNotification
 import platform.UIKit.UIAccessibilityPostNotification
@@ -299,13 +300,11 @@ private class AccessibilityElement(
     override fun accessibilityElementDidBecomeFocused() {
         super.accessibilityElementDidBecomeFocused()
 
-        mediator.debugLogger?.log(
-            listOf(
-                null,
-                "Focused on:",
-                cachedConfig
-            )
-        )
+        mediator.debugLogger?.apply {
+            log(null)
+            log("Focused on:")
+            log(cachedConfig)
+        }
 
         if (!isAlive) {
             return
@@ -583,6 +582,29 @@ private class AccessibilityElement(
         semanticsNode = newSemanticsNode
     }
 
+    /**
+     * Find the element that is eligible for focusing.
+     */
+    fun findFocusableElement(): AccessibilityElement? {
+        // TODO: follow convention on refocusing on the first eligible element
+        //  following the element with `Heading` trait
+        check(isAlive)
+
+        if (isAccessibilityElement) {
+            return this
+        }
+
+        for (child in children) {
+            val focusableElement = child.findFocusableElement()
+
+            if (focusableElement != null) {
+                return focusableElement
+            }
+        }
+
+        return null
+    }
+
     private fun removeFromParent() {
         val parent = parent ?: return
 
@@ -613,6 +635,8 @@ private class AccessibilityElement(
         element.parent = this@AccessibilityElement
     }
 
+    private fun debugContainmentChain() = debugContainmentChain(this)
+
     fun debugLog(logger: AccessibilityDebugLogger, depth: Int) {
         val indent = " ".repeat(depth * 2)
 
@@ -622,15 +646,17 @@ private class AccessibilityElement(
         check(indexOfSelf != NSNotFound)
         check(container.accessibilityElementAtIndex(indexOfSelf) == this)
 
-        logger.log("${indent}AccessibilityElement_$semanticsNodeId")
-        logger.log("$indent  containmentChain: ${debugContainmentChain(this)}")
-        logger.log("$indent  isAccessibilityElement: $isAccessibilityElement")
-        logger.log("$indent  accessibilityLabel: $accessibilityLabel")
-        logger.log("$indent  accessibilityValue: $accessibilityValue")
-        logger.log("$indent  accessibilityTraits: $accessibilityTraits")
-        logger.log("$indent  accessibilityFrame: ${NSStringFromCGRect(accessibilityFrame)}")
-        logger.log("$indent  accessibilityIdentifier: $accessibilityIdentifier")
-        logger.log("$indent  accessibilityCustomActions: $accessibilityCustomActions")
+        logger.apply {
+            log("${indent}AccessibilityElement_$semanticsNodeId")
+            log("$indent  containmentChain: ${debugContainmentChain()}")
+            log("$indent  isAccessibilityElement: $isAccessibilityElement")
+            log("$indent  accessibilityLabel: $accessibilityLabel")
+            log("$indent  accessibilityValue: $accessibilityValue")
+            log("$indent  accessibilityTraits: $accessibilityTraits")
+            log("$indent  accessibilityFrame: ${NSStringFromCGRect(accessibilityFrame)}")
+            log("$indent  accessibilityIdentifier: $accessibilityIdentifier")
+            log("$indent  accessibilityCustomActions: $accessibilityCustomActions")
+        }
     }
 }
 
@@ -812,6 +838,11 @@ internal class AccessibilityMediator constructor(
     coroutineContext: CoroutineContext,
     private val getAccessibilitySyncOptions: () -> AccessibilitySyncOptions,
 ) {
+    /**
+     * Indicates that this mediator was just created and the accessibility focus should be set on the
+     * first eligible element.
+     */
+    private var needsInitialRefocusing = true
     private var isAlive = true
 
     var debugLogger: AccessibilityDebugLogger? = null
@@ -878,6 +909,7 @@ internal class AccessibilityMediator constructor(
 
                         is NodesSyncResult.Success -> {
                             debugLogger?.log("AccessibilityMediator.sync took $time")
+
                             UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, immutableResult.newElementToFocus)
                         }
                     }
@@ -939,7 +971,6 @@ internal class AccessibilityMediator constructor(
      * that are not present in the tree anymore.
      */
     private fun traverseSemanticsTree(rootNode: SemanticsNode): Any {
-        // TODO: should we move [presentIds] to the class scope to avoid reallocation?
         val presentIds = mutableSetOf<Int>()
 
         fun traverseSemanticsNode(node: SemanticsNode): AccessibilityElement {
@@ -991,7 +1022,7 @@ internal class AccessibilityMediator constructor(
      *  of the issue and associated performance overhead.
      */
     private fun sync(): NodesSyncResult {
-        // TODO: investigate what needs to be done to reflect that this hiearchy is probably covered
+        // TODO: investigate what needs to be done to reflect that this hierarchy is probably covered
         //   by sibling overlay
 
         if (!isCurrentComposeAccessibleTreeDirty) {
@@ -1015,10 +1046,36 @@ internal class AccessibilityMediator constructor(
             debugTraverse(it, view)
         }
 
-        // TODO: return refocused element if the old focus is not present in the new tree
-        //  reverse engineer the logic of iOS Accessibility services that is performed when the
-        //  focused object is deallocated
-        return NodesSyncResult.Success(null)
+        val focusedElement = UIAccessibilityFocusedElement(null)
+
+        // TODO: in future the focused element could be the interop UIView that is detached from the
+        //  hierarchy, but still maintains the focus until the GC collects it, or AX services detect
+        //  that it's not reachable anymore through containment chain
+        val isFocusedElementDead = focusedElement?.let {
+            val accessibilityElement = it as? AccessibilityElement
+            accessibilityElement?.isAlive ?: false
+        } ?: false
+
+        val needsRefocusing = needsInitialRefocusing || isFocusedElementDead
+
+        val newElementToFocus = if (needsRefocusing) {
+            debugLogger?.log("Needs refocusing")
+            val refocusedElement = checkNotNull(accessibilityElementsMap[rootSemanticsNodeId])
+                .findFocusableElement()
+
+            if (refocusedElement != null) {
+                needsInitialRefocusing = false
+                debugLogger?.log("Refocusing on $refocusedElement")
+            } else {
+                debugLogger?.log("No focusable element found")
+            }
+
+            refocusedElement
+        } else {
+            null
+        }
+
+        return NodesSyncResult.Success(newElementToFocus)
     }
 }
 
