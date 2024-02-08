@@ -485,7 +485,7 @@ private val SemanticsBoundsPadding: Dp = 10.dp
 private val IncreaseSemanticsBounds: Modifier = Modifier
     .layout { measurable, constraints ->
         val paddingPx = SemanticsBoundsPadding.roundToPx()
-        // We need to add vertical padding to the semantics bounds in other to meet
+        // We need to add vertical padding to the semantics bounds in order to meet
         // screenreader green box minimum size, but we also want to
         // preserve a visual appearance and layout size below that minimum
         // in order to maintain backwards compatibility. This custom
