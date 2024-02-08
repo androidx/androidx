@@ -70,6 +70,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         darwin()
         js()
         wasm()
+
+        linuxX64()
+        linuxArm64()
     }
 
     kotlin {
@@ -85,8 +88,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         tvosX64()
         tvosSimulatorArm64()
         mingwX64()
-        linuxArm64()
-        linuxX64()
 
         /* When updating dependencies, make sure to make the an an analogous update in the
             corresponding block above */
