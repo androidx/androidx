@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.lerp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -722,5 +724,77 @@ class AnimatedVisibilityTest {
             }
             lookaheadSizes.clear()
         }
+    }
+
+    @Test
+    fun interruptedExitAnimationUsesCorrectTransition() = with(rule.density) {
+        var visible by mutableStateOf(false)
+
+        val duration = 16 * 20 // 20 frames
+        val animation = { tween<IntOffset>(duration, easing = LinearEasing) }
+
+        val boxSizePx = 100
+        val enterDistance = 180
+        val undesiredExitDistance = -200
+        val expectedExitDistance = 200
+
+        var boxPosition = IntOffset.Zero
+
+        rule.setContent {
+            AnimatedVisibility(
+                visible = visible,
+                enter = slideInHorizontally(animation()) { enterDistance },
+                exit = if (visible) {
+                    slideOutHorizontally(animation()) { undesiredExitDistance }
+                } else {
+                    // Only this transition should apply
+                    slideOutHorizontally(animation()) { expectedExitDistance }
+                }
+            ) {
+                Box(
+                    Modifier
+                        .requiredSize(boxSizePx.toDp())
+                        .background(Color.Red)
+                        .onGloballyPositioned {
+                            boxPosition = it
+                                .positionInRoot()
+                                .round()
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle {
+            visible = true
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Animate towards half of the transition and interrupt it by toggling the state
+        rule.mainClock.advanceTimeBy(duration / 2L)
+        rule.runOnIdle {
+            // Verify the position corresponds to half of the animation
+            assertEquals(IntOffset(enterDistance / 2, 0), boxPosition)
+            visible = false
+        }
+        val positionAtInterruption = boxPosition
+
+        // Run the animation for a few steps/frames to guarantee each frame is rendered, since a
+        // spring is used after interruption it's unknown how many more frames we need till the end
+        // of the animation, but we don't need to run the entire animation.
+        // We also need to run more than one step, since springs keep their initial momentum (in
+        // this case, momentum towards the left), so the next frame might still move the box towards
+        // the left.
+        repeat(3) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        // After a few frames, we can check the position of the box. If it used the expected
+        // transition, its current position should be offset to the right.
+        assertEquals(0, boxPosition.y)
+        assert(boxPosition.x > positionAtInterruption.x)
     }
 }
