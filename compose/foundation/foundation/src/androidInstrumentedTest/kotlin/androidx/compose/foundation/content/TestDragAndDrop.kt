@@ -20,7 +20,7 @@ import android.content.ClipData
 import android.net.Uri
 import android.view.DragEvent
 import android.view.View
-import androidx.compose.foundation.text2.input.internal.DragAndDropTestUtils
+import androidx.compose.foundation.text.input.internal.DragAndDropTestUtils
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Density
 

@@ -46,7 +46,8 @@ internal interface InputEventCallback2 {
     /**
      * Called when IME requests cursor information updates.
      *
-     * @see CursorAnchorInfoController.requestUpdate
+     * @see LegacyCursorAnchorInfoController.requestUpdate
+     * @see CursorAnchorInfoController.requestUpdates
      */
     fun onRequestCursorAnchorInfo(
         immediate: Boolean,

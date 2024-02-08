@@ -17,15 +17,15 @@ ParameterNameChange: androidx.compose.foundation.gestures.snapping.SnapFlingBeha
 
 RemovedClass: androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt:
     Removed class androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt
-RemovedClass: androidx.compose.foundation.text2.input.AllCapsTransformationKt:
-    Removed class androidx.compose.foundation.text2.input.AllCapsTransformationKt
-RemovedClass: androidx.compose.foundation.text2.input.CodepointTransformationKt:
-    Removed class androidx.compose.foundation.text2.input.CodepointTransformationKt
-RemovedClass: androidx.compose.foundation.text2.input.MaxLengthTransformationKt:
-    Removed class androidx.compose.foundation.text2.input.MaxLengthTransformationKt
 
 
 RemovedDeprecatedMethod: androidx.compose.foundation.gestures.TapGestureDetectorKt#awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope, boolean):
     Removed deprecated method androidx.compose.foundation.gestures.TapGestureDetectorKt.awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope,boolean)
 RemovedDeprecatedMethod: androidx.compose.foundation.gestures.TapGestureDetectorKt#waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope):
     Removed deprecated method androidx.compose.foundation.gestures.TapGestureDetectorKt.waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope)
+
+
+RemovedPackage: androidx.compose.foundation.text2:
+    Removed package androidx.compose.foundation.text2
+RemovedPackage: androidx.compose.foundation.text2.input:
+    Removed package androidx.compose.foundation.text2.input
