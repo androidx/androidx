@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.toSize
 
@@ -186,12 +187,12 @@ internal class BringIntoViewRequesterNode(
      * is null) be brought into view by the [parent]&nbsp;[BringIntoViewParent].
      */
     suspend fun bringIntoView(rect: Rect?) {
-        parent.bringChildIntoView(layoutCoordinates ?: return) {
+        parent.bringChildIntoView(currentLayoutCoordinates ?: return) {
             // If the rect is not specified, use a rectangle representing the entire composable.
             // If the coordinates are detached when this call is made, we don't bother even
             // submitting the request, but if the coordinates become detached while the request
             // is being handled we just return a null Rect.
-            rect ?: layoutCoordinates?.size?.toSize()?.toRect()
+            rect ?: currentLayoutCoordinates?.size?.toSize()?.toRect()
         }
     }
 }

@@ -39,6 +39,9 @@ interface LayoutAwareModifierNode : DelegatableNode {
      * [onPlaced] is called after the parent [LayoutModifier] and parent layout has
      * been placed and before child [LayoutModifier] is placed. This allows child
      * [LayoutModifier] to adjust its own placement based on where the parent is.
+     *
+     * If you only need to access the current [LayoutCoordinates] at a single point in time from
+     * outside this method, use [currentLayoutCoordinates].
      */
     fun onPlaced(coordinates: LayoutCoordinates) {}
 
