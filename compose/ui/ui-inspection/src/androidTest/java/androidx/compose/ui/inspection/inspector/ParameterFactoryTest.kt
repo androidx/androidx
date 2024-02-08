@@ -717,6 +717,7 @@ class ParameterFactoryTest {
 
     @Test
     fun testWrappedModifier() {
+        @Suppress("DEPRECATION")
         fun Modifier.frame(color: Color) = inspectable(
             debugInspectorInfo {
                 name = "frame"
