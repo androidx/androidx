@@ -44,7 +44,7 @@ import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 @Composable
-fun RecyclerViewFocusTransferDemo() {
+fun FocusTransferDemo() {
     AndroidView(
         factory = {
             RecyclerView(it).apply {

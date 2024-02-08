@@ -16,22 +16,16 @@
 
 package androidx.compose.ui.focus
 
-import android.content.Context
-import android.view.View
-import android.widget.LinearLayout
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -110,23 +104,4 @@ internal fun FocusableBox(
  */
 fun IterableSubject.isExactly(vararg expected: Any?) {
     return containsExactlyElementsIn(expected).inOrder()
-}
-
-fun FocusableView(context: Context): View {
-    return LinearLayout(context).apply {
-        minimumHeight = 50
-        minimumWidth = 50
-        isFocusable = true
-        isFocusableInTouchMode = true
-    }
-}
-
-@Composable
-fun FocusableComponent(tag: String? = null) {
-    Box(
-        Modifier
-            .then(if (tag != null) Modifier.testTag(tag) else Modifier)
-            .size(50.dp)
-            .focusable()
-    )
 }

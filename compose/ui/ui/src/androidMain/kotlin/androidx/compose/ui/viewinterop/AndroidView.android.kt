@@ -211,7 +211,7 @@ fun <T : View> AndroidView(
     update: (T) -> Unit = NoOpUpdate
 ) {
     val compositeKeyHash = currentCompositeKeyHash
-    val materializedModifier = currentComposer.materialize(modifier.focusInteropModifier())
+    val materializedModifier = currentComposer.materialize(modifier)
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
