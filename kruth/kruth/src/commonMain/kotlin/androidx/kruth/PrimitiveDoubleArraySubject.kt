@@ -22,7 +22,7 @@ package androidx.kruth
 class PrimitiveDoubleArraySubject internal constructor(
     actual: DoubleArray?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<DoubleArray?>(actual, metadata = metadata) {
+) : Subject<DoubleArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
     private val helper =
         HelperArraySubject(

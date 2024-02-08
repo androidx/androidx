@@ -16,6 +16,18 @@
 
 package androidx.kruth
 
+/**
+ *  Cleans the stack trace on the given [Throwable], replacing the original stack trace
+ *  stored on the instance (see [Throwable.stackTrace]).
+ *
+ *  Removes Truth stack frames from the top and JUnit framework and reflective call frames from
+ *  the bottom. Collapses the frames for various frameworks in the middle of the trace as well.
+ */
 internal actual fun Throwable.clearStackTrace() {}
 
+/**
+ * Returns an array containing all of the exceptions that were suppressed to deliver the given
+ * exception. If suppressed exceptions are not supported (pre-Java 1.7), an empty array will be
+ * returned.
+ */
 internal actual fun Throwable.cleanStackTrace() {}

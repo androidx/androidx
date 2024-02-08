@@ -47,8 +47,10 @@ internal actual fun Throwable.cleanStackTrace() {
 internal fun getSuppressed(throwable: Throwable): Array<Throwable> {
     return try {
         val getSuppressed = throwable::class.java.getMethod("getSuppressed")
+
+        val result = requireNonNull(getSuppressed.invoke(throwable))
         @Suppress("UNCHECKED_CAST")
-        requireNonNull(getSuppressed.invoke(throwable)) as Array<Throwable>
+        result as Array<Throwable>
     } catch (e: NoSuchMethodException) {
         emptyArray<Throwable>()
     } catch (e: IllegalAccessException) {

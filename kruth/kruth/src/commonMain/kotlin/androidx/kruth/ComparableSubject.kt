@@ -29,7 +29,7 @@ import androidx.kruth.Fact.Companion.fact
 open class ComparableSubject<T : Comparable<T>> protected constructor(
     metadata: FailureMetadata,
     actual: T?,
-) : Subject<T>(actual, metadata),
+) : Subject<T>(actual, metadata, typeDescriptionOverride = null),
     PlatformComparableSubject<T> by PlatformComparableSubjectImpl(actual, metadata) {
 
     internal constructor(actual: T?, metadata: FailureMetadata) : this(metadata, actual)

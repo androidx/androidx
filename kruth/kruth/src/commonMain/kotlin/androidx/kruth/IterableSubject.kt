@@ -38,7 +38,7 @@ import androidx.kruth.Fact.Companion.simpleFact
 open class IterableSubject<T> protected constructor(
     metadata: FailureMetadata,
     actual: Iterable<T>?,
-) : Subject<Iterable<T>>(actual, metadata = metadata) {
+) : Subject<Iterable<T>>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
     internal constructor(actual: Iterable<T>?, metadata: FailureMetadata) : this(metadata, actual)
 

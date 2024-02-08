@@ -21,7 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.asserter
 
-class ChainingTest {
+class ChainingKruthTest {
 
     @Test
     fun singleChain() {
@@ -52,7 +52,7 @@ class ChainingTest {
     private class ObjectSubject(
         metadata: FailureMetadata = FailureMetadata(),
         actual: Any?,
-    ) : Subject<Any>(actual, metadata = metadata) {
+    ) : Subject<Any>(actual = actual, metadata = metadata) {
         companion object {
             val FACTORY: Factory<ObjectSubject, Any> =
                 Factory<ObjectSubject, Any> { metadata, actual ->

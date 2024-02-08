@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+ChangedType: androidx.kruth.ExpectFailure#assertThat(T):
+    Method androidx.kruth.ExpectFailure.assertThat has changed return type from androidx.kruth.TruthFailureSubject to androidx.kruth.TruthFailureSubject<T>
 ChangedType: androidx.kruth.MultimapSubject#valuesForKey(K):
     Method androidx.kruth.MultimapSubject.valuesForKey has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<V>
 ChangedType: androidx.kruth.ObjectArraySubject#asList():
@@ -29,6 +31,10 @@ ChangedType: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.Failure
     Method androidx.kruth.Subject.Factory.createSubject has changed return type from SubjectT (extends androidx.kruth.Subject) to SubjectT (extends androidx.kruth.Subject<? extends ActualT>)
 ChangedType: androidx.kruth.ThrowableSubject#hasCauseThat():
     Method androidx.kruth.ThrowableSubject.hasCauseThat has changed return type from androidx.kruth.ThrowableSubject to androidx.kruth.ThrowableSubject<java.lang.Throwable>
+ChangedType: androidx.kruth.TruthFailureSubject#factKeys():
+    Method androidx.kruth.TruthFailureSubject.factKeys has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.String>
+ChangedType: androidx.kruth.TruthFailureSubject#truthFailures():
+    Method androidx.kruth.TruthFailureSubject.truthFailures has changed return type from androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject,java.lang.AssertionError> to androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject<T>,T>
 
 
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#withMessage(String) parameter #0:
@@ -51,16 +57,12 @@ InvalidNullConversion: androidx.kruth.StringSubject#startsWith(String) parameter
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter string in androidx.kruth.StringSubject.startsWith(String string)
 InvalidNullConversion: androidx.kruth.StringSubject.CaseInsensitiveStringComparison#doesNotContain(CharSequence) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter expected in androidx.kruth.StringSubject.CaseInsensitiveStringComparison.doesNotContain(CharSequence expected)
-InvalidNullConversion: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.FailureMetadata, ActualT) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter actual in androidx.kruth.Subject.Factory.createSubject(androidx.kruth.FailureMetadata metadata, ActualT actual)
 
 
 RemovedClass: androidx.kruth.Correspondence:
     Removed class androidx.kruth.Correspondence
 RemovedClass: androidx.kruth.CustomSubjectBuilder:
     Removed class androidx.kruth.CustomSubjectBuilder
-RemovedClass: androidx.kruth.ExpectFailure:
-    Removed class androidx.kruth.ExpectFailure
 RemovedClass: androidx.kruth.FloatSubject:
     Removed class androidx.kruth.FloatSubject
 RemovedClass: androidx.kruth.IterableSubject.UsingCorrespondence:
@@ -77,8 +79,6 @@ RemovedClass: androidx.kruth.TableSubject:
     Removed class androidx.kruth.TableSubject
 RemovedClass: androidx.kruth.Truth:
     Removed class androidx.kruth.Truth
-RemovedClass: androidx.kruth.TruthFailureSubject:
-    Removed class androidx.kruth.TruthFailureSubject
 RemovedClass: androidx.kruth.TruthJUnit:
     Removed class androidx.kruth.TruthJUnit
 
@@ -163,8 +163,6 @@ RemovedMethod: androidx.kruth.StringSubject#matches(java.util.regex.Pattern):
     Removed method androidx.kruth.StringSubject.matches(java.util.regex.Pattern)
 RemovedMethod: androidx.kruth.Subject#Subject(androidx.kruth.FailureMetadata, Object):
     Removed constructor androidx.kruth.Subject(androidx.kruth.FailureMetadata,Object)
-RemovedMethod: androidx.kruth.Subject#actualCustomStringRepresentation():
-    Removed method androidx.kruth.Subject.actualCustomStringRepresentation()
 RemovedMethod: androidx.kruth.Subject#isInstanceOf(Class<?>):
     Removed method androidx.kruth.Subject.isInstanceOf(Class<?>)
 RemovedMethod: androidx.kruth.Subject#isNotInstanceOf(Class<?>):

@@ -59,6 +59,31 @@ package androidx.kruth {
     method public androidx.kruth.Expect create();
   }
 
+  public final class ExpectFailure implements org.junit.rules.TestRule {
+    ctor public ExpectFailure();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+    method public static <T extends java.lang.AssertionError> androidx.kruth.TruthFailureSubject<T> assertThat(T? actual);
+    method public static AssertionError expectFailure(androidx.kruth.ExpectFailure.StandardSubjectBuilderCallback assertionCallback);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static <S extends androidx.kruth.Subject<? extends A>, A> AssertionError expectFailureAbout(androidx.kruth.Subject.Factory<? extends S,A> factory, androidx.kruth.ExpectFailure.SimpleSubjectBuilderCallback<S,A> assertionCallback);
+    method public AssertionError getFailure();
+    method public androidx.kruth.StandardSubjectBuilder whenTesting();
+    field public static final androidx.kruth.ExpectFailure.Companion Companion;
+  }
+
+  public static final class ExpectFailure.Companion {
+    method public <T extends java.lang.AssertionError> androidx.kruth.TruthFailureSubject<T> assertThat(T? actual);
+    method public AssertionError expectFailure(androidx.kruth.ExpectFailure.StandardSubjectBuilderCallback assertionCallback);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public <S extends androidx.kruth.Subject<? extends A>, A> AssertionError expectFailureAbout(androidx.kruth.Subject.Factory<? extends S,A> factory, androidx.kruth.ExpectFailure.SimpleSubjectBuilderCallback<S,A> assertionCallback);
+  }
+
+  public static fun interface ExpectFailure.SimpleSubjectBuilderCallback<S extends androidx.kruth.Subject<? extends A>, A> {
+    method public void invokeAssertion(androidx.kruth.SimpleSubjectBuilder<? extends S,A> whenTesting);
+  }
+
+  public static fun interface ExpectFailure.StandardSubjectBuilderCallback {
+    method public void invokeAssertion(androidx.kruth.StandardSubjectBuilder whenTesting);
+  }
+
   public final class Fact {
     method public static androidx.kruth.Fact fact(String key, Object? value);
     method public static androidx.kruth.Fact simpleFact(String key);
@@ -273,7 +298,7 @@ package androidx.kruth {
   }
 
   public final class SimpleSubjectBuilder<S extends androidx.kruth.Subject<? extends T>, T> {
-    method public S that(T actual);
+    method public S that(T? actual);
   }
 
   public class StandardSubjectBuilder {
@@ -282,6 +307,7 @@ package androidx.kruth {
     method public static final androidx.kruth.StandardSubjectBuilder forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
     method public final androidx.kruth.PrimitiveBooleanArraySubject that(boolean[]? actual);
     method public final androidx.kruth.PrimitiveByteArraySubject that(byte[]? actual);
+    method public final androidx.kruth.Subject<java.lang.Character> that(char actual);
     method public final androidx.kruth.PrimitiveCharArraySubject that(char[]? actual);
     method public final androidx.kruth.PrimitiveDoubleArraySubject that(double[]? actual);
     method public final androidx.kruth.PrimitiveFloatArraySubject that(float[]? actual);
@@ -338,6 +364,7 @@ package androidx.kruth {
 
   public class Subject<T> {
     ctor protected Subject(androidx.kruth.FailureMetadata metadata, T? actual);
+    method protected String actualCustomStringRepresentation();
     method protected final androidx.kruth.StandardSubjectBuilder check();
     method protected final androidx.kruth.StandardSubjectBuilder check(String format, java.lang.Object... args);
     method @kotlin.PublishedApi internal final void doFail(androidx.kruth.Fact... facts);
@@ -364,13 +391,25 @@ package androidx.kruth {
   }
 
   public static fun interface Subject.Factory<SubjectT extends androidx.kruth.Subject<? extends ActualT>, ActualT> {
-    method public SubjectT createSubject(androidx.kruth.FailureMetadata metadata, ActualT actual);
+    method public SubjectT createSubject(androidx.kruth.FailureMetadata metadata, ActualT? actual);
   }
 
   public class ThrowableSubject<T extends java.lang.Throwable> extends androidx.kruth.Subject<T> {
     ctor protected ThrowableSubject(androidx.kruth.FailureMetadata metadata, T? actual);
     method public final androidx.kruth.ThrowableSubject<java.lang.Throwable> hasCauseThat();
     method public final androidx.kruth.StringSubject hasMessageThat();
+  }
+
+  public final class TruthFailureSubject<T extends java.lang.AssertionError> extends androidx.kruth.ThrowableSubject<T> {
+    method public androidx.kruth.IterableSubject<java.lang.String> factKeys();
+    method public androidx.kruth.StringSubject factValue(String key);
+    method public androidx.kruth.StringSubject factValue(String key, int index);
+    method public static <T extends java.lang.AssertionError> androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject<T>,T> truthFailures();
+    field public static final androidx.kruth.TruthFailureSubject.Companion Companion;
+  }
+
+  public static final class TruthFailureSubject.Companion {
+    method public <T extends java.lang.AssertionError> androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject<T>,T> truthFailures();
   }
 
 }

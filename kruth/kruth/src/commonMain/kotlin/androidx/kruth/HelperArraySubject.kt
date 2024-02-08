@@ -22,7 +22,7 @@ internal class HelperArraySubject<out T>(
     actual: T?,
     private val size: (T) -> Int,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<T>(actual, metadata = metadata) {
+) : Subject<T>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
     /** Fails if the array is not empty (i.e. `array.size > 0`). */
     fun isEmpty() {

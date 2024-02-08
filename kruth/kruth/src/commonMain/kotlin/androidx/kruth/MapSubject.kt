@@ -28,7 +28,7 @@ import androidx.kruth.Fact.Companion.simpleFact
 open class MapSubject<K, V> protected constructor(
     metadata: FailureMetadata,
     actual: Map<K, V>?,
-) : Subject<Map<K, V>>(actual, metadata = metadata) {
+) : Subject<Map<K, V>>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
     internal constructor(actual: Map<K, V>?, metadata: FailureMetadata) : this(metadata, actual)
 
