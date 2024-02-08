@@ -17,13 +17,12 @@
 package androidx.camera.viewfinder.compose.internal
 
 import android.graphics.Matrix
-import android.graphics.Rect
 import android.graphics.RectF
 import android.util.Size
 import androidx.camera.viewfinder.surface.TransformationInfo
 
 /**
- * A util class with methods that transform the input viewFinder surface so that its preview fits
+ * A util class with methods that transform the input viewfinder surface so that its preview fits
  * the given aspect ratio of its parent view.
  *
  * The goal is to transform it in a way so that the entire area of
@@ -50,23 +49,23 @@ object SurfaceTransformationUtil {
     ): Size {
         return if (TransformUtil.is90or270(transformationInfo.sourceRotation)) {
             Size(
-                transformationInfo.cropRectTop - transformationInfo.cropRectBottom,
+                transformationInfo.cropRectBottom - transformationInfo.cropRectTop,
                 transformationInfo.cropRectRight - transformationInfo.cropRectLeft)
         } else {
             Size(
                 transformationInfo.cropRectRight - transformationInfo.cropRectLeft,
-                transformationInfo.cropRectTop - transformationInfo.cropRectBottom)
+                transformationInfo.cropRectBottom - transformationInfo.cropRectTop)
         }
     }
 
     private fun isViewportAspectRatioMatchViewFinder(
         transformationInfo: TransformationInfo,
-        viewFinderSize: Size
+        viewfinderSize: Size
     ): Boolean {
         // Using viewport rect to check if the viewport is based on the view finder.
         val rotatedViewportSize: Size = getRotatedViewportSize(transformationInfo)
         return TransformUtil.isAspectRatioMatchingWithRoundingError(
-            viewFinderSize,
+            viewfinderSize,
             true,
             rotatedViewportSize,
             false
@@ -81,16 +80,16 @@ object SurfaceTransformationUtil {
         matrix.invert(matrix)
     }
 
-    private fun getViewFinderViewportRectForMismatchedAspectRatios(
+    private fun getViewfinderViewportRectForMismatchedAspectRatios(
         transformationInfo: TransformationInfo,
-        viewFinderSize: Size
+        viewfinderSize: Size
     ): RectF {
-        val viewFinderRect =
+        val viewfinderRect =
             RectF(
                 0f,
                 0f,
-                viewFinderSize.width.toFloat(),
-                viewFinderSize.height.toFloat()
+                viewfinderSize.width.toFloat(),
+                viewfinderSize.height.toFloat()
             )
         val rotatedViewportSize = getRotatedViewportSize(transformationInfo)
         val rotatedViewportRect =
@@ -104,45 +103,46 @@ object SurfaceTransformationUtil {
         setMatrixRectToRect(
             matrix,
             rotatedViewportRect,
-            viewFinderRect
+            viewfinderRect
         )
         matrix.mapRect(rotatedViewportRect)
         return rotatedViewportRect
     }
 
     private fun getSurfaceToViewFinderMatrix(
-        viewFinderSize: Size,
+        viewfinderSize: Size,
         transformationInfo: TransformationInfo,
     ): Matrix {
         // Get the target of the mapping, the coordinates of the crop rect in view finder.
-        val viewFinderCropRect: RectF =
-            if (isViewportAspectRatioMatchViewFinder(transformationInfo, viewFinderSize)) {
+        val viewfinderCropRect: RectF =
+            if (isViewportAspectRatioMatchViewFinder(transformationInfo, viewfinderSize)) {
                 // If crop rect has the same aspect ratio as view finder, scale the crop rect to
                 // fill the entire view finder. This happens if the scale type is FILL_* AND a
                 // view-finder-based viewport is used.
                 RectF(
                     0f,
                     0f,
-                    viewFinderSize.width.toFloat(),
-                    viewFinderSize.height.toFloat()
+                    viewfinderSize.width.toFloat(),
+                    viewfinderSize.height.toFloat()
                 )
             } else {
                 // If the aspect ratios don't match, it could be 1) scale type is FIT_*, 2) the
                 // Viewport is not based on the view finder or 3) both.
-                getViewFinderViewportRectForMismatchedAspectRatios(
+                getViewfinderViewportRectForMismatchedAspectRatios(
                     transformationInfo,
-                    viewFinderSize
+                    viewfinderSize
                 )
             }
 
-        val rect = Rect(transformationInfo.cropRectLeft,
-                        transformationInfo.cropRectTop,
-                        transformationInfo.cropRectRight,
-                        transformationInfo.cropRectBottom)
+        val surfaceCropRect = RectF(transformationInfo.cropRectLeft.toFloat(),
+                        transformationInfo.cropRectTop.toFloat(),
+                        transformationInfo.cropRectRight.toFloat(),
+                        transformationInfo.cropRectBottom.toFloat())
+
         val matrix =
             TransformUtil.getRectToRect(
-                RectF(),
-                viewFinderCropRect,
+                surfaceCropRect,
+                viewfinderCropRect,
                 transformationInfo.sourceRotation
             )
 
@@ -155,8 +155,8 @@ object SurfaceTransformationUtil {
                 matrix.preScale(
                     1f,
                     -1f,
-                    rect.centerX().toFloat(),
-                    rect.centerY().toFloat()
+                    surfaceCropRect.centerX(),
+                    surfaceCropRect.centerY()
                 )
             } else {
                 // If the rotation is 0/180, the Surface should be flipped horizontally.
@@ -166,8 +166,8 @@ object SurfaceTransformationUtil {
                 matrix.preScale(
                     -1f,
                     1f,
-                    rect.centerX().toFloat(),
-                    rect.centerY().toFloat()
+                    surfaceCropRect.centerX(),
+                    surfaceCropRect.centerY()
                 )
             }
         }
@@ -177,11 +177,11 @@ object SurfaceTransformationUtil {
     fun getTransformedSurfaceRect(
         resolution: Size,
         transformationInfo: TransformationInfo,
-        viewFinderSize: Size,
+        viewfinderSize: Size,
     ): RectF {
         val surfaceToViewFinder: Matrix =
             getSurfaceToViewFinderMatrix(
-                viewFinderSize,
+                viewfinderSize,
                 transformationInfo,
             )
         val rect = RectF(0f, 0f, resolution.width.toFloat(), resolution.height.toFloat())
