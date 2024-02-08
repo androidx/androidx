@@ -508,7 +508,7 @@ interface BringIntoViewSpec {
                 containerSize: Float
             ): Float {
                 val trailingEdge = offset + size
-                val leadingEdge = offset
+                @Suppress("UnnecessaryVariable") val leadingEdge = offset
                 return when {
 
                     // If the item is already visible, no need to scroll.
@@ -1007,8 +1007,7 @@ internal val DefaultScrollMotionDurationScale = object : MotionDurationScale {
 private class ModifierLocalScrollableContainerProvider(var enabled: Boolean) :
     ModifierLocalModifierNode,
     Modifier.Node() {
-    private val modifierLocalMap =
-        modifierLocalMapOf(entry = ModifierLocalScrollableContainer to true)
+    private val modifierLocalMap = modifierLocalMapOf(ModifierLocalScrollableContainer to true)
     override val providedValues: ModifierLocalMap
         get() = if (enabled) {
             modifierLocalMap

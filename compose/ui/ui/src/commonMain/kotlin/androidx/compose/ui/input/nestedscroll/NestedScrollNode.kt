@@ -60,8 +60,7 @@ internal class NestedScrollNode(
     private val parentConnection: NestedScrollConnection?
         get() = if (isAttached) ModifierLocalNestedScroll.current else null
 
-    // Avoid get() to prevent constant allocations for static map.
-    override val providedValues = modifierLocalMapOf(entry = ModifierLocalNestedScroll to this)
+    override val providedValues = modifierLocalMapOf(ModifierLocalNestedScroll to this)
 
     private val nestedCoroutineScope: CoroutineScope
         get() = parentModifierLocal?.nestedCoroutineScope
