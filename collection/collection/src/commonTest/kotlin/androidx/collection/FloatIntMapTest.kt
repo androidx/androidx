@@ -37,7 +37,7 @@ import kotlin.test.assertTrue
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 @Suppress("RemoveRedundantCallsOfConversionMethods")
-class FloatIntMapTest {
+internal class FloatIntMapTest {
     @Test
     fun floatIntMap() {
         val map = MutableFloatIntMap()

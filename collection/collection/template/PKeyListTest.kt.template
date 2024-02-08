@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-class PKeyListTest {
+internal class PKeyListTest {
     private val list: MutablePKeyList = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
 
     @Test

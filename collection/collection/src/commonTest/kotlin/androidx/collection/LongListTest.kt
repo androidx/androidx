@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-class LongListTest {
+internal class LongListTest {
     private val list: MutableLongList = mutableLongListOf(1L, 2L, 3L, 4L, 5L)
 
     @Test

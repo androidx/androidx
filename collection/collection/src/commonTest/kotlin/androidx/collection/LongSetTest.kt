@@ -31,7 +31,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-class LongSetTest {
+internal class LongSetTest {
     @Test
     fun emptyLongSetConstructor() {
         val set = MutableLongSet()

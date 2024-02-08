@@ -24,7 +24,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-class ScatterSetTest {
+internal class ScatterSetTest {
     @Test
     fun emptyScatterSetConstructor() {
         val set = MutableScatterSet<String>()
