@@ -216,7 +216,10 @@ fun FilledIconButton(
     interactionSource = interactionSource
 ) {
     Box(
-        modifier = Modifier.size(FilledIconButtonTokens.ContainerSize),
+        modifier = Modifier.size(
+            width = FilledIconButtonTokens.ContainerWidth,
+            height = FilledIconButtonTokens.ContainerHeight
+        ),
         contentAlignment = Alignment.Center
     ) {
         content()
@@ -277,7 +280,10 @@ fun FilledTonalIconButton(
     interactionSource = interactionSource
 ) {
     Box(
-        modifier = Modifier.size(FilledTonalIconButtonTokens.ContainerSize),
+        modifier = Modifier.size(
+            width = FilledTonalIconButtonTokens.ContainerWidth,
+            height = FilledTonalIconButtonTokens.ContainerHeight
+        ),
         contentAlignment = Alignment.Center
     ) {
         content()
@@ -315,7 +321,6 @@ fun FilledTonalIconButton(
  * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilledIconToggleButton(
     checked: Boolean,
@@ -337,7 +342,10 @@ fun FilledIconToggleButton(
     interactionSource = interactionSource
 ) {
     Box(
-        modifier = Modifier.size(FilledIconButtonTokens.ContainerSize),
+        modifier = Modifier.size(
+            width = FilledIconButtonTokens.ContainerWidth,
+            height = FilledIconButtonTokens.ContainerHeight
+        ),
         contentAlignment = Alignment.Center
     ) {
         content()
@@ -380,7 +388,6 @@ fun FilledIconToggleButton(
  * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilledTonalIconToggleButton(
     checked: Boolean,
@@ -402,7 +409,10 @@ fun FilledTonalIconToggleButton(
     interactionSource = interactionSource
 ) {
     Box(
-        modifier = Modifier.size(FilledTonalIconButtonTokens.ContainerSize),
+        modifier = Modifier.size(
+            width = FilledTonalIconButtonTokens.ContainerWidth,
+            height = FilledTonalIconButtonTokens.ContainerHeight
+        ),
         contentAlignment = Alignment.Center
     ) {
         content()
@@ -508,7 +518,6 @@ fun OutlinedIconButton(
  * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OutlinedIconToggleButton(
     checked: Boolean,
