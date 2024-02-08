@@ -171,7 +171,6 @@ WORK = "2.10.0-alpha01"
 
 [groups]
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
-# TODO https://youtrack.jetbrains.com/issue/COMPOSE-774/Fix-duplicate-classes-conflict-with-androidx.annotation-androidx.collection
 ANNOTATION = { group = "org.jetbrains.compose.annotation-internal", atomicGroupVersion = "versions.COMPOSE", overrideInclude = [ ":annotation:annotation" ] }
 APPACTIONS_BUILTINTYPES = { group = "androidx.appactions.builtintypes", atomicGroupVersion = "versions.APPACTIONS_BUILTINTYPES" }
 APPACTIONS_INTERACTION = { group = "androidx.appactions.interaction", atomicGroupVersion = "versions.APPACTIONS_INTERACTION" }
@@ -189,7 +188,6 @@ BUILDSRC_TESTS_MAX_DEP_VERSIONS_MAIN = { group = "androidx.buildSrc-tests-max-de
 CAMERA = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA" }
 CARDVIEW = { group = "androidx.cardview", atomicGroupVersion = "versions.CARDVIEW" }
 CAR_APP = { group = "androidx.car.app", atomicGroupVersion = "versions.CAR_APP" }
-# TODO https://youtrack.jetbrains.com/issue/COMPOSE-774/Fix-duplicate-classes-conflict-with-androidx.annotation-androidx.collection
 COLLECTION = { group = "org.jetbrains.compose.collection-internal", atomicGroupVersion = "versions.COMPOSE", overrideInclude = [ ":collection:collection" ] }
 COMPOSE_ANIMATION = { group = "org.jetbrains.compose.animation", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_COMPILER = { group = "org.jetbrains.compose.compiler", atomicGroupVersion = "versions.COMPOSE_COMPILER" }

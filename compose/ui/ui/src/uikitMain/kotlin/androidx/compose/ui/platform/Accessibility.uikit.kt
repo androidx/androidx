@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGRectMake
 import platform.UIKit.NSStringFromCGRect
 import platform.UIKit.UIAccessibilityCustomAction
+import platform.UIKit.UIAccessibilityFocusedElement
 import platform.UIKit.UIAccessibilityIsVoiceOverRunning
 import platform.UIKit.UIAccessibilityLayoutChangedNotification
 import platform.UIKit.UIAccessibilityPostNotification
@@ -81,6 +82,18 @@ interface AccessibilityDebugLogger {
     fun log(message: Any?)
 }
 
+private class CachedAccessibilityPropertyKey<V>
+
+private object CachedAccessibilityPropertyKeys {
+    val accessibilityLabel = CachedAccessibilityPropertyKey<String?>()
+    val isAccessibilityElement = CachedAccessibilityPropertyKey<Boolean>()
+    val accessibilityIdentifier = CachedAccessibilityPropertyKey<String>()
+    val accessibilityHint = CachedAccessibilityPropertyKey<String?>()
+    val accessibilityCustomActions = CachedAccessibilityPropertyKey<List<UIAccessibilityCustomAction>>()
+    val accessibilityTraits = CachedAccessibilityPropertyKey<UIAccessibilityTraits>()
+    val accessibilityValue = CachedAccessibilityPropertyKey<String?>()
+    val accessibilityFrame = CachedAccessibilityPropertyKey<CValue<CGRect>>()
+}
 
 /**
  * Represents a projection of the Compose semantics node to the iOS world.
@@ -123,7 +136,33 @@ private class AccessibilityElement(
     var isAlive = true
         private set
 
+    /**
+     * The latest configuration after the last sync with the Compose semantics tree.
+     * It's used avoid unnecessary recomputation of merged configs when accessing
+     * [SemanticsNode.config]
+     */
+    private val cachedConfig: SemanticsConfiguration
+        get() {
+            val config = _cachedConfig
+
+            if (config != null) {
+                return config
+            } else {
+                val newConfig = semanticsNode.config
+                _cachedConfig = newConfig
+                return newConfig
+            }
+        }
+    private var _cachedConfig: SemanticsConfiguration? = null
+
+    /**
+     * A cache for the properties that are computed from the [SemanticsNode.config] and are communicated
+     * to iOS Accessibility services.
+     */
+    private val cachedProperties = mutableMapOf<CachedAccessibilityPropertyKey<*>, Any?>()
+
     private var children = mutableListOf<AccessibilityElement>()
+
 
     /**
      * Constructed lazily if :
@@ -184,6 +223,11 @@ private class AccessibilityElement(
         return null
     }
 
+    fun discardCache() {
+        _cachedConfig = null
+        cachedProperties.clear()
+    }
+
     fun dispose() {
         check(isAlive) {
             "AccessibilityElement is already disposed"
@@ -192,32 +236,44 @@ private class AccessibilityElement(
         isAlive = false
     }
 
-    override fun accessibilityLabel(): String? {
-        val config = semanticsNode.config
-
-        val contentDescription = config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString("\n")
-        if (contentDescription != null) {
-            return contentDescription
+    /**
+     * Returns the value for the given [key] from the cache if it's present, otherwise computes the
+     * value using the given [block] and caches it.
+     */
+    @Suppress("UNCHECKED_CAST") // cast is safe because the set value is constrained by the key T
+    private inline fun <T>getOrElse(key: CachedAccessibilityPropertyKey<T>, crossinline block: () -> T): T {
+        val value = cachedProperties.getOrElse(key) {
+            val newValue = block()
+            cachedProperties[key] = newValue
+            newValue
         }
 
-        val editableText = config.getOrNull(SemanticsProperties.EditableText)?.text
-
-        if (editableText != null) {
-            return editableText
-        }
-
-        val text =
-            config.getOrNull(SemanticsProperties.Text)?.joinToString("\n") { it.text }
-
-        return text
+        return value as T
     }
+
+    override fun accessibilityLabel(): String? =
+        getOrElse(CachedAccessibilityPropertyKeys.accessibilityLabel) {
+            val config = cachedConfig
+
+            val contentDescription =
+                config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString("\n")
+
+            if (contentDescription != null) {
+                contentDescription
+            } else {
+                val editableText = config.getOrNull(SemanticsProperties.EditableText)?.text
+
+                editableText ?: config.getOrNull(SemanticsProperties.Text)
+                    ?.joinToString("\n") { it.text }
+            }
+        }
 
     override fun accessibilityActivate(): Boolean {
         if (!isAlive || !semanticsNode.isValid) {
             return false
         }
 
-        val onClick = semanticsNode.config.getOrNull(SemanticsActions.OnClick) ?: return false
+        val onClick = cachedConfig.getOrNull(SemanticsActions.OnClick) ?: return false
         val action = onClick.action ?: return false
 
         return action()
@@ -244,13 +300,11 @@ private class AccessibilityElement(
     override fun accessibilityElementDidBecomeFocused() {
         super.accessibilityElementDidBecomeFocused()
 
-        mediator.debugLogger?.log(
-            listOf(
-                null,
-                "Focused on:",
-                semanticsNode.config
-            )
-        )
+        mediator.debugLogger?.apply {
+            log(null)
+            log("Focused on:")
+            log(cachedConfig)
+        }
 
         if (!isAlive) {
             return
@@ -303,7 +357,7 @@ private class AccessibilityElement(
         }
 
         // if has scrollBy action, invoke it, otherwise try to scroll the parent
-        val action = semanticsNode.config.getOrNull(SemanticsActions.ScrollBy)?.action
+        val action = cachedConfig.getOrNull(SemanticsActions.ScrollBy)?.action
 
         if (action != null) {
             action(dx, dy)
@@ -312,7 +366,9 @@ private class AccessibilityElement(
         }
     }
 
-    private fun scrollIfPossible(direction: UIAccessibilityScrollDirection, config: SemanticsConfiguration): Boolean {
+    private fun scrollIfPossible(direction: UIAccessibilityScrollDirection): Boolean {
+        val config = cachedConfig
+
         val (width, height) = semanticsNode.size
 
         // TODO: reverse engineer proper dimension scale
@@ -396,7 +452,7 @@ private class AccessibilityElement(
         }
 
         parent?.let {
-            return it.scrollIfPossible(direction, it.semanticsNode.config)
+            return it.scrollIfPossible(direction)
         }
 
         return false
@@ -407,117 +463,146 @@ private class AccessibilityElement(
             return false
         }
 
-        return scrollIfPossible(direction, semanticsNode.config)
+        return scrollIfPossible(direction)
     }
 
-    override fun isAccessibilityElement(): Boolean {
-        val config = semanticsNode.config
+    override fun isAccessibilityElement(): Boolean =
+        getOrElse(CachedAccessibilityPropertyKeys.isAccessibilityElement) {
+            val config = cachedConfig
 
-        if (config.contains(SemanticsProperties.InvisibleToUser)) {
-            return false
+            if (config.contains(SemanticsProperties.InvisibleToUser)) {
+                false
+            } else {
+                // TODO: investigate if it can it be a traversal group _and_ contain properties that should
+                //  be communicated to iOS?
+                if (config.getOrNull(SemanticsProperties.IsTraversalGroup) == true) {
+                    false
+                } else {
+                    config.containsImportantForAccessibility()
+                }
+            }
         }
 
-        // TODO: investigate if it can it be a traversal group _and_ contain properties that should
-        //  be communicated to iOS?
-        if (config.getOrNull(SemanticsProperties.IsTraversalGroup) == true) {
-            return false
+    override fun accessibilityIdentifier(): String =
+        getOrElse(CachedAccessibilityPropertyKeys.accessibilityIdentifier) {
+            cachedConfig.getOrNull(SemanticsProperties.TestTag)
+                ?: "AccessibilityElement for SemanticsNode(id=$semanticsNodeId)"
         }
 
-        return config.containsImportantForAccessibility()
-    }
+    override fun accessibilityHint(): String? =
+        getOrElse(CachedAccessibilityPropertyKeys.accessibilityHint) {
+            cachedConfig.getOrNull(SemanticsActions.OnClick)?.label
+        }
 
-    override fun accessibilityIdentifier(): String {
-        return semanticsNode.config.getOrNull(SemanticsProperties.TestTag)
-            ?: "AccessibilityElement for SemanticsNode(id=$semanticsNodeId)"
-    }
+    override fun accessibilityCustomActions(): List<UIAccessibilityCustomAction> =
+        getOrElse(CachedAccessibilityPropertyKeys.accessibilityCustomActions) {
+            cachedConfig.getOrNull(SemanticsActions.CustomActions)?.let { actions ->
+                actions.map {
+                    UIAccessibilityCustomAction(
+                        name = it.label,
+                        actionHandler = { _ ->
+                            it.action.invoke()
+                        }
+                    )
+                }
+            } ?: emptyList()
+        }
 
-    override fun accessibilityHint(): String? {
-        return semanticsNode.config.getOrNull(SemanticsActions.OnClick)?.label
-    }
+    override fun accessibilityTraits(): UIAccessibilityTraits =
+        getOrElse(CachedAccessibilityPropertyKeys.accessibilityTraits) {
+            var result = UIAccessibilityTraitNone
 
-    override fun accessibilityCustomActions(): List<UIAccessibilityCustomAction> {
-        return semanticsNode.config.getOrNull(SemanticsActions.CustomActions)?.let { actions ->
-            actions.map {
-                UIAccessibilityCustomAction(
-                    name = it.label,
-                    actionHandler = { _ ->
-                        it.action.invoke()
+            val config = cachedConfig
+
+            if (config.contains(SemanticsProperties.LiveRegion)) {
+                result = result or UIAccessibilityTraitUpdatesFrequently
+            }
+
+            if (config.contains(SemanticsProperties.Disabled)) {
+                result = result or UIAccessibilityTraitNotEnabled
+            }
+
+            if (config.contains(SemanticsProperties.Heading)) {
+                result = result or UIAccessibilityTraitHeader
+            }
+
+            config.getOrNull(SemanticsProperties.ToggleableState)?.let { state ->
+                when (state) {
+                    ToggleableState.On -> {
+                        result = result or UIAccessibilityTraitSelected
                     }
-                )
-            }
-        } ?: emptyList()
-    }
 
-    override fun accessibilityTraits(): UIAccessibilityTraits {
-        var result = UIAccessibilityTraitNone
-
-        val config = semanticsNode.config
-
-        if (config.contains(SemanticsProperties.LiveRegion)) {
-            result = result or UIAccessibilityTraitUpdatesFrequently
-        }
-
-        if (config.contains(SemanticsProperties.Disabled)) {
-            result = result or UIAccessibilityTraitNotEnabled
-        }
-
-        if (config.contains(SemanticsProperties.Heading)) {
-            result = result or UIAccessibilityTraitHeader
-        }
-
-        config.getOrNull(SemanticsProperties.ToggleableState)?.let { state ->
-            when (state) {
-                ToggleableState.On -> {
-                    result = result or UIAccessibilityTraitSelected
-                }
-
-                ToggleableState.Off, ToggleableState.Indeterminate -> {
-                    // Do nothing
+                    ToggleableState.Off, ToggleableState.Indeterminate -> {
+                        // Do nothing
+                    }
                 }
             }
-        }
 
-        config.getOrNull(SemanticsActions.OnClick)?.let {
-            result = result or UIAccessibilityTraitButton
-        }
+            config.getOrNull(SemanticsActions.OnClick)?.let {
+                result = result or UIAccessibilityTraitButton
+            }
 
-        config.getOrNull(SemanticsProperties.Role)?.let { role ->
-            when (role) {
-                Role.Button, Role.RadioButton, Role.Checkbox, Role.Switch -> {
-                    result = result or UIAccessibilityTraitButton
-                }
+            config.getOrNull(SemanticsProperties.Role)?.let { role ->
+                when (role) {
+                    Role.Button, Role.RadioButton, Role.Checkbox, Role.Switch -> {
+                        result = result or UIAccessibilityTraitButton
+                    }
 
-                Role.DropdownList -> {
-                    result = result or UIAccessibilityTraitAdjustable
-                }
+                    Role.DropdownList -> {
+                        result = result or UIAccessibilityTraitAdjustable
+                    }
 
-                Role.Image -> {
-                    result = result or UIAccessibilityTraitImage
+                    Role.Image -> {
+                        result = result or UIAccessibilityTraitImage
+                    }
                 }
             }
+
+            result
         }
 
-        return result
-    }
 
+    override fun accessibilityValue(): String? =
+        getOrElse(CachedAccessibilityPropertyKeys.accessibilityValue) {
+            cachedConfig.getOrNull(SemanticsProperties.StateDescription)
+        }
 
-    override fun accessibilityValue(): String? {
-        return semanticsNode.config.getOrNull(SemanticsProperties.StateDescription)
-    }
-
-    override fun accessibilityFrame(): CValue<CGRect> {
-        return mediator.convertRectToWindowSpaceCGRect(semanticsNode.boundsInWindow)
-    }
+    override fun accessibilityFrame(): CValue<CGRect> =
+        getOrElse(CachedAccessibilityPropertyKeys.accessibilityFrame) {
+            mediator.convertRectToWindowSpaceCGRect(semanticsNode.boundsInWindow)
+        }
 
     // TODO: check the reference/value semantics for SemanticsNode, perhaps it doesn't need
-    //  recreation at all cache config to avoid traversing subtree for merging semantics and
-    //  excessive copy on [semanticsNode.config] call
+    //  recreation at all
     fun updateWithNewSemanticsNode(newSemanticsNode: SemanticsNode) {
         check(semanticsNode.id == newSemanticsNode.id)
         // TODO: track that SemanticsProperties.LiveRegion is present and conditionally start
         //  proactively comparing the the accessibilityLabel and accessibilityValue properties
         //  to post notifications about the changes.
         semanticsNode = newSemanticsNode
+    }
+
+    /**
+     * Find the element that is eligible for focusing.
+     */
+    fun findFocusableElement(): AccessibilityElement? {
+        // TODO: follow convention on refocusing on the first eligible element
+        //  following the element with `Heading` trait
+        check(isAlive)
+
+        if (isAccessibilityElement) {
+            return this
+        }
+
+        for (child in children) {
+            val focusableElement = child.findFocusableElement()
+
+            if (focusableElement != null) {
+                return focusableElement
+            }
+        }
+
+        return null
     }
 
     private fun removeFromParent() {
@@ -550,6 +635,8 @@ private class AccessibilityElement(
         element.parent = this@AccessibilityElement
     }
 
+    private fun debugContainmentChain() = debugContainmentChain(this)
+
     fun debugLog(logger: AccessibilityDebugLogger, depth: Int) {
         val indent = " ".repeat(depth * 2)
 
@@ -559,15 +646,17 @@ private class AccessibilityElement(
         check(indexOfSelf != NSNotFound)
         check(container.accessibilityElementAtIndex(indexOfSelf) == this)
 
-        logger.log("${indent}AccessibilityElement_$semanticsNodeId")
-        logger.log("$indent  containmentChain: ${debugContainmentChain(this)}")
-        logger.log("$indent  isAccessibilityElement: $isAccessibilityElement")
-        logger.log("$indent  accessibilityLabel: $accessibilityLabel")
-        logger.log("$indent  accessibilityValue: $accessibilityValue")
-        logger.log("$indent  accessibilityTraits: $accessibilityTraits")
-        logger.log("$indent  accessibilityFrame: ${NSStringFromCGRect(accessibilityFrame)}")
-        logger.log("$indent  accessibilityIdentifier: $accessibilityIdentifier")
-        logger.log("$indent  accessibilityCustomActions: $accessibilityCustomActions")
+        logger.apply {
+            log("${indent}AccessibilityElement_$semanticsNodeId")
+            log("$indent  containmentChain: ${debugContainmentChain()}")
+            log("$indent  isAccessibilityElement: $isAccessibilityElement")
+            log("$indent  accessibilityLabel: $accessibilityLabel")
+            log("$indent  accessibilityValue: $accessibilityValue")
+            log("$indent  accessibilityTraits: $accessibilityTraits")
+            log("$indent  accessibilityFrame: ${NSStringFromCGRect(accessibilityFrame)}")
+            log("$indent  accessibilityIdentifier: $accessibilityIdentifier")
+            log("$indent  accessibilityCustomActions: $accessibilityCustomActions")
+        }
     }
 }
 
@@ -749,6 +838,11 @@ internal class AccessibilityMediator constructor(
     coroutineContext: CoroutineContext,
     private val getAccessibilitySyncOptions: () -> AccessibilitySyncOptions,
 ) {
+    /**
+     * Indicates that this mediator was just created and the accessibility focus should be set on the
+     * first eligible element.
+     */
+    private var needsInitialRefocusing = true
     private var isAlive = true
 
     var debugLogger: AccessibilityDebugLogger? = null
@@ -815,6 +909,7 @@ internal class AccessibilityMediator constructor(
 
                         is NodesSyncResult.Success -> {
                             debugLogger?.log("AccessibilityMediator.sync took $time")
+
                             UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, immutableResult.newElementToFocus)
                         }
                     }
@@ -876,7 +971,6 @@ internal class AccessibilityMediator constructor(
      * that are not present in the tree anymore.
      */
     private fun traverseSemanticsTree(rootNode: SemanticsNode): Any {
-        // TODO: should we move [presentIds] to the class scope to avoid reallocation?
         val presentIds = mutableSetOf<Int>()
 
         fun traverseSemanticsNode(node: SemanticsNode): AccessibilityElement {
@@ -913,6 +1007,10 @@ internal class AccessibilityMediator constructor(
             isPresent
         }
 
+        for (element in accessibilityElementsMap.values) {
+            element.discardCache()
+        }
+
         return checkNotNull(rootAccessibilityElement.resolveAccessibilityContainer()) {
             "Root element must always have an enclosing container"
         }
@@ -924,7 +1022,7 @@ internal class AccessibilityMediator constructor(
      *  of the issue and associated performance overhead.
      */
     private fun sync(): NodesSyncResult {
-        // TODO: investigate what needs to be done to reflect that this hiearchy is probably covered
+        // TODO: investigate what needs to be done to reflect that this hierarchy is probably covered
         //   by sibling overlay
 
         if (!isCurrentComposeAccessibleTreeDirty) {
@@ -948,10 +1046,36 @@ internal class AccessibilityMediator constructor(
             debugTraverse(it, view)
         }
 
-        // TODO: return refocused element if the old focus is not present in the new tree
-        //  reverse engineer the logic of iOS Accessibility services that is performed when the
-        //  focused object is deallocated
-        return NodesSyncResult.Success(null)
+        val focusedElement = UIAccessibilityFocusedElement(null)
+
+        // TODO: in future the focused element could be the interop UIView that is detached from the
+        //  hierarchy, but still maintains the focus until the GC collects it, or AX services detect
+        //  that it's not reachable anymore through containment chain
+        val isFocusedElementDead = focusedElement?.let {
+            val accessibilityElement = it as? AccessibilityElement
+            accessibilityElement?.isAlive ?: false
+        } ?: false
+
+        val needsRefocusing = needsInitialRefocusing || isFocusedElementDead
+
+        val newElementToFocus = if (needsRefocusing) {
+            debugLogger?.log("Needs refocusing")
+            val refocusedElement = checkNotNull(accessibilityElementsMap[rootSemanticsNodeId])
+                .findFocusableElement()
+
+            if (refocusedElement != null) {
+                needsInitialRefocusing = false
+                debugLogger?.log("Refocusing on $refocusedElement")
+            } else {
+                debugLogger?.log("No focusable element found")
+            }
+
+            refocusedElement
+        } else {
+            null
+        }
+
+        return NodesSyncResult.Success(newElementToFocus)
     }
 }
 

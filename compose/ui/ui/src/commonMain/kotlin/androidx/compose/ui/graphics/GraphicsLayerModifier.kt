@@ -649,23 +649,26 @@ private class SimpleGraphicsLayerModifier(
         }
     }
 
-    override fun toString(): String =
-        "SimpleGraphicsLayerModifier(" +
-            "scaleX=$scaleX, " +
-            "scaleY=$scaleY, " +
-            "alpha = $alpha, " +
-            "translationX=$translationX, " +
-            "translationY=$translationY, " +
-            "shadowElevation=$shadowElevation, " +
-            "rotationX=$rotationX, " +
-            "rotationY=$rotationY, " +
-            "rotationZ=$rotationZ, " +
-            "cameraDistance=$cameraDistance, " +
-            "transformOrigin=$transformOrigin, " +
-            "shape=$shape, " +
-            "clip=$clip, " +
-            "renderEffect=$renderEffect, " +
-            "ambientShadowColor=$ambientShadowColor, " +
-            "spotShadowColor=$spotShadowColor, " +
-            "compositingStrategy=$compositingStrategy)"
+    // Long string concatenation causes atomicfu plugin to be slow/hang.
+    // See https://youtrack.jetbrains.com/issue/KT-65645/Atomicfu-plugin-compilation-hangs-on-a-long-string-concatenation
+    override fun toString(): String = buildString {
+        append("SimpleGraphicsLayerModifier(")
+        append("scaleX=$scaleX, ")
+        append("scaleY=$scaleY, ")
+        append("alpha = $alpha, ")
+        append("translationX=$translationX, ")
+        append("translationY=$translationY, ")
+        append("shadowElevation=$shadowElevation, ")
+        append("rotationX=$rotationX, ")
+        append("rotationY=$rotationY, ")
+        append("rotationZ=$rotationZ, ")
+        append("cameraDistance=$cameraDistance, ")
+        append("transformOrigin=$transformOrigin, ")
+        append("shape=$shape, ")
+        append("clip=$clip, ")
+        append("renderEffect=$renderEffect, ")
+        append("ambientShadowColor=$ambientShadowColor, ")
+        append("spotShadowColor=$spotShadowColor, ")
+        append("compositingStrategy=$compositingStrategy)")
+    }
 }

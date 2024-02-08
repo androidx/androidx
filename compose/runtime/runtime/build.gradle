@@ -66,6 +66,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         js()
         wasm()
         darwin()
+
+        linuxX64()
+        linuxArm64()
     }
 
     kotlin {
@@ -82,7 +85,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         tvosSimulatorArm64()
         mingwX64()
         linuxArm64()
-        linuxX64()
 
         targets.js {
             nodejs {

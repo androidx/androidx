@@ -89,6 +89,7 @@ kotlin {
                 freeCompilerArgs += "-Xdisable-phases=VerifyBitcode"
             }
         }
+        substituteForOelPublishedDependencies()
     }
     macosArm64() {
         binaries {
@@ -101,6 +102,7 @@ kotlin {
                 freeCompilerArgs += "-Xdisable-phases=VerifyBitcode"
             }
         }
+        substituteForOelPublishedDependencies()
     }
     iosX64("uikitX64") {
         binaries {
@@ -115,6 +117,7 @@ kotlin {
                 freeCompilerArgs += "-Xdisable-phases=VerifyBitcode"
             }
         }
+        substituteForOelPublishedDependencies()
     }
     iosArm64("uikitArm64") {
         binaries {
@@ -129,6 +132,7 @@ kotlin {
                 freeCompilerArgs += "-Xdisable-phases=VerifyBitcode"
             }
         }
+        substituteForOelPublishedDependencies()
     }
     iosSimulatorArm64("uikitSimArm64") {
         binaries {
@@ -143,6 +147,7 @@ kotlin {
                 freeCompilerArgs += "-Xdisable-phases=VerifyBitcode"
             }
         }
+        substituteForOelPublishedDependencies()
     }
     sourceSets {
         val commonMain by getting {
@@ -288,4 +293,28 @@ project.tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile>().config
         "-Xwasm-generate-wat",
         "-Xwasm-enable-array-range-checks"
     )
+}
+
+// TODO (o.k): this is copy-pasted from AndroidXComposeImplPlugin!!! Avoid duplication and refactor this
+fun KotlinNativeTarget.substituteForOelPublishedDependencies() {
+    val comp = compilations.getByName("main")
+    val androidAnnotationVersion = project.findProperty("artifactRedirecting.androidx.annotation.version")!!
+    val androidCollectionVersion = project.findProperty("artifactRedirecting.androidx.collection.version")!!
+    listOf(
+        comp.configurations.compileDependencyConfiguration,
+        comp.configurations.runtimeDependencyConfiguration,
+        comp.configurations.apiConfiguration,
+        comp.configurations.implementationConfiguration,
+        comp.configurations.runtimeOnlyConfiguration,
+        comp.configurations.compileOnlyConfiguration,
+    ).forEach {
+        it?.resolutionStrategy {
+            dependencySubstitution {
+                substitute(project(":annotation:annotation"))
+                    .using(module("androidx.annotation:annotation:$androidAnnotationVersion"))
+                substitute(project(":collection:collection"))
+                    .using(module("androidx.collection:collection:$androidCollectionVersion"))
+            }
+        }
+    }
 }

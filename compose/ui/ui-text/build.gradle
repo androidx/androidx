@@ -30,7 +30,7 @@ AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     dependencies {
         /*
-         * When updating dependencies, make sure to make the an an analogous update in the
+         * When updating dependencies, make sure to make the an analogous update in the
          * corresponding block below
          */
         implementation(libs.kotlinStdlibCommon)

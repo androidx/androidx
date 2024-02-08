@@ -6,8 +6,8 @@
 import org.gradle.api.Project
 
 class ComposeProperties(private val myProject: Project) {
-    val isOelPublication: Boolean
-        get() = myProject.findProperty("oel.publication") != "false"
+    val isArtifactRedirecting: Boolean
+        get() = myProject.findProperty("artifactRedirecting.publication") != "false"
 
     val targetPlatforms: Set<ComposePlatforms>
         get() {

@@ -140,21 +140,25 @@ class Colors(
     )
 
     override fun toString(): String {
-        return "Colors(" +
-            "primary=$primary, " +
-            "primaryVariant=$primaryVariant, " +
-            "secondary=$secondary, " +
-            "secondaryVariant=$secondaryVariant, " +
-            "background=$background, " +
-            "surface=$surface, " +
-            "error=$error, " +
-            "onPrimary=$onPrimary, " +
-            "onSecondary=$onSecondary, " +
-            "onBackground=$onBackground, " +
-            "onSurface=$onSurface, " +
-            "onError=$onError, " +
-            "isLight=$isLight" +
-            ")"
+        // Long string concatenation causes atomicfu plugin to be slow/hang.
+        // See https://youtrack.jetbrains.com/issue/KT-65645/Atomicfu-plugin-compilation-hangs-on-a-long-string-concatenation
+        return buildString {
+            append("Colors(")
+            append("primary=$primary, ")
+            append("primaryVariant=$primaryVariant, ")
+            append("secondary=$secondary, ")
+            append("secondaryVariant=$secondaryVariant, ")
+            append("background=$background, ")
+            append("surface=$surface, ")
+            append("error=$error, ")
+            append("onPrimary=$onPrimary, ")
+            append("onSecondary=$onSecondary, ")
+            append("onBackground=$onBackground, ")
+            append("onSurface=$onSurface, ")
+            append("onError=$onError, ")
+            append("isLight=$isLight")
+            append(")")
+        }
     }
 }
 
