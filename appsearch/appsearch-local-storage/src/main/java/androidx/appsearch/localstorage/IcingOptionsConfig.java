@@ -62,7 +62,7 @@ public interface IcingOptionsConfig {
      */
     int DEFAULT_INTEGER_INDEX_BUCKET_SPLIT_THRESHOLD = 65536;
 
-    boolean DEFAULT_LITE_INDEX_SORT_AT_INDEXING = false;
+    boolean DEFAULT_LITE_INDEX_SORT_AT_INDEXING = true;
 
     /**
      * The default sort threshold for the lite index when sort at indexing is enabled.
