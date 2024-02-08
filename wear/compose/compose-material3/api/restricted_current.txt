@@ -346,8 +346,6 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
     ctor public RadioButtonColors(long selectedContainerColor, long selectedContentColor, long selectedSecondaryContentColor, long selectedIconColor, long unselectedContainerColor, long unselectedContentColor, long unselectedSecondaryContentColor, long unselectedIconColor, long disabledSelectedContainerColor, long disabledSelectedContentColor, long disabledSelectedSecondaryContentColor, long disabledSelectedIconColor, long disabledUnselectedContainerColor, long disabledUnselectedContentColor, long disabledUnselectedSecondaryContentColor, long disabledUnselectedIconColor);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> containerColor(boolean enabled, boolean selected);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> contentColor(boolean enabled, boolean selected);
     method public long getDisabledSelectedContainerColor();
     method public long getDisabledSelectedContentColor();
     method public long getDisabledSelectedIconColor();
@@ -364,8 +362,6 @@ package androidx.wear.compose.material3 {
     method public long getUnselectedContentColor();
     method public long getUnselectedIconColor();
     method public long getUnselectedSecondaryContentColor();
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> iconColor(boolean enabled, boolean selected);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> secondaryContentColor(boolean enabled, boolean selected);
     property public final long disabledSelectedContainerColor;
     property public final long disabledSelectedContentColor;
     property public final long disabledSelectedIconColor;
@@ -386,8 +382,10 @@ package androidx.wear.compose.material3 {
 
   public final class RadioButtonDefaults {
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioButtonColors radioButtonColors(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedIconColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedIconColor);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitRadioButtonColors splitRadioButtonColors(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedSplitContainerColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedSplitContainerColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioButtonColors radioButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioButtonColors radioButtonColors(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedIconColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedIconColor, optional long disabledSelectedContainerColor, optional long disabledSelectedContentColor, optional long disabledSelectedSecondaryContentColor, optional long disabledSelectedIconColor, optional long disabledUnselectedContainerColor, optional long disabledUnselectedContentColor, optional long disabledUnselectedSecondaryContentColor, optional long disabledUnselectedIconColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitRadioButtonColors splitRadioButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitRadioButtonColors splitRadioButtonColors(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedSplitContainerColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedSplitContainerColor, optional long disabledSelectedContainerColor, optional long disabledSelectedContentColor, optional long disabledSelectedSecondaryContentColor, optional long disabledSelectedSplitContainerColor, optional long disabledUnselectedContainerColor, optional long disabledUnselectedContentColor, optional long disabledUnselectedSecondaryContentColor, optional long disabledUnselectedSplitContainerColor);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material3.RadioButtonDefaults INSTANCE;
   }
@@ -489,7 +487,6 @@ package androidx.wear.compose.material3 {
     method public long getUnselectedContentColor();
     method public long getUnselectedSecondaryContentColor();
     method public long getUnselectedSplitContainerColor();
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> splitContainerColor(boolean enabled, boolean selected);
     property public final long disabledSelectedContainerColor;
     property public final long disabledSelectedContentColor;
     property public final long disabledSelectedSecondaryContentColor;

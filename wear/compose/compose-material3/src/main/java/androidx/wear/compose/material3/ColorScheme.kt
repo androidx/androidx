@@ -222,6 +222,10 @@ public class ColorScheme(
     // Toggle Button
     internal var defaultToggleButtonColorsCached: ToggleButtonColors? = null
     internal var defaultSplitToggleButtonColorsCached: SplitToggleButtonColors? = null
+
+    // Radio Button
+    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
+    internal var defaultSplitRadioButtonColorsCached: SplitRadioButtonColors? = null
 }
 
 /**
