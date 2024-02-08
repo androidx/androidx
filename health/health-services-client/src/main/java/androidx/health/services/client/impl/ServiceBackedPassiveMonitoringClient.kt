@@ -115,7 +115,7 @@ public class ServiceBackedPassiveMonitoringClient(
             return
         }
         val callbackStub =
-            PassiveListenerCallbackCache.INSTANCE.getOrCreate(packageName, executor, callback)
+            PassiveListenerCallbackCache.INSTANCE.create(packageName, executor, callback)
         val future =
             registerListener(callbackStub.listenerKey) { service, result: SettableFuture<Void?> ->
                 service.registerPassiveListenerCallback(
@@ -148,19 +148,13 @@ public class ServiceBackedPassiveMonitoringClient(
         )
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun clearPassiveListenerCallbackAsync(): ListenableFuture<Void> {
-        val callbackStub = PassiveListenerCallbackCache.INSTANCE.remove(packageName)
-        if (callbackStub != null) {
-            return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->
-                service.unregisterPassiveListenerCallback(packageName, StatusCallback(resultFuture))
-            }
+        val callbackStub = PassiveListenerCallbackCache.INSTANCE.clear()
+        ?: return Futures.immediateFuture(null) as ListenableFuture<Void>
+        return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->
+            service.unregisterPassiveListenerCallback(packageName, StatusCallback(resultFuture))
         }
-        return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.unregisterPassiveListenerCallback(packageName, StatusCallback(resultFuture))
-            },
-            /* minApiVersion= */ 4
-        )
     }
 
     override fun flushAsync(): ListenableFuture<Void> {
