@@ -3,42 +3,6 @@ AddedAbstractMethod: androidx.kruth.FailureStrategy#fail(Error):
     Added method androidx.kruth.FailureStrategy.fail(Error)
 
 
-AddedFinal: androidx.kruth.IterableSubject#isInOrder():
-    Method androidx.kruth.IterableSubject.isInOrder has added 'final' qualifier
-AddedFinal: androidx.kruth.IterableSubject#isInStrictOrder():
-    Method androidx.kruth.IterableSubject.isInStrictOrder has added 'final' qualifier
-AddedFinal: androidx.kruth.MapSubject:
-    Class androidx.kruth.MapSubject added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject:
-    Class androidx.kruth.StringSubject added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#contains(CharSequence):
-    Method androidx.kruth.StringSubject.contains has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#containsMatch(String):
-    Method androidx.kruth.StringSubject.containsMatch has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#doesNotContain(CharSequence):
-    Method androidx.kruth.StringSubject.doesNotContain has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#doesNotContainMatch(String):
-    Method androidx.kruth.StringSubject.doesNotContainMatch has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#doesNotMatch(String):
-    Method androidx.kruth.StringSubject.doesNotMatch has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#endsWith(String):
-    Method androidx.kruth.StringSubject.endsWith has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#hasLength(int):
-    Method androidx.kruth.StringSubject.hasLength has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#ignoringCase():
-    Method androidx.kruth.StringSubject.ignoringCase has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#isEmpty():
-    Method androidx.kruth.StringSubject.isEmpty has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#isNotEmpty():
-    Method androidx.kruth.StringSubject.isNotEmpty has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#matches(String):
-    Method androidx.kruth.StringSubject.matches has added 'final' qualifier
-AddedFinal: androidx.kruth.StringSubject#startsWith(String):
-    Method androidx.kruth.StringSubject.startsWith has added 'final' qualifier
-AddedFinal: androidx.kruth.ThrowableSubject:
-    Class androidx.kruth.ThrowableSubject added 'final' qualifier
-
-
 ChangedType: androidx.kruth.ObjectArraySubject#asList():
     Method androidx.kruth.ObjectArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<?>
 ChangedType: androidx.kruth.PrimitiveBooleanArraySubject#asList():

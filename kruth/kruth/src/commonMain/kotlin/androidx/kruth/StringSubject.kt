@@ -22,7 +22,7 @@ import androidx.kruth.Fact.Companion.simpleFact
 /**
  * Propositions for string subjects.
  */
-class StringSubject internal constructor(
+open class StringSubject internal constructor(
     actual: String?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : ComparableSubject<String>(actual = actual, metadata = metadata),
@@ -31,7 +31,7 @@ class StringSubject internal constructor(
     /**
      * Fails if the string does not contain the given sequence.
      */
-    fun contains(charSequence: CharSequence) {
+    open fun contains(charSequence: CharSequence) {
         if (actual == null) {
             failWithActual("expected a string that contains", charSequence)
         } else if (!actual.contains(charSequence)) {
@@ -40,13 +40,13 @@ class StringSubject internal constructor(
     }
 
     /** Fails if the string does not have the given length.  */
-    fun hasLength(expectedLength: Int) {
+    open fun hasLength(expectedLength: Int) {
         require(expectedLength >= 0) { "expectedLength($expectedLength) must be >= 0" }
         check("length").that(requireNonNull(actual).length).isEqualTo(expectedLength)
     }
 
     /** Fails if the string is not equal to the zero-length "empty string."  */
-    fun isEmpty() {
+    open fun isEmpty() {
         if (actual == null) {
             failWithActual(simpleFact("expected an empty string"))
         } else if (actual.isNotEmpty()) {
@@ -55,7 +55,7 @@ class StringSubject internal constructor(
     }
 
     /** Fails if the string is equal to the zero-length "empty string."  */
-    fun isNotEmpty() {
+    open fun isNotEmpty() {
         if (actual == null) {
             failWithActual(simpleFact("expected a non-empty string"))
         } else if (actual.isEmpty()) {
@@ -64,7 +64,7 @@ class StringSubject internal constructor(
     }
 
     /** Fails if the string contains the given sequence.  */
-    fun doesNotContain(charSequence: CharSequence) {
+    open fun doesNotContain(charSequence: CharSequence) {
         if (actual == null) {
             failWithActual("expected a string that does not contain", charSequence)
         } else if (actual.contains(charSequence)) {
@@ -73,7 +73,7 @@ class StringSubject internal constructor(
     }
 
     /** Fails if the string does not start with the given string.  */
-    fun startsWith(string: String) {
+    open fun startsWith(string: String) {
         if (actual == null) {
             failWithActual("expected a string that starts with", string)
         } else if (!actual.startsWith(string)) {
@@ -82,7 +82,7 @@ class StringSubject internal constructor(
     }
 
     /** Fails if the string does not end with the given string.  */
-    fun endsWith(string: String) {
+    open fun endsWith(string: String) {
         if (actual == null) {
             failWithActual("expected a string that ends with", string)
         } else if (!actual.endsWith(string)) {
@@ -91,7 +91,7 @@ class StringSubject internal constructor(
     }
 
     /** Fails if the string does not match the given [regex]. */
-    fun matches(regex: String) {
+    open fun matches(regex: String) {
         matchesImpl(regex.toRegex()) {
             "Looks like you want to use .isEqualTo() for an exact equality assertion."
         }
@@ -105,7 +105,7 @@ class StringSubject internal constructor(
     }
 
     /** Fails if the string matches the given regex.  */
-    fun doesNotMatch(regex: String) {
+    open fun doesNotMatch(regex: String) {
         doesNotMatchImpl(regex.toRegex())
     }
 
@@ -115,27 +115,27 @@ class StringSubject internal constructor(
     }
 
     /** Fails if the string does not contain a match on the given regex.  */
+    open fun containsMatch(regex: String) {
+        containsMatchImpl(regex.toRegex())
+    }
+
+    /** Fails if the string does not contain a match on the given regex.  */
     fun containsMatch(regex: Regex) {
         containsMatchImpl(regex)
     }
 
-    /** Fails if the string does not contain a match on the given regex.  */
-    fun containsMatch(regex: String) {
-        containsMatchImpl(regex.toRegex())
-    }
-
     /** Fails if the string contains a match on the given regex.  */
-    fun doesNotContainMatch(regex: Regex) {
-        doesNotContainMatchImpl(regex)
-    }
-
-    /** Fails if the string contains a match on the given regex.  */
-    fun doesNotContainMatch(regex: String) {
+    open fun doesNotContainMatch(regex: String) {
         if (actual == null) {
             failWithActual("expected a string that does not contain a match for", regex)
         } else if (regex.toRegex().containsMatchIn(actual)) {
             failWithActual("expected not to contain a match for", regex)
         }
+    }
+
+    /** Fails if the string contains a match on the given regex.  */
+    fun doesNotContainMatch(regex: Regex) {
+        doesNotContainMatchImpl(regex)
     }
 
     /**
@@ -145,7 +145,7 @@ class StringSubject internal constructor(
      * after calling [Char.lowercaseChar] or after calling [Char.uppercaseChar].
      * Note that this is independent of any locale.
      */
-    fun ignoringCase(): CaseInsensitiveStringComparison =
+    open fun ignoringCase(): CaseInsensitiveStringComparison =
         CaseInsensitiveStringComparison()
 
     inner class CaseInsensitiveStringComparison internal constructor() {

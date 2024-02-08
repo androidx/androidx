@@ -19,7 +19,7 @@ package androidx.kruth
 import androidx.kruth.Fact.Companion.fact
 import androidx.kruth.Fact.Companion.simpleFact
 
-class MapSubject<K, V> internal constructor(
+open class MapSubject<K, V> internal constructor(
     actual: Map<K, V>?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<Map<K, V>>(actual = actual, metadata = metadata) {

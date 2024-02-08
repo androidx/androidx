@@ -93,9 +93,9 @@ package androidx.kruth {
     method public final void doesNotContain(Object? element);
     method public final void hasSize(int expectedSize);
     method public final void isEmpty();
-    method public final void isInOrder();
+    method public void isInOrder();
     method public final void isInOrder(java.util.Comparator<?>? comparator);
-    method public final void isInStrictOrder();
+    method public void isInStrictOrder();
     method public final void isInStrictOrder(java.util.Comparator<?>? comparator);
     method @Deprecated public void isNoneOf(Object? first, Object? second, java.lang.Object?... rest);
     method public final void isNotEmpty();
@@ -136,20 +136,20 @@ package androidx.kruth {
     method public static androidx.kruth.BigDecimalSubject assertThat(java.math.BigDecimal actual);
   }
 
-  public final class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {
-    method public androidx.kruth.Ordered containsAtLeast(kotlin.Pair<? extends K,? extends V>... entries);
-    method public androidx.kruth.Ordered containsAtLeastEntriesIn(java.util.Map<K,? extends V> expectedMap);
-    method public void containsEntry(K key, V value);
-    method public void containsEntry(kotlin.Pair<? extends K,? extends V> entry);
-    method public androidx.kruth.Ordered containsExactly(kotlin.Pair<? extends K,? extends V>... entries);
-    method public androidx.kruth.Ordered containsExactlyEntriesIn(java.util.Map<K,? extends V> expectedMap);
-    method public void containsKey(Object? key);
-    method public void doesNotContainEntry(K key, V value);
-    method public void doesNotContainEntry(kotlin.Pair<? extends K,? extends V> entry);
-    method public void doesNotContainKey(Object? key);
-    method public void hasSize(int expectedSize);
-    method public void isEmpty();
-    method public void isNotEmpty();
+  public class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {
+    method public final androidx.kruth.Ordered containsAtLeast(kotlin.Pair<? extends K,? extends V>... entries);
+    method public final androidx.kruth.Ordered containsAtLeastEntriesIn(java.util.Map<K,? extends V> expectedMap);
+    method public final void containsEntry(K key, V value);
+    method public final void containsEntry(kotlin.Pair<? extends K,? extends V> entry);
+    method public final androidx.kruth.Ordered containsExactly(kotlin.Pair<? extends K,? extends V>... entries);
+    method public final androidx.kruth.Ordered containsExactlyEntriesIn(java.util.Map<K,? extends V> expectedMap);
+    method public final void containsKey(Object? key);
+    method public final void doesNotContainEntry(K key, V value);
+    method public final void doesNotContainEntry(kotlin.Pair<? extends K,? extends V> entry);
+    method public final void doesNotContainKey(Object? key);
+    method public final void hasSize(int expectedSize);
+    method public final void isEmpty();
+    method public final void isNotEmpty();
   }
 
   public final class ObjectArraySubject<T> extends androidx.kruth.Subject<T[]> {
@@ -253,22 +253,22 @@ package androidx.kruth {
     method public androidx.kruth.StandardSubjectBuilder forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
   }
 
-  public final class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
+  public class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
     method public void contains(CharSequence charSequence);
     method public void containsMatch(String regex);
-    method public void containsMatch(kotlin.text.Regex regex);
+    method public final void containsMatch(kotlin.text.Regex regex);
     method public void doesNotContain(CharSequence charSequence);
     method public void doesNotContainMatch(String regex);
-    method public void doesNotContainMatch(kotlin.text.Regex regex);
+    method public final void doesNotContainMatch(kotlin.text.Regex regex);
     method public void doesNotMatch(String regex);
-    method public void doesNotMatch(kotlin.text.Regex regex);
+    method public final void doesNotMatch(kotlin.text.Regex regex);
     method public void endsWith(String string);
     method public void hasLength(int expectedLength);
     method public androidx.kruth.StringSubject.CaseInsensitiveStringComparison ignoringCase();
     method public void isEmpty();
     method public void isNotEmpty();
     method public void matches(String regex);
-    method public void matches(kotlin.text.Regex regex);
+    method public final void matches(kotlin.text.Regex regex);
     method public void startsWith(String string);
   }
 
@@ -308,9 +308,9 @@ package androidx.kruth {
     method public SubjectT createSubject(androidx.kruth.FailureMetadata metadata, ActualT actual);
   }
 
-  public final class ThrowableSubject<T extends java.lang.Throwable> extends androidx.kruth.Subject<T> {
-    method public androidx.kruth.ThrowableSubject<java.lang.Throwable> hasCauseThat();
-    method public androidx.kruth.StringSubject hasMessageThat();
+  public class ThrowableSubject<T extends java.lang.Throwable> extends androidx.kruth.Subject<T> {
+    method public final androidx.kruth.ThrowableSubject<java.lang.Throwable> hasCauseThat();
+    method public final androidx.kruth.StringSubject hasMessageThat();
   }
 
 }
