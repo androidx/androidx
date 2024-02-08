@@ -992,7 +992,7 @@ package androidx.compose.runtime.snapshots {
     method public boolean addAll(java.util.Collection<? extends T> elements);
     method public void clear();
     method public boolean contains(T element);
-    method public boolean containsAll(java.util.Collection<E> elements);
+    method public boolean containsAll(java.util.Collection<? extends T> elements);
     method public T get(int index);
     method public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
     method public int getSize();
@@ -1004,10 +1004,10 @@ package androidx.compose.runtime.snapshots {
     method public java.util.ListIterator<T> listIterator(int index);
     method public void prependStateRecord(androidx.compose.runtime.snapshots.StateRecord value);
     method public boolean remove(T element);
-    method public boolean removeAll(java.util.Collection<E> elements);
+    method public boolean removeAll(java.util.Collection<? extends T> elements);
     method public T removeAt(int index);
     method public void removeRange(int fromIndex, int toIndex);
-    method public boolean retainAll(java.util.Collection<E> elements);
+    method public boolean retainAll(java.util.Collection<? extends T> elements);
     method public T set(int index, T element);
     method public java.util.List<T> subList(int fromIndex, int toIndex);
     method public java.util.List<T> toList();
