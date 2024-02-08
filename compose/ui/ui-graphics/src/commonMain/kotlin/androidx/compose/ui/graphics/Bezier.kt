@@ -454,7 +454,8 @@ private fun findDerivativeRoots(
             // Compute the second derivative as a line
             val dd0 = 2.0f * (d1 - d0)
             val dd1 = 2.0f * (d2 - d1)
-            findLineRoot(dd0, dd1, roots, index + count)
+            // Return the sum of the roots count
+            count + findLineRoot(dd0, dd1, roots, index + count)
         }
 
         PathSegment.Type.Close -> 0
