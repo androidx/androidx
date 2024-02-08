@@ -261,24 +261,18 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
 }
 
 private fun getOrCreateMediaTestConfigTask(
-    project: Project,
-    isMedia2: Boolean
+    project: Project
 ): TaskProvider<GenerateMediaTestConfigurationTask> {
-    val mediaPrefix = getMediaConfigTaskPrefix(isMedia2)
     val parentProject = project.parent!!
     if (
         !parentProject.tasks
             .withType(GenerateMediaTestConfigurationTask::class.java)
             .names
-            .contains(
-                "support-$mediaPrefix-test${
-                    AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK
-                    }"
-            )
+            .contains("support-media-test${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}")
     ) {
         val task =
             parentProject.tasks.register(
-                "support-$mediaPrefix-test${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}",
+                "support-media-test${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}",
                 GenerateMediaTestConfigurationTask::class.java
             ) { task ->
                 AffectedModuleDetector.configureTaskGuard(task)
@@ -288,16 +282,8 @@ private fun getOrCreateMediaTestConfigTask(
     } else {
         return parentProject.tasks
             .withType(GenerateMediaTestConfigurationTask::class.java)
-            .named(
-                "support-$mediaPrefix-test${
-                    AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK
-                    }"
-            )
+            .named("support-media-test${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}")
     }
-}
-
-private fun getMediaConfigTaskPrefix(isMedia2: Boolean): String {
-    return if (isMedia2) "media2" else "media"
 }
 
 fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
@@ -305,13 +291,11 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
     artifacts: Artifacts,
     minSdk: Int,
     testRunner: String,
-    isMedia2: Boolean
 ) {
-    val mediaPrefix = getMediaConfigTaskPrefix(isMedia2)
-    val mediaTask = getOrCreateMediaTestConfigTask(this, isMedia2)
+    val mediaTask = getOrCreateMediaTestConfigTask(this)
 
     fun getJsonName(clientToT: Boolean, serviceToT: Boolean, clientTests: Boolean): String {
-        return "_${mediaPrefix}Client${
+        return "_mediaClient${
             if (clientToT) "ToT" else "Previous"
         }Service${
             if (serviceToT) "ToT" else "Previous"
@@ -403,15 +387,15 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
                 getJsonName(clientToT = true, serviceToT = true, clientTests = false)
             )
         )
-        it.totClientApk.set(getFileInTestConfigDirectory("${mediaPrefix}ClientToT$variantName.apk"))
+        it.totClientApk.set(getFileInTestConfigDirectory("mediaClientToT$variantName.apk"))
         it.previousClientApk.set(
-            getFileInTestConfigDirectory("${mediaPrefix}ClientPrevious$variantName.apk")
+            getFileInTestConfigDirectory("mediaClientPrevious$variantName.apk")
         )
         it.totServiceApk.set(
-            getFileInTestConfigDirectory("${mediaPrefix}ServiceToT$variantName.apk")
+            getFileInTestConfigDirectory("mediaServiceToT$variantName.apk")
         )
         it.previousServiceApk.set(
-            getFileInTestConfigDirectory("${mediaPrefix}ServicePrevious$variantName.apk")
+            getFileInTestConfigDirectory("mediaServicePrevious$variantName.apk")
         )
         it.minSdk.set(minSdk)
         it.testRunner.set(testRunner)
@@ -439,22 +423,12 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
                 return@onVariants
             }
             when {
-                path.contains("media2:media2-session:version-compat-tests:") -> {
-                    createOrUpdateMediaTestConfigurationGenerationTask(
-                        name,
-                        artifacts,
-                        baseExtension.defaultConfig.minSdk!!,
-                        baseExtension.defaultConfig.testInstrumentationRunner!!,
-                        isMedia2 = true
-                    )
-                }
                 path.contains("media:version-compat-tests:") -> {
                     createOrUpdateMediaTestConfigurationGenerationTask(
                         name,
                         artifacts,
                         baseExtension.defaultConfig.minSdk!!,
                         baseExtension.defaultConfig.testInstrumentationRunner!!,
-                        isMedia2 = false,
                     )
                 }
                 else -> {
