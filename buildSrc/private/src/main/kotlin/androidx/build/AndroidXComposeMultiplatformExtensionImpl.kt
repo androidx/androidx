@@ -21,31 +21,16 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.gradle.api.Action
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
-import org.gradle.api.attributes.Usage
 import org.gradle.api.tasks.Copy
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getValue
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.DependencyConstraint
-import org.gradle.api.artifacts.ExcludeRule
-import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.artifacts.ModuleVersionIdentifier
-import org.gradle.api.artifacts.PublishArtifact
-import org.gradle.api.attributes.AttributeContainer
-import org.gradle.api.capabilities.Capability
-import org.gradle.api.component.ComponentWithCoordinates
-import org.gradle.api.component.ComponentWithVariants
-import org.gradle.api.component.SoftwareComponent
-import org.gradle.api.internal.component.SoftwareComponentInternal
-import org.gradle.api.internal.component.UsageContext
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.kotlin.dsl.create
@@ -169,11 +154,21 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
     }
 
     override fun darwin(): Unit = multiplatformExtension.run {
-        macosX64()
-        macosArm64()
-        iosX64("uikitX64")
-        iosArm64("uikitArm64")
-        iosSimulatorArm64("uikitSimArm64")
+        macosX64() {
+            substituteForOelPublishedDependencies()
+        }
+        macosArm64() {
+            substituteForOelPublishedDependencies()
+        }
+        iosX64("uikitX64") {
+            substituteForOelPublishedDependencies()
+        }
+        iosArm64("uikitArm64") {
+            substituteForOelPublishedDependencies()
+        }
+        iosSimulatorArm64("uikitSimArm64") {
+            substituteForOelPublishedDependencies()
+        }
 
         val commonMain = sourceSets.getByName("commonMain")
         val nativeMain = sourceSets.create("nativeMain")
@@ -214,6 +209,16 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
         uikitX64Test.dependsOn(uikitTest)
         uikitArm64Test.dependsOn(uikitTest)
         uikitSimArm64Test.dependsOn(uikitTest)
+    }
+
+    override fun linuxX64(): Unit = multiplatformExtension.run {
+        linuxX64 {
+            substituteForOelPublishedDependencies()
+        }
+    }
+
+    override fun linuxArm64(): Unit = multiplatformExtension.run {
+        linuxArm64()
     }
 
     private fun getOrCreateJvmMain(): KotlinSourceSet =
@@ -273,46 +278,52 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
     }
 }
 
-fun Project.experimentalOELPublication() : Boolean = findProperty("oel.publication") == "true"
-fun Project.oelAndroidxVersion() : String? = findProperty("oel.androidx.version") as String?
-fun Project.oelAndroidxFoundationVersion() : String? = findProperty("oel.androidx.foundation.version") as String?
-fun Project.oelAndroidxMaterial3Version() : String? = findProperty("oel.androidx.material3.version") as String?
-fun Project.oelAndroidxMaterialVersion() : String? = findProperty("oel.androidx.material.version") as String?
+fun Project.experimentalArtifactRedirectingPublication() : Boolean = findProperty("artifactRedirecting.publication") == "true"
+fun Project.artifactRedirectingAndroidxVersion() : String? = findProperty("artifactRedirecting.androidx.version") as String?
+fun Project.artifactRedirectingAndroidxFoundationVersion() : String? = findProperty("artifactRedirecting.androidx.foundation.version") as String?
+fun Project.artifactRedirectingAndroidxMaterial3Version() : String? = findProperty("artifactRedirecting.androidx.material3.version") as String?
+fun Project.artifactRedirectingAndroidxMaterialVersion() : String? = findProperty("artifactRedirecting.androidx.material.version") as String?
 
-fun enableOELPublishing(project: Project) {
-    if (!project.experimentalOELPublication()) return
+fun enableArtifactRedirectingPublishing(project: Project) {
+    if (!project.experimentalArtifactRedirectingPublication()) return
 
-    if (project.experimentalOELPublication() && (project.oelAndroidxVersion() == null)) {
+    if (project.experimentalArtifactRedirectingPublication() && (project.artifactRedirectingAndroidxVersion() == null)) {
         error("androidx version should be specified for OEL publications")
     }
 
     val ext = project.multiplatformExtension ?: error("expected a multiplatform project")
 
+    val oelGroupId = project.findProperty("artifactRedirecting.androidx.groupId") as? String
+
+    val newRootComponent: CustomRootComponent? = if (oelGroupId != null) {
+        val oelVersion = project.findProperty("artifactRedirecting.androidx.${project.name}.version") as? String
+        requireNotNull(oelVersion) {
+            "Please specify artifactRedirecting.androidx.${project.name}.version property"
+        }
+
+        val rootComponent = project
+            .components
+            .withType(KotlinSoftwareComponentWithCoordinatesAndPublication::class.java)
+            .getByName("kotlin")
+
+        val newDependency = project.dependencies.create(oelGroupId, project.name, oelVersion)
+        CustomRootComponent(rootComponent, newDependency)
+    } else {
+        null
+    }
+
+    val oelTargetNames = (project.findProperty("artifactRedirecting.publication.targetNames") as? String ?: "")
+        .split(",").toSet()
+
     ext.targets.all { target ->
-        if (target is KotlinAndroidTarget) {
+        // TODO (o.k): support projects where oel publication is required for both android and native
+        if (target.name in oelTargetNames) {
+            project.publishAndroidxReference(target as KotlinOnlyTarget<*>, newRootComponent!!)
+        } else if (target is KotlinAndroidTarget) {
+            // TODO (o.k): try to get rid of this and reuse the same logic as above
             project.publishAndroidxReference(target)
         }
     }
-}
-
-
-/**
- * Usage that should be added to rootSoftwareComponent to represent android-specific variants
- * It will be serialized to *.module in "variants" collection.
- */
-private class CustomAndroidUsage(
-    private val name: String,
-    private val attributes: AttributeContainer,
-    private val dependencies: Set<ModuleDependency>
-) : UsageContext {
-    override fun getName(): String = name
-    override fun getArtifacts(): Set<PublishArtifact> = emptySet()
-    override fun getAttributes(): AttributeContainer = attributes
-    override fun getCapabilities(): Set<Capability> = emptySet()
-    override fun getDependencies(): Set<ModuleDependency> = dependencies
-    override fun getDependencyConstraints(): Set<DependencyConstraint> = emptySet()
-    override fun getGlobalExcludes(): Set<ExcludeRule> = emptySet()
-    override fun getUsage(): Usage = error("Should not be accessed!")
 }
 
 private fun Project.publishAndroidxReference(target: KotlinAndroidTarget) {
@@ -325,17 +336,17 @@ private fun Project.publishAndroidxReference(target: KotlinAndroidTarget) {
             .withType(KotlinSoftwareComponentWithCoordinatesAndPublication::class.java)
             .getByName("kotlin")
 
-        val composeVersion = requireNotNull(target.project.oelAndroidxVersion()) {
-            "Please specify oel.androidx.version property"
+        val composeVersion = requireNotNull(target.project.artifactRedirectingAndroidxVersion()) {
+            "Please specify artifactRedirecting.androidx.version property"
         }
         val material3Version =
-            requireNotNull(target.project.oelAndroidxMaterial3Version()) {
-                "Please specify oel.androidx.material3.version property"
+            requireNotNull(target.project.artifactRedirectingAndroidxMaterial3Version()) {
+                "Please specify artifactRedirecting.androidx.material3.version property"
             }
         val foundationVersion =
-            target.project.oelAndroidxFoundationVersion() ?: composeVersion
+            target.project.artifactRedirectingAndroidxFoundationVersion() ?: composeVersion
         val materialVersion =
-            target.project.oelAndroidxMaterialVersion() ?: composeVersion
+            target.project.artifactRedirectingAndroidxMaterialVersion() ?: composeVersion
 
         val groupId = target.project.group.toString()
         val version = if (groupId.contains("org.jetbrains.compose.material3")) {
@@ -355,29 +366,7 @@ private fun Project.publishAndroidxReference(target: KotlinAndroidTarget) {
 
 
         // We can't add more usages to rootComponent, so we must decorate it
-        val newRootComponent = object :
-            SoftwareComponentInternal,
-            ComponentWithVariants,
-            ComponentWithCoordinates {
-            override fun getName(): String = "kotlinDecoratedRootComponent"
-            override fun getVariants(): Set<SoftwareComponent> = rootComponent.variants
-            override fun getCoordinates(): ModuleVersionIdentifier =
-                rootComponent.coordinates
-
-            override fun getUsages(): Set<UsageContext> = rootComponent.usages + extraUsages
-
-            private val extraUsages = mutableSetOf<UsageContext>()
-
-            fun addUsageFromConfiguration(configuration: Configuration) {
-                extraUsages.add(
-                    CustomAndroidUsage(
-                        name = configuration.name,
-                        attributes = configuration.attributes,
-                        dependencies = setOf(newDependency)
-                    )
-                )
-            }
-        }
+        val newRootComponent = CustomRootComponent(rootComponent, newDependency)
 
         extensions.getByType(PublishingExtension::class.java).apply {
             val kotlinMultiplatform = publications
@@ -430,6 +419,43 @@ private fun Project.publishAndroidxReference(target: KotlinAndroidTarget) {
                 configurations.matching { it.name == configurationName }.all { conf ->
                     newRootComponent.addUsageFromConfiguration(conf)
                 }
+            }
+        }
+    }
+}
+
+/**
+ * K/Native stores the dependencies in klib manifest and tries to resolve them during compilation.
+ * Since we use project dependency - implementation(project(...)), the klib manifest will reference
+ * our groupId (for example org.jetbrains.compose.collection-internal instead of androidx.collection).
+ * Therefore, the dependency can't be resolved since we don't publish libs for some k/native targets.
+ *
+ * To fix that, we need to make sure
+ * that the project dependency is substituted by a module dependency (from androidx).
+ * We do this here. It should be called only for appropriate k/native targets.
+ *
+ * For available androidx targets see:
+ * https://maven.google.com/web/index.html#androidx.annotation
+ * https://maven.google.com/web/index.html#androidx.collection
+ */
+private fun KotlinNativeTarget.substituteForOelPublishedDependencies() {
+    val comp = compilations.getByName("main")
+    val androidAnnotationVersion = project.findProperty("artifactRedirecting.androidx.annotation.version")!!
+    val androidCollectionVersion = project.findProperty("artifactRedirecting.androidx.collection.version")!!
+    listOf(
+        comp.configurations.compileDependencyConfiguration,
+        comp.configurations.runtimeDependencyConfiguration,
+        comp.configurations.apiConfiguration,
+        comp.configurations.implementationConfiguration,
+        comp.configurations.runtimeOnlyConfiguration,
+        comp.configurations.compileOnlyConfiguration,
+    ).forEach {
+        it?.resolutionStrategy {
+            it.dependencySubstitution {
+                it.substitute(it.project(":annotation:annotation"))
+                    .using(it.module("androidx.annotation:annotation:$androidAnnotationVersion"))
+                it.substitute(it.project(":collection:collection"))
+                    .using(it.module("androidx.collection:collection:$androidCollectionVersion"))
             }
         }
     }

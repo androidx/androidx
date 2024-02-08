@@ -14,8 +14,8 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
     private val composeProperties by lazy {
         ComposeProperties(project)
     }
-    private val isOelPublication: Boolean by lazy {
-        composeProperties.isOelPublication
+    private val isArtifactRedirectingPublication: Boolean by lazy {
+        composeProperties.isArtifactRedirecting
     }
     private val targetPlatforms: Set<ComposePlatforms> by lazy {
         composeProperties.targetPlatforms
@@ -35,13 +35,25 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
         }
     }
 
+    // android is always published in ArtifactRedirecting mode (published by androidx team, not jb),
+    // therefore add it unconditionally ArtifactRedirecting set
+    private val defaultArtifactRedirectingTargetNames = setOf("android")
+
     fun publishMultiplatform(component: ComposeComponent) {
-        // To make OEL publishing (for android artifacts) work properly with kotlin >= 1.9.0,
+        val artifactRedirectingTargetNames = project.rootProject.findProject(component.path)!!
+            .findProperty("artifactRedirecting.publication.targetNames").let {
+                (it as? String)?.split(",") ?: emptyList()
+            }.toSet() + defaultArtifactRedirectingTargetNames
+
+        val useArtifactRedirectingPublication = component.supportedPlatforms.any {
+            it.matchesAnyIgnoringCase(artifactRedirectingTargetNames)
+        }
+
+        // To make ArtifactRedirecting publishing work properly with kotlin >= 1.9.0,
         // we use decorated `KotlinMultiplatform` publication named - 'KotlinMultiplatformDecorated'.
         // see AndroidXComposeMultiplatformExtensionImpl.publishAndroidxReference for details.
-        if (ComposePlatforms.ANDROID.any { it in component.supportedPlatforms }) {
-            val kotlinCommonPublicationName =
-                "${ComposePlatforms.KotlinMultiplatform.name}Decorated"
+        if (useArtifactRedirectingPublication) {
+            val kotlinCommonPublicationName = "${ComposePlatforms.KotlinMultiplatform.name}Decorated"
             dependsOnComposeTask("${component.path}:publish${kotlinCommonPublicationName}PublicationTo$repository")
         } else {
             dependsOnComposeTask("${component.path}:publish${ComposePlatforms.KotlinMultiplatform.name}PublicationTo$repository")
@@ -49,8 +61,7 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
 
         for (platform in targetPlatforms) {
             if (platform !in component.supportedPlatforms) continue
-
-            if (platform in ComposePlatforms.ANDROID && isOelPublication) continue
+            if (platform.matchesAnyIgnoringCase(artifactRedirectingTargetNames)) continue
 
             dependsOnComposeTask("${component.path}:publish${platform.name}PublicationTo$repository")
         }
