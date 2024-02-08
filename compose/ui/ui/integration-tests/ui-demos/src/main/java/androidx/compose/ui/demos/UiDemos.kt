@@ -83,9 +83,8 @@ import androidx.compose.ui.demos.viewinterop.ComposeInAndroidDemos
 import androidx.compose.ui.demos.viewinterop.ComposeInSwipeToRefreshLayout
 import androidx.compose.ui.demos.viewinterop.ComposeViewComposeNestedInterop
 import androidx.compose.ui.demos.viewinterop.EditTextInteropDemo
-import androidx.compose.ui.demos.viewinterop.FocusInteropDemo
+import androidx.compose.ui.demos.viewinterop.FocusTransferDemo
 import androidx.compose.ui.demos.viewinterop.NestedScrollInteropComposeParentWithAndroidChild
-import androidx.compose.ui.demos.viewinterop.RecyclerViewFocusTransferDemo
 import androidx.compose.ui.demos.viewinterop.ResizeComposeViewDemo
 import androidx.compose.ui.demos.viewinterop.ScrollingAndroidViewsDemo
 import androidx.compose.ui.demos.viewinterop.ViewComposeViewNestedScrollInteropDemo
@@ -230,8 +229,7 @@ private val ViewInteropDemos = DemoCategory(
         AndroidInComposeDemos,
         ComplexTouchInterop,
         ComposableDemo("TextField Interop") { EditTextInteropDemo() },
-        ComposableDemo("Focus Interop") { FocusInteropDemo() },
-        ComposableDemo("RecyclerView Focus Transfer") { RecyclerViewFocusTransferDemo() },
+        ComposableDemo("Focus Transfer") { FocusTransferDemo() },
         NestedScrollInteropDemos,
         ComposableDemo("Resize ComposeView") { ResizeComposeViewDemo() },
         ComposableDemo("LazyColumn of Android Views") { ScrollingAndroidViewsDemo() }
