@@ -23,9 +23,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -536,20 +536,43 @@ class EditorInfoTest {
         assertThat(info.initialSelEnd).isEqualTo(selection.end)
     }
 
+    @SdkSuppress(minSdkVersion = 25)
     @Test
-    fun test_privateImeOptions_is_set() {
+    fun if_not_null_contentMimeTypes_are_set_above25() {
+        val contentMimeTypes = arrayOf("text/*", "image/png")
         val info = EditorInfo()
-        val privateImeOptions = "testOptions"
-        info.update(
-            ImeOptions(
-                platformImeOptions = PlatformImeOptions(privateImeOptions)
-            )
-        )
+        info.update(ImeOptions.Default, contentMimeTypes)
 
-        assertThat(info.privateImeOptions).isEqualTo(privateImeOptions)
+        assertThat(info.contentMimeTypes).isEqualTo(contentMimeTypes)
     }
 
-    private fun EditorInfo.update(imeOptions: ImeOptions) {
-        this.update("", TextRange.Zero, imeOptions)
+    @SdkSuppress(minSdkVersion = 25)
+    @Test
+    fun if_null_contentMimeTypes_are_not_set() {
+        val contentMimeTypes = arrayOf("text/*", "image/png")
+        val info = EditorInfo()
+        info.update(ImeOptions.Default, contentMimeTypes)
+
+        assertThat(info.contentMimeTypes).isEqualTo(contentMimeTypes)
+
+        info.update(ImeOptions.Default, null)
+        assertThat(info.contentMimeTypes).isEqualTo(contentMimeTypes)
+    }
+
+    @SdkSuppress(maxSdkVersion = 24)
+    @Test
+    fun if_not_null_contentMimeTypes_are_set_below24() {
+        val contentMimeTypes = arrayOf("text/*", "image/png")
+        val info = EditorInfo()
+        info.update(ImeOptions.Default, contentMimeTypes)
+
+        assertThat(info.extras.keySet().any { it.contains("CONTENT_MIME_TYPES") }).isTrue()
+    }
+
+    private fun EditorInfo.update(
+        imeOptions: ImeOptions,
+        contentMimeTypes: Array<String>? = null
+    ) {
+        this.update("", TextRange.Zero, imeOptions, contentMimeTypes)
     }
 }
