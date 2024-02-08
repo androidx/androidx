@@ -14,72 +14,60 @@
  * limitations under the License.
  */
 
+@file:JvmName("Kruth")
+
 package androidx.kruth
+
+import kotlin.jvm.JvmName
+
+private val ASSERT = StandardSubjectBuilder.forCustomFailureStrategy { throw it }
+
+/**
+ * Begins a call chain with the fluent Truth API. If the check made by the chain fails, it will
+ * throw [AssertionError].
+ */
+@Suppress("FunctionName") // The underscore is a weird but intentional choice.
+fun assert_() = ASSERT
 
 // The order of these declarations follows those defined in Truth, which maintains their special
 // ordering of which Subject type to prioritize from the general `assertThat` factory method. See:
 // https://github.com/google/truth/blob/master/core/src/main/java/com/google/common/truth/Truth.java
 
-fun <T : Comparable<T>> assertThat(actual: T?): ComparableSubject<T> {
-    return ComparableSubject(actual)
-}
+fun <T : Comparable<T>> assertThat(actual: T?): ComparableSubject<T> = assert_().that(actual)
 
-fun <T> assertThat(actual: T?): Subject<T> {
-    return Subject(actual)
-}
+fun <T> assertThat(actual: T?): Subject<T> = assert_().that(actual)
 
-fun <T : Throwable> assertThat(actual: T?): ThrowableSubject<T> {
-    return ThrowableSubject(actual)
-}
+fun <T : Throwable> assertThat(actual: T?): ThrowableSubject<T> = assert_().that(actual)
 
-fun assertThat(actual: Boolean?): BooleanSubject {
-    return BooleanSubject(actual)
-}
+fun assertThat(actual: Boolean?): BooleanSubject = assert_().that(actual)
 
-fun assertThat(actual: Double?): DoubleSubject {
-    return DoubleSubject(actual)
-}
+fun assertThat(actual: Double?): DoubleSubject = assert_().that(actual)
 
-fun assertThat(actual: Int?): IntegerSubject {
-    return IntegerSubject(actual)
-}
+fun assertThat(actual: Int?): IntegerSubject = assert_().that(actual)
 
-fun assertThat(actual: String?): StringSubject {
-    return StringSubject(actual)
-}
+fun assertThat(actual: String?): StringSubject = assert_().that(actual)
 
-fun <T> assertThat(actual: Iterable<T>?): IterableSubject<T> =
-    IterableSubject(actual)
+fun <T> assertThat(actual: Iterable<T>?): IterableSubject<T> = assert_().that(actual)
 
-fun <T> assertThat(actual: Array<out T>?): ObjectArraySubject<T> =
-    ObjectArraySubject(actual)
+fun <T> assertThat(actual: Array<out T>?): ObjectArraySubject<T> = assert_().that(actual)
 
-fun assertThat(actual: BooleanArray?): PrimitiveBooleanArraySubject =
-    PrimitiveBooleanArraySubject(actual)
+fun assertThat(actual: BooleanArray?): PrimitiveBooleanArraySubject = assert_().that(actual)
 
-fun assertThat(actual: ShortArray?): PrimitiveShortArraySubject =
-    PrimitiveShortArraySubject(actual)
+fun assertThat(actual: ShortArray?): PrimitiveShortArraySubject = assert_().that(actual)
 
-fun assertThat(actual: IntArray?): PrimitiveIntArraySubject =
-    PrimitiveIntArraySubject(actual)
+fun assertThat(actual: IntArray?): PrimitiveIntArraySubject = assert_().that(actual)
 
-fun assertThat(actual: LongArray?): PrimitiveLongArraySubject =
-    PrimitiveLongArraySubject(actual)
+fun assertThat(actual: LongArray?): PrimitiveLongArraySubject = assert_().that(actual)
 
-fun assertThat(actual: ByteArray?): PrimitiveByteArraySubject =
-    PrimitiveByteArraySubject(actual)
+fun assertThat(actual: ByteArray?): PrimitiveByteArraySubject = assert_().that(actual)
 
-fun assertThat(actual: CharArray?): PrimitiveCharArraySubject =
-    PrimitiveCharArraySubject(actual)
+fun assertThat(actual: CharArray?): PrimitiveCharArraySubject = assert_().that(actual)
 
-fun assertThat(actual: FloatArray?): PrimitiveFloatArraySubject =
-    PrimitiveFloatArraySubject(actual)
+fun assertThat(actual: FloatArray?): PrimitiveFloatArraySubject = assert_().that(actual)
 
-fun assertThat(actual: DoubleArray?): PrimitiveDoubleArraySubject =
-    PrimitiveDoubleArraySubject(actual)
+fun assertThat(actual: DoubleArray?): PrimitiveDoubleArraySubject = assert_().that(actual)
 
-fun <K, V> assertThat(actual: Map<K, V>?): MapSubject<K, V> =
-    MapSubject(actual)
+fun <K, V> assertThat(actual: Map<K, V>?): MapSubject<K, V> = assert_().that(actual)
 
 /**
  * Begins an assertion that, if it fails, will prepend the given message to the failure message.

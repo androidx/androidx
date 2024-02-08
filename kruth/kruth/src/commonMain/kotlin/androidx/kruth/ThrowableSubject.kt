@@ -18,11 +18,16 @@ package androidx.kruth
 
 /**
  * Propositions for [Throwable] subjects.
+ *
+ * @constructor Constructor for use by subclasses. If you want to create an instance of this class
+ * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class ThrowableSubject<out T : Throwable> internal constructor(
+open class ThrowableSubject<out T : Throwable> protected constructor(
+    metadata: FailureMetadata,
     actual: T?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<T>(actual = actual, metadata = metadata) {
+) : Subject<T>(actual, metadata) {
+
+    internal constructor(actual: T?, metadata: FailureMetadata) : this(metadata, actual)
 
     /**
      * Returns a [StringSubject] to make assertions about the throwable's message.

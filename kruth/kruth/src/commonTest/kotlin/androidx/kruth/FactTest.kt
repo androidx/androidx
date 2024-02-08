@@ -104,7 +104,7 @@ class FactTest {
 
     @Test
     fun failWithActual_simpleFact() {
-        val subject = object : Subject<Int>(actual = 0) {
+        val subject = object : Subject<Int>(0, metadata = FailureMetadata()) {
             fun fail() {
                 failWithActual(simpleFact("Expected something else"))
             }
@@ -120,7 +120,7 @@ class FactTest {
 
     @Test
     fun failWithActual_multipleFacts() {
-        val subject = object : Subject<Int>(actual = 0) {
+        val subject = object : Subject<Int>(0, metadata = FailureMetadata()) {
             fun fail() {
                 failWithActual(
                     simpleFact("Expected something else"),
@@ -140,7 +140,7 @@ class FactTest {
 
     @Test
     fun failWithoutActual_simpleFact() {
-        val subject = object : Subject<Int>(actual = 0) {
+        val subject = object : Subject<Int>(0, metadata = FailureMetadata()) {
             fun fail() {
                 failWithoutActual(simpleFact("Expected something else"))
             }
@@ -156,7 +156,7 @@ class FactTest {
     @Test
     fun failWithoutActual_multipleFacts() {
         val subject =
-            object : Subject<Int>(actual = 0) {
+            object : Subject<Int>(0, metadata = FailureMetadata()) {
                 fun fail() {
                     failWithoutActual(
                         simpleFact("Expected something else"),

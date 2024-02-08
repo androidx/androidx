@@ -30,11 +30,17 @@ import androidx.kruth.Fact.Companion.simpleFact
  * which does (e.g. `iterable.toList()`). If you don't, you may see surprising failures.
  * - Assertions may also require that the elements in the given [Iterable] implement
  * [Any.hashCode] correctly.
+ *
+ * @constructor Constructor for use by subclasses. If you want to create an instance of this class
+ * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class IterableSubject<T> internal constructor(
+// Can't be final since MultisetSubject and SortedSetSubject extend it
+open class IterableSubject<T> protected constructor(
+    metadata: FailureMetadata,
     actual: Iterable<T>?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Iterable<T>>(actual = actual, metadata = metadata) {
+) : Subject<Iterable<T>>(actual, metadata = metadata) {
+
+    internal constructor(actual: Iterable<T>?, metadata: FailureMetadata) : this(metadata, actual)
 
     override fun isEqualTo(expected: Any?) {
         // method contract requires testing iterables for equality

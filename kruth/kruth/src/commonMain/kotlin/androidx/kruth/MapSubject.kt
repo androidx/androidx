@@ -19,10 +19,18 @@ package androidx.kruth
 import androidx.kruth.Fact.Companion.fact
 import androidx.kruth.Fact.Companion.simpleFact
 
-open class MapSubject<K, V> internal constructor(
+/**
+ * Propositions for [Map] subjects.
+ *
+ * @constructor Constructor for use by subclasses. If you want to create an instance of this class
+ * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+ */
+open class MapSubject<K, V> protected constructor(
+    metadata: FailureMetadata,
     actual: Map<K, V>?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Map<K, V>>(actual = actual, metadata = metadata) {
+) : Subject<Map<K, V>>(actual, metadata = metadata) {
+
+    internal constructor(actual: Map<K, V>?, metadata: FailureMetadata) : this(metadata, actual)
 
     /** Fails if the map is not empty. */
     fun isEmpty() {

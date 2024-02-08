@@ -7,17 +7,19 @@ ArrayReturn: androidx.kruth.IterableSubject#containsExactlyElementsIn(Object[]) 
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 ArrayReturn: androidx.kruth.IterableSubject#containsNoneIn(Object[]) parameter #0:
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
-ArrayReturn: androidx.kruth.KruthKt#assertThat(T[]) parameter #0:
+ArrayReturn: androidx.kruth.Kruth#assertThat(T[]) parameter #0:
     Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 ArrayReturn: androidx.kruth.StandardSubjectBuilder#that(T[]) parameter #0:
     Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 
 
-AutoBoxing: androidx.kruth.KruthKt#assertThat(Boolean) parameter #0:
+AutoBoxing: androidx.kruth.IntegerSubject#IntegerSubject(androidx.kruth.FailureMetadata, Integer) parameter #1:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.kruth.Kruth#assertThat(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
-AutoBoxing: androidx.kruth.KruthKt#assertThat(Double) parameter #0:
+AutoBoxing: androidx.kruth.Kruth#assertThat(Double) parameter #0:
     Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.kruth.KruthKt#assertThat(Integer) parameter #0:
+AutoBoxing: androidx.kruth.Kruth#assertThat(Integer) parameter #0:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)

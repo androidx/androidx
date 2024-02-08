@@ -46,7 +46,7 @@ class StandardSubjectBuilder internal constructor(
     fun withMessage(messageToPrepend: String): StandardSubjectBuilder =
         StandardSubjectBuilder(metadata = metadata.withMessage(message = messageToPrepend))
 
-    fun <T> that(actual: T): Subject<T> =
+    fun <T> that(actual: T?): Subject<T> =
         Subject(actual = actual, metadata = metadata)
 
     fun <T : Comparable<T>> that(actual: T?): ComparableSubject<T> =
