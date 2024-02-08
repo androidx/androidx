@@ -336,6 +336,8 @@ includeProject(":activity:activity-ktx", [BuildType.MAIN, BuildType.FLAN, BuildT
 includeProject(":activity:activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:integration-tests:testapp", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:integration-tests:baselineprofile", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":activity:integration-tests:macrobenchmark", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":activity:integration-tests:macrobenchmark-target", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":annotation:annotation")
 includeProject(":annotation:annotation-experimental")
 includeProject(":annotation:annotation-experimental-lint")
