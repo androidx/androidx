@@ -19,7 +19,7 @@ package androidx.kruth
 /**
  * Propositions for [Throwable] subjects.
  */
-class ThrowableSubject<out T : Throwable> internal constructor(
+open class ThrowableSubject<out T : Throwable> internal constructor(
     actual: T?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<T>(actual = actual, metadata = metadata) {
