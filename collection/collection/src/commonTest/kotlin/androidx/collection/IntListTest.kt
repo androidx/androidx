@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-internal class IntListTest {
+class IntListTest {
     private val list: MutableIntList = mutableIntListOf(1, 2, 3, 4, 5)
 
     @Test

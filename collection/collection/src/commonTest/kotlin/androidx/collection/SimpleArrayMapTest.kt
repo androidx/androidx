@@ -24,7 +24,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 @Suppress("RedundantVisibilityModifier")
-internal class SimpleArrayMapTest {
+public class SimpleArrayMapTest {
     @Test
     public fun equalsEmpty() {
         val empty = SimpleArrayMap<String, String>()

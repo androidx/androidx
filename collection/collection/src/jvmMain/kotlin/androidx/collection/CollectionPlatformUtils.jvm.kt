@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.collection.internal
+package androidx.collection
 
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.synchronized
+/**
+ * JVM actual of internal utils for handling target differences in collection code.
+ */
+internal actual object CollectionPlatformUtils {
 
-internal actual class Lock {
-    private val synchronizedObject = SynchronizedObject()
-
-    actual inline fun <T> synchronizedImpl(block: () -> T): T =
-        synchronized(synchronizedObject, block)
+    @Suppress("NOTHING_TO_INLINE")
+    internal actual inline fun createIndexOutOfBoundsException(): IndexOutOfBoundsException {
+        return ArrayIndexOutOfBoundsException()
+    }
 }

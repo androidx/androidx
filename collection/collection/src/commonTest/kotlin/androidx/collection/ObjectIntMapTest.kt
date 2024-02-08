@@ -38,7 +38,7 @@ import kotlin.test.assertTrue
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 @Suppress("RemoveRedundantCallsOfConversionMethods")
-internal class ObjectIntTest {
+class ObjectIntTest {
     @Test
     fun objectIntMap() {
         val map = MutableObjectIntMap<String>()

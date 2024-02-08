@@ -38,7 +38,7 @@ import kotlin.test.assertTrue
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 @Suppress("RemoveRedundantCallsOfConversionMethods")
-internal class ObjectFloatTest {
+class ObjectFloatTest {
     @Test
     fun objectFloatMap() {
         val map = MutableObjectFloatMap<String>()

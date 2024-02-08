@@ -37,7 +37,7 @@ import kotlin.test.assertTrue
 // object-to-object is ScatterMap.kt, which doesn't have a template.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-internal class LongObjectMapTest {
+class LongObjectMapTest {
     @Test
     fun longObjectMap() {
         val map = MutableLongObjectMap<String>()

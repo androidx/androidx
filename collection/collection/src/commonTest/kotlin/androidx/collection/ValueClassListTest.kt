@@ -33,7 +33,7 @@ import kotlin.test.assertTrue
 //     collection/collection/template/ValueClassList.kt.template \
 //     > collection/collection/src/commonTest/kotlin/androidx/collection/template/TestValueClassList.kt
 
-internal class ValueClassListTest {
+class ValueClassListTest {
     private val list: MutableTestValueClassList = mutableTestValueClassListOf().also {
         it += TestValueClass(1UL)
         it += TestValueClass(2UL)

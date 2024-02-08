@@ -31,7 +31,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-internal class FloatSetTest {
+class FloatSetTest {
     @Test
     fun emptyFloatSetConstructor() {
         val set = MutableFloatSet()

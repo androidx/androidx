@@ -240,27 +240,25 @@ public expect open class LongSparseArray<E>
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonGet(key: Long): E? {
-    @Suppress("UNCHECKED_CAST")
-    return commonGetInternal(key, null) as E?
+    return commonGetInternal(key, null)
 }
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonGet(key: Long, defaultValue: E): E {
-    @Suppress("UNCHECKED_CAST")
-    return commonGetInternal(key, defaultValue) as E
+    return commonGetInternal(key, defaultValue)
 }
 
-// TODO revert the commit c2f38fa5 after fixing https://youtrack.jetbrains.com/issue/COMPOSE-811/Fix-LongSparseArray-the-right-way-on-wasm
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun LongSparseArray<*>.commonGetInternal(
+internal inline fun <T : E?, E> LongSparseArray<E>.commonGetInternal(
     key: Long,
-    defaultValue: Any?
-): Any? {
+    defaultValue: T
+): T {
     val i = binarySearch(keys, size, key)
     return if (i < 0 || values[i] === DELETED) {
         defaultValue
     } else {
-        values[i]
+        @Suppress("UNCHECKED_CAST")
+        values[i] as T
     }
 }
 

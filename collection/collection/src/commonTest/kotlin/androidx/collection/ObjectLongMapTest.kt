@@ -38,7 +38,7 @@ import kotlin.test.assertTrue
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 @Suppress("RemoveRedundantCallsOfConversionMethods")
-internal class ObjectLongTest {
+class ObjectLongTest {
     @Test
     fun objectLongMap() {
         val map = MutableObjectLongMap<String>()

@@ -35,7 +35,7 @@ import kotlin.test.assertTrue
 //     > collection/collection/src/commonTest/kotlin/androidx/collection/template/TestValueClassSet.kt
 
 @OptIn(ExperimentalUnsignedTypes::class)
-internal class ValueClassSetTest {
+class ValueClassSetTest {
     @Test
     fun emptyTestValueClassSetConstructor() {
         val set = MutableTestValueClassSet()

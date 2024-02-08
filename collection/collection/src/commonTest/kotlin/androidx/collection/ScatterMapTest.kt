@@ -26,7 +26,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-internal class ScatterMapTest {
+class ScatterMapTest {
     @Test
     fun scatterMap() {
         val map = MutableScatterMap<String, String>()
@@ -923,6 +923,21 @@ internal class ScatterMapTest {
                 override val value: String? get() = value
             }))
         }
+    }
+
+    @Test
+    fun asMapToList() {
+        val map = mutableScatterMapOf<Int, Int>()
+        map[0] = 0
+        map[1] = -1
+
+        val list = map
+            .asMap()
+            .toList() // this requires the iterator to return new Entry instances
+
+        assertEquals(map.size, list.size)
+        assertTrue(list.contains(0 to 0))
+        assertTrue(list.contains(1 to -1))
     }
 
     @Test

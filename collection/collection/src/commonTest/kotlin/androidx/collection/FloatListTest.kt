@@ -29,7 +29,8 @@ import kotlin.test.assertTrue
 // Make a change to the original template and run the generateCollections.sh script
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-internal class FloatListTest {
+
+class FloatListTest {
     private val list: MutableFloatList = mutableFloatListOf(1f, 2f, 3f, 4f, 5f)
 
     @Test
