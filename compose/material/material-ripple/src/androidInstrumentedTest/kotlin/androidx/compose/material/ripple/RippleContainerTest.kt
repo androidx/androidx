@@ -16,11 +16,36 @@
 
 package androidx.compose.material.ripple
 
+import android.content.Context
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.IndicationNodeFactory
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.core.view.children
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -143,9 +168,121 @@ class RippleContainerTest {
             Truth.assertThat(hostView6).isNotEqualTo(hostView5)
         }
     }
+
+    private object TestRipple : IndicationNodeFactory {
+        override fun create(interactionSource: InteractionSource): DelegatableNode {
+            return createRippleModifierNode(
+                interactionSource = interactionSource,
+                bounded = true,
+                radius = Dp.Unspecified,
+                color = { Color.Red },
+                rippleAlpha = { RippleAlpha(0.2f, 0.2f, 0.2f, 0.2f) }
+            )
+        }
+
+        override fun equals(other: Any?) = other === this
+
+        override fun hashCode(): Int = -1
+    }
+
+    @Test
+    fun addingRippleContainerDoesNotCauseRelayout() {
+        val requestLayoutTrackingFrameLayout = RequestLayoutTrackingFrameLayout(rule.activity)
+        val composeView = ComposeView(rule.activity)
+        val interactionSource1 = MutableInteractionSource()
+        val interactionSource2 = MutableInteractionSource()
+
+        var androidComposeView: ViewGroup? = null
+        var scope: CoroutineScope? = null
+
+        rule.runOnUiThread {
+            requestLayoutTrackingFrameLayout.addView(composeView)
+            rule.activity.setContentView(requestLayoutTrackingFrameLayout)
+            composeView.setContent {
+                scope = rememberCoroutineScope()
+                androidComposeView = LocalView.current as ViewGroup
+                Column {
+                    Box(
+                        Modifier
+                            .wrapContentSize(align = Alignment.Center)
+                            .size(40.dp)
+                            .indication(
+                                interactionSource = interactionSource1,
+                                indication = TestRipple
+                            )
+                    )
+                    Box(
+                        Modifier
+                            .wrapContentSize(align = Alignment.Center)
+                            .size(40.dp)
+                            .indication(
+                                interactionSource = interactionSource2,
+                                indication = TestRipple
+                            )
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            // RippleContainer should be lazily added
+            val children = androidComposeView!!.children
+            val hasRippleContainer = children.filterIsInstance<RippleContainer>().any()
+            Truth.assertThat(hasRippleContainer).isFalse()
+            Truth.assertThat(requestLayoutTrackingFrameLayout.requestLayoutCalled).isTrue()
+            // reset tracking
+            requestLayoutTrackingFrameLayout.requestLayoutCalled = false
+
+            // Emit press on first ripple
+            scope!!.launch {
+                interactionSource1.emit(PressInteraction.Press(Offset.Zero))
+            }
+        }
+
+        rule.runOnIdle {
+            // Emitting the interaction should cause us to create the ripple container and initial
+            // host view without triggering a relayout
+            val children = androidComposeView!!.children
+            val rippleContainer = children.filterIsInstance<RippleContainer>().singleOrNull()
+            Truth.assertThat(rippleContainer).isNotNull()
+            val rippleHostView = rippleContainer!!
+                .children
+                .filterIsInstance<RippleHostView>()
+                .singleOrNull()
+            Truth.assertThat(rippleHostView).isNotNull()
+            Truth.assertThat(requestLayoutTrackingFrameLayout.requestLayoutCalled).isFalse()
+
+            // Emit press on second ripple
+            scope!!.launch {
+                interactionSource2.emit(PressInteraction.Press(Offset.Zero))
+            }
+        }
+
+        rule.runOnIdle {
+            // Emitting another interaction should cause us to create an addition host view
+            // without triggering a relayout
+            val children = androidComposeView!!.children
+            val rippleContainer = children.filterIsInstance<RippleContainer>().singleOrNull()
+            Truth.assertThat(rippleContainer).isNotNull()
+            val rippleHostViews = rippleContainer!!
+                .children
+                .filterIsInstance<RippleHostView>().toList()
+            Truth.assertThat(rippleHostViews.size).isEqualTo(2)
+            Truth.assertThat(requestLayoutTrackingFrameLayout.requestLayoutCalled).isFalse()
+        }
+    }
 }
 
 private class TestRippleHostKey : RippleHostKey {
     override fun onResetRippleHostView() {
+    }
+}
+
+private class RequestLayoutTrackingFrameLayout(context: Context) : FrameLayout(context) {
+    var requestLayoutCalled = false
+
+    override fun requestLayout() {
+        super.requestLayout()
+        requestLayoutCalled = true
     }
 }
