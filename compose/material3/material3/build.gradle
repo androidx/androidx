@@ -16,15 +16,12 @@
 
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    // TODO https://youtrack.jetbrains.com/issue/COMPOSE-906/Fix-atomicfu-compilation-hanging
-    //  this hangs :compose:material3:material3:compileKotlinDesktop
-    //id("kotlinx-atomicfu")
+    id("kotlinx-atomicfu")
     //id("AndroidXPaparazziPlugin") // isn't supported on Windows
 }
 
