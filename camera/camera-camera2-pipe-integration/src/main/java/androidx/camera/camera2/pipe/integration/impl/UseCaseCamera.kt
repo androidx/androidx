@@ -144,7 +144,7 @@ class UseCaseCameraImpl @Inject constructor(
                     //   seems to be mitigating the issue, but does result in overhead in startup
                     //   latencies. Move this back to UseCaseManager once we understand more about
                     //   the situation.
-                    if (it is GraphStateStarted) {
+                    if (sessionProcessorManager != null && it is GraphStateStarted) {
                         val sessionProcessorSurfaces =
                             sessionConfigAdapter.deferrableSurfaces.map {
                                 it as SessionProcessorSurface
@@ -154,7 +154,7 @@ class UseCaseCameraImpl @Inject constructor(
                             sessionProcessorSurfaces,
                             threads.scope,
                         )
-                        checkNotNull(sessionProcessorManager).onCaptureSessionStart(
+                        sessionProcessorManager.onCaptureSessionStart(
                             requestProcessorAdapter
                         )
                     }
