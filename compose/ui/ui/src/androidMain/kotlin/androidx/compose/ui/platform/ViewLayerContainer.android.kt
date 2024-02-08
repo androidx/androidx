@@ -62,6 +62,11 @@ internal open class DrawChildContainer(context: Context) : ViewGroup(context) {
         setMeasuredDimension(0, 0)
     }
 
+    @Suppress("MissingSuperCall")
+    override fun requestLayout() {
+        // we don't layout our children
+    }
+
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         // We must updateDisplayListIfDirty for all invalidated Views.
 
