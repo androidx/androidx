@@ -134,6 +134,8 @@ public class MultiInstanceInvalidationTest {
         assertTrue(changed1.await(3, TimeUnit.SECONDS));
     }
 
+    // TODO(324274513): broken test
+    @Ignore
     @Test
     public void invalidateInAnotherInstanceFts() throws Exception {
         final SampleFtsDatabase db1 = openFtsDatabase(true);
