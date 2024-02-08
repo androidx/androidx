@@ -43,10 +43,19 @@ class WindowSizeClassTest {
         assertEquals(expected, actual)
     }
 
+    @Test
+    fun testWindowSizeClass_computeRounds() {
+        val expected = WindowSizeClass(0, 0)
+
+        val actual = WindowSizeClass.compute(300f, 300f)
+
+        assertEquals(expected, actual)
+    }
+
     @OptIn(ExperimentalWindowCoreApi::class)
     @Test
     fun testConstruction_usingPx() {
-        val expected = WindowSizeClass(600, 600)
+        val expected = WindowSizeClass.compute(600f, 600f)
 
         val actual = WindowSizeClass.compute(600, 600, 1f)
 
