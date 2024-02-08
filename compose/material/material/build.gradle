@@ -28,7 +28,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("AndroidXPaparazziPlugin")
 }
 
 androidXMultiplatform {
