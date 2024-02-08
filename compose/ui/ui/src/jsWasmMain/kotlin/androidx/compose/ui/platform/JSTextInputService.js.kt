@@ -65,16 +65,5 @@ internal class JSTextInputService : PlatformTextInputService {
         }
     }
 
-    fun sendInputText(text: String) {
-        currentInput?.let { input ->
-            input.onEditCommand(listOf(CommitTextCommand(text, 1)))
-        }
-    }
-
-    val input = object : SkikoInput {
-        override fun onInputEvent(event: SkikoInputEvent) {
-            sendInputText(event.input)
-        }
-    }
-
+    val input = SkikoInput.Empty
 }

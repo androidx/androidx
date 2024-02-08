@@ -33,4 +33,4 @@ package androidx.compose.ui.input.key
  * second from the low-surrogates range (\uDC00-\uDFFF).
  */
 actual val KeyEvent.utf16CodePoint: Int
-    get() = nativeKeyEvent.platform?.charCode ?: 0
+    get() = nativeKeyEvent.platform?.key?.firstOrNull()?.code ?: 0
