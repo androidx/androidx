@@ -554,7 +554,7 @@ private data class BlockGraphicsLayerElement(
     }
 }
 
-private class BlockGraphicsLayerModifier(
+internal class BlockGraphicsLayerModifier(
     var layerBlock: GraphicsLayerScope.() -> Unit,
 ) : LayoutModifierNode, Modifier.Node() {
 

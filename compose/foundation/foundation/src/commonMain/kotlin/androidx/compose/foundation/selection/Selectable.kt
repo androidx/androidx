@@ -29,7 +29,6 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.selected
@@ -140,33 +139,20 @@ fun Modifier.selectable(
     enabled: Boolean = true,
     role: Role? = null,
     onClick: () -> Unit
-) = inspectable(
-    inspectorInfo = debugInspectorInfo {
-        name = "selectable"
-        properties["selected"] = selected
-        properties["interactionSource"] = interactionSource
-        properties["indication"] = indication
-        properties["enabled"] = enabled
-        properties["role"] = role
-        properties["onClick"] = onClick
-    },
-    factory = {
-        clickableWithIndicationIfNeeded(
-            enabled = enabled,
-            interactionSource = interactionSource,
-            indication = indication
-        ) { interactionSource, indicationNodeFactory ->
-            SelectableElement(
-                selected = selected,
-                interactionSource = interactionSource,
-                indicationNodeFactory = indicationNodeFactory,
-                enabled = enabled,
-                role = role,
-                onClick = onClick
-            )
-        }
-    }
-)
+) = clickableWithIndicationIfNeeded(
+    enabled = enabled,
+    interactionSource = interactionSource,
+    indication = indication
+) { intSource, indicationNodeFactory ->
+    SelectableElement(
+        selected = selected,
+        interactionSource = intSource,
+        indicationNodeFactory = indicationNodeFactory,
+        enabled = enabled,
+        role = role,
+        onClick = onClick
+    )
+}
 
 private class SelectableElement(
     private val selected: Boolean,
@@ -196,8 +182,15 @@ private class SelectableElement(
         )
     }
 
-    // Defined in the factory functions with inspectable
-    override fun InspectorInfo.inspectableProperties() = Unit
+    override fun InspectorInfo.inspectableProperties() {
+        name = "selectable"
+        properties["selected"] = selected
+        properties["interactionSource"] = interactionSource
+        properties["indicationNodeFactory"] = indicationNodeFactory
+        properties["enabled"] = enabled
+        properties["role"] = role
+        properties["onClick"] = onClick
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

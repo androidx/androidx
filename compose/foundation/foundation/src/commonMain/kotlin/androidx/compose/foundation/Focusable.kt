@@ -50,7 +50,6 @@ import androidx.compose.ui.platform.InspectableModifier
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
@@ -122,16 +121,8 @@ private val focusGroupInspectorInfo = InspectableModifier(
 internal fun Modifier.focusableInNonTouchMode(
     enabled: Boolean,
     interactionSource: MutableInteractionSource?
-) = inspectable(inspectorInfo = {
-    name = "focusableInNonTouchMode"
-    properties["enabled"] = enabled
-    properties["interactionSource"] = interactionSource
-},
-    factory = {
-        Modifier
-            .then(if (enabled) FocusableInNonTouchModeElement else Modifier)
-            .focusable(enabled, interactionSource)
-    })
+) = then(if (enabled) FocusableInNonTouchModeElement else Modifier)
+    .focusable(enabled, interactionSource)
 
 private val FocusableInNonTouchModeElement =
     object : ModifierNodeElement<FocusableInNonTouchMode>() {

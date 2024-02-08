@@ -730,7 +730,7 @@ class ToggleableTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "value",
-                "indication",
+                "indicationNodeFactory",
                 "interactionSource",
                 "enabled",
                 "role",
@@ -768,7 +768,7 @@ class ToggleableTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "state",
-                "indication",
+                "indicationNodeFactory",
                 "interactionSource",
                 "enabled",
                 "role",
