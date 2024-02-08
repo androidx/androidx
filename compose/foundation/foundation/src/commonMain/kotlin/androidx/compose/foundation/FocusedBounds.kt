@@ -83,7 +83,7 @@ internal class FocusedBoundsObserverNode(
     }
 
     override val providedValues: ModifierLocalMap =
-        modifierLocalMapOf(entry = ModifierLocalFocusedBoundsObserver to focusBoundsObserver)
+        modifierLocalMapOf(ModifierLocalFocusedBoundsObserver to focusBoundsObserver)
 }
 
 /**

@@ -144,7 +144,7 @@ internal class BringIntoViewResponderNode(
     override val shouldAutoInvalidate: Boolean = false
 
     override val providedValues: ModifierLocalMap =
-        modifierLocalMapOf(entry = ModifierLocalBringIntoViewParent to this)
+        modifierLocalMapOf(ModifierLocalBringIntoViewParent to this)
 
     /**
      * Responds to a child's request by first converting [boundsProvider] into this node's [LayoutCoordinates]
