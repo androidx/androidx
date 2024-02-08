@@ -36,6 +36,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
@@ -57,6 +58,14 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val appFileCollection: ConfigurableFileCollection
+
+    /**
+     * File existence check to determine whether to run this task.
+     */
+    @get:InputFiles
+    @get:SkipWhenEmpty
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val androidTestSourceCodeCollection: ConfigurableFileCollection
 
     @get:Internal abstract val appLoader: Property<BuiltArtifactsLoader>
 
