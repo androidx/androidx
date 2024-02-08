@@ -286,7 +286,7 @@ private open class EdgeToEdgeApi26 : EdgeToEdgeBase() {
 }
 
 @RequiresApi(28)
-private class EdgeToEdgeApi28 : EdgeToEdgeApi26() {
+private open class EdgeToEdgeApi28 : EdgeToEdgeApi26() {
 
     @DoNotInline
     override fun adjustLayoutInDisplayCutoutMode(window: Window) {
@@ -296,7 +296,7 @@ private class EdgeToEdgeApi28 : EdgeToEdgeApi26() {
 }
 
 @RequiresApi(29)
-private open class EdgeToEdgeApi29 : EdgeToEdgeBase() {
+private open class EdgeToEdgeApi29 : EdgeToEdgeApi28() {
 
     @DoNotInline
     override fun setUp(
@@ -321,7 +321,7 @@ private open class EdgeToEdgeApi29 : EdgeToEdgeBase() {
     }
 }
 
-@RequiresApi(29)
+@RequiresApi(30)
 private class EdgeToEdgeApi30 : EdgeToEdgeApi29() {
 
     @DoNotInline
