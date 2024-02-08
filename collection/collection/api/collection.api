@@ -2301,3 +2301,7 @@ public final class androidx/collection/SparseArrayKt {
 	public static final fun valueIterator (Landroidx/collection/SparseArrayCompat;)Ljava/util/Iterator;
 }
 
+public final class androidx/collection/internal/PackingHelpers_jvmKt {
+	public static final fun floatFromBits (I)F
+}
+
