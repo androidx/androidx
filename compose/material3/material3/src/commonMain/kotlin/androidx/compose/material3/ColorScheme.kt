@@ -41,6 +41,9 @@ import kotlin.math.ln
  * The Material color system and custom schemes provide default values for color as a starting point
  * for customization.
  *
+ * Example of extending color scheme, including implementing Fixed Accent colors:
+ * @sample androidx.compose.material3.samples.ColorSchemeFixedAccentColorSample
+ *
  * To learn more about colors, see [Material Design colors](https://m3.material.io/styles/color/overview).
  *
  * @property primary The primary color is the color displayed most frequently across your app’s
