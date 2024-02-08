@@ -70,7 +70,6 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun constructor_emptyUsername_throwsIAE() {
         assertThrows(
             "Expected empty username to throw IllegalArgumentException",
@@ -96,7 +95,6 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun constructor_nullTypeDisplayName_defaultDisplayNameSet() {
         val entry = PasswordCredentialEntry(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
@@ -143,7 +141,14 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
-    fun builder_constructDefault_containsOnlyDefaultValuesForSettableParameters() {
+    fun constructor_allRequiredParamsUsed_defaultUsernameEntryGroupIdRetrieved() {
+        val entry = constructEntryWithAllParams()
+
+        assertThat(entry.entryGroupId).isEqualTo(USERNAME)
+    }
+
+    @Test
+    fun builder_constructDefault_containsOnlySetPropertiesAndDefaultValues() {
         val entry = PasswordCredentialEntry.Builder(
             mContext,
             USERNAME,
@@ -151,10 +156,19 @@ class PasswordCredentialEntryTest {
             BEGIN_OPTION
         ).build()
 
-        assertThat(entry.affiliatedDomain).isNull()
+        assertThat(entry.username).isEqualTo(USERNAME)
         assertThat(entry.displayName).isNull()
+        assertThat(entry.typeDisplayName).isEqualTo(mContext.getString(
+            R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
+        ))
+        assertThat(entry.pendingIntent).isEqualTo(mPendingIntent)
         assertThat(entry.lastUsedTime).isNull()
+        assertThat(entry.icon.toString()).isEqualTo(
+            Icon.createWithResource(mContext, R.drawable.ic_password).toString())
         assertThat(entry.isAutoSelectAllowed).isFalse()
+        assertThat(entry.beginGetCredentialOption).isEqualTo(BEGIN_OPTION)
+        assertThat(entry.affiliatedDomain).isNull()
+        assertThat(entry.entryGroupId).isEqualTo(USERNAME)
     }
 
     @Test
@@ -217,7 +231,6 @@ class PasswordCredentialEntryTest {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun constructEntryWithRequiredParamsOnly(): PasswordCredentialEntry {
         return PasswordCredentialEntry(
             mContext,
@@ -245,6 +258,7 @@ class PasswordCredentialEntryTest {
         assertThat(USERNAME == entry.username)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
         assertThat(entry.affiliatedDomain).isNull()
+        assertThat(entry.entryGroupId).isEqualTo(USERNAME)
     }
 
     private fun assertEntryWithAllParams(entry: PasswordCredentialEntry) {
@@ -260,6 +274,7 @@ class PasswordCredentialEntryTest {
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
         assertThat(entry.isAutoSelectAllowed).isEqualTo(IS_AUTO_SELECT_ALLOWED)
         assertThat(entry.affiliatedDomain).isEqualTo(AFFILIATED_DOMAIN)
+        assertThat(entry.entryGroupId).isEqualTo(USERNAME)
     }
 
     companion object {

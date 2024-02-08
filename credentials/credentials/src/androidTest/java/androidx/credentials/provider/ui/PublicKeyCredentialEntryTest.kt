@@ -107,6 +107,36 @@ class PublicKeyCredentialEntryTest {
             )
         )
     }
+    @Test
+    fun constructor_allRequiredParamsUsed_defaultUsernameEntryGroupIdRetrieved() {
+        val entry = constructWithAllParams()
+
+        assertThat(entry.entryGroupId).isEqualTo(USERNAME)
+    }
+
+    @Test
+    fun builder_constructDefault_containsOnlySetPropertiesAndDefaultValues() {
+        val entry = PublicKeyCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+
+        assertThat(entry.username).isEqualTo(USERNAME)
+        assertThat(entry.displayName).isNull()
+        assertThat(entry.typeDisplayName).isEqualTo(mContext.getString(
+            R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
+        ))
+        assertThat(entry.pendingIntent).isEqualTo(mPendingIntent)
+        assertThat(entry.lastUsedTime).isNull()
+        assertThat(entry.icon.toString()).isEqualTo(
+            Icon.createWithResource(mContext, R.drawable.ic_passkey).toString())
+        assertThat(entry.isAutoSelectAllowed).isFalse()
+        assertThat(entry.beginGetCredentialOption).isEqualTo(BEGIN_OPTION)
+        assertThat(entry.affiliatedDomain).isNull()
+        assertThat(entry.entryGroupId).isEqualTo(USERNAME)
+    }
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
@@ -160,6 +190,8 @@ class PublicKeyCredentialEntryTest {
     private fun assertEntryWithRequiredParams(entry: PublicKeyCredentialEntry) {
         assertThat(USERNAME == entry.username)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.affiliatedDomain).isNull()
+        assertThat(entry.entryGroupId).isEqualTo(USERNAME)
     }
 
     private fun assertEntryWithAllParams(entry: PublicKeyCredentialEntry) {
@@ -170,6 +202,8 @@ class PublicKeyCredentialEntryTest {
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.lastUsedTime)
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.affiliatedDomain).isNull()
+        assertThat(entry.entryGroupId).isEqualTo(USERNAME)
     }
 
     companion object {

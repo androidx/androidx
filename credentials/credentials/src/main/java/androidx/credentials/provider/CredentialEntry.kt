@@ -26,11 +26,29 @@ import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDEN
 /**
  * Base class for a credential entry to be displayed on
  * the selector.
+ *
+ * The [entryGroupId] allows the credential selector display to, in the case of multiple entries
+ * across providers that have the same [entryGroupId] value, trim down to a single, most recently
+ * used provider on the primary card, meant for quick authentication. This will also be used for
+ * entry grouping display logic. However, if the user desires, it is possible to expand back the
+ * entries and select the provider of their choice. This should be something directly linked to the
+ * credential (e.g. [PublicKeyCredentialEntry] and [PasswordCredentialEntry] utilize 'username'),
+ * and should allow variance only as far as the case of letters (i.e. Foo@gmail.com and
+ * foo@gmail.com). These guidelines should be followed in cases where [CustomCredentialEntry] are
+ * created.
+ *
+ * @property beginGetCredentialOption the option from the original [BeginGetCredentialRequest],
+ * for which this credential entry is being added
+ * @property entryGroupId an ID used for deduplication or to group entries during display
+ * @property affiliatedDomain the user visible affiliated domain, a CharSequence
+ * representation of a web domain or an app package name that the given credential in this
+ * entry is associated with when it is different from the requesting entity, default null
  */
 abstract class CredentialEntry internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String,
     val beginGetCredentialOption: BeginGetCredentialOption,
+    val entryGroupId: CharSequence,
     val affiliatedDomain: CharSequence? = null,
 ) {
 
