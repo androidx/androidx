@@ -68,6 +68,7 @@ dependencies {
     androidTestImplementation(project(":activity:activity"))
     androidTestImplementation(project(":activity:activity-compose"))
     androidTestImplementation(project(":activity:activity-ktx"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.7.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.7.0")

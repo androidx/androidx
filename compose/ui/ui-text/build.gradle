@@ -47,8 +47,8 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-unit"))
 
                 // when updating the runtime version please also update the runtime-saveable version
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:runtime:runtime-saveable"))
+                implementation("androidx.compose.runtime:runtime:1.6.0")
+                implementation("androidx.compose.runtime:runtime-saveable:1.6.0")
 
                 implementation(project(":compose:ui:ui-util"))
             }
@@ -63,8 +63,6 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(libs.skikoCommon)
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:runtime:runtime-saveable"))
             }
         }
 
@@ -74,7 +72,6 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlib)
             }
         }
-
 
         androidMain {
             dependsOn(commonMain)
