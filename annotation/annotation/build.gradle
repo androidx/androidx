@@ -13,13 +13,16 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 androidXComposeMultiplatform {
-    desktop()
     js()
     wasm()
     darwin()
+
+    linuxX64()
+    linuxArm64()
 }
 
 kotlin {
+    jvm()
     // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
     // We can support the kotlin-native targets supported by kotlin coroutines:
     // https://github.com/Kotlin/kotlinx.coroutines/blob/master/gradle/compile-native-multiplatform.gradle
@@ -32,8 +35,6 @@ kotlin {
     tvosX64()
     tvosSimulatorArm64()
     mingwX64()
-    linuxArm64()
-    linuxX64()
 
     sourceSets {
         commonMain {

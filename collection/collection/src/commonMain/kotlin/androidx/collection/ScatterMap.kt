@@ -670,15 +670,16 @@ public sealed class ScatterMap<K, V> {
      * [ScatterMap]'s APIs directly. While the [Map] implementation returned by
      * this method tries to be as efficient as possible, the semantics of [Map]
      * may require the allocation of temporary objects for access and iteration.
-     *
-     * **Note**: the semantics of the returned [Map.entries] property is
-     * different from that of a regular [Map] implementation: the [Map.Entry]
-     * returned by the iterator is a single instance that exists for the
-     * lifetime of the iterator, so you can *not* hold on to it after calling
-     * [Iterator.next].</p>
      */
     public fun asMap(): Map<K, V> = MapWrapper()
 
+    // TODO: While not mandatory, it would be pertinent to throw a
+    //       ConcurrentModificationException when the underlying ScatterMap
+    //       is modified while iterating over keys/values/entries. To do
+    //       this we should probably have some kind of generation ID in
+    //       ScatterMap that would be incremented on any add/remove/clear
+    //       or rehash.
+    //
     // TODO: the proliferation of inner classes causes unnecessary code to be
     //       created. For instance, `entries.size` below requires a total of
     //       3 `getfield` to resolve the chain of `this` before getting the
@@ -688,19 +689,21 @@ public sealed class ScatterMap<K, V> {
     //       directly.
     internal open inner class MapWrapper : Map<K, V> {
         override val entries: Set<Map.Entry<K, V>>
-            get() = object : Set<Map.Entry<K, V>>, Map.Entry<K, V> {
-                var current = -1
-
+            get() = object : Set<Map.Entry<K, V>> {
                 override val size: Int get() = this@ScatterMap._size
 
                 override fun isEmpty(): Boolean = this@ScatterMap.isEmpty()
 
                 override fun iterator(): Iterator<Map.Entry<K, V>> {
-                    val set = this
                     return iterator {
                         this@ScatterMap.forEachIndexed { index ->
-                            current = index
-                            yield(set)
+                            @Suppress("UNCHECKED_CAST")
+                            yield(
+                                MapEntry(
+                                    this@ScatterMap.keys[index] as K,
+                                    this@ScatterMap.values[index] as V
+                                )
+                            )
                         }
                     }
                 }
@@ -710,12 +713,6 @@ public sealed class ScatterMap<K, V> {
 
                 override fun contains(element: Map.Entry<K, V>): Boolean =
                     this@ScatterMap[element.key] == element.value
-
-                @Suppress("UNCHECKED_CAST")
-                override val key: K get() = this@ScatterMap.keys[current] as K
-
-                @Suppress("UNCHECKED_CAST")
-                override val value: V get() = this@ScatterMap.values[current] as V
             }
 
         override val keys: Set<K>
@@ -1291,12 +1288,6 @@ public class MutableScatterMap<K, V>(
      * implementation returned by this method tries to be as efficient as possible,
      * the semantics of [MutableMap] may require the allocation of temporary
      * objects for access and iteration.
-     *
-     * **Note**: the semantics of the returned [MutableMap.entries] property is
-     * different from that of a regular [MutableMap] implementation: the
-     * [MutableMap.MutableEntry] returned by the iterator is a single instance
-     * that exists for the lifetime of the iterator, so you can *not* hold on to
-     * it after calling [Iterator.next].</p>
      */
     public fun asMutableMap(): MutableMap<K, V> = MutableMapWrapper()
 
@@ -1309,18 +1300,22 @@ public class MutableScatterMap<K, V>(
                 override fun isEmpty(): Boolean = this@MutableScatterMap.isEmpty()
 
                 override fun iterator(): MutableIterator<MutableMap.MutableEntry<K, V>> =
-                    object : MutableIterator<MutableMap.MutableEntry<K, V>>,
-                        MutableMap.MutableEntry<K, V> {
+                    object : MutableIterator<MutableMap.MutableEntry<K, V>> {
 
                         var iterator: Iterator<MutableMap.MutableEntry<K, V>>
                         var current = -1
 
                         init {
-                            val set = this
                             iterator = iterator {
                                 this@MutableScatterMap.forEachIndexed { index ->
                                     current = index
-                                    yield(set)
+                                    yield(
+                                        MutableMapEntry(
+                                            this@MutableScatterMap.keys,
+                                            this@MutableScatterMap.values,
+                                            current
+                                        )
+                                    )
                                 }
                             }
                         }
@@ -1334,19 +1329,6 @@ public class MutableScatterMap<K, V>(
                                 this@MutableScatterMap.removeValueAt(current)
                                 current = -1
                             }
-                        }
-
-                        @Suppress("UNCHECKED_CAST")
-                        override val key: K get() = this@MutableScatterMap.keys[current] as K
-
-                        @Suppress("UNCHECKED_CAST")
-                        override val value: V get() = this@MutableScatterMap.values[current] as V
-
-                        override fun setValue(newValue: V): V {
-                            val oldValue = this@MutableScatterMap.values[current]
-                            this@MutableScatterMap.values[current] = newValue
-                            @Suppress("UNCHECKED_CAST")
-                            return oldValue as V
                         }
                     }
 
@@ -1826,4 +1808,26 @@ internal inline fun Group.maskEmpty(): Bitmask {
 @PublishedApi
 internal inline fun Group.maskEmptyOrDeleted(): Bitmask {
     return (this and (this.inv() shl 7)) and BitmaskMsb
+}
+
+private class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
+
+private class MutableMapEntry<K, V>(
+    val keys: Array<Any?>,
+    val values: Array<Any?>,
+    val index: Int
+) : MutableMap.MutableEntry<K, V> {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun setValue(newValue: V): V {
+        val oldValue = values[index]
+        values[index] = newValue
+        return oldValue as V
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override val key: K get() = keys[index] as K
+
+    @Suppress("UNCHECKED_CAST")
+    override val value: V get() = values[index] as V
 }
