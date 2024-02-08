@@ -187,6 +187,8 @@ public class PublicKeyCredentialEntryJavaTest {
     private void assertEntryWithRequiredParams(PublicKeyCredentialEntry entry) {
         assertThat(USERNAME.equals(entry.getUsername()));
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
+        assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
     }
 
     private void assertEntryWithAllParams(PublicKeyCredentialEntry entry) {
@@ -197,5 +199,7 @@ public class PublicKeyCredentialEntryJavaTest {
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.getLastUsedTime());
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
+        assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
     }
 }

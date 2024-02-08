@@ -55,6 +55,7 @@ public class PasswordCredentialEntryJavaTest {
     private static final CharSequence TYPE_DISPLAY_NAME = "Password";
 
     private static final String AFFILIATED_DOMAIN = "affiliation-name";
+
     private static final Long LAST_USED_TIME = 10L;
 
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
@@ -196,6 +197,7 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(entry.getDisplayName()).isNull();
         assertThat(entry.getLastUsedTime()).isNull();
         assertThat(entry.isAutoSelectAllowed()).isFalse();
+        assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
     }
 
     @Test
@@ -285,6 +287,7 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
         assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
     }
 
     private void assertEntryWithAllParams(PasswordCredentialEntry entry) {
@@ -297,5 +300,6 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
         assertThat(entry.getAffiliatedDomain()).isEqualTo(AFFILIATED_DOMAIN);
+        assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
     }
 }

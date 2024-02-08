@@ -54,6 +54,7 @@ public class CustomCredentialEntryJavaTest {
 
     private static final String TYPE = "custom_type";
     private static final CharSequence TYPE_DISPLAY_NAME = "Password";
+    private static final String ENTRY_GROUP_ID = "entryGroupId";
     private static final Long LAST_USED_TIME = 10L;
     private static final Icon ICON = Icon.createWithBitmap(Bitmap.createBitmap(
             100, 100, Bitmap.Config.ARGB_8888));
@@ -147,6 +148,36 @@ public class CustomCredentialEntryJavaTest {
     }
 
     @Test
+    public void builder_constructDefault_containsOnlySetPropertiesAndDefaultValues() {
+        CustomCredentialEntry entry = constructEntryWithRequiredParams();
+
+        assertEntryWithRequiredParams(entry);
+    }
+
+    @Test
+    public void builder_setEmptyEntryGroupId_throwIAE() {
+        assertThrows("Expected null title to throw IAE",
+                IllegalArgumentException.class,
+                () -> new CustomCredentialEntry.Builder(
+                        mContext, TYPE, TITLE, mPendingIntent,
+                        mBeginCredentialOption)
+                        .setEntryGroupId("").build()
+        );
+    }
+
+    @Test
+    public void builder_setNonEmptyEntryGroupId_retrieveSetEntryGroupId() {
+        CharSequence expectedEntryGroupId = "pikes-peak";
+
+        CustomCredentialEntry entry = new CustomCredentialEntry.Builder(
+                mContext, TYPE, TITLE, mPendingIntent,
+                mBeginCredentialOption)
+                .setEntryGroupId(expectedEntryGroupId).build();
+
+        assertThat(entry.getEntryGroupId()).isEqualTo(expectedEntryGroupId);
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_requiredParams_success() {
         CustomCredentialEntry originalEntry = constructEntryWithRequiredParams();
@@ -206,6 +237,7 @@ public class CustomCredentialEntryJavaTest {
                 .setLastUsedTime(Instant.ofEpochMilli(LAST_USED_TIME))
                 .setAutoSelectAllowed(IS_AUTO_SELECT_ALLOWED)
                 .setTypeDisplayName(TYPE_DISPLAY_NAME)
+                .setEntryGroupId(ENTRY_GROUP_ID)
                 .build();
     }
 
@@ -213,12 +245,16 @@ public class CustomCredentialEntryJavaTest {
         assertThat(TITLE.equals(entry.getTitle()));
         assertThat(TYPE.equals(entry.getType()));
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
+        assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.getEntryGroupId()).isEqualTo(TITLE);
     }
 
     private void assertEntryWithRequiredParamsFromSlice(CustomCredentialEntry entry) {
         assertThat(TITLE.equals(entry.getTitle()));
         assertThat(TYPE.equals(entry.getType()));
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
+        assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.getEntryGroupId()).isEqualTo(TITLE);
     }
 
     private void assertEntryWithAllParams(CustomCredentialEntry entry) {
@@ -232,6 +268,8 @@ public class CustomCredentialEntryJavaTest {
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginCredentialOption.getType()).isEqualTo(entry.getType());
         assertThat(mBeginCredentialOption).isEqualTo(entry.getBeginGetCredentialOption());
+        assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.getEntryGroupId()).isEqualTo(ENTRY_GROUP_ID);
     }
 
     private void assertEntryWithAllParamsFromSlice(CustomCredentialEntry entry) {
@@ -244,5 +282,7 @@ public class CustomCredentialEntryJavaTest {
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginCredentialOption.getType()).isEqualTo(entry.getType());
+        assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.getEntryGroupId()).isEqualTo(ENTRY_GROUP_ID);
     }
 }

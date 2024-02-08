@@ -44,7 +44,7 @@ import java.util.Collections
  * used by the user. Note that this value will only be distinguishable up to the milli
  * second mark. If two entries have the same millisecond precision, they will be considered to
  * have been used at the same time
- * @param icon the icon to be displayed with this entry on the UI, must be created using
+ * @property icon the icon to be displayed with this entry on the UI, must be created using
  * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
  * the latter consumes more memory and may cause undefined behavior due to memory implications
  * on internal transactions; defaulted to a fallback custom credential icon if not provided
@@ -57,6 +57,15 @@ import java.util.Collections
  * selected if it is the only one on the UI. Note that setting this value
  * to true does not guarantee this behavior. The developer must also set this
  * to true, and the framework must determine that only one entry is present
+ * @property affiliatedDomain the user visible affiliated domain, a CharSequence
+ * representation of a web domain or an app package name that the given credential in this
+ * entry is associated with when it is different from the requesting entity, default null
+ * @property entryGroupId an ID used for deduplication or grouping entries during display, by
+ * default set to [title]; for more info on this id, see [CredentialEntry]
+ *
+ * @throws IllegalArgumentException If [type] or [title] are empty
+ *
+ * @see CredentialEntry
  */
 @RequiresApi(26)
 class CustomCredentialEntry internal constructor(
@@ -70,11 +79,15 @@ class CustomCredentialEntry internal constructor(
     val icon: Icon,
     val lastUsedTime: Instant?,
     beginGetCredentialOption: BeginGetCredentialOption,
+    entryGroupId: CharSequence? = title,
+    affiliatedDomain: CharSequence? = null,
     private val autoSelectAllowedFromOption: Boolean = false,
     private val isDefaultIcon: Boolean = false
 ) : CredentialEntry(
     type,
-    beginGetCredentialOption
+    beginGetCredentialOption,
+    entryGroupId ?: title,
+    affiliatedDomain,
 ) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
@@ -89,7 +102,7 @@ class CustomCredentialEntry internal constructor(
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
      * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
      * system to attach the final request
-     * @param beginGetCredentialOption the option from the original [BeginGetCredentialResponse],
+     * @param beginGetCredentialOption the option from the original [BeginGetCredentialRequest],
      * for which this credential entry is being added
      * @param subtitle the subTitle shown with this entry on the selector UI
      * @param lastUsedTime the last used time the credential underlying this entry was
@@ -103,7 +116,15 @@ class CustomCredentialEntry internal constructor(
      * @param isAutoSelectAllowed whether this entry is allowed to be auto
      * selected if it is the only one on the UI, only takes effect if the app requesting for
      * credentials also opts for auto select
+     *
+     * @throws IllegalArgumentException If [type] or [title] are empty
      */
+    @Deprecated("The constructor with the entryGroupId should be used instead.",
+        replaceWith = ReplaceWith("CustomCredentialEntry(context, title, pendingIntent," +
+            "beginGetCredentialOption, subtitle, typeDisplayName, lastUsedTime, icon, " +
+            "isAutoSelectAllowed, entryGroupId)"),
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         context: Context,
         title: CharSequence,
@@ -125,6 +146,58 @@ class CustomCredentialEntry internal constructor(
         icon,
         lastUsedTime,
         beginGetCredentialOption
+    )
+
+    /**
+     * @constructor constructs an instance of [CustomCredentialEntry]
+     *
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param title the title shown with this entry on the selector UI
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
+     * @param beginGetCredentialOption the option from the original [BeginGetCredentialRequest],
+     * for which this credential entry is being added
+     * @param subtitle the subTitle shown with this entry on the selector UI
+     * @param lastUsedTime the last used time the credential underlying this entry was
+     * used by the user, distinguishable up to the milli second mark only such that if two
+     * entries have the same millisecond precision, they will be considered to have been used at
+     * the same time
+     * @param typeDisplayName the friendly name to be displayed on the UI for
+     * the type of the credential
+     * @param icon the icon to be displayed with this entry on the selector UI, if not set a
+     * default icon representing a custom credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto
+     * selected if it is the only one on the UI, only takes effect if the app requesting for
+     * credentials also opts for auto select
+     * @param entryGroupId an ID to uniquely mark this entry for deduplication or to group entries
+     * during display, set to [title] by default
+     *
+     * @throws IllegalArgumentException If [type] or [title] are empty
+     */
+    constructor(
+        context: Context,
+        title: CharSequence,
+        pendingIntent: PendingIntent,
+        beginGetCredentialOption: BeginGetCredentialOption,
+        subtitle: CharSequence? = null,
+        typeDisplayName: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
+        @Suppress("AutoBoxing")
+        isAutoSelectAllowed: Boolean = false,
+        entryGroupId: CharSequence = title
+    ) : this(
+        beginGetCredentialOption.type,
+        title,
+        pendingIntent,
+        isAutoSelectAllowed,
+        subtitle,
+        typeDisplayName,
+        icon,
+        lastUsedTime,
+        beginGetCredentialOption,
+        entryGroupId.ifEmpty { title }
     )
 
     @RequiresApi(34)
@@ -153,6 +226,8 @@ class CustomCredentialEntry internal constructor(
             val icon = entry.icon
             val isAutoSelectAllowed = entry.isAutoSelectAllowed
             val beginGetCredentialOption = entry.beginGetCredentialOption
+            val entryGroupId = entry.entryGroupId
+            val affiliatedDomain = entry.affiliatedDomain
 
             val autoSelectAllowed = if (isAutoSelectAllowed == true) {
                 AUTO_SELECT_TRUE_STRING
@@ -184,6 +259,14 @@ class CustomCredentialEntry internal constructor(
                     beginGetCredentialOption.id,
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_ID)
+                )
+                .addText(
+                    entryGroupId, /*subTypes=*/null,
+                    listOf(SLICE_HINT_DEDUPLICATION_ID)
+                )
+                .addText(
+                    affiliatedDomain, /*subTypes=*/null,
+                    listOf(SLICE_HINT_AFFILIATED_DOMAIN)
                 )
                 .addIcon(
                     icon, /*subType=*/null,
@@ -247,8 +330,10 @@ class CustomCredentialEntry internal constructor(
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
             var beginGetCredentialOptionId: CharSequence? = null
+            var entryGroupId: CharSequence? = null
             var autoSelectAllowedFromOption = false
             var isDefaultIcon = false
+            var affiliatedDomain: CharSequence? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -270,10 +355,14 @@ class CustomCredentialEntry internal constructor(
                     if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
                         autoSelectAllowed = true
                     }
+                } else if (it.hasHint(SLICE_HINT_DEDUPLICATION_ID)) {
+                    entryGroupId = it.text
                 } else if (it.hasHint(SLICE_HINT_AUTO_SELECT_FROM_OPTION)) {
                     autoSelectAllowedFromOption = true
                 } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
                     isDefaultIcon = true
+                } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
+                    affiliatedDomain = it.text
                 }
             }
 
@@ -292,8 +381,10 @@ class CustomCredentialEntry internal constructor(
                         type,
                         Bundle()
                     ),
-                    autoSelectAllowedFromOption,
-                    isDefaultIcon
+                    entryGroupId = entryGroupId,
+                    affiliatedDomain = affiliatedDomain,
+                    autoSelectAllowedFromOption = autoSelectAllowedFromOption,
+                    isDefaultIcon = isDefaultIcon,
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -331,6 +422,12 @@ class CustomCredentialEntry internal constructor(
 
         private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
+
+        private const val SLICE_HINT_DEDUPLICATION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEDUPLICATION_ID"
+
+        private const val SLICE_HINT_AFFILIATED_DOMAIN =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AFFILIATED_DOMAIN"
 
         private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
@@ -420,6 +517,7 @@ class CustomCredentialEntry internal constructor(
         private var typeDisplayName: CharSequence? = null
         private var icon: Icon? = null
         private var autoSelectAllowed = false
+        private var entryGroupId: CharSequence = title
 
         /** Sets a displayName to be shown on the UI with this entry. */
         fun setSubtitle(subtitle: CharSequence?): Builder {
@@ -444,11 +542,23 @@ class CustomCredentialEntry internal constructor(
 
         /**
          * Sets whether the entry should be auto-selected.
-         * The value is false by default
+         * The value is false by default.
          */
         @Suppress("MissingGetterMatchingBuilder")
         fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
             this.autoSelectAllowed = autoSelectAllowed
+            return this
+        }
+
+        /**
+         * Sets an ID to uniquely mark this entry for deduplication or for grouping entries during
+         * display; if not set, will default to [title].
+         *
+         * @throws IllegalArgumentException If the entryGroupId is empty
+         */
+        fun setEntryGroupId(entryGroupId: CharSequence): Builder {
+            require(entryGroupId.isNotEmpty()) { "entryGroupId must not be empty" }
+            this.entryGroupId = entryGroupId
             return this
         }
 
@@ -475,7 +585,8 @@ class CustomCredentialEntry internal constructor(
                 typeDisplayName,
                 icon!!,
                 lastUsedTime,
-                beginGetCredentialOption
+                beginGetCredentialOption,
+                entryGroupId
             )
         }
     }
