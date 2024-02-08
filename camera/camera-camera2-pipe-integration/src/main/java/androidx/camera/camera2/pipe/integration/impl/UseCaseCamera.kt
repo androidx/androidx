@@ -168,8 +168,9 @@ class UseCaseCameraImpl @Inject constructor(
             threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 debug { "Closing $this" }
                 requestControl.close()
-                sessionProcessorManager?.onCaptureSessionEnd()
+                sessionProcessorManager?.prepareClose()
                 useCaseGraphConfig.graph.close()
+                // TODO: b/325088903 - Deinitialize the session when CameraGraph is fully shutdown.
                 sessionProcessorManager?.close()
                 useCaseSurfaceManager.stopAsync().await()
             }

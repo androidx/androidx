@@ -26,6 +26,7 @@ import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode
 import androidx.camera.camera2.pipe.CameraId
@@ -64,8 +65,10 @@ import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.stabilization.StabilizationMode
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.runBlocking
 
 /**
  * This class keeps track of the currently attached and active [UseCase]'s for a specific camera.
@@ -143,6 +146,9 @@ class UseCaseManager @Inject constructor(
     @GuardedBy("lock")
     private var deferredUseCaseManagerConfig: UseCaseManagerConfig? = null
 
+    @GuardedBy("lock")
+    private var pendingSessionProcessorInitialization = false
+
     private val meteringRepeating by lazy {
         MeteringRepeating.Builder(
             cameraProperties,
@@ -209,6 +215,7 @@ class UseCaseManager @Inject constructor(
             }
         }
 
+        // TODO: Handle when initialization is not finished (session processor).
         unattachedUseCases.forEach { useCase ->
             // Notify CameraControl is ready after the UseCaseCamera is created
             useCase.onCameraControlReady()
@@ -305,6 +312,13 @@ class UseCaseManager @Inject constructor(
 
     @GuardedBy("lock")
     private fun refreshRunningUseCases() {
+        // refreshRunningUseCases() is called after we activate, deactivate, update or have finished
+        // attaching use cases. If the SessionProcessor is still being initialized, we cannot
+        // refresh the current set of running use cases (we don't have a UseCaseCamera), but we
+        // can safely abort here, because once the SessionProcessor is initialized, we'll resume
+        // the process of creating UseCaseCamera components, finish attaching use cases and finally
+        // invoke refreshingRunningUseCases().
+        if (pendingSessionProcessorInitialization) return
         val runningUseCases = getRunningUseCases()
         when {
             shouldAddRepeatingUseCase(runningUseCases) -> addRepeatingUseCase()
@@ -313,23 +327,36 @@ class UseCaseManager @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @GuardedBy("lock")
     private fun refreshAttachedUseCases(newUseCases: Set<UseCase>) {
         val useCases = newUseCases.toList()
 
         // Close prior camera graph
-        camera.let {
+        camera.let { useCaseCamera ->
             _activeComponent = null
-            it?.close()?.let { closingJob ->
-                closingCameraJobs.add(closingJob)
-                closingJob.invokeOnCompletion {
-                    synchronized(lock) {
-                        closingCameraJobs.remove(closingJob)
+            useCaseCamera?.close()?.let { closingJob ->
+                if (sessionProcessorManager != null) {
+                    // If the current session was created for extensions. We need to make sure
+                    // the closing procedures are done. This is needed because the same
+                    // SessionProcessor instance may be reused in the next extensions session, and
+                    // we need to make sure we de-initialize the current SessionProcessor session.
+                    runBlocking { closingJob.join() }
+                } else {
+                    closingCameraJobs.add(closingJob)
+                    closingJob.invokeOnCompletion {
+                        synchronized(lock) {
+                            closingCameraJobs.remove(closingJob)
+                        }
                     }
                 }
             }
         }
-        sessionProcessorManager = null
+        sessionProcessorManager?.let {
+            it.close()
+            sessionProcessorManager = null
+            pendingSessionProcessorInitialization = false
+        }
 
         // Update list of active useCases
         if (useCases.isEmpty()) {
@@ -346,8 +373,27 @@ class UseCaseManager @Inject constructor(
                 sessionProcessor!!,
                 cameraInfoInternal.get(),
                 useCaseThreads.get().scope,
-            ).also {
-                it.initialize(this, useCases)
+            ).also { manager ->
+                pendingSessionProcessorInitialization = true
+                manager.initialize(this, useCases) { config ->
+                    synchronized(lock) {
+                        if (manager.isClosed()) {
+                            // We've been cancelled by other use case transactions. This means the
+                            // attached set of use cases have been updated in the meantime, and the
+                            // UseCaseManagerConfig we have here is obsolete, so we can simply abort
+                            // here.
+                            return@initialize
+                        }
+                        if (config == null) {
+                            Log.error { "Failed to initialize SessionProcessor" }
+                            manager.close()
+                            sessionProcessorManager = null
+                            return@initialize
+                        }
+                        pendingSessionProcessorInitialization = false
+                        this@UseCaseManager.tryResumeUseCaseManager(config)
+                    }
+                }
             }
             return
         } else {
@@ -361,10 +407,12 @@ class UseCaseManager @Inject constructor(
                 graphConfig,
                 streamConfigMap
             )
-            tryResumeUseCaseManager(useCaseManagerConfig)
+            this.tryResumeUseCaseManager(useCaseManagerConfig)
         }
     }
 
+    @VisibleForTesting
+    @GuardedBy("lock")
     internal fun tryResumeUseCaseManager(useCaseManagerConfig: UseCaseManagerConfig) {
         if (!shouldCreateCameraGraphImmediately) {
             deferredUseCaseManagerConfig = useCaseManagerConfig

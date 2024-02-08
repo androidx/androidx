@@ -33,6 +33,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import junit.framework.TestCase
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -157,7 +158,7 @@ class FakeTestUseCase(
     }
 }
 
-class TestDeferrableSurface : DeferrableSurface() {
+open class TestDeferrableSurface : DeferrableSurface() {
     private val surfaceTexture = SurfaceTexture(0).also {
         it.setDefaultBufferSize(0, 0)
     }
@@ -171,4 +172,14 @@ class TestDeferrableSurface : DeferrableSurface() {
         testSurface.release()
         surfaceTexture.release()
     }
+}
+
+class BlockingTestDeferrableSurface : TestDeferrableSurface() {
+    private val deferred = CompletableDeferred<Surface>()
+
+    override fun provideSurface(): ListenableFuture<Surface> {
+        return deferred.asListenableFuture()
+    }
+
+    fun resume() = deferred.complete(testSurface)
 }
