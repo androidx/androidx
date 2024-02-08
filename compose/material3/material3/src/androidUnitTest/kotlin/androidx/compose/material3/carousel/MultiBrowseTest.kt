@@ -52,7 +52,7 @@ class MultiBrowseTest {
         )!!
         val strategy = Strategy { keylineList }.apply(100f)
         val minSmallItemSize: Float = with(Density) { StrategyDefaults.MinSmallSize.toPx() }
-        val keylines = strategy.getDefaultKeylines()
+        val keylines = strategy.defaultKeylines
 
         // If the item size given is larger than the container, the adjusted keyline list from
         // the multi-browse keyline list should be [xSmall-Large-Small-xSmall]
@@ -74,7 +74,7 @@ class MultiBrowseTest {
             itemSpacing = 0f
         )!!
         val strategy = Strategy { keylineList }.apply(minSmallItemSize)
-        val keylines = strategy.getDefaultKeylines()
+        val keylines = strategy.defaultKeylines
 
         assertThat(strategy.itemMainAxisSize).isEqualTo(minSmallItemSize)
         assertThat(keylines.firstFocal == keylines.firstNonAnchor)
@@ -104,7 +104,7 @@ class MultiBrowseTest {
             itemSpacing = 0f
         )!!
         val strategy = Strategy { keylineList }.apply(carouselSize)
-        val keylines = strategy.getDefaultKeylines()
+        val keylines = strategy.defaultKeylines
 
         // Assert that there's only one small item, and a medium item that has a size between
         // the large and small items

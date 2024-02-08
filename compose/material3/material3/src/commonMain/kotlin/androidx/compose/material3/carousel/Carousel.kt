@@ -18,9 +18,11 @@ package androidx.compose.material3.carousel
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -176,6 +178,7 @@ internal fun Carousel(
     keylineList: (availableSpace: Float) -> KeylineList?,
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 0.dp,
+    flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state.pagerState),
     content: @Composable CarouselScope.(itemIndex: Int) -> Unit
 ) {
     val pageSize = remember(keylineList) { CarouselPageSize(keylineList) }
@@ -184,12 +187,22 @@ internal fun Carousel(
     val outOfBoundsPageCount = 2
     val carouselScope = CarouselScopeImpl
 
+    val snapPositionMap = remember(pageSize.strategy.itemMainAxisSize) {
+        calculateSnapPositions(
+            pageSize.strategy,
+            state.itemCountState.value()
+        )
+    }
+    val snapPosition = remember(snapPositionMap) { KeylineSnapPosition(snapPositionMap) }
+
     if (orientation == Orientation.Horizontal) {
         HorizontalPager(
             state = state.pagerState,
             pageSize = pageSize,
             pageSpacing = itemSpacing,
             outOfBoundsPageCount = outOfBoundsPageCount,
+            snapPosition = snapPosition,
+            flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
             Box(modifier = Modifier.carouselItem(page, state, pageSize.strategy)) {
@@ -202,6 +215,8 @@ internal fun Carousel(
             pageSize = pageSize,
             pageSpacing = itemSpacing,
             outOfBoundsPageCount = outOfBoundsPageCount,
+            snapPosition = snapPosition,
+            flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
             Box(modifier = Modifier.carouselItem(page, state, pageSize.strategy)) {
