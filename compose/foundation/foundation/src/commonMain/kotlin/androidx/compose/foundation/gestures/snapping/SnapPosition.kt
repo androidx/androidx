@@ -46,6 +46,9 @@ interface SnapPosition {
      * content.
      * @param itemIndex The index of the item being positioned.
      * @param itemCount The total amount of items in the snapping container.
+     *
+     * @return The offset of the snap position where items will be aligned to in a snapping
+     * container.
      */
     fun position(
         layoutSize: Int,
