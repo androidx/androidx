@@ -79,14 +79,17 @@ internal fun FocusTargetNode.twoDimensionalFocusSearch(
 
                     // We search among the siblings of the parent.
                     return generateAndSearchChildren(
-                        focusedChild.activeNode().focusRect(),
+                        previouslyFocusedRect ?: focusedChild.activeNode().focusRect(),
                         direction,
                         onFound
                     )
                 }
                 // Search for the next eligible sibling.
-                Active, Captured ->
-                    return generateAndSearchChildren(focusedChild.focusRect(), direction, onFound)
+                Active, Captured -> return generateAndSearchChildren(
+                    previouslyFocusedRect ?: focusedChild.focusRect(),
+                    direction,
+                    onFound
+                )
                 Inactive -> error(NoActiveChild)
             }
         }
