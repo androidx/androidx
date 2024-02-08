@@ -22,7 +22,10 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.internal.OutputDistributor.OutputListener
 import androidx.camera.camera2.pipe.media.Finalizer
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import kotlinx.atomicfu.atomic
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -445,6 +448,57 @@ class OutputDistributorTest {
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput1.output).isNull()
         assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_FAILED)
+    }
+
+    @Test
+    fun outputDistributorThrowsOnIdenticalFrameNumber() {
+        val pendingOutput1 =
+            PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(FrameNumber(1), CameraTimestamp(12), outputNumber = 102)
+        outputDistributor.startWith(pendingOutput1)
+
+        assertThrows<IllegalStateException> {
+            outputDistributor.startWith(pendingOutput2)
+        }
+    }
+
+    @Test
+    fun pendingOutputCompletesOnIdenticalTimestamps() {
+        val pendingOutput1 =
+            PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(FrameNumber(2), CameraTimestamp(11), outputNumber = 102)
+        outputDistributor.startWith(pendingOutput1)
+        outputDistributor.startWith(pendingOutput2)
+
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        assertTrue(pendingOutput1.isComplete)
+        assertFalse(pendingOutput2.isComplete)
+
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        assertTrue(pendingOutput1.isComplete)
+        assertTrue(pendingOutput2.isComplete)
+    }
+
+    @Test
+    fun pendingOutputCompletesOnIdenticalOutputNumbers() {
+        val pendingOutput1 =
+            PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(FrameNumber(2), CameraTimestamp(12), outputNumber = 101)
+        outputDistributor.startWith(pendingOutput1)
+        outputDistributor.startWith(pendingOutput2)
+
+        val fakeOutput1 = FakeOutput(101)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        assertTrue(pendingOutput1.isComplete)
+        assertFalse(pendingOutput2.isComplete)
+
+        val fakeOutput2 = FakeOutput(101)
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        assertTrue(pendingOutput1.isComplete)
+        assertTrue(pendingOutput2.isComplete)
     }
 
     /**

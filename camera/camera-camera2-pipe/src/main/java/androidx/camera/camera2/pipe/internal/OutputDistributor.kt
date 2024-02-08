@@ -148,14 +148,9 @@ internal class OutputDistributor<T>(
             val isOutOfOrder = isFrameNumberOutOfOrder || isOutputNumberOutOfOrder
 
             // onOutputStarted should only be invoked once. Check to see that there are no other
-            // duplicate events.
-            check(
-                !startedOutputs.any {
-                    it.cameraFrameNumber == cameraFrameNumber ||
-                        it.cameraTimestamp == cameraTimestamp ||
-                        it.outputNumber == outputNumber
-                }
-            ) {
+            // duplicate events. Note that on some platforms, non-compliant camera HALs may return
+            // frames with identical frame numbers and output numbers. See b/324320062 for context.
+            check(!startedOutputs.any { it.cameraFrameNumber == cameraFrameNumber }) {
                 "onOutputStarted was invoked multiple times with a previously started output!" +
                     "onOutputStarted with $cameraFrameNumber, $cameraTimestamp, $outputNumber. " +
                     "Previously started outputs: $startedOutputs"
