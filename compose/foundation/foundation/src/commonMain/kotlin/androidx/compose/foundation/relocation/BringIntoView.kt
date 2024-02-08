@@ -74,15 +74,13 @@ internal abstract class BringIntoViewChildNode : Modifier.Node(),
 
     private val localParent: BringIntoViewParent? get() = ModifierLocalBringIntoViewParent.current
 
-    /** The [LayoutCoordinates] of this modifier, if attached. */
-    protected var layoutCoordinates: LayoutCoordinates? = null
-        get() = field?.takeIf { it.isAttached }
+    protected var hasBeenPlaced = false
         private set
 
     protected val parent: BringIntoViewParent
         get() = localParent ?: defaultParent
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
-        layoutCoordinates = coordinates
+        hasBeenPlaced = true
     }
 }
