@@ -442,14 +442,18 @@ public final class androidx/compose/animation/core/KeyframesSpec$KeyframeEntity 
 public final class androidx/compose/animation/core/KeyframesSpec$KeyframesSpecConfig : androidx/compose/animation/core/KeyframesSpecBaseConfig {
 	public static final field $stable I
 	public fun <init> ()V
+	public synthetic fun at (Ljava/lang/Object;I)Landroidx/compose/animation/core/KeyframeBaseEntity;
+	public fun at (Ljava/lang/Object;I)Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;
+	public synthetic fun atFraction (Ljava/lang/Object;F)Landroidx/compose/animation/core/KeyframeBaseEntity;
+	public fun atFraction (Ljava/lang/Object;F)Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;
 	public synthetic fun createEntityFor$animation_core (Ljava/lang/Object;)Landroidx/compose/animation/core/KeyframeBaseEntity;
 	public final fun with (Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;Landroidx/compose/animation/core/Easing;)V
 }
 
 public abstract class androidx/compose/animation/core/KeyframesSpecBaseConfig {
 	public static final field $stable I
-	public final fun at (Ljava/lang/Object;I)Landroidx/compose/animation/core/KeyframeBaseEntity;
-	public final fun atFraction (Ljava/lang/Object;F)Landroidx/compose/animation/core/KeyframeBaseEntity;
+	public fun at (Ljava/lang/Object;I)Landroidx/compose/animation/core/KeyframeBaseEntity;
+	public fun atFraction (Ljava/lang/Object;F)Landroidx/compose/animation/core/KeyframeBaseEntity;
 	public final fun getDelayMillis ()I
 	public final fun getDurationMillis ()I
 	public final fun setDelayMillis (I)V

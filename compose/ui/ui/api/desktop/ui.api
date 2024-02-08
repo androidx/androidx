@@ -3554,6 +3554,7 @@ public final class androidx/compose/ui/semantics/SemanticsActions {
 	public final fun getPageRight ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getPageUp ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getPasteText ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
+	public final fun getPerformImeAction ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getRequestFocus ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getScrollBy ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getScrollToIndex ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
@@ -3739,6 +3740,8 @@ public final class androidx/compose/ui/semantics/SemanticsPropertiesKt {
 	public static final fun password (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)V
 	public static final fun pasteText (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun pasteText$default (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static final fun performImeAction (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun performImeAction$default (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public static final fun popup (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)V
 	public static final fun requestFocus (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun requestFocus$default (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
