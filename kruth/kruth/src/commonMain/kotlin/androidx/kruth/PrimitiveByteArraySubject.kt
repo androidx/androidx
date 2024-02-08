@@ -19,7 +19,7 @@ package androidx.kruth
 class PrimitiveByteArraySubject internal constructor(
     actual: ByteArray?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<ByteArray?>(actual = actual, metadata = metadata) {
+) : Subject<ByteArray?>(actual, metadata = metadata) {
 
     private val helper =
         HelperArraySubject(

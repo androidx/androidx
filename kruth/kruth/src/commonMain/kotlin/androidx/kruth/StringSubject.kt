@@ -20,13 +20,18 @@ import androidx.kruth.Fact.Companion.fact
 import androidx.kruth.Fact.Companion.simpleFact
 
 /**
- * Propositions for string subjects.
+ * Propositions for [String] subjects.
+ *
+ * @constructor Constructor for use by subclasses. If you want to create an instance of this class
+ * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class StringSubject internal constructor(
+open class StringSubject protected constructor(
+    metadata: FailureMetadata,
     actual: String?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : ComparableSubject<String>(actual = actual, metadata = metadata),
+) : ComparableSubject<String>(actual, metadata),
     PlatformStringSubject by PlatformStringSubjectImpl(actual, metadata) {
+
+    internal constructor(actual: String?, metadata: FailureMetadata) : this(metadata, actual)
 
     /**
      * Fails if the string does not contain the given sequence.

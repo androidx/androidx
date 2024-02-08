@@ -18,6 +18,7 @@ package androidx.kruth {
   }
 
   public class ComparableSubject<T extends java.lang.Comparable<? super T>> extends androidx.kruth.Subject<T> {
+    ctor protected ComparableSubject(androidx.kruth.FailureMetadata metadata, T? actual);
     method public final void isAtLeast(T? other);
     method public final void isAtMost(T? other);
     method public void isEquivalentAccordingToCompareTo(T? other);
@@ -72,10 +73,12 @@ package androidx.kruth {
   }
 
   public class IntegerSubject extends androidx.kruth.ComparableSubject<java.lang.Integer> {
+    ctor protected IntegerSubject(androidx.kruth.FailureMetadata metadata, Integer? actual);
     method @Deprecated public void isEquivalentAccordingToCompareTo(Integer? other);
   }
 
   public class IterableSubject<T> extends androidx.kruth.Subject<java.lang.Iterable<? extends T>> {
+    ctor protected IterableSubject(androidx.kruth.FailureMetadata metadata, Iterable<? extends T>? actual);
     method public final void contains(Object? element);
     method public final void containsAnyIn(Iterable<?>? expected);
     method public final void containsAnyIn(Object?[]? expected);
@@ -102,12 +105,7 @@ package androidx.kruth {
     method @Deprecated public void isNotIn(Iterable<?>? iterable);
   }
 
-  public final class KruthExtKt {
-    method public static inline <reified T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThrows(kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public static inline <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThrows(kotlin.reflect.KClass<T> exceptionClass, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-  }
-
-  public final class KruthKt {
+  public final class Kruth {
     method public static <S extends androidx.kruth.Subject<? extends T>, T> androidx.kruth.SimpleSubjectBuilder<S,T> assertAbout(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
     method public static androidx.kruth.PrimitiveBooleanArraySubject assertThat(boolean[]? actual);
     method public static androidx.kruth.PrimitiveByteArraySubject assertThat(byte[]? actual);
@@ -128,6 +126,12 @@ package androidx.kruth {
     method public static <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThat(T? actual);
     method public static <T> androidx.kruth.ObjectArraySubject<T> assertThat(T[]? actual);
     method public static androidx.kruth.StandardSubjectBuilder assertWithMessage(String messageToPrepend);
+    method public static androidx.kruth.StandardSubjectBuilder assert_();
+  }
+
+  public final class KruthExtKt {
+    method public static inline <reified T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThrows(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static inline <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThrows(kotlin.reflect.KClass<T> exceptionClass, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
   public final class Kruth_jvmKt {
@@ -137,6 +141,7 @@ package androidx.kruth {
   }
 
   public class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {
+    ctor protected MapSubject(androidx.kruth.FailureMetadata metadata, java.util.Map<K,? extends V>? actual);
     method public final androidx.kruth.Ordered containsAtLeast(kotlin.Pair<? extends K,? extends V>... entries);
     method public final androidx.kruth.Ordered containsAtLeastEntriesIn(java.util.Map<K,? extends V> expectedMap);
     method public final void containsEntry(K key, V value);
@@ -241,7 +246,7 @@ package androidx.kruth {
     method public <K, V> androidx.kruth.MapSubject<K,V> that(java.util.Map<K,? extends V>? actual);
     method public androidx.kruth.PrimitiveLongArraySubject that(long[]? actual);
     method public androidx.kruth.PrimitiveShortArraySubject that(short[]? actual);
-    method public <T> androidx.kruth.Subject<T> that(T actual);
+    method public <T> androidx.kruth.Subject<T> that(T? actual);
     method public <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> that(T? actual);
     method public <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> that(T? actual);
     method public <T> androidx.kruth.ObjectArraySubject<T> that(T[]? actual);
@@ -254,6 +259,7 @@ package androidx.kruth {
   }
 
   public class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
+    ctor protected StringSubject(androidx.kruth.FailureMetadata metadata, String? actual);
     method public void contains(CharSequence charSequence);
     method public void containsMatch(String regex);
     method public final void containsMatch(kotlin.text.Regex regex);
@@ -280,7 +286,7 @@ package androidx.kruth {
   }
 
   public class Subject<T> {
-    ctor public Subject(T? actual, optional androidx.kruth.FailureMetadata metadata);
+    ctor protected Subject(androidx.kruth.FailureMetadata metadata, T? actual);
     method protected final androidx.kruth.StandardSubjectBuilder check();
     method protected final androidx.kruth.StandardSubjectBuilder check(String format, java.lang.Object... args);
     method protected final Void failWithActual(androidx.kruth.Fact first, androidx.kruth.Fact... rest);
@@ -309,6 +315,7 @@ package androidx.kruth {
   }
 
   public class ThrowableSubject<T extends java.lang.Throwable> extends androidx.kruth.Subject<T> {
+    ctor protected ThrowableSubject(androidx.kruth.FailureMetadata metadata, T? actual);
     method public final androidx.kruth.ThrowableSubject<java.lang.Throwable> hasCauseThat();
     method public final androidx.kruth.StringSubject hasMessageThat();
   }

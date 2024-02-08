@@ -22,7 +22,7 @@ package androidx.kruth
 class BooleanSubject internal constructor(
     actual: Boolean?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Boolean>(actual = actual, metadata = metadata) {
+) : Subject<Boolean>(actual, metadata = metadata) {
 
     /**
      * Fails if the subject is false or `null`.

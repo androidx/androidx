@@ -702,7 +702,7 @@ class SubjectTest {
     fun failWithActual_printsAllMessagesPlusActualValue() {
         val subject =
             object : Subject<Int>(
-                actual = 0,
+                0,
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
@@ -725,7 +725,7 @@ class SubjectTest {
     fun failWithActual_printsAllMessagesPlusMultilineActualValue() {
         val subject =
             object : Subject<String>(
-                actual = "a\nb",
+                "a\nb",
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
@@ -750,7 +750,7 @@ class SubjectTest {
     fun failWithoutActual_printsAllMessagesPlusActualValue() {
         val subject =
             object : Subject<Int>(
-                actual = 0,
+                0,
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
@@ -772,7 +772,7 @@ class SubjectTest {
     fun failWithoutActual_printsAllMessagesPlusMultilineActualValue() {
         val subject =
             object : Subject<String>(
-                actual = "a\nb",
+                "a\nb",
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
@@ -818,7 +818,10 @@ private class ThrowsOnEqualsNull {
 /**
  * Copied from Truth.
  */
-private class ForbidsEqualityChecksSubject(actual: Any?) : Subject<Any>(actual) {
+private class ForbidsEqualityChecksSubject(
+    actual: Any?
+) : Subject<Any>(actual, metadata = FailureMetadata()) {
+
     // Not sure how to feel about this, but people do it:
     override fun isEqualTo(expected: Any?) {
         throw UnsupportedOperationException()

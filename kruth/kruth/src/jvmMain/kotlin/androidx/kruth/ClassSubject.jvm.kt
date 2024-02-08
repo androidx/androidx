@@ -22,7 +22,7 @@ package androidx.kruth
 class ClassSubject internal constructor(
     actual: Class<*>?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Class<*>>(actual = actual, metadata = metadata) {
+) : Subject<Class<*>>(actual, metadata = metadata) {
 
     /**
      * Fails if this class or interface is not the same as or a subclass or subinterface of, the

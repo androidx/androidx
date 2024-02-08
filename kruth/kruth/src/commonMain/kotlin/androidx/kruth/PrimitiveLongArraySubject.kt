@@ -22,7 +22,7 @@ package androidx.kruth
 class PrimitiveLongArraySubject internal constructor(
     actual: LongArray?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<LongArray?>(actual = actual, metadata = metadata) {
+) : Subject<LongArray?>(actual, metadata = metadata) {
 
     private val helper =
         HelperArraySubject(

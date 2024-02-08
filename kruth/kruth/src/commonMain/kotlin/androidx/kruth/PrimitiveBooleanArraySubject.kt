@@ -22,7 +22,7 @@ package androidx.kruth
 class PrimitiveBooleanArraySubject internal constructor(
     actual: BooleanArray?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<BooleanArray?>(actual = actual, metadata = metadata) {
+) : Subject<BooleanArray?>(actual, metadata = metadata) {
 
     private val helper =
         HelperArraySubject(
