@@ -254,7 +254,7 @@ private Set<BuildType> createRequestedFilter() {
                         "CAMERA  - camera projects\n" +
                         "MAIN    - androidx projects that are not compose\n" +
                         "FLAN    - fragment, lifecycle, activity, and navigation projects\n" +
-                        "MEDIA   - media, media2, and mediarouter projects\n" +
+                        "MEDIA   - media and mediarouter projects\n" +
                         "WEAR    - Wear OS projects\n" +
                         "NATIVE  - native projects\n" +
                         "WINDOW  - window projects\n" +
@@ -772,12 +772,6 @@ includeProject(":lint-checks")
 includeProject(":lint-checks:integration-tests")
 includeProject(":loader:loader", [BuildType.MAIN])
 includeProject(":loader:loader-ktx", [BuildType.MAIN])
-includeProject(":media2:integration-tests:testapp", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-common", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-exoplayer", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-player", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-session", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-widget", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media:media", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":mediarouter:mediarouter", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":mediarouter:mediarouter-testing", [BuildType.MAIN, BuildType.MEDIA])
@@ -1134,16 +1128,6 @@ includeProject(":media:version-compat-tests:service",
 includeProject(":media:version-compat-tests:service-previous",
         "media/version-compat-tests/previous/service", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media:version-compat-tests:lib", [BuildType.MAIN, BuildType.MEDIA])
-
-includeProject(":media2:media2-session:version-compat-tests:client",
-        "media2/media2-session/version-compat-tests/current/client", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-session:version-compat-tests:client-previous",
-        "media2/media2-session/version-compat-tests/previous/client", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-session:version-compat-tests:service",
-        "media2/media2-session/version-compat-tests/current/service", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-session:version-compat-tests:service-previous",
-        "media2/media2-session/version-compat-tests/previous/service", [BuildType.MAIN, BuildType.MEDIA])
-includeProject(":media2:media2-session:version-compat-tests:common", [BuildType.MAIN, BuildType.MEDIA])
 
 /////////////////////////////
 //
