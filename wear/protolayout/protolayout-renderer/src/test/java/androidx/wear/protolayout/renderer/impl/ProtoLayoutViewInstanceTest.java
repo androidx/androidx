@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -191,6 +192,57 @@ public class ProtoLayoutViewInstanceTest {
 
         assertThat(result.isCancelled()).isTrue();
         assertThat(mRootContainer.getChildCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void rootContainerChangeChild_beforeLayoutUpdate_layoutReinflates() throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+
+        // Render the first layout.
+        Layout layout1 = layout(column(dynamicFixedText(TEXT1), dynamicFixedText(TEXT2)));
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout1, RESOURCES, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
+        List<View> textView1 = findViewsWithText(mRootContainer, TEXT1);
+        assertThat(textView1).hasSize(1);
+        assertThat(findViewsWithText(mRootContainer, TEXT2)).hasSize(1);
+
+        // Change child to a layout that doesn't have FrameLayout.LayoutParams.
+        // This tests that the new layout will be correctly inflated and that there is no exception
+        // thrown when LayoutParams are not as expected (FrameLayout.LayoutParams).
+
+        RelativeLayout newParent = new RelativeLayout(mApplicationContext);
+        newParent.setLayoutParams(new RelativeLayout.LayoutParams(100, 100));
+        // Setting a child is necessary to trigger centering with LayoutParams.
+        newParent.addView(new RelativeLayout(mApplicationContext));
+
+        mRootContainer.removeAllViews();
+        mRootContainer.addView(newParent);
+
+        // Now renderer the new layout. In regular case this would be partial update, but here the
+        // not changed part of the layout was also changed in inflated View.
+        Layout layout2 = layout(column(dynamicFixedText(TEXT1), dynamicFixedText(TEXT3)));
+
+        result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout2, RESOURCES, mRootContainer);
+
+        // Make sure future is computing result.
+        assertThat(result.isDone()).isFalse();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
+        // Everything should be re-inflated.
+        List<View> updatedTextView1 = findViewsWithText(mRootContainer, TEXT1);
+        assertThat(updatedTextView1).hasSize(1);
+        assertThat(updatedTextView1.get(0)).isNotEqualTo(textView1.get(0));
+        assertThat(findViewsWithText(mRootContainer, TEXT2)).isEmpty();
+        assertThat(findViewsWithText(mRootContainer, TEXT3)).isNotEmpty();
     }
 
     @Test

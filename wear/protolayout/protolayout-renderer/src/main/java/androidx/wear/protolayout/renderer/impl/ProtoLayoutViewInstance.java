@@ -970,7 +970,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             int gravity = UNSPECIFIED_GRAVITY;
             LayoutParams layoutParams = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
 
-            if (prevInflateParent != null && prevInflateParent.getChildCount() > 0) {
+            if (prevInflateParent != null
+                    && prevInflateParent.getChildCount() > 0
+                    // This is to ensure we are centering the correct parent and that it wasn't
+                    // changed after previous inflation.
+                    && prevRenderedMetadata != null) {
                 View firstChild = prevInflateParent.getChildAt(0);
                 if (firstChild != null) {
                     FrameLayout.LayoutParams childLp =
