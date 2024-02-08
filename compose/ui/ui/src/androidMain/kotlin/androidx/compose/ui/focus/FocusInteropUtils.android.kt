@@ -16,19 +16,8 @@
 
 package androidx.compose.ui.focus
 
-import android.graphics.Rect
-import android.view.FocusFinder
-import android.view.View
 import android.view.ViewGroup
-import androidx.compose.ui.focus.FocusInteropUtils.Companion.tempCoordinates
-import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.unit.LayoutDirection
-
-private class FocusInteropUtils {
-    companion object {
-        val tempCoordinates = IntArray(2)
-    }
-}
 
 /**
  * Converts an android focus direction to a compose [focus direction][FocusDirection].
@@ -68,33 +57,10 @@ internal fun toLayoutDirection(androidLayoutDirection: Int): LayoutDirection? {
 }
 
 /**
- * Returns the bounding rect of the view in the current window.
+ * focus search in the Android framework wraps around for 1D focus search, but not for 2D focus
+ * search. This is a helper function that can be used to determine whether we should wrap around.
  */
-internal fun View.calculateBoundingRect(): androidx.compose.ui.geometry.Rect {
-    val focusedAndroidBounds = tempCoordinates.also { getLocationOnScreen(it) }
-    return androidx.compose.ui.geometry.Rect(
-        focusedAndroidBounds[0].toFloat(),
-        focusedAndroidBounds[1].toFloat(),
-        focusedAndroidBounds[0].toFloat() + width,
-        focusedAndroidBounds[1].toFloat() + height
-    )
-}
-
-internal fun View.requestInteropFocus(direction: Int?, rect: Rect?): Boolean {
-    return when {
-        direction == null -> requestFocus()
-        this !is ViewGroup -> requestFocus(direction, rect)
-        isFocused -> true
-        isFocusable && !hasFocus() -> requestFocus(direction, rect)
-        this is AndroidComposeView -> requestFocus(direction, rect)
-        rect != null -> FocusFinder.getInstance()
-            .findNextFocusFromRect(this, rect, direction)?.requestFocus(direction, rect)
-            ?: requestFocus(direction, rect)
-        else -> {
-            val focusedView = if (hasFocus()) findFocus() else null
-            FocusFinder.getInstance()
-                .findNextFocus(this, focusedView, direction)?.requestFocus(direction)
-                ?: requestFocus(direction)
-        }
-    }
+internal fun supportsWrapAroundFocus(androidDirection: Int): Boolean = when (androidDirection) {
+    ViewGroup.FOCUS_FORWARD, ViewGroup.FOCUS_BACKWARD -> true
+    else -> false
 }

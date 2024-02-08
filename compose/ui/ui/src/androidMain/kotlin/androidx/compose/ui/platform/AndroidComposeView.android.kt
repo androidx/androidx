@@ -32,7 +32,6 @@ import android.os.SystemClock
 import android.util.LongSparseArray
 import android.util.SparseArray
 import android.view.DragEvent
-import android.view.FocusFinder
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
@@ -97,10 +96,8 @@ import androidx.compose.ui.focus.FocusDirection.Companion.Right
 import androidx.compose.ui.focus.FocusDirection.Companion.Up
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
-import androidx.compose.ui.focus.calculateBoundingRect
-import androidx.compose.ui.focus.is1dFocusSearch
 import androidx.compose.ui.focus.requestFocus
-import androidx.compose.ui.focus.requestInteropFocus
+import androidx.compose.ui.focus.supportsWrapAroundFocus
 import androidx.compose.ui.focus.toAndroidFocusDirection
 import androidx.compose.ui.focus.toFocusDirection
 import androidx.compose.ui.focus.toLayoutDirection
@@ -246,10 +243,8 @@ internal class AndroidComposeView(
     override val focusOwner: FocusOwner = FocusOwnerImpl(
         onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
         onRequestFocusForOwner = ::onRequestFocusForOwner,
-        onMoveFocusInterop = ::onMoveFocusInChildren,
         onClearFocusForOwner = ::onClearFocusForOwner,
-        onFocusRectInterop = ::onFetchFocusRect,
-        onLayoutDirection = ::layoutDirection
+        layoutDirection = ::layoutDirection
     )
 
     private val dragAndDropModifierOnDragListener = DragAndDropModifierOnDragListener(::startDrag)
@@ -285,70 +280,15 @@ internal class AndroidComposeView(
     override val windowInfo: WindowInfo
         get() = _windowInfo
 
-    // When move focus is triggered by a key event, and move focus does not cause any focus change,
-    // we return the key event to the view system if focus search finds a suitable view which is not
-    // a compose sub-view. However if move focus is triggered programmatically, we have to manually
-    // implement this behavior because the view system does not have a moveFocus API.
-    private fun onMoveFocusInChildren(focusDirection: FocusDirection): Boolean {
-
-        // The view system does not have an API corresponding to Enter/Exit.
-        if (focusDirection == Enter || focusDirection == Exit) return false
-
-        val direction =
-            checkNotNull(focusDirection.toAndroidFocusDirection()) { "Invalid focus direction" }
-        val focusedRect = onFetchFocusRect()?.toAndroidRect()
-
-        val nextView = FocusFinder.getInstance().let {
-            if (focusedRect == null) {
-                it.findNextFocus(this, findFocus(), direction)
-            } else {
-                it.findNextFocusFromRect(this, focusedRect, direction)
-            }
-        }
-        return nextView?.requestInteropFocus(direction, focusedRect) ?: false
-    }
-
-    // If this root view is focused, we can get the focus rect from focusOwner. But if a sub-view
-    // has focus, the rect returned by focusOwner would be the bounds of the focus target
-    // surrounding the embedded view. For a more accurate focus rect, we use the bounds of the
-    // focused sub-view.
-    private fun onFetchFocusRect(): androidx.compose.ui.geometry.Rect? = if (isFocused) {
-        focusOwner.getFocusRect()
-    } else {
-        findFocus()?.calculateBoundingRect()
-    }
-
     // TODO(b/177931787) : Consider creating a KeyInputManager like we have for FocusManager so
     //  that this common logic can be used by all owners.
-    private val keyInputModifier = Modifier.onKeyEvent { keyEvent ->
-
-        val focusDirection = getFocusDirection(keyEvent)
-        if (focusDirection == null || keyEvent.type != KeyDown) return@onKeyEvent false
+    private val keyInputModifier = Modifier.onKeyEvent {
+        val focusDirection = getFocusDirection(it)
+        if (focusDirection == null || it.type != KeyDown) return@onKeyEvent false
 
         // Consume the key event if we moved focus or if focus search or requestFocus is cancelled.
-        val focusWasMovedOrCancelled = focusOwner.focusSearch(focusDirection, onFetchFocusRect()) {
-            it.requestFocus(focusDirection) ?: true
-        } ?: true
-        if (focusWasMovedOrCancelled) return@onKeyEvent true
-
-        // For 1D focus search, we need to wrap around at this point.
-        // Note: By returning false here, we could rely on the view framework's wrap around focus,
-        // but we don't do that since it will visit subviews before wrapping around, which would
-        // cause subviews to be re-visited.
-        if (!focusDirection.is1dFocusSearch()) return@onKeyEvent false
-
-        val clearedFocusSuccessfully = focusOwner.clearFocus(
-                force = false,
-                refreshFocusEvents = true,
-                clearOwnerFocus = false,
-                focusDirection = focusDirection
-        )
-        // Consume the key event if clearFocus was cancelled.
-        if (!clearedFocusSuccessfully) return@onKeyEvent true
-
-        // Perform wrap-around focus search by running a focus search after clearing focus.
-        return@onKeyEvent focusOwner.focusSearch(focusDirection, null) {
-            it.requestFocus(focusDirection) ?: true
+        focusOwner.focusSearch(focusDirection, null) { focusTargetNode ->
+            focusTargetNode.requestFocus(focusDirection) ?: true
         } ?: true
     }
 
@@ -749,7 +689,7 @@ internal class AndroidComposeView(
      * system for accurate focus searching and so ViewRootImpl will scroll correctly.
      */
     override fun getFocusedRect(rect: Rect) {
-        onFetchFocusRect()?.run {
+        focusOwner.getFocusRect()?.run {
             rect.left = left.fastRoundToInt()
             rect.top = top.fastRoundToInt()
             rect.right = right.fastRoundToInt()
@@ -762,48 +702,52 @@ internal class AndroidComposeView(
         showLayoutBounds = getIsShowingLayoutBounds()
     }
 
-    override fun focusSearch(focused: View?, direction: Int): View? {
-        if (focused != null) {
-            // Find the next composable using FocusOwner.
-            val focusedBounds = focused.calculateBoundingRect()
-            val focusDirection = toFocusDirection(direction) ?: Down
-            if (focusOwner.focusSearch(focusDirection, focusedBounds) { true } == true) return this
-        }
-
-        return super.focusSearch(focused, direction)
+    override fun focusSearch(direction: Int): View? = if (focusOwner.rootState.hasFocus) {
+        // When the compose hierarchy is focused, it intercepts the key events that trigger focus
+        // search. So focus search should never find a compose hierarchy that has focus.
+        //
+        // However there is a case where we don't consume the key events. When all the components
+        // have been visited, and/or focus can't be moved within the compose hierarchy, the key
+        // events are returned to the framework so it can perform a search among other views. This
+        // focus search could land back on this view.
+        //
+        // Ideally just returning "this" to focus search should cause it to call requestFocus with
+        // the previously focused rect, and we would find the next item. However the framework does
+        // not call request focus on this view because it already has focus.
+        //
+        // To fix this issue, we manually clear focus and return this. The view with default focus
+        // might be assigned focus for a while, but requestFocus will be called which will then
+        // transfer focus to this view.
+        //
+        // There is an additional special case here. Focus wraps around only for 1D focus search
+        // and not for 2D focus search. So we clear focus only if focus search was triggered by
+        // a 1D focus search.
+        if (supportsWrapAroundFocus(direction)) clearFocus()
+        this
+    } else {
+        // TODO(b/261190892) run a mixed focus search that searches between composables and
+        //  child views and chooses an appropriate result.
+        //  We give the embedded children a chance to take focus before the compose view.
+        super.focusSearch(direction) ?: this
     }
 
     override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
-        // This view is already focused.
-        if (isFocused) return true
+        if (focusOwner.rootState.hasFocus) return true
 
-        // If the root has focus, it means a sub-view is focused,
-        // and is trying to move focus within itself.
-        if (focusOwner.rootState.hasFocus) {
-            return super.requestFocus(direction, previouslyFocusedRect)
-        }
-
-        // When we clear focus on Pre P devices, request focus is called even when we are
-        // in touch mode. We fix this by assigning initial focus only in non-touch mode.
+        // b/318968220 When we clear focus on Pre P devices, request focus is called even when we
+        // are in touch mode. We fix this by assigning initial focus only in non-touch mode.
         if (isInTouchMode) return false
 
-        val focusDirection = toFocusDirection(direction) ?: Enter
-        return focusOwner.focusSearch(
-            focusDirection = focusDirection,
-            focusedRect = previouslyFocusedRect?.toComposeRect()
-        ) {
-            it.requestFocus(focusDirection) ?: false
-        } ?: false
+        return focusOwner.takeFocus(
+            focusDirection = toFocusDirection(direction) ?: Enter,
+            previouslyFocusedRect = previouslyFocusedRect?.toComposeRect()
+        )
     }
 
     private fun onRequestFocusForOwner(
         focusDirection: FocusDirection?,
         previouslyFocusedRect: androidx.compose.ui.geometry.Rect?
     ): Boolean {
-        // We don't request focus if the view is already focused, or if an embedded view is focused,
-        // because this would cause the embedded view to lose focus.
-        if (isFocused || hasFocus()) return true
-
         return super.requestFocus(
             focusDirection?.toAndroidFocusDirection() ?: FOCUS_DOWN,
             @Suppress("DEPRECATION")
@@ -819,7 +763,7 @@ internal class AndroidComposeView(
 
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
-        if (!gainFocus && !hasFocus()) {
+        if (!gainFocus) {
             focusOwner.releaseFocus()
         }
     }
@@ -865,14 +809,8 @@ internal class AndroidComposeView(
     } else {
         // This Owner has a focused child view, which is a view interoperability use case,
         // so we use the default ViewGroup behavior which will route tke key event to the
-        // focused child view.
-        focusOwner.dispatchKeyEvent(
-            keyEvent = KeyEvent(event),
-            onFocusedItem = {
-                // TODO(b/320510084): Add tests to verify that embedded views receive key events.
-                super.dispatchKeyEvent(event)
-            }
-        )
+        // focused view.
+        super.dispatchKeyEvent(event)
     }
 
     override fun dispatchKeyEventPreIme(event: AndroidKeyEvent): Boolean {
