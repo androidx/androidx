@@ -145,13 +145,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                         subproject.name != "docs-public" &&
                         subproject.name != "docs-tip-of-tree" &&
                         subproject.name != "camera-testapp-timing" &&
-                        subproject.name != "room-testapp" &&
-                        !(subproject.path.contains(
-                            "media2:media2-session:version-compat-tests:client-previous"
-                        )) &&
-                        !(subproject.path.contains(
-                            "media2:media2-session:version-compat-tests:service-previous"
-                        ))
+                        subproject.name != "room-testapp"
                 ) {
                     subproject.configurations.all { configuration ->
                         configuration.resolutionStrategy.dependencySubstitution.apply {
