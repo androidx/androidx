@@ -211,7 +211,7 @@ val TextDemos = DemoCategory(
                 ComposableDemo("ClickableText with hover") { InteractiveTextDemo() },
                 ComposableDemo("\uD83D\uDD17 Hyperlinks") { Hyperlinks() }
             )
-        )
-
+        ),
+        ComposableDemo("Text Pointer Icon") { TextPointerIconDemo() },
     )
 )
