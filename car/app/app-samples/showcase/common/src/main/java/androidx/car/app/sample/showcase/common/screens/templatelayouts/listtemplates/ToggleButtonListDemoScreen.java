@@ -17,7 +17,6 @@
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates;
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
-import static androidx.car.app.model.Action.BACK;
 import static androidx.car.app.model.CarColor.GREEN;
 
 import androidx.annotation.NonNull;
@@ -25,8 +24,8 @@ import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.OnClickListener;
@@ -92,18 +91,16 @@ public final class ToggleButtonListDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(builder.build())
-                .setTitle(getCarContext().getString(R.string.toggle_button_demo_title))
-                .setHeaderAction(BACK)
-                .setActionStrip(
-                        new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle(getCarContext().getString(
-                                                        R.string.home_caps_action_title))
-                                                .setOnClickListener(
-                                                        () -> getScreenManager().popToRoot())
-                                                .build())
+                .setHeader(new Header.Builder()
+                        .setTitle(getCarContext().getString(R.string.toggle_button_demo_title))
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(new Action.Builder()
+                                .setTitle(getCarContext().getString(
+                                        R.string.home_caps_action_title))
+                                .setOnClickListener(
+                                        () -> getScreenManager().popToRoot())
                                 .build())
+                        .build())
                 .build();
     }
 
