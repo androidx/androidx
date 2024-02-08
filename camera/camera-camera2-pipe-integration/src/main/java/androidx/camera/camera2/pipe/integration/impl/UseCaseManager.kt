@@ -329,6 +329,7 @@ class UseCaseManager @Inject constructor(
                 }
             }
         }
+        sessionProcessorManager = null
 
         // Update list of active useCases
         if (useCases.isEmpty()) {
