@@ -339,6 +339,8 @@ internal class TextAnnotatedStringNode(
 
         setTextSubstitution { updatedText ->
             setSubstitution(updatedText)
+            // TODO: add test to cover the immediate semantics invalidation
+            invalidateSemantics()
 
             true
         }

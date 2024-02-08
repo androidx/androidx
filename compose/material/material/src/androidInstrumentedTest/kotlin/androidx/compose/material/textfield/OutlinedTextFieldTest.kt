@@ -222,7 +222,10 @@ class OutlinedTextFieldTest {
         val density = Density(4f)
         rule.setMaterialContent {
             CompositionLocalProvider(LocalDensity provides density) {
-                Box(Modifier.testTag("box").background(Color.Red)) {
+                Box(
+                    Modifier
+                        .testTag("box")
+                        .background(Color.Red)) {
                     OutlinedTextField(
                         value = "",
                         onValueChange = {},
@@ -401,7 +404,9 @@ class OutlinedTextFieldTest {
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
-                    modifier = Modifier.testTag(TextfieldTag).requiredWidth(textFieldWidth),
+                    modifier = Modifier
+                        .testTag(TextfieldTag)
+                        .requiredWidth(textFieldWidth),
                     label = {
                         Text(
                             text = "long long long long long long long long long long long long",
@@ -434,9 +439,11 @@ class OutlinedTextFieldTest {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.testTag(TextfieldTag).onGloballyPositioned {
-                    tfSize.value = it.size
-                },
+                modifier = Modifier
+                    .testTag(TextfieldTag)
+                    .onGloballyPositioned {
+                        tfSize.value = it.size
+                    },
                 label = {
                     Box(Modifier.size(width = 50.dp, height = labelHeight))
                 },
@@ -458,13 +465,17 @@ class OutlinedTextFieldTest {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.testTag(TextfieldTag).requiredWidth(textFieldWidth),
+                modifier = Modifier
+                    .testTag(TextfieldTag)
+                    .requiredWidth(textFieldWidth),
                 label = {
                     Text(
                         text = "Label",
-                        modifier = Modifier.width(labelRequestedWidth).onGloballyPositioned {
-                            labelSize.value = it.size
-                        }
+                        modifier = Modifier
+                            .width(labelRequestedWidth)
+                            .onGloballyPositioned {
+                                labelSize.value = it.size
+                            }
                     )
                 },
                 trailingIcon = {
@@ -778,7 +789,9 @@ class OutlinedTextFieldTest {
                 OutlinedTextField(
                     value = "text",
                     onValueChange = {},
-                    modifier = Modifier.width(textFieldWidth).height(textFieldHeight),
+                    modifier = Modifier
+                        .width(textFieldWidth)
+                        .height(textFieldHeight),
                     leadingIcon = {
                         IconButton(
                             onClick = {},
@@ -840,21 +853,27 @@ class OutlinedTextFieldTest {
                 OutlinedTextField(
                     value = "text",
                     onValueChange = {},
-                    modifier = Modifier.width(textFieldWidth).height(textFieldHeight),
+                    modifier = Modifier
+                        .width(textFieldWidth)
+                        .height(textFieldHeight),
                     leadingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                leadingPosition = it.positionInRoot()
-                                leadingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    leadingPosition = it.positionInRoot()
+                                    leadingSize = it.size
+                                }
                         )
                     },
                     trailingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                trailingPosition = it.positionInRoot()
-                                trailingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    trailingPosition = it.positionInRoot()
+                                    trailingSize = it.size
+                                }
                         )
                     },
                 )
@@ -1196,7 +1215,10 @@ class OutlinedTextFieldTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testOutlinedTextField_label_notUsingErrorColor_notFocused_withoutInput() {
         rule.setMaterialContent {
-            Box(Modifier.background(Color.White).padding(10.dp)) {
+            Box(
+                Modifier
+                    .background(Color.White)
+                    .padding(10.dp)) {
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
@@ -1467,7 +1489,10 @@ class OutlinedTextFieldTest {
         val text = "Long text input. ".repeat(20)
         rule.setMaterialContent {
             Row {
-                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
+                Box(
+                    Modifier
+                        .width(150.dp)
+                        .height(IntrinsicSize.Min)) {
                     OutlinedTextField(
                         value = text,
                         onValueChange = {},
