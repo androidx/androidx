@@ -1520,7 +1520,7 @@ class ClickableTest {
                 "onClickLabel",
                 "onClick",
                 "role",
-                "indication",
+                "indicationNodeFactory",
                 "interactionSource"
             )
         }

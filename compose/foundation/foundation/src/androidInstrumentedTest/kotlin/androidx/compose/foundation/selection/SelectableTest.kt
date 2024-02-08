@@ -638,7 +638,7 @@ class SelectableTest {
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "selected",
                 "interactionSource",
-                "indication",
+                "indicationNodeFactory",
                 "enabled",
                 "role",
                 "onClick"
