@@ -218,13 +218,13 @@ internal fun SdkComponents.aidlFramework(baseExtension: BaseExtension): Provider
  * Returns the AIDL import directories for the given variant of the project.
  */
 internal fun Project.getAidlArtifactsOnCompileClasspath(variant: Variant): List<FileCollection> {
-    val incoming = project.configurations.findByName("${variant.name}CompileClasspath")?.incoming
-    val aidlFiles = incoming?.artifactView { config ->
-            config.attributes(ArtifactType.AIDL)
-        }?.artifacts?.artifactFiles
-    val stableAidlFiles = incoming?.artifactView { config ->
-            config.attributes(ArtifactType.STABLE_AIDL)
-        }?.artifacts?.artifactFiles
+    val incoming = variant.compileConfiguration.incoming
+    val aidlFiles = incoming.artifactView { config ->
+        config.attributes(ArtifactType.AIDL)
+    }.artifacts.artifactFiles
+    val stableAidlFiles = incoming.artifactView { config ->
+        config.attributes(ArtifactType.STABLE_AIDL)
+    }.artifacts.artifactFiles
     return listOfNotNull(aidlFiles, stableAidlFiles)
 }
 
