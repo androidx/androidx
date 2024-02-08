@@ -32,6 +32,7 @@ dependencies {
     debugImplementation(project(":fragment:fragment-testing-manifest"))
 
     androidTestImplementation(project(":fragment:fragment-testing"))
+    androidTestImplementation(project(":core:core-ktx"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
