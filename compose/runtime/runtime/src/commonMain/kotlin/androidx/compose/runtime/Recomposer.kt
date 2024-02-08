@@ -16,10 +16,11 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.collection.wrapIntoSet
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
 import androidx.compose.runtime.snapshots.MutableSnapshot
 import androidx.compose.runtime.snapshots.ReaderKind
@@ -211,7 +212,7 @@ class Recomposer(
         _knownCompositionsCache = newCache
         newCache
     }
-    private var snapshotInvalidations = IdentityArraySet<Any>()
+    private var snapshotInvalidations = MutableScatterSet<Any>()
     private val compositionInvalidations = mutableVectorOf<ControlledComposition>()
     private val compositionsAwaitingApply = mutableListOf<ControlledComposition>()
     private val compositionValuesAwaitingInsert = mutableListOf<MovableContentStateReference>()
@@ -299,7 +300,7 @@ class Recomposer(
     private fun deriveStateLocked(): CancellableContinuation<Unit>? {
         if (_state.value <= State.ShuttingDown) {
             clearKnownCompositionsLocked()
-            snapshotInvalidations = IdentityArraySet()
+            snapshotInvalidations = MutableScatterSet()
             compositionInvalidations.clear()
             compositionsAwaitingApply.clear()
             compositionValuesAwaitingInsert.clear()
@@ -315,7 +316,7 @@ class Recomposer(
                 State.Inactive
             }
             runnerJob == null -> {
-                snapshotInvalidations = IdentityArraySet()
+                snapshotInvalidations = MutableScatterSet()
                 compositionInvalidations.clear()
                 if (hasBroadcastFrameClockAwaitersLocked) State.InactivePendingWork
                 else State.Inactive
@@ -437,7 +438,8 @@ class Recomposer(
     private fun recordComposerModifications(): Boolean {
         val changes = synchronized(stateLock) {
             if (snapshotInvalidations.isEmpty()) return hasFrameWorkLocked
-            snapshotInvalidations.also { snapshotInvalidations = IdentityArraySet() }
+            snapshotInvalidations.wrapIntoSet()
+                .also { snapshotInvalidations = MutableScatterSet() }
         }
         val compositions = synchronized(stateLock) {
             knownCompositions
@@ -453,7 +455,7 @@ class Recomposer(
                     if (_state.value <= State.ShuttingDown) return@run
                 }
             }
-            snapshotInvalidations = IdentityArraySet()
+            snapshotInvalidations = MutableScatterSet()
             complete = true
         } finally {
             if (!complete) {
@@ -476,12 +478,12 @@ class Recomposer(
     private inline fun recordComposerModifications(
         onEachInvalidComposition: (ControlledComposition) -> Unit
     ) {
-        val changes = snapshotInvalidations
+        val changes = snapshotInvalidations.wrapIntoSet()
         if (changes.isNotEmpty()) {
             knownCompositions.fastForEach { composition ->
                 composition.recordModificationsOf(changes)
             }
-            snapshotInvalidations = IdentityArraySet()
+            snapshotInvalidations = MutableScatterSet()
         }
         compositionInvalidations.forEach(onEachInvalidComposition)
         compositionInvalidations.clear()
@@ -517,7 +519,8 @@ class Recomposer(
         val toApply = mutableListOf<ControlledComposition>()
         val toLateApply = mutableScatterSetOf<ControlledComposition>()
         val toComplete = mutableScatterSetOf<ControlledComposition>()
-        val modifiedValues = IdentityArraySet<Any>()
+        val modifiedValues = MutableScatterSet<Any>()
+        val modifiedValuesSet = modifiedValues.wrapIntoSet()
         val alreadyComposed = mutableScatterSetOf<ControlledComposition>()
 
         fun clearRecompositionState() {
@@ -623,7 +626,7 @@ class Recomposer(
                                 knownCompositions.fastForEach { value ->
                                     if (
                                         value !in alreadyComposed &&
-                                        value.observesAnyOf(modifiedValues)
+                                        value.observesAnyOf(modifiedValuesSet)
                                     ) {
                                         toRecompose += value
                                     }
@@ -741,7 +744,7 @@ class Recomposer(
 
                 compositionsAwaitingApply.clear()
                 compositionInvalidations.clear()
-                snapshotInvalidations = IdentityArraySet()
+                snapshotInvalidations = MutableScatterSet()
 
                 compositionValuesAwaitingInsert.clear()
                 compositionValuesRemoved.clear()
@@ -941,7 +944,7 @@ class Recomposer(
                     }
 
                     // Perform recomposition for any invalidated composers
-                    val modifiedValues = IdentityArraySet<Any>()
+                    val modifiedValues = MutableScatterSet<Any>()
                     try {
                         toRecompose.fastForEach { composer ->
                             performRecompose(composer, modifiedValues)?.let {
@@ -1175,7 +1178,7 @@ class Recomposer(
 
     private fun performRecompose(
         composition: ControlledComposition,
-        modifiedValues: IdentityArraySet<Any>?
+        modifiedValues: MutableScatterSet<Any>?
     ): ControlledComposition? {
         if (composition.isComposing ||
             composition.isDisposed ||
@@ -1187,7 +1190,7 @@ class Recomposer(
                     // Record write performed by a previous composition as if they happened during
                     // composition.
                     composition.prepareCompose {
-                        modifiedValues.fastForEach { composition.recordWriteOf(it) }
+                        modifiedValues.forEach { composition.recordWriteOf(it) }
                     }
                 }
                 composition.recompose()
@@ -1197,7 +1200,7 @@ class Recomposer(
 
     private fun performInsertValues(
         references: List<MovableContentStateReference>,
-        modifiedValues: IdentityArraySet<Any>?
+        modifiedValues: MutableScatterSet<Any>?
     ): List<ControlledComposition> {
         val tasks = references.fastGroupBy { it.composition }
         for ((composition, refs) in tasks) {
@@ -1242,7 +1245,7 @@ class Recomposer(
 
     private fun writeObserverOf(
         composition: ControlledComposition,
-        modifiedValues: IdentityArraySet<Any>?
+        modifiedValues: MutableScatterSet<Any>?
     ): (Any) -> Unit {
         return { value ->
             composition.recordWriteOf(value)
@@ -1252,7 +1255,7 @@ class Recomposer(
 
     private inline fun <T> composing(
         composition: ControlledComposition,
-        modifiedValues: IdentityArraySet<Any>?,
+        modifiedValues: MutableScatterSet<Any>?,
         block: () -> T
     ): T {
         val snapshot = Snapshot.takeMutableSnapshot(

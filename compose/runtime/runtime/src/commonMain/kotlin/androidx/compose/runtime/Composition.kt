@@ -21,7 +21,6 @@ import androidx.collection.MutableIntList
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.changelist.ChangeList
-import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.snapshots.ReaderKind
@@ -826,13 +825,7 @@ internal class CompositionImpl(
     }
 
     override fun observesAnyOf(values: Set<Any>): Boolean {
-        if (values is IdentityArraySet<Any>) {
-            values.fastForEach { value ->
-                if (value in observations || value in derivedStates) return true
-            }
-            return false
-        }
-        for (value in values) {
+        values.fastForEach { value ->
             if (value in observations || value in derivedStates) return true
         }
         return false

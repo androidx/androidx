@@ -16,6 +16,8 @@
 
 package androidx.compose.runtime.snapshots
 
+import androidx.collection.MutableScatterSet
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.AtomicInt
 import androidx.compose.runtime.AtomicReference
 import androidx.compose.runtime.Composable
@@ -24,7 +26,7 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SnapshotThreadLocal
 import androidx.compose.runtime.checkPrecondition
-import androidx.compose.runtime.collection.IdentityArraySet
+import androidx.compose.runtime.collection.wrapIntoSet
 import androidx.compose.runtime.currentThreadId
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.requirePrecondition
@@ -227,7 +229,7 @@ sealed class Snapshot(
     /**
      * The set of state objects that have been modified in this snapshot.
      */
-    internal abstract val modified: IdentityArraySet<StateObject>?
+    internal abstract val modified: MutableScatterSet<StateObject>?
 
     /**
      * Notify the snapshot that all objects created in this snapshot to this point should be
@@ -816,7 +818,7 @@ open class MutableSnapshot internal constructor(
         ) else null
 
         var observers = emptyList<(Set<Any>, Snapshot) -> Unit>()
-        var globalModified: IdentityArraySet<StateObject>? = null
+        var globalModified: MutableScatterSet<StateObject>? = null
         sync {
             validateOpen(this)
             if (modified == null || modified.size == 0) {
@@ -824,7 +826,7 @@ open class MutableSnapshot internal constructor(
                 val previousGlobalSnapshot = currentGlobalSnapshot.get()
                 takeNewGlobalSnapshot(previousGlobalSnapshot, emptyLambda)
                 val previousModified = previousGlobalSnapshot.modified
-                if (!previousModified.isNullOrEmpty()) {
+                if (previousModified != null && previousModified.isNotEmpty()) {
                     observers = applyObservers
                     globalModified = previousModified
                 }
@@ -854,16 +856,19 @@ open class MutableSnapshot internal constructor(
         applied = true
 
         // Notify any apply observers that changes applied were seen
-        if (!globalModified.isNullOrEmpty()) {
-            val nonNullGlobalModified = globalModified!!
-            observers.fastForEach {
-                it(nonNullGlobalModified, this)
+        if (globalModified != null) {
+            val nonNullGlobalModified = globalModified!!.wrapIntoSet()
+            if (nonNullGlobalModified.isNotEmpty()) {
+                observers.fastForEach {
+                    it(nonNullGlobalModified, this)
+                }
             }
         }
 
-        if (!modified.isNullOrEmpty()) {
+        if (modified != null && modified.isNotEmpty()) {
+            val modifiedSet = modified.wrapIntoSet()
             observers.fastForEach {
-                it(modified, this)
+                it(modifiedSet, this)
             }
         }
 
@@ -873,8 +878,8 @@ open class MutableSnapshot internal constructor(
         sync {
             releasePinnedSnapshotsForCloseLocked()
             checkAndOverwriteUnusedRecordsLocked()
-            globalModified?.fastForEach { processForUnusedRecordsLocked(it) }
-            modified?.fastForEach { processForUnusedRecordsLocked(it) }
+            globalModified?.forEach { processForUnusedRecordsLocked(it) }
+            modified?.forEach { processForUnusedRecordsLocked(it) }
             merged?.fastForEach { processForUnusedRecordsLocked(it) }
             merged = null
         }
@@ -962,7 +967,7 @@ open class MutableSnapshot internal constructor(
             // id to be forgotten as no state records will refer to it.
             this.modified = null
             val id = id
-            modified.fastForEach { state ->
+            modified.forEach { state ->
                 var current: StateRecord? = state.firstStateRecord
                 while (current != null) {
                     if (current.snapshotId == id || current.snapshotId in previousIds) {
@@ -997,12 +1002,12 @@ open class MutableSnapshot internal constructor(
         val start = this.invalid.set(id).or(this.previousIds)
         val modified = modified!!
         var statesToRemove: MutableList<StateObject>? = null
-        modified.fastForEach { state ->
+        modified.forEach { state ->
             val first = state.firstStateRecord
             // If either current or previous cannot be calculated the object was created
             // in a nested snapshot that was committed then changed.
-            val current = readable(first, snapshotId, invalidSnapshots) ?: return@fastForEach
-            val previous = readable(first, id, start) ?: return@fastForEach
+            val current = readable(first, snapshotId, invalidSnapshots) ?: return@forEach
+            val previous = readable(first, id, start) ?: return@forEach
             if (current != previous) {
                 val applied = readable(first, id, this.invalid) ?: readError()
                 val merged = optimisticMerges?.get(current) ?: run {
@@ -1117,12 +1122,12 @@ open class MutableSnapshot internal constructor(
     }
 
     override fun recordModified(state: StateObject) {
-        (modified ?: IdentityArraySet<StateObject>().also { modified = it }).add(state)
+        (modified ?: mutableScatterSetOf<StateObject>().also { modified = it }).add(state)
     }
 
     override var writeCount: Int = 0
 
-    override var modified: IdentityArraySet<StateObject>? = null
+    override var modified: MutableScatterSet<StateObject>? = null
 
     internal var merged: List<StateObject>? = null
 
@@ -1324,7 +1329,7 @@ internal class ReadonlySnapshot internal constructor(
     override fun hasPendingChanges(): Boolean = false
     override val writeObserver: ((Any) -> Unit)? get() = null
 
-    override var modified: IdentityArraySet<StateObject>?
+    override var modified: MutableScatterSet<StateObject>?
         get() = null
         @Suppress("UNUSED_PARAMETER")
         set(value) = unsupported()
@@ -1395,7 +1400,7 @@ internal class NestedReadonlySnapshot(
         }
     }
 
-    override val modified: IdentityArraySet<StateObject>? get() = null
+    override val modified: MutableScatterSet<StateObject>? get() = null
     override val writeObserver: ((Any) -> Unit)? get() = null
     override fun recordModified(state: StateObject) = reportReadonlySnapshotWrite()
 
@@ -1594,7 +1599,7 @@ internal class TransparentObserverMutableSnapshot(
 
     override fun hasPendingChanges(): Boolean = currentSnapshot.hasPendingChanges()
 
-    override var modified: IdentityArraySet<StateObject>?
+    override var modified: MutableScatterSet<StateObject>?
         get() = currentSnapshot.modified
         @Suppress("UNUSED_PARAMETER")
         set(value) = unsupported()
@@ -1706,7 +1711,7 @@ internal class TransparentObserverSnapshot(
 
     override fun hasPendingChanges(): Boolean = currentSnapshot.hasPendingChanges()
 
-    override var modified: IdentityArraySet<StateObject>?
+    override var modified: MutableScatterSet<StateObject>?
         get() = currentSnapshot.modified
         @Suppress("UNUSED_PARAMETER")
         set(value) = unsupported()
@@ -1895,7 +1900,7 @@ private var pendingApplyObserverCount = AtomicInt(0)
 private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
     var previousGlobalSnapshot = snapshotInitializer as GlobalSnapshot
 
-    var modified: IdentityArraySet<StateObject>? = null // Effectively val; can be with contracts
+    var modified: MutableScatterSet<StateObject>? = null // Effectively val; can be with contracts
     val result = sync {
         previousGlobalSnapshot = currentGlobalSnapshot.get()
         modified = previousGlobalSnapshot.modified
@@ -1911,7 +1916,7 @@ private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
         try {
             val observers = applyObservers
             observers.fastForEach { observer ->
-                observer(it, previousGlobalSnapshot)
+                observer(it.wrapIntoSet(), previousGlobalSnapshot)
             }
         } finally {
             pendingApplyObserverCount.add(-1)
@@ -1920,7 +1925,7 @@ private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
 
     sync {
         checkAndOverwriteUnusedRecordsLocked()
-        modified?.fastForEach { processForUnusedRecordsLocked(it) }
+        modified?.forEach { processForUnusedRecordsLocked(it) }
     }
 
     return result
@@ -2324,10 +2329,10 @@ private fun optimisticMerges(
     if (modified == null) return null
     val start = applyingSnapshot.invalid.set(applyingSnapshot.id).or(applyingSnapshot.previousIds)
     var result: MutableMap<StateRecord, StateRecord>? = null
-    modified.fastForEach { state ->
+    modified.forEach { state ->
         val first = state.firstStateRecord
-        val current = readable(first, id, invalidSnapshots) ?: return@fastForEach
-        val previous = readable(first, id, start) ?: return@fastForEach
+        val current = readable(first, id, invalidSnapshots) ?: return@forEach
+        val previous = readable(first, id, start) ?: return@forEach
         if (current != previous) {
             // Try to produce a merged state record
             val applied = readable(first, applyingSnapshot.id, applyingSnapshot.invalid)
