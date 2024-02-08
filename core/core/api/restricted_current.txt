@@ -2782,17 +2782,17 @@ package androidx.core.util {
 
   public static interface Pools.Pool<T> {
     method public T? acquire();
-    method public boolean release(T);
+    method public boolean release(T instance);
   }
 
   public static class Pools.SimplePool<T> implements androidx.core.util.Pools.Pool<T> {
-    ctor public Pools.SimplePool(int);
-    method public T! acquire();
-    method public boolean release(T);
+    ctor public Pools.SimplePool(@IntRange(from=1L) int maxPoolSize);
+    method public T? acquire();
+    method public boolean release(T instance);
   }
 
   public static class Pools.SynchronizedPool<T> extends androidx.core.util.Pools.SimplePool<T> {
-    ctor public Pools.SynchronizedPool(int);
+    ctor public Pools.SynchronizedPool(int maxPoolSize);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Preconditions {
