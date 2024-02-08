@@ -27,7 +27,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.LayoutAwareModifierNode
-import androidx.compose.ui.node.currentLayoutCoordinates
+import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import kotlin.math.abs
@@ -166,7 +166,8 @@ internal class ContentInViewNode(
     }
 
     private fun getFocusedChildBounds(): Rect? {
-        val coordinates = currentLayoutCoordinates ?: return null
+        if (!isAttached) return null
+        val coordinates = requireLayoutCoordinates()
         val focusedChild = this.focusedChild?.takeIf { it.isAttached } ?: return null
         return coordinates.localBoundingBoxOf(focusedChild, clipBounds = false)
     }
