@@ -60,7 +60,6 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformRootForTest
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.RenderNodeLayer
-import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneInputHandler
 import androidx.compose.ui.scene.ComposeScenePointer
@@ -169,7 +168,7 @@ internal class RootNodeOwner(
     fun measureInConstraints(constraints: Constraints): IntSize {
         try {
             // TODO: is it possible to measure without reassigning root constraints?
-            measureAndLayoutDelegate.updateRootConstraints(constraints)
+            measureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(constraints)
             measureAndLayoutDelegate.measureOnly()
 
             // Don't use mainOwner.root.width here, as it strictly coerced by [constraints]
@@ -179,7 +178,8 @@ internal class RootNodeOwner(
                 height = children.maxOfOrNull { it.outerCoordinator.measuredHeight } ?: 0,
             )
         } finally {
-            measureAndLayoutDelegate.updateRootConstraints(bounds?.toConstraints() ?: Constraints())
+            measureAndLayoutDelegate
+                .updateRootConstraintsWithInfinityCheck(bounds?.toConstraints() ?: Constraints())
         }
     }
 
@@ -285,7 +285,8 @@ internal class RootNodeOwner(
         }
 
         override fun measureAndLayout(sendPointerUpdate: Boolean) {
-            measureAndLayoutDelegate.updateRootConstraints(bounds?.toConstraints() ?: Constraints())
+            measureAndLayoutDelegate
+                .updateRootConstraintsWithInfinityCheck(bounds?.toConstraints() ?: Constraints())
             val rootNodeResized = measureAndLayoutDelegate.measureAndLayout {
                 if (sendPointerUpdate) {
                     inputHandler.onPointerUpdate()
@@ -497,6 +498,41 @@ internal class RootNodeOwner(
             platformContext.setPointerIcon(desiredPointerIcon ?: PointerIcon.Default)
         }
     }
+}
+
+// TODO a proper way is to provide API in Constraints to get this value
+/**
+ * Equals [Constraints.MinNonFocusMask]
+ */
+private const val ConstraintsMinNonFocusMask = 0x7FFF // 32767
+
+/**
+ * The max value that can be passed as Constraints(0, LargeDimension, 0, LargeDimension)
+ *
+ * Greater values cause "Can't represent a width of".
+ * See [Constraints.createConstraints] and [Constraints.bitsNeedForSize]:
+ *  - it fails if `widthBits + heightBits > 31`
+ *  - widthBits/heightBits are greater than 15 if we pass size >= [Constraints.MinNonFocusMask]
+ */
+internal const val LargeDimension = ConstraintsMinNonFocusMask - 1
+
+/**
+ * After https://android-review.googlesource.com/c/platform/frameworks/support/+/2901556
+ * Compose core doesn't allow measuring in infinity constraints,
+ * but RootNodeOwner and ComposeScene allow passing Infinity constraints by contract
+ * (Android on the other hand doesn't have public API for that and don't have such an issue).
+ *
+ * This method adds additional check on Infinity constraints,
+ * and pass constraint large enough instead
+ */
+private fun MeasureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(
+    constraints: Constraints
+) {
+    val maxWidth = if (constraints.hasBoundedWidth) constraints.maxWidth else LargeDimension
+    val maxHeight = if (constraints.hasBoundedHeight) constraints.maxHeight else LargeDimension
+    updateRootConstraints(
+        Constraints(constraints.minWidth, maxWidth, constraints.minHeight, maxHeight)
+    )
 }
 
 private fun IntRect.toConstraints() =
