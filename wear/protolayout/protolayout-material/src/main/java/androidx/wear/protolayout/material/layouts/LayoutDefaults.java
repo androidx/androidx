@@ -27,6 +27,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Padding;
 import androidx.wear.protolayout.material.ButtonDefaults;
+import androidx.wear.protolayout.material.ProgressIndicatorDefaults;
 
 
 /** Contains the default values used by layout templates for ProtoLayout. */
@@ -123,7 +124,8 @@ public class LayoutDefaults {
 
     /** The margins used in the {@link EdgeContentLayout} with responsiveness. */
     @Dimension(unit = DP)
-    static final int EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP = 8;
+    static final float EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP =
+            ProgressIndicatorDefaults.DEFAULT_PADDING.getValue();
 
     /**
      * The default spacer width that should be between main content and secondary label if set in
@@ -142,6 +144,12 @@ public class LayoutDefaults {
      */
     public static final DpProp EDGE_CONTENT_LAYOUT_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP =
             dp(12);
+
+    /**
+     * The default spacing below primary label in the {@link EdgeContentLayout} to ensure that inner
+     * content is not too high up and not near the primary label.
+     */
+    static final DpProp EDGE_CONTENT_LAYOUT_RESPONSIVE_PRIMARY_LABEL_SPACING_DP = dp(8);
 
     /**
      * The recommended padding that should be above the main content (text) in the {@link

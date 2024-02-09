@@ -29,6 +29,7 @@ import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CON
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_RESPONSIVE_MARGIN_HORIZONTAL_PERCENT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_RESPONSIVE_MARGIN_VERTICAL_PERCENT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP;
+import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_RESPONSIVE_PRIMARY_LABEL_SPACING_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.LAYOUTS_LABEL_PADDING_PERCENT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.insetElementWithPadding;
 import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
@@ -372,8 +373,8 @@ public class EdgeContentLayout implements LayoutElement {
             //  matches CPI.
             float outerMargin =
                     mEdgeContent instanceof CircularProgressIndicator
-                            ? EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP
-                                - DEFAULT_PADDING.getValue()
+                            && ((CircularProgressIndicator) mEdgeContent).isOuterMarginApplied()
+                            ? 0 // CPI has this margin already.
                             : EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP;
 
             // Horizontal and vertical padding added to the inner content.
@@ -434,8 +435,10 @@ public class EdgeContentLayout implements LayoutElement {
             if (mPrimaryLabelText != null) {
                 allInnerContent.addContent(
                         insetElementWithPadding(mPrimaryLabelText, labelHorizontalPaddingDp));
-                // TODO(b/321681652): Confirm with the UX that we don't need a space after this
-                //  abel.
+                allInnerContent.addContent(
+                        new Spacer.Builder()
+                                .setHeight(EDGE_CONTENT_LAYOUT_RESPONSIVE_PRIMARY_LABEL_SPACING_DP)
+                                .build());
             }
 
             // Contains additional content and secondary label with wrapped height so it can be put
@@ -723,7 +726,11 @@ public class EdgeContentLayout implements LayoutElement {
                 ((Box)
                         getAllContent()
                                 .getContents()
-                                .get(areElementsPresent(PRIMARY_LABEL_PRESENT) ? 1 : 0))
+                                .get(areElementsPresent(PRIMARY_LABEL_PRESENT)
+                                        // There's a primary label and then spacer after it
+                                        // before other content in this Column.
+                                        ? 2
+                                        : 0))
                         .getContents()
                         .get(0))
                 .getContents();
