@@ -56,20 +56,18 @@ import kotlin.math.roundToInt
  * For more information, see <a href="https://material.io/components/carousel/overview">design
  * guidelines</a>.
  *
- * @param state The state object to be used to control the carousel's state.
+ * @param state The state object to be used to control the carousel's state
  * @param preferredItemSize The size fully visible items would like to be in the main axis. This
  * size is a target and will likely be adjusted by carousel in order to fit a whole number of
- * items within the container.
- * @param modifier A modifier instance to be applied to this carousel outer layout
+ * items within the container
+ * @param modifier A modifier instance to be applied to this carousel container
  * @param itemSpacing The amount of space used to separate items in the carousel
  * @param minSmallSize The minimum allowable size of small masked items
  * @param maxSmallSize The maximum allowable size of small masked items
- * @param content The carousel's content Composable.
+ * @param content The carousel's content Composable
  *
  * TODO: Add sample link
  */
-@Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
 @Composable
 internal fun HorizontalMultiBrowseCarousel(
@@ -77,9 +75,9 @@ internal fun HorizontalMultiBrowseCarousel(
     preferredItemSize: Dp,
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 0.dp,
-    minSmallSize: Dp = StrategyDefaults.minSmallSize,
-    maxSmallSize: Dp = StrategyDefaults.maxSmallSize,
-    content: @Composable CarouselScope.(item: Int) -> Unit
+    minSmallSize: Dp = StrategyDefaults.MinSmallSize,
+    maxSmallSize: Dp = StrategyDefaults.MaxSmallSize,
+    content: @Composable CarouselScope.(itemIndex: Int) -> Unit
 ) {
     val density = LocalDensity.current
     Carousel(
@@ -106,6 +104,56 @@ internal fun HorizontalMultiBrowseCarousel(
 /**
  * <a href=https://m3.material.io/components/carousel/overview" class="external" target="_blank">Material Design Carousel</a>
  *
+ * A horizontal carousel that displays its items with the given size except for one item at the end
+ * that is cut off.
+ *
+ * Note that the item size will be bound by the size of the carousel. Otherwise, this carousel lays
+ * out as many items as it can in the given size, and changes the size of the last cut off item such
+ * that there is a range of motion when items scroll off the edge.
+ *
+ * For more information, see <a href="https://material.io/components/carousel/overview">design
+ * guidelines</a>.
+ *
+ * @param state The state object to be used to control the carousel's state
+ * @param itemSize The size of items in the carousel
+ * @param modifier A modifier instance to be applied to this carousel container
+ * @param itemSpacing The amount of space used to separate items in the carousel
+ * @param content The carousel's content Composable
+ *
+ * TODO: Add sample link
+ */
+@ExperimentalMaterial3Api
+@Composable
+internal fun HorizontalUncontainedCarousel(
+    state: CarouselState,
+    itemSize: Dp,
+    modifier: Modifier = Modifier,
+    itemSpacing: Dp = 0.dp,
+    content: @Composable CarouselScope.(itemIndex: Int) -> Unit
+) {
+    val density = LocalDensity.current
+    Carousel(
+        state = state,
+        orientation = Orientation.Horizontal,
+        keylineList = {
+            with(density) {
+                uncontainedKeylineList(
+                    density = this,
+                    carouselMainAxisSize = state.pagerState.layoutInfo.viewportSize.width.toFloat(),
+                    itemSize = itemSize.toPx(),
+                    itemSpacing = itemSpacing.toPx(),
+                )
+            }
+        },
+        modifier = modifier,
+        itemSpacing = itemSpacing,
+        content = content
+    )
+}
+
+/**
+ * <a href=https://m3.material.io/components/carousel/overview" class="external" target="_blank">Material Design Carousel</a>
+ *
  * Carousels contain a collection of items that changes sizes according to their placement and the
  * chosen strategy.
  *
@@ -119,10 +167,6 @@ internal fun HorizontalMultiBrowseCarousel(
  * total item count, of the item being composed
  * TODO: Add sample link
  */
-// TODO: b/321997456 - Remove lint suppression once version checks are added in lint or library
-// moves to beta
-@Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
 @Composable
 internal fun Carousel(

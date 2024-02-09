@@ -28,9 +28,10 @@ import kotlin.math.roundToInt
  * Contains default values used across Strategies
  */
 internal object StrategyDefaults {
-    val minSmallSize = 40.dp
-    val maxSmallSize = 56.dp
-    val anchorSize = 10.dp
+    val MinSmallSize = 40.dp
+    val MaxSmallSize = 56.dp
+    val AnchorSize = 10.dp
+    const val MediumLargeItemDiffThreshold = 0.85f
 }
 
 /**
