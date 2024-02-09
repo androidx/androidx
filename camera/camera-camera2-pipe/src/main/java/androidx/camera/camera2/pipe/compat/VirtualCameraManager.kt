@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.WakeLock
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineName
@@ -47,10 +48,28 @@ internal data class RequestOpen(
     val isForegroundObserver: (Unit) -> Boolean,
 ) : CameraRequest()
 
+/**
+ * Sends a request to close an active camera.
+ * Note: RequestOpen() & RequestClose() may not be executed sequentially,
+ * as the camera may take a while to be fully opened, and RequestClose() might execute in parallel.
+ */
 internal data class RequestClose(val activeCamera: VirtualCameraManager.ActiveCamera) :
     CameraRequest()
 
+internal data class RequestCloseById(val activeCameraId: CameraId) :
+    CameraRequest()
+
 internal object RequestCloseAll : CameraRequest()
+
+internal object NoOpGraphListener : GraphListener {
+    override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {}
+
+    override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {}
+
+    override fun onGraphModified(requestProcessor: GraphRequestProcessor) {}
+
+    override fun onGraphError(graphStateError: GraphState.GraphStateError) {}
+}
 
 // A queue depth of 32 was deemed necessary in b/276051078 where a flood of requests can cause the
 // queue depth to go over 8. In the long run, we can perhaps look into refactoring and
@@ -98,6 +117,16 @@ constructor(
         return result
     }
 
+    /** Connects and starts the underlying camera.*/
+    internal fun prewarm(cameraId: CameraId) {
+        open(cameraId, emptyList(), NoOpGraphListener) { _ -> false }
+    }
+
+    /** Submits a request to close the underlying camera */
+    internal fun close(cameraId: CameraId) {
+        offerChecked(RequestCloseById(cameraId))
+    }
+
     internal fun closeAll() {
         if (!offerChecked(RequestCloseAll)) {
             Log.warn { "Failed to close all cameras: Close request submission failed" }
@@ -130,6 +159,23 @@ constructor(
 
                 launch { closeRequest.activeCamera.close() }
                 closeRequest.activeCamera.awaitClosed()
+                continue
+            }
+
+            // Ensures the closure of a camera device happens after any preceding RequestOpen().
+            val closeRequestById = requests.firstOrNull()
+            if (closeRequestById != null && closeRequestById is RequestCloseById) {
+                requests.remove(closeRequestById)
+                pendingRequestOpens.removeAll {
+                    it.virtualCamera.cameraId == closeRequestById.activeCameraId
+                }
+                val activeCamera =
+                    activeCameras.firstOrNull { it.cameraId == closeRequestById.activeCameraId }
+                if (activeCamera != null) {
+                    activeCameras.remove(activeCamera)
+                    launch { activeCamera.close() }
+                    activeCamera.awaitClosed()
+                }
                 continue
             }
 

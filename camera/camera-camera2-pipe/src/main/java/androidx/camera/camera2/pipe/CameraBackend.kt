@@ -128,6 +128,23 @@ interface CameraBackend {
         graphListener: GraphListener,
         streamGraph: StreamGraph
     ): CameraController
+
+    /** Connects and starts the underlying camera */
+    fun prewarm(cameraId: CameraId)
+
+    /** Disconnects the underlying camera.*/
+    fun disconnect(cameraId: CameraId)
+
+    /**
+     * Disconnects the underlying camera. Once the connection is closed, the returned [Deferred]
+     * should be completed.
+     */
+    fun disconnectAsync(cameraId: CameraId): Deferred<Unit>
+
+    /**
+     * Disconnects all active Cameras.
+     */
+    fun disconnectAll()
 }
 
 /**

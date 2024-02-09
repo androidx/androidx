@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -74,6 +75,39 @@ interface CameraDevices {
         cameraId: CameraId,
         cameraBackendId: CameraBackendId? = null
     ): CameraMetadata?
+
+    /**
+     * Opens the camera device indicated by the cameraId, so that any subsequent open calls will
+     * potentially have a better latency.
+     */
+    fun prewarm(cameraId: CameraId, cameraBackendId: CameraBackendId? = null)
+
+    /**
+     * Non blocking operation that disconnects the underlying active Camera.
+     */
+    fun disconnect(cameraId: CameraId, cameraBackendId: CameraBackendId? = null)
+
+    /**
+     * Disconnects the underlying active Camera. Once fully closed,
+     * the returned [Deferred] should be completed. It is synchronous with the other operations
+     * within this class.
+     */
+    fun disconnectAsync(
+        cameraId: CameraId,
+        cameraBackendId: CameraBackendId? = null
+    ): Deferred<Unit>
+
+    /**
+     * Non blocking operation that disconnects all active Cameras.
+     */
+    fun disconnectAll(cameraBackendId: CameraBackendId? = null)
+
+    /**
+     * Non blocking operation that disconnects all active Cameras. Once all connections are fully
+     * closed, the returned [Deferred] should be completed. It is synchronous with the other
+     * operations within this class.
+     */
+    fun disconnectAllAsync(cameraBackendId: CameraBackendId? = null): Deferred<Unit>
 
     /**
      * Iterate and return a list of CameraId's on the device that are capable of being opened. Some
