@@ -203,6 +203,7 @@ COMPOSE_DESKTOP = { group = "androidx.compose.desktop", atomicGroupVersion = "ve
 COMPOSE_FOUNDATION = { group = "androidx.compose.foundation", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_MATERIAL = { group = "androidx.compose.material", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_MATERIAL3 = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
+COMPOSE_MATERIAL3_ADAPTIVE = { group = "androidx.compose.material3.adaptive", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_ADAPTIVE" }
 COMPOSE_RUNTIME = { group = "androidx.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_RUNTIME_TRACING = { group = "androidx.compose.runtime", atomicGroupVersion = "versions.COMPOSE_RUNTIME_TRACING", overrideInclude = [ ":compose:runtime:runtime-tracing" ] }
 COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.COMPOSE" }
