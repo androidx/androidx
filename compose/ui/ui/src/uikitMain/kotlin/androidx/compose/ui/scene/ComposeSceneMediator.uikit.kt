@@ -172,6 +172,19 @@ private class NativeKeyboardVisibilityListener(
     }
 }
 
+private class ComposeSceneMediatorRootUIView: UIView(CGRectZero.readValue()) {
+    override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
+        // forwards touches forward to the children, is never a target for a touch
+        val result = super.hitTest(point, withEvent)
+
+        return if (result == this) {
+            null
+        } else {
+            result
+        }
+    }
+}
+
 internal class ComposeSceneMediator(
     private val container: UIView,
     private val configuration: ComposeUIViewControllerConfiguration,
@@ -216,6 +229,11 @@ internal class ComposeSceneMediator(
     }
 
     /**
+     * view, that contains [interopViewContainer] and [interactionView] and is added to [container]
+     */
+    private val rootView = ComposeSceneMediatorRootUIView()
+
+    /**
      * Container for UIKitView and UIKitViewController
      */
     private val interopViewContainer = InteropContainer()
@@ -243,7 +261,7 @@ internal class ComposeSceneMediator(
 
     @OptIn(ExperimentalComposeApi::class)
     private val semanticsOwnerListener by lazy {
-        SemanticsOwnerListenerImpl(container, coroutineContext, getAccessibilitySyncOptions = {
+        SemanticsOwnerListenerImpl(rootView, coroutineContext, getAccessibilitySyncOptions = {
             configuration.accessibilitySyncOptions
         })
     }
@@ -358,15 +376,23 @@ internal class ComposeSceneMediator(
             this.onAttachedToWindow?.invoke()
             focusStack?.pushAndFocus(interactionView)
         }
-        container.addSubview(interopViewContainer)
-        interopViewContainer.translatesAutoresizingMaskIntoConstraints = false
+
+        rootView.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(rootView)
         NSLayoutConstraint.activateConstraints(
-            getConstraintsToFillParent(interopViewContainer, container)
+            getConstraintsToFillParent(rootView, container)
         )
-        container.addSubview(interactionView)
-        interactionView.translatesAutoresizingMaskIntoConstraints = false
+
+        interopViewContainer.translatesAutoresizingMaskIntoConstraints = false
+        rootView.addSubview(interopViewContainer)
         NSLayoutConstraint.activateConstraints(
-            getConstraintsToFillParent(interactionView, container)
+            getConstraintsToFillParent(interopViewContainer, rootView)
+        )
+
+        interactionView.translatesAutoresizingMaskIntoConstraints = false
+        rootView.addSubview(interactionView)
+        NSLayoutConstraint.activateConstraints(
+            getConstraintsToFillParent(interactionView, rootView)
         )
         interactionView.addSubview(renderingView)
     }
@@ -421,9 +447,8 @@ internal class ComposeSceneMediator(
     fun dispose() {
         focusStack?.popUntilNext(renderingView)
         renderingView.dispose()
-        renderingView.removeFromSuperview()
         interactionView.dispose()
-        interactionView.removeFromSuperview()
+        rootView.removeFromSuperview()
         scene.close()
         // After scene is disposed all UIKit interop actions can't be deferred to be synchronized with rendering
         // Thus they need to be executed now.
