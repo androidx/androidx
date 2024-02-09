@@ -92,34 +92,32 @@ import org.jetbrains.annotations.TestOnly
 /**
  * Properties used to customize the behavior of a [Popup].
  *
- * @property focusable Whether the popup is focusable. When true, the popup will receive IME
- * events and key presses, such as when the back button is pressed.
+ * @property flags Behavioral flags of the popup, which will be passed to the popup window's
+ * [WindowManager.LayoutParams]. See [WindowManager.LayoutParams.flags] for customization options.
+ * If [inheritSecurePolicy] is true, the value of the [WindowManager.LayoutParams.FLAG_SECURE]
+ * bit will not be determined until the popup is constructed.
+ * @property inheritSecurePolicy Whether [WindowManager.LayoutParams.FLAG_SECURE] should be set
+ * according to [SecureFlagPolicy.Inherit]. Other [SecureFlagPolicy] behaviors should be set via
+ * [flags] directly.
  * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back button.
- * If true, pressing the back button will call onDismissRequest. Note that [focusable] must be
- * set to true in order to receive key events such as the back button - if the popup is not
- * focusable then this property does nothing.
+ * If true, pressing the back button will call onDismissRequest. Note that the popup must be
+ * [focusable] in order to receive key events such as the back button. If the popup is not
+ * [focusable], then this property does nothing.
  * @property dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
  * popup's bounds. If true, clicking outside the popup will call onDismissRequest.
- * @property securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the popup's
- * window.
  * @property excludeFromSystemGesture A flag to check whether to set the systemGestureExclusionRects.
  * The default is true.
- * @property clippingEnabled Whether to allow the popup window to extend beyond the bounds of the
- * screen. By default the window is clipped to the screen boundaries. Setting this to false will
- * allow windows to be accurately positioned.
- * The default value is true.
  * @property usePlatformDefaultWidth Whether the width of the popup's content should be limited to
  * the platform default, which is smaller than the screen width.
  */
 @Immutable
 actual class PopupProperties constructor(
-    actual val focusable: Boolean = false,
+    internal val flags: Int,
+    internal val inheritSecurePolicy: Boolean = true,
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
-    val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     val excludeFromSystemGesture: Boolean = true,
-    actual val clippingEnabled: Boolean = true,
-    val usePlatformDefaultWidth: Boolean = false
+    val usePlatformDefaultWidth: Boolean = false,
 ) {
     actual constructor(
         focusable: Boolean,
@@ -149,32 +147,93 @@ actual class PopupProperties constructor(
         securePolicy = securePolicy,
         excludeFromSystemGesture = excludeFromSystemGesture,
         clippingEnabled = clippingEnabled,
-        usePlatformDefaultWidth = false
+        usePlatformDefaultWidth = false,
     )
+
+    /**
+     * Constructs a [PopupProperties] with the given behaviors. This constructor is to support
+     * multiplatform and maintain backwards compatibility. Consider the overload that takes a
+     * [flags] parameter if more precise control over the popup flags is desired.
+     *
+     * @param focusable Whether the popup is focusable. When true, the popup will receive IME
+     * events and key presses, such as when the back button is pressed.
+     * @param dismissOnBackPress Whether the popup can be dismissed by pressing the back button.
+     * If true, pressing the back button will call onDismissRequest. Note that [focusable] must be
+     * set to true in order to receive key events such as the back button. If the popup is not
+     * focusable, then this property does nothing.
+     * @param dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
+     * popup's bounds. If true, clicking outside the popup will call onDismissRequest.
+     * @param securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the
+     * popup's window.
+     * @param excludeFromSystemGesture A flag to check whether to set the
+     * systemGestureExclusionRects. The default is true.
+     * @param clippingEnabled Whether to allow the popup window to extend beyond the bounds of the
+     * screen. By default the window is clipped to the screen boundaries. Setting this to false will
+     * allow windows to be accurately positioned. The default value is true.
+     * @param usePlatformDefaultWidth Whether the width of the popup's content should be limited to
+     * the platform default, which is smaller than the screen width.
+     */
+    constructor(
+        focusable: Boolean = false,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+        excludeFromSystemGesture: Boolean = true,
+        clippingEnabled: Boolean = true,
+        usePlatformDefaultWidth: Boolean = false,
+    ) : this (
+        flags = createFlags(focusable, securePolicy, clippingEnabled),
+        inheritSecurePolicy = securePolicy == SecureFlagPolicy.Inherit,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        excludeFromSystemGesture = excludeFromSystemGesture,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+    )
+
+    /**
+     * Whether the popup is focusable. When true, the popup will receive IME events and key
+     * presses, such as when the back button is pressed.
+     */
+    actual val focusable: Boolean
+        get() = (flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE) == 0
+
+    /**
+     * Policy for how [WindowManager.LayoutParams.FLAG_SECURE] is set on the popup's window.
+     */
+    val securePolicy: SecureFlagPolicy
+        get() = when {
+            inheritSecurePolicy -> SecureFlagPolicy.Inherit
+            (flags and WindowManager.LayoutParams.FLAG_SECURE) == 0 -> SecureFlagPolicy.SecureOff
+            else -> SecureFlagPolicy.SecureOn
+        }
+
+    /**
+     * Whether the popup window is clipped to the screen boundaries, or allowed to extend beyond
+     * the bounds of the screen.
+     */
+    actual val clippingEnabled: Boolean
+        get() = (flags and WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS) == 0
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PopupProperties) return false
 
-        if (focusable != other.focusable) return false
+        if (flags != other.flags) return false
+        if (inheritSecurePolicy != other.inheritSecurePolicy) return false
         if (dismissOnBackPress != other.dismissOnBackPress) return false
         if (dismissOnClickOutside != other.dismissOnClickOutside) return false
-        if (securePolicy != other.securePolicy) return false
         if (excludeFromSystemGesture != other.excludeFromSystemGesture) return false
-        if (clippingEnabled != other.clippingEnabled) return false
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = dismissOnBackPress.hashCode()
-        result = 31 * result + focusable.hashCode()
+        var result = flags
+        result = 31 * result + inheritSecurePolicy.hashCode()
         result = 31 * result + dismissOnBackPress.hashCode()
         result = 31 * result + dismissOnClickOutside.hashCode()
-        result = 31 * result + securePolicy.hashCode()
         result = 31 * result + excludeFromSystemGesture.hashCode()
-        result = 31 * result + clippingEnabled.hashCode()
         result = 31 * result + usePlatformDefaultWidth.hashCode()
         return result
     }
@@ -338,6 +397,27 @@ actual fun Popup(
         popupLayout.parentLayoutDirection = layoutDirection
         layout(0, 0) {}
     }
+}
+
+private const val PopupPropertiesBaseFlags: Int =
+    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+
+private fun createFlags(
+    focusable: Boolean,
+    securePolicy: SecureFlagPolicy,
+    clippingEnabled: Boolean,
+): Int {
+    var flags = PopupPropertiesBaseFlags
+    if (!focusable) {
+        flags = flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+    }
+    if (securePolicy == SecureFlagPolicy.SecureOn) {
+        flags = flags or WindowManager.LayoutParams.FLAG_SECURE
+    }
+    if (!clippingEnabled) {
+        flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+    }
+    return flags
 }
 
 // TODO(b/139861182): This is a hack to work around Popups not using Semantics for test tags
@@ -585,61 +665,31 @@ internal class PopupLayout(
         backCallback = null
     }
 
-    /**
-     * Set whether the popup can grab a focus and support dismissal.
-     */
-    private fun setIsFocusable(isFocusable: Boolean) = applyNewFlags(
-        if (!isFocusable) {
-            params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-        } else {
-            params.flags and (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv())
-        }
-    )
-
-    private fun setSecurePolicy(securePolicy: SecureFlagPolicy) {
-        val secureFlagEnabled =
-            securePolicy.shouldApplySecureFlag(composeView.isFlagSecureEnabled())
-        applyNewFlags(
-            if (secureFlagEnabled) {
-                params.flags or WindowManager.LayoutParams.FLAG_SECURE
-            } else {
-                params.flags and (WindowManager.LayoutParams.FLAG_SECURE.inv())
-            }
-        )
-    }
-
-    private fun setClippingEnabled(clippingEnabled: Boolean) = applyNewFlags(
-        if (clippingEnabled) {
-            params.flags and (WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS.inv())
-        } else {
-            params.flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        }
-    )
-
     fun updateParameters(
         onDismissRequest: (() -> Unit)?,
         properties: PopupProperties,
         testTag: String,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ) {
         this.onDismissRequest = onDismissRequest
+        this.testTag = testTag
+        updatePopupProperties(properties)
+        superSetLayoutDirection(layoutDirection)
+    }
+
+    private fun updatePopupProperties(properties: PopupProperties) {
+        if (this.properties == properties) return
+
         if (properties.usePlatformDefaultWidth && !this.properties.usePlatformDefaultWidth) {
             // Undo fixed size in internalOnLayout, which would suppress size changes when
             // usePlatformDefaultWidth is true.
             params.width = WindowManager.LayoutParams.WRAP_CONTENT
             params.height = WindowManager.LayoutParams.WRAP_CONTENT
-            popupLayoutHelper.updateViewLayout(windowManager, this, params)
         }
-        this.properties = properties
-        this.testTag = testTag
-        setIsFocusable(properties.focusable)
-        setSecurePolicy(properties.securePolicy)
-        setClippingEnabled(properties.clippingEnabled)
-        superSetLayoutDirection(layoutDirection)
-    }
 
-    private fun applyNewFlags(flags: Int) {
-        params.flags = flags
+        this.properties = properties
+        params.flags = properties.flagsWithSecureFlagInherited(composeView.isFlagSecureEnabled())
+
         popupLayoutHelper.updateViewLayout(windowManager, this, params)
     }
 
@@ -789,17 +839,7 @@ internal class PopupLayout(
             // Start to position the popup in the top left corner, a new position will be calculated
             gravity = Gravity.START or Gravity.TOP
 
-            // Flags specific to android.widget.PopupWindow
-            flags = flags and (
-                WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
-                    WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
-                ).inv()
-
-            // Enables us to intercept outside clicks even when popup is not focusable
-            flags = flags or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+            flags = properties.flagsWithSecureFlagInherited(composeView.isFlagSecureEnabled())
 
             type = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL
 
@@ -907,6 +947,14 @@ internal fun View.isFlagSecureEnabled(): Boolean {
         return (windowParams.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
     }
     return false
+}
+
+private fun PopupProperties.flagsWithSecureFlagInherited(
+    isParentFlagSecureEnabled: Boolean,
+): Int = if (this.inheritSecurePolicy && isParentFlagSecureEnabled) {
+    this.flags or WindowManager.LayoutParams.FLAG_SECURE
+} else {
+    this.flags
 }
 
 private fun Rect.toIntBounds() = IntRect(

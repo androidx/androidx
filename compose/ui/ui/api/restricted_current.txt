@@ -3725,6 +3725,7 @@ package androidx.compose.ui.window {
     ctor public PopupProperties(optional boolean focusable, optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean excludeFromSystemGesture, optional boolean clippingEnabled);
     ctor public PopupProperties(optional boolean focusable, optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean excludeFromSystemGesture, optional boolean clippingEnabled, optional boolean usePlatformDefaultWidth);
     ctor public PopupProperties(optional boolean focusable, optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional boolean clippingEnabled);
+    ctor public PopupProperties(int flags, optional boolean inheritSecurePolicy, optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional boolean excludeFromSystemGesture, optional boolean usePlatformDefaultWidth);
     method public boolean getClippingEnabled();
     method public boolean getDismissOnBackPress();
     method public boolean getDismissOnClickOutside();

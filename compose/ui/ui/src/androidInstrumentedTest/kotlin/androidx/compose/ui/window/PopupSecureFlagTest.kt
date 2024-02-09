@@ -114,6 +114,37 @@ class PopupSecureFlagTest(private val setSecureFlagOnActivity: Boolean) {
         assertThat(isSecureFlagEnabledForPopup()).isEqualTo(setSecureFlagOnActivity)
     }
 
+    @Test
+    fun toggleFlagOnPopup_customFlagsOverload() {
+        var properties: PopupProperties by mutableStateOf(
+            PopupProperties(
+                flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                inheritSecurePolicy = false,
+            )
+        )
+
+        rule.setContent {
+            TestPopup(properties)
+        }
+
+        assertThat(isSecureFlagEnabledForPopup()).isFalse()
+
+        // Toggle flag
+        properties = PopupProperties(
+            flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                WindowManager.LayoutParams.FLAG_SECURE,
+            inheritSecurePolicy = false,
+        )
+        assertThat(isSecureFlagEnabledForPopup()).isTrue()
+
+        // Set to inherit
+        properties = PopupProperties(
+            flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+            inheritSecurePolicy = true,
+        )
+        assertThat(isSecureFlagEnabledForPopup()).isEqualTo(setSecureFlagOnActivity)
+    }
+
     @Composable
     fun TestPopup(popupProperties: PopupProperties) {
         SimpleContainer {
