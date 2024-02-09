@@ -1286,7 +1286,7 @@ package androidx.compose.ui.text.intl {
     ctor public LocaleList(String languageTags);
     ctor public LocaleList(java.util.List<androidx.compose.ui.text.intl.Locale> localeList);
     method public operator boolean contains(androidx.compose.ui.text.intl.Locale element);
-    method public boolean containsAll(java.util.Collection<E> elements);
+    method public boolean containsAll(java.util.Collection<? extends androidx.compose.ui.text.intl.Locale> elements);
     method public operator androidx.compose.ui.text.intl.Locale get(int i);
     method public java.util.List<androidx.compose.ui.text.intl.Locale> getLocaleList();
     method public int getSize();

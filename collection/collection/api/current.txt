@@ -34,7 +34,7 @@ package androidx.collection {
     method public boolean addAll(java.util.Collection<? extends E> elements);
     method public void clear();
     method public operator boolean contains(E element);
-    method public boolean containsAll(java.util.Collection<E> elements);
+    method public boolean containsAll(java.util.Collection<? extends E> elements);
     method public void ensureCapacity(int minimumCapacity);
     method public int getSize();
     method public int indexOf(Object? key);
@@ -42,9 +42,9 @@ package androidx.collection {
     method public java.util.Iterator<E> iterator();
     method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ArraySet<? extends E> array);
-    method public boolean removeAll(java.util.Collection<E> elements);
+    method public boolean removeAll(java.util.Collection<? extends E> elements);
     method public E removeAt(int index);
-    method public boolean retainAll(java.util.Collection<E> elements);
+    method public boolean retainAll(java.util.Collection<? extends E> elements);
     method public Object?[] toArray();
     method public <T> T[] toArray(T[] array);
     method public E valueAt(int index);
