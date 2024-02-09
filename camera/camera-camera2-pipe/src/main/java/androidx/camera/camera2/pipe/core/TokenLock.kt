@@ -24,7 +24,6 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.TokenLock.Token
 import java.util.ArrayDeque
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlin.math.min
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellableContinuation
@@ -87,17 +86,17 @@ internal interface TokenLock : AutoCloseable {
 }
 
 /** Shorthand for "acquire(value, value)" */
-internal suspend inline fun TokenLock.acquire(value: Long): TokenLock.Token =
+internal suspend inline fun TokenLock.acquire(value: Long): Token =
     this.acquire(value, value)
 
 /** Shorthand for "acquireOrNull(value, value)" */
-internal inline fun TokenLock.acquireOrNull(value: Long): TokenLock.Token? =
+internal inline fun TokenLock.acquireOrNull(value: Long): Token? =
     this.acquireOrNull(value, value)
 
 /** Executes the given action while holding a token. */
 internal suspend inline fun <T> TokenLock.withToken(
     value: Long,
-    crossinline action: (token: TokenLock.Token) -> T
+    crossinline action: (token: Token) -> T
 ): T {
     this.acquire(value).use {
         return action(it)
@@ -108,7 +107,7 @@ internal suspend inline fun <T> TokenLock.withToken(
 internal suspend inline fun <T> TokenLock.withToken(
     min: Long,
     max: Long,
-    crossinline action: (token: TokenLock.Token) -> T
+    crossinline action: (token: Token) -> T
 ): T {
     this.acquire(min, max).use {
         return action(it)
@@ -116,10 +115,6 @@ internal suspend inline fun <T> TokenLock.withToken(
 }
 
 internal class TokenLockImpl(override val capacity: Long) : TokenLock {
-    companion object {
-        val closedException = CancellationException()
-    }
-
     private val pending = ArrayDeque<TokenRequest>()
 
     @GuardedBy("pending")
@@ -148,8 +143,8 @@ internal class TokenLockImpl(override val capacity: Long) : TokenLock {
                 }
             }
 
-    override fun acquireOrNull(min: Long, max: Long): TokenLock.Token? {
-        if (min > capacity) throw IllegalArgumentException("Attempted to acquire $min / $capacity")
+    override fun acquireOrNull(min: Long, max: Long): Token? {
+        require(min <= capacity) { "Cannot acquire more than $capacity (requested $min)" }
 
         synchronized(pending) {
             if (closed) return null
@@ -165,17 +160,14 @@ internal class TokenLockImpl(override val capacity: Long) : TokenLock {
         return null
     }
 
-    override suspend fun acquire(min: Long, max: Long): TokenLock.Token =
+    override suspend fun acquire(min: Long, max: Long): Token =
         suspendCancellableCoroutine { continuation ->
-            if (min > capacity) {
-                continuation.resumeWithException(
-                    IllegalArgumentException("Attempted to acquire $min / $capacity")
-                )
-                return@suspendCancellableCoroutine
-            }
-
+            require(min <= capacity) { "Cannot acquire more than $capacity (requested $min)" }
             synchronized(pending) {
-                if (closed) throw closedException
+                if (closed) {
+                    continuation.cancel()
+                    return@suspendCancellableCoroutine
+                }
                 if (pending.isEmpty()) {
                     val value = min(_available, max)
                     if (value >= min) {
@@ -248,7 +240,7 @@ internal class TokenLockImpl(override val capacity: Long) : TokenLock {
                 }
 
                 // If we fulfilled 1 or more requests, then create and pass tokens to the
-                // continuation outside of the syncronized block.
+                // continuation outside of the synchronized block.
                 if (requests.isNotEmpty()) {
                     requestsToComplete = requests
                 }
@@ -259,13 +251,13 @@ internal class TokenLockImpl(override val capacity: Long) : TokenLock {
     }
 
     private class TokenRequest(
-        val continuation: CancellableContinuation<TokenLock.Token>,
+        val continuation: CancellableContinuation<Token>,
         val min: Long,
         val max: Long,
         var token: TokenImpl? = null
     )
 
-    inner class TokenImpl(override val value: Long) : TokenLock.Token {
+    inner class TokenImpl(override val value: Long) : Token {
         private val closed = atomic(false)
 
         override fun close() {
