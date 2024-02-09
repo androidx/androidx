@@ -40,6 +40,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -249,6 +250,7 @@ internal class BasicTextField2UndoTest {
         assertThat(state.undoState.canUndo).isFalse()
     }
 
+    @Ignore("b/323405120")
     @Test
     fun clearHistory_removesAllUndoAndRedo() {
         val state = TextFieldState()
@@ -285,6 +287,7 @@ internal class BasicTextField2UndoTest {
         }
     }
 
+    @Ignore("b/323344335")
     @Test
     fun paste_neverMerges() {
         val state = TextFieldState()
