@@ -443,10 +443,7 @@ internal class TextFieldCoreModifierNode(
             // this call will respect the earlier set maxValue
             // no need to coerce again.
             // prefer to use immediate dispatch instead of suspending scroll calls
-            coroutineScope.launch(
-                DisabledMotionDurationScale,
-                start = CoroutineStart.UNDISPATCHED
-            ) {
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                 scrollState.scrollBy(offsetDifference.roundToNext())
                 // make sure to use the cursor rect from text layout since bringIntoView does its
                 // own checks for RTL layouts.
@@ -537,11 +534,6 @@ private val Brush.isSpecified: Boolean
 private object FixedMotionDurationScale : MotionDurationScale {
     override val scaleFactor: Float
         get() = 1f
-}
-
-private object DisabledMotionDurationScale : MotionDurationScale {
-    override val scaleFactor: Float
-        get() = 0f
 }
 
 /**
