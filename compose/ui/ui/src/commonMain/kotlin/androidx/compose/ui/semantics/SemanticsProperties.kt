@@ -264,6 +264,11 @@ object SemanticsProperties {
      * @see SemanticsPropertyReceiver.editable
      */
     val Editable = SemanticsPropertyKey<Unit>("Editable")
+
+    /**
+     * @see SemanticsPropertyReceiver.maxTextLength
+     */
+    val MaxTextLength = SemanticsPropertyKey<Int>("MaxTextLength")
 }
 
 /**
@@ -1172,6 +1177,12 @@ fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
 fun SemanticsPropertyReceiver.editable() {
     this[SemanticsProperties.Editable] = Unit
 }
+
+/**
+ * Limits the number of characters that can be entered, e.g. in an editable text field. By default
+ * this value is -1, signifying there is no maximum text length limit.
+ */
+var SemanticsPropertyReceiver.maxTextLength by SemanticsProperties.MaxTextLength
 
 /**
  * The node is marked as a collection of horizontally or vertically stacked selectable elements.
