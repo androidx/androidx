@@ -332,18 +332,24 @@ fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
 fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNode().layoutDirection
 
 /**
- * Returns the [LayoutCoordinates] of this node if it's currently attached. Returns null when either
- * this node is not attached, or the [LayoutCoordinates] object is not attached.
+ * Returns the [LayoutCoordinates] of this node.
  *
  * To get a signal when the [LayoutCoordinates] become available, or when its parent places it,
  * implement [LayoutAwareModifierNode].
+ *
+ * @throws IllegalStateException When either this node is not attached, or the [LayoutCoordinates]
+ * object is not attached.
  */
-val DelegatableNode.currentLayoutCoordinates: LayoutCoordinates?
-    get() = if (node.isAttached) {
-        requireCoordinator(Nodes.Layout).coordinates.takeIf { it.isAttached }
-    } else {
-        null
+fun DelegatableNode.requireLayoutCoordinates(): LayoutCoordinates {
+    checkPrecondition(node.isAttached) {
+        "Cannot get LayoutCoordinates, Modifier.Node is not attached."
     }
+    val coordinates = requireCoordinator(Nodes.Layout).coordinates
+    checkPrecondition(coordinates.isAttached) {
+        "LayoutCoordinates is not attached."
+    }
+    return coordinates
+}
 
 /**
  * Invalidates the subtree of this layout, including layout, drawing, parent data, etc.

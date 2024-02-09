@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.toOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import org.junit.Rule
 import org.junit.Test
@@ -41,13 +43,13 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class CurrentLayoutCoordinatesTest {
+class RequireLayoutCoordinatesTest {
 
     @get:Rule
     val rule = createComposeRule()
 
     @Test
-    fun currentLayoutCoordinates_returnsNull_whenNotAttached() {
+    fun requireLayoutCoordinates_throws_whenNotAttached() {
         lateinit var modifier: TestModifierNode
         rule.setContent {
             Box(
@@ -58,12 +60,12 @@ class CurrentLayoutCoordinatesTest {
         }
 
         rule.runOnIdle {
-            assertThat(modifier.coordinatesFromInit).isNull()
+            assertIs<IllegalStateException>(modifier.coordinatesFromInit.exceptionOrNull())
         }
     }
 
     @Test
-    fun currentLayoutCoordinates_returnsCoordinates_whenAttached() {
+    fun requireLayoutCoordinates_returnsCoordinates_whenAttached() {
         lateinit var modifier: TestModifierNode
         rule.setContent {
             Box(
@@ -75,7 +77,7 @@ class CurrentLayoutCoordinatesTest {
         }
 
         rule.runOnIdle {
-            val coordinates = assertNotNull(modifier.currentLayoutCoordinates)
+            val coordinates = assertNotNull(modifier.requireLayoutCoordinates())
             assertThat(coordinates.isAttached).isTrue()
 
             with(rule.density) {
@@ -88,7 +90,7 @@ class CurrentLayoutCoordinatesTest {
     }
 
     @Test
-    fun currentLayoutCoordinates_returnsCoordinatesFromNearestLayoutModifier() {
+    fun requireLayoutCoordinates_returnsCoordinatesFromNearestLayoutModifier() {
         lateinit var modifier: TestModifierNode
         rule.setContent {
             Layout(
@@ -102,7 +104,7 @@ class CurrentLayoutCoordinatesTest {
         }
 
         rule.runOnIdle {
-            val coordinates = assertNotNull(modifier.currentLayoutCoordinates)
+            val coordinates = assertNotNull(modifier.requireLayoutCoordinates())
 
             with(rule.density) {
                 assertThat(coordinates.size)
@@ -112,7 +114,7 @@ class CurrentLayoutCoordinatesTest {
     }
 
     @Test
-    fun currentLayoutCoordinates_returnsNull_afterDetached() {
+    fun requireLayoutCoordinates_throws_afterDetached() {
         var attachModifier by mutableStateOf(true)
         lateinit var modifier: TestModifierNode
         rule.setContent {
@@ -123,13 +125,15 @@ class CurrentLayoutCoordinatesTest {
             )
         }
 
-        rule.waitUntil("currentLayoutCoordinates returns non-null") {
-            modifier.currentLayoutCoordinates != null
+        rule.waitUntil("requireLayoutCoordinates returns") {
+            runCatching { modifier.requireLayoutCoordinates() }.isSuccess
         }
         attachModifier = false
 
         rule.runOnIdle {
-            assertThat(modifier.currentLayoutCoordinates).isNull()
+            assertFailsWith<IllegalStateException> {
+                modifier.requireLayoutCoordinates()
+            }
         }
     }
 
@@ -142,6 +146,6 @@ class CurrentLayoutCoordinatesTest {
     }
 
     private class TestModifierNode : Modifier.Node() {
-        val coordinatesFromInit = currentLayoutCoordinates
+        val coordinatesFromInit = runCatching { requireLayoutCoordinates() }
     }
 }
