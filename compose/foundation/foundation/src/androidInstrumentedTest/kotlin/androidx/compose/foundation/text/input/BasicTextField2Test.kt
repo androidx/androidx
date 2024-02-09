@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input
 
+import android.os.Build
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -28,10 +29,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField2
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.computeSizeForDefaultText
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboardManager
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
@@ -44,16 +47,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.testutils.assertPixelColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
@@ -66,6 +73,7 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -87,6 +95,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -1408,6 +1417,104 @@ internal class BasicTextField2Test {
         }
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textField_textAlignCenter_defaultWidth() {
+        val fontSize = 50
+        val density = Density(1f, 1f)
+        val textStyle = TextStyle(
+            textAlign = TextAlign.Center,
+            color = Color.Black,
+            fontFamily = TEST_FONT_FAMILY,
+            fontSize = fontSize.sp
+        )
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides density) {
+                BasicTextField2(
+                    modifier = Modifier.testTag(Tag),
+                    state = rememberTextFieldState("A"),
+                    textStyle = textStyle,
+                    lineLimits = TextFieldLineLimits.SingleLine
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(Tag).captureToImage().assertHorizontallySymmetrical(fontSize)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textField_textAlignCenter_widthSmallerThanDefaultWidth() {
+        val fontSize = 50
+        val density = Density(1f, 1f)
+        val textStyle = TextStyle(
+            textAlign = TextAlign.Center,
+            color = Color.Black,
+            fontFamily = TEST_FONT_FAMILY,
+            fontSize = fontSize.sp
+        )
+        rule.setContent {
+            val fontFamilyResolver = LocalFontFamilyResolver.current
+            val defaultWidth = computeSizeForDefaultText(
+                style = textStyle,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver,
+                maxLines = 1
+            ).width
+
+            CompositionLocalProvider(LocalDensity provides density) {
+                BasicTextField2(
+                    modifier = Modifier
+                        .testTag(Tag)
+                        .width(defaultWidth.dp / 2),
+                    state = rememberTextFieldState("A"),
+                    textStyle = textStyle,
+                    lineLimits = TextFieldLineLimits.SingleLine
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(Tag).captureToImage().assertHorizontallySymmetrical(fontSize)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textField_textAlignCenter_widthLargerThanDefaultWidth() {
+        val fontSize = 50
+        val density = Density(1f, 1f)
+        val textStyle = TextStyle(
+            textAlign = TextAlign.Center,
+            color = Color.Black,
+            fontFamily = TEST_FONT_FAMILY,
+            fontSize = fontSize.sp
+        )
+        rule.setContent {
+            val fontFamilyResolver = LocalFontFamilyResolver.current
+            val defaultWidth = computeSizeForDefaultText(
+                style = textStyle,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver,
+                maxLines = 1
+            ).width
+
+            CompositionLocalProvider(LocalDensity provides density) {
+                BasicTextField2(
+                    modifier = Modifier
+                        .testTag(Tag)
+                        .width(defaultWidth.dp * 2),
+                    state = rememberTextFieldState("A"),
+                    textStyle = textStyle,
+                    lineLimits = TextFieldLineLimits.SingleLine
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(Tag).captureToImage().assertHorizontallySymmetrical(fontSize)
+    }
+
     private fun requestFocus(tag: String) =
         rule.onNodeWithTag(tag).requestFocus()
 
@@ -1440,6 +1547,20 @@ internal class BasicTextField2Test {
             valueWithChanges: TextFieldBuffer
         ) {
             // Noop
+        }
+    }
+}
+
+/**
+ * Checks whether the given image is horizontally symmetrical where a region that has the width
+ * of [excludedWidth] around the center is excluded.
+ */
+private fun ImageBitmap.assertHorizontallySymmetrical(excludedWidth: Int) {
+    val pixel = toPixelMap()
+    for (y in 0 until height) {
+        for (x in 0 until (width - excludedWidth) / 2) {
+            val leftPixel = pixel[x, y]
+            pixel.assertPixelColor(leftPixel, width - 1 - x, y)
         }
     }
 }
