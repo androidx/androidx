@@ -37,41 +37,44 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
 class GlobalAssertionsTest {
-  @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
-  @Before fun setUp() {}
+    @Before
+    fun setUp() {
+    }
 
-  @Test
-  fun performClick_withGlobalAssertion_triggersGlobalAssertion() {
-    composeTestRule.setContent { CountingButton() }
-    var capturedSni: SemanticsNodeInteraction? = null
+    @Test
+    fun performClick_withGlobalAssertion_triggersGlobalAssertion() {
+        composeTestRule.setContent { CountingButton() }
+        var capturedSni: SemanticsNodeInteraction? = null
 
-    addGlobalAssertion(/* name= */ "Fred") { sni -> capturedSni = sni }
-    composeTestRule.onNodeWithText("Increment counter").performClick()
+        addGlobalAssertion(/* name= */ "Fred") { sni -> capturedSni = sni }
+        composeTestRule.onNodeWithText("Increment counter").performClick()
 
-    composeTestRule.onNodeWithText("Clicks: 1").assertExists()
-    capturedSni!!.assertTextContains("Increment counter")
-  }
+        composeTestRule.onNodeWithText("Clicks: 1").assertExists()
+        capturedSni!!.assertTextContains("Increment counter")
+    }
 
-  @Test
-  fun performClick_withGlobalAssertionRemoved_doesNotTriggersGlobalAssertion() {
-    composeTestRule.setContent { CountingButton() }
-    var capturedSni: SemanticsNodeInteraction? = null
+    @Test
+    fun performClick_withGlobalAssertionRemoved_doesNotTriggersGlobalAssertion() {
+        composeTestRule.setContent { CountingButton() }
+        var capturedSni: SemanticsNodeInteraction? = null
 
-    addGlobalAssertion(/* name= */ "Fred") { sni -> capturedSni = sni }
-    removeGlobalAssertion(/* name= */ "Fred")
-    composeTestRule.onNodeWithText("Increment counter").performClick()
+        addGlobalAssertion(/* name= */ "Fred") { sni -> capturedSni = sni }
+        removeGlobalAssertion(/* name= */ "Fred")
+        composeTestRule.onNodeWithText("Increment counter").performClick()
 
-    composeTestRule.onNodeWithText("Clicks: 1").assertExists()
-    assertThat(capturedSni).isNull()
-  }
+        composeTestRule.onNodeWithText("Clicks: 1").assertExists()
+        assertThat(capturedSni).isNull()
+    }
 }
 
 @Composable
 internal fun CountingButton() {
-  var counter by remember { mutableStateOf(0) }
-  Column {
-    Button(onClick = { counter++ }) { Text("Increment counter") }
-    Text(text = "Clicks: $counter")
-  }
+    var counter by remember { mutableStateOf(0) }
+    Column {
+        Button(onClick = { counter++ }) { Text("Increment counter") }
+        Text(text = "Clicks: $counter")
+    }
 }
