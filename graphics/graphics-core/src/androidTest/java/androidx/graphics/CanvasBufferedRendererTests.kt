@@ -872,31 +872,34 @@ class CanvasBufferedRendererTests {
             )
         }
 
-        val sharedFdMonitor = CanvasBufferedRendererV34.obtainSharedFdMonitor()!!
-        val hbr1 = createHardwareBufferRenderer(sharedFdMonitor)
-        val hbr2 = createHardwareBufferRenderer(sharedFdMonitor)
-        val hbr3 = createHardwareBufferRenderer(sharedFdMonitor)
+        val sharedFdMonitor = CanvasBufferedRendererV34.obtainSharedFdMonitor()
+        // Monitor is only returned on devices running the vulkan hwui backend
+        if (sharedFdMonitor != null) {
+            val hbr1 = createHardwareBufferRenderer(sharedFdMonitor)
+            val hbr2 = createHardwareBufferRenderer(sharedFdMonitor)
+            val hbr3 = createHardwareBufferRenderer(sharedFdMonitor)
 
-        hbr1.close()
+            hbr1.close()
 
-        assertTrue(sharedFdMonitor.isMonitoring)
+            assertTrue(sharedFdMonitor.isMonitoring)
 
-        hbr2.close()
+            hbr2.close()
 
-        assertTrue(sharedFdMonitor.isMonitoring)
+            assertTrue(sharedFdMonitor.isMonitoring)
 
-        hbr3.close()
+            hbr3.close()
 
-        assertFalse(sharedFdMonitor.isMonitoring)
+            assertFalse(sharedFdMonitor.isMonitoring)
 
-        val sharedFdMonitor2 = CanvasBufferedRendererV34.obtainSharedFdMonitor()!!
-        val hbr4 = createHardwareBufferRenderer(sharedFdMonitor2)
+            val sharedFdMonitor2 = CanvasBufferedRendererV34.obtainSharedFdMonitor()!!
+            val hbr4 = createHardwareBufferRenderer(sharedFdMonitor2)
 
-        assertTrue(sharedFdMonitor2.isMonitoring)
+            assertTrue(sharedFdMonitor2.isMonitoring)
 
-        hbr4.close()
+            hbr4.close()
 
-        assertFalse(sharedFdMonitor2.isMonitoring)
+            assertFalse(sharedFdMonitor2.isMonitoring)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
