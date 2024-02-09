@@ -45,6 +45,7 @@ class InspectableValueTest {
         isDebugInspectorInfoEnabled = false
     }
 
+    @Suppress("DEPRECATION")
     fun Modifier.simple(padding: Int, border: Dp) = inspectable(
         debugInspectorInfo {
             name = "simple"
