@@ -525,6 +525,12 @@ internal class TextFieldDecoratorModifierNode(
                 true
             }
         }
+
+        filter?.let {
+            with(it) {
+                applySemantics()
+            }
+        }
     }
 
     override fun onFocusEvent(focusState: FocusState) {

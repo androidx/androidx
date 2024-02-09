@@ -1646,6 +1646,7 @@ package androidx.compose.foundation.text.input {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface InputTransformation {
+    method public default void applySemantics(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public default androidx.compose.foundation.text.KeyboardOptions? getKeyboardOptions();
     method public void transformInput(androidx.compose.foundation.text.input.TextFieldCharSequence originalValue, androidx.compose.foundation.text.input.TextFieldBuffer valueWithChanges);
     property public default androidx.compose.foundation.text.KeyboardOptions? keyboardOptions;
