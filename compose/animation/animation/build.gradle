@@ -42,10 +42,10 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlibCommon)
 
                 api(project(":compose:animation:animation-core"))
-                api(project(":compose:foundation:foundation-layout"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-geometry"))
+                api("androidx.compose.foundation:foundation-layout:1.6.0")
+                api("androidx.compose.runtime:runtime:1.6.0")
+                api("androidx.compose.ui:ui:1.6.0")
+                api("androidx.compose.ui:ui-geometry:1.6.0")
 
                 implementation(project(":compose:ui:ui-util"))
 
@@ -77,13 +77,6 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
-
-                api(project(":compose:foundation:foundation-layout"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-geometry"))
-
-                implementation(project(":compose:ui:ui-util"))
             }
         }
 

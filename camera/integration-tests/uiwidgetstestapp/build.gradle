@@ -60,7 +60,6 @@ android {
 }
 
 dependencies {
-
     // Internal library
     implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-core"))
@@ -70,7 +69,7 @@ dependencies {
     implementation(project(":camera:camera-view"))
     implementation(project(":camera:camera-video"))
     implementation(project(":camera:camera-mlkit-vision"))
-    implementation 'com.google.mlkit:barcode-scanning:17.0.2'
+    implementation("com.google.mlkit:barcode-scanning:17.0.2")
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.2.0")
@@ -88,15 +87,14 @@ dependencies {
     implementation(libs.guavaAndroid)
 
     // Compose
-    implementation 'androidx.activity:activity-compose:1.4.0'
-    implementation project(':compose:material:material')
-    implementation 'androidx.compose.animation:animation:1.4.0'
-    implementation 'androidx.compose.runtime:runtime:1.4.0'
-    implementation 'androidx.compose.ui:ui-tooling:1.4.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
-    implementation 'androidx.navigation:navigation-compose:2.4.2'
-    implementation 'androidx.compose.material:material-icons-extended:1.4.0'
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
+    implementation("androidx.activity:activity-compose:1.4.0")
+    implementation(project(":compose:material:material"))
+    implementation("androidx.compose.animation:animation:1.4.0")
+    implementation("androidx.compose.runtime:runtime:1.4.0")
+    implementation("androidx.compose.ui:ui-tooling:1.4.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
+    implementation("androidx.navigation:navigation-compose:2.4.2")
+    implementation("androidx.compose.material:material-icons-extended:1.4.0")
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
@@ -125,16 +123,14 @@ dependencies {
 
     // Testing for Compose
     // Test rules and transitive dependencies:
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:ui:ui"))
-    androidTestImplementation(project(":compose:runtime:runtime-saveable"))
     androidTestImplementation(project(":compose:ui:ui-geometry"))
     androidTestImplementation(project(":compose:ui:ui-util"))
     androidTestImplementation(project(":compose:ui:ui-graphics"))
     androidTestImplementation(project(":compose:ui:ui-unit"))
     androidTestImplementation(project(":compose:ui:ui-text"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation("androidx.collection:collection:1.4.0")
     // Needed for createComposeRule, but not createAndroidComposeRule:
-    debugImplementation(project(":compose:ui:ui-test-manifest"))
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.0")
 }

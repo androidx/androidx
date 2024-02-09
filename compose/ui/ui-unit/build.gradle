@@ -40,12 +40,11 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api(project(":compose:ui:ui-geometry"))
-
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
-                implementation("androidx.collection:collection:1.4.0")
                 api("androidx.annotation:annotation:1.1.0")
+                api(project(":compose:ui:ui-geometry"))
+                implementation("androidx.collection:collection:1.4.0")
+                implementation("androidx.compose.runtime:runtime:1.6.0")
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -75,7 +74,6 @@ androidXMultiplatform {
         desktopMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(project(":compose:runtime:runtime"))
             }
         }
 

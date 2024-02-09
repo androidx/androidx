@@ -43,7 +43,7 @@ androidXMultiplatform {
                 api(libs.androidx.annotation)
 
                 api(project(":compose:ui:ui-unit"))
-                implementation(project(":compose:runtime:runtime"))
+                implementation("androidx.compose.runtime:runtime:1.6.0")
                 implementation(project(":compose:ui:ui-util"))
                 implementation("androidx.collection:collection:1.4.0")
             }
@@ -59,7 +59,6 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(libs.skikoCommon)
-                implementation(project(":compose:runtime:runtime"))
             }
         }
 
@@ -73,7 +72,6 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 implementation("androidx.graphics:graphics-path:1.0.0-beta02")
-                api(libs.androidx.annotation)
                 api("androidx.annotation:annotation-experimental:1.4.0")
             }
         }

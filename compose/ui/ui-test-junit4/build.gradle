@@ -62,16 +62,14 @@ androidXMultiplatform {
             }
         }
 
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.activity:activity:1.2.1")
-                implementation "androidx.activity:activity-compose:1.3.0"
                 api("androidx.test.ext:junit:1.1.5")
-		        implementation("androidx.annotation:annotation:1.1.0")
-
-                implementation(project(":compose:runtime:runtime-saveable"))
+                implementation("androidx.activity:activity-compose:1.3.0")
+                implementation("androidx.annotation:annotation:1.1.0")
+                implementation("androidx.compose.runtime:runtime-saveable:1.6.0")
                 implementation("androidx.lifecycle:lifecycle-common:2.5.1")
                 implementation("androidx.lifecycle:lifecycle-runtime:2.5.1")
                 implementation("androidx.test:core:1.5.0")

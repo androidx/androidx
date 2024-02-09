@@ -32,7 +32,6 @@ plugins {
 }
 
 dependencies {
-
     implementation(libs.kotlinStdlib)
 
     api(project(":compose:runtime:runtime"))
