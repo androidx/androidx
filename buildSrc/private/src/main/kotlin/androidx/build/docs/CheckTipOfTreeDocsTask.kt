@@ -16,8 +16,16 @@
 
 package androidx.build.docs
 
+import androidx.build.AndroidXExtension
+import androidx.build.LibraryType
+import androidx.build.addToBuildOnServer
+import androidx.build.checkapi.shouldConfigureApiTasks
+import androidx.build.getSupportRootFolder
+import androidx.build.multiplatformExtension
+import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
@@ -40,7 +48,7 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
     abstract val projectPathProvider: Property<String>
 
     @get:Input
-    abstract val projectIsKmp: Property<Boolean>
+    abstract val type: Property<DocsType>
 
     @TaskAction
     fun exec() {
@@ -49,20 +57,16 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
         // match ":activity:activity-ktx", both need to be listed separately.
         val projectDependency = "project(\"$projectPath\")"
 
-        val isKmp = projectIsKmp.get()
-        val fullExpectedText = if (isKmp) {
-            // Check that KMP projects are listed as KMP
-            "kmpDocs($projectDependency)"
-        } else {
-            // Don't require `docs($projectDependency)` because some projects are present as stubs.
-            projectDependency
-        }
+        val prefix = type.get().prefix
+        // Check that projects are listed with the right configuration type (docs, kmpDocs, samples)
+        val fullExpectedText = "$prefix($projectDependency)"
 
         val fileContents = tipOfTreeBuildFile.asFile.get().readText()
         if (!fileContents.contains(fullExpectedText)) {
             // If this is a KMP project, check if it is present but configured as non-KMP
-            val message = if (isKmp && fileContents.contains(projectDependency)) {
-                "KMP project $projectPath needs 'kmpDocs' in docs-tip-of-tree/build.gradle\n\n" +
+            val message = if (fileContents.contains(projectDependency)) {
+                "Project $projectPath has the wrong configuration type in " +
+                    "docs-tip-of-tree/build.gradle, should use $prefix\n\n" +
                     "Update the entry for $projectPath in docs-tip-of-tree/build.gradle to " +
                     "'$fullExpectedText'."
             } else {
@@ -79,5 +83,48 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
             }
             throw GradleException(message)
         }
+    }
+
+    companion object {
+        fun Project.setUpCheckDocsTask(extension: AndroidXExtension) {
+            project.afterEvaluate {
+                if (!extension.requiresDocs()) return@afterEvaluate
+
+                val docsType = if (extension.type == LibraryType.Companion.SAMPLES) {
+                    DocsType.SAMPLES
+                } else if (multiplatformExtension != null) {
+                    DocsType.KMP
+                } else {
+                    DocsType.STANDARD
+                }
+
+                val checkDocs = project.tasks.register(
+                    "checkDocsTipOfTree",
+                    CheckTipOfTreeDocsTask::class.java
+                ) { task ->
+                    task.tipOfTreeBuildFile.set(
+                        project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")
+                    )
+                    task.projectPathProvider.set(path)
+                    task.type.set(docsType)
+                    task.cacheEvenIfNoOutputs()
+                }
+                project.addToBuildOnServer(checkDocs)
+            }
+        }
+
+        enum class DocsType(val prefix: String) {
+            STANDARD("docs"),
+            KMP("kmpDocs"),
+            SAMPLES("samples"),
+        }
+
+        /**
+         * Whether the project should have public docs. True for API-tracked projects and samples,
+         * unless opted-out with [AndroidXExtension.doNotDocumentReason]
+         */
+        fun AndroidXExtension.requiresDocs() =
+            (shouldConfigureApiTasks() || type == LibraryType.SAMPLES) &&
+                doNotDocumentReason == null
     }
 }

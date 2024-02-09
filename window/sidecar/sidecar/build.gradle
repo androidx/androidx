@@ -41,6 +41,7 @@ androidx {
     description = "This version of the OEM extension is deprecated. Please use window:extensions:extensions." +
             "module instead."
     metalavaK2UastEnabled = true
+    doNotDocumentReason = "Should not be published"
 }
 
 android {
