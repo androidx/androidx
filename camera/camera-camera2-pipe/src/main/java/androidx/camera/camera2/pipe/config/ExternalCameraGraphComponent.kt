@@ -97,6 +97,22 @@ internal class ExternalCameraGraphConfigModule(
             throwUnsupportedOperationException()
         }
 
+        override fun prewarm(cameraId: CameraId) {
+            throwUnsupportedOperationException()
+        }
+
+        override fun disconnect(cameraId: CameraId) {
+            throwUnsupportedOperationException()
+        }
+
+        override fun disconnectAsync(cameraId: CameraId): Deferred<Unit> {
+            throwUnsupportedOperationException()
+        }
+
+        override fun disconnectAll() {
+            throwUnsupportedOperationException()
+        }
+
         private fun throwUnsupportedOperationException(): Nothing =
             throw UnsupportedOperationException("External CameraPipe should not use backends")
     }

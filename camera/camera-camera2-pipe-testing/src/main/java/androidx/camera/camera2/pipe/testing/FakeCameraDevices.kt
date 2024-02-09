@@ -17,10 +17,12 @@
 package androidx.camera.camera2.pipe.testing
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import kotlinx.coroutines.Deferred
 
 /**
  * This provides a fake implementation of [CameraDevices] for tests with a fixed list of Cameras.
@@ -31,9 +33,15 @@ class FakeCameraDevices(
     private val concurrentCameraBackendIds: Set<Set<CameraBackendId>>,
     private val cameraMetadataMap: Map<CameraBackendId, List<CameraMetadata>>
 ) : CameraDevices {
+    private val cameraBackends: Map<CameraBackendId, CameraBackend>
+
     init {
         check(cameraMetadataMap.containsKey(defaultCameraBackendId)) {
             "FakeCameraDevices must include $defaultCameraBackendId"
+        }
+
+        cameraBackends = cameraMetadataMap.mapValues { entry ->
+            FakeCameraBackend(entry.value.associateBy { it.camera })
         }
     }
 
@@ -51,8 +59,8 @@ class FakeCameraDevices(
 
     override fun awaitConcurrentCameraIds(cameraBackendId: CameraBackendId?): Set<Set<CameraId>> {
         return concurrentCameraBackendIds.map { concurrentCameraIds ->
-            concurrentCameraIds.map {
-                    cameraId -> CameraId.fromCamera2Id(cameraId.value)
+            concurrentCameraIds.map { cameraId ->
+                CameraId.fromCamera2Id(cameraId.value)
             }.toSet()
         }.toSet()
     }
@@ -68,6 +76,34 @@ class FakeCameraDevices(
     ): CameraMetadata? {
         val backendId = cameraBackendId ?: defaultCameraBackendId
         return cameraMetadataMap[backendId]?.firstOrNull { it.camera == cameraId }
+    }
+
+    override fun prewarm(cameraId: CameraId, cameraBackendId: CameraBackendId?) {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        cameraBackend.prewarm(cameraId)
+    }
+
+    override fun disconnect(cameraId: CameraId, cameraBackendId: CameraBackendId?) {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        cameraBackend.disconnect(cameraId)
+    }
+
+    override fun disconnectAsync(
+        cameraId: CameraId,
+        cameraBackendId: CameraBackendId?
+    ): Deferred<Unit> {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        return cameraBackend.disconnectAsync(cameraId)
+    }
+
+    override fun disconnectAll(cameraBackendId: CameraBackendId?) {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        cameraBackend.disconnectAll()
+    }
+
+    override fun disconnectAllAsync(cameraBackendId: CameraBackendId?): Deferred<Unit> {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        return cameraBackend.disconnectAllAsync()
     }
 
     @Deprecated(
@@ -99,4 +135,9 @@ class FakeCameraDevices(
     )
     override fun awaitMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(awaitCameraMetadata(camera))
+
+    private fun getCameraBackend(cameraBackendId: CameraBackendId?): CameraBackend {
+        val backendId = cameraBackendId ?: defaultCameraBackendId
+        return checkNotNull(cameraBackends[backendId]) { "Failed to load CameraBackend $backendId" }
+    }
 }
