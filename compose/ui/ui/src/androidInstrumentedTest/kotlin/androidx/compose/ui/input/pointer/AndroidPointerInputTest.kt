@@ -1385,6 +1385,167 @@ class AndroidPointerInputTest {
         assertTrue(totalEventLatch.await(1, TimeUnit.SECONDS))
     }
 
+    /*
+     * Tests that a bad ACTION_HOVER_EXIT MotionEvent is ignored in Compose when it directly
+     * proceeds an ACTION_SCROLL MotionEvent. This happens in some versions of Android Studio when
+     * mirroring is used (b/314269723).
+     *
+     * The event order of MotionEvents:
+     *   - Hover enter on box 1
+     *   - Hover exit on box 1 (bad event)
+     *   - Scroll on box 1
+     */
+    @Test
+    fun scrollMotionEvent_proceededImmediatelyByHoverExit_shouldNotTriggerHoverExit() {
+        // --> Arrange
+        val scrollDelta = Offset(0.35f, 0.65f)
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+
+        // Events for Box 1
+        var enterBox1 = false
+        var scrollBox1 = false
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                enterBox1 = true
+                                            }
+
+                                            PointerEventType.Exit -> {
+                                                enterBox1 = false
+                                            }
+
+                                            PointerEventType.Scroll -> {
+                                                scrollBox1 = true
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(enterBox1).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // We do not use dispatchMouseEvent() to dispatch the following two events, because the
+        // actions need to be executed in immediate succession
+        rule.runOnUiThread {
+            val root = box1LayoutCoordinates!!.findRootCoordinates()
+            val pos = root.localPositionOf(box1LayoutCoordinates!!, Offset.Zero)
+
+            // Bad hover exit event on Box 1
+            val exitMotionEvent = MotionEvent(
+                0,
+                ACTION_HOVER_EXIT,
+                1,
+                0,
+                arrayOf(PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }),
+                arrayOf(PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y))
+            )
+
+            // Main scroll event on Box 1
+            val scrollMotionEvent = MotionEvent(
+                0,
+                ACTION_SCROLL,
+                1,
+                0,
+                arrayOf(PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }),
+                arrayOf(PointerCoords(pos.x, pos.y, scrollDelta.x, scrollDelta.y))
+            )
+
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+            androidComposeView.dispatchHoverEvent(exitMotionEvent)
+            androidComposeView.dispatchGenericMotionEvent(scrollMotionEvent)
+        }
+
+        rule.runOnUiThread {
+            assertThat(enterBox1).isTrue()
+            assertThat(scrollBox1).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
     @Test
     fun dispatchHoverMove() {
         var layoutCoordinates: LayoutCoordinates? = null
