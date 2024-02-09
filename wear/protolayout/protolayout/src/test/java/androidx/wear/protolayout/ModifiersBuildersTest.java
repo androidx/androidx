@@ -25,15 +25,15 @@ import static org.junit.Assert.assertThrows;
 
 import android.graphics.Color;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.ModifiersProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ModifiersBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final ColorBuilders.ColorProp COLOR =

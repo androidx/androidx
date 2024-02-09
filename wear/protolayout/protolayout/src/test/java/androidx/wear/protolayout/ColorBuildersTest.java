@@ -22,15 +22,15 @@ import static org.junit.Assert.assertThrows;
 
 import android.graphics.Color;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.ColorProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ColorBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final ColorBuilders.ColorProp COLOR =
@@ -38,7 +38,7 @@ public class ColorBuildersTest {
                     .setDynamicValue(DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)))
                     .build();
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     private static final ColorBuilders.ColorProp.Builder COLOR_BUILDER_WITHOUT_STATIC_VALUE =
             new ColorBuilders.ColorProp.Builder()
                     .setDynamicValue(

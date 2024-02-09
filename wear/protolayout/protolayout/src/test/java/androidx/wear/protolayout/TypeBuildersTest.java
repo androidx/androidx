@@ -20,12 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.TypesProto;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
 public class TypeBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final TypeBuilders.StringProp STRING_PROP =
@@ -43,19 +46,19 @@ public class TypeBuildersTest {
                     .setDynamicValue(DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)))
                     .build();
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     private static final TypeBuilders.FloatProp.Builder FLOAT_PROP_WITHOUT_STATIC_VALUE =
             new TypeBuilders.FloatProp.Builder()
                     .setDynamicValue(
                             DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)));
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     private static final TypeBuilders.StringProp.Builder STRING_PROP_BUILDER_WITHOUT_STATIC_VALUE =
             new TypeBuilders.StringProp.Builder()
                     .setDynamicValue(
                             DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)));
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     private static final TypeBuilders.BoolProp.Builder BOOL_PROP_BUILDER_WITHOUT_STATIC_VALUE =
             new TypeBuilders.BoolProp.Builder()
                     .setDynamicValue(DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)));
