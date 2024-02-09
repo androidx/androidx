@@ -41,9 +41,17 @@ fun <T : Throwable> assertThat(actual: T?): ThrowableSubject<T> = assert_().that
 
 fun assertThat(actual: Boolean?): BooleanSubject = assert_().that(actual)
 
+fun assertThat(actual: Long): LongSubject = assert_().that(actual)
+
+// Workaround for https://youtrack.jetbrains.com/issue/KT-645
+fun <T : Long?> assertThat(actual: T): LongSubject = assert_().that(actual)
+
 fun assertThat(actual: Double?): DoubleSubject = assert_().that(actual)
 
-fun assertThat(actual: Int?): IntegerSubject = assert_().that(actual)
+fun assertThat(actual: Int): IntegerSubject = assert_().that(actual)
+
+// Workaround for https://youtrack.jetbrains.com/issue/KT-645
+fun <T : Int?> assertThat(actual: T): IntegerSubject = assert_().that(actual)
 
 fun assertThat(actual: String?): StringSubject = assert_().that(actual)
 

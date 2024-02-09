@@ -123,18 +123,21 @@ package androidx.kruth {
     method public static androidx.kruth.PrimitiveCharArraySubject assertThat(char[]? actual);
     method public static androidx.kruth.PrimitiveDoubleArraySubject assertThat(double[]? actual);
     method public static androidx.kruth.PrimitiveFloatArraySubject assertThat(float[]? actual);
+    method public static androidx.kruth.IntegerSubject assertThat(int actual);
     method public static androidx.kruth.PrimitiveIntArraySubject assertThat(int[]? actual);
     method public static androidx.kruth.BooleanSubject assertThat(Boolean? actual);
     method public static androidx.kruth.DoubleSubject assertThat(Double? actual);
-    method public static androidx.kruth.IntegerSubject assertThat(Integer? actual);
     method public static <T> androidx.kruth.IterableSubject<T> assertThat(Iterable<? extends T>? actual);
     method public static androidx.kruth.StringSubject assertThat(String? actual);
     method public static <K, V> androidx.kruth.MapSubject<K,V> assertThat(java.util.Map<K,? extends V>? actual);
+    method public static androidx.kruth.LongSubject assertThat(long actual);
     method public static androidx.kruth.PrimitiveLongArraySubject assertThat(long[]? actual);
     method public static androidx.kruth.PrimitiveShortArraySubject assertThat(short[]? actual);
     method public static <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> assertThat(T? actual);
     method public static <T> androidx.kruth.Subject<T> assertThat(T? actual);
     method public static <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThat(T? actual);
+    method public static <T extends java.lang.Long> androidx.kruth.LongSubject assertThat(T actual);
+    method public static <T extends java.lang.Integer> androidx.kruth.IntegerSubject assertThat(T actual);
     method public static <T> androidx.kruth.ObjectArraySubject<T> assertThat(T[]? actual);
     method public static androidx.kruth.StandardSubjectBuilder assertWithMessage(String messageToPrepend);
     method public static androidx.kruth.StandardSubjectBuilder assert_();
@@ -149,6 +152,18 @@ package androidx.kruth {
     method public static <T> androidx.kruth.GuavaOptionalSubject<T> assertThat(com.google.common.base.Optional<T>? actual);
     method public static androidx.kruth.ClassSubject assertThat(Class<?> actual);
     method public static androidx.kruth.BigDecimalSubject assertThat(java.math.BigDecimal actual);
+  }
+
+  public class LongSubject extends androidx.kruth.ComparableSubject<java.lang.Long> {
+    method @Deprecated public void isEquivalentAccordingToCompareTo(Long? other);
+    method public final androidx.kruth.LongSubject.TolerantLongComparison isNotWithin(long tolerance);
+    method public final androidx.kruth.LongSubject.TolerantLongComparison isWithin(long tolerance);
+  }
+
+  public abstract static class LongSubject.TolerantLongComparison {
+    method @Deprecated public boolean equals(Object? other);
+    method @Deprecated public int hashCode();
+    method public abstract void of(long expected);
   }
 
   public class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {
@@ -248,18 +263,21 @@ package androidx.kruth {
     method public final androidx.kruth.PrimitiveCharArraySubject that(char[]? actual);
     method public final androidx.kruth.PrimitiveDoubleArraySubject that(double[]? actual);
     method public final androidx.kruth.PrimitiveFloatArraySubject that(float[]? actual);
+    method public final androidx.kruth.IntegerSubject that(int actual);
     method public final androidx.kruth.PrimitiveIntArraySubject that(int[]? actual);
     method public final androidx.kruth.BooleanSubject that(Boolean? actual);
     method public final androidx.kruth.DoubleSubject that(Double? actual);
-    method public final androidx.kruth.IntegerSubject that(Integer? actual);
     method public final <T> androidx.kruth.IterableSubject<T> that(Iterable<? extends T>? actual);
     method public final androidx.kruth.StringSubject that(String? actual);
     method public final <K, V> androidx.kruth.MapSubject<K,V> that(java.util.Map<K,? extends V>? actual);
+    method public final androidx.kruth.LongSubject that(long actual);
     method public final androidx.kruth.PrimitiveLongArraySubject that(long[]? actual);
     method public final androidx.kruth.PrimitiveShortArraySubject that(short[]? actual);
     method public final <T> androidx.kruth.Subject<T> that(T? actual);
     method public final <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> that(T? actual);
     method public final <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> that(T? actual);
+    method public final <T extends java.lang.Long> androidx.kruth.LongSubject that(T actual);
+    method public final <T extends java.lang.Integer> androidx.kruth.IntegerSubject that(T actual);
     method public final <T> androidx.kruth.ObjectArraySubject<T> that(T[]? actual);
     method public final androidx.kruth.StandardSubjectBuilder withMessage(String messageToPrepend);
     field public static final androidx.kruth.StandardSubjectBuilder.Companion Companion;
