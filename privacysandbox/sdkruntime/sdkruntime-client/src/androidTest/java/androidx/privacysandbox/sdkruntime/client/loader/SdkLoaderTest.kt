@@ -34,6 +34,7 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.io.File
+import java.util.concurrent.Executor
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -160,8 +161,20 @@ class SdkLoaderTest {
 
     private class NoOpImpl : SdkSandboxControllerCompat.SandboxControllerImpl {
 
-        override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
-            throw UnsupportedOperationException("NoOp")
+        override fun loadSdk(
+            sdkName: String,
+            params: Bundle,
+            executor: Executor,
+            callback: SdkSandboxControllerCompat.LoadSdkCallback
+        ) {
+            executor.execute {
+                callback.onError(
+                    LoadSdkCompatException(
+                        LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
+                        "NoOp"
+                    )
+                )
+            }
         }
 
         override fun getSandboxedSdks(): List<SandboxedSdkCompat> {

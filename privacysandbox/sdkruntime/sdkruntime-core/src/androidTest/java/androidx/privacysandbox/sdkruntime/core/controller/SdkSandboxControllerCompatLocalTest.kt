@@ -30,6 +30,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -220,8 +221,20 @@ class SdkSandboxControllerCompatLocalTest {
     ) : SdkSandboxControllerCompat.SandboxControllerImpl {
         var token: IBinder? = null
 
-        override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
-            throw UnsupportedOperationException("Shouldn't be called")
+        override fun loadSdk(
+            sdkName: String,
+            params: Bundle,
+            executor: Executor,
+            callback: SdkSandboxControllerCompat.LoadSdkCallback
+        ) {
+            executor.execute {
+                callback.onError(
+                    LoadSdkCompatException(
+                        LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
+                        "Shouldn't be called"
+                    )
+                )
+            }
         }
 
         override fun getSandboxedSdks() = sandboxedSdks
