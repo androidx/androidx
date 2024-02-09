@@ -311,18 +311,8 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        // If the maxIntrinsicWidth of the children is already smaller than the constraint, pass
-        // the original constraints so that the children has more information to determine its
-        // size.
-        val maxIntrinsicWidth = measurable.maxIntrinsicWidth(constraints.maxHeight)
-
         // remove any width constraints for TextField since it'll be able to scroll horizontally.
-        val childConstraints = if (maxIntrinsicWidth < constraints.maxWidth) {
-            constraints
-        } else {
-            constraints.copy(maxWidth = Constraints.Infinity)
-        }
-        val placeable = measurable.measure(childConstraints)
+        val placeable = measurable.measure(constraints.copy(maxWidth = Constraints.Infinity))
         val width = min(placeable.width, constraints.maxWidth)
 
         return layout(width, placeable.height) {
