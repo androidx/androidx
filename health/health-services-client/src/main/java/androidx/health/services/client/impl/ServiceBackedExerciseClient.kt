@@ -144,7 +144,7 @@ internal class ServiceBackedExerciseClient(
         callback: ExerciseUpdateCallback
     ) {
         val listenerStub =
-            ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.getOrCreate(
+            ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.create(
                 callback,
                 executor,
                 requestedDataTypesProvider = {
