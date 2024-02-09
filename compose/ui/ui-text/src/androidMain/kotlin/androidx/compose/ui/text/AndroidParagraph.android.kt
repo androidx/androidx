@@ -394,7 +394,7 @@ internal class AndroidParagraph(
 
     internal fun getLineAscent(lineIndex: Int): Float = layout.getLineAscent(lineIndex)
 
-    internal fun getLineBaseline(lineIndex: Int): Float = layout.getLineBaseline(lineIndex)
+    override fun getLineBaseline(lineIndex: Int): Float = layout.getLineBaseline(lineIndex)
 
     internal fun getLineDescent(lineIndex: Int): Float = layout.getLineDescent(lineIndex)
 

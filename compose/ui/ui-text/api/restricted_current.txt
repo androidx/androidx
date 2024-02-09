@@ -151,6 +151,7 @@ package androidx.compose.ui.text {
     method public float getHorizontalPosition(int offset, boolean usePrimaryDirection);
     method public androidx.compose.ui.text.MultiParagraphIntrinsics getIntrinsics();
     method public float getLastBaseline();
+    method public float getLineBaseline(int lineIndex);
     method public float getLineBottom(int lineIndex);
     method public int getLineCount();
     method public int getLineEnd(int lineIndex, optional boolean visibleEnd);
@@ -212,6 +213,7 @@ package androidx.compose.ui.text {
     method public float getHeight();
     method public float getHorizontalPosition(int offset, boolean usePrimaryDirection);
     method public float getLastBaseline();
+    method public float getLineBaseline(int lineIndex);
     method public float getLineBottom(int lineIndex);
     method public int getLineCount();
     method public int getLineEnd(int lineIndex, optional boolean visibleEnd);
@@ -488,6 +490,7 @@ package androidx.compose.ui.text {
     method public float getHorizontalPosition(int offset, boolean usePrimaryDirection);
     method public float getLastBaseline();
     method public androidx.compose.ui.text.TextLayoutInput getLayoutInput();
+    method public float getLineBaseline(int lineIndex);
     method public float getLineBottom(int lineIndex);
     method public int getLineCount();
     method public int getLineEnd(int lineIndex, optional boolean visibleEnd);
