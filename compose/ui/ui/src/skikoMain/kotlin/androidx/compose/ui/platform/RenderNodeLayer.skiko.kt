@@ -204,7 +204,23 @@ internal class RenderNodeLayer(
     override fun drawLayer(canvas: Canvas) {
         if (picture == null) {
             val bounds = size.toSize().toRect()
-            val pictureCanvas = pictureRecorder.beginRecording(bounds.toSkiaRect())
+            val pictureCanvas = pictureRecorder.beginRecording(
+                // The goal with selecting the size of the rectangle here is to avoid limiting the
+                // drawable area as much as possible.
+                // Due to https://partnerissuetracker.corp.google.com/issues/324465764 we have to
+                // leave room for scale between the values we specify here and Float.MAX_VALUE.
+                // The maximum possible scale that can be applied to the canvas will be
+                // Float.MAX_VALUE divided by the largest value below.
+                // 2^30 was chosen because it's big enough, leaves quite a lot of room between it
+                // and Float.MAX_VALUE, and also lets the width and height fit into int32 (just in
+                // case).
+                org.jetbrains.skia.Rect.makeLTRB(
+                    l = -(1 shl 30).toFloat(),
+                    t = -(1 shl 30).toFloat(),
+                    r = ((1 shl 30)-1).toFloat(),
+                    b = ((1 shl 30)-1).toFloat()
+                )
+            )
             performDrawLayer(pictureCanvas.asComposeCanvas(), bounds)
             picture = pictureRecorder.finishRecordingAsPicture()
         }
