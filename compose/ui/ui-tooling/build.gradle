@@ -40,8 +40,8 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                api("androidx.compose.runtime:runtime:1.6.0")
                 api(project(":compose:ui:ui-tooling-preview"))
-                api(project(":compose:runtime:runtime"))
                 api(project(":compose:ui:ui"))
                 api(project(":compose:ui:ui-tooling-data"))
             }
@@ -49,7 +49,6 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-
             }
         }
 

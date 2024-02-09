@@ -41,9 +41,10 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
 
-                api(project(":compose:ui:ui"))
-                implementation(project(":compose:runtime:runtime"))
+                api("androidx.compose.ui:ui:1.6.0")
+                implementation("androidx.compose.runtime:runtime:1.6.0")
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":compose:ui:ui-unit"))
             }
         }
 
@@ -57,7 +58,6 @@ androidXMultiplatform {
             dependencies {
             }
         }
-
 
         androidMain {
             dependsOn(jvmMain)
@@ -73,9 +73,6 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
-
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
             }
         }
 
