@@ -24,11 +24,14 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
+import androidx.compose.ui.toDpOffset
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.ComposeContainer
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.ProvideContainerCompositionLocals
@@ -36,12 +39,14 @@ import androidx.compose.ui.window.RenderingUIView
 import kotlin.coroutines.CoroutineContext
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
+import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSize
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIColor
 import platform.UIKit.UIEvent
+import platform.UIKit.UITouch
 import platform.UIKit.UIView
 import platform.UIKit.UIViewControllerTransitionCoordinatorProtocol
 
@@ -62,21 +67,44 @@ internal class UIViewComposeSceneLayer(
     private val backgroundView: UIView = object : UIView(
         frame = CGRectZero.readValue()
     ) {
-        init {
-            translatesAutoresizingMaskIntoConstraints = false
-            rootView.addSubview(this)
-            NSLayoutConstraint.activateConstraints(
-                getConstraintsToFillParent(this, rootView)
-            )
+
+        private var previousSuccessHitTestTimestamp: Double? = null
+
+        private fun touchStartedOutside(withEvent: UIEvent?) {
+            if (previousSuccessHitTestTimestamp != withEvent?.timestamp) {
+                // This workaround needs to send PointerEventType.Press just once
+                previousSuccessHitTestTimestamp = withEvent?.timestamp
+                onOutsidePointerEvent?.invoke(PointerEventType.Press)
+            }
         }
 
-        override fun pointInside(point: CValue<CGPoint>, withEvent: UIEvent?): Boolean {
-            //TODO pass invoke(true) on touch up event only when this touch event begins outside of layer bounds.
-            // Also it should be only one touch event (not multitouch with 2 and more touches).
-            // In other cases pass invoke(false)
-            onOutsidePointerEvent?.invoke(PointerEventType.Press)
-            onOutsidePointerEvent?.invoke(PointerEventType.Release)
-            return focusable
+        /**
+         * touchesEnded calls only when focused == true
+         */
+        override fun touchesEnded(touches: Set<*>, withEvent: UIEvent?) {
+            val touch = touches.firstOrNull() as? UITouch
+            val locationInView = touch?.locationInView(this)
+            if (locationInView != null) {
+                val offset = locationInView.useContents { toDpOffset() }
+                val contains = boundsInWindow.contains(offset.toOffset(density).round())
+                if (!contains) {
+                    onOutsidePointerEvent?.invoke(PointerEventType.Release)
+                }
+            }
+            super.touchesEnded(touches, withEvent)
+        }
+
+        override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
+            if (
+                mediator.hitTestInteractionView(point, withEvent) == null &&
+                super.hitTest(point, withEvent) == this
+            ) {
+                touchStartedOutside(withEvent)
+                if (focusable) {
+                    return this // block touches
+                }
+            }
+            return null // transparent for touches
         }
     }
 
@@ -95,6 +123,11 @@ internal class UIViewComposeSceneLayer(
     }
 
     init {
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+        rootView.addSubview(backgroundView)
+        NSLayoutConstraint.activateConstraints(
+            getConstraintsToFillParent(backgroundView, rootView)
+        )
         composeContainer.attachLayer(this)
     }
 

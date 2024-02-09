@@ -348,6 +348,9 @@ internal class ComposeSceneMediator(
         }
     }
 
+    fun hitTestInteractionView(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? =
+        interactionView.hitTest(point, withEvent)
+
     init {
         renderingView.onAttachedToWindow = {
             renderingView.onAttachedToWindow = null
