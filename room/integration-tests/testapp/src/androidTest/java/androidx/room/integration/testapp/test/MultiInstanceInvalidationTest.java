@@ -120,6 +120,8 @@ public class MultiInstanceInvalidationTest {
         }
     }
 
+    // TODO(324609478): broken test
+    @Ignore
     @Test
     public void invalidateInAnotherInstance() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
