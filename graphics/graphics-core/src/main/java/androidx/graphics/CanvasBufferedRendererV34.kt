@@ -25,6 +25,7 @@ import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
+import androidx.graphics.surface.JniBindings
 import androidx.hardware.BufferPool
 import androidx.hardware.FileDescriptorMonitor
 import androidx.hardware.SyncFenceCompat
@@ -179,7 +180,8 @@ internal class CanvasBufferedRendererV34(
         private var sharedFdMonitor: SharedFileDescriptorMonitor? = null
 
         fun obtainSharedFdMonitor(): SharedFileDescriptorMonitor? {
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val isVulkan = JniBindings.nIsHwuiUsingVulkanRenderer()
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE && isVulkan) {
                 // See b/295332012
                 monitorLock.withLock {
                     var monitor = sharedFdMonitor

@@ -39,9 +39,41 @@ internal class FileDescriptorMonitor(
     private val mIsManagingHandlerThread = AtomicBoolean(false)
     private var mExecutor: HandlerThreadExecutor
 
+    private data class FdSignalPair(val fd: Int, val signalTime: Long)
+    private val pendingFileDescriptors = ArrayList<FdSignalPair>()
+
     init {
         mExecutor = executor ?: HandlerThreadExecutor("fdcleanup")
         mIsManagingHandlerThread.set(manageExecutor)
+    }
+
+    private fun closePendingFileDescriptors() {
+        pendingFileDescriptors.sortByDescending { fdSignalTimePair -> fdSignalTimePair.signalTime }
+        while (pendingFileDescriptors.size > MAX_FD) {
+            val fdSignalPair = pendingFileDescriptors.removeLast()
+            try {
+                val fd = fdSignalPair.fd
+                // Re-query the signal time in case the fd was re-used
+                val signalTime = SyncFenceBindings.nGetSignalTime(fd)
+                val diff = signalTime.signalTimeDiffMillis()
+                if (diff > SIGNAL_TIME_DELTA_MILLIS) {
+                    SyncFenceBindings.nForceClose(fd)
+                }
+            } catch (_: Throwable) {
+                // Just in case the owner actually does close the fd
+            }
+        }
+    }
+
+    private fun Long.signalTimeDiffMillis(): Long {
+        val now = System.nanoTime()
+        val signalled = this != SyncFenceCompat.SIGNAL_TIME_INVALID &&
+            this != SyncFenceCompat.SIGNAL_TIME_PENDING
+        return if (signalled && now > this) {
+            TimeUnit.NANOSECONDS.toMillis(now - this)
+        } else {
+            -1
+        }
     }
 
     private val mCleanupRunnable = Runnable {
@@ -50,16 +82,14 @@ internal class FileDescriptorMonitor(
                 try {
                     val fd = Integer.parseInt(file.name)
                     val signalTime = SyncFenceBindings.nGetSignalTime(fd)
-                    val hasSignaled = signalTime != SyncFenceCompat.SIGNAL_TIME_INVALID &&
-                        signalTime != SyncFenceCompat.SIGNAL_TIME_PENDING
-                    val now = System.nanoTime()
-                    val diff = if (hasSignaled && now > signalTime) {
-                        TimeUnit.NANOSECONDS.toMillis(now - signalTime)
-                    } else {
-                        -1
-                    }
+                    val diff = signalTime.signalTimeDiffMillis()
                     if (diff > SIGNAL_TIME_DELTA_MILLIS) {
-                        SyncFenceBindings.nForceClose(fd);
+                        // Store the signal time as it can potentially change in the middle of
+                        // executing the sorting algorithm and can throw exceptions
+                        pendingFileDescriptors.add(FdSignalPair(fd, signalTime))
+                        if (pendingFileDescriptors.size > MAX_FD) {
+                            closePendingFileDescriptors()
+                        }
                     }
                 } catch (formatException: NumberFormatException) {
                     Log.w(TAG, "Unable to parse fd value from name ${file.name}")
@@ -147,8 +177,10 @@ internal class FileDescriptorMonitor(
         /**
          * Delta in which if a fence has signalled it should be removed
          */
-        const val SIGNAL_TIME_DELTA_MILLIS = 1000
+        const val SIGNAL_TIME_DELTA_MILLIS = 3000
 
         const val MONITOR_DELAY = 1000L
+
+        const val MAX_FD = 100
     }
 }
