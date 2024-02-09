@@ -17,18 +17,20 @@
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
 import android.app.sdksandbox.LoadSdkException
+import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.os.Bundle
+import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
-import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.toLoadCompatSdkException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import kotlinx.coroutines.suspendCancellableCoroutine
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import java.util.concurrent.Executor
 
 /**
  * Trying to load SDK using [SdkSandboxController].
@@ -39,47 +41,74 @@ internal class PlatformSdkLoader private constructor(
     private val loaderImpl: LoaderImpl
 ) {
 
-    suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat =
-        loaderImpl.loadSdk(sdkName, params)
+    fun loadSdk(
+        sdkName: String,
+        params: Bundle,
+        executor: Executor,
+        receiver: SdkSandboxControllerCompat.LoadSdkCallback
+    ) {
+        loaderImpl.loadSdk(sdkName, params, executor, receiver)
+    }
 
     private interface LoaderImpl {
-        suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
+        fun loadSdk(
+            sdkName: String,
+            params: Bundle,
+            executor: Executor,
+            callback: SdkSandboxControllerCompat.LoadSdkCallback
+        )
     }
 
     /**
      * Implementation for cases when API not supported by [SdkSandboxController]
      */
     private object FailImpl : LoaderImpl {
-        override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
-            throw LoadSdkCompatException(
-                LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
-                "Loading SDK not supported on this device"
-            )
+        override fun loadSdk(
+            sdkName: String,
+            params: Bundle,
+            executor: Executor,
+            callback: SdkSandboxControllerCompat.LoadSdkCallback
+        ) {
+            executor.execute {
+                callback.onError(
+                    LoadSdkCompatException(
+                        LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
+                        "Loading SDK not supported on this device"
+                    )
+                )
+            }
         }
     }
 
     /**
      * Implementation for AdServices V10.
      */
+    @RequiresApi(34)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 10)
     private class ApiAdServicesV10Impl(
         private val controller: SdkSandboxController
     ) : LoaderImpl {
         @DoNotInline
-        override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
-            try {
-                val sandboxedSdk = suspendCancellableCoroutine { continuation ->
-                    controller.loadSdk(
-                        sdkName,
-                        params,
-                        Runnable::run,
-                        continuation.asOutcomeReceiver()
-                    )
+        override fun loadSdk(
+            sdkName: String,
+            params: Bundle,
+            executor: Executor,
+            callback: SdkSandboxControllerCompat.LoadSdkCallback
+        ) {
+            controller.loadSdk(
+                sdkName,
+                params,
+                executor,
+                object : OutcomeReceiver<SandboxedSdk, LoadSdkException> {
+                    override fun onResult(result: SandboxedSdk) {
+                        callback.onResult(SandboxedSdkCompat(result))
+                    }
+
+                    override fun onError(error: LoadSdkException) {
+                        callback.onError(toLoadCompatSdkException(error))
+                    }
                 }
-                return SandboxedSdkCompat(sandboxedSdk)
-            } catch (ex: LoadSdkException) {
-                throw toLoadCompatSdkException(ex)
-            }
+            )
         }
     }
 

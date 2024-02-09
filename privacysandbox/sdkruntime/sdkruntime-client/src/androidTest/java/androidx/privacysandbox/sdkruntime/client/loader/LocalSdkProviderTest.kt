@@ -41,6 +41,7 @@ import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import dalvik.system.BaseDexClassLoader
 import java.io.File
+import java.util.concurrent.Executor
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -319,8 +320,20 @@ internal class LocalSdkProviderTest(
         var sdkActivityHandlers: MutableMap<IBinder, SdkSandboxActivityHandlerCompat> =
             mutableMapOf()
 
-        override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
-            throw UnsupportedOperationException("Shouldn't be called")
+        override fun loadSdk(
+            sdkName: String,
+            params: Bundle,
+            executor: Executor,
+            callback: SdkSandboxControllerCompat.LoadSdkCallback
+        ) {
+            executor.execute {
+                callback.onError(
+                    LoadSdkCompatException(
+                        LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
+                        "Shouldn't be called"
+                    )
+                )
+            }
         }
 
         override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
