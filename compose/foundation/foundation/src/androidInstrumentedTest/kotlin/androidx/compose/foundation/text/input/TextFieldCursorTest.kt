@@ -754,7 +754,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertDoesNotContainColor(cursorColor)
     }
 
-    @Ignore("b/305799612")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun focusedTextField_resumeBlinking_whenWindowRegainsFocus() {

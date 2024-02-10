@@ -16,10 +16,10 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
+import androidx.compose.foundation.text.input.internal.CursorAnimationState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -31,11 +31,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastCoerceIn
-import kotlinx.coroutines.withContext
 
 internal fun Modifier.cursor(
     state: LegacyTextFieldState,
@@ -44,21 +43,20 @@ internal fun Modifier.cursor(
     cursorBrush: Brush,
     enabled: Boolean
 ) = if (enabled) composed {
-    val cursorAlpha = remember { Animatable(1f) }
+    val cursorAnimation = remember { CursorAnimationState() }
+    // Don't bother animating the cursor if it wouldn't draw any pixels.
     val isBrushSpecified = !(cursorBrush is SolidColor && cursorBrush.value.isUnspecified)
-    if (state.hasFocus && value.selection.collapsed && isBrushSpecified) {
+    // Only animate the cursor when its window is actually focused. This also disables the cursor
+    // animation when the screen is off.
+    // TODO confirm screen-off behavior.
+    val isWindowFocused = LocalWindowInfo.current.isWindowFocused
+    if (isWindowFocused && state.hasFocus && value.selection.collapsed && isBrushSpecified) {
         LaunchedEffect(value.annotatedString, value.selection) {
-            // Animate the cursor even when animations are disabled by the system.
-            withContext(FixedMotionDurationScale) {
-                // ensure that the value is always 1f _this_ frame by calling snapTo
-                cursorAlpha.snapTo(1f)
-                // then start the cursor blinking on animation clock (500ms on to start)
-                cursorAlpha.animateTo(0f, cursorAnimationSpec)
-            }
+            cursorAnimation.snapToVisibleAndAnimate()
         }
         drawWithContent {
             this.drawContent()
-            val cursorAlphaValue = cursorAlpha.value.fastCoerceIn(0f, 1f)
+            val cursorAlphaValue = cursorAnimation.cursorAlpha
             if (cursorAlphaValue != 0f) {
                 val transformedOffset = offsetMapping
                     .originalToTransformed(value.selection.start)
