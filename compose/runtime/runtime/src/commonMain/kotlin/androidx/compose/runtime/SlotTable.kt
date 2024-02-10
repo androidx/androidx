@@ -364,6 +364,14 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
                         val nearestScope = findEffectiveRecomposeScope(reader.currentGroup)
                         if (nearestScope != null) {
                             scopes.add(nearestScope)
+                            if (nearestScope.anchor?.location == reader.currentGroup) {
+                                // For the group that contains the restart group then, in some
+                                // cases, such as when the parameter names of a function change,
+                                // the restart lambda can be invalid if it is called. To avoid this
+                                // the scope parent scope needs to be invalidated too.
+                                val parentScope = findEffectiveRecomposeScope(reader.parent)
+                                parentScope?.let { scopes.add(it) }
+                            }
                         } else {
                             allScopesFound = false
                             scopes.clear()
