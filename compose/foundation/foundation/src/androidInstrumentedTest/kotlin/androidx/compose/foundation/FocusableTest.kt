@@ -35,6 +35,7 @@ import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -479,6 +480,17 @@ class FocusableTest {
                 "enabled",
                 "interactionSource"
             )
+    }
+
+    @Test
+    fun focusable_equality() {
+        val interactionSource = MutableInteractionSource()
+        assertModifierIsPure { toggleInput ->
+            Modifier.focusable(
+                enabled = toggleInput,
+                interactionSource = interactionSource,
+            )
+        }
     }
 
     @Test
