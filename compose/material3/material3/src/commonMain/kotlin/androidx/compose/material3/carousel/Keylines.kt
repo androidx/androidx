@@ -100,27 +100,29 @@ internal fun multiBrowseKeylineList(
     return if (arrangement == null) {
         null
     } else {
-        createStartAlignedKeylineList(
+        createLeftAlignedKeylineList(
             carouselMainAxisSize = carouselMainAxisSize,
-            anchorSize = anchorSize,
+            leftAnchorSize = anchorSize,
+            rightAnchorSize = anchorSize,
             arrangement = arrangement
         )
     }
 }
 
-internal fun createStartAlignedKeylineList(
+internal fun createLeftAlignedKeylineList(
     carouselMainAxisSize: Float,
-    anchorSize: Float,
+    leftAnchorSize: Float,
+    rightAnchorSize: Float,
     arrangement: Arrangement
 ): KeylineList {
     return keylineListOf(carouselMainAxisSize, CarouselAlignment.Start) {
-        add(anchorSize, isAnchor = true)
+        add(leftAnchorSize, isAnchor = true)
 
         repeat(arrangement.largeCount) { add(arrangement.largeSize) }
         repeat(arrangement.mediumCount) { add(arrangement.mediumSize) }
         repeat(arrangement.smallCount) { add(arrangement.smallSize) }
 
-        add(anchorSize, isAnchor = true)
+        add(rightAnchorSize, isAnchor = true)
     }
 }
 
@@ -171,12 +173,13 @@ internal fun uncontainedKeylineList(
     )
 
     val xSmallSize = min(defaultAnchorSize, itemSize)
-    // Make the anchor size half the cut off item size to make the motion at the left closer
+    // Make the left anchor size half the cut off item size to make the motion at the left closer
     // to the right where the cut off is.
-    val anchorSize: Float = max(xSmallSize, mediumItemSize * 0.5f)
-    return createStartAlignedKeylineList(
+    val leftAnchorSize: Float = max(xSmallSize, mediumItemSize * 0.5f)
+    return createLeftAlignedKeylineList(
         carouselMainAxisSize = carouselMainAxisSize,
-        anchorSize = anchorSize,
+        leftAnchorSize = leftAnchorSize,
+        rightAnchorSize = defaultAnchorSize,
         arrangement = arrangement)
 }
 
