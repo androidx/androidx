@@ -37,6 +37,7 @@ import androidx.build.testConfiguration.TestModule
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.configureTestConfigGeneration
 import androidx.build.uptodatedness.TaskUpToDateValidator
+import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
@@ -782,9 +783,31 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         libraryExtension.defaultPublishVariant { libraryVariant ->
             reportLibraryMetrics.configure {
                 it.jarFiles.from(
-                    libraryVariant.packageLibraryProvider.map { zip -> zip.inputs.files }
+                    libraryVariant.packageLibraryProvider.map { zip ->
+                        zip.inputs.files
+                    }
                 )
             }
+        }
+
+        val prebuiltLibraries = listOf("libtracing_perfetto.so", "libc++_shared.so")
+        libraryAndroidComponentsExtension.onVariants { variant ->
+            val verifyELFRegionAlignmentTaskProvider = project.tasks.register(
+                variant.name + "VerifyELFRegionAlignment",
+                VerifyELFRegionAlignmentTask::class.java
+            ) { task ->
+                task.files.from(
+                    variant.artifacts.get(SingleArtifact.MERGED_NATIVE_LIBS)
+                        .map { dir ->
+                            dir.asFileTree.files
+                                .filter { it.extension == "so" }
+                                .filter { it.path.contains("arm64-v8a") }
+                                .filterNot { prebuiltLibraries.contains(it.name) }
+                        }
+                )
+                task.cacheEvenIfNoOutputs()
+            }
+            project.addToBuildOnServer(verifyELFRegionAlignmentTaskProvider)
         }
 
         // Standard docs, resource API, and Metalava configuration for AndroidX projects.
