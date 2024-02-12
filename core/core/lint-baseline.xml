@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.4.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha07)" variant="all" version="8.4.0-alpha07">
 
     <issue
         id="NewApi"
@@ -575,15 +575,6 @@
         errorLine2="        ~~~~~">
         <location
             file="src/androidTest/java/androidx/core/widget/TestContentView.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 26 (current min is 19): `OreoCallback`"
-        errorLine1="        if (callback instanceof OreoCallback &amp;&amp; Build.VERSION.SDK_INT >= 26) {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/TextViewCompat.java"/>
     </issue>
 
     <issue
