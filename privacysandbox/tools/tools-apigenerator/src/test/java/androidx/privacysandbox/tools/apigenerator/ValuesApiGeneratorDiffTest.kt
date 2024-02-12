@@ -28,6 +28,7 @@ class ValuesApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
         "com/sdkwithvalues/ISdkInterface.java",
         "com/sdkwithvalues/ISdkResponseTransactionCallback.java",
         "com/sdkwithvalues/IListSdkResponseTransactionCallback.java",
+        "com/sdkwithvalues/IRequestFlagTransactionCallback.java",
         "com/sdkwithvalues/ParcelableInnerSdkValue.java",
         "com/sdkwithvalues/ParcelableSdkRequest.java",
         "com/sdkwithvalues/ParcelableSdkResponse.java",
