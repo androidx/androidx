@@ -46,23 +46,6 @@ public class TypeBuildersTest {
                     .setDynamicValue(DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)))
                     .build();
 
-    @SuppressWarnings("deprecation") // Intentionally no static value.
-    private static final TypeBuilders.FloatProp.Builder FLOAT_PROP_WITHOUT_STATIC_VALUE =
-            new TypeBuilders.FloatProp.Builder()
-                    .setDynamicValue(
-                            DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)));
-
-    @SuppressWarnings("deprecation") // Intentionally no static value.
-    private static final TypeBuilders.StringProp.Builder STRING_PROP_BUILDER_WITHOUT_STATIC_VALUE =
-            new TypeBuilders.StringProp.Builder()
-                    .setDynamicValue(
-                            DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)));
-
-    @SuppressWarnings("deprecation") // Intentionally no static value.
-    private static final TypeBuilders.BoolProp.Builder BOOL_PROP_BUILDER_WITHOUT_STATIC_VALUE =
-            new TypeBuilders.BoolProp.Builder()
-                    .setDynamicValue(DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)));
-
     @Test
     public void stringPropSupportsDynamicString() {
         TypesProto.StringProp stringPropProto = STRING_PROP.toProto();
@@ -72,9 +55,12 @@ public class TypeBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void stringProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, STRING_PROP_BUILDER_WITHOUT_STATIC_VALUE::build);
+        assertThrows(IllegalStateException.class, new TypeBuilders.StringProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)))::build);
     }
 
     @Test
@@ -100,9 +86,12 @@ public class TypeBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void floatProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, FLOAT_PROP_WITHOUT_STATIC_VALUE::build);
+        assertThrows(IllegalStateException.class, new TypeBuilders.FloatProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))::build);
     }
 
     @Test
@@ -114,8 +103,11 @@ public class TypeBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void boolProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, BOOL_PROP_BUILDER_WITHOUT_STATIC_VALUE::build);
+        assertThrows(IllegalStateException.class, new TypeBuilders.BoolProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)))::build);
     }
 }

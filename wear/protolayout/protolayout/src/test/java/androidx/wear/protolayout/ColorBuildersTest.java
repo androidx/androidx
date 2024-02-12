@@ -38,12 +38,6 @@ public class ColorBuildersTest {
                     .setDynamicValue(DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)))
                     .build();
 
-    @SuppressWarnings("deprecation") // Intentionally no static value.
-    private static final ColorBuilders.ColorProp.Builder COLOR_BUILDER_WITHOUT_STATIC_VALUE =
-            new ColorBuilders.ColorProp.Builder()
-                    .setDynamicValue(
-                            DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)));
-
     @Test
     public void colorPropSupportsDynamicColor() {
         ColorProto.ColorProp colorPropProto = COLOR.toProto();
@@ -53,8 +47,11 @@ public class ColorBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void colorProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, COLOR_BUILDER_WITHOUT_STATIC_VALUE::build);
+        assertThrows(IllegalStateException.class, new ColorBuilders.ColorProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)))::build);
     }
 }
