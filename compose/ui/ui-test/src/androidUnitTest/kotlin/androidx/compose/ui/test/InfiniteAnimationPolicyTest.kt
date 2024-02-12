@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.junit4
+package androidx.compose.ui.test
 
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.animation.core.withInfiniteAnimationFrameNanos
