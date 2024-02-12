@@ -34,6 +34,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import java.util.concurrent.Executor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.fail
 import org.junit.Before
@@ -168,6 +169,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         1,
         0,
         executor,
+        Dispatchers.Default,
         taskExecutor,
         configuration.workerFactory,
         progressUpdater,

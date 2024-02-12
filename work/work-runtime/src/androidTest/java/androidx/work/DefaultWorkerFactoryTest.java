@@ -39,6 +39,8 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.Executor;
 
+import kotlinx.coroutines.Dispatchers;
+
 @RunWith(AndroidJUnit4.class)
 public class DefaultWorkerFactoryTest extends DatabaseTest {
 
@@ -73,6 +75,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         1,
                         0,
                         executor,
+                        Dispatchers.getDefault(),
                         new WorkManagerTaskExecutor(executor),
                         mDefaultWorkerFactory,
                         mProgressUpdater,
@@ -101,6 +104,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                             1,
                             0,
                             executor,
+                            Dispatchers.getDefault(),
                             new WorkManagerTaskExecutor(executor),
                             mDefaultWorkerFactory,
                             mProgressUpdater,

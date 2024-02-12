@@ -239,6 +239,7 @@ public class RemoteListenableWorkerTest {
             0,
             0,
             mConfiguration.executor,
+            mConfiguration.workerCoroutineContext,
             mTaskExecutor,
             mConfiguration.workerFactory,
             progressUpdater,
