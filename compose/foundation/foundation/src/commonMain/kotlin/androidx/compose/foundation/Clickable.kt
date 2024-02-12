@@ -497,7 +497,6 @@ private class ClickableElement(
         )
     }
 
-    // Defined in the factory functions with inspectable
     override fun InspectorInfo.inspectableProperties() {
         name = "clickable"
         properties["enabled"] = enabled
@@ -573,7 +572,6 @@ private class CombinedClickableElement(
         )
     }
 
-    // Defined in the factory functions with inspectable
     override fun InspectorInfo.inspectableProperties() {
         name = "combinedClickable"
         properties["indicationNodeFactory"] = indicationNodeFactory

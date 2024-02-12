@@ -65,6 +65,7 @@ import kotlinx.coroutines.launch
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * [FocusInteraction.Focus] when this element is being focused.
  */
+@Stable
 fun Modifier.focusable(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,

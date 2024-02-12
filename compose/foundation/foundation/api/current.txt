@@ -127,7 +127,7 @@ package androidx.compose.foundation {
 
   public final class FocusableKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier focusGroup(androidx.compose.ui.Modifier);
-    method public static androidx.compose.ui.Modifier focusable(androidx.compose.ui.Modifier, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier focusable(androidx.compose.ui.Modifier, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
   public final class FocusedBoundsKt {
@@ -135,7 +135,7 @@ package androidx.compose.foundation {
   }
 
   public final class HoverableKt {
-    method public static androidx.compose.ui.Modifier hoverable(androidx.compose.ui.Modifier, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional boolean enabled);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier hoverable(androidx.compose.ui.Modifier, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional boolean enabled);
   }
 
   public final class ImageKt {
