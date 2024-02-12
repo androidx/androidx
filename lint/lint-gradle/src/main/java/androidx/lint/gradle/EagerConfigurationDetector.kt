@@ -95,7 +95,7 @@ class EagerConfigurationDetector : Detector(), Detector.UastScanner {
             "whenObjectAdded" to Pair(DOMAIN_OBJECT_COLLECTION, "configureEach"),
             "getAt" to Pair(TASK_COLLECTION, "named"),
             "getByPath" to Pair(TASK_CONTAINER, null),
-            "findByName" to Pair(NAMED_DOMAIN_OBJECT_COLLECTION, null),
+            "findByName" to Pair(TASK_CONTAINER, null),
             "findByPath" to Pair(TASK_CONTAINER, null),
             "replace" to Pair(TASK_CONTAINER, null),
             "remove" to Pair(TASK_CONTAINER, null),
