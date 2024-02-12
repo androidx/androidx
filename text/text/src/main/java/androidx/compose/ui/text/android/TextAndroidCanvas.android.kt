@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text.android
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BlendMode
 import android.graphics.Canvas
@@ -34,6 +33,7 @@ import android.graphics.RenderNode
 import android.graphics.fonts.Font
 import android.graphics.text.MeasuredText
 import android.os.Build
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /**
@@ -41,7 +41,6 @@ import androidx.annotation.RequiresApi
  * androidx.compose.ui.graphics.Canvas#nativeCanvas. This implementation delegates all methods to
  * the original nativeCanvas apart from `getClipBounds(Rect)`
  */
-@SuppressLint("ClassVerificationFailure")
 @Suppress("DEPRECATION")
 internal class TextAndroidCanvas : Canvas() {
     /**
@@ -72,12 +71,12 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun enableZ() {
-        nativeCanvas.enableZ()
+        CanvasCompatQ.enableZ(nativeCanvas)
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun disableZ() {
-        nativeCanvas.disableZ()
+        CanvasCompatQ.disableZ(nativeCanvas)
     }
 
     override fun isOpaque(): Boolean {
@@ -253,22 +252,22 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun clipOutRect(rect: RectF): Boolean {
-        return nativeCanvas.clipOutRect(rect)
+        return CanvasCompatO.clipOutRect(nativeCanvas, rect)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun clipOutRect(rect: Rect): Boolean {
-        return nativeCanvas.clipOutRect(rect)
+        return CanvasCompatO.clipOutRect(nativeCanvas, rect)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun clipOutRect(left: Float, top: Float, right: Float, bottom: Float): Boolean {
-        return nativeCanvas.clipOutRect(left, top, right, bottom)
+        return CanvasCompatO.clipOutRect(nativeCanvas, left, top, right, bottom)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun clipOutRect(left: Int, top: Int, right: Int, bottom: Int): Boolean {
-        return nativeCanvas.clipOutRect(left, top, right, bottom)
+        return CanvasCompatO.clipOutRect(nativeCanvas, left, top, right, bottom)
     }
 
     @Deprecated("Deprecated in Java")
@@ -282,7 +281,7 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun clipOutPath(path: Path): Boolean {
-        return nativeCanvas.clipOutPath(path)
+        return CanvasCompatO.clipOutPath(nativeCanvas, path)
     }
 
     override fun getDrawFilter() = nativeCanvas.drawFilter
@@ -298,7 +297,7 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun quickReject(rect: RectF): Boolean {
-        return nativeCanvas.quickReject(rect)
+        return CanvasCompatR.quickReject(nativeCanvas, rect)
     }
 
     @Deprecated("Deprecated in Java")
@@ -308,7 +307,7 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun quickReject(path: Path): Boolean {
-        return nativeCanvas.quickReject(path)
+        return CanvasCompatR.quickReject(nativeCanvas, path)
     }
 
     @Deprecated("Deprecated in Java")
@@ -324,7 +323,7 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun quickReject(left: Float, top: Float, right: Float, bottom: Float): Boolean {
-        return nativeCanvas.quickReject(left, top, right, bottom)
+        return CanvasCompatR.quickReject(nativeCanvas, left, top, right, bottom)
     }
 
     override fun drawPicture(picture: Picture) {
@@ -444,7 +443,7 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun drawColor(color: Long) {
-        nativeCanvas.drawColor(color)
+        CanvasCompatQ.drawColor(nativeCanvas, color)
     }
 
     override fun drawColor(color: Int, mode: PorterDuff.Mode) {
@@ -453,12 +452,12 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun drawColor(color: Int, mode: BlendMode) {
-        nativeCanvas.drawColor(color, mode)
+        CanvasCompatQ.drawColor(nativeCanvas, color, mode)
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun drawColor(color: Long, mode: BlendMode) {
-        nativeCanvas.drawColor(color, mode)
+        CanvasCompatQ.drawColor(nativeCanvas, color, mode)
     }
 
     override fun drawLine(startX: Float, startY: Float, stopX: Float, stopY: Float, paint: Paint) {
@@ -487,12 +486,12 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun drawPatch(patch: NinePatch, dst: Rect, paint: Paint?) {
-        nativeCanvas.drawPatch(patch, dst, paint)
+        CanvasCompatS.drawPatch(nativeCanvas, patch, dst, paint)
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun drawPatch(patch: NinePatch, dst: RectF, paint: Paint?) {
-        nativeCanvas.drawPatch(patch, dst, paint)
+        CanvasCompatS.drawPatch(nativeCanvas, patch, dst, paint)
     }
 
     override fun drawPath(path: Path, paint: Paint) {
@@ -569,7 +568,16 @@ internal class TextAndroidCanvas : Canvas() {
         innerRy: Float,
         paint: Paint
     ) {
-        nativeCanvas.drawDoubleRoundRect(outer, outerRx, outerRy, inner, innerRx, innerRy, paint)
+        CanvasCompatQ.drawDoubleRoundRect(
+            nativeCanvas,
+            outer,
+            outerRx,
+            outerRy,
+            inner,
+            innerRx,
+            innerRy,
+            paint
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -580,7 +588,7 @@ internal class TextAndroidCanvas : Canvas() {
         innerRadii: FloatArray,
         paint: Paint
     ) {
-        nativeCanvas.drawDoubleRoundRect(outer, outerRadii, inner, innerRadii, paint)
+        CanvasCompatQ.drawDoubleRoundRect(nativeCanvas, outer, outerRadii, inner, innerRadii, paint)
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -593,7 +601,8 @@ internal class TextAndroidCanvas : Canvas() {
         font: Font,
         paint: Paint
     ) {
-        nativeCanvas.drawGlyphs(
+        CanvasCompatS.drawGlyphs(
+            nativeCanvas,
             glyphIds,
             glyphIdOffset,
             positions,
@@ -668,7 +677,18 @@ internal class TextAndroidCanvas : Canvas() {
         isRtl: Boolean,
         paint: Paint
     ) {
-        nativeCanvas.drawTextRun(text, index, count, contextIndex, contextCount, x, y, isRtl, paint)
+        CanvasCompatM.drawTextRun(
+            nativeCanvas,
+            text,
+            index,
+            count,
+            contextIndex,
+            contextCount,
+            x,
+            y,
+            isRtl,
+            paint
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -683,7 +703,18 @@ internal class TextAndroidCanvas : Canvas() {
         isRtl: Boolean,
         paint: Paint
     ) {
-        nativeCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
+        CanvasCompatM.drawTextRun(
+            nativeCanvas,
+            text,
+            start,
+            end,
+            contextStart,
+            contextEnd,
+            x,
+            y,
+            isRtl,
+            paint
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -698,7 +729,18 @@ internal class TextAndroidCanvas : Canvas() {
         isRtl: Boolean,
         paint: Paint
     ) {
-        nativeCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
+        CanvasCompatQ.drawTextRun(
+            nativeCanvas,
+            text,
+            start,
+            end,
+            contextStart,
+            contextEnd,
+            x,
+            y,
+            isRtl,
+            paint
+        )
     }
 
     override fun drawVertices(
@@ -733,6 +775,201 @@ internal class TextAndroidCanvas : Canvas() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun drawRenderNode(renderNode: RenderNode) {
-        nativeCanvas.drawRenderNode(renderNode)
+        CanvasCompatQ.drawRenderNode(nativeCanvas, renderNode)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.M)
+private object CanvasCompatM {
+
+    @DoNotInline
+    fun drawTextRun(
+        canvas: Canvas,
+        text: CharArray,
+        index: Int,
+        count: Int,
+        contextIndex: Int,
+        contextCount: Int,
+        x: Float,
+        y: Float,
+        isRtl: Boolean,
+        paint: Paint
+    ) {
+        canvas.drawTextRun(text, index, count, contextIndex, contextCount, x, y, isRtl, paint)
+    }
+
+    @DoNotInline
+    fun drawTextRun(
+        canvas: Canvas,
+        text: CharSequence,
+        start: Int,
+        end: Int,
+        contextStart: Int,
+        contextEnd: Int,
+        x: Float,
+        y: Float,
+        isRtl: Boolean,
+        paint: Paint
+    ) {
+        canvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private object CanvasCompatO {
+
+    @DoNotInline
+    fun clipOutRect(canvas: Canvas, rect: RectF): Boolean {
+        return canvas.clipOutRect(rect)
+    }
+
+    @DoNotInline
+    fun clipOutRect(canvas: Canvas, rect: Rect): Boolean {
+        return canvas.clipOutRect(rect)
+    }
+
+    @DoNotInline
+    fun clipOutRect(canvas: Canvas, left: Float, top: Float, right: Float, bottom: Float): Boolean {
+        return canvas.clipOutRect(left, top, right, bottom)
+    }
+
+    @DoNotInline
+    fun clipOutRect(canvas: Canvas, left: Int, top: Int, right: Int, bottom: Int): Boolean {
+        return canvas.clipOutRect(left, top, right, bottom)
+    }
+
+    @DoNotInline
+    fun clipOutPath(canvas: Canvas, path: Path): Boolean {
+        return canvas.clipOutPath(path)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private object CanvasCompatQ {
+
+    @DoNotInline
+    fun enableZ(canvas: Canvas) {
+        canvas.enableZ()
+    }
+
+    @DoNotInline
+    fun disableZ(canvas: Canvas) {
+        canvas.disableZ()
+    }
+
+    @DoNotInline
+    fun drawColor(canvas: Canvas, color: Long) {
+        canvas.drawColor(color)
+    }
+
+    @DoNotInline
+    fun drawColor(canvas: Canvas, color: Int, mode: BlendMode) {
+        canvas.drawColor(color, mode)
+    }
+
+    @DoNotInline
+    fun drawColor(canvas: Canvas, color: Long, mode: BlendMode) {
+        canvas.drawColor(color, mode)
+    }
+
+    @DoNotInline
+    fun drawDoubleRoundRect(
+        canvas: Canvas,
+        outer: RectF,
+        outerRx: Float,
+        outerRy: Float,
+        inner: RectF,
+        innerRx: Float,
+        innerRy: Float,
+        paint: Paint
+    ) {
+        canvas.drawDoubleRoundRect(outer, outerRx, outerRy, inner, innerRx, innerRy, paint)
+    }
+
+    @DoNotInline
+    fun drawDoubleRoundRect(
+        canvas: Canvas,
+        outer: RectF,
+        outerRadii: FloatArray,
+        inner: RectF,
+        innerRadii: FloatArray,
+        paint: Paint
+    ) {
+        canvas.drawDoubleRoundRect(outer, outerRadii, inner, innerRadii, paint)
+    }
+
+    @DoNotInline
+    fun drawTextRun(
+        canvas: Canvas,
+        text: MeasuredText,
+        start: Int,
+        end: Int,
+        contextStart: Int,
+        contextEnd: Int,
+        x: Float,
+        y: Float,
+        isRtl: Boolean,
+        paint: Paint
+    ) {
+        canvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
+    }
+
+    @DoNotInline
+    fun drawRenderNode(canvas: Canvas, renderNode: RenderNode) {
+        canvas.drawRenderNode(renderNode)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+private object CanvasCompatR {
+
+    @DoNotInline
+    fun quickReject(canvas: Canvas, rect: RectF): Boolean {
+        return canvas.quickReject(rect)
+    }
+
+    @DoNotInline
+    fun quickReject(canvas: Canvas, path: Path): Boolean {
+        return canvas.quickReject(path)
+    }
+
+    @DoNotInline
+    fun quickReject(canvas: Canvas, left: Float, top: Float, right: Float, bottom: Float): Boolean {
+        return canvas.quickReject(left, top, right, bottom)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object CanvasCompatS {
+    @DoNotInline
+    fun drawPatch(canvas: Canvas, patch: NinePatch, dst: Rect, paint: Paint?) {
+        canvas.drawPatch(patch, dst, paint)
+    }
+
+    @DoNotInline
+    fun drawPatch(canvas: Canvas, patch: NinePatch, dst: RectF, paint: Paint?) {
+        canvas.drawPatch(patch, dst, paint)
+    }
+
+    @DoNotInline
+    fun drawGlyphs(
+        canvas: Canvas,
+        glyphIds: IntArray,
+        glyphIdOffset: Int,
+        positions: FloatArray,
+        positionOffset: Int,
+        glyphCount: Int,
+        font: Font,
+        paint: Paint
+    ) {
+        canvas.drawGlyphs(
+            glyphIds,
+            glyphIdOffset,
+            positions,
+            positionOffset,
+            glyphCount,
+            font,
+            paint
+        )
     }
 }
