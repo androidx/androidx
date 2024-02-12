@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +52,15 @@ public final class Fingerprint {
         this.selfPropsValue = DEFAULT_VALUE;
         this.childNodesValue = DEFAULT_VALUE;
         this.childNodes = null;
+    }
+
+    public Fingerprint(@NonNull NodeFingerprint proto) {
+        this.selfTypeValue = proto.getSelfTypeValue();
+        this.selfPropsValue = proto.getSelfPropsValue();
+        this.childNodesValue = proto.getChildNodesValue();
+        for (NodeFingerprint childNode : proto.getChildNodesList()) {
+            addChildNode(new Fingerprint(childNode));
+        }
     }
 
     /**
@@ -150,5 +160,22 @@ public final class Fingerprint {
 
     private void recordEntry(int entry) {
         selfPropsValue = (31 * selfPropsValue) + entry;
+    }
+
+    NodeFingerprint toProto() {
+        NodeFingerprint.Builder builder = NodeFingerprint.newBuilder();
+        if (selfTypeValue() != 0) {
+            builder.setSelfTypeValue(selfTypeValue());
+        }
+        if (selfPropsValue() != 0) {
+            builder.setSelfPropsValue(selfPropsValue());
+        }
+        if (childNodesValue() != 0) {
+            builder.setChildNodesValue(childNodesValue());
+        }
+        for (Fingerprint childNode : childNodes()) {
+            builder.addChildNodes(childNode.toProto());
+        }
+        return builder.build();
     }
 }
