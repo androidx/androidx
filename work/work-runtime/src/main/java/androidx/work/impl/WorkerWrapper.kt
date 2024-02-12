@@ -29,6 +29,7 @@ import androidx.work.Logger
 import androidx.work.WorkInfo
 import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
+import androidx.work.await
 import androidx.work.impl.background.systemalarm.RescheduleReceiver
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.model.DependencyDao
@@ -37,7 +38,6 @@ import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.model.generationalId
 import androidx.work.impl.utils.PackageManagerHelper
-import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
@@ -53,7 +53,6 @@ import java.util.UUID
 import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 
@@ -209,33 +208,13 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 return
             }
             val foregroundUpdater = params.foregroundUpdater
-            val dispatcher = workTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher()
-            val runExpedited = launchFuture(dispatcher + Job(), CoroutineStart.UNDISPATCHED) {
+            val mainDispatcher = workTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher()
+            val future = launchFuture(mainDispatcher + Job()) {
                 workForeground(appContext, workSpec, worker, foregroundUpdater, workTaskExecutor)
+                logd(TAG) { "Starting work for ${workSpec.workerClassName}" }
+                worker.startWork().await()
             }
-            // propagate cancellation to runExpedited
-            workerResultFuture.addListener({
-                if (workerResultFuture.isCancelled()) {
-                    runExpedited.cancel(true)
-                }
-            }, SynchronousExecutor())
-            runExpedited.addListener(Runnable {
-                // if mWorkerResultFuture is already cancelled don't even try to do anything.
-                // Naturally, the race between cancellation and mWorker.startWork() still can
-                // happen but we try to avoid doing unnecessary work when it is possible.
-                if (workerResultFuture.isCancelled()) {
-                    return@Runnable
-                }
-                try {
-                    runExpedited.get()
-                    logd(TAG) { "Starting work for ${workSpec.workerClassName}" }
-                    // Call mWorker.startWork() on the main thread.
-                    workerResultFuture.setFuture(worker.startWork())
-                } catch (e: Throwable) {
-                    workerResultFuture.setException(e)
-                }
-            }, workTaskExecutor.getMainThreadExecutor())
-
+            workerResultFuture.setFuture(future)
             // Avoid synthetic accessors.
             val workDescription = workDescription
             workerResultFuture.addListener({
