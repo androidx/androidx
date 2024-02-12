@@ -114,6 +114,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import kotlinx.coroutines.Dispatchers;
+
 @RunWith(AndroidJUnit4.class)
 public class WorkerWrapperTest extends DatabaseTest {
 
@@ -230,6 +232,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                                 1,
                                 0,
                                 mSynchronousExecutor,
+                                Dispatchers.getDefault(),
                                 mWorkTaskExecutor,
                                 mConfiguration.getWorkerFactory(),
                                 mMockProgressUpdater,
@@ -1007,6 +1010,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         1,
                         0,
                         mSynchronousExecutor,
+                        Dispatchers.getDefault(),
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
                         mMockProgressUpdater,
@@ -1036,6 +1040,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         1,
                         0,
                         mSynchronousExecutor,
+                        Dispatchers.getDefault(),
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
                         mMockProgressUpdater,
@@ -1056,6 +1061,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         1,
                         0,
                         mSynchronousExecutor,
+                        Dispatchers.getDefault(),
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
                         mMockProgressUpdater,
@@ -1085,6 +1091,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         1,
                         0,
                         mSynchronousExecutor,
+                        Dispatchers.getDefault(),
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
                         mMockProgressUpdater,
@@ -1115,6 +1122,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         1,
                         0,
                         mSynchronousExecutor,
+                        Dispatchers.getDefault(),
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
                         mMockProgressUpdater,
@@ -1149,6 +1157,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         1,
                         0,
                         mSynchronousExecutor,
+                        Dispatchers.getDefault(),
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
                         mMockProgressUpdater,
@@ -1397,6 +1406,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         1,
                         0,
                         executorService,
+                        Dispatchers.getDefault(),
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
                         mMockProgressUpdater,

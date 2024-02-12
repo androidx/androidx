@@ -27,8 +27,14 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.asExecutor
 
 /**
  * The Configuration object used to customize [WorkManager] upon initialization.
@@ -42,6 +48,11 @@ class Configuration internal constructor(builder: Builder) {
      * The [Executor] used by [WorkManager] to execute [Worker]s.
      */
     val executor: Executor
+
+    /**
+     * The [CoroutineContext] used by [WorkManager] to execute [CoroutineWorker]s.
+     */
+    val workerCoroutineContext: CoroutineContext
 
     /**
      * The [Executor] used by [WorkManager] for all its internal business logic
@@ -150,7 +161,19 @@ class Configuration internal constructor(builder: Builder) {
     val isUsingDefaultTaskExecutor: Boolean
 
     init {
-        executor = builder.executor ?: createDefaultExecutor(isTaskExecutor = false)
+        val builderWorkerDispatcher = builder.workerContext
+
+        executor = builder.executor ?: builderWorkerDispatcher?.asExecutor()
+            ?: createDefaultExecutor(isTaskExecutor = false)
+
+        workerCoroutineContext = when {
+            builderWorkerDispatcher != null -> builderWorkerDispatcher
+            // we don't want simply always use executor.asCoroutineDispatcher()
+            // as compatibility measure
+            builder.executor != null -> executor.asCoroutineDispatcher()
+            else -> Dispatchers.Default
+        }
+
         isUsingDefaultTaskExecutor = builder.taskExecutor == null
         // This executor is used for *both* WorkManager's tasks and Room's query executor.
         // So this should not be a single threaded executor. Writes will still be serialized
@@ -182,6 +205,7 @@ class Configuration internal constructor(builder: Builder) {
      */
     class Builder {
         internal var executor: Executor? = null
+        internal var workerContext: CoroutineContext? = null
         internal var workerFactory: WorkerFactory? = null
         internal var inputMergerFactory: InputMergerFactory? = null
         internal var taskExecutor: Executor? = null
@@ -226,7 +250,7 @@ class Configuration internal constructor(builder: Builder) {
             initializationExceptionHandler = configuration.initializationExceptionHandler
             schedulingExceptionHandler = configuration.schedulingExceptionHandler
             workerInitializationExceptionHandler =
-                    configuration.workerInitializationExceptionHandler
+                configuration.workerInitializationExceptionHandler
             workerExecutionExceptionHandler = configuration.workerExecutionExceptionHandler
             defaultProcessName = configuration.defaultProcessName
         }
@@ -254,13 +278,30 @@ class Configuration internal constructor(builder: Builder) {
         }
 
         /**
-         * Specifies a custom [Executor] for WorkManager.
+         * Specifies a custom [Executor] to run [Worker.doWork].
+         *
+         * If [setWorkerCoroutineContext] wasn't called then the [executor] will be used as
+         * [CoroutineDispatcher] to run [CoroutineWorker] as well.
          *
          * @param executor An [Executor] for running [Worker]s
          * @return This [Builder] instance
          */
         fun setExecutor(executor: Executor): Builder {
             this.executor = executor
+            return this
+        }
+
+        /**
+         * Specifies a custom [CoroutineDispatcher] to run [CoroutineWorker.doWork].
+         *
+         * If [setExecutor] wasn't called then [dispatcher] will be used as [Executor]
+         * to run [Worker] as well.
+         *
+         * @param dispatcher A [CoroutineDispatcher] for running [CoroutineWorker]s
+         * @return This [Builder] instance
+         */
+        fun setWorkerCoroutineContext(dispatcher: CoroutineDispatcher): Builder {
+            this.workerContext = dispatcher
             return this
         }
 
@@ -512,7 +553,7 @@ class Configuration internal constructor(builder: Builder) {
     }
 }
 
-internal val DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT = 8
+internal const val DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT = 8
 
 private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
     val factory = object : ThreadFactory {
@@ -529,3 +570,6 @@ private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
         factory
     )
 }
+
+private fun CoroutineContext?.asExecutor(): Executor? =
+    (this?.get(ContinuationInterceptor) as? CoroutineDispatcher)?.asExecutor()

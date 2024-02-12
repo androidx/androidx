@@ -18,33 +18,52 @@ package androidx.work
 
 import android.content.Context
 import com.google.common.util.concurrent.ListenableFuture
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.Runnable
 
 /**
- * A [ListenableWorker] implementation that provides interop with Kotlin Coroutines.  Override
+ * A [ListenableWorker] implementation that provides interop with Kotlin Coroutines. Override
  * the [doWork] function to do your suspending work.
- * <p>
- * By default, CoroutineWorker runs on [Dispatchers.Default]; this can be modified by
- * overriding [coroutineContext].
+ *
+ * By default, CoroutineWorker runs on [Dispatchers.Default] if neither
+ * [Configuration.Builder.setExecutor] or [Configuration.Builder.setWorkerCoroutineContext]
+ * were set.
+ *
  * <p>
  * A CoroutineWorker is given a maximum of ten minutes to finish its execution and return a
- * [ListenableWorker.Result].  After this time has expired, the worker will be signalled to stop.
+ * [ListenableWorker.Result]. After this time has expired, the worker will be signalled to stop.
  */
 public abstract class CoroutineWorker(
     appContext: Context,
-    params: WorkerParameters
+    private val params: WorkerParameters
 ) : ListenableWorker(appContext, params) {
 
     /**
-     * The coroutine context on which [doWork] will run. By default, this is [Dispatchers.Default].
+     * The coroutine context on which [doWork] will run.
+     *
+     * If this property is overridden then it takes precedent over [Configuration.executor] or
+     * [Configuration.workerCoroutineContext].
+     *
+     * By default, this is a dispatcher delegating to [Dispatchers.Default]
      */
     @Deprecated(message = "use withContext(...) inside doWork() instead.")
-    public open val coroutineContext: CoroutineDispatcher = Dispatchers.Default
+    public open val coroutineContext: CoroutineDispatcher = DeprecatedDispatcher
 
     @Suppress("DEPRECATION")
     public final override fun startWork(): ListenableFuture<Result> {
+        // if a developer didn't override coroutineContext property, then
+        // we use Dispatchers.Default directly.
+        // We can't fully implement delegating CoroutineDispatcher, because CoroutineDispatcher
+        // has experimental and internal apis.
+        val coroutineContext = if (coroutineContext != DeprecatedDispatcher) {
+            coroutineContext
+        } else {
+            params.workerContext
+        }
+
         return launchFuture(coroutineContext + Job()) { doWork() }
     }
 
@@ -106,5 +125,16 @@ public abstract class CoroutineWorker(
 
     public final override fun onStopped() {
         super.onStopped()
+    }
+
+    private object DeprecatedDispatcher : CoroutineDispatcher() {
+        val dispatcher = Dispatchers.Default
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            dispatcher.dispatch(context, block)
+        }
+
+        override fun isDispatchNeeded(context: CoroutineContext): Boolean {
+            return dispatcher.isDispatchNeeded(context)
+        }
     }
 }
