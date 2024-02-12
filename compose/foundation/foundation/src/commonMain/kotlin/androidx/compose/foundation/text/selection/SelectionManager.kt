@@ -304,6 +304,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             currentDragPosition = null
         }
 
+        // This function is meant to handle changes in the selectable content,
+        // such as the text changing.
         selectionRegistrar.onSelectableChangeCallback = { selectableKey ->
             if (selectableKey in selectionRegistrar.subselections) {
                 // Clear the selection range of each Selectable.
