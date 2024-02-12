@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.graphics.shapes.testcompose
 
 import android.content.Intent
-import android.graphics.Matrix
-import android.graphics.RectF
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
@@ -56,18 +56,15 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.scaleMatrix
 import androidx.fragment.app.FragmentActivity
 import androidx.graphics.shapes.Cubic
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.TransformResult
-import androidx.graphics.shapes.toPath
-import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.launch
 
@@ -76,8 +73,7 @@ fun PolygonComposable(
     polygon: RoundedPolygon,
     modifier: Modifier = Modifier,
     stroked: Boolean = false
-) =
-    PolygonComposableImpl(polygon, modifier, stroked = stroked)
+) = PolygonComposableImpl(polygon, modifier, stroked = stroked)
 
 @Composable
 private fun MorphComposable(
@@ -101,36 +97,20 @@ private fun MorphComposableImpl(
             .fillMaxSize()
             .drawWithContent {
                 drawContent()
-                val scale = min(size.width, size.height)
-                val composePath = setupPath(morph, progress, scale)
+                val path = morph.toPath(progress)
+                fitToViewport(path, morph.getBounds(), size)
                 if (isDebug) {
-                    drawPath(composePath, Color.Green, style = Stroke(2f))
+                    val scale = min(size.width, size.height)
+                    drawPath(path, Color.Green, style = Stroke(2f))
                     morph.forEachCubic(progress) { cubic ->
                         cubic.transform { x, y -> TransformResult(x * scale, y * scale) }
                         debugDraw(cubic)
                     }
                 } else {
                     val style = if (stroked) Stroke(size.width / 10f) else Fill
-                    drawPath(composePath, Color.White, style = style)
+                    drawPath(path, Color.White, style = style)
                 }
             })
-}
-
-private fun setupPath(morph: Morph, progress: Float, viewportSize: Float):
-    androidx.compose.ui.graphics.Path {
-    val path = morph.toPath(progress)
-    val pathBounds = RectF()
-    path.computeBounds(pathBounds, false)
-    val pathSize = max(pathBounds.width(), pathBounds.height())
-    val scaleFactor = viewportSize / pathSize
-    val pathCenterX = pathBounds.left + pathBounds.width() / 2
-    val pathCenterY = pathBounds.top + pathBounds.height() / 2
-    val matrix = Matrix()
-    matrix.setScale(scaleFactor, scaleFactor)
-    matrix.preTranslate(-pathCenterX, -pathCenterY)
-    matrix.postTranslate(viewportSize / 2f, viewportSize / 2f)
-    path.transform(matrix)
-    return path.asComposePath()
 }
 
 @Composable
@@ -192,9 +172,11 @@ internal fun PolygonComposableImpl(
                     shape.forEach { cubic -> debugDraw(cubic) }
                 } else {
                     val scaledPath = polygon.toPath()
-                    scaledPath.transform(scaleMatrix(scale, scale))
+                    val matrix = Matrix()
+                    matrix.scale(scale, scale)
+                    scaledPath.transform(matrix)
                     val style = if (stroked) Stroke(size.width / 10f) else Fill
-                    drawPath(scaledPath.asComposePath(), Color.White, style = style)
+                    drawPath(scaledPath, Color.White, style = style)
                 }
             })
 }
@@ -435,6 +417,14 @@ fun MorphScreen(
 private suspend fun doAnimation(progress: Animatable<Float, AnimationVector1D>) {
     progress.snapTo(0f)
     progress.animateTo(1f, animationSpec = spring(0.6f, 50f))
+}
+
+internal const val DEBUG = false
+
+internal inline fun debugLog(message: String) {
+    if (DEBUG) {
+        println(message)
+    }
 }
 
 class MainActivity : FragmentActivity() {
