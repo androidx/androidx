@@ -139,10 +139,6 @@ private fun Project.registerLintDebugIfNeededAfterEvaluate() {
     }
 }
 
-private fun String.camelCase() = replaceFirstChar {
-    if (it.isLowerCase()) it.titlecase() else it.toString()
-}
-
 /**
  * If the project is using multiplatform, adds configurations and source sets expected by the lint
  * plugin, which allows it to configure itself when running against a non-Android multiplatform

@@ -933,7 +933,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             buildType.signingConfig = debugSigningConfig
         }
 
-        project.configureErrorProneForAndroid(variants)
+        project.configureErrorProneForAndroid()
 
         // workaround for b/120487939
         project.configurations.all { configuration ->
@@ -1552,6 +1552,10 @@ private fun Project.enforceBanOnVersionRanges() {
             }
         }
     }
+}
+
+internal fun String.camelCase() = replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase() else it.toString()
 }
 
 const val PROJECT_OR_ARTIFACT_EXT_NAME = "projectOrArtifact"
