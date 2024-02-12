@@ -199,3 +199,18 @@ class ThreePaneScaffoldValue(
             ThreePaneScaffoldRole.Tertiary -> tertiary
         }
 }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal val ThreePaneScaffoldValue.expandedCount: Int get() {
+    var count = 0
+    if (primary == PaneAdaptedValue.Expanded) {
+        count++
+    }
+    if (secondary == PaneAdaptedValue.Expanded) {
+        count++
+    }
+    if (tertiary == PaneAdaptedValue.Expanded) {
+        count++
+    }
+    return count
+}
