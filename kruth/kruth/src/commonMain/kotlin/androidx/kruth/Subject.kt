@@ -19,6 +19,7 @@ package androidx.kruth
 import androidx.kruth.Fact.Companion.fact
 import androidx.kruth.Fact.Companion.simpleFact
 import androidx.kruth.OldAndNewValuesAreSimilar.DIFFERENT
+import androidx.kruth.OldAndNewValuesAreSimilar.SIMILAR
 import kotlin.reflect.typeOf
 
 // As opposed to Truth, which limits visibility on `actual` and the generic type, we purposely make
@@ -142,13 +143,13 @@ open class Subject<out T> protected constructor(
 
     // TODO(KT-20427): Only needed to enable extensions in internal sources.
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun failWithActualInternal(key: String, value: Any? = null): Nothing {
+    internal inline fun failWithActualInternal(key: String, value: Any? = null) {
         failWithActual(key = key, value = value)
     }
 
     // TODO(KT-20427): Only needed to enable extensions in internal sources.
     @Suppress("NOTHING_TO_INLINE")
-    internal inline fun failWithActualInternal(fact: Fact, vararg facts: Fact): Nothing {
+    internal inline fun failWithActualInternal(fact: Fact, vararg facts: Fact) {
         failWithActual(fact, *facts)
     }
 
@@ -163,7 +164,7 @@ open class Subject<out T> protected constructor(
      * Example usage: The check `contains(String)` calls
      * `failWithActual("expected to contain", string)`.
      */
-    protected fun failWithActual(key: String, value: Any?): Nothing {
+    protected fun failWithActual(key: String, value: Any?) {
         failWithActual(fact(key, value))
     }
 
@@ -178,7 +179,7 @@ open class Subject<out T> protected constructor(
      * Example usage: The check `isEmpty()` calls
      * `failWithActual(simpleFact("expected to be empty"))`.
      */
-    protected fun failWithActual(first: Fact, vararg rest: Fact): Nothing {
+    protected fun failWithActual(first: Fact, vararg rest: Fact) {
         metadata.fail(
             listOf(
                 first,
@@ -189,7 +190,8 @@ open class Subject<out T> protected constructor(
     }
 
     // TODO(KT-20427): Only needed to enable extensions in internal sources.
-    internal fun failWithoutActualInternal(first: Fact, vararg rest: Fact): Nothing {
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun failWithoutActualInternal(first: Fact, vararg rest: Fact) {
         failWithoutActual(first, *rest)
     }
 
@@ -208,7 +210,7 @@ open class Subject<out T> protected constructor(
             "androidx.kruth.Fact.Companion.simpleFact"
         )
     )
-    internal fun failWithoutActual(check: String): Nothing {
+    internal fun failWithoutActual(check: String) {
         failWithoutActual(simpleFact("Not true that the subject $check"))
     }
 
@@ -228,7 +230,7 @@ open class Subject<out T> protected constructor(
      * Example usage: The check `isEmpty()` calls
      * `failWithActual(simpleFact("expected to be empty"))`.
      */
-    protected fun failWithoutActual(first: Fact, vararg rest: Fact): Nothing {
+    protected fun failWithoutActual(first: Fact, vararg rest: Fact) {
         metadata.fail(
             buildList {
                 add(first)
@@ -238,7 +240,7 @@ open class Subject<out T> protected constructor(
     }
 
     @PublishedApi // Required to allow isInstanceOf to be implemented via inline reified type.
-    internal fun doFail(vararg facts: Fact): Nothing {
+    internal fun doFail(vararg facts: Fact) {
         metadata.fail(facts.asList())
     }
 
@@ -324,6 +326,8 @@ open class Subject<out T> protected constructor(
     private fun Any?.integralValue(): Long = when (this) {
         is Char -> code.toLong()
         is Number -> toLong()
+        // This is intentionally AssertionError and not AssertionErrorWithFacts to stay behaviour
+        // compatible with Truth.
         else -> throw AssertionError("$this must be either a Char or a Number.")
     }
 
@@ -364,6 +368,14 @@ open class Subject<out T> protected constructor(
         return doCheck(DIFFERENT, format, args)
     }
 
+    // TODO(b/134064106): Figure out a public API for this.
+    internal fun checkNoNeedToDisplayBothValues(
+        format: String,
+        vararg args: Any
+    ): StandardSubjectBuilder {
+        return doCheck(SIMILAR, format, args)
+    }
+
     private fun doCheck(
         valuesAreSimilar: OldAndNewValuesAreSimilar,
         format: String,
@@ -375,6 +387,10 @@ open class Subject<out T> protected constructor(
                 "$input.$message"
             }
         )
+    }
+
+    protected fun ignoreCheck(): StandardSubjectBuilder {
+        return StandardSubjectBuilder.forCustomFailureStrategy {}
     }
 
     /**

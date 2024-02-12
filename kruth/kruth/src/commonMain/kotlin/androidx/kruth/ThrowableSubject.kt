@@ -41,6 +41,7 @@ open class ThrowableSubject<out T : Throwable> protected constructor(
      * cause. This method can be invoked repeatedly (e.g.
      * `assertThat(e).hasCauseThat().hasCauseThat()....` to assert on a particular indirect cause.
      */
+    // Any Throwable is fine, and we use plain Throwable to emphasize that it's not used "for real."
     fun hasCauseThat(): ThrowableSubject<Throwable> {
         // provides a more helpful error message if hasCauseThat() methods are chained too deep
         // e.g. assertThat(new Exception()).hCT().hCT()....
@@ -50,6 +51,8 @@ open class ThrowableSubject<out T : Throwable> protected constructor(
             check("cause")
                 .withMessage("Causal chain is not deep enough - add a .isNotNull() check?")
                 .fail()
+
+            return ignoreCheck().that(Throwable())
         }
 
         return check("cause").that(actual.cause)

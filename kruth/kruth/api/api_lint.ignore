@@ -73,6 +73,12 @@ BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#withMessage(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.withMessage(String)
 
 
+InvalidNullabilityOverride: androidx.kruth.Expect#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
+    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.kruth.Expect#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
+    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingBuildMethod: androidx.kruth.SimpleSubjectBuilder:
     androidx.kruth.SimpleSubjectBuilder does not declare a `build()` method, but builder classes are expected to
 MissingBuildMethod: androidx.kruth.StandardSubjectBuilder:

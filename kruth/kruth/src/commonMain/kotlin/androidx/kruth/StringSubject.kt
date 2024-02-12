@@ -245,9 +245,7 @@ open class StringSubject protected constructor(
 internal inline fun Subject<String>.matchesImpl(regex: Regex, equalToStringErrorMsg: () -> String) {
     if (actual == null) {
         failWithActualInternal("Expected a string that matches", regex)
-    }
-
-    if (actual.matches(regex)) {
+    } else if (actual.matches(regex)) {
         return
     }
 
@@ -265,9 +263,7 @@ internal inline fun Subject<String>.matchesImpl(regex: Regex, equalToStringError
 internal fun Subject<String>.doesNotMatchImpl(regex: Regex) {
     if (actual == null) {
         failWithActualInternal("Expected a string that does not match", regex)
-    }
-
-    if (actual.matches(regex)) {
+    } else if (actual.matches(regex)) {
         failWithActualInternal("Expected not to match", regex)
     }
 }
@@ -275,9 +271,7 @@ internal fun Subject<String>.doesNotMatchImpl(regex: Regex) {
 internal fun Subject<String>.containsMatchImpl(regex: Regex) {
     if (actual == null) {
         failWithActualInternal("Expected a string that contains a match for", regex)
-    }
-
-    if (!regex.containsMatchIn(actual)) {
+    } else if (!regex.containsMatchIn(actual)) {
         failWithActualInternal("Expected to contain a match for", regex)
     }
 }
@@ -285,6 +279,7 @@ internal fun Subject<String>.containsMatchImpl(regex: Regex) {
 internal fun Subject<String>.doesNotContainMatchImpl(regex: Regex) {
     if (actual == null) {
         failWithActualInternal("expected a string that does not contain a match for", regex)
+        return
     }
 
     val result = regex.find(actual)
