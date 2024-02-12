@@ -34,7 +34,6 @@ import androidx.compose.foundation.relocation.BringIntoViewResponderNode
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
@@ -408,7 +407,7 @@ private class ScrollableNode(
             (event.key == Key.PageDown || event.key == Key.PageUp) &&
             (event.type == KeyEventType.KeyDown) &&
             (!event.isCtrlPressed)
-            ) {
+        ) {
             with(scrollingLogic) {
                 val scrollAmount: Offset = if (orientation == Orientation.Vertical) {
                     val viewportHeight = contentInViewNode.viewportSize.height
@@ -603,7 +602,9 @@ private class ScrollableGesturesNode(
     val nestedScrollDispatcher: NestedScrollDispatcher,
     val interactionSource: MutableInteractionSource?
 ) : DelegatingNode() {
-    init { delegate(MouseWheelScrollNode(scrollLogic)) }
+    init {
+        delegate(MouseWheelScrollNode(scrollLogic))
+    }
 
     val draggableState = ScrollDraggableState(scrollLogic)
     private val startDragImmediately = { scrollLogic.shouldScrollImmediately() }
@@ -716,7 +717,7 @@ private class ScrollingLogic(
     private var flingBehavior: FlingBehavior,
     private var nestedScrollDispatcher: NestedScrollDispatcher,
 ) {
-    private val isNestedFlinging = mutableStateOf(false)
+
     fun Float.toOffset(): Offset = when {
         this == 0f -> Offset.Zero
         orientation == Horizontal -> Offset(this, 0f)
@@ -799,9 +800,6 @@ private class ScrollingLogic(
     }
 
     suspend fun onDragStopped(initialVelocity: Float) {
-        // Self started flinging, set
-        registerNestedFling(true)
-
         val availableVelocity = initialVelocity.toVelocity()
 
         val performFling: suspend (Velocity) -> Velocity = { velocity ->
@@ -826,9 +824,6 @@ private class ScrollingLogic(
         } else {
             performFling(availableVelocity)
         }
-
-        // Self stopped flinging, reset
-        registerNestedFling(false)
     }
 
     suspend fun doFlingAnimation(available: Velocity): Velocity {
@@ -855,12 +850,8 @@ private class ScrollingLogic(
     }
 
     fun shouldScrollImmediately(): Boolean {
-        return scrollableState.isScrollInProgress || isNestedFlinging.value ||
+        return scrollableState.isScrollInProgress ||
             overscrollEffect?.isInProgress ?: false
-    }
-
-    fun registerNestedFling(isFlinging: Boolean) {
-        isNestedFlinging.value = isFlinging
     }
 
     fun update(
@@ -913,13 +904,6 @@ private class ScrollableNestedScrollConnection(
     val scrollingLogic: ScrollingLogic,
     var enabled: Boolean
 ) : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        // child will fling, set
-        if (source == Fling) {
-            scrollingLogic.registerNestedFling(true)
-        }
-        return Offset.Zero
-    }
 
     override fun onPostScroll(
         consumed: Offset,
@@ -940,9 +924,6 @@ private class ScrollableNestedScrollConnection(
             available - velocityLeft
         } else {
             Velocity.Zero
-        }.also {
-            // Flinging child finished flinging, reset
-            scrollingLogic.registerNestedFling(false)
         }
     }
 }
