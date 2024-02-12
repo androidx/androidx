@@ -102,7 +102,7 @@ internal object AnnotatedClassReader {
             extraString = metadataValues["xs"] as? String?,
         )
 
-        return when (val metadata = KotlinClassMetadata.read(metadataAnnotation)) {
+        return when (val metadata = KotlinClassMetadata.readStrict(metadataAnnotation)) {
             is KotlinClassMetadata.Class -> metadata.kmClass
             else -> throw PrivacySandboxParsingException(
                 "Unable to parse Kotlin metadata from ${classNode.name}. " +
