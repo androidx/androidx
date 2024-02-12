@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.4.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha07)" variant="all" version="8.4.0-alpha07">
 
     <issue
         id="BanSuppressTag"
@@ -76,17 +76,8 @@
     <issue
         id="PrimitiveInCollection"
         message="constructor VectorizedKeyframesSpec has parameter keyframes with type Map&lt;Integer, ? extends Pair&lt;? extends V, ? extends Easing>>: replace with IntObjectMap"
-        errorLine1="    private val keyframes: Map&lt;Int, Pair&lt;V, Easing>>,"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/animation/core/VectorizedAnimationSpec.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field keyframes with type Map&lt;Integer, Pair&lt;V, Easing>>: replace with IntObjectMap"
-        errorLine1="    private val keyframes: Map&lt;Int, Pair&lt;V, Easing>>,"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        keyframes: Map&lt;Int, Pair&lt;V, Easing>>,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/animation/core/VectorizedAnimationSpec.kt"/>
     </issue>

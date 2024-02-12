@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.4.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha07)" variant="all" version="8.4.0-alpha07">
 
     <issue
         id="BanThreadSleep"
@@ -35,24 +35,6 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/IconButtonScreenshotTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(300)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(300)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
     </issue>
 
     <issue
@@ -280,24 +262,6 @@
         errorLine2="                                                          ~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable xCandidates with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val xCandidates = listOf("
-        errorLine2="        ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable yCandidates with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val yCandidates = listOf("
-        errorLine2="        ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
     </issue>
 
     <issue

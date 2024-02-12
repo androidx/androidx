@@ -41,8 +41,8 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api("androidx.compose.foundation:foundation:1.6.0-rc01")
-                implementation("androidx.compose.ui:ui-util:1.6.0-rc01")
+                api("androidx.compose.foundation:foundation:1.6.0")
+                implementation("androidx.compose.ui:ui-util:1.6.0")
                 // TODO(conradchen): pin the depe when the change required is released to public
                 implementation(project(":window:window-core"))
             }
