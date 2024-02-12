@@ -80,6 +80,7 @@ import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
 import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
+import androidx.compose.material3.samples.HorizontalFloatingAppBar
 import androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
 import androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
 import androidx.compose.material3.samples.IconButtonSample
@@ -174,6 +175,7 @@ import androidx.compose.material3.samples.TimePickerSwitchableSample
 import androidx.compose.material3.samples.TintedIconButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
+import androidx.compose.material3.samples.VerticalFloatingAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -626,6 +628,27 @@ val TopAppBarExamples =
         ) {
             ExitUntilCollapsedLargeTopAppBar()
         },
+    )
+
+private const val FloatingAppBarsExampleDescription = "Floating app bar examples"
+private const val FloatingAppBarsExampleSourceUrl = "$SampleSourceUrl/FloatingAppBarSamples.kt"
+
+val FloatingAppBarsExamples =
+    listOf(
+        Example(
+            name = ::HorizontalFloatingAppBar.name,
+            description = FloatingAppBarsExampleDescription,
+            sourceUrl = FloatingAppBarsExampleSourceUrl,
+        ) {
+            HorizontalFloatingAppBar()
+        },
+        Example(
+            name = ::VerticalFloatingAppBar.name,
+            description = FloatingAppBarsExampleDescription,
+            sourceUrl = FloatingAppBarsExampleSourceUrl,
+        ) {
+            VerticalFloatingAppBar()
+        }
     )
 
 private const val ExtendedFABExampleDescription = "Extended FAB examples"
