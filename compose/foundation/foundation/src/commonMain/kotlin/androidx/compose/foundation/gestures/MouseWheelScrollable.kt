@@ -229,7 +229,7 @@ private class AnimatedMouseWheelScrollPhysics(
         var requiredAnimation = true
         var lastValue = 0f
         val anim = AnimationState(0f)
-        while (requiredAnimation) {
+        while (requiredAnimation && coroutineContext.isActive) {
             requiredAnimation = false
             val durationMillis = (abs(target - anim.value) / speed)
                 .roundToInt()
