@@ -65,8 +65,11 @@ inline fun DrawScope.inset(
     block: DrawScope.() -> Unit
 ) {
     drawContext.transform.inset(left, top, right, bottom)
-    block()
-    drawContext.transform.inset(-left, -top, -right, -bottom)
+    try {
+        block()
+    } finally {
+        drawContext.transform.inset(-left, -top, -right, -bottom)
+    }
 }
 
 /**
@@ -83,8 +86,11 @@ inline fun DrawScope.inset(
     block: DrawScope.() -> Unit
 ) {
     drawContext.transform.inset(inset, inset, inset, inset)
-    block()
-    drawContext.transform.inset(-inset, -inset, -inset, -inset)
+    try {
+        block()
+    } finally {
+        drawContext.transform.inset(-inset, -inset, -inset, -inset)
+    }
 }
 
 /**
@@ -119,8 +125,11 @@ inline fun DrawScope.translate(
     block: DrawScope.() -> Unit
 ) {
     drawContext.transform.translate(left, top)
-    block()
-    drawContext.transform.translate(-left, -top)
+    try {
+        block()
+    } finally {
+        drawContext.transform.translate(-left, -top)
+    }
 }
 
 /**
@@ -265,10 +274,13 @@ inline fun DrawScope.withTransform(
     // and reset it afterwards
     val previousSize = size
     canvas.save()
-    transformBlock(transform)
-    drawBlock()
-    canvas.restore()
-    size = previousSize
+    try {
+        transformBlock(transform)
+        drawBlock()
+    } finally {
+        canvas.restore()
+        size = previousSize
+    }
 }
 
 /**
@@ -307,13 +319,16 @@ inline fun DrawScope.draw(
         this.size = size
     }
     canvas.save()
-    this.block()
-    canvas.restore()
-    drawContext.apply {
-        this.density = prevDensity
-        this.layoutDirection = prevLayoutDirection
-        this.canvas = prevCanvas
-        this.size = prevSize
+    try {
+        this.block()
+    } finally {
+        canvas.restore()
+        drawContext.apply {
+            this.density = prevDensity
+            this.layoutDirection = prevLayoutDirection
+            this.canvas = prevCanvas
+            this.size = prevSize
+        }
     }
 }
 
