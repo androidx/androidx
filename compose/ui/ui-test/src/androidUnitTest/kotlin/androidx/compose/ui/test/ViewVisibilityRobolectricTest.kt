@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.junit4
+package androidx.compose.ui.test
 
 import android.view.View
 import android.view.ViewGroup
@@ -33,13 +33,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.runAndroidComposeUiTest
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import org.junit.Test
 import org.junit.runner.RunWith
