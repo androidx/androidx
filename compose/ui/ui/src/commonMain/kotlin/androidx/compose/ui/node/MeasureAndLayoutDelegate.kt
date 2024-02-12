@@ -671,6 +671,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     fun onNodeDetached(node: LayoutNode) {
         relayoutNodes.remove(node)
+        onPositionedDispatcher.remove(node)
     }
 
     private val LayoutNode.measureAffectsParent

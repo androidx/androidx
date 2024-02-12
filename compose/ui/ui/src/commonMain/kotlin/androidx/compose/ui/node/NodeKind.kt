@@ -269,7 +269,7 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
         }
     }
     if (Nodes.GlobalPositionAware in selfKindSet && node is GlobalPositionAwareModifierNode) {
-        node.requireLayoutNode().invalidateMeasurements()
+        node.requireLayoutNode().invalidateOnPositioned()
     }
     if (Nodes.Draw in selfKindSet && node is DrawModifierNode) {
         node.invalidateDraw()

@@ -1054,6 +1054,12 @@ internal class LayoutNode(
         }
     }
 
+    internal fun invalidateOnPositioned() {
+        // If we've already scheduled a measure, the positioned callbacks will get called anyway
+        if (layoutPending || measurePending || needsOnPositionedDispatch) return
+        requireOwner().requestOnPositionedCallback(this)
+    }
+
     private fun invalidateFocusOnAttach() {
         if (nodes.has(FocusTarget or FocusProperties or FocusEvent)) {
             nodes.headToTail {
