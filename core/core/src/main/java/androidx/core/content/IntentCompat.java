@@ -200,7 +200,7 @@ public final class IntentCompat {
 
     /**
      * Retrieve extended data from the intent.
-     *
+     * <p>
      * Compatibility behavior:
      * <ul>
      *     <li>SDK 34 and later, this method matches platform behavior.
@@ -221,6 +221,7 @@ public final class IntentCompat {
     public static <T> T getParcelableExtra(@NonNull Intent in, @Nullable String name,
             @NonNull Class<T> clazz) {
         if (Build.VERSION.SDK_INT >= 34) {
+            // Don't call this API on SDK 33 due to b/232589966.
             return Api33Impl.getParcelableExtra(in, name, clazz);
         } else {
             T extra = in.getParcelableExtra(name);
@@ -230,7 +231,7 @@ public final class IntentCompat {
 
     /**
      * Retrieve extended data from the intent.
-     *
+     * <p>
      * Compatibility behavior:
      * <ul>
      *     <li>SDK 34 and later, this method matches platform behavior.
@@ -252,6 +253,7 @@ public final class IntentCompat {
     public static Parcelable[] getParcelableArrayExtra(@NonNull Intent in, @Nullable String name,
             @NonNull Class<? extends Parcelable> clazz) {
         if (Build.VERSION.SDK_INT >= 34) {
+            // Don't call this API on SDK 33 due to b/232589966.
             return Api33Impl.getParcelableArrayExtra(in, name, clazz);
         } else {
             return in.getParcelableArrayExtra(name);
@@ -260,7 +262,7 @@ public final class IntentCompat {
 
     /**
      * Retrieve extended data from the intent.
-     *
+     * <p>
      * Compatibility behavior:
      * <ul>
      *     <li>SDK 34 and later, this method matches platform behavior.
@@ -284,6 +286,7 @@ public final class IntentCompat {
     public static <T> ArrayList<T> getParcelableArrayListExtra(
             @NonNull Intent in, @Nullable String name, @NonNull Class<? extends T> clazz) {
         if (Build.VERSION.SDK_INT >= 34) {
+            // Don't call this API on SDK 33 due to b/232589966.
             return Api33Impl.getParcelableArrayListExtra(in, name, clazz);
         } else {
             return (ArrayList<T>) in.getParcelableArrayListExtra(name);
@@ -314,6 +317,7 @@ public final class IntentCompat {
     public static <T extends Serializable> T getSerializableExtra(@NonNull Intent in,
             @Nullable String key, @NonNull Class<T> clazz) {
         if (Build.VERSION.SDK_INT >= 34) {
+            // Don't call this API on SDK 33 due to b/232589966.
             return Api33Impl.getSerializableExtra(in, key, clazz);
         } else {
             Serializable serializable = in.getSerializableExtra(key);
