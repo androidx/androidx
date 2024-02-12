@@ -65,6 +65,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.OutlinedTextFieldDefaults.defaultOutlinedTextFieldColors
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.DividerTokens
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -191,7 +192,7 @@ fun DatePicker(
             DatePickerModalTokens.HeaderHeadlineFont
         ),
         headerMinHeight = DatePickerModalTokens.HeaderContainerHeight,
-        colors = colors
+        colors = colors,
     ) {
         SwitchableDateEntryContent(
             selectedDateMillis = state.selectedDateMillis,
@@ -714,7 +715,7 @@ object DatePickerDefaults {
     val YearRange: IntRange = IntRange(1900, 2100)
 
     /** The default tonal elevation used for [DatePickerDialog]. */
-    val TonalElevation: Dp = DatePickerModalTokens.ContainerElevation
+    val TonalElevation: Dp = ElevationTokens.Level0
 
     /** The default shape for date picker dialogs. */
     val shape: Shape @Composable get() = DatePickerModalTokens.ContainerShape.value
@@ -1307,7 +1308,7 @@ internal fun DateEntryContainer(
             .semantics {
                 @Suppress("DEPRECATION")
                 isContainer = true
-            }
+            }.background(colors.containerColor)
     ) {
         DatePickerHeader(
             modifier = Modifier,
@@ -2006,10 +2007,7 @@ private fun YearPicker(
                 )
             )
         // Match the years container color to any elevated surface color that is composed under it.
-        val containerColor = MaterialTheme.colorScheme.applyTonalElevation(
-            backgroundColor = colors.containerColor,
-            elevation = LocalAbsoluteTonalElevation.current
-        )
+        val containerColor = colors.containerColor
         val coroutineScope = rememberCoroutineScope()
         val scrollToEarlierYearsLabel = getString(Strings.DatePickerScrollToShowEarlierYears)
         val scrollToLaterYearsLabel = getString(Strings.DatePickerScrollToShowLaterYears)
