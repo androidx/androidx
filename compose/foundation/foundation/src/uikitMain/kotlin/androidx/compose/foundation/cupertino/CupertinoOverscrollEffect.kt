@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.*
 import kotlin.coroutines.coroutineContext
 import kotlin.math.abs
 import kotlin.math.sign
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.isActive
 
 private enum class CupertinoScrollSource {
@@ -245,7 +246,14 @@ class CupertinoOverscrollEffect(
         performFling: suspend (Velocity) -> Velocity
     ) {
         val availableFlingVelocity = playInitialSpringAnimationIfNeeded(velocity)
-        val velocityConsumedByFling = performFling(availableFlingVelocity)
+
+        var cancellationException: Throwable? = null
+        val velocityConsumedByFling = try {
+            performFling(availableFlingVelocity)
+        } catch (e: CancellationException) {
+            cancellationException = e
+            Velocity.Zero
+        }
         val postFlingVelocity = availableFlingVelocity - velocityConsumedByFling
 
         playSpringAnimation(
@@ -253,6 +261,9 @@ class CupertinoOverscrollEffect(
             postFlingVelocity.toFloat(),
             CupertinoSpringAnimationReason.POSSIBLE_SPRING_IN_THE_END
         )
+        cancellationException?.let {
+            throw it
+        }
     }
 
     private fun Offset.toCupertinoOverscrollDirection(): CupertinoOverscrollDirection {
