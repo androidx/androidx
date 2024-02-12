@@ -207,6 +207,8 @@ import kotlin.coroutines.CoroutineContext
 internal var platformTextInputServiceInterceptor:
         (PlatformTextInputService) -> PlatformTextInputService = { it }
 
+private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
+
 @Suppress("ViewConstructor", "VisibleForTests", "ConstPropertyName", "NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
 internal class AndroidComposeView(
@@ -2001,7 +2003,11 @@ internal class AndroidComposeView(
                     previousMotionEvent?.recycle()
                     previousMotionEvent = MotionEvent.obtainNoHistory(event)
                     hoverExitReceived = true
-                    post(sendHoverExitEvent)
+                    // There are cases where the hover exit will incorrectly trigger because this
+                    // post is called right before the end of the frame and the new frame checks for
+                    // a press/down event (which hasn't occurred yet). Therefore, we delay the post
+                    // call a small amount to account for that.
+                    postDelayed(sendHoverExitEvent, ONE_FRAME_120_HERTZ_IN_MILLISECONDS)
                     return false
                 }
             }
