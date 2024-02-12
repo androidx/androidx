@@ -28,13 +28,11 @@ import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.currentValueOf
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.requireView
 
-internal actual fun CompositionLocalConsumerModifierNode
-    .isComposeRootInScrollableContainer(): Boolean {
-    return currentValueOf(LocalView).isInScrollableViewGroup()
+internal actual fun DelegatableNode.isComposeRootInScrollableContainer(): Boolean {
+    return requireView().isInScrollableViewGroup()
 }
 
 private fun View.isInScrollableViewGroup(): Boolean {

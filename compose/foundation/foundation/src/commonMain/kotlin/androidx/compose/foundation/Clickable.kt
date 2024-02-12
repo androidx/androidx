@@ -42,7 +42,6 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -402,8 +401,7 @@ internal expect val TapIndicationDelay: Long
  * within a scrollable Compose layout, to calculate whether this modifier is within some form of
  * scrollable container, and hence should delay presses.
  */
-internal expect fun CompositionLocalConsumerModifierNode
-    .isComposeRootInScrollableContainer(): Boolean
+internal expect fun DelegatableNode.isComposeRootInScrollableContainer(): Boolean
 
 /**
  * Whether the specified [KeyEvent] should trigger a press for a clickable component.
@@ -878,7 +876,7 @@ internal abstract class AbstractClickableNode(
     private var role: Role?,
     onClick: () -> Unit
 ) : DelegatingNode(), PointerInputModifierNode, KeyInputModifierNode, FocusEventModifierNode,
-    SemanticsModifierNode, CompositionLocalConsumerModifierNode, ModifierLocalModifierNode {
+    SemanticsModifierNode, ModifierLocalModifierNode {
     protected var enabled = enabled
         private set
     protected var onClick = onClick
