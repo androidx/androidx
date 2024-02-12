@@ -143,7 +143,8 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
         val sourcePsi = invocation.sourcePsi as? KtElement ?: return null
         analyze(sourcePsi) {
             val resolvedCall = sourcePsi.resolveCall()?.singleFunctionCallOrNull() ?: return null
-            val stateType = resolvedCall.typeArgumentsMapping.asIterable().single().value
+            val stateType =
+                resolvedCall.typeArgumentsMapping.asIterable().singleOrNull()?.value ?: return null
             return when {
                 stateType.isMarkedNullable -> null
                 else -> {
