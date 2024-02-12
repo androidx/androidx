@@ -92,7 +92,7 @@ androidXMultiplatform {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:test-utils"))
-                implementation("androidx.compose.foundation:foundation:1.6.0-rc01")
+                implementation("androidx.compose.foundation:foundation:1.6.0")
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
