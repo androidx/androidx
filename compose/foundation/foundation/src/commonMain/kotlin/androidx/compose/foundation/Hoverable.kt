@@ -18,6 +18,7 @@ package androidx.compose.foundation
 
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -37,6 +38,7 @@ import kotlinx.coroutines.launch
  * [HoverInteraction.Enter] when this element is being hovered.
  * @param enabled Controls the enabled state. When `false`, hover events will be ignored.
  */
+@Stable
 fun Modifier.hoverable(
     interactionSource: MutableInteractionSource,
     enabled: Boolean = true
