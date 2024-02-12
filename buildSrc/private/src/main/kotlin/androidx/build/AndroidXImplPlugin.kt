@@ -628,18 +628,17 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     private fun Project.buildOnServerDependsOnLint() {
         if (!project.usingMaxDepVersions()) {
-            project.agpVariants.all { variant ->
-                // in AndroidX, release and debug variants are essentially the same,
-                // so we don't run the lintRelease task on the build server
+            val androidComponents = extensions.findByType(AndroidComponentsExtension::class.java)
+            androidComponents?.onVariants { variant ->
                 if (!variant.name.lowercase(Locale.getDefault()).contains("release")) {
                     val taskName =
                         "lint${variant.name.replaceFirstChar {
-                        if (it.isLowerCase()) {
-                            it.titlecase(Locale.getDefault())
-                        } else {
-                            it.toString()
-                        }
-                    }}"
+                            if (it.isLowerCase()) {
+                                it.titlecase(Locale.getDefault())
+                            } else {
+                                it.toString()
+                            }
+                        }}"
                     project.addToBuildOnServer(taskName)
                 }
             }

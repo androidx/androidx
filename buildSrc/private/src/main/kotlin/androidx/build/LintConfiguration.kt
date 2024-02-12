@@ -17,6 +17,7 @@
 package androidx.build
 
 import com.android.build.api.dsl.Lint
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
@@ -74,10 +75,7 @@ private fun Project.configureAndroidProjectForLint(isLibrary: Boolean) =
 
         // We already run lintDebug, we don't need to run lint on the release variant.
         tasks.named("lint").configure { task -> task.enabled = false }
-
-        afterEvaluate {
-            registerLintDebugIfNeededAfterEvaluate()
-        }
+        registerLintDebugIfNeeded()
     }
 
 /** Android Lint configuration entry point for non-Android projects. */
@@ -123,18 +121,25 @@ private fun Project.configureNonAndroidProjectForLint() = afterEvaluate {
 
 /**
  * Registers the `lintDebug` task if there are debug variants present.
- *
- * This method *must* run after evaluation.
  */
-private fun Project.registerLintDebugIfNeededAfterEvaluate() {
-    val variantNames = project.agpVariants.map { it.name }
-    if (!variantNames.contains("debug")) {
-        tasks.register("lintDebug") { task ->
-            // The lintDebug tasks depends on lint tasks for all debug variants.
-            variantNames
-                .filter { it.contains("debug", ignoreCase = true) }
-                .map { tasks.named("lint${it.camelCase()}") }
-                .forEach { task.dependsOn(it) }
+private fun Project.registerLintDebugIfNeeded() {
+    val androidComponents = extensions.findByType(AndroidComponentsExtension::class.java)
+    val debugVariantLintTaskNames = mutableListOf<String>()
+
+    androidComponents?.onVariants { variant ->
+        if (variant.buildType == "debug") {
+            debugVariantLintTaskNames.add("lint${variant.name.camelCase()}")
+        }
+    }
+
+    afterEvaluate {
+        val filteredTaskNames = debugVariantLintTaskNames.filterNot { it == "lintDebug" }
+        if (filteredTaskNames.isNotEmpty()) {
+            tasks.register("lintDebug") { task ->
+                filteredTaskNames.forEach { lintTaskName ->
+                    task.dependsOn(tasks.named(lintTaskName))
+                }
+            }
         }
     }
 }
