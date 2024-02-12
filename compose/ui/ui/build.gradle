@@ -45,6 +45,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.6.0")
                 implementation("androidx.collection:collection:1.4.0")
+                implementation(project(":lifecycle:lifecycle-runtime"))
                 // when updating the runtime version please also update the runtime-saveable version
                 implementation("androidx.compose.runtime:runtime:1.6.0")
                 api("androidx.compose.runtime:runtime-saveable:1.6.0")

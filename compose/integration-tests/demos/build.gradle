@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":navigation:navigation-compose:integration-tests:navigation-demos"))
     implementation(project(":paging:paging-compose:integration-tests:paging-demos"))
     implementation(project(":compose:ui:ui:integration-tests:ui-demos"))
+    implementation(project(":compose:animation:animation-graphics"))
 
     implementation(libs.kotlinReflect)
     implementation(libs.kotlinStdlib)
