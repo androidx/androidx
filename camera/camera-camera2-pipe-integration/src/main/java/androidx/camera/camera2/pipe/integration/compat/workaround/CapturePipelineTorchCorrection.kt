@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -64,7 +65,7 @@ class CapturePipelineTorchCorrection @Inject constructor(
         sessionConfigOptions: Config,
         captureMode: Int,
         flashType: Int,
-        flashMode: Int
+        @ImageCapture.FlashMode flashMode: Int
     ): List<Deferred<Void?>> {
         val needCorrectTorchState = isCorrectionRequired(configs, requestTemplate)
 

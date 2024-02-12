@@ -150,7 +150,7 @@ interface UseCaseCameraRequestControl {
         captureSequence: List<CaptureConfig>,
         captureMode: Int,
         flashType: Int,
-        flashMode: Int,
+        @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>>
 
     fun close()
@@ -277,7 +277,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         captureSequence: List<CaptureConfig>,
         captureMode: Int,
         flashType: Int,
-        flashMode: Int,
+        @ImageCapture.FlashMode flashMode: Int,
     ) = runIfNotClosed {
         if (captureSequence.hasInvalidSurface()) {
             failedResults(
