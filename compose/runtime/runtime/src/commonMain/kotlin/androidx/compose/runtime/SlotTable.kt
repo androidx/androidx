@@ -1480,6 +1480,8 @@ internal class SlotWriter(
      */
     val isGroupEnd get() = currentGroup == currentGroupEnd
 
+    val slotsSize get() = slots.size - slotsGapLen
+
     /**
      * Return true if the current slot starts a node. A node is a kind of group so this will
      * return true for isGroup as well.
@@ -1804,9 +1806,9 @@ internal class SlotWriter(
         set(currentGroup, index, value)
 
     /**
-     * Set the [group] slot at [index] to [value]. Returns the previous value.
+     * Convert a slot group index into a global slot index.
      */
-    fun set(group: Int, index: Int, value: Any?): Any? {
+    fun slotIndexOfGroupSlotIndex(group: Int, index: Int): Int {
         val address = groupIndexToAddress(group)
         val slotsStart = groups.slotIndex(address)
         val slotsEnd = groups.dataIndex(groupIndexToAddress(group + 1))
@@ -1815,6 +1817,14 @@ internal class SlotWriter(
         runtimeCheck(slotsIndex >= slotsStart && slotsIndex < slotsEnd) {
             "Write to an invalid slot index $index for group $group"
         }
+        return slotsIndex
+    }
+
+    /**
+     * Set the [group] slot at [index] to [value]. Returns the previous value.
+     */
+    fun set(group: Int, index: Int, value: Any?): Any? {
+        val slotsIndex = slotIndexOfGroupSlotIndex(group, index)
         val slotAddress = dataIndexToDataAddress(slotsIndex)
         val result = slots[slotAddress]
         slots[slotAddress] = value
