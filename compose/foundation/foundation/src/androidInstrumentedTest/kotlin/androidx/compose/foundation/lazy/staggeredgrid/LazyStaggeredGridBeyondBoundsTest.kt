@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 
@@ -88,7 +89,8 @@ class LazyStaggeredGridBeyondBoundsTest {
         }
     }
 
-    private fun resetTestCase() {
+    private fun resetTestCase(firstVisibleItem: Int = 0) {
+        rule.runOnIdle { runBlocking { lazyStaggeredGridState.scrollToItem(firstVisibleItem) } }
         placedItems.clear()
         beyondBoundsLayout = null
     }
@@ -265,7 +267,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                     assertThat(placedItems.keys).containsExactly(5, 6, 7)
                     assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
-                resetTestCase()
+                resetTestCase(5)
             }
         }
     }
@@ -331,7 +333,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                     assertThat(placedItems.keys).containsExactly(10, 11, 12, 13, 14, 15)
                     assertThat(visibleItems).containsExactly(10, 11, 12, 13, 14, 15)
                 }
-                resetTestCase()
+                resetTestCase(10)
             }
         }
     }
@@ -403,7 +405,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                     assertThat(placedItems.keys).containsExactly(4, 5, 6, 7)
                     assertThat(visibleItems).containsExactly(4, 5, 6, 7)
                 }
-                resetTestCase()
+                resetTestCase(4)
             }
         }
     }
@@ -469,7 +471,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                     assertThat(placedItems.keys).containsExactly(5, 6, 7)
                     assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
-                resetTestCase()
+                resetTestCase(5)
             }
         }
     }
@@ -536,7 +538,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                 runOnIdle {
                     assertThat(placedItems.keys).containsExactly(5, 6, 7)
                 }
-                resetTestCase()
+                resetTestCase(5)
             }
         }
     }
@@ -621,7 +623,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                         else -> error("Unsupported BeyondBoundsLayoutDirection")
                     }
                 }
-                resetTestCase()
+                resetTestCase(5)
             }
         }
     }
@@ -675,7 +677,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                     assertThat(placedItems.keys).containsExactly(5, 6, 7)
                     assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
-                resetTestCase()
+                resetTestCase(5)
             }
         }
     }
