@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
@@ -39,7 +38,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.lifecycle.LifecycleOwner
 
 /**
  * The CompositionLocal to provide communication with platform accessibility service.
@@ -176,11 +174,6 @@ val LocalViewConfiguration = staticCompositionLocalOf<ViewConfiguration> {
 val LocalWindowInfo = staticCompositionLocalOf<WindowInfo> {
     noLocalProvidedFor("LocalWindowInfo")
 }
-
-/**
- * The CompositionLocal containing the current [LifecycleOwner].
- */
-expect val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
 
 internal val LocalPointerIconService = staticCompositionLocalOf<PointerIconService?> {
     null
