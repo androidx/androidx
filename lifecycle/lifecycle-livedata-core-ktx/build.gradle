@@ -33,8 +33,6 @@ plugins {
 dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(libs.kotlinStdlib)
-
-    lintPublish(project(":lifecycle:lifecycle-livedata-core-ktx-lint"))
 }
 
 androidx {
