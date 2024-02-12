@@ -17,11 +17,13 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.toDpOffset
 import androidx.compose.ui.uikit.systemDensity
-import androidx.compose.ui.toDpRect
-import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.roundToIntRect
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
+import kotlinx.cinterop.cValue
 import kotlinx.cinterop.useContents
 import platform.UIKit.UIView
 
@@ -57,25 +59,23 @@ internal class PlatformWindowContext {
     }
 
     /**
-     * Calculates the bounds of the given [container] within the window.
+     * Calculates the offset of the given [container] within the window.
      * It uses [_windowContainer] as a reference for window coordinate space.
      *
-     * @param container The container component whose bounds need to be calculated.
-     * @return The bounds of the container within the window as an [IntRect] object.
+     * @param container The container component whose offset needs to be calculated.
+     * @return The offset of the container within the window as an [IntOffset] object.
      */
-    fun boundsInWindow(container: UIView): IntRect {
+    fun offsetInWindow(container: UIView): IntOffset {
         val density = container.systemDensity
         return if (_windowContainer != null && _windowContainer != container) {
-            container.convertRect(
-                rect = container.bounds,
+            container.convertPoint(
+                point = cValue { container.bounds.useContents { origin } },
                 toView = _windowContainer,
             )
         } else {
-            container.bounds
+            cValue { container.bounds.useContents { origin } }
         }.useContents {
-            with(density) {
-                toDpRect().toRect().roundToIntRect()
-            }
+            toDpOffset().toOffset(density).round()
         }
     }
 }

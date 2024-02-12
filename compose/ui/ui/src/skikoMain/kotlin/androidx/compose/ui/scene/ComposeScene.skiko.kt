@@ -93,6 +93,8 @@ interface ComposeScene {
      * The size is used to impose constraints on the content. If the size is undefined, it can be
      * set to `null`. In such a case, the content will be laid out without any restrictions and
      * the window size will be utilized to bounds verification.
+     *
+     * TODO split boundsInWindow and size https://youtrack.jetbrains.com/issue/COMPOSE-964
      */
     var boundsInWindow: IntRect?
 
