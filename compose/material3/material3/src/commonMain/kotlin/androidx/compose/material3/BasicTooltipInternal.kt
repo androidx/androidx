@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package androidx.compose.material3
 
 import androidx.compose.foundation.MutatePriority
-import androidx.compose.foundation.R
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -33,7 +30,6 @@ import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationExceptio
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.onLongClick
@@ -71,7 +67,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 @ExperimentalMaterial3Api
-internal actual fun BasicTooltipBox(
+internal fun BasicTooltipBoxInternal(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
     state: BasicTooltipState,
@@ -113,7 +109,7 @@ private fun WrappedAnchor(
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val longPressLabel = stringResource(R.string.tooltip_label)
+    val longPressLabel = BasicTooltipStrings.label()
     Box(modifier = modifier
         .handleGestures(enableUserInput, state)
         .anchorSemantics(longPressLabel, enableUserInput, state, scope)
@@ -128,7 +124,7 @@ private fun TooltipPopup(
     focusable: Boolean,
     content: @Composable () -> Unit
 ) {
-    val tooltipDescription = stringResource(R.string.tooltip_description)
+    val tooltipDescription = BasicTooltipStrings.description()
     Popup(
         popupPositionProvider = positionProvider,
         onDismissRequest = {
@@ -136,7 +132,8 @@ private fun TooltipPopup(
                 scope.launch { state.dismiss() }
             }
         },
-        properties = PopupProperties(focusable = focusable)
+        // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-963/Discuss-fix-Tooltipfocusable-true-API) Discuss how to support focusable
+        properties = PopupProperties(focusable = false),
     ) {
         Box(
             modifier = Modifier.semantics {
@@ -222,3 +219,11 @@ private fun Modifier.anchorSemantics(
             )
         }
     } else this
+
+internal expect object BasicTooltipStrings {
+    @Composable
+    fun label(): String
+
+    @Composable
+    fun description(): String
+}

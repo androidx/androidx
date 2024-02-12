@@ -52,15 +52,6 @@ actual fun BasicTooltipBox(
     focusable: Boolean,
     enableUserInput: Boolean,
     content: @Composable () -> Unit
-) {
-    Box(modifier = modifier) {
-        content()
-        if (state.isVisible) {
-            Popup(
-                popupPositionProvider = positionProvider,
-                onDismissRequest = { state.dismiss() },
-                properties = PopupProperties(focusable = focusable),
-            ) { tooltip() }
-        }
-    }
-}
+) = BasicTooltipBoxInternal(
+    positionProvider, tooltip, state, modifier, focusable, enableUserInput, content
+)
