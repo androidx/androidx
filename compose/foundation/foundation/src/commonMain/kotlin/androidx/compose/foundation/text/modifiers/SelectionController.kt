@@ -112,6 +112,16 @@ internal class SelectionController(
     }
 
     fun updateTextLayout(textLayoutResult: TextLayoutResult) {
+        val prevTextLayoutResult = params.textLayoutResult
+
+        // Don't notify on null. We don't want every new Text that enters composition to
+        // notify a selectable change. It was already handled when it was created.
+        if (prevTextLayoutResult != null &&
+            prevTextLayoutResult.layoutInput.text != textLayoutResult.layoutInput.text
+        ) {
+            // Text content changed, notify selection to update itself.
+            selectionRegistrar.notifySelectableChange(selectableId)
+        }
         params = params.copy(textLayoutResult = textLayoutResult)
     }
 
