@@ -128,6 +128,17 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    public void testBuildSearchSpec_searchSourceLogTag_exceedLengthLimitation() {
+        String longTag = new String(new char[110]);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> new SearchSpec.Builder()
+                        .setSearchSourceLogTag(longTag));
+        assertThat(e).hasMessageThat().contains(
+                "The maximum supported tag length is 100. This tag is too long");
+    }
+
+    @Test
     public void testBuildSearchSpec_searchSourceLogTag_defaultIsNull() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
