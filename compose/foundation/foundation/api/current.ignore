@@ -17,6 +17,8 @@ ParameterNameChange: androidx.compose.foundation.gestures.snapping.SnapFlingBeha
 
 RemovedClass: androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt:
     Removed class androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt
+RemovedClass: androidx.compose.foundation.relocation.BringIntoViewResponderKt:
+    Removed class androidx.compose.foundation.relocation.BringIntoViewResponderKt
 
 
 RemovedDeprecatedMethod: androidx.compose.foundation.gestures.TapGestureDetectorKt#awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope, boolean):
