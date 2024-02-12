@@ -25,6 +25,7 @@ import androidx.build.checkapi.JavaApiTaskConfig
 import androidx.build.checkapi.KmpApiTaskConfig
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.checkapi.configureProjectForApiTasks
+import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.setUpCheckDocsTask
 import androidx.build.gradle.isRoot
 import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.resources.configurePublicResourcesStub
@@ -578,6 +579,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             AndroidMultiplatformApiTaskConfig,
             androidXExtension
         )
+        project.setUpCheckDocsTask(androidXExtension)
     }
 
     /**
@@ -756,6 +758,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             LibraryApiTaskConfig(libraryExtension),
             androidXExtension
         )
+        project.setUpCheckDocsTask(androidXExtension)
 
         project.addToProjectMap(androidXExtension)
 
@@ -819,6 +822,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
 
         project.configureProjectForApiTasks(apiTaskConfig, androidXExtension)
+        project.setUpCheckDocsTask(androidXExtension)
 
         project.afterEvaluate {
             if (androidXExtension.shouldRelease()) {
