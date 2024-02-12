@@ -238,7 +238,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
     }
 
     @Test
-    fun `Test usage of NamedDomainObjectCollection#findByName`() {
+    fun `Test usage of TaskContainer#findByName`() {
         val input = kotlin(
             """
                 import org.gradle.api.Project
