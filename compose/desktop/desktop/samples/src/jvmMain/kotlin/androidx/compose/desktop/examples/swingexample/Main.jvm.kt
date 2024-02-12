@@ -38,6 +38,7 @@ import androidx.compose.foundation.text.LocalTextContextMenu
 import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -48,6 +49,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,44 +93,70 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import org.jetbrains.skiko.hostOs
 
-val northClicks = mutableStateOf(0)
-val westClicks = mutableStateOf(0)
-val eastClicks = mutableStateOf(0)
+val globalClicks = mutableStateOf(0)
 
 fun main() = SwingUtilities.invokeLater {
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
     SwingComposeWindow()
 }
 
-fun SwingComposeWindow() {
-    // creating ComposePanel
-    val composePanelTop = ComposePanel()
-    composePanelTop.background = awtColor(55, 155, 55)
+private typealias SaveableStateData = Map<String, List<Any?>>
 
-    val composePanelBottom = ComposePanel()
-    composePanelBottom.background = awtColor(55, 55, 155)
+private class GlobalSaveableStateRegistry(
+    val saveableId: String,
+) : SaveableStateRegistry by SaveableStateRegistry(
+    restoredValues = map[saveableId],
+    canBeSaved = { true }
+) {
+    fun save() { map[saveableId] = performSave() }
+    companion object {
+        private val map = mutableMapOf<String, SaveableStateData>()
+    }
+}
 
-    // setting the content
-    composePanelTop.setContent {
-        JPopupTextMenuProvider(composePanelTop) {
-            ComposeContent(background = Color(55, 155, 55))
+fun createGreenComposePanel() = ComposePanel().also {
+    val saveableStateRegistry = GlobalSaveableStateRegistry("GREEN")
+    it.background = awtColor(55, 155, 55)
+    it.setContent {
+        JPopupTextMenuProvider(it) {
+            CompositionLocalProvider(
+                LocalSaveableStateRegistry provides saveableStateRegistry,
+            ) {
+                ComposeContent(background = Color(55, 155, 55))
+            }
         }
         DisposableEffect(Unit) {
             onDispose {
+                saveableStateRegistry.save()
                 println("Dispose composition")
             }
         }
     }
-    composePanelBottom.setContent {
+}
+
+fun createBlueComposePanel() = ComposePanel().also {
+    val saveableStateRegistry = GlobalSaveableStateRegistry("BLUE")
+    it.background = awtColor(55, 55, 155)
+    it.setContent {
         CustomTextMenuProvider {
-            ComposeContent(background = Color(55, 55, 155))
+            CompositionLocalProvider(
+                LocalSaveableStateRegistry provides saveableStateRegistry,
+            ) {
+                ComposeContent(background = Color(55, 55, 155))
+            }
         }
         DisposableEffect(Unit) {
             onDispose {
+                saveableStateRegistry.save()
                 println("Dispose composition")
             }
         }
     }
+}
+
+fun SwingComposeWindow() {
+    var composePanel1: ComposePanel? = createGreenComposePanel()
+    var composePanel2: ComposePanel? = createBlueComposePanel()
 
     val window = JFrame()
     window.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
@@ -136,13 +166,37 @@ fun SwingComposeWindow() {
     panel.layout = GridLayout(2, 1)
     window.contentPane.add(panel, BorderLayout.CENTER)
 
-    window.contentPane.add(actionButton("WEST", { westClicks.value++ }), BorderLayout.WEST)
+    window.contentPane.add(actionButton("WEST", { globalClicks.value++ }), BorderLayout.WEST)
     window.contentPane.add(
         actionButton(
-            text = "SOUTH/REMOVE COMPOSE",
+            text = "GREEN",
             size = IntSize(40, 40),
             action = {
-                panel.remove(composePanelBottom)
+                if (composePanel1 != null) {
+                    panel.remove(composePanel1)
+                    composePanel1 = null
+                } else {
+                    composePanel1 = createGreenComposePanel()
+                    panel.add(composePanel1, 0)
+                }
+                panel.revalidate()
+                panel.repaint()
+            }
+        ),
+        BorderLayout.NORTH
+    )
+    window.contentPane.add(
+        actionButton(
+            text = "BLUE",
+            size = IntSize(40, 40),
+            action = {
+                if (composePanel2 != null) {
+                    panel.remove(composePanel2)
+                    composePanel2 = null
+                } else {
+                    composePanel2 = createBlueComposePanel()
+                    panel.add(composePanel2)
+                }
                 panel.revalidate()
                 panel.repaint()
             }
@@ -151,8 +205,8 @@ fun SwingComposeWindow() {
     )
 
     // addind ComposePanel on JFrame
-    panel.add(composePanelTop)
-    panel.add(composePanelBottom)
+    panel.add(composePanel1)
+    panel.add(composePanel2)
 
     window.setSize(800, 600)
     window.isVisible = true
@@ -265,6 +319,8 @@ private fun circleIcon(color: java.awt.Color) = object : Icon {
 
 @Composable
 fun ComposeContent(background: Color = Color.White) {
+    val rememberClicks = remember { mutableStateOf(0) }
+    val rememberSaveableClicks = rememberSaveable { mutableStateOf(0) }
     Box(
         modifier = Modifier.fillMaxSize().background(color = background),
         contentAlignment = Alignment.Center
@@ -296,9 +352,9 @@ fun ComposeContent(background: Color = Color.White) {
                         actionButton(
                             text = "JComponent",
                             action = {
-                                westClicks.value++
-                                northClicks.value++
-                                eastClicks.value++
+                                globalClicks.value++
+                                rememberClicks.value++
+                                rememberSaveableClicks.value++
                             }
                         )
                     },
@@ -313,11 +369,11 @@ fun ComposeContent(background: Color = Color.White) {
             }
             Spacer(modifier = Modifier.height(50.dp))
             Row {
-                Counter("West", westClicks)
+                Counter("Global", globalClicks)
                 Spacer(modifier = Modifier.width(25.dp))
-                Counter("North", northClicks)
+                Counter("Remember", rememberClicks)
                 Spacer(modifier = Modifier.width(25.dp))
-                Counter("East", eastClicks)
+                Counter("Saveable", rememberSaveableClicks)
                 Spacer(modifier = Modifier.width(25.dp))
                 Column(modifier = Modifier.width(200.dp)) {
                     SelectionContainer {
@@ -370,7 +426,7 @@ fun Counter(text: String, counter: MutableState<Int>) {
                 contentAlignment = Alignment.Center
             ) {
                 Button(onClick = { counter.value++ }) {
-                    Text(text = text, color = Color.White)
+                    Text(text = "\uD83D\uDE80", color = Color.White)
                 }
             }
         }
@@ -380,7 +436,7 @@ fun Counter(text: String, counter: MutableState<Int>) {
 @Composable
 fun ApplicationScope.SecondWindowContent() {
     Box(
-        Modifier.fillMaxSize(),
+        Modifier.fillMaxSize().background(MaterialTheme.colors.background),
         contentAlignment = Alignment.Center
     ) {
         Column {
@@ -388,7 +444,7 @@ fun ApplicationScope.SecondWindowContent() {
                 modifier = Modifier.height(30.dp).fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Second Window", color = Color.White)
+                Text(text = "Second Window")
             }
             Spacer(modifier = Modifier.height(30.dp))
             Box(
@@ -396,7 +452,7 @@ fun ApplicationScope.SecondWindowContent() {
                 contentAlignment = Alignment.Center
             ) {
                 Button(onClick = { exitApplication() }) {
-                    Text("Close", color = Color.White)
+                    Text("Close")
                 }
             }
         }
