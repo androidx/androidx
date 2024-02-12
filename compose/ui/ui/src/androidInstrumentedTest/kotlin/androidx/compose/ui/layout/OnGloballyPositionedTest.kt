@@ -269,6 +269,179 @@ class OnGloballyPositionedTest {
     }
 
     @Test
+    fun globalPositionedModifierUpdateDoesNotInvalidateLayout() {
+        var lambda1Called = false
+        var lambda2Called = false
+        var layoutCalled = false
+        var placementCalled = false
+        val lambda1: (LayoutCoordinates) -> Unit = { lambda1Called = true }
+        val lambda2: (LayoutCoordinates) -> Unit = { lambda2Called = true }
+
+        val changeLambda = mutableStateOf(true)
+
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            layoutCalled = true
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placementCalled = true
+                placeable.place(0, 0)
+            }
+        }
+
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .then(layoutModifier)
+                    .size(10.dp)
+                    .onGloballyPositioned(if (changeLambda.value) lambda1 else lambda2)
+            )
+        }
+
+        rule.runOnIdle {
+            assertTrue(lambda1Called)
+            assertTrue(layoutCalled)
+            assertTrue(placementCalled)
+            assertFalse(lambda2Called)
+        }
+
+        lambda1Called = false
+        lambda2Called = false
+        layoutCalled = false
+        placementCalled = false
+        changeLambda.value = false
+
+        rule.runOnIdle {
+            assertTrue(lambda2Called)
+            assertFalse(lambda1Called)
+            assertFalse(layoutCalled)
+            assertFalse(placementCalled)
+        }
+    }
+
+    @Test
+    fun callbacksAreCalledOnlyOnceWhenLambdaChangesAndLayoutChanges() {
+        var lambda1Called = false
+        val lambda1: (LayoutCoordinates) -> Unit = {
+            assert(!lambda1Called)
+            lambda1Called = true
+        }
+
+        var lambda2Called = false
+        val lambda2: (LayoutCoordinates) -> Unit = {
+            assert(!lambda2Called)
+            lambda2Called = true
+        }
+
+        val changeLambda = mutableStateOf(true)
+        val size = mutableStateOf(100.dp)
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .size(size.value)
+                    .onGloballyPositioned(if (changeLambda.value) lambda1 else lambda2)
+            )
+        }
+
+        rule.runOnIdle {
+            assertTrue(lambda1Called)
+            assertFalse(lambda2Called)
+        }
+
+        lambda1Called = false
+        lambda2Called = false
+        size.value = 120.dp
+        changeLambda.value = false
+
+        rule.runOnIdle {
+            assertTrue(lambda2Called)
+            assertFalse(lambda1Called)
+        }
+    }
+
+    // change layout below callback, callback only gets called ones
+    @Test
+    fun callbacksAreCalledOnlyOnceWhenLayoutBelowItAndLambdaChanged() {
+        var lambda1Called = false
+        val lambda1: (LayoutCoordinates) -> Unit = {
+            assert(!lambda1Called)
+            lambda1Called = true
+        }
+
+        var lambda2Called = false
+        val lambda2: (LayoutCoordinates) -> Unit = {
+            assert(!lambda2Called)
+            lambda2Called = true
+        }
+
+        val changeLambda = mutableStateOf(true)
+        val size = mutableStateOf(10.dp)
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .onGloballyPositioned(if (changeLambda.value) lambda1 else lambda2)
+                    .padding(size.value)
+                    .size(10.dp)
+            )
+        }
+
+        rule.runOnIdle {
+            assertTrue(lambda1Called)
+            assertFalse(lambda2Called)
+        }
+
+        lambda1Called = false
+        lambda2Called = false
+        size.value = 20.dp
+        changeLambda.value = false
+
+        rule.runOnIdle {
+            assertTrue(lambda2Called)
+            assertFalse(lambda1Called)
+        }
+    }
+
+    @Test
+    fun multipleGloballyPositionedModifiersResultsInOnlySingleCallToLambdas() {
+        var lambda1Called = false
+        val lambda1: (LayoutCoordinates) -> Unit = {
+            assert(!lambda1Called)
+            lambda1Called = true
+        }
+
+        var lambda2Called = false
+        val lambda2: (LayoutCoordinates) -> Unit = {
+            assert(!lambda2Called)
+            lambda2Called = true
+        }
+
+        val changeLambda = mutableStateOf(true)
+        val size = mutableStateOf(100.dp)
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .size(size.value)
+                    .onGloballyPositioned(if (changeLambda.value) lambda1 else lambda2)
+                    .onGloballyPositioned(if (changeLambda.value) lambda2 else lambda1)
+            )
+        }
+
+        rule.runOnIdle {
+            assertTrue(lambda1Called)
+            assertTrue(lambda2Called)
+        }
+
+        lambda1Called = false
+        lambda2Called = false
+        changeLambda.value = false
+
+        rule.runOnIdle {
+            assertTrue(lambda2Called)
+            assertTrue(lambda1Called)
+        }
+    }
+
+    @Test
     fun testPositionInParent() {
         val positionedLatch = CountDownLatch(1)
         var coordinates: LayoutCoordinates? = null
