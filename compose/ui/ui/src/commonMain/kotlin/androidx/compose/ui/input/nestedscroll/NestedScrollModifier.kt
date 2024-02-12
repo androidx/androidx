@@ -20,7 +20,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
-import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Velocity
@@ -114,7 +113,7 @@ interface NestedScrollConnection {
  */
 class NestedScrollDispatcher {
 
-    internal var modifierLocalNode: ModifierLocalModifierNode? = null
+    internal var nestedScrollNode: NestedScrollNode? = null
 
     // lambda to calculate the most outer nested scroll scope for this dispatcher on demand
     internal var calculateNestedScrollScope: () -> CoroutineScope? = { scope }
@@ -153,9 +152,7 @@ class NestedScrollDispatcher {
      * nested scrolling parent above
      */
     internal val parent: NestedScrollConnection?
-        get() = modifierLocalNode?.run {
-            ModifierLocalNestedScroll.current
-        }
+        get() = nestedScrollNode?.parentNestedScrollNode
 
     /**
      * Dispatch pre scroll pass. This triggers [NestedScrollConnection.onPreScroll] on all the
