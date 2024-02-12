@@ -15,8 +15,11 @@
  */
 package androidx.appsearch.platformstorage;
 
+import static androidx.appsearch.platformstorage.util.SchemaValidationUtil.checkSchemasAreValidOrThrow;
+
 import android.annotation.SuppressLint;
 import android.app.appsearch.AppSearchResult;
+import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
@@ -40,6 +43,7 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter;
@@ -49,6 +53,7 @@ import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverte
 import androidx.appsearch.platformstorage.converter.SearchSuggestionResultToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSuggestionSpecToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformConverter;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
@@ -70,15 +75,17 @@ import java.util.function.Consumer;
 class SearchSessionImpl implements AppSearchSession {
     private final android.app.appsearch.AppSearchSession mPlatformSession;
     private final Executor mExecutor;
+    private final Context mContext;
     private final Features mFeatures;
 
     SearchSessionImpl(
             @NonNull android.app.appsearch.AppSearchSession platformSession,
             @NonNull Executor executor,
-            @NonNull Features features) {
+            @NonNull Context context) {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
-        mFeatures = Preconditions.checkNotNull(features);
+        mContext = Preconditions.checkNotNull(context);
+        mFeatures = new FeaturesImpl(mContext);
     }
 
     @Override
@@ -86,6 +93,18 @@ class SearchSessionImpl implements AppSearchSession {
     public ListenableFuture<SetSchemaResponse> setSchemaAsync(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();
+        if (needsSchemaValidation()) {
+            try {
+                checkSchemasAreValidOrThrow(request.getSchemas(),
+                        getFeatures().getMaxIndexedProperties());
+            } catch (IllegalSchemaException e) {
+                future.setException(
+                        new AppSearchException(
+                                androidx.appsearch.app.AppSearchResult.RESULT_INVALID_ARGUMENT,
+                                e.getMessage()));
+                return future;
+            }
+        }
         mPlatformSession.setSchema(
                 SetSchemaRequestToPlatformConverter.toPlatformSetSchemaRequest(request),
                 mExecutor,
@@ -316,6 +335,17 @@ class SearchSessionImpl implements AppSearchSession {
     @Override
     public void close() {
         mPlatformSession.close();
+    }
+
+    private boolean needsSchemaValidation() {
+        long appsearchVersionCode = AppSearchVersionUtil.getAppSearchVersionCode(mContext);
+        // Due to b/300135897, we'd like to validate the schema before sending the setSchema
+        // request to IcingLib on some versions of AppSearch.
+        // For these versions, IcingLib and AppSearch would crash if we try to set an
+        // invalid schema where the number of sections in a schema type exceeds the maximum
+        // limit.
+        return appsearchVersionCode >= AppSearchVersionUtil.APPSEARCH_U_BASE_VERSION_CODE
+                && appsearchVersionCode < AppSearchVersionUtil.APPSEARCH_M2023_11_VERSION_CODE;
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
