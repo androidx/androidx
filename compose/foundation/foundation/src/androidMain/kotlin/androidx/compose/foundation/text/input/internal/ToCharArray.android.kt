@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import android.text.TextUtils
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.toCharArray
@@ -31,6 +30,9 @@ internal actual fun CharSequence.toCharArray(
     if (this is TextFieldCharSequence) {
         toCharArray(destination, destinationOffset, startIndex, endIndex)
     } else {
-        TextUtils.getChars(this, startIndex, endIndex, destination, destinationOffset)
+        var dstIndex = destinationOffset
+        for (srcIndex in startIndex until endIndex) {
+            destination[dstIndex++] = this[srcIndex]
+        }
     }
 }

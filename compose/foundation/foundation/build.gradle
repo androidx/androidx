@@ -28,7 +28,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("AndroidXPaparazziPlugin")
 }
 
 
@@ -122,8 +121,8 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(libs.kotlinReflect)
-                implementation(libs.mockitoCore)
-                implementation(libs.mockitoKotlin)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin4)
                 implementation(project(":constraintlayout:constraintlayout-compose"))
             }
         }
