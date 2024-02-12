@@ -238,7 +238,6 @@
             <trusting group="com.google.auto.value"/>
             <trusting group="com.google.auto.value" name="auto-value"/>
          </trusted-key>
-         <trusted-key id="70731C2FFB496DC4E8105AA3604F437C1682DDE5" group="app.cash.paparazzi"/>
          <trusted-key id="70CD19BFD9F6C330027D6F260315BFB7970A144F">
             <trusting group="com.sun.istack"/>
             <trusting group="com.sun.xml.bind"/>
