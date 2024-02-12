@@ -82,6 +82,7 @@ fun assertWithMessage(messageToPrepend: String): StandardSubjectBuilder =
  * [that][SimpleSubjectBuilder.that] method creates instances of that class.
  */
 fun <S : Subject<T>, T> assertAbout(
-    subjectFactory: Subject.Factory<S, T>,
-): SimpleSubjectBuilder<S, T> =
-    SimpleSubjectBuilder(subjectFactory = subjectFactory)
+    subjectFactory: Subject.Factory<S, T>
+): SimpleSubjectBuilder<S, T> {
+    return assert_().about(subjectFactory)
+}
