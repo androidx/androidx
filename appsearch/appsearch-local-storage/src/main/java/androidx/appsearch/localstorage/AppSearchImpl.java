@@ -44,13 +44,13 @@ import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PackageIdentifier;
+import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
-import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.converter.ResultCodeToProtoConverter;
@@ -462,10 +462,10 @@ public final class AppSearchImpl implements Closeable {
      * @param packageName                 The package name that owns the schemas.
      * @param databaseName                The name of the database where this schema lives.
      * @param schemas                     Schemas to set for this app.
-     * @param visibilityConfigs           {@link VisibilityConfig}s that contain all
+     * @param visibilityConfigs           {@link InternalVisibilityConfig}s that contain all
      *                                    visibility setting information for those schemas
      *                                    has user custom settings. Other schemas in the list
-     *                                    that don't has a {@link VisibilityConfig}
+     *                                    that don't has a {@link InternalVisibilityConfig}
      *                                    will be treated as having the default visibility,
      *                                    which is accessible by the system and no other packages.
      * @param forceOverride               Whether to force-apply the schema even if it is
@@ -912,13 +912,13 @@ public final class AppSearchImpl implements Closeable {
                             responseBuilder.addSchemaTypeNotDisplayedBySystem(typeName);
                         }
                         List<PackageIdentifier> packageIdentifiers =
-                                visibilityConfig.getVisibilityConfig().getVisibleToPackages();
+                                visibilityConfig.getVisibilityConfig().getAllowedPackages();
                         if (!packageIdentifiers.isEmpty()) {
                             responseBuilder.setSchemaTypeVisibleToPackages(typeName,
                                     new ArraySet<>(packageIdentifiers));
                         }
                         Set<Set<Integer>> visibleToPermissions =
-                                visibilityConfig.getVisibilityConfig().getVisibleToPermissions();
+                                visibilityConfig.getVisibilityConfig().getRequiredPermissions();
                         if (!visibleToPermissions.isEmpty()) {
                             Set<Set<Integer>> visibleToPermissionsSet =
                                     new ArraySet<>(visibleToPermissions.size());
@@ -938,7 +938,7 @@ public final class AppSearchImpl implements Closeable {
                             responseBuilder.setPubliclyVisibleSchema(
                                     typeName, publiclyVisibleFromPackage);
                         }
-                        Set<VisibilityConfig> visibleToConfigs =
+                        Set<SchemaVisibilityConfig> visibleToConfigs =
                                 visibilityConfig.getVisibleToConfigs();
                         if (!visibleToConfigs.isEmpty()) {
                             responseBuilder.setSchemaTypeVisibleToConfigs(

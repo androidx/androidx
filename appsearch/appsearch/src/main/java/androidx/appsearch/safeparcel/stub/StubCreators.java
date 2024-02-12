@@ -21,6 +21,7 @@ import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.JoinSpec;
+import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResult.MatchInfo;
 import androidx.appsearch.app.SearchResultPage;
@@ -30,7 +31,6 @@ import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.SetSchemaResponse.MigrationFailure;
 import androidx.appsearch.app.StorageInfo;
-import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.app.VisibilityPermissionConfig;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
@@ -90,8 +90,8 @@ public class StubCreators {
             AbstractCreator<DocumentIndexingConfigParcel> {
     }
 
-    /** Stub creator for {@link VisibilityConfig}. */
-    public static class VisibilityConfigCreator extends AbstractCreator<VisibilityConfig> {
+    /** Stub creator for {@link SchemaVisibilityConfig}. */
+    public static class VisibilityConfigCreator extends AbstractCreator<SchemaVisibilityConfig> {
     }
 
     /** Stub creator for {@link InternalVisibilityConfig}. */

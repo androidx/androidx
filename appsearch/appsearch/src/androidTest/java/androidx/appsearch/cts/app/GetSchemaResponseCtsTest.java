@@ -23,8 +23,8 @@ import static org.junit.Assert.assertThrows;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
+import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.VisibilityConfig;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -161,15 +161,15 @@ public class GetSchemaResponseCtsTest {
 
     @Test
     public void setVisibilityConfig() {
-        VisibilityConfig visibilityConfig1 = new VisibilityConfig.Builder()
-                .addVisibleToPackage(new PackageIdentifier("pkg1", new byte[32]))
+        SchemaVisibilityConfig visibilityConfig1 = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(new PackageIdentifier("pkg1", new byte[32]))
                 .setPubliclyVisibleTargetPackage(new PackageIdentifier("pkg2", new byte[32]))
-                .addVisibleToPermissions(ImmutableSet.of(1, 2))
+                .addRequiredPermissions(ImmutableSet.of(1, 2))
                 .build();
-        VisibilityConfig visibilityConfig2 = new VisibilityConfig.Builder()
-                .addVisibleToPackage(new PackageIdentifier("pkg3", new byte[32]))
+        SchemaVisibilityConfig visibilityConfig2 = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(new PackageIdentifier("pkg3", new byte[32]))
                 .setPubliclyVisibleTargetPackage(new PackageIdentifier("pkg4", new byte[32]))
-                .addVisibleToPermissions(ImmutableSet.of(3, 4))
+                .addRequiredPermissions(ImmutableSet.of(3, 4))
                 .build();
 
         GetSchemaResponse getSchemaResponse =

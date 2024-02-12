@@ -41,15 +41,15 @@ public class InternalVisibilityConfigTest {
         String visibleToPackage2 = "com.example.package2";
         byte[] visibleToPackageCert2 = new byte[32];
 
-        VisibilityConfig innerConfig1 = new VisibilityConfig.Builder()
-                .addVisibleToPackage(
+        SchemaVisibilityConfig innerConfig1 = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(
                         new PackageIdentifier(visibleToPackage1, visibleToPackageCert1))
-                .addVisibleToPermissions(ImmutableSet.of(1, 2))
+                .addRequiredPermissions(ImmutableSet.of(1, 2))
                 .build();
-        VisibilityConfig innerConfig2 = new VisibilityConfig.Builder()
-                .addVisibleToPackage(
+        SchemaVisibilityConfig innerConfig2 = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(
                         new PackageIdentifier(visibleToPackage2, visibleToPackageCert2))
-                .addVisibleToPermissions(ImmutableSet.of(3, 4))
+                .addRequiredPermissions(ImmutableSet.of(3, 4))
                 .build();
 
         InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder("schema")
@@ -87,7 +87,7 @@ public class InternalVisibilityConfigTest {
         assertThat(visibilityConfigs).hasSize(1);
         InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(0);
         assertThat(visibilityConfig.isNotDisplayedBySystem()).isTrue();
-        assertThat(visibilityConfig.getVisibilityConfig().getVisibleToPackages())
+        assertThat(visibilityConfig.getVisibilityConfig().getAllowedPackages())
                 .containsExactly(new PackageIdentifier("com.example.test", packageSha256Cert));
         assertThat(visibilityConfig.getVisibilityConfig().getPubliclyVisibleTargetPackage())
                 .isNotNull();
