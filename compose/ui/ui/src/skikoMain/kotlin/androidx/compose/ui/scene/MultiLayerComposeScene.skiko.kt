@@ -19,6 +19,7 @@ package androidx.compose.ui.scene
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -511,6 +512,7 @@ private class MultiLayerComposeSceneImpl(
          * This scenario is important when user code relies on hover events to show tooltips.
          */
         override var boundsInWindow: IntRect by mutableStateOf(IntRect.Zero)
+        override var compositionLocalContext: CompositionLocalContext? = null
         override var scrimColor: Color? by mutableStateOf(null)
         override var focusable: Boolean = focusable
             set(value) {
@@ -579,7 +581,10 @@ private class MultiLayerComposeSceneImpl(
         override fun setContent(content: @Composable () -> Unit) {
             check(!isClosed) { "AttachedComposeSceneLayer is closed" }
             composition?.dispose()
-            composition = owner.setContent(parent = compositionContext) {
+            composition = owner.setContent(
+                parent = this@AttachedComposeSceneLayer.compositionContext,
+                { this@AttachedComposeSceneLayer.compositionLocalContext }
+            ) {
                 owner.setRootModifier(background then keyInput)
                 content()
             }

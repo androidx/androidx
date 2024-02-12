@@ -24,6 +24,7 @@ import androidx.compose.ui.window.Popup
 val Popups = Screen.Selection(
     "Popups",
     Screen.Example("ConfigurablePopup") { ConfigurablePopup() },
+    Screen.Example("CompositionLocal inside Popup") { PopupCompositionLocalExample() },
     FixedSizePopup,
     HalfScreenPopup,
     Screen.Example("Dropdown inside Popup") {

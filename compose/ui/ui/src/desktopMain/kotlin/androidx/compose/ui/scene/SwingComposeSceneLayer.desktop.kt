@@ -18,6 +18,7 @@ package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.awt.toAwtColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
@@ -121,6 +122,10 @@ internal class SwingComposeSceneLayer(
                 /* destination = */ container)
             _mediator?.contentComponent?.bounds = localBounds
         }
+
+    override var compositionLocalContext: CompositionLocalContext?
+        get() = _mediator?.compositionLocalContext
+        set(value) { _mediator?.compositionLocalContext = value }
 
     override var scrimColor: Color? = null
         set(value) {

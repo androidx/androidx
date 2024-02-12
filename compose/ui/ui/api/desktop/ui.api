@@ -3389,11 +3389,13 @@ public abstract interface class androidx/compose/ui/scene/ComposeSceneLayer {
 	public abstract fun calculateLocalPosition-qkQi6aY (J)J
 	public abstract fun close ()V
 	public abstract fun getBoundsInWindow ()Landroidx/compose/ui/unit/IntRect;
+	public abstract fun getCompositionLocalContext ()Landroidx/compose/runtime/CompositionLocalContext;
 	public abstract fun getDensity ()Landroidx/compose/ui/unit/Density;
 	public abstract fun getFocusable ()Z
 	public abstract fun getLayoutDirection ()Landroidx/compose/ui/unit/LayoutDirection;
 	public abstract fun getScrimColor-QN2ZGVo ()Landroidx/compose/ui/graphics/Color;
 	public abstract fun setBoundsInWindow (Landroidx/compose/ui/unit/IntRect;)V
+	public abstract fun setCompositionLocalContext (Landroidx/compose/runtime/CompositionLocalContext;)V
 	public abstract fun setContent (Lkotlin/jvm/functions/Function2;)V
 	public abstract fun setDensity (Landroidx/compose/ui/unit/Density;)V
 	public abstract fun setFocusable (Z)V
