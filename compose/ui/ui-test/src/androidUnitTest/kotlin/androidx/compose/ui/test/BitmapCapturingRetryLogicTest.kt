@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.util
+package androidx.compose.ui.test
 
 import android.view.PixelCopy
 import androidx.compose.testutils.expectError

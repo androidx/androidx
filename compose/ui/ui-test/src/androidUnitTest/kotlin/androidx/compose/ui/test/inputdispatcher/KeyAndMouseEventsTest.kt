@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.inputdispatcher.multimodal
+package androidx.compose.ui.test.inputdispatcher
 
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -27,7 +27,6 @@ import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.RobolectricMinSdk
 import androidx.compose.ui.test.ScrollWheel
-import androidx.compose.ui.test.inputdispatcher.InputDispatcherTest
 import androidx.compose.ui.test.util.assertHasValidEventTimes
 import androidx.compose.ui.test.util.verifyKeyEvent
 import androidx.compose.ui.test.util.verifyMouseEvent
