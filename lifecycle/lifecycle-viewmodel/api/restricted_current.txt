@@ -15,10 +15,12 @@ package androidx.lifecycle {
 
   public abstract class ViewModel {
     ctor public ViewModel();
-    ctor public ViewModel(java.io.Closeable... closeables);
-    method public void addCloseable(java.io.Closeable closeable);
-    method public final void addCloseable(String key, java.io.Closeable closeable);
-    method public final <T extends java.io.Closeable> T? getCloseable(String key);
+    ctor @Deprecated public ViewModel(java.io.Closeable... closeables);
+    ctor public ViewModel(java.lang.AutoCloseable... closeables);
+    method @Deprecated public void addCloseable(java.io.Closeable closeable);
+    method public void addCloseable(AutoCloseable closeable);
+    method public final void addCloseable(String key, AutoCloseable closeable);
+    method public final <T extends java.lang.AutoCloseable> T? getCloseable(String key);
     method protected void onCleared();
   }
 
