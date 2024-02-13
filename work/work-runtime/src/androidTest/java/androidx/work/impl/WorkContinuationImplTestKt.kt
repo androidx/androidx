@@ -16,6 +16,7 @@
 
 package androidx.work.impl
 
+import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration

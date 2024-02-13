@@ -20,6 +20,7 @@
 package androidx.work
 
 import androidx.concurrent.futures.CallbackToFutureAdapter
+import androidx.concurrent.futures.await
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.common.util.concurrent.ListenableFuture
