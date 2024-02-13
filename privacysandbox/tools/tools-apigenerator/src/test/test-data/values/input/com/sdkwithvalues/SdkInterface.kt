@@ -13,6 +13,8 @@ interface SdkInterface {
     suspend fun processNullableValues(request: SdkRequest?): SdkResponse?
 
     suspend fun processValueList(x: List<SdkRequest>): List<SdkResponse>
+
+    suspend fun processEnum(requestFlag: RequestFlag): RequestFlag
 }
 
 @PrivacySandboxValue
