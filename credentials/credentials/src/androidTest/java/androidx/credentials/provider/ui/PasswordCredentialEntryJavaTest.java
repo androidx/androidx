@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.credentials.provider.ui;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -45,7 +44,6 @@ import org.junit.runner.RunWith;
 
 import java.time.Instant;
 import java.util.HashSet;
-
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 26)
 @SmallTest
@@ -53,43 +51,35 @@ public class PasswordCredentialEntryJavaTest {
     private static final CharSequence USERNAME = "title";
     private static final CharSequence DISPLAYNAME = "subtitle";
     private static final CharSequence TYPE_DISPLAY_NAME = "Password";
-
     private static final String AFFILIATED_DOMAIN = "affiliation-name";
-
     private static final Long LAST_USED_TIME = 10L;
-
+    private static final boolean DEFAULT_SINGLE_PROVIDER_ICON_BIT = false;
+    private static final boolean SINGLE_PROVIDER_ICON_BIT = true;
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
-
     private static final Icon ICON = Icon.createWithBitmap(Bitmap.createBitmap(
             100, 100, Bitmap.Config.ARGB_8888));
     private final BeginGetPasswordOption mBeginGetPasswordOption = new BeginGetPasswordOption(
             new HashSet<>(),
             Bundle.EMPTY, "id");
-
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = new Intent();
     private final PendingIntent mPendingIntent =
             PendingIntent.getActivity(mContext, 0, mIntent,
                     PendingIntent.FLAG_IMMUTABLE);
-
     @Test
     public void build_requiredParams_success() {
         PasswordCredentialEntry entry = constructEntryWithRequiredParamsOnly();
-
         assertNotNull(entry);
         assertThat(entry.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         assertEntryWithRequiredParamsOnly(entry, false);
     }
-
     @Test
     public void build_allParams_success() {
         PasswordCredentialEntry entry = constructEntryWithAllParams();
-
         assertNotNull(entry);
         assertThat(entry.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         assertEntryWithAllParams(entry);
     }
-
     @Test
     public void build_nullContext_throwsNPE() {
         assertThrows("Expected null context to throw NPE",
@@ -98,7 +88,6 @@ public class PasswordCredentialEntryJavaTest {
                         null, USERNAME, mPendingIntent, mBeginGetPasswordOption
                 ).build());
     }
-
     @Test
     public void build_nullUsername_throwsNPE() {
         assertThrows("Expected null username to throw NPE",
@@ -107,7 +96,6 @@ public class PasswordCredentialEntryJavaTest {
                         mContext, null, mPendingIntent, mBeginGetPasswordOption
                 ).build());
     }
-
     @Test
     public void build_nullPendingIntent_throwsNPE() {
         assertThrows("Expected null pending intent to throw NPE",
@@ -116,7 +104,6 @@ public class PasswordCredentialEntryJavaTest {
                         mContext, USERNAME, null, mBeginGetPasswordOption
                 ).build());
     }
-
     @Test
     public void build_nullBeginOption_throwsNPE() {
         assertThrows("Expected null option to throw NPE",
@@ -125,7 +112,6 @@ public class PasswordCredentialEntryJavaTest {
                         mContext, USERNAME, mPendingIntent, null
                 ).build());
     }
-
     @Test
     public void build_emptyUsername_throwsIAE() {
         assertThrows("Expected empty username to throw IllegalArgumentException",
@@ -133,45 +119,35 @@ public class PasswordCredentialEntryJavaTest {
                 () -> new PasswordCredentialEntry.Builder(
                         mContext, "", mPendingIntent, mBeginGetPasswordOption).build());
     }
-
     @Test
     public void build_nullIcon_defaultIconSet() {
         PasswordCredentialEntry entry = new PasswordCredentialEntry
                 .Builder(mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
-
         assertThat(TestUtilsKt.equals(entry.getIcon(),
                 Icon.createWithResource(mContext, R.drawable.ic_password))).isTrue();
     }
-
     @Test
     public void build_nullTypeDisplayName_defaultDisplayNameSet() {
         PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
-                        mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
-
+                mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
         assertThat(entry.getTypeDisplayName()).isEqualTo(
                 mContext.getString(
                         R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL)
         );
     }
-
     @Test
     public void build_isAutoSelectAllowedDefault_false() {
         PasswordCredentialEntry entry = constructEntryWithRequiredParamsOnly();
-
         assertFalse(entry.isAutoSelectAllowed());
     }
-
     @Test
     public void constructor_defaultAffiliatedDomain() {
         PasswordCredentialEntry entry = constructEntryWithRequiredParamsOnly();
-
         assertThat(entry.getAffiliatedDomain()).isNull();
     }
-
     @Test
     public void constructor_nonEmptyAffiliatedDomainSet_nonEmptyAffiliatedDomainRetrieved() {
         String expectedAffiliatedDomain = "non-empty";
-
         PasswordCredentialEntry entryWithAffiliatedDomain = new PasswordCredentialEntry(
                 mContext,
                 USERNAME,
@@ -181,84 +157,80 @@ public class PasswordCredentialEntryJavaTest {
                 Instant.ofEpochMilli(LAST_USED_TIME),
                 ICON,
                 false,
-                expectedAffiliatedDomain
+                expectedAffiliatedDomain,
+                false
         );
-
         assertThat(entryWithAffiliatedDomain.getAffiliatedDomain())
                 .isEqualTo(expectedAffiliatedDomain);
     }
-
     @Test
     public void builder_constructDefault_containsOnlyDefaultValuesForSettableParameters() {
         PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(mContext, USERNAME,
                 mPendingIntent, mBeginGetPasswordOption).build();
-
         assertThat(entry.getAffiliatedDomain()).isNull();
         assertThat(entry.getDisplayName()).isNull();
         assertThat(entry.getLastUsedTime()).isNull();
         assertThat(entry.isAutoSelectAllowed()).isFalse();
         assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
     }
-
     @Test
     public void builder_setAffiliatedDomainNull_retrieveNullAffiliatedDomain() {
         PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(mContext, USERNAME,
                 mPendingIntent, mBeginGetPasswordOption).setAffiliatedDomain(null).build();
-
         assertThat(entry.getAffiliatedDomain()).isNull();
     }
-
     @Test
     public void builder_setAffiliatedDomainNonNull_retrieveNonNullAffiliatedDomain() {
         String expectedAffiliatedDomain = "affiliated-domain";
-
         PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
                 mContext,
                 USERNAME,
                 mPendingIntent,
                 mBeginGetPasswordOption
         ).setAffiliatedDomain(expectedAffiliatedDomain).build();
-
         assertThat(entry.getAffiliatedDomain()).isEqualTo(expectedAffiliatedDomain);
     }
-
+    @Test
+    public void builder_setPreferredDefaultIconBit_retrieveSetIconBit() {
+        boolean expectedPreferredDefaultIconBit = SINGLE_PROVIDER_ICON_BIT;
+        PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
+                mContext,
+                USERNAME,
+                mPendingIntent,
+                mBeginGetPasswordOption
+        ).setDefaultIconPreferredAsSingleProvider(expectedPreferredDefaultIconBit)
+                .build();
+        assertThat(entry.isDefaultIconPreferredAsSingleProvider())
+                .isEqualTo(expectedPreferredDefaultIconBit);
+    }
     @Test
     @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_requiredParams_success() {
         PasswordCredentialEntry originalEntry = constructEntryWithRequiredParamsOnly();
-
         PasswordCredentialEntry entry = PasswordCredentialEntry.fromSlice(
                 PasswordCredentialEntry.toSlice(originalEntry));
-
         assertNotNull(entry);
         assertEntryWithRequiredParamsOnly(entry, true);
     }
-
     @Test
     @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_allParams_success() {
         PasswordCredentialEntry originalEntry = constructEntryWithAllParams();
-
         PasswordCredentialEntry entry = PasswordCredentialEntry.fromSlice(
                 PasswordCredentialEntry.toSlice(originalEntry));
-
         assertNotNull(entry);
         assertEntryWithAllParams(entry);
     }
-
     @Test
     @SdkSuppress(minSdkVersion = 34)
     public void fromCredentialEntry_allParams_success() {
         PasswordCredentialEntry originalEntry = constructEntryWithAllParams();
-
         PasswordCredentialEntry entry = PasswordCredentialEntry.fromCredentialEntry(
                 new CredentialEntry("id",
                         PasswordCredentialEntry.toSlice(originalEntry)));
-
         assertNotNull(entry);
         assertEntryWithAllParams(entry);
     }
-
     private PasswordCredentialEntry constructEntryWithRequiredParamsOnly() {
         return new PasswordCredentialEntry.Builder(
                 mContext,
@@ -266,7 +238,6 @@ public class PasswordCredentialEntryJavaTest {
                 mPendingIntent,
                 mBeginGetPasswordOption).build();
     }
-
     private PasswordCredentialEntry constructEntryWithAllParams() {
         return new PasswordCredentialEntry.Builder(
                 mContext,
@@ -278,18 +249,19 @@ public class PasswordCredentialEntryJavaTest {
                 .setIcon(ICON)
                 .setAutoSelectAllowed(IS_AUTO_SELECT_ALLOWED)
                 .setAffiliatedDomain(AFFILIATED_DOMAIN)
+                .setDefaultIconPreferredAsSingleProvider(SINGLE_PROVIDER_ICON_BIT)
                 .build();
     }
-
     private void assertEntryWithRequiredParamsOnly(PasswordCredentialEntry entry,
             Boolean assertOptionIdOnly) {
         assertThat(USERNAME.equals(entry.getUsername()));
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
         assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.isDefaultIconPreferredAsSingleProvider()).isEqualTo(
+                DEFAULT_SINGLE_PROVIDER_ICON_BIT);
         assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
     }
-
     private void assertEntryWithAllParams(PasswordCredentialEntry entry) {
         assertThat(USERNAME.equals(entry.getUsername()));
         assertThat(DISPLAYNAME.equals(entry.getDisplayName()));
@@ -300,6 +272,8 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
         assertThat(entry.getAffiliatedDomain()).isEqualTo(AFFILIATED_DOMAIN);
+        assertThat(entry.isDefaultIconPreferredAsSingleProvider()).isEqualTo(
+                SINGLE_PROVIDER_ICON_BIT);
         assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
     }
 }
