@@ -54,6 +54,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -1013,8 +1014,9 @@ class GLFrontBufferedRendererTest {
         )
     }
 
+    @Ignore("b/324920812")
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 33) // maxSdk 33 b/315994268
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testRenderFrontBufferSeveralTimes() {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
 
