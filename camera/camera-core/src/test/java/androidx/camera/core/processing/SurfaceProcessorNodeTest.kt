@@ -147,7 +147,8 @@ class SurfaceProcessorNodeTest {
         )
         createSurfaceProcessorNode()
         // Act: transform input.
-        val out = node.transform(SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig)))
+        nodeInput = SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig))
+        val out = node.transform(nodeInput)
         // Assert: output crop rect is based on input crop rect AND the OutConfig crop rect.
         assertThat(out[outConfig]!!.cropRect).isEqualTo(Rect(80, 60, 400, 300))
     }
@@ -180,7 +181,8 @@ class SurfaceProcessorNodeTest {
         )
         createSurfaceProcessorNode()
         // Act: transform input which throws exception.
-        node.transform(SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig)))
+        nodeInput = SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig))
+        node.transform(nodeInput)
     }
 
     @Test
