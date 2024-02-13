@@ -108,9 +108,7 @@ internal class LegacyAdaptingPlatformTextInputModifierNode(
     ): Job? {
         if (!isAttached) return null
         return coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            establishTextInputSession {
-                block()
-            }
+            establishTextInputSession(block)
         }
     }
 }
