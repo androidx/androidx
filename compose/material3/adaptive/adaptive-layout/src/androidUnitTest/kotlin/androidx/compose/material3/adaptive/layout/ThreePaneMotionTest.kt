@@ -58,7 +58,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.movePanesToLeftMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToLeftMotion)
     }
 
     @Test
@@ -76,7 +76,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.movePanesToLeftMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToLeftMotion)
     }
 
     @Test
@@ -94,7 +94,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.movePanesToLeftMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToLeftMotion)
     }
 
     @Test
@@ -112,7 +112,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.movePanesToRightMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToRightMotion)
     }
 
     @Test
@@ -130,7 +130,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.movePanesToRightMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToRightMotion)
     }
 
     @Test
@@ -148,7 +148,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.movePanesToRightMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToRightMotion)
     }
 
     @Test
@@ -166,7 +166,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.movePanesToLeftMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToLeftMotion)
     }
 
     @Test
@@ -184,7 +184,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.movePanesToRightMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToRightMotion)
     }
 
     @Test
@@ -202,7 +202,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.switchRightTwoPanesMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.switchRightTwoPanesMotion)
     }
 
     @Test
@@ -220,7 +220,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.switchRightTwoPanesMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.switchRightTwoPanesMotion)
     }
 
     @Test
@@ -238,7 +238,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.switchLeftTwoPanesMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.switchLeftTwoPanesMotion)
     }
 
     @Test
@@ -256,7 +256,7 @@ class ThreePaneMotionTest {
             ),
             PaneOrder
         )
-        assertThat(motions).isEqualTo(ThreePaneScaffoldDefaults.switchLeftTwoPanesMotion)
+        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.switchLeftTwoPanesMotion)
     }
 
     @Test
