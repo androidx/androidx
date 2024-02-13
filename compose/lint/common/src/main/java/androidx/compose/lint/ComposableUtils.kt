@@ -263,7 +263,7 @@ private class ComposableBodyVisitor(
 /**
  * Returns whether this type reference is @Composable or not
  */
-private val UTypeReferenceExpression.isComposable: Boolean
+val UTypeReferenceExpression.isComposable: Boolean
     get() {
         if (type.hasAnnotation(Names.Runtime.Composable.javaFqn)) return true
 
