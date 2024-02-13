@@ -287,6 +287,24 @@ package androidx.window.extensions.layout {
     method public android.graphics.Rect getBounds();
   }
 
+  public final class DisplayFoldFeature {
+    method public int getType();
+    method public boolean hasProperties(int...);
+    method public boolean hasProperty(int);
+    field public static final int FOLD_PROPERTY_SUPPORTS_HALF_OPENED = 1; // 0x1
+    field public static final int TYPE_HINGE = 1; // 0x1
+    field public static final int TYPE_SCREEN_FOLD_IN = 2; // 0x2
+    field public static final int TYPE_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class DisplayFoldFeature.Builder {
+    ctor public DisplayFoldFeature.Builder(int);
+    method public androidx.window.extensions.layout.DisplayFoldFeature.Builder addProperties(int...);
+    method public androidx.window.extensions.layout.DisplayFoldFeature.Builder addProperty(int);
+    method public androidx.window.extensions.layout.DisplayFoldFeature build();
+    method public androidx.window.extensions.layout.DisplayFoldFeature.Builder clearProperties();
+  }
+
   public class FoldingFeature implements androidx.window.extensions.layout.DisplayFeature {
     ctor public FoldingFeature(android.graphics.Rect, int, int);
     method public android.graphics.Rect getBounds();
@@ -298,25 +316,19 @@ package androidx.window.extensions.layout {
     field public static final int TYPE_HINGE = 2; // 0x2
   }
 
-  public abstract class SupportedDisplayFeature {
+  public final class SupportedWindowFeatures {
+    method public java.util.List<androidx.window.extensions.layout.DisplayFoldFeature!> getScreenFoldFeatures();
   }
 
-  public static final class SupportedDisplayFeature.ScreenFoldDisplayFeature extends androidx.window.extensions.layout.SupportedDisplayFeature {
-    method public int getType();
-    method public boolean isHalfOpenedSupported();
-    field public static final int TYPE_HINGE = 0; // 0x0
-    field public static final int TYPE_SCREEN_FOLD_IN = 1; // 0x1
-  }
-
-  public static final class SupportedDisplayFeature.ScreenFoldDisplayFeature.Builder {
-    ctor public SupportedDisplayFeature.ScreenFoldDisplayFeature.Builder(int, boolean);
-    method public androidx.window.extensions.layout.SupportedDisplayFeature.ScreenFoldDisplayFeature build();
+  public static final class SupportedWindowFeatures.Builder {
+    ctor public SupportedWindowFeatures.Builder(java.util.List<androidx.window.extensions.layout.DisplayFoldFeature!>);
+    method public androidx.window.extensions.layout.SupportedWindowFeatures build();
   }
 
   public interface WindowLayoutComponent {
     method @Deprecated public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
     method public default void addWindowLayoutInfoListener(@UiContext android.content.Context, androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
-    method public default java.util.List<androidx.window.extensions.layout.SupportedDisplayFeature!> getSupportedDisplayFeatures();
+    method public default androidx.window.extensions.layout.SupportedWindowFeatures getSupportedWindowFeatures();
     method public default void removeWindowLayoutInfoListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
     method @Deprecated public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
   }

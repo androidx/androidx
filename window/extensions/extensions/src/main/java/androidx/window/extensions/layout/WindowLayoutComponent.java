@@ -27,8 +27,6 @@ import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
 
-import java.util.List;
-
 /**
  * The interface definition that will be used by the WindowManager library to get custom
  * OEM-provided information about the window that isn't covered by platform APIs. Exposes methods
@@ -100,14 +98,14 @@ public interface WindowLayoutComponent {
     }
 
     /**
-     * Returns the list of {@link SupportedDisplayFeature} for the device. This list will not change
+     * Returns the {@link SupportedWindowFeatures} for the device. This value will not change
      * over time.
      * @see WindowLayoutComponent#addWindowLayoutInfoListener(Context, Consumer) to register a
      * listener for features that impact the window.
      */
     @RequiresVendorApiLevel(level = 6)
     @NonNull
-    default List<SupportedDisplayFeature> getSupportedDisplayFeatures() {
+    default SupportedWindowFeatures getSupportedWindowFeatures() {
         throw new UnsupportedOperationException("This method will not be called unless there is a"
                 + " corresponding override implementation on the device");
     }
