@@ -24,10 +24,10 @@ package androidx.lifecycle
  *
  * @see ViewTreeViewModelStoreOwner
  */
-interface ViewModelStoreOwner {
+public interface ViewModelStoreOwner {
 
     /**
      * The owned [ViewModelStore]
      */
-    val viewModelStore: ViewModelStore
+    public val viewModelStore: ViewModelStore
 }

@@ -23,6 +23,7 @@
  */
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("AndroidXPlugin")
@@ -31,6 +32,9 @@ plugins {
 
 androidXMultiplatform {
     android()
+    kotlin {
+        explicitApi = ExplicitApiMode.Strict
+    }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 

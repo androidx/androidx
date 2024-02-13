@@ -82,7 +82,7 @@ constructor(
         public fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
             create(modelClass)
 
-        companion object {
+        public companion object {
             /**
              * Creates an [InitializerViewModelFactory] using the given initializers.
              *
@@ -90,7 +90,7 @@ constructor(
              * simple view models
              */
             @JvmStatic
-            fun from(vararg initializers: ViewModelInitializer<*>): Factory =
+            public fun from(vararg initializers: ViewModelInitializer<*>): Factory =
                 InitializerViewModelFactory(*initializers)
         }
     }
@@ -235,7 +235,7 @@ constructor(
              *  are passed to [ViewModelProvider.Factory].
              */
             @JvmField
-            val VIEW_MODEL_KEY: Key<String> = ViewModelKeyImpl
+            public val VIEW_MODEL_KEY: Key<String> = ViewModelKeyImpl
         }
     }
 
@@ -349,7 +349,7 @@ constructor(
              * A [CreationExtras.Key] to query an application in which ViewModel is being created.
              */
             @JvmField
-            val APPLICATION_KEY: Key<Application> = ApplicationKeyImpl
+            public val APPLICATION_KEY: Key<Application> = ApplicationKeyImpl
         }
     }
 }

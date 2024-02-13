@@ -34,7 +34,7 @@ import androidx.lifecycle.viewmodel.R
  * @param viewModelStoreOwner ViewModelStoreOwner associated with the given view
  */
 @JvmName("set")
-fun View.setViewTreeViewModelStoreOwner(viewModelStoreOwner: ViewModelStoreOwner?) {
+public fun View.setViewTreeViewModelStoreOwner(viewModelStoreOwner: ViewModelStoreOwner?) {
     setTag(R.id.view_tree_view_model_store_owner, viewModelStoreOwner)
 }
 
@@ -46,7 +46,7 @@ fun View.setViewTreeViewModelStoreOwner(viewModelStoreOwner: ViewModelStoreOwner
  * of its ancestors
  */
 @JvmName("get")
-fun View.findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? {
+public fun View.findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? {
     return generateSequence(this) { view ->
         view.parent as? View
     }.mapNotNull { view ->

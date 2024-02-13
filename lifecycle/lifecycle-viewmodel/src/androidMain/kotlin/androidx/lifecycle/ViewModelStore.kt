@@ -32,14 +32,14 @@ import androidx.annotation.RestrictTo
  * Use [ViewModelStoreOwner.getViewModelStore] to retrieve a `ViewModelStore` for
  * activities and fragments.
  */
-open class ViewModelStore {
+public open class ViewModelStore {
 
     private val map = mutableMapOf<String, ViewModel>()
 
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun put(key: String, viewModel: ViewModel) {
+    public fun put(key: String, viewModel: ViewModel) {
         val oldViewModel = map.put(key, viewModel)
         oldViewModel?.clear()
     }
@@ -50,21 +50,21 @@ open class ViewModelStore {
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    operator fun get(key: String): ViewModel? {
+    public operator fun get(key: String): ViewModel? {
         return map[key]
     }
 
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun keys(): Set<String> {
+    public fun keys(): Set<String> {
         return HashSet(map.keys)
     }
 
     /**
      * Clears internal storage and notifies `ViewModel`s that they are no longer used.
      */
-    fun clear() {
+    public fun clear() {
         for (vm in map.values) {
             vm.clear()
         }
