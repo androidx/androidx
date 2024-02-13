@@ -105,20 +105,27 @@ class WindowSizeClass(
     companion object {
 
         /**
-         * Computes the [WindowSizeClass] for the given width and height in DP.
+         * Computes the recommended [WindowSizeClass] for the given width and height in DP.
          * @param dpWidth width of a window in DP.
          * @param dpHeight height of a window in DP.
          * @return [WindowSizeClass] that is recommended for the given dimensions.
+         * @see [widestOrEqualWidthDp] for selecting from a custom set of [WindowSizeClass].
          * @throws IllegalArgumentException if [dpWidth] or [dpHeight] is
          * negative.
-         *
-         * @deprecated use the constructor instead.
          */
         @JvmStatic
-        @Deprecated("Use constructor instead.",
-            ReplaceWith("WindowSizeClass(widthDp = dpWidth, heightDp = dpHeight)"))
         fun compute(dpWidth: Float, dpHeight: Float): WindowSizeClass {
-            return WindowSizeClass(dpWidth.toInt(), dpHeight.toInt())
+            val widthDp = when {
+                dpWidth < 600 -> 0
+                dpWidth < 840 -> 600
+                else -> 840
+            }
+            val heightDp = when {
+                dpHeight < 480 -> 0
+                dpHeight < 900 -> 480
+                else -> 900
+            }
+            return WindowSizeClass(widthDp, heightDp)
         }
 
         /**
@@ -135,7 +142,7 @@ class WindowSizeClass(
         fun compute(widthPx: Int, heightPx: Int, density: Float): WindowSizeClass {
             val widthDp = widthPx / density
             val heightDp = heightPx / density
-            return WindowSizeClass(widthDp = widthDp.toInt(), heightDp = heightDp.toInt())
+            return compute(widthDp, heightDp)
         }
     }
 }
