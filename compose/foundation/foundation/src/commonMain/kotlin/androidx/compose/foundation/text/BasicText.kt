@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -119,7 +120,12 @@ fun BasicText(
         null
     }
     val finalModifier = if (selectionController != null || onTextLayout != null) {
-        modifier
+        // put pointerHoverIcon before the user modifier so that they can override it
+        val startModifier = if (selectionController == null) modifier else Modifier
+            .pointerHoverIcon(textPointerIcon)
+            .then(modifier)
+
+        startModifier
             // TODO(b/274781644): Remove this graphicsLayer
             .graphicsLayer()
             .textModifier(
@@ -284,9 +290,14 @@ fun BasicText(
     val hasInlineContent = text.hasInlineContent()
     val hasLinks = text.hasLinks()
     if (!hasInlineContent && !hasLinks) {
+        // put pointerHoverIcon before the user modifier so that they can override it
+        val startModifier = if (selectionController == null) modifier else Modifier
+            .pointerHoverIcon(textPointerIcon)
+            .then(modifier)
+
         // this is the same as text: String, use all the early exits
         Layout(
-            modifier = modifier
+            modifier = startModifier
                 // TODO(b/274781644): Remove this graphicsLayer
                 .graphicsLayer()
                 .textModifier(
@@ -429,8 +440,6 @@ private fun selectionIdSaver(selectionRegistrar: SelectionRegistrar?) = Saver<Lo
     save = { if (selectionRegistrar.hasSelection(it)) it else null },
     restore = { it }
 )
-
-internal expect fun Modifier.textPointerHoverIcon(selectionRegistrar: SelectionRegistrar?): Modifier
 
 private object EmptyMeasurePolicy : MeasurePolicy {
     private val placementBlock: Placeable.PlacementScope.() -> Unit = {}
@@ -638,6 +647,11 @@ private fun LayoutWithLinksAndInlineContent(
         { measuredPlaceholderPositions?.value = it }
     } else null
 
+    // put pointerHoverIcon before the user modifier so that they can override it
+    val startModifier = if (selectionController == null) modifier else Modifier
+        .pointerHoverIcon(textPointerIcon)
+        .then(modifier)
+
     Layout(
         content = {
             textScope?.LinksComposables()
@@ -645,7 +659,7 @@ private fun LayoutWithLinksAndInlineContent(
                 InlineChildren(text = text, inlineContents = it)
             }
         },
-        modifier = modifier
+        modifier = startModifier
             // TODO(b/274781644): Remove this graphicsLayer
             .graphicsLayer()
             .textModifier(

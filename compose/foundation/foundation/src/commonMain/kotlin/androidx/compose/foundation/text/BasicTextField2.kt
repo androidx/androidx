@@ -63,6 +63,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
@@ -451,7 +452,10 @@ internal fun BasicTextField2(
         }
     }
 
-    val decorationModifiers = modifier
+    val decorationModifiers = Modifier
+        // put pointerHoverIcon before the user modifier so that they can override it
+        .pointerHoverIcon(textPointerIcon)
+        .then(modifier)
         .then(
             // semantics + some focus + input session + touch to focus
             TextFieldDecoratorModifier(

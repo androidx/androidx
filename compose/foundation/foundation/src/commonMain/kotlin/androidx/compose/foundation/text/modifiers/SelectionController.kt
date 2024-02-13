@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.foundation.text.selection.selectionGestureInput
-import androidx.compose.foundation.text.textPointerHoverIcon
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -73,7 +72,7 @@ internal class SelectionController(
     private val selectableId: Long,
     private val selectionRegistrar: SelectionRegistrar,
     private val backgroundSelectionColor: Color,
-    // TODO: Move these into Modifer.element eventually
+    // TODO: Move these into Modifier.element eventually
     private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty
 ) : RememberObserver {
     private var selectable: Selectable? = null
@@ -83,7 +82,6 @@ internal class SelectionController(
             selectableId = selectableId,
             layoutCoordinates = { params.layoutCoordinates },
         )
-        .textPointerHoverIcon(selectionRegistrar)
 
     override fun onRemembered() {
         selectable = selectionRegistrar.subscribe(
