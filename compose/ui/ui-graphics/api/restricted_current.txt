@@ -50,6 +50,10 @@ package androidx.compose.ui.graphics {
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.colorspace.ColorSpace toComposeColorSpace(android.graphics.ColorSpace);
   }
 
+  public final class AndroidGraphicsContext_androidKt {
+    method public static androidx.compose.ui.graphics.GraphicsContext GraphicsContext(android.view.ViewGroup layerContainer);
+  }
+
   public final class AndroidImageBitmap_androidKt {
     method public static android.graphics.Bitmap asAndroidBitmap(androidx.compose.ui.graphics.ImageBitmap);
     method public static androidx.compose.ui.graphics.ImageBitmap asImageBitmap(android.graphics.Bitmap);

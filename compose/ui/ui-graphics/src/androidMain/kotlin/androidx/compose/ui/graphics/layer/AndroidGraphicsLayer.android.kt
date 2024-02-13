@@ -87,7 +87,7 @@ actual class GraphicsLayer internal constructor(
 
     /**
      * Offset in pixels where this [GraphicsLayer] will render within a provided canvas when
-     * [drawLayer] is called. This is configured by calling [setPosition]
+     * [drawLayer] is called. This is configured by calling [buildLayer]
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTopLeftSample
      */
