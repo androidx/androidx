@@ -46,16 +46,11 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPI
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 /** Sets up a source jar task for an Android library project. */
-fun Project.configureSourceJarForAndroid(
-    libraryExtension: LibraryExtension,
-    androidXExtension: AndroidXExtension
-) {
+fun Project.configureSourceJarForAndroid(libraryExtension: LibraryExtension) {
     libraryExtension.defaultPublishVariant { variant ->
         val sourceJar =
             tasks.register(
-                "sourceJar${variant.name.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-            }}",
+                "sourceJar${variant.name.capitalize()}",
                 Jar::class.java
             ) {
                 it.archiveClassifier.set("sources")
@@ -64,7 +59,7 @@ fun Project.configureSourceJarForAndroid(
                 // otherwise.
                 it.duplicatesStrategy = DuplicatesStrategy.FAIL
             }
-        registerSourcesVariant(sourceJar, androidXExtension)
+        registerSourcesVariant(sourceJar)
 
         // b/272214715
         configurations.whenObjectAdded {
@@ -110,7 +105,7 @@ fun Project.configureSourceJarForAndroid(
 }
 
 /** Sets up a source jar task for a Java library project. */
-fun Project.configureSourceJarForJava(androidXExtension: AndroidXExtension) {
+fun Project.configureSourceJarForJava() {
     val sourceJar =
         tasks.register("sourceJar", Jar::class.java) { task ->
             task.archiveClassifier.set("sources")
@@ -137,7 +132,7 @@ fun Project.configureSourceJarForJava(androidXExtension: AndroidXExtension) {
                 }
             }
         }
-    registerSourcesVariant(sourceJar, androidXExtension)
+    registerSourcesVariant(sourceJar)
 
     val disableNames =
         setOf(
@@ -146,7 +141,7 @@ fun Project.configureSourceJarForJava(androidXExtension: AndroidXExtension) {
     disableUnusedSourceJarTasks(disableNames)
 }
 
-fun Project.configureSourceJarForMultiplatform(androidXExtension: AndroidXExtension) {
+fun Project.configureSourceJarForMultiplatform() {
     val kmpExtension =
         multiplatformExtension
             ?: throw GradleException(
@@ -176,7 +171,7 @@ fun Project.configureSourceJarForMultiplatform(androidXExtension: AndroidXExtens
                 }
             task.metaInf.from(metadataFile)
         }
-    registerMultiplatformSourcesVariant(sourceJar, androidXExtension)
+    registerMultiplatformSourcesVariant(sourceJar)
     val disableNames =
         setOf(
             "kotlinSourcesJar",
@@ -195,23 +190,16 @@ fun Project.disableUnusedSourceJarTasks(disableNames: Set<String>) {
 internal val Project.multiplatformUsage
     get() = objects.named<Usage>("androidx-multiplatform-docs")
 
-private fun Project.registerMultiplatformSourcesVariant(
-    sourceJar: TaskProvider<Jar>,
-    androidXExtension: AndroidXExtension
-) = registerSourcesVariant(
-    "androidxSourcesElements", sourceJar, multiplatformUsage, androidXExtension)
+private fun Project.registerMultiplatformSourcesVariant(sourceJar: TaskProvider<Jar>) =
+    registerSourcesVariant(kmpSourcesConfigurationName, sourceJar, multiplatformUsage)
 
-private fun Project.registerSourcesVariant(
-    sourceJar: TaskProvider<Jar>,
-    androidXExtension: AndroidXExtension
-) = registerSourcesVariant(
-        "sourcesElements", sourceJar, objects.named(Usage.JAVA_RUNTIME), androidXExtension)
+private fun Project.registerSourcesVariant(sourceJar: TaskProvider<Jar>) =
+    registerSourcesVariant(sourcesConfigurationName, sourceJar, objects.named(Usage.JAVA_RUNTIME))
 
 private fun Project.registerSourcesVariant(
     configurationName: String,
     sourceJar: TaskProvider<Jar>,
     usage: Usage,
-    androidXExtension: AndroidXExtension
 ) {
     configurations.create(configurationName) { gradleVariant ->
         gradleVariant.isVisible = false
@@ -230,13 +218,6 @@ private fun Project.registerSourcesVariant(
             objects.named<DocsType>(DocsType.SOURCES)
         )
         gradleVariant.outgoing.artifact(sourceJar)
-        androidXExtension.copySampleSourceJarsTask?.let { sampleSourceJarCopyTask ->
-            gradleVariant.outgoing.artifact(sampleSourceJarCopyTask) {
-                // The only place where this name is load-bearing is when we filter these out in our
-                // AndroidXDocsImplPlugin.configureUnzipJvmSourcesTasks
-                it.classifier = "samples-sources"
-            }
-        }
         registerAsComponentForPublishing(gradleVariant)
     }
 }
@@ -299,3 +280,9 @@ internal const val PROJECT_STRUCTURE_METADATA_FILENAME = "kotlin-project-structu
 
 private const val PROJECT_STRUCTURE_METADATA_FILEPATH =
     "project_structure_metadata/$PROJECT_STRUCTURE_METADATA_FILENAME"
+
+internal const val sourcesConfigurationName = "sourcesElements"
+internal const val kmpSourcesConfigurationName = "androidxSourcesElements"
+internal fun String.capitalize() = replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+}

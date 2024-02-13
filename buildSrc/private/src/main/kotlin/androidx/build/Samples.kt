@@ -32,6 +32,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.named
 import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 /**
  * Used to register a project that will be providing documentation samples for this project.
@@ -72,13 +73,31 @@ fun AndroidXExtension.registerSamplesLibrary(samplesProject: Project) {
         }
     project.dependencies.add("samples", samplesProject)
 
-    copySampleSourceJarsTask =
+    val copySampleSourceJarsTask =
         project.tasks.register("copySampleSourceJars", LazyInputsCopyTask::class.java) {
             it.inputJars.from(samplesConfiguration.incoming.artifactView { }.files)
-            // This file will be renamed later by `publish`. We can't know the proper name before
-            // this tasks's dependencies are known after configuration is finished.
-            it.destinationDir.set(project.layout.buildDirectory.file("samples_sources.jar"))
+            val srcJarFilename = "${project.name}-${project.version}-samples-sources.jar"
+            it.destinationJar.set(project.layout.buildDirectory.file(srcJarFilename))
         }
+    // this publishing variant is used in non-KMP projects and non-KMP source jars of KMP projects
+    val publishingVariants = mutableListOf(sourcesConfigurationName)
+    project.multiplatformExtension?.let {
+        publishingVariants += kmpSourcesConfigurationName // used for KMP source jars
+        if (it.targets.any { it.platformType == KotlinPlatformType.androidJvm })
+            // used for --android source jars of KMP projects
+            publishingVariants += "release" + sourcesConfigurationName.capitalize()
+    }
+    for (variantName in publishingVariants) {
+        project.afterEvaluate {
+            project.configurations.getByName(variantName)
+                // Register the sample source jar as an outgoing artifact of the publishing variant
+                .outgoing.artifact(copySampleSourceJarsTask) {
+                // The only place where this classifier is load-bearing is when we filter sample
+                // source jars out in our AndroidXDocsImplPlugin.configureUnzipJvmSourcesTasks
+                it.classifier = "samples-sources"
+            }
+        }
+    }
 }
 
 /**
@@ -91,10 +110,10 @@ abstract class LazyInputsCopyTask : DefaultTask() {
     @get:[InputFiles PathSensitive(value = PathSensitivity.RELATIVE)]
     abstract val inputJars: ConfigurableFileCollection
     @get:OutputFile
-    abstract val destinationDir: RegularFileProperty
+    abstract val destinationJar: RegularFileProperty
 
     @TaskAction
     fun copyAction() {
-        inputJars.files.single().copyTo(destinationDir.get().asFile, overwrite = true)
+        inputJars.files.single().copyTo(destinationJar.get().asFile, overwrite = true)
     }
 }
