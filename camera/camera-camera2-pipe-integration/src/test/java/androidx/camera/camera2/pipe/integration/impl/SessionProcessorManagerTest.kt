@@ -50,6 +50,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -102,7 +103,7 @@ class SessionProcessorManagerTest {
         }
 
         advanceUntilIdle()
-        verify(useCaseManager).createCameraGraphConfig(any(), any(), any())
+        verify(useCaseManager).createCameraGraphConfig(any(), any(), eq(true))
     }
 
     @Test
@@ -130,7 +131,7 @@ class SessionProcessorManagerTest {
         }
 
         advanceUntilIdle()
-        verify(useCaseManager).createCameraGraphConfig(any(), any(), any())
+        verify(useCaseManager).createCameraGraphConfig(any(), any(), eq(true))
     }
 
     @Test

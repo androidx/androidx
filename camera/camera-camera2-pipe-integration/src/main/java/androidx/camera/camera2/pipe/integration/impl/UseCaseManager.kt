@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
@@ -556,7 +557,7 @@ class UseCaseManager @Inject constructor(
     internal fun createCameraGraphConfig(
         sessionConfigAdapter: SessionConfigAdapter,
         streamConfigMap: MutableMap<CameraStream.Config, DeferrableSurface>,
-        defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
+        isExtensions: Boolean = false,
     ): CameraGraph.Config {
         return Companion.createCameraGraphConfig(
             sessionConfigAdapter,
@@ -566,7 +567,7 @@ class UseCaseManager @Inject constructor(
             cameraConfig,
             cameraQuirks,
             cameraGraphFlags,
-            defaultParameters,
+            isExtensions,
         )
     }
 
@@ -665,7 +666,7 @@ class UseCaseManager @Inject constructor(
             cameraConfig: CameraConfig,
             cameraQuirks: CameraQuirks,
             cameraGraphFlags: CameraGraph.Flags?,
-            defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
+            isExtensions: Boolean = false,
         ): CameraGraph.Config {
             var containsVideo = false
             var operatingMode = OperatingMode.NORMAL
@@ -720,7 +721,9 @@ class UseCaseManager @Inject constructor(
                 }
             }
             val shouldCloseCaptureSessionOnDisconnect =
-                if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
+                if (isExtensions) {
+                    true
+                } else if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
                     // If we can release Surfaces immediately, we'll finalize the session when the
                     // camera graph is closed (through FinalizeSessionOnCloseQuirk), and thus we won't
                     // need to explicitly close the capture session.
@@ -766,6 +769,14 @@ class UseCaseManager @Inject constructor(
                     videoStabilizationMode = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON
                 }
             }
+            val defaultParameters: Map<*, Any?> = if (isExtensions) {
+                mapOf(CameraPipeKeys.ignore3ARequiredParameters to true)
+            } else {
+                emptyMap<Any, Any?>()
+            } + mapOf(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to videoStabilizationMode)
+
+            // TODO: b/327517884 - Add a quirk to not abort captures on stop for certain OEMs during
+            //   extension sessions.
 
             // Build up a config (using TEMPLATE_PREVIEW by default)
             return CameraGraph.Config(
@@ -774,9 +785,7 @@ class UseCaseManager @Inject constructor(
                 exclusiveStreamGroups = streamGroupMap.values.toList(),
                 sessionMode = operatingMode,
                 defaultListeners = listOf(callbackMap, requestListener),
-                defaultParameters = defaultParameters + mapOf(
-                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to videoStabilizationMode
-                ),
+                defaultParameters = defaultParameters,
                 flags = combinedFlags,
             )
         }

@@ -44,7 +44,7 @@ interface GraphListener {
      * Used to indicate that a previously initialized [GraphRequestProcessor] is no longer
      * available.
      */
-    fun onGraphStopped(requestProcessor: GraphRequestProcessor)
+    fun onGraphStopped(requestProcessor: GraphRequestProcessor?)
 
     /**
      * Used to indicate that the internal state of the [GraphRequestProcessor] has changed. This is

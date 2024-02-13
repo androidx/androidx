@@ -23,7 +23,6 @@ import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraStream
-import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
@@ -203,6 +202,7 @@ class SessionProcessorManager(
                 return@launch configure(null)
             }
             try {
+                Log.debug { "Invoking $sessionProcessor SessionProcessor#initSession" }
                 sessionProcessor.initSession(
                     cameraInfoInternal,
                     OutputSurfaceConfiguration.create(
@@ -235,7 +235,7 @@ class SessionProcessorManager(
         val cameraGraphConfig = useCaseManager.createCameraGraphConfig(
             processorSessionConfigAdapter,
             streamConfigMap,
-            mapOf(CameraPipeKeys.ignore3ARequiredParameters to true)
+            isExtensions = true,
         )
 
         val useCaseManagerConfig = UseCaseManager.Companion.UseCaseManagerConfig(
@@ -362,6 +362,7 @@ class SessionProcessorManager(
         // These states indicate that we had previously initialized a session (but not yet
         // de-initialized), and thus we need to de-initialize the session here.
         if (state == State.INITIALIZED || state == State.STARTED || state == State.CLOSING) {
+            Log.debug { "Invoking $sessionProcessor SessionProcessor#deInitSession" }
             sessionProcessor.deInitSession()
         }
         state = State.CLOSED

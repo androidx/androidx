@@ -65,7 +65,7 @@ internal object RequestCloseAll : CameraRequest()
 internal object NoOpGraphListener : GraphListener {
     override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {}
 
-    override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {}
+    override fun onGraphStopped(requestProcessor: GraphRequestProcessor?) {}
 
     override fun onGraphModified(requestProcessor: GraphRequestProcessor) {}
 
