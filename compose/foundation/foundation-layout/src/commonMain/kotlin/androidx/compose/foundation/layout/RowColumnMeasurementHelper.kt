@@ -16,12 +16,14 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.collection.IntList
+import androidx.collection.MutableIntObjectMap
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.max
@@ -49,15 +51,17 @@ internal class RowColumnMeasurementHelper(
     val orientation: LayoutOrientation,
     val horizontalArrangement: Arrangement.Horizontal?,
     val verticalArrangement: Arrangement.Vertical?,
-    val arrangementSpacing: Dp,
     val crossAxisSize: SizeMode,
     val crossAxisAlignment: CrossAxisAlignment,
-    val measurables: List<Measurable>,
-    val placeables: Array<Placeable?>
+    val listWrapper: RowColumnMeasurablesWrapper
 ) {
 
-    private val rowColumnParentData = Array(measurables.size) {
-        measurables[it].rowColumnParentData
+    val mainAxisSpacing = if (orientation == LayoutOrientation.Horizontal) {
+        requireNotNull(horizontalArrangement) { "null horizontalArrangement in Row/FlowRow" }
+        horizontalArrangement.spacing
+    } else {
+        requireNotNull(verticalArrangement) { "null verticalArrangement in Column/FlowColumn" }
+        verticalArrangement.spacing
     }
 
     fun Placeable.mainAxisSize() =
@@ -86,7 +90,7 @@ internal class RowColumnMeasurementHelper(
         @Suppress("NAME_SHADOWING")
         val constraints = OrientationIndependentConstraints(constraints, orientation)
         val arrangementSpacingPx = with(measureScope) {
-            arrangementSpacing.roundToPx().toLong()
+            mainAxisSpacing.roundToPx().toLong()
         }
 
         var totalWeight = 0f
@@ -95,13 +99,12 @@ internal class RowColumnMeasurementHelper(
         var weightChildrenCount = 0
 
         var anyAlignBy = false
-        val subSize = endIndex - startIndex
+        val subSize = listWrapper.subSize(startIndex, endIndex)
 
         // First measure children with zero weight.
         var spaceAfterLastNoWeight = 0
-        for (i in startIndex until endIndex) {
-            val child = measurables[i]
-            val parentData = rowColumnParentData[i]
+        listWrapper.forEachIndexed(startIndex, endIndex) { i, child, placeableCache ->
+            val parentData = child.rowColumnParentData
             val weight = parentData.weight
 
             if (weight > 0f) {
@@ -114,7 +117,7 @@ internal class RowColumnMeasurementHelper(
                     parentData?.flowLayoutData?.let {
                         (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
                     }
-                val placeable = placeables[i] ?: child.measure(
+                val placeable = placeableCache ?: child.measure(
                     // Ask for preferred main axis size.
                     constraints.copy(
                         mainAxisMin = 0,
@@ -135,7 +138,7 @@ internal class RowColumnMeasurementHelper(
                 fixedSpace += placeable.mainAxisSize() + spaceAfterLastNoWeight
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
                 anyAlignBy = anyAlignBy || parentData.isRelative
-                placeables[i] = placeable
+                listWrapper.setPlaceable(i, placeable)
             }
         }
 
@@ -156,14 +159,15 @@ internal class RowColumnMeasurementHelper(
                 (targetSpace - fixedSpace - arrangementSpacingTotal).coerceAtLeast(0)
 
             val weightUnitSpace = if (totalWeight > 0) remainingToTarget / totalWeight else 0f
-            var remainder = remainingToTarget - (startIndex until endIndex).sumOf {
-                (weightUnitSpace * rowColumnParentData[it].weight).fastRoundToInt()
+            var remainder = remainingToTarget
+            listWrapper.forEachIndexed(startIndex, endIndex) { _, measurable, _ ->
+                remainder -=
+                    (weightUnitSpace * measurable.rowColumnParentData.weight).fastRoundToInt()
             }
 
-            for (i in startIndex until endIndex) {
-                if (placeables[i] == null) {
-                    val child = measurables[i]
-                    val parentData = rowColumnParentData[i]
+            listWrapper.forEachIndexed(startIndex, endIndex) { i, child, placeableCache ->
+                if (placeableCache == null) {
+                    val parentData = child.rowColumnParentData
                     val weight = parentData.weight
                     val crossAxisMax = constraints.crossAxisMax
                     val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) null else
@@ -206,7 +210,7 @@ internal class RowColumnMeasurementHelper(
                     weightedSpace += placeable.mainAxisSize()
                     crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
                     anyAlignBy = anyAlignBy || parentData.isRelative
-                    placeables[i] = placeable
+                    listWrapper.setPlaceable(i, placeable)
                 }
             }
             weightedSpace = (weightedSpace + arrangementSpacingTotal)
@@ -217,9 +221,8 @@ internal class RowColumnMeasurementHelper(
         var beforeCrossAxisAlignmentLine = 0
         var afterCrossAxisAlignmentLine = 0
         if (anyAlignBy) {
-            for (i in startIndex until endIndex) {
-                val placeable = placeables[i]!!
-                val parentData = rowColumnParentData[i]
+            listWrapper.forEachIndexed(startIndex, endIndex) { _, _, placeable ->
+                val parentData = placeable!!.rowColumnParentData
                 val alignmentLinePosition = parentData.crossAxisAlignment
                     ?.calculateAlignmentLinePosition(placeable)
                 if (alignmentLinePosition != null) {
@@ -265,8 +268,9 @@ internal class RowColumnMeasurementHelper(
             )
         }
         val mainAxisPositions = IntArray(subSize) { 0 }
-        val childrenMainAxisSize = IntArray(subSize) { index ->
-            placeables[index + startIndex]!!.mainAxisSize()
+        val childrenMainAxisSize = IntArray(subSize)
+        listWrapper.forEachIndexed(startIndex, endIndex) { i, _, placeable ->
+            childrenMainAxisSize[i - startIndex] = placeable!!.mainAxisSize()
         }
 
         return RowColumnMeasureHelperResult(
@@ -336,13 +340,14 @@ internal class RowColumnMeasurementHelper(
         layoutDirection: LayoutDirection,
     ) {
         with(placeableScope) {
-            for (i in measureResult.startIndex until measureResult.endIndex) {
-                val placeable = placeables[i]
+            listWrapper.forEachIndexed(
+                measureResult.startIndex, measureResult.endIndex
+            ) { i, _, placeable ->
                 placeable!!
                 val mainAxisPositions = measureResult.mainAxisPositions
                 val crossAxisPosition = getCrossAxisPosition(
                     placeable,
-                    (measurables[i].parentData as? RowColumnParentData),
+                    placeable.rowColumnParentData,
                     measureResult.crossAxisSize,
                     layoutDirection,
                     measureResult.beforeCrossAxisAlignmentLine
@@ -360,5 +365,115 @@ internal class RowColumnMeasurementHelper(
                 }
             }
         }
+    }
+}
+
+/**
+ * The wrapper allows setting a range for processing its contents,
+ * defined by startIndex and endIndex
+ * and also considers the ellipsis handling as well.
+ */
+internal class RowColumnMeasurablesWrapper(
+    private val measurables: List<Measurable>,
+    private val placeables: MutableIntObjectMap<Placeable?> = mutableIntObjectMapOf(),
+    private val ellipsis: Measurable? = null,
+    private val ellipsisOnLineContent: Boolean? = null,
+) {
+
+    private val contentStart: Int = 0
+    private val contentEnd: Int = measurables.size
+    private var ellipsisPlaceable: Placeable? = null
+
+    /**
+     * Breaks the loop into multiple lines, taking into considering the ellipsis
+     */
+    inline fun forEachLine(
+        breakLineIndices: IntList,
+        action: (lineNo: Int, startIndex: Int, endIndex: Int) -> Unit
+    ) {
+        var start = contentStart
+        var lineNo = 0
+        breakLineIndices.forEach { end ->
+            require(end in (start + 1)..contentEnd) {
+                "For each line, contentStartIndex must be less than or equal to contentEndIndex "
+            }
+            action(lineNo, start, end)
+            start = end
+            lineNo++
+        }
+        val end = start
+        if (end == contentEnd && ellipsis != null && ellipsisOnLineContent == false) {
+            // create a new line where no content is included, but just used for the ellipsis
+            action(lineNo, end, end)
+        }
+    }
+
+    /**
+     * ForEach loop that iterates through the range of the
+     * current [contentStart] and [contentEnd] to iterate through.
+     * If the [contentEnd] aligns with our [contentEnd], we also provide the ellipsis measurable
+     * as the last for each return.
+     */
+    inline fun forEachIndexed(
+        contentStart: Int,
+        contentEnd: Int,
+        action: (index: Int, measurable: Measurable, placeable: Placeable?) -> Unit
+    ) {
+        require(contentStart <= contentEnd && contentEnd <= measurables.size) {
+            "contentStartIndex must be less than or equal to contentEndIndex " +
+                "and contentEndIndex must be less than or equal to list size"
+        }
+        var i = contentStart
+        while (i < contentEnd) {
+            action(i, measurables[i], placeables[i])
+            i++
+        }
+        val hasEllipsisOnContentLine =
+            ellipsis != null &&
+                contentEnd == this.contentEnd &&
+                ellipsisOnLineContent == true
+        val isEllipsisLineOnly =
+            ellipsis != null &&
+                contentStart == contentEnd &&
+                contentEnd == this.contentEnd
+        if (hasEllipsisOnContentLine || isEllipsisLineOnly) {
+            ellipsis?.let { action(i, it, ellipsisPlaceable) }
+        }
+    }
+
+    fun subSize(
+        contentStart: Int,
+        contentEnd: Int
+    ): Int {
+        require(contentStart <= contentEnd && contentEnd <= measurables.size) {
+            "contentStartIndex must be less than or equal to contentEndIndex " +
+                "and contentEndIndex must be less than or equal to list size"
+        }
+        val subSize = contentEnd - contentStart
+
+        val hasEllipsisOnContentLine =
+            ellipsis != null &&
+                contentEnd == this.contentEnd &&
+                ellipsisOnLineContent == true
+        // lines with only ellipsis have content starts that
+        // have reached the end of the list allowed.
+        val isEllipsisLineOnly =
+            ellipsis != null &&
+                contentStart == contentEnd &&
+                contentEnd == this.contentEnd
+
+        return if ((hasEllipsisOnContentLine || isEllipsisLineOnly)) {
+            subSize + 1
+        } else {
+            subSize
+        }
+    }
+
+    /**
+     * setPlaceable based on the index provided by [forEachIndexed]
+     * If the index goes over the content end, the ellipsis placeable is set
+     */
+    fun setPlaceable(i: Int, placeable: Placeable) {
+        if (i < contentEnd) { placeables[i] = placeable } else ellipsisPlaceable = placeable
     }
 }
