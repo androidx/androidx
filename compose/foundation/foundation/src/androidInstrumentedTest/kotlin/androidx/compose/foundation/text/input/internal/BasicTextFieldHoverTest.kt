@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text
+package androidx.compose.foundation.text.input.internal
 
 import android.os.Build
 import android.view.PointerIcon.TYPE_CROSSHAIR
@@ -22,12 +22,13 @@ import android.view.PointerIcon.TYPE_DEFAULT
 import android.view.PointerIcon.TYPE_HAND
 import android.view.PointerIcon.TYPE_TEXT
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.PointerIconTestScope
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -38,7 +39,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -48,10 +48,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalFoundationApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 @RunWith(AndroidJUnit4::class)
-class CoreTextFieldHoverTest {
+class BasicTextFieldHoverTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -99,8 +99,8 @@ class CoreTextFieldHoverTest {
         fun Modifier.testPointerHoverIcon(icon: PointerIcon?): Modifier =
             if (icon == null) this else this.pointerHoverIcon(icon)
 
-        var value by mutableStateOf(TextFieldValue("initial text"))
         setContent {
+            val tfs = rememberTextFieldState("initial text")
             Box(
                 modifier = Modifier
                     .requiredSize(200.dp)
@@ -108,9 +108,8 @@ class CoreTextFieldHoverTest {
                     .border(BorderStroke(2.dp, SolidColor(Color.Red)))
                     .testTag(boxTag)
             ) {
-                CoreTextField(
-                    value = value,
-                    onValueChange = { value = it },
+                BasicTextField2(
+                    state = tfs,
                     modifier = Modifier
                         .requiredSize(50.dp)
                         .testPointerHoverIcon(textFieldIcon)

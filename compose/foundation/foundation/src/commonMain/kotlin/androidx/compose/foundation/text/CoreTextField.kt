@@ -400,7 +400,6 @@ internal fun CoreTextField(
             mouseSelectionObserver = manager.mouseSelectionObserver,
             textDragObserver = manager.touchSelectionObserver,
         )
-        .pointerHoverIcon(textPointerIcon)
 
     val drawModifier = Modifier.drawBehind {
         state.layoutResult?.let { layoutResult ->
@@ -624,7 +623,10 @@ internal fun CoreTextField(
 
     // Modifiers that should be applied to the outer text field container. Usually those include
     // gesture and semantics modifiers.
-    val decorationBoxModifier = modifier
+    val decorationBoxModifier = Modifier
+        // put pointerHoverIcon before the user modifier so that they can override it
+        .pointerHoverIcon(textPointerIcon)
+        .then(modifier)
         .legacyTextInputAdapter(legacyTextInputServiceAdapter)
         .then(focusModifier)
         .interceptDPadAndMoveFocus(state, focusManager)
