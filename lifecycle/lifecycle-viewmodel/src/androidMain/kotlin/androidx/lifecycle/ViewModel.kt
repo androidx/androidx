@@ -93,7 +93,7 @@ import kotlinx.coroutines.cancel
  * }
  *```
  */
-abstract class ViewModel {
+public abstract class ViewModel {
 
     // Can't use ConcurrentHashMap, because it can lose values on old apis (see b/37042460)
     private val bagOfTags = mutableMapOf<String, Any>()
@@ -108,7 +108,7 @@ abstract class ViewModel {
      * You should **never** manually construct a ViewModel outside of a
      * [ViewModelProvider.Factory].
      */
-    constructor()
+    public constructor()
 
     /**
      * Construct a new ViewModel instance. Any [Closeable] objects provided here
@@ -117,7 +117,7 @@ abstract class ViewModel {
      * You should **never** manually construct a ViewModel outside of a
      * [ViewModelProvider.Factory].
      */
-    constructor(vararg closeables: Closeable) {
+    public constructor(vararg closeables: Closeable) {
         this.closeables += closeables
     }
 
@@ -170,7 +170,7 @@ abstract class ViewModel {
      * @param closeable The object that should be [Closeable.close] directly before
      *                  [ViewModel.onCleared] is called.
      */
-    fun addCloseable(key: String, closeable: Closeable) {
+    public fun addCloseable(key: String, closeable: Closeable) {
         // Although no logic should be done after user calls onCleared(), we will
         // ensure that if it has already been called, the closeable attempting to
         // be added will be closed immediately to ensure there will be no leaks.
@@ -198,7 +198,7 @@ abstract class ViewModel {
      * @param closeable The object that should be [closed][Closeable.close] directly before
      *                  [ViewModel.onCleared] is called.
      */
-    open fun addCloseable(closeable: Closeable) {
+    public open fun addCloseable(closeable: Closeable) {
         // Although no logic should be done after user calls onCleared(), we will
         // ensure that if it has already been called, the closeable attempting to
         // be added will be closed immediately to ensure there will be no leaks.
@@ -223,7 +223,7 @@ abstract class ViewModel {
      *
      * @param key The key that was used to add the Closeable.
      */
-    fun <T : Closeable> getCloseable(key: String): T? {
+    public fun <T : Closeable> getCloseable(key: String): T? {
         @Suppress("SENSELESS_COMPARISON")
         if (bagOfTags == null) {
             return null

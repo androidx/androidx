@@ -43,21 +43,24 @@ public class InitializerViewModelFactoryBuilder {
      * @param clazz the class the initializer is associated with.
      * @param initializer lambda used to create an instance of the ViewModel class
      */
-    fun <T : ViewModel> addInitializer(clazz: KClass<T>, initializer: CreationExtras.() -> T) {
+    public fun <T : ViewModel> addInitializer(
+        clazz: KClass<T>,
+        initializer: CreationExtras.() -> T,
+    ) {
         initializers.add(ViewModelInitializer(clazz.java, initializer))
     }
 
     /**
      * Build the InitializerViewModelFactory.
      */
-    fun build(): ViewModelProvider.Factory =
+    public fun build(): ViewModelProvider.Factory =
         InitializerViewModelFactory(*initializers.toTypedArray())
 }
 
 /**
  * Add an initializer to the [InitializerViewModelFactoryBuilder]
  */
-inline fun <reified VM : ViewModel> InitializerViewModelFactoryBuilder.initializer(
+public inline fun <reified VM : ViewModel> InitializerViewModelFactoryBuilder.initializer(
     noinline initializer: CreationExtras.() -> VM
 ) {
     addInitializer(VM::class, initializer)
@@ -66,7 +69,7 @@ inline fun <reified VM : ViewModel> InitializerViewModelFactoryBuilder.initializ
 /**
  * Holds a [ViewModel] class and initializer for that class
  */
-class ViewModelInitializer<T : ViewModel>(
+public class ViewModelInitializer<T : ViewModel>(
     internal val clazz: Class<T>,
     internal val initializer: CreationExtras.() -> T,
 )
