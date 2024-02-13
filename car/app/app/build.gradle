@@ -49,6 +49,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -62,6 +63,9 @@ dependencies {
     // Session and Screen both implement LifeCycleOwner so this needs to be exposed.
     api("androidx.lifecycle:lifecycle-common-java8:2.2.0")
     api("androidx.annotation:annotation-experimental:1.4.0")
+
+    api(libs.kotlinStdlib)
+    implementation(libs.kotlinStdlibCommon)
 
     annotationProcessor(libs.nullaway)
 
