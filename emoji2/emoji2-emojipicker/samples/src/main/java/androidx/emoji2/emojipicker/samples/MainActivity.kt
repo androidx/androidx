@@ -18,6 +18,7 @@ package androidx.emoji2.emojipicker.samples
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -52,6 +53,16 @@ class MainActivity : Activity() {
             view.setRecentEmojiProvider(
                 RecentEmojiProviderAdapter(CustomRecentEmojiProvider(applicationContext))
             )
+        }
+        findViewById<ToggleButton>(R.id.activity_button)
+            .setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                val intent = Intent(this, ComposeActivity::class.java)
+                startActivity(intent)
+            } else {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 }

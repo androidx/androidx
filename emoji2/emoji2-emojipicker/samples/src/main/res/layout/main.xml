@@ -33,13 +33,19 @@
             android:id="@+id/toggle_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textOff="Display Larger Emojis"
-            android:textOn="Display Smaller Emojis" />
+            android:textOff="Larger Emojis"
+            android:textOn="Smaller Emojis" />
         <Button
             android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Freq Used As Recent" />
+        <ToggleButton
+            android:id="@+id/activity_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textOff="Compose"
+            android:textOn="Standard" />
     </LinearLayout>
 
     <androidx.emoji2.emojipicker.EmojiPickerView

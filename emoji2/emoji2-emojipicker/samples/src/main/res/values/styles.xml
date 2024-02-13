@@ -28,6 +28,8 @@
         <item name="android:textSize">12dp</item>
         <!-- The color for variant popup background -->
         <item name="colorButtonNormal">#FFC0CB</item>
+        <!-- The color for the selected item on the multi-skintone selection -->
+        <item name="android:colorControlHighlight">#FFA8C7FA</item>
     </style>
 
 </resources>
