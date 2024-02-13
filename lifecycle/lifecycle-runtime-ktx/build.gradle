@@ -56,10 +56,6 @@ androidXMultiplatform {
     }
 }
 
-dependencies {
-    lintPublish(project(":lifecycle:lifecycle-runtime-ktx-lint"))
-}
-
 androidx {
     name = "Lifecycle Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE

@@ -138,6 +138,10 @@ androidXMultiplatform {
     }
 }
 
+dependencies {
+    lintPublish(project(":lifecycle:lifecycle-runtime-lint"))
+}
+
 android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
