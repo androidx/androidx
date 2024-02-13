@@ -44,6 +44,9 @@ import androidx.compose.ui.unit.Dp
  * This approach provides a perfect way to make contextual decisions and can be an easier way
  * to handle problems such as dynamic see more buttons such as (N+ buttons).
  *
+ * Example:
+ * @sample androidx.compose.foundation.layout.samples.ContextualFlowRowMaxLineDynamicSeeMore
+ *
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalArrangement The vertical arrangement of the layout's virtual rows.
@@ -110,6 +113,8 @@ fun ContextualFlowRow(
  * This approach provides a perfect way to make contextual decisions and can be an easier way
  * to handle problems such as dynamic see more buttons such as (N+ buttons).
  *
+ * Example:
+ * @sample androidx.compose.foundation.layout.samples.ContextualFlowColMaxLineDynamicSeeMore
  *
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
