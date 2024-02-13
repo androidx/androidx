@@ -26,7 +26,6 @@ import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
-import androidx.compose.ui.node.traverseChildren
 import androidx.compose.ui.node.traverseDescendants
 
 /**
@@ -177,13 +176,15 @@ internal class DragAndDropNode(
 
         var handledByChild = false
 
-        traverseChildren { child ->
+        // TODO(b/324935431) Use flatter API when available
+        traverseDescendants { child ->
             handledByChild = handledByChild or child.acceptDragAndDropTransfer(
                 startEvent = startEvent,
             ).also { accepted ->
                 if (accepted) requireOwner().dragAndDropManager.registerNodeInterest(child)
             }
-            true
+            // Only find the first descendant in any trees
+            TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
         }
 
         return handledByChild || thisDragAndDropTarget != null
@@ -271,9 +272,12 @@ internal class DragAndDropNode(
         // TODO: b/303904810 unattached nodes should not be found from an attached
         //  root drag and drop node
         if (!node.isAttached) return
-        traverseChildren { child ->
+
+        // TODO(b/324935431) Use flatter API when available
+        traverseDescendants { child ->
             child.onEnded(event = event)
-            true
+            // Only find the first descendant in any trees
+            TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
         }
         thisDragAndDropTarget?.onEnded(event = event)
         thisDragAndDropTarget = null
