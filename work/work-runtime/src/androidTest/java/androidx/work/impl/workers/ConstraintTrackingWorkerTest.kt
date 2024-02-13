@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Looper
 import android.util.Log
 import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
+import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
@@ -29,7 +30,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import androidx.work.await
 import androidx.work.impl.DoWorkAwareWorker
 import androidx.work.impl.NoOpForegroundProcessor
 import androidx.work.impl.WorkManagerImpl

@@ -19,6 +19,7 @@ package androidx.work.impl
 import android.content.Context
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
+import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
@@ -28,7 +29,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo.State.ENQUEUED
 import androidx.work.WorkInfo.State.RUNNING
 import androidx.work.WorkerParameters
-import androidx.work.await
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.testutils.TrackingWorkerFactory
 import androidx.work.testutils.TestEnv

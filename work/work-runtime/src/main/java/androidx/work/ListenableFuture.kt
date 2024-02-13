@@ -18,60 +18,17 @@
 
 package androidx.work
 
-import androidx.annotation.RestrictTo
 import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-
-/**
- * Awaits for the completion of the [ListenableFuture] without blocking a thread.
- *
- * @return R The result from the [ListenableFuture]
- *
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public suspend inline fun <R> ListenableFuture<R>.await(): R {
-    // Fast path
-    if (isDone) {
-        try {
-            return get()
-        } catch (e: ExecutionException) {
-            throw e.cause ?: e
-        }
-    }
-    return suspendCancellableCoroutine { cancellableContinuation ->
-        addListener(
-            {
-                try {
-                    cancellableContinuation.resume(get())
-                } catch (throwable: Throwable) {
-                    val cause = throwable.cause ?: throwable
-                    when (throwable) {
-                        is CancellationException -> cancellableContinuation.cancel(cause)
-                        else -> cancellableContinuation.resumeWithException(cause)
-                    }
-                }
-            },
-            DirectExecutor.INSTANCE
-        )
-
-        cancellableContinuation.invokeOnCancellation {
-            cancel(false)
-        }
-    }
-}
 
 internal fun <T> launchFuture(
     context: CoroutineContext = EmptyCoroutineContext,

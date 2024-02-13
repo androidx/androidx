@@ -31,7 +31,6 @@ plugins {
 }
 
 dependencies {
-
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.compose.runtime:runtime:1.2.1")
     api("androidx.compose.ui:ui-graphics:1.1.1")
@@ -43,6 +42,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.work:work-runtime:2.7.1")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.kotlinStdlib)
 
     // Force upgrade since 1.2.0 is not compatible with latest lint.

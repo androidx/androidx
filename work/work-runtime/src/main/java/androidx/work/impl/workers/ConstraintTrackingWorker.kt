@@ -18,6 +18,7 @@ package androidx.work.impl.workers
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RestrictTo
+import androidx.concurrent.futures.await
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.Logger
@@ -25,7 +26,6 @@ import androidx.work.WorkInfo.Companion.STOP_REASON_NOT_STOPPED
 import androidx.work.WorkInfo.Companion.STOP_REASON_UNKNOWN
 import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
-import androidx.work.await
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.constraints.WorkConstraintsTracker
