@@ -56,6 +56,8 @@ import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.absoluteValue
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import org.junit.Rule
 
@@ -259,6 +261,20 @@ open class SingleParamBasePagerTest {
         rule.onNodeWithTag("$pageToVerifyPosition")
             .assertPositionInRootIsEqualTo(left + leftContentPadding, top + topContentPadding)
     }
+
+    internal fun runAndWaitForPageSettling(block: () -> Unit) {
+        block()
+        rule.mainClock.advanceTimeUntil {
+            pagerState.currentPageOffsetFraction != 0.0f
+        } // wait for first move from drag
+        rule.mainClock.advanceTimeUntil {
+            pagerState.currentPageOffsetFraction.absoluteValue < 0.00001
+        } // wait for fling settling
+        // pump the clock twice and check we're still settled.
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        assertTrue { pagerState.currentPageOffsetFraction.absoluteValue < 0.00001 }
+    }
 }
 
 data class SingleParamConfig(
@@ -356,4 +372,7 @@ data class SingleParamConfig(
                 -1
             }
         }
+
+    val vertical: Boolean
+        get() = orientation == Orientation.Vertical
 }
