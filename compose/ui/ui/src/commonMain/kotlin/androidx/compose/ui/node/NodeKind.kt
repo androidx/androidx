@@ -89,7 +89,7 @@ internal object Nodes {
     @JvmStatic
     inline val GlobalPositionAware get() = NodeKind<GlobalPositionAwareModifierNode>(0b1 shl 8)
     @JvmStatic
-    inline val IntermediateMeasure get() = NodeKind<ApproachLayoutModifierNode>(0b1 shl 9)
+    inline val ApproachMeasure get() = NodeKind<ApproachLayoutModifierNode>(0b1 shl 9)
     @JvmStatic
     inline val FocusTarget get() = NodeKind<FocusTargetNode>(0b1 shl 10)
     @JvmStatic
@@ -188,7 +188,7 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
             mask = mask or Nodes.GlobalPositionAware
         }
         if (node is ApproachLayoutModifierNode) {
-            mask = mask or Nodes.IntermediateMeasure
+            mask = mask or Nodes.ApproachMeasure
         }
         if (node is FocusTargetNode) {
             mask = mask or Nodes.FocusTarget
