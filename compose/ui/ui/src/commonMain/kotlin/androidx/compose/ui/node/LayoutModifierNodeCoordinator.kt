@@ -41,12 +41,17 @@ internal class LayoutModifierNodeCoordinator(
 ) : NodeCoordinator(layoutNode) {
     var layoutModifierNode: LayoutModifierNode = measureNode
         internal set(value) {
-            if (value is ApproachLayoutModifierNode) {
-                approachMeasureScope = approachMeasureScope?.also {
-                    it.approachNode = value
-                } ?: ApproachMeasureScopeImpl(this, value)
-            } else {
-                approachMeasureScope = null
+            if (value != field) {
+                // Opt for a cheaper type check (via bit operation) before casting, as we anticipate
+                // the node to not be ApproachLayoutModifierNode in most cases.
+                if (value.node.isKind(Nodes.ApproachMeasure)) {
+                    value as ApproachLayoutModifierNode
+                    approachMeasureScope = approachMeasureScope?.also {
+                        it.approachNode = value
+                    } ?: ApproachMeasureScopeImpl(this, value)
+                } else {
+                    approachMeasureScope = null
+                }
             }
             field = value
         }
@@ -65,10 +70,12 @@ internal class LayoutModifierNodeCoordinator(
      * Lazily initialized IntermediateMeasureScope. This is only initialized when the
      * current modifier is an ApproachLayoutModifierNode.
      */
-    internal var approachMeasureScope: ApproachMeasureScopeImpl? =
-        (measureNode as? ApproachLayoutModifierNode)?.let {
-            ApproachMeasureScopeImpl(this, it)
-        }
+    private var approachMeasureScope: ApproachMeasureScopeImpl? =
+    // Opt for a cheaper type check (via bit operation) before casting, as we anticipate
+        // the node to not be ApproachLayoutModifierNode in most cases.
+        if (measureNode.node.isKind(Nodes.ApproachMeasure)) {
+            ApproachMeasureScopeImpl(this, measureNode as ApproachLayoutModifierNode)
+        } else null
 
     /**
      * LookaheadDelegate impl for when the modifier is any [LayoutModifier] except

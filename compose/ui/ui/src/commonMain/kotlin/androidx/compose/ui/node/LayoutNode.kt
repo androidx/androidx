@@ -476,7 +476,7 @@ internal class LayoutNode(
             // Favor lookahead root from parent than locally created scope, unless current node
             // is a virtual lookahead root
             lookaheadRoot = _foldedParent?.lookaheadRoot ?: lookaheadRoot
-            if (lookaheadRoot == null && nodes.has(Nodes.IntermediateMeasure)) {
+            if (lookaheadRoot == null && nodes.has(Nodes.ApproachMeasure)) {
                 // This could happen when movableContent containing intermediateLayout is moved
                 lookaheadRoot = this
             }
@@ -860,7 +860,7 @@ internal class LayoutNode(
             field = value
             nodes.updateFrom(value)
             layoutDelegate.updateParentData()
-            if (lookaheadRoot == null && nodes.has(Nodes.IntermediateMeasure)) {
+            if (lookaheadRoot == null && nodes.has(Nodes.ApproachMeasure)) {
                 lookaheadRoot = this
             }
         }
