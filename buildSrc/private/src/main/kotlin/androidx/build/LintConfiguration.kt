@@ -17,7 +17,6 @@
 package androidx.build
 
 import com.android.build.api.dsl.Lint
-import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
@@ -72,10 +71,6 @@ private fun Project.configureAndroidProjectForLint(isLibrary: Boolean) =
         tasks.register("lintAnalyze") { task -> task.enabled = false }
 
         configureLint(extension.lint, isLibrary)
-
-        // We already run lintDebug, we don't need to run lint on the release variant.
-        tasks.named("lint").configure { task -> task.enabled = false }
-        registerLintDebugIfNeeded()
     }
 
 /** Android Lint configuration entry point for non-Android projects. */
@@ -97,51 +92,14 @@ private fun Project.configureNonAndroidProjectForLint() = afterEvaluate {
     // however, we need to apply it ourselves for non-Android projects.
     apply(mapOf("plugin" to "com.android.lint"))
 
-    // Create task aliases matching those creates by AGP for Android projects, since those are what
-    // developers expect to invoke. Redirect them to the "real" lint task.
-    val lintTask = tasks.named("lint")
-    tasks.register("lintDebug") {
-        it.dependsOn(lintTask)
-        it.enabled = false
-    }
-    tasks.register("lintRelease") {
-        it.dependsOn(lintTask)
-        it.enabled = false
-    }
-
     // The lintAnalyzeDebug task is used by `androidx-studio-integration-lint.sh`.
     tasks.register("lintAnalyzeDebug") { it.enabled = false }
 
-    addToBuildOnServer(lintTask)
+    addToBuildOnServer(tasks.named("lint"))
 
     // For Android projects, we can run lint configuration last using `DslLifecycle.finalizeDsl`;
     // however, we need to run it using `Project.afterEvaluate` for non-Android projects.
     configureLint(project.extensions.getByType(), isLibrary = true)
-}
-
-/**
- * Registers the `lintDebug` task if there are debug variants present.
- */
-private fun Project.registerLintDebugIfNeeded() {
-    val androidComponents = extensions.findByType(AndroidComponentsExtension::class.java)
-    val debugVariantLintTaskNames = mutableListOf<String>()
-
-    androidComponents?.onVariants { variant ->
-        if (variant.buildType == "debug") {
-            debugVariantLintTaskNames.add("lint${variant.name.camelCase()}")
-        }
-    }
-
-    afterEvaluate {
-        val filteredTaskNames = debugVariantLintTaskNames.filterNot { it == "lintDebug" }
-        if (filteredTaskNames.isNotEmpty()) {
-            tasks.register("lintDebug") { task ->
-                filteredTaskNames.forEach { lintTaskName ->
-                    task.dependsOn(tasks.named(lintTaskName))
-                }
-            }
-        }
-    }
 }
 
 /**
@@ -419,13 +377,12 @@ private fun ConfigurableFileCollection.withChangesAllowed(
     field.set(target, true)
 }
 
-private fun Any.findDeclaredFieldOnClass(name: String): Field? {
+private fun Any.findDeclaredFieldOnClass(name: String): Field? =
     try {
-        return this::class.java.getDeclaredField(name)
+        this::class.java.getDeclaredField(name)
     } catch (e: NoSuchFieldException) {
-        return null
+        null
     }
-}
 
 private val Project.lintBaseline: RegularFileProperty
     get() = project.objects.fileProperty().fileValue(File(projectDir, "lint-baseline.xml"))
