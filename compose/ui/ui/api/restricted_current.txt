@@ -345,10 +345,12 @@ package androidx.compose.ui.draw {
   }
 
   public final class CacheDrawScope implements androidx.compose.ui.unit.Density {
+    method public androidx.compose.ui.graphics.layer.GraphicsLayer buildLayer(androidx.compose.ui.graphics.layer.GraphicsLayer, optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit> block);
     method public float getDensity();
     method public float getFontScale();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public long getSize();
+    method public androidx.compose.ui.graphics.layer.GraphicsLayer obtainGraphicsLayer();
     method public androidx.compose.ui.draw.DrawResult onDrawBehind(kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public androidx.compose.ui.draw.DrawResult onDrawWithContent(kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit> block);
     property public float density;
@@ -702,6 +704,7 @@ package androidx.compose.ui.graphics {
   public final class GraphicsLayerScopeKt {
     method public static androidx.compose.ui.graphics.GraphicsLayerScope GraphicsLayerScope();
     method public static long getDefaultShadowColor();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static androidx.compose.ui.graphics.layer.GraphicsLayer rememberGraphicsLayer();
     property public static final long DefaultShadowColor;
     field public static final float DefaultCameraDistance = 8.0f;
   }
@@ -2627,6 +2630,7 @@ package androidx.compose.ui.node {
   public final class DelegatableNodeKt {
     method public static void invalidateSubtree(androidx.compose.ui.node.DelegatableNode);
     method public static androidx.compose.ui.unit.Density requireDensity(androidx.compose.ui.node.DelegatableNode);
+    method public static androidx.compose.ui.graphics.GraphicsContext requireGraphicsContext(androidx.compose.ui.node.DelegatableNode);
     method public static androidx.compose.ui.layout.LayoutCoordinates requireLayoutCoordinates(androidx.compose.ui.node.DelegatableNode);
     method public static androidx.compose.ui.unit.LayoutDirection requireLayoutDirection(androidx.compose.ui.node.DelegatableNode);
   }
@@ -2918,6 +2922,7 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Density> getLocalDensity();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.focus.FocusManager> getLocalFocusManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.font.FontFamily.Resolver> getLocalFontFamilyResolver();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.GraphicsContext> getLocalGraphicsContext();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> getLocalHapticFeedback();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> getLocalInputModeManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> getLocalLayoutDirection();
@@ -2934,6 +2939,7 @@ package androidx.compose.ui.platform {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Density> LocalDensity;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.focus.FocusManager> LocalFocusManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.font.FontFamily.Resolver> LocalFontFamilyResolver;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.GraphicsContext> LocalGraphicsContext;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> LocalHapticFeedback;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> LocalInputModeManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> LocalLayoutDirection;

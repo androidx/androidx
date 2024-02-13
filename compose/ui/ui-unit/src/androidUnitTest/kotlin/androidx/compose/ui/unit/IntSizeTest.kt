@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.unit
 
+import androidx.compose.ui.geometry.Size
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,5 +58,21 @@ class IntSizeTest {
         val (w, h) = size
         assertEquals(10, w)
         assertEquals(20, h)
+    }
+
+    @Test
+    fun sizeToIntSizeRoundsDown() {
+        val size = Size(10.8f, 12.5f)
+        val intSize = size.toIntSize()
+        assertEquals(10, intSize.width)
+        assertEquals(12, intSize.height)
+    }
+
+    @Test
+    fun sizeToIntSizeRounded() {
+        val size = Size(10.8f, 12.5f)
+        val intSize = size.roundToIntSize()
+        assertEquals(11, intSize.width)
+        assertEquals(13, intSize.height)
     }
 }

@@ -28,6 +28,8 @@ import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIconService
@@ -71,6 +73,20 @@ val LocalAutofillTree = staticCompositionLocalOf<AutofillTree> {
  */
 val LocalClipboardManager = staticCompositionLocalOf<ClipboardManager> {
     noLocalProvidedFor("LocalClipboardManager")
+}
+
+/**
+ * The CompositionLocal to provide access to a [GraphicsContext] instance for creation of
+ * [GraphicsLayer]s.
+ *
+ * Consumers that access this Local directly and call [GraphicsContext.createGraphicsLayer] are
+ * responsible for calling [GraphicsContext.releaseGraphicsLayer].
+ *
+ * It is recommended that consumers invoke [rememberGraphicsLayer] instead to ensure that a
+ * [GraphicsLayer] is released when the corresponding composable is disposed.
+ */
+val LocalGraphicsContext = staticCompositionLocalOf<GraphicsContext> {
+    noLocalProvidedFor("LocalGraphicsContext")
 }
 
 /**
@@ -206,6 +222,7 @@ internal fun ProvideCommonCompositionLocals(
         LocalViewConfiguration provides owner.viewConfiguration,
         LocalWindowInfo provides owner.windowInfo,
         LocalPointerIconService provides owner.pointerIconService,
+        LocalGraphicsContext provides owner.graphicsContext,
         content = content
     )
 }

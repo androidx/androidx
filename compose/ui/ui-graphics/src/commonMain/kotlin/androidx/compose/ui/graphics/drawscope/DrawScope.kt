@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toIntSize
+import androidx.compose.ui.unit.toSize
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify
@@ -915,22 +917,20 @@ interface DrawScope : Density {
      * itself and reset it to the original canvas on the conclusion of this method call.
      */
     fun GraphicsLayer.buildLayer(
-        size: IntSize = IntSize(
-            this@DrawScope.size.width.toInt(),
-            this@DrawScope.size.height.toInt()
-        ),
+        size: IntSize = this@DrawScope.size.toIntSize(),
         block: DrawScope.() -> Unit
     ): GraphicsLayer = buildLayer(
         this@DrawScope,
         this@DrawScope.layoutDirection,
         size
     ) {
+        val currentDrawScope = this@DrawScope
         drawIntoCanvas { canvas ->
-            draw(
-                this@DrawScope,
-                layoutDirection,
+            currentDrawScope.draw(
+                currentDrawScope,
+                currentDrawScope.layoutDirection,
                 canvas,
-                Size(size.width.toFloat(), size.height.toFloat()),
+                size.toSize(),
                 block
             )
         }
