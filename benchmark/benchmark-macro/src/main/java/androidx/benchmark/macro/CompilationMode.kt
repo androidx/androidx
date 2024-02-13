@@ -45,7 +45,9 @@ import org.junit.AssumptionViolatedException
  * if a Baseline Profile is included in your app. This represents the most realistic fresh-install
  * experience on an end-user's device. You can additionally or instead use
  * [Partial.warmupIterations] to use Profile Guided Optimization, using the benchmark content to
- * guide pre-compilation to mimic an application's performance after some, and JIT-ing has occurred.
+ * guide pre-compilation. This can mimic an application's performance after background dexopt has
+ * partially compiled the app during device idle time, after the app has been used (generally after
+ * a day or more of usage after update/install).
  *
  * * [Full] - the app is fully pre-compiled. This is generally not representative of real user
  * experience, as apps are not fully pre-compiled on user devices more recent than Android N
