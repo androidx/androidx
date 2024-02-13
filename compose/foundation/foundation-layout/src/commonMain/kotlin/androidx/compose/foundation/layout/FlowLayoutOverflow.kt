@@ -98,14 +98,15 @@ class FlowRowOverflow private constructor(
          * space. The "expandable indicator" composable can be tailored to show a summary, a button,
          * or any other composable element that indicates the presence of additional items.
          *
+         * @sample androidx.compose.foundation.layout.samples.SimpleFlowRowMaxLinesWithSeeMore
+         *
          * @param content composable that visually indicates more items can be loaded.
          */
         @ExperimentalLayoutApi
         fun expandIndicator(
             content: @Composable FlowRowOverflowScope.() -> Unit
         ): FlowRowOverflow {
-            val seeMoreGetter = {
-                state: FlowLayoutOverflowState ->
+            val seeMoreGetter = { state: FlowLayoutOverflowState ->
                 @Composable {
                     val scope = FlowRowOverflowScopeImpl(state)
                     scope.content()
@@ -128,6 +129,8 @@ class FlowRowOverflow private constructor(
          * Prior to layout, the function evaluates both composables indicators to determine
          * their maximum intrinsic size. Depending on the space available and the number
          * of items, either the [expandIndicator] or the [collapseIndicator] is rendered.
+         *
+         * @sample androidx.compose.foundation.layout.samples.SimpleFlowRowMaxLinesDynamicSeeMore
          *
          * @param minRowsToShowCollapse Specifies the minimum number of rows that
          *        should be visible before showing the collapse option. This parameter is useful
@@ -246,6 +249,8 @@ class FlowColumnOverflow private constructor(
          * space. The "expandable indicator" composable can be tailored to show a summary, a button,
          * or any other composable element that indicates the presence of additional items.
          *
+         * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumnMaxLinesWithSeeMore
+         *
          * @param content composable that visually indicates more items can be loaded.
          */
         @ExperimentalLayoutApi
@@ -275,6 +280,8 @@ class FlowColumnOverflow private constructor(
          * Prior to layout, the function evaluates both composables indicators to determine
          * their maximum intrinsic size. Depending on the space available and the number
          * of items, either the [expandIndicator] or the [collapseIndicator] is rendered.
+         *
+         * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumnMaxLinesDynamicSeeMore
          *
          * @param minColumnsToShowCollapse Specifies the minimum number of columns that
          *        should be visible before showing the collapse option. This parameter is useful
@@ -335,6 +342,7 @@ class FlowColumnOverflow private constructor(
  *
  * This enumeration defines the available options for handling content that exceeds
  * the boundaries of its container for [ContextualFlowRow].
+ *
  *
  * Options:
  *
@@ -424,6 +432,8 @@ class ContextualFlowRowOverflow private constructor(
          * Prior to layout, the function evaluates both composables indicators to determine
          * their maximum intrinsic size. Depending on the space available and the number
          * of items, either the [expandIndicator] or the [collapseIndicator] is rendered.
+         *
+         * @sample androidx.compose.foundation.layout.samples.ContextualFlowRowMaxLineDynamicSeeMore
          *
          * @param minRowsToShowCollapse Specifies the minimum number of rows that
          *        should be visible before showing the collapse option. This parameter is useful
@@ -575,6 +585,8 @@ class ContextualFlowColumnOverflow private constructor(
          * their maximum intrinsic size. Depending on the space available and the number
          * of items, either the [expandIndicator] or the [collapseIndicator] is rendered.
          *
+         * @sample androidx.compose.foundation.layout.samples.ContextualFlowColMaxLineDynamicSeeMore
+         *
          * @param minColumnsToShowCollapse Specifies the minimum number of columns that
          *        should be visible before showing the collapse option. This parameter is useful
          *        when the number of columns is too small to be reduced further.
@@ -693,12 +705,12 @@ internal data class FlowLayoutOverflowState internal constructor(
         get() {
             if (itemShown == -1) {
                 throw IllegalStateException(
-                "Accessing noOfItemsShown before it is set. " +
-                    "Are you calling this in the Composition phase, " +
-                    "rather than in the draw phase? " +
-                    "Consider our samples on how to use it during the draw phase " +
-                    "or consider using ContextualFlowRow/ContextualFlowColumn " +
-                    "which initializes this method in the composition phase.")
+                    "Accessing noOfItemsShown before it is set. " +
+                        "Are you calling this in the Composition phase, " +
+                        "rather than in the draw phase? " +
+                        "Consider our samples on how to use it during the draw phase " +
+                        "or consider using ContextualFlowRow/ContextualFlowColumn " +
+                        "which initializes this method in the composition phase.")
             }
             return itemShown
         }
@@ -713,7 +725,7 @@ internal data class FlowLayoutOverflowState internal constructor(
     private var getOverflowMeasurable: ((
         isExpandable: Boolean,
         noOfItemsShown: Int
-        ) -> Measurable?)? = null
+    ) -> Measurable?)? = null
 
     internal fun ellipsisSize(
         hasNext: Boolean,
@@ -734,7 +746,7 @@ internal data class FlowLayoutOverflowState internal constructor(
                 } else if (lineIndex + 1 >= minLinesToShowCollapse &&
                     totalCrossAxisSize >= minCrossAxisSizeToShowCollapse
                 ) { collapseSize } else { null }
-                }
+            }
         }
     }
 
