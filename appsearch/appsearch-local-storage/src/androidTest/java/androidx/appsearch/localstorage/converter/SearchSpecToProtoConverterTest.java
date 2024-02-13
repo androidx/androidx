@@ -446,7 +446,7 @@ public class SearchSpecToProtoConverterTest {
     }
 
     @Test
-    public void testToResultSpecProto_projection_withJoinSpec_packageFilter() throws Exception {
+    public void testToResultSpecProto_projection_withJoinSpec_packageFilter() {
         String personPrefix = PrefixUtil.createPrefix("contacts", "database");
         String actionPrefix = PrefixUtil.createPrefix("aiai", "database");
 
@@ -499,10 +499,66 @@ public class SearchSpecToProtoConverterTest {
         assertThat(nestedResultSpecProto.getTypePropertyMasks(0).getPaths(0)).isEqualTo("type");
     }
 
+    // Previously, there was a bug where a wildcard filter would be added for each prefix in
+    // the SearchSpec.
+    @Test
+    public void testToResultSpecProto_projection_withWildcard() {
+        String personPrefix = PrefixUtil.createPrefix("contacts", "database");
+        String actionPrefix = PrefixUtil.createPrefix("aiai", "database");
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, ImmutableList.of("name"))
+                .build();
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(personPrefix, actionPrefix),
+                /*namespaceMap=*/ImmutableMap.of(),
+                /*schemaMap=*/ImmutableMap.of(),
+                mLocalStorageIcingOptionsConfig);
+
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(
+                /*namespaceMap=*/ImmutableMap.of(),
+                /*schemaMap=*/ImmutableMap.of());
+
+        assertThat(resultSpecProto.getTypePropertyMasksCount()).isEqualTo(1);
+        assertThat(resultSpecProto.getTypePropertyMasks(0).getSchemaType()).isEqualTo(
+                SearchSpec.SCHEMA_TYPE_WILDCARD);
+        assertThat(resultSpecProto.getTypePropertyMasks(0).getPaths(0)).isEqualTo("name");
+    }
+
+    // Previously, there was a bug where a wildcard filter would be added for each prefix in
+    // the SearchSpec. Therefore, if there were no prefixes, the wildcard filter would not be added
+    // either.
+    @Test
+    public void testToResultSpecProto_projectionNoPrefixes_withWildcard() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, ImmutableList.of("name"))
+                .build();
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(),
+                /*namespaceMap=*/ImmutableMap.of(),
+                /*schemaMap=*/ImmutableMap.of(),
+                mLocalStorageIcingOptionsConfig);
+
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(
+                /*namespaceMap=*/ImmutableMap.of(),
+                /*schemaMap=*/ImmutableMap.of());
+
+        assertThat(resultSpecProto.getTypePropertyMasksCount()).isEqualTo(1);
+        assertThat(resultSpecProto.getTypePropertyMasks(0).getSchemaType()).isEqualTo(
+                SearchSpec.SCHEMA_TYPE_WILDCARD);
+        assertThat(resultSpecProto.getTypePropertyMasks(0).getPaths(0)).isEqualTo("name");
+    }
+
     // @exportToFramework:startStrip()
     // TODO(b/274157614): Export this to framework when property filters are made public
     @Test
-    public void testToSearchSpecProto_propertyFilter_withJoinSpec_packageFilter() throws Exception {
+    public void testToSearchSpecProto_propertyFilter_withJoinSpec_packageFilter() {
         String personPrefix = PrefixUtil.createPrefix("contacts", "database");
         String actionPrefix = PrefixUtil.createPrefix("aiai", "database");
 
@@ -551,6 +607,32 @@ public class SearchSpecToProtoConverterTest {
         assertThat(nestedSearchSpecProto.getTypePropertyFilters(0).getSchemaType()).isEqualTo(
                 "aiai$database/ContactAction");
         assertThat(nestedSearchSpecProto.getTypePropertyFilters(0).getPaths(0)).isEqualTo("type");
+    }
+
+    // TODO(b/274157614): Export this to framework when property filters are made public
+    @Test
+    public void testToSearchSpecProto_propertyFilter_withWildcard() {
+        String personPrefix = PrefixUtil.createPrefix("contacts", "database");
+        String actionPrefix = PrefixUtil.createPrefix("aiai", "database");
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .addFilterProperties(SearchSpec.SCHEMA_TYPE_WILDCARD, ImmutableList.of("name"))
+                .build();
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(personPrefix, actionPrefix),
+                /*namespaceMap=*/ImmutableMap.of(),
+                /*schemaMap=*/ImmutableMap.of(),
+                mLocalStorageIcingOptionsConfig);
+
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
+
+        assertThat(searchSpecProto.getTypePropertyFiltersCount()).isEqualTo(1);
+        assertThat(searchSpecProto.getTypePropertyFilters(0).getSchemaType()).isEqualTo(
+                SearchSpec.SCHEMA_TYPE_WILDCARD);
+        assertThat(searchSpecProto.getTypePropertyFilters(0).getPaths(0)).isEqualTo("name");
     }
 
     // @exportToFramework:endStrip()
