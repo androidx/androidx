@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
@@ -83,11 +84,11 @@ internal fun HorizontalMultiBrowseCarousel(
     Carousel(
         state = state,
         orientation = Orientation.Horizontal,
-        keylineList = {
+        keylineList = { availableSpace ->
             with(density) {
                 multiBrowseKeylineList(
                     density = this,
-                    carouselMainAxisSize = state.pagerState.layoutInfo.viewportSize.width.toFloat(),
+                    carouselMainAxisSize = availableSpace,
                     preferredItemSize = preferredItemSize.toPx(),
                     itemSpacing = itemSpacing.toPx(),
                     minSmallSize = minSmallSize.toPx(),
@@ -172,26 +173,12 @@ internal fun HorizontalUncontainedCarousel(
 internal fun Carousel(
     state: CarouselState,
     orientation: Orientation,
-    keylineList: () -> KeylineList?,
+    keylineList: (availableSpace: Float) -> KeylineList?,
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 0.dp,
     content: @Composable CarouselScope.(itemIndex: Int) -> Unit
 ) {
-    val availableSpace = if (orientation == Orientation.Horizontal) {
-        state.pagerState.layoutInfo.viewportSize.width.toFloat()
-    } else {
-        state.pagerState.layoutInfo.viewportSize.height.toFloat()
-    }
-    val keylines: KeylineList? = keylineList.invoke()
-    val strategy = if (keylines != null) {
-        Strategy.create(availableSpace, keylines)
-    } else {
-        null
-    }
-
-    val pageSize = PageSize.Fixed(
-        with(LocalDensity.current) { strategy?.itemMainAxisSize?.toDp() } ?: 0.dp
-    )
+    val pageSize = remember(keylineList) { CarouselPageSize(keylineList) }
 
     // TODO: Update beyond bounds numbers according to Strategy
     val outOfBoundsPageCount = 2
@@ -205,7 +192,7 @@ internal fun Carousel(
             outOfBoundsPageCount = outOfBoundsPageCount,
             modifier = modifier
         ) { page ->
-            Box(modifier = Modifier.carouselItem(page, state, strategy)) {
+            Box(modifier = Modifier.carouselItem(page, state, pageSize.strategy)) {
                 carouselScope.content(page)
             }
         }
@@ -217,9 +204,30 @@ internal fun Carousel(
             outOfBoundsPageCount = outOfBoundsPageCount,
             modifier = modifier
         ) { page ->
-            Box(modifier = Modifier.carouselItem(page, state, strategy)) {
+            Box(modifier = Modifier.carouselItem(page, state, pageSize.strategy)) {
                 carouselScope.content(page)
             }
+        }
+    }
+}
+
+/**
+ * A [PageSize] implementation that maintains a strategy that is kept up-to-date with the
+ * latest available space of the container.
+ *
+ * @param keylineList The list of keylines that are fixed positions along the scrolling axis which
+ * define the state an item should be in when its center is co-located with the keyline's position.
+ */
+private class CarouselPageSize(keylineList: (availableSpace: Float) -> KeylineList?) : PageSize {
+    val strategy = Strategy(keylineList)
+    override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
+        strategy.apply(availableSpace.toFloat())
+        return if (strategy.isValid()) {
+            strategy.itemMainAxisSize.roundToInt()
+        } else {
+            // If strategy does not have a valid arrangement, default to a
+            // full size item, as Pager does by default.
+            availableSpace
         }
     }
 }
@@ -254,14 +262,14 @@ internal value class CarouselAlignment private constructor(internal val value: I
 internal fun Modifier.carouselItem(
     index: Int,
     state: CarouselState,
-    strategy: Strategy?
+    strategy: Strategy
 ): Modifier {
     val viewportSize = state.pagerState.layoutInfo.viewportSize
     val orientation = state.pagerState.layoutInfo.orientation
     val isVertical = orientation == Orientation.Vertical
     val mainAxisCarouselSize = if (isVertical) viewportSize.height else viewportSize.width
 
-    if (mainAxisCarouselSize == 0 || strategy == null) {
+    if (mainAxisCarouselSize == 0 || !strategy.isValid()) {
         return this
     }
     // Scroll offset calculation using currentPage and currentPageOffsetFraction
