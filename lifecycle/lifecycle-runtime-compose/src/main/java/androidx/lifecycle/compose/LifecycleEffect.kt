@@ -330,6 +330,27 @@ fun LifecycleStartEffect(
     LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
 }
 
+private const val LifecycleStartEffectNoParamError =
+    "LifecycleStartEffect must provide one or more 'key' parameters that define the identity of " +
+        "the LifecycleStartEffect and determine when its previous effect coroutine should be " +
+        "cancelled and a new effect launched for the new key."
+
+/**
+ * It is an error to call [LifecycleStartEffect] without at least one `key` parameter.
+ *
+ * This deprecated-error function shadows the varargs overload so that the varargs version is not
+ * used without key parameters.
+ *
+ * @see LifecycleStartEffect
+ */
+@Deprecated(LifecycleStartEffectNoParamError, level = DeprecationLevel.ERROR)
+@Composable
+@Suppress("UNUSED_PARAMETER")
+fun LifecycleStartEffect(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+): Unit = error(LifecycleStartEffectNoParamError)
+
 @Composable
 private fun LifecycleStartEffectImpl(
     lifecycleOwner: LifecycleOwner,
@@ -641,6 +662,27 @@ fun LifecycleResumeEffect(
     }
     LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
 }
+
+private const val LifecycleResumeEffectNoParamError =
+    "LifecycleResumeEffect must provide one or more 'key' parameters that define the identity of " +
+        "the LifecycleResumeEffect and determine when its previous effect coroutine should be " +
+        "cancelled and a new effect launched for the new key."
+
+/**
+ * It is an error to call [LifecycleStartEffect] without at least one `key` parameter.
+ *
+ * This deprecated-error function shadows the varargs overload so that the varargs version is not
+ * used without key parameters.
+ *
+ * @see LifecycleResumeEffect
+ */
+@Deprecated(LifecycleResumeEffectNoParamError, level = DeprecationLevel.ERROR)
+@Composable
+@Suppress("UNUSED_PARAMETER")
+fun LifecycleResumeEffect(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+): Unit = error(LifecycleResumeEffectNoParamError)
 
 @Composable
 private fun LifecycleResumeEffectImpl(

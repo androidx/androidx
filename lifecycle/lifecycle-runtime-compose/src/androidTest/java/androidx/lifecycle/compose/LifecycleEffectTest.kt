@@ -373,7 +373,7 @@ class LifecycleEffectTest {
         composeTestRule.waitForIdle()
         composeTestRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                LifecycleResumeEffect {
+                LifecycleResumeEffect(key1 = null) {
                     resumeCount++
 
                     onPauseOrDispose {
@@ -413,7 +413,7 @@ class LifecycleEffectTest {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 state = remember { mutableStateOf(true) }
                 if (state.value) {
-                    LifecycleResumeEffect {
+                    LifecycleResumeEffect(key1 = null) {
                         resumeCount++
 
                         onPauseOrDispose {
