@@ -488,6 +488,7 @@ package androidx.compose.foundation.gestures {
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface DraggableAnchors<T> {
     method public T? closestAnchor(float position);
     method public T? closestAnchor(float position, boolean searchUpwards);
+    method public void forEach(kotlin.jvm.functions.Function2<? super T,? super java.lang.Float,kotlin.Unit> block);
     method public int getSize();
     method public boolean hasAnchorFor(T value);
     method public float maxAnchor();
