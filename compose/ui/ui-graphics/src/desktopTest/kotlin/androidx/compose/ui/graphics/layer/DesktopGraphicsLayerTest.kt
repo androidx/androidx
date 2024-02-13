@@ -16,66 +16,35 @@
 
 package androidx.compose.ui.graphics.layer
 
-import android.graphics.Canvas
-import android.graphics.ColorFilter
-import android.graphics.PixelFormat
-import android.graphics.drawable.Drawable
-import android.os.Build
-import android.view.View
-import android.view.ViewGroup
-import android.widget.FrameLayout
-import androidx.compose.testutils.assertPixelColor
-import androidx.compose.testutils.captureToImage
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PixelMap
-import androidx.compose.ui.graphics.TestActivity
-import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection.Ltr
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
-import androidx.lifecycle.Lifecycle
-import androidx.test.core.app.ActivityScenario
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.test.Test
+import org.jetbrains.skia.IRect
+import org.jetbrains.skia.Surface
 import org.junit.Assert
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
 
-@SmallTest
-@RunWith(AndroidJUnit4::class)
-// Relies on View.captureToImage which is Android O+ only
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class AndroidGraphicsLayerTest {
-
-    companion object {
-        const val TEST_WIDTH = 600
-        const val TEST_HEIGHT = 400
-
-        val TEST_SIZE = IntSize(TEST_WIDTH, TEST_HEIGHT)
-    }
+class DesktopGraphicsLayerTest {
 
     @Test
     fun testDrawLayer() {
@@ -83,7 +52,6 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    assertEquals(IntSize.Zero, this.size)
                     buildLayer {
                         drawRect(Color.Red)
                     }
@@ -91,8 +59,8 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(TEST_SIZE, layer!!.size)
-                assertEquals(IntOffset.Zero, layer!!.topLeft)
+                Assert.assertEquals(TEST_SIZE, layer!!.size)
+                Assert.assertEquals(IntOffset.Zero, layer!!.topLeft)
                 it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
             }
         )
@@ -103,7 +71,9 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 val layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer(IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)) {
+                    buildLayer(
+                        size = IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)
+                    ) {
                         drawRect(Color.Red)
                     }
                 }
@@ -125,15 +95,13 @@ class AndroidGraphicsLayerTest {
                 layer = graphicsContext.createGraphicsLayer().apply {
                     buildLayer {
                         drawRect(Color.Red)
-                    }
-                }.apply {
-                    this.topLeft = topLeft
+                    }.topLeft = topLeft
                 }
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
+                Assert.assertEquals(topLeft, layer!!.topLeft)
+                Assert.assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Black, Color.Black, Color.Red)
             }
         )
@@ -151,47 +119,17 @@ class AndroidGraphicsLayerTest {
                         inset(0f, 0f, -4f, -4f) {
                             drawRect(Color.Red)
                         }
-                    }
-                    this.topLeft = topLeft
+                    }.topLeft = topLeft
                 }
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
-                assertEquals(Color.Red, it[topLeft.x + 1, topLeft.y + 1])
-                assertEquals(Color.Black, it[topLeft.x + 1, topLeft.y - 1])
-                assertEquals(Color.Black, it[topLeft.x - 1, topLeft.y + 1])
-                assertEquals(Color.Red, it[size.width - 2, size.height - 2])
-            }
-        )
-    }
-
-    @Test
-    fun testSetAlpha() {
-        var layer: GraphicsLayer? = null
-        val topLeft = IntOffset.Zero
-        val size = TEST_SIZE
-        graphicsLayerTest(
-            block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
-                        drawRect(Color.Red)
-                    }
-                    alpha = 0.5f
-                }
-                drawLayer(layer!!)
-            },
-            verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
-                val compositedColor = Color.Red.copy(0.5f).compositeOver(Color.Black)
-                it.verifyQuadrants(
-                    compositedColor,
-                    compositedColor,
-                    compositedColor,
-                    compositedColor
-                )
+                Assert.assertEquals(topLeft, layer!!.topLeft)
+                Assert.assertEquals(size, layer!!.size)
+                Assert.assertEquals(Color.Red, it[topLeft.x + 1, topLeft.y + 1])
+                Assert.assertEquals(Color.Black, it[topLeft.x + 1, topLeft.y - 1])
+                Assert.assertEquals(Color.Black, it[topLeft.x - 1, topLeft.y + 1])
+                Assert.assertEquals(Color.Red, it[size.width - 2, size.height - 2])
             }
         )
     }
@@ -216,8 +154,8 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
+                Assert.assertEquals(topLeft, layer!!.topLeft)
+                Assert.assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Red, Color.Red, Color.Black, Color.Black)
             }
         )
@@ -243,8 +181,8 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
+                Assert.assertEquals(topLeft, layer!!.topLeft)
+                Assert.assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Red, Color.Black, Color.Red, Color.Black)
             }
         )
@@ -269,8 +207,8 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
+                Assert.assertEquals(topLeft, layer!!.topLeft)
+                Assert.assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
             }
         )
@@ -294,8 +232,8 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
+                Assert.assertEquals(topLeft, layer!!.topLeft)
+                Assert.assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Black, Color.Black, Color.Red)
             }
         )
@@ -317,8 +255,8 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
+                Assert.assertEquals(topLeft, layer!!.topLeft)
+                Assert.assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Red, Color.Black, Color.Black)
             }
         )
@@ -340,119 +278,9 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
+                Assert.assertEquals(topLeft, layer!!.topLeft)
+                Assert.assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Black, Color.Red, Color.Black)
-            }
-        )
-    }
-
-    @Test
-    fun testRotationX() {
-        var layer: GraphicsLayer? = null
-        val topLeft = IntOffset.Zero
-        val size = TEST_SIZE
-        graphicsLayerTest(
-            block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width, this.size.height / 2)
-                        )
-                    }
-                    rotationX = 45f
-                }
-                drawLayer(layer!!)
-            },
-            verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
-                assertEquals(Color.Red, it[size.width / 2, size.height / 4])
-                assertEquals(Color.Black, it[size.width / 2, size.height / 2 + 2])
-
-                assertEquals(Color.Black, it[4, size.height / 4])
-                assertEquals(Color.Black, it[size.width - 4, size.height / 4])
-            }
-        )
-    }
-
-    @Test
-    fun testRotationY() {
-        var layer: GraphicsLayer? = null
-        val topLeft = IntOffset.Zero
-        val size = TEST_SIZE
-        graphicsLayerTest(
-            block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
-                        drawRect(Color.Red)
-                    }
-                    pivotOffset = Offset(0f, this.size.height / 2f)
-                    rotationY = 45f
-                }
-                drawLayer(layer!!)
-            },
-            verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
-                assertEquals(Color.Red, it[2, size.height / 2])
-                assertEquals(Color.Red, it[size.width / 4, size.height / 2])
-                assertEquals(Color.Black, it[size.width / 2, size.height / 2])
-                assertEquals(Color.Black, it[size.width / 4, 4])
-                assertEquals(Color.Black, it[size.width / 4, size.height - 4])
-            }
-        )
-    }
-
-    @Test
-    fun testRotationZ() {
-        var layer: GraphicsLayer? = null
-        val topLeft = IntOffset.Zero
-        val size = TEST_SIZE
-        val rectSize = 100
-        graphicsLayerTest(
-            block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
-                        drawRect(
-                            Color.Red,
-                            topLeft = Offset(
-                                this.size.width / 2f - rectSize / 2f,
-                                this.size.height / 2 - rectSize / 2f
-                            ),
-                            Size(rectSize.toFloat(), rectSize.toFloat())
-                        )
-                    }
-                    rotationZ = 45f
-                }
-                drawLayer(layer!!)
-            },
-            verify = {
-                assertEquals(topLeft, layer!!.topLeft)
-                assertEquals(size, layer!!.size)
-                it.verifyQuadrants(Color.Black, Color.Black, Color.Black, Color.Black)
-                assertEquals(Color.Red, it[size.width / 2, size.height / 2])
-                assertEquals(Color.Red, it[size.width / 2, size.height / 2 - rectSize / 2])
-                assertEquals(Color.Red, it[size.width / 2, size.height / 2 + rectSize / 2])
-                assertEquals(Color.Red, it[size.width / 2 - rectSize / 2, size.height / 2])
-                assertEquals(Color.Red, it[size.width / 2 + rectSize / 2, size.height / 2])
-                assertEquals(
-                    Color.Black,
-                    it[size.width / 2 - rectSize / 3, size.height / 2 - rectSize / 2 + 4]
-                )
-                assertEquals(
-                    Color.Black,
-                    it[size.width / 2 - rectSize / 3, size.height / 2 + rectSize / 2 - 4]
-                )
-                assertEquals(
-                    Color.Black,
-                    it[size.width / 2 + rectSize / 3, size.height / 2 - rectSize / 2 + 4]
-                )
-                assertEquals(
-                    Color.Black,
-                    it[size.width / 2 + rectSize / 3, size.height / 2 + rectSize / 2 - 4]
-                )
             }
         )
     }
@@ -474,11 +302,11 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(Color.Red, it[0, 0])
-                assertEquals(Color.Red, it[it.width - 1, 0])
-                assertEquals(Color.Red, it[0, it.height - 1])
-                assertEquals(Color.Red, it[it.width - 1, it.height - 1])
-                assertEquals(Color.Red, it[it.width / 2, it.height / 2])
+                Assert.assertEquals(Color.Red, it[0, 0])
+                Assert.assertEquals(Color.Red, it[it.width - 1, 0])
+                Assert.assertEquals(Color.Red, it[0, it.height - 1])
+                Assert.assertEquals(Color.Red, it[it.width - 1, it.height - 1])
+                Assert.assertEquals(Color.Red, it[it.width / 2, it.height / 2])
             },
             entireScene = true
         )
@@ -501,18 +329,18 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer!!)
             },
             verify = {
-                assertEquals(Color.Red, it[0, 0])
-                assertEquals(Color.Red, it[TEST_WIDTH - 1, 0])
-                assertEquals(Color.Red, it[0, TEST_HEIGHT - 1])
-                assertEquals(Color.Red, it[TEST_WIDTH - 1, TEST_HEIGHT - 1])
-                assertEquals(Color.Red, it[TEST_WIDTH / 2, 0])
-                assertEquals(Color.Red, it[TEST_WIDTH / 2, TEST_HEIGHT / 2])
+                Assert.assertEquals(Color.Red, it[0, 0])
+                Assert.assertEquals(Color.Red, it[TEST_WIDTH - 1, 0])
+                Assert.assertEquals(Color.Red, it[0, TEST_HEIGHT - 1])
+                Assert.assertEquals(Color.Red, it[TEST_WIDTH - 1, TEST_HEIGHT - 1])
+                Assert.assertEquals(Color.Red, it[TEST_WIDTH / 2, 0])
+                Assert.assertEquals(Color.Red, it[TEST_WIDTH / 2, TEST_HEIGHT / 2])
 
-                assertEquals(Color.White, it[0, TEST_HEIGHT + 2])
-                assertEquals(Color.White, it[0, it.height - 1])
-                assertEquals(Color.White, it[TEST_WIDTH - 1, TEST_HEIGHT + 2])
-                assertEquals(Color.White, it[TEST_WIDTH + 1, TEST_HEIGHT])
-                assertEquals(Color.White, it[it.width - 1, TEST_HEIGHT - 2])
+                Assert.assertEquals(Color.White, it[0, TEST_HEIGHT + 2])
+                Assert.assertEquals(Color.White, it[0, it.height - 1])
+                Assert.assertEquals(Color.White, it[TEST_WIDTH - 1, TEST_HEIGHT + 2])
+                Assert.assertEquals(Color.White, it[TEST_WIDTH + 1, TEST_HEIGHT])
+                Assert.assertEquals(Color.White, it[it.width - 1, TEST_HEIGHT - 2])
             },
             entireScene = true
         )
@@ -560,12 +388,12 @@ class AndroidGraphicsLayerTest {
                         }
                     }
                 }
-                assertTrue(shadowPixelCount > 0)
+                Assert.assertTrue(shadowPixelCount > 0)
             }
         )
     }
 
-    @Test
+    @org.junit.Test
     fun testElevationPath() {
         var layer: GraphicsLayer?
         var left = 0
@@ -624,7 +452,7 @@ class AndroidGraphicsLayerTest {
         )
     }
 
-    @Test
+    @org.junit.Test
     fun testElevationRoundRect() {
         var layer: GraphicsLayer?
         var left = 0
@@ -677,7 +505,7 @@ class AndroidGraphicsLayerTest {
                     return shadowCount > 0
                 }
                 with(pixmap) {
-                    assertTrue(
+                    Assert.assertTrue(
                         hasShadowPixels(
                             targetColor,
                             left,
@@ -686,7 +514,7 @@ class AndroidGraphicsLayerTest {
                             top + radius.toInt()
                         )
                     )
-                    assertTrue(
+                    Assert.assertTrue(
                         hasShadowPixels(
                             targetColor,
                             right - radius.toInt(),
@@ -695,7 +523,7 @@ class AndroidGraphicsLayerTest {
                             top + radius.toInt()
                         )
                     )
-                    assertTrue(
+                    Assert.assertTrue(
                         hasShadowPixels(
                             targetColor,
                             left,
@@ -704,7 +532,7 @@ class AndroidGraphicsLayerTest {
                             bottom
                         )
                     )
-                    assertTrue(
+                    Assert.assertTrue(
                         hasShadowPixels(
                             targetColor,
                             right - radius.toInt(),
@@ -718,43 +546,6 @@ class AndroidGraphicsLayerTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-    @Test
-    fun testRenderEffect() {
-        var layer: GraphicsLayer?
-        val blurRadius = 10f
-        graphicsLayerTest(
-            block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
-                        drawRect(Color.Red)
-                    }
-                    renderEffect = BlurEffect(blurRadius, blurRadius, TileMode.Decal)
-                }
-                drawRect(Color.Black)
-                drawLayer(layer!!)
-            },
-            verify = {
-                var nonPureRedCount = 0
-                for (x in 0 until it.width - blurRadius.toInt()) {
-                    for (y in 0 until it.height - blurRadius.toInt()) {
-                        val pixelColor = it[x, y]
-                        if (pixelColor.blue > 0 || pixelColor.green > 0) {
-                            Assert.fail(
-                                "Only blue colors are expected. Pixel at [$x, $y] $pixelColor"
-                            )
-                        }
-                        if (pixelColor.red > 0 && pixelColor.red < 1f) {
-                            nonPureRedCount++
-                        }
-                    }
-                }
-                assertTrue(nonPureRedCount > 0)
-            },
-            entireScene = false
-        )
-    }
-
     @Test
     fun testCompositingStrategyAuto() {
         var layer: GraphicsLayer?
@@ -762,6 +553,8 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
+                    compositingStrategy = CompositingStrategy.Auto
+                    alpha = 0.5f
                     buildLayer {
                         inset(0f, 0f, size.width / 3, size.height / 3) {
                             drawRect(color = Color.Red)
@@ -770,8 +563,6 @@ class AndroidGraphicsLayerTest {
                             drawRect(color = Color.Blue)
                         }
                     }
-                    alpha = 0.5f
-                    compositingStrategy = CompositingStrategy.Auto
                 }
                 drawRect(bgColor)
                 drawLayer(layer!!)
@@ -800,6 +591,7 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
+                    compositingStrategy = CompositingStrategy.Offscreen
                     buildLayer {
                         inset(0f, 0f, size.width / 3, size.height / 3) {
                             drawRect(color = Color.Red)
@@ -808,7 +600,6 @@ class AndroidGraphicsLayerTest {
                             drawRect(color = Color.Blue, blendMode = BlendMode.Xor)
                         }
                     }
-                    compositingStrategy = CompositingStrategy.Offscreen
                 }
                 drawRect(bgColor)
                 drawLayer(layer!!)
@@ -832,6 +623,8 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
+                    compositingStrategy = CompositingStrategy.ModulateAlpha
+                    alpha = 0.5f
                     buildLayer {
                         inset(0f, 0f, size.width / 3, size.height / 3) {
                             drawRect(color = Color.Red)
@@ -840,14 +633,13 @@ class AndroidGraphicsLayerTest {
                             drawRect(color = Color.Blue)
                         }
                     }
-                    alpha = 0.5f
-                    compositingStrategy = CompositingStrategy.ModulateAlpha
                 }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
             verify = { pixelMap ->
                 with(pixelMap) {
+                    println("Pixmap size: " + this.width + " height: " + this.height)
                     val redWithAlpha = Color.Red.copy(alpha = 0.5f)
                     val blueWithAlpha = Color.Blue.copy(alpha = 0.5f)
                     val bg = Color.Black
@@ -865,35 +657,6 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
-    fun testCameraDistanceWithRotationY() {
-        var layer: GraphicsLayer?
-        val bgColor = Color.Gray
-        graphicsLayerTest(
-            block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
-                        drawRect(Color.Red)
-                    }
-                    cameraDistance = 5.0f
-                    rotationY = 25f
-                }
-                drawRect(bgColor)
-                drawLayer(layer!!)
-            },
-            verify = { pixelMap ->
-                with(pixelMap) {
-                    assertPixelColor(Color.Red, 0, 0)
-                    assertPixelColor(Color.Red, 0, height - 1)
-                    assertPixelColor(Color.Red, width / 2 - 10, height / 2)
-                    assertPixelColor(Color.Gray, width - 1 - 10, height / 2)
-                    assertPixelColor(Color.Gray, width - 1, 0)
-                    assertPixelColor(Color.Gray, width - 1, height - 1)
-                }
-            }
-        )
-    }
-
-    @Test
     fun testTintColorFilter() {
         var layer: GraphicsLayer?
         graphicsLayerTest(
@@ -902,7 +665,7 @@ class AndroidGraphicsLayerTest {
                     buildLayer {
                         drawRect(Color.Red)
                     }.apply {
-                        colorFilter = tint(Color.Blue)
+                        colorFilter = ColorFilter.tint(Color.Blue)
                     }
                 }
                 drawLayer(layer!!)
@@ -1069,7 +832,7 @@ class AndroidGraphicsLayerTest {
         )
     }
 
-    @Test
+    @org.junit.Test
     fun testRoundRectOutlineClip() {
         var layer: GraphicsLayer?
         var left = 0
@@ -1113,7 +876,7 @@ class AndroidGraphicsLayerTest {
                             if (
                                 x in startX until endX &&
                                 y in startY until endY) {
-                                assertEquals(targetColor, this[x, y])
+                                Assert.assertEquals(targetColor, this[x, y])
                             }
                         }
                     }
@@ -1124,6 +887,42 @@ class AndroidGraphicsLayerTest {
                 }
             }
         )
+    }
+
+    private fun graphicsLayerTest(
+        block: DrawScope.(GraphicsContext) -> Unit,
+        verify: (PixelMap) -> Unit,
+        entireScene: Boolean = false
+    ) {
+        val graphicsContext = GraphicsContext()
+        val surfaceWidth = TEST_WIDTH * 2
+        val surfaceHeight = TEST_HEIGHT * 2
+        val surface = Surface.makeRasterN32Premul(surfaceWidth, surfaceHeight)
+        val canvas = surface.canvas
+        val drawScope = CanvasDrawScope()
+        try {
+            drawScope.draw(
+                Density(1f),
+                LayoutDirection.Ltr,
+                canvas.asComposeCanvas(),
+                Size(surfaceWidth.toFloat(), surfaceHeight.toFloat())
+            ) {
+                drawRect(Color.White)
+                inset(0f, 0f, TEST_WIDTH.toFloat(), TEST_HEIGHT.toFloat()) {
+                    drawRect(Color.Black)
+                    block(graphicsContext)
+                }
+            }
+            surface.flushAndSubmit(true)
+            val area = IRect.makeWH(
+                if (entireScene) TEST_WIDTH * 2 else TEST_WIDTH,
+                if (entireScene) TEST_HEIGHT * 2 else TEST_HEIGHT
+            )
+            val imageBitmap = surface.makeImageSnapshot(area)!!.toComposeImageBitmap()
+            verify(imageBitmap.toPixelMap())
+        } finally {
+            surface.close()
+        }
     }
 
     private fun PixelMap.verifyQuadrants(
@@ -1142,91 +941,29 @@ class AndroidGraphicsLayerTest {
         assertPixelColor(bottomRight, right, bottom) { "$right, $bottom is incorrect color" }
     }
 
-    private fun graphicsLayerTest(
-        block: DrawScope.(GraphicsContext) -> Unit,
-        verify: (PixelMap) -> Unit,
-        entireScene: Boolean = false
-    ) {
-        var scenario: ActivityScenario<TestActivity>? = null
-        try {
-            var container: ViewGroup? = null
-            var contentView: View? = null
-            scenario = ActivityScenario.launch(TestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    container = FrameLayout(it).apply {
-                        setBackgroundColor(Color.White.toArgb())
-                        clipToPadding = false
-                        clipChildren = false
-                    }
-                    val graphicsContext = GraphicsContext(container!!)
-                    val content = FrameLayout(it).apply {
-                        setLayoutParams(
-                            FrameLayout.LayoutParams(
-                                TEST_WIDTH,
-                                TEST_HEIGHT
-                            )
-                        )
-                        setBackgroundColor(Color.Black.toArgb())
-                        foreground = GraphicsContextHostDrawable(graphicsContext, block)
-                    }
-                    container!!.addView(content)
-                    contentView = content
-                    it.setContentView(container)
-                }
-            val resumed = CountDownLatch(1)
-            scenario.moveToState(Lifecycle.State.RESUMED)
-                .onActivity { activity ->
-                    activity.runOnUiThread {
-                        contentView!!.invalidate()
-                        resumed.countDown()
-                    }
-                }
-            Assert.assertTrue(resumed.await(3000, TimeUnit.MILLISECONDS))
-
-            val target = if (entireScene) {
-                container!!
-            } else {
-                contentView!!
-            }
-            verify(target.captureToImage().toPixelMap())
-        } finally {
-            scenario?.moveToState(Lifecycle.State.DESTROYED)
+    /**
+     * Asserts that the color at a specific pixel in the bitmap at ([x], [y]) is [expected].
+     */
+    private fun PixelMap.assertPixelColor(
+        expected: Color,
+        x: Int,
+        y: Int,
+        error: (Color) -> String = { color ->
+            "Pixel($x, $y) expected to be $expected, but was $color"
         }
+    ) {
+        val color = this[x, y]
+        val errorString = error(color)
+        Assert.assertEquals(errorString, expected.red, color.red, 0.02f)
+        Assert.assertEquals(errorString, expected.green, color.green, 0.02f)
+        Assert.assertEquals(errorString, expected.blue, color.blue, 0.02f)
+        Assert.assertEquals(errorString, expected.alpha, color.alpha, 0.02f)
     }
 
-    private class GraphicsContextHostDrawable(
-        val graphicsContext: GraphicsContext,
-        val block: DrawScope.(GraphicsContext) -> Unit
-    ) : Drawable() {
+    companion object {
+        const val TEST_WIDTH = 600
+        const val TEST_HEIGHT = 400
 
-        val canvasDrawScope = CanvasDrawScope()
-
-        override fun draw(canvas: Canvas) {
-            val bounds = getBounds()
-            val width = bounds.width().toFloat()
-            val height = bounds.height().toFloat()
-            canvasDrawScope.draw(
-                Density(1f, 1f),
-                Ltr,
-                androidx.compose.ui.graphics.Canvas(canvas),
-                Size(width, height)
-            ) {
-                block(graphicsContext)
-            }
-        }
-
-        override fun setAlpha(alpha: Int) {
-            // NO-OP
-        }
-
-        override fun setColorFilter(colorFilter: ColorFilter?) {
-            // NO-OP
-        }
-
-        @Deprecated("Deprecated in Java")
-        override fun getOpacity(): Int {
-            return PixelFormat.TRANSLUCENT
-        }
+        val TEST_SIZE = IntSize(TEST_WIDTH, TEST_HEIGHT)
     }
 }
