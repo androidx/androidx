@@ -33,4 +33,5 @@ import android.view.View
     ),
     level = DeprecationLevel.HIDDEN
 )
-public fun View.findViewTreeLifecycleOwner(): LifecycleOwner? = findViewTreeLifecycleOwner()
+public fun findViewTreeLifecycleOwner(view: View): LifecycleOwner? =
+    view.findViewTreeLifecycleOwner()

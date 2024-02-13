@@ -86,6 +86,8 @@ configurations.all {
                 using project(":lifecycle:lifecycle-livedata-core")
         substitute(module("androidx.lifecycle:lifecycle-runtime:")).
                 using project(":lifecycle:lifecycle-runtime")
+        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+                using project(":lifecycle:lifecycle-runtime-ktx")
         substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
                 using project(":lifecycle:lifecycle-viewmodel")
         substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).

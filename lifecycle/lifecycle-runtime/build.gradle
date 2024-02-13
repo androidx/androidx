@@ -60,6 +60,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
+                api(libs.kotlinCoroutinesAndroid)
                 implementation("androidx.arch.core:core-runtime:2.2.0")
                 implementation("androidx.profileinstaller:profileinstaller:1.3.0")
             }
@@ -77,9 +78,11 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
+                implementation(libs.truth)
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
                 implementation(libs.testRunner)
+                implementation(libs.kotlinCoroutinesTest)
             }
         }
 
