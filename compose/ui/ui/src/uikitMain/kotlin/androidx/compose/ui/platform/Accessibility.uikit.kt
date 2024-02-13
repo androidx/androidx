@@ -48,6 +48,7 @@ import platform.UIKit.UIAccessibilityFocusedElement
 import platform.UIKit.UIAccessibilityIsVoiceOverRunning
 import platform.UIKit.UIAccessibilityLayoutChangedNotification
 import platform.UIKit.UIAccessibilityPostNotification
+import platform.UIKit.UIAccessibilityScreenChangedNotification
 import platform.UIKit.UIAccessibilityScrollDirection
 import platform.UIKit.UIAccessibilityScrollDirectionDown
 import platform.UIKit.UIAccessibilityScrollDirectionLeft
@@ -473,9 +474,12 @@ private class AccessibilityElement(
             if (config.contains(SemanticsProperties.InvisibleToUser)) {
                 false
             } else {
-                // TODO: investigate if it can it be a traversal group _and_ contain properties that should
+                // TODO: investigate if it can it be one of those _and_ contain properties that should
                 //  be communicated to iOS?
-                if (config.getOrNull(SemanticsProperties.IsTraversalGroup) == true) {
+                if (config.getOrNull(SemanticsProperties.IsTraversalGroup) == true
+                    || config.contains(SemanticsProperties.IsPopup)
+                    || config.contains(SemanticsProperties.IsDialog)
+                ) {
                     false
                 } else {
                     config.containsImportantForAccessibility()
@@ -571,6 +575,21 @@ private class AccessibilityElement(
         getOrElse(CachedAccessibilityPropertyKeys.accessibilityFrame) {
             mediator.convertRectToWindowSpaceCGRect(semanticsNode.boundsInWindow)
         }
+
+
+    override fun accessibilityPerformEscape(): Boolean {
+        if (!isAlive) {
+            mediator.debugLogger?.log("accessibilityPerformEscape() called after $semanticsNodeId was removed from the tree")
+            return false
+        }
+
+        if (mediator.performEscape()) {
+            UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, null)
+            return true
+        } else {
+            return super.accessibilityPerformEscape()
+        }
+    }
 
     // TODO: check the reference/value semantics for SemanticsNode, perhaps it doesn't need
     //  recreation at all
@@ -828,15 +847,35 @@ sealed class AccessibilitySyncOptions(
     class Always(debugLogger: AccessibilityDebugLogger?): AccessibilitySyncOptions(debugLogger = debugLogger)
 }
 
+@OptIn(ExperimentalComposeApi::class)
+private val AccessibilitySyncOptions.shouldPerformSync
+    get() =
+        when (this) {
+            is AccessibilitySyncOptions.Never -> false
+            is AccessibilitySyncOptions.WhenRequiredByAccessibilityServices -> UIAccessibilityIsVoiceOverRunning()
+            is AccessibilitySyncOptions.Always -> true
+        }
+
+@OptIn(ExperimentalComposeApi::class)
+private val AccessibilitySyncOptions.debugLoggerIfEnabled: AccessibilityDebugLogger?
+    get() =
+        if (shouldPerformSync) {
+            debugLogger
+        } else {
+            null
+        }
+
+
 /**
  * A class responsible for mediating between the tree of specific SemanticsOwner and the iOS accessibility tree.
  */
 @OptIn(ExperimentalComposeApi::class)
-internal class AccessibilityMediator constructor(
+internal class AccessibilityMediator(
     val view: UIView,
     private val owner: SemanticsOwner,
     coroutineContext: CoroutineContext,
     private val getAccessibilitySyncOptions: () -> AccessibilitySyncOptions,
+    val performEscape: () -> Boolean
 ) {
     /**
      * Indicates that this mediator was just created and the accessibility focus should be set on the
@@ -845,6 +884,10 @@ internal class AccessibilityMediator constructor(
     private var needsInitialRefocusing = true
     private var isAlive = true
 
+    /**
+     * Remembered [AccessibilityDebugLogger] after last sync, if logging is enabled according to
+     * [AccessibilitySyncOptions].
+     */
     var debugLogger: AccessibilityDebugLogger? = null
         private set
 
@@ -873,6 +916,8 @@ internal class AccessibilityMediator constructor(
     private val accessibilityElementsMap = mutableMapOf<Int, AccessibilityElement>()
 
     init {
+        getAccessibilitySyncOptions().debugLoggerIfEnabled?.log("AccessibilityMediator for ${view} created")
+
         val updateIntervalMillis = 50L
         // TODO: this approach was copied from desktop implementation, obviously it has a [updateIntervalMillis] lag
         //  between the actual change in the semantics tree and the change in the accessibility tree.
@@ -883,13 +928,7 @@ internal class AccessibilityMediator constructor(
 
                 val syncOptions = getAccessibilitySyncOptions()
 
-                val shouldPerformSync = when (syncOptions) {
-                    is AccessibilitySyncOptions.Never -> false
-                    is AccessibilitySyncOptions.WhenRequiredByAccessibilityServices -> {
-                        UIAccessibilityIsVoiceOverRunning()
-                    }
-                    is AccessibilitySyncOptions.Always -> true
-                }
+                val shouldPerformSync = syncOptions.shouldPerformSync
 
                 debugLogger = if (shouldPerformSync) {
                     syncOptions.debugLogger
