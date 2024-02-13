@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package androidx.credentials.provider.ui
-
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -41,7 +40,6 @@ import org.junit.Assert
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
-
 @SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -52,16 +50,13 @@ class PublicKeyCredentialEntryTest {
         mContext, 0, mIntent,
         PendingIntent.FLAG_IMMUTABLE
     )
-
     @Test
     fun constructor_requiredParamsOnly_success() {
         val entry = constructWithRequiredParamsOnly()
-
         assertNotNull(entry)
         assertThat(entry.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertEntryWithRequiredParams(entry)
     }
-
     @Test
     fun constructor_allParams_success() {
         val entry = constructWithAllParams()
@@ -69,7 +64,6 @@ class PublicKeyCredentialEntryTest {
         assertThat(entry.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertEntryWithAllParams(entry)
     }
-
     @Test
     fun constructor_emptyUsername_throwsIAE() {
         assertThrows(
@@ -81,13 +75,11 @@ class PublicKeyCredentialEntryTest {
             )
         }
     }
-
     @Test
     fun constructor_nullIcon_defaultIconSet() {
         val entry = PublicKeyCredentialEntry(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION
         )
-
         assertThat(
             equals(
                 entry.icon,
@@ -95,7 +87,6 @@ class PublicKeyCredentialEntryTest {
             )
         ).isTrue()
     }
-
     @Test
     fun constructor_nullTypeDisplayName_defaultDisplayNameSet() {
         val entry = PublicKeyCredentialEntry(
@@ -106,6 +97,34 @@ class PublicKeyCredentialEntryTest {
                 R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
             )
         )
+    }
+    @Test
+    fun constructor_setPreferredDefaultIconBit_retrieveSetPreferredDefaultIconBit() {
+        val expectedPreferredDefaultIconBit = SINGLE_PROVIDER_ICON_BIT
+        val entry = PublicKeyCredentialEntry(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION,
+            DISPLAYNAME,
+            Instant.ofEpochMilli(LAST_USED_TIME),
+            ICON,
+            IS_AUTO_SELECT_ALLOWED,
+            isDefaultIconPreferredAsSingleProvider = expectedPreferredDefaultIconBit
+        )
+        assertThat(entry.isDefaultIconPreferredAsSingleProvider)
+            .isEqualTo(expectedPreferredDefaultIconBit)
+    }
+    @Test
+    fun constructor_preferredIconBitNotProvided_retrieveDefaultPreferredIconBit() {
+        val entry = PublicKeyCredentialEntry(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        )
+        assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(
+            DEFAULT_SINGLE_PROVIDER_ICON_BIT)
     }
     @Test
     fun constructor_allRequiredParamsUsed_defaultUsernameEntryGroupIdRetrieved() {
@@ -143,28 +162,22 @@ class PublicKeyCredentialEntryTest {
     fun fromSlice_success() {
         val originalEntry = constructWithAllParams()
         val slice = PublicKeyCredentialEntry.toSlice(originalEntry)
-
         assertNotNull(slice)
         val entry = fromSlice(slice!!)
-
         assertNotNull(entry)
         entry?.let {
-            assertEntryWithRequiredParams(entry)
+            assertEntryWithAllParams(entry)
         }
     }
-
     @Test
     @SdkSuppress(minSdkVersion = 34)
     fun fromCredentialEntry_success() {
         val originalEntry = constructWithAllParams()
-
         val entry = toSlice(originalEntry)?.let { CredentialEntry("id", it) }
             ?.let { fromCredentialEntry(it) }
-
         Assert.assertNotNull(entry)
-        assertEntryWithRequiredParams(entry!!)
+        assertEntryWithAllParams(entry!!)
     }
-
     private fun constructWithRequiredParamsOnly(): PublicKeyCredentialEntry {
         return PublicKeyCredentialEntry(
             mContext,
@@ -173,7 +186,6 @@ class PublicKeyCredentialEntryTest {
             BEGIN_OPTION
         )
     }
-
     private fun constructWithAllParams(): PublicKeyCredentialEntry {
         return PublicKeyCredentialEntry(
             mContext,
@@ -183,17 +195,18 @@ class PublicKeyCredentialEntryTest {
             DISPLAYNAME,
             Instant.ofEpochMilli(LAST_USED_TIME),
             ICON,
-            IS_AUTO_SELECT_ALLOWED
+            IS_AUTO_SELECT_ALLOWED,
+            SINGLE_PROVIDER_ICON_BIT
         )
     }
-
     private fun assertEntryWithRequiredParams(entry: PublicKeyCredentialEntry) {
         assertThat(USERNAME == entry.username)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(
+            DEFAULT_SINGLE_PROVIDER_ICON_BIT)
         assertThat(entry.affiliatedDomain).isNull()
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
     }
-
     private fun assertEntryWithAllParams(entry: PublicKeyCredentialEntry) {
         assertThat(USERNAME == entry.username)
         assertThat(DISPLAYNAME == entry.displayName)
@@ -202,6 +215,7 @@ class PublicKeyCredentialEntryTest {
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.lastUsedTime)
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(SINGLE_PROVIDER_ICON_BIT)
         assertThat(entry.affiliatedDomain).isNull()
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
     }
@@ -217,5 +231,7 @@ class PublicKeyCredentialEntryTest {
         private val ICON = Icon.createWithBitmap(Bitmap.createBitmap(
             100, 100, Bitmap.Config.ARGB_8888))
         private const val IS_AUTO_SELECT_ALLOWED = true
+        private const val DEFAULT_SINGLE_PROVIDER_ICON_BIT = false
+        private const val SINGLE_PROVIDER_ICON_BIT = true
     }
 }

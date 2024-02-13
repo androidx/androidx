@@ -62,6 +62,9 @@ import java.util.Collections
  * entry is associated with when it is different from the requesting entity, default null
  * @property entryGroupId an ID used for deduplication or grouping entries during display, by
  * default set to [title]; for more info on this id, see [CredentialEntry]
+ * @param isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
+ * default credential type icon (see the default value of [icon]) when you are
+ * the only available provider; false by default
  *
  * @throws IllegalArgumentException If [type] or [title] are empty
  *
@@ -81,13 +84,15 @@ class CustomCredentialEntry internal constructor(
     beginGetCredentialOption: BeginGetCredentialOption,
     entryGroupId: CharSequence? = title,
     affiliatedDomain: CharSequence? = null,
+    isDefaultIconPreferredAsSingleProvider: Boolean,
     private val autoSelectAllowedFromOption: Boolean = false,
-    private val isDefaultIcon: Boolean = false
+    private val isDefaultIcon: Boolean = false,
 ) : CredentialEntry(
     type,
     beginGetCredentialOption,
     entryGroupId ?: title,
     affiliatedDomain,
+    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
 ) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
@@ -102,7 +107,7 @@ class CustomCredentialEntry internal constructor(
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
      * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
      * system to attach the final request
-     * @param beginGetCredentialOption the option from the original [BeginGetCredentialRequest],
+     * @param beginGetCredentialOption the option from the original [BeginGetCredentialResponse],
      * for which this credential entry is being added
      * @param subtitle the subTitle shown with this entry on the selector UI
      * @param lastUsedTime the last used time the credential underlying this entry was
@@ -117,12 +122,12 @@ class CustomCredentialEntry internal constructor(
      * selected if it is the only one on the UI, only takes effect if the app requesting for
      * credentials also opts for auto select
      *
-     * @throws IllegalArgumentException If [type] or [title] are empty
+     * @throws IllegalArgumentException if [type] or [title] are empty
      */
-    @Deprecated("The constructor with the entryGroupId should be used instead.",
+    @Deprecated("Use the constructor that allows setting all parameters.",
         replaceWith = ReplaceWith("CustomCredentialEntry(context, title, pendingIntent," +
             "beginGetCredentialOption, subtitle, typeDisplayName, lastUsedTime, icon, " +
-            "isAutoSelectAllowed, entryGroupId)"),
+            "isAutoSelectAllowed, entryGroupId, isDefaultIconPreferredAsSingleProvider)"),
         level = DeprecationLevel.HIDDEN
     )
     constructor(
@@ -135,7 +140,7 @@ class CustomCredentialEntry internal constructor(
         lastUsedTime: Instant? = null,
         icon: Icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
         @Suppress("AutoBoxing")
-        isAutoSelectAllowed: Boolean = false
+        isAutoSelectAllowed: Boolean = false,
     ) : this(
         beginGetCredentialOption.type,
         title,
@@ -145,7 +150,8 @@ class CustomCredentialEntry internal constructor(
         typeDisplayName,
         icon,
         lastUsedTime,
-        beginGetCredentialOption
+        beginGetCredentialOption,
+        isDefaultIconPreferredAsSingleProvider = false
     )
 
     /**
@@ -172,6 +178,9 @@ class CustomCredentialEntry internal constructor(
      * credentials also opts for auto select
      * @param entryGroupId an ID to uniquely mark this entry for deduplication or to group entries
      * during display, set to [title] by default
+     * @param isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
+     * default credential type icon (see the default value of [icon]) when you are
+     * the only available provider; false by default
      *
      * @throws IllegalArgumentException If [type] or [title] are empty
      */
@@ -186,7 +195,8 @@ class CustomCredentialEntry internal constructor(
         icon: Icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
         @Suppress("AutoBoxing")
         isAutoSelectAllowed: Boolean = false,
-        entryGroupId: CharSequence = title
+        entryGroupId: CharSequence = title,
+        isDefaultIconPreferredAsSingleProvider: Boolean = false
     ) : this(
         beginGetCredentialOption.type,
         title,
@@ -197,7 +207,8 @@ class CustomCredentialEntry internal constructor(
         icon,
         lastUsedTime,
         beginGetCredentialOption,
-        entryGroupId.ifEmpty { title }
+        entryGroupId.ifEmpty { title },
+        isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
     )
 
     @RequiresApi(34)
@@ -228,11 +239,19 @@ class CustomCredentialEntry internal constructor(
             val beginGetCredentialOption = entry.beginGetCredentialOption
             val entryGroupId = entry.entryGroupId
             val affiliatedDomain = entry.affiliatedDomain
+            val isDefaultIconPreferredAsSingleProvider =
+                entry.isDefaultIconPreferredAsSingleProvider
 
             val autoSelectAllowed = if (isAutoSelectAllowed == true) {
-                AUTO_SELECT_TRUE_STRING
+                TRUE_STRING
             } else {
-                AUTO_SELECT_FALSE_STRING
+                FALSE_STRING
+            }
+
+            val isUsingDefaultIconPreferred = if (isDefaultIconPreferredAsSingleProvider) {
+                TRUE_STRING
+            } else {
+                FALSE_STRING
             }
             val sliceBuilder = Slice.Builder(
                 Uri.EMPTY, SliceSpec(
@@ -271,6 +290,10 @@ class CustomCredentialEntry internal constructor(
                 .addIcon(
                     icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON)
+                )
+                .addText(
+                    isUsingDefaultIconPreferred, /*subType=*/null,
+                    listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
                 )
 
             try {
@@ -332,6 +355,7 @@ class CustomCredentialEntry internal constructor(
             var beginGetCredentialOptionId: CharSequence? = null
             var entryGroupId: CharSequence? = null
             var autoSelectAllowedFromOption = false
+            var isDefaultIconPreferredAsSingleProvider = false
             var isDefaultIcon = false
             var affiliatedDomain: CharSequence? = null
 
@@ -352,13 +376,18 @@ class CustomCredentialEntry internal constructor(
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
                     val autoSelectValue = it.text
-                    if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
+                    if (autoSelectValue == TRUE_STRING) {
                         autoSelectAllowed = true
                     }
                 } else if (it.hasHint(SLICE_HINT_DEDUPLICATION_ID)) {
                     entryGroupId = it.text
                 } else if (it.hasHint(SLICE_HINT_AUTO_SELECT_FROM_OPTION)) {
                     autoSelectAllowedFromOption = true
+                } else if (it.hasHint(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)) {
+                    val defaultIconValue = it.text
+                    if (defaultIconValue == TRUE_STRING) {
+                        isDefaultIconPreferredAsSingleProvider = true
+                    }
                 } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
                     isDefaultIcon = true
                 } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
@@ -382,6 +411,7 @@ class CustomCredentialEntry internal constructor(
                         Bundle()
                     ),
                     entryGroupId = entryGroupId,
+                    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
                     affiliatedDomain = affiliatedDomain,
                     autoSelectAllowedFromOption = autoSelectAllowedFromOption,
                     isDefaultIcon = isDefaultIcon,
@@ -417,6 +447,9 @@ class CustomCredentialEntry internal constructor(
         private const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
 
+        private const val SLICE_HINT_IS_DEFAULT_ICON_PREFERRED =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_IS_DEFAULT_ICON_PREFERRED"
+
         private const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
 
@@ -432,9 +465,9 @@ class CustomCredentialEntry internal constructor(
         private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
 
-        private const val AUTO_SELECT_TRUE_STRING = "true"
+        private const val TRUE_STRING = "true"
 
-        private const val AUTO_SELECT_FALSE_STRING = "false"
+        private const val FALSE_STRING = "false"
 
         private const val REVISION_ID = 1
 
@@ -518,6 +551,7 @@ class CustomCredentialEntry internal constructor(
         private var icon: Icon? = null
         private var autoSelectAllowed = false
         private var entryGroupId: CharSequence = title
+        private var isDefaultIconPreferredAsSingleProvider = false
 
         /** Sets a displayName to be shown on the UI with this entry. */
         fun setSubtitle(subtitle: CharSequence?): Builder {
@@ -571,6 +605,17 @@ class CustomCredentialEntry internal constructor(
             return this
         }
 
+        /**
+         * When set to true, the UI prefers to render the default credential type icon when you are
+         * the single available provider; false by default.
+         */
+        fun setDefaultIconPreferredAsSingleProvider(
+            isDefaultIconPreferredAsSingleProvider: Boolean
+        ): Builder {
+            this.isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
+            return this
+        }
+
         /** Builds an instance of [CustomCredentialEntry] */
         fun build(): CustomCredentialEntry {
             if (icon == null && Build.VERSION.SDK_INT >= 23) {
@@ -586,7 +631,8 @@ class CustomCredentialEntry internal constructor(
                 icon!!,
                 lastUsedTime,
                 beginGetCredentialOption,
-                entryGroupId
+                entryGroupId = entryGroupId,
+                isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
             )
         }
     }
