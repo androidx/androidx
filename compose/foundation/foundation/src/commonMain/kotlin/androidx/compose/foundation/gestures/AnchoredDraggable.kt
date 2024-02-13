@@ -17,6 +17,8 @@
 package androidx.compose.foundation.gestures
 
 import androidx.annotation.FloatRange
+import androidx.collection.MutableObjectFloatMap
+import androidx.collection.ObjectFloatMap
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
@@ -112,6 +114,13 @@ interface DraggableAnchors<T> {
     fun maxAnchor(): Float
 
     /**
+     * Iterate over all the anchors and corresponding positions.
+     *
+     * @param block The action to invoke with the anchor and position
+     */
+    fun forEach(block: (anchor: T, position: Float) -> Unit)
+
+    /**
      * The amount of anchors
      */
     val size: Int
@@ -125,7 +134,7 @@ interface DraggableAnchors<T> {
 @ExperimentalFoundationApi
 class DraggableAnchorsConfig<T> {
 
-    internal val anchors = mutableMapOf<T, Float>()
+    internal val anchors = MutableObjectFloatMap<T>()
 
     /**
      * Set the anchor position for [this] anchor.
@@ -1006,31 +1015,48 @@ private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit)
     }
 }
 
-private fun <T> emptyDraggableAnchors() = MapDraggableAnchors<T>(emptyMap())
+private fun <T> emptyDraggableAnchors() = MapDraggableAnchors<T>(MutableObjectFloatMap())
 
 @OptIn(ExperimentalFoundationApi::class)
-private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) : DraggableAnchors<T> {
+private class MapDraggableAnchors<T>(private val anchors: ObjectFloatMap<T>) : DraggableAnchors<T> {
 
-    override fun positionOf(value: T): Float = anchors[value] ?: Float.NaN
+    override fun positionOf(value: T): Float = anchors.getOrDefault(value, Float.NaN)
+
     override fun hasAnchorFor(value: T) = anchors.containsKey(value)
 
-    override fun closestAnchor(position: Float): T? = anchors.minByOrNull {
-        abs(position - it.value)
-    }?.key
+    override fun closestAnchor(position: Float): T? {
+        var minAnchor: T? = null
+        var minDistance = Float.POSITIVE_INFINITY
+        anchors.forEach { anchor, anchorPosition ->
+            val distance = abs(position - anchorPosition)
+            if (distance <= minDistance) {
+                minAnchor = anchor
+                minDistance = distance
+            }
+        }
+        return minAnchor
+    }
 
     override fun closestAnchor(
         position: Float,
         searchUpwards: Boolean
     ): T? {
-        return anchors.minByOrNull { (_, anchor) ->
-            val delta = if (searchUpwards) anchor - position else position - anchor
-            if (delta < 0) Float.POSITIVE_INFINITY else delta
-        }?.key
+        var minAnchor: T? = null
+        var minDistance = Float.POSITIVE_INFINITY
+        anchors.forEach { anchor, anchorPosition ->
+            val delta = if (searchUpwards) anchorPosition - position else position - anchorPosition
+            val distance = if (delta < 0) Float.POSITIVE_INFINITY else delta
+            if (distance <= minDistance) {
+                minAnchor = anchor
+                minDistance = distance
+            }
+        }
+        return minAnchor
     }
 
-    override fun minAnchor() = anchors.values.minOrNull() ?: Float.NaN
+    override fun minAnchor() = anchors.minValueOrNaN()
 
-    override fun maxAnchor() = anchors.values.maxOrNull() ?: Float.NaN
+    override fun maxAnchor() = anchors.maxValueOrNaN()
 
     override val size: Int
         get() = anchors.size
@@ -1045,6 +1071,32 @@ private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) : Dragg
     override fun hashCode() = 31 * anchors.hashCode()
 
     override fun toString() = "MapDraggableAnchors($anchors)"
+
+    override fun forEach(block: (anchor: T, position: Float) -> Unit) {
+        anchors.forEach(block)
+    }
+}
+
+private fun<K> ObjectFloatMap<K>.minValueOrNaN(): Float {
+    if (size == 1) return Float.NaN
+    var minValue = Float.POSITIVE_INFINITY
+    forEachValue { value ->
+        if (value <= minValue) {
+            minValue = value
+        }
+    }
+    return minValue
+}
+
+private fun<K> ObjectFloatMap<K>.maxValueOrNaN(): Float {
+    if (size == 1) return Float.NaN
+    var maxValue = Float.NEGATIVE_INFINITY
+    forEachValue { value ->
+        if (value >= maxValue) {
+            maxValue = value
+        }
+    }
+    return maxValue
 }
 
 private const val DEBUG = false
