@@ -444,6 +444,11 @@ package androidx.compose.ui.graphics {
     property public final int None;
   }
 
+  public interface GraphicsContext {
+    method public androidx.compose.ui.graphics.layer.GraphicsLayer createGraphicsLayer();
+    method public void releaseGraphicsLayer(androidx.compose.ui.graphics.layer.GraphicsLayer layer);
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ImageBitmap {
     method public androidx.compose.ui.graphics.colorspace.ColorSpace getColorSpace();
     method public int getConfig();
@@ -1280,6 +1285,7 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   @androidx.compose.ui.graphics.drawscope.DrawScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface DrawScope extends androidx.compose.ui.unit.Density {
+    method public default androidx.compose.ui.graphics.layer.GraphicsLayer buildLayer(androidx.compose.ui.graphics.layer.GraphicsLayer, optional long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public void drawArc(androidx.compose.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
     method public void drawArc(long color, float startAngle, float sweepAngle, boolean useCenter, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
     method public void drawCircle(androidx.compose.ui.graphics.Brush brush, optional float radius, optional long center, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
@@ -1386,6 +1392,111 @@ package androidx.compose.ui.graphics.drawscope {
     method public int getDefaultJoin();
     property public final int DefaultCap;
     property public final int DefaultJoin;
+  }
+
+}
+
+package androidx.compose.ui.graphics.layer {
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class CompositingStrategy {
+    field public static final androidx.compose.ui.graphics.layer.CompositingStrategy.Companion Companion;
+  }
+
+  public static final class CompositingStrategy.Companion {
+    method public int getAuto();
+    method public int getModulateAlpha();
+    method public int getOffscreen();
+    property public final int Auto;
+    property public final int ModulateAlpha;
+    property public final int Offscreen;
+  }
+
+  public final class GraphicsLayer {
+    method public androidx.compose.ui.graphics.layer.GraphicsLayer buildLayer(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public void draw(androidx.compose.ui.graphics.Canvas canvas);
+    method public float getAlpha();
+    method public long getAmbientShadowColor();
+    method public int getBlendMode();
+    method public float getCameraDistance();
+    method public boolean getClip();
+    method public androidx.compose.ui.graphics.ColorFilter? getColorFilter();
+    method public int getCompositingStrategy();
+    method public long getLayerId();
+    method public androidx.compose.ui.graphics.Outline getOutline();
+    method public long getOwnerViewId();
+    method public long getPivotOffset();
+    method public androidx.compose.ui.graphics.RenderEffect? getRenderEffect();
+    method public float getRotationX();
+    method public float getRotationY();
+    method public float getRotationZ();
+    method public float getScaleX();
+    method public float getScaleY();
+    method public float getShadowElevation();
+    method public long getSize();
+    method public long getSpotShadowColor();
+    method public long getTopLeft();
+    method public float getTranslationX();
+    method public float getTranslationY();
+    method public boolean isReleased();
+    method public void setAlpha(float);
+    method public void setAmbientShadowColor(long);
+    method public void setBlendMode(int);
+    method public void setCameraDistance(float);
+    method public void setClip(boolean);
+    method public void setColorFilter(androidx.compose.ui.graphics.ColorFilter?);
+    method public void setCompositingStrategy(int);
+    method public void setPathOutline(androidx.compose.ui.graphics.Path path);
+    method public void setPivotOffset(long);
+    method public void setRectOutline(optional long topLeft, optional long size);
+    method public void setRenderEffect(androidx.compose.ui.graphics.RenderEffect?);
+    method public void setRotationX(float);
+    method public void setRotationY(float);
+    method public void setRotationZ(float);
+    method public void setRoundRectOutline(optional long topLeft, optional long size, optional float cornerRadius);
+    method public void setScaleX(float);
+    method public void setScaleY(float);
+    method public void setShadowElevation(float);
+    method public void setSpotShadowColor(long);
+    method public void setTopLeft(long);
+    method public void setTranslationX(float);
+    method public void setTranslationY(float);
+    property public final float alpha;
+    property public final long ambientShadowColor;
+    property public final int blendMode;
+    property public final float cameraDistance;
+    property public final boolean clip;
+    property public final androidx.compose.ui.graphics.ColorFilter? colorFilter;
+    property public final int compositingStrategy;
+    property public final boolean isReleased;
+    property public final long layerId;
+    property public final androidx.compose.ui.graphics.Outline outline;
+    property public final long ownerViewId;
+    property public final long pivotOffset;
+    property public final androidx.compose.ui.graphics.RenderEffect? renderEffect;
+    property public final float rotationX;
+    property public final float rotationY;
+    property public final float rotationZ;
+    property public final float scaleX;
+    property public final float scaleY;
+    property public final float shadowElevation;
+    property public final long size;
+    property public final long spotShadowColor;
+    property public final long topLeft;
+    property public final float translationX;
+    property public final float translationY;
+    field public static final androidx.compose.ui.graphics.layer.GraphicsLayer.Companion Companion;
+  }
+
+  public static final class GraphicsLayer.Companion {
+    method public long getUnsetOffset();
+    method public long getUnsetSize();
+    property public final long UnsetOffset;
+    property public final long UnsetSize;
+  }
+
+  public final class GraphicsLayerKt {
+    method public static void drawLayer(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.layer.GraphicsLayer graphicsLayer);
+    field public static final float DefaultCameraDistance = 8.0f;
   }
 
 }

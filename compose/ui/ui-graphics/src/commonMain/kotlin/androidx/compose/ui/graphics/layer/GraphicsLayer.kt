@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationX
  * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationYWithCameraDistance
  */
-internal fun DrawScope.drawLayer(graphicsLayer: GraphicsLayer) {
+fun DrawScope.drawLayer(graphicsLayer: GraphicsLayer) {
     drawIntoCanvas { canvas ->
         graphicsLayer.draw(canvas)
     }
@@ -80,7 +80,17 @@ const val DefaultCameraDistance = 8.0f
  * [GraphicsLayer.blendMode], [GraphicsLayer.colorFilter], [GraphicsLayer.alpha] or
  * [GraphicsLayer.renderEffect]
  */
-internal expect class GraphicsLayer {
+expect class GraphicsLayer {
+
+    /**
+     * [CompositingStrategy] determines whether or not the contents of this layer are rendered into
+     * an offscreen buffer. This is useful in order to optimize alpha usages with
+     * [CompositingStrategy.ModulateAlpha] which will skip the overhead of an offscreen buffer but can
+     * generate different rendering results depending on whether or not the contents of the layer are
+     * overlapping. Similarly leveraging [CompositingStrategy.Offscreen] is useful in situations where
+     * creating an offscreen buffer is preferred usually in conjunction with [BlendMode] usage.
+     */
+    var compositingStrategy: CompositingStrategy
 
     /**
      * Offset in pixels where this [GraphicsLayer] will render within a provided canvas when
@@ -322,6 +332,8 @@ internal expect class GraphicsLayer {
      * (i.e. CompositingStrategy.Offscreen is used, a non-null ColorFilter, RenderEffect is applied
      * or if the BlendMode is not equivalent to BlendMode.SrcOver
      */
+    @Suppress("GetterSetterNames")
+    @get:Suppress("GetterSetterNames")
     var clip: Boolean
 
     /**

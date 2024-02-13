@@ -37,11 +37,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.degrees
 import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.center
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify
@@ -907,6 +907,34 @@ interface DrawScope : Density {
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     )
+
+    /**
+     * Record the corresponding drawing commands for this [GraphicsLayer] instance using the
+     * [Density], [LayoutDirection] and [IntSize] from the provided [DrawScope] as defaults.
+     * This will retarget the underlying canvas of the provided DrawScope to draw within the layer
+     * itself and reset it to the original canvas on the conclusion of this method call.
+     */
+    fun GraphicsLayer.buildLayer(
+        size: IntSize = IntSize(
+            this@DrawScope.size.width.toInt(),
+            this@DrawScope.size.height.toInt()
+        ),
+        block: DrawScope.() -> Unit
+    ): GraphicsLayer = buildLayer(
+        this@DrawScope,
+        this@DrawScope.layoutDirection,
+        size
+    ) {
+        drawIntoCanvas { canvas ->
+            draw(
+                this@DrawScope,
+                layoutDirection,
+                canvas,
+                Size(size.width.toFloat(), size.height.toFloat()),
+                block
+            )
+        }
+    }
 
     /**
      * Helper method to offset the provided size with the offset in box width and height

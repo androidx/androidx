@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
  * Class responsible for providing graphics related dependencies. This includes the creation and
  * management of [GraphicsLayer] instances.
  */
-internal interface GraphicsContext {
+interface GraphicsContext {
 
     /**
      * Create a [GraphicsLayer] instance. This may internally return a previously
