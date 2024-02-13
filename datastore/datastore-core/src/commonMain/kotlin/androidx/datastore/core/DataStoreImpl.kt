@@ -22,18 +22,25 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+import kotlin.time.Duration
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -57,7 +64,36 @@ internal class DataStoreImpl<T>(
     private val scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob())
 ) : DataStore<T> {
 
-    override val data: Flow<T> = flow {
+    /**
+     * Shared flow responsible for observing [InterProcessCoordinator] for file changes.
+     * Each downstream [data] flow collects on this [kotlinx.coroutines.flow.SharedFlow] to ensure
+     * we observe the [InterProcessCoordinator] when there is an active collection on the [data].
+     */
+    private val updateCollection = flow<Unit> {
+        // deferring 1 flow so we can create coordinator lazily just to match existing behavior.
+        // also wait for initialization to complete before watching update events.
+        readAndInit.awaitComplete()
+        coordinator.updateNotifications.conflate().collect {
+            val currentState = inMemoryCache.currentState
+            if (currentState !is Final) {
+                // update triggered reads should always wait for lock
+                readDataAndUpdateCache(requireLock = true)
+            }
+        }
+    }.shareIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(
+            stopTimeout = Duration.ZERO,
+            replayExpiration = Duration.ZERO
+        ),
+        replay = 0
+    )
+
+    /**
+     * The actual values of DataStore. This is exposed in the API via [data] to be able to combine
+     * its lifetime with IPC update collection ([updateCollection]).
+     */
+    private val internalDataFlow: Flow<T> = flow {
         /**
          * If downstream flow is UnInitialized, no data has been read yet, we need to trigger a new
          * read then start emitting values once we have seen a new value (or exception).
@@ -106,6 +142,20 @@ internal class DataStoreImpl<T>(
         )
     }
 
+    override val data: Flow<T> = channelFlow {
+        val updateCollector = launch(start = CoroutineStart.LAZY) {
+            updateCollection.collect {
+                // collect it infinitely so it keeps running as long as the data flow is active.
+            }
+        }
+        internalDataFlow
+            .onStart { updateCollector.start() }
+            .onCompletion { updateCollector.cancel() }
+            .collect {
+                send(it)
+            }
+    }
+
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
         val ack = CompletableDeferred<T>()
         val currentDownStreamFlowState = inMemoryCache.currentState
@@ -123,30 +173,26 @@ internal class DataStoreImpl<T>(
 
     private val readAndInit = InitDataStore(initTasksList)
 
-    private lateinit var updateCollector: Job
-
     // TODO(b/269772127): make this private after we allow multiple instances of DataStore on the
     //  same file
-    internal val storageConnection: StorageConnection<T> by lazy {
+    private val storageConnectionDelegate = lazy {
         storage.createConnection()
     }
+    internal val storageConnection by storageConnectionDelegate
     private val coordinator: InterProcessCoordinator by lazy { storageConnection.coordinator }
 
     private val writeActor = SimpleActor<Message.Update<T>>(
         scope = scope,
         onComplete = {
-            // TODO(b/267792241): remove it if updateCollector is better scoped
-            // no more reads so stop listening to file changes
-            if (::updateCollector.isInitialized) {
-                updateCollector.cancel()
-            }
+            // We expect it to always be non-null but we will leave the alternative as a no-op
+            // just in case.
             it?.let {
                 inMemoryCache.tryUpdate(Final(it))
             }
-            // We expect it to always be non-null but we will leave the alternative as a no-op
-            // just in case.
-
-            storageConnection.close()
+            // don't try to close storage connection if it was not created in the first place.
+            if (storageConnectionDelegate.isInitialized()) {
+                storageConnection.close()
+            }
         },
         onUndeliveredElement = { msg, ex ->
             msg.ack.completeExceptionally(
@@ -379,17 +425,6 @@ internal class DataStoreImpl<T>(
                 }
             }
             inMemoryCache.tryUpdate(initData)
-            if (!::updateCollector.isInitialized) {
-                updateCollector = scope.launch {
-                    coordinator.updateNotifications.conflate().collect {
-                        val currentState = inMemoryCache.currentState
-                        if (currentState !is Final) {
-                            // update triggered reads should always wait for lock
-                            readDataAndUpdateCache(requireLock = true)
-                        }
-                    }
-                }
-            }
         }
 
         @OptIn(ExperimentalContracts::class)
@@ -464,15 +499,17 @@ internal class DataStoreImpl<T>(
  */
 internal abstract class RunOnce {
     private val runMutex = Mutex()
-    private var didRun: Boolean = false
+    private val didRun = CompletableDeferred<Unit>()
     protected abstract suspend fun doRun()
 
+    suspend fun awaitComplete() = didRun.await()
+
     suspend fun runIfNeeded() {
-        if (didRun) return
+        if (didRun.isCompleted) return
         runMutex.withLock {
-            if (didRun) return
+            if (didRun.isCompleted) return
             doRun()
-            didRun = true
+            didRun.complete(Unit)
         }
     }
 }
