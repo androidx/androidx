@@ -181,7 +181,7 @@ internal class KmClassContainer(
          */
         fun createFor(env: JavacProcessingEnv, element: Element): KmClassContainer? {
             val metadataAnnotation = getMetadataAnnotation(element) ?: return null
-            return when (val classMetadata = KotlinClassMetadata.read(metadataAnnotation)) {
+            return when (val classMetadata = KotlinClassMetadata.readStrict(metadataAnnotation)) {
                 is KotlinClassMetadata.Class -> KmClassContainer(env, classMetadata.kmClass)
                 // Synthetic classes generated for various Kotlin features ($DefaultImpls,
                 // $WhenMappings, etc) are ignored because the data contained does not affect
