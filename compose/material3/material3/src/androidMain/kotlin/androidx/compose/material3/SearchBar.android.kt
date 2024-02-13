@@ -25,7 +25,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -59,6 +58,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.SearchBarDefaults.InputFieldHeight
+import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.MotionTokens
@@ -222,7 +222,7 @@ fun SearchBar(
                         firstBackEvent.value = backEvent
                     }
                     currentBackEvent.value = backEvent
-                    val interpolatedProgress = EaseOut.transform(backEvent.progress)
+                    val interpolatedProgress = PredictiveBack.transform(backEvent.progress)
                     animationProgress.snapTo(targetValue = 1 - interpolatedProgress)
                 }
                 finalBackProgress.floatValue = animationProgress.value
