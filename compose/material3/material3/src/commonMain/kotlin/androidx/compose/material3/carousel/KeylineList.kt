@@ -17,6 +17,8 @@
 package androidx.compose.material3.carousel
 
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMapIndexed
 import kotlin.math.abs
 
@@ -201,6 +203,24 @@ internal class KeylineList internal constructor(
      */
     fun getKeylineAfter(unadjustedOffset: Float): Keyline {
         return fastFirstOrNull { it.unadjustedOffset >= unadjustedOffset } ?: last()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is KeylineList) return false
+        if (size != other.size) return false
+
+        fastForEachIndexed { i, keyline ->
+            if (keyline != other[i]) return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = 0
+        fastForEach { keyline -> result += 31 * keyline.hashCode() }
+        return result
     }
 }
 
