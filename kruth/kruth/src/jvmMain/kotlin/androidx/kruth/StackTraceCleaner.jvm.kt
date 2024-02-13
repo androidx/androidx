@@ -18,6 +18,7 @@ package androidx.kruth
 
 import androidx.kruth.StackFrameType.Companion.createStreakReplacementFrame
 import com.google.common.base.MoreObjects.firstNonNull
+import com.google.common.collect.ImmutableList
 import java.lang.Thread.currentThread
 
 private const val CLEANER_LINK: String = "https://goo.gl/aH3UyP"
@@ -332,12 +333,12 @@ internal class StackTraceElementWrapper(
 internal enum class StackFrameType(
     /** Returns the name of this frame type to display in the cleaned trace */
     private val stackFrameName: String,
-    private val prefixes: List<String> = emptyList()
+    private val prefixes: ImmutableList<String> = ImmutableList.of()
 ) {
     NEVER_REMOVE("N/A"),
     TEST_FRAMEWORK(
         "Testing framework",
-        listOf(
+        ImmutableList.of(
             "junit",
             "org.junit",
             "androidx.test.internal.runner",
@@ -349,11 +350,11 @@ internal enum class StackFrameType(
     ),
     REFLECTION(
         "Reflective call",
-        listOf("java.lang.reflect", "jdk.internal.reflect", "sun.reflect")
+        ImmutableList.of("java.lang.reflect", "jdk.internal.reflect", "sun.reflect")
     ),
     CONCURRENT_FRAMEWORK(
         "Concurrent framework",
-        listOf(
+        ImmutableList.of(
             "com.google.tracing.CurrentContext",
             "com.google.common.util.concurrent",
             "java.util.concurrent.ForkJoin"
