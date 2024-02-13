@@ -194,9 +194,7 @@ private fun FocusTargetNode.clearChildFocus(
  * @param childNode: The node that is requesting focus.
  * @return true if focus was granted, false otherwise.
  */
-private fun FocusTargetNode.requestFocusForChild(
-    childNode: FocusTargetNode
-): Boolean {
+private fun FocusTargetNode.requestFocusForChild(childNode: FocusTargetNode): Boolean {
 
     // Only this node's children can ask for focus.
     if (childNode.nearestAncestor(FocusTarget) != this) {
@@ -221,8 +219,9 @@ private fun FocusTargetNode.requestFocusForChild(
             when {
                 // If this node is the root, request focus from the compose owner.
                 focusParent == null && requestFocusForOwner() -> {
-                    focusState = Active
-                    requestFocusForChild(childNode)
+                    childNode.grantFocus().also { success ->
+                        if (success) focusState = ActiveParent
+                    }
                 }
                 // For non-root nodes, request focus for this node before the child.
                 // We request focus even if this is a deactivated node, as we will end up taking

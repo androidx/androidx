@@ -22,6 +22,7 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.input.pointer.PointerInputFilter
@@ -1076,7 +1077,8 @@ internal class LayoutNode(
                 requireOwner().focusOwner.clearFocus(
                     force = true,
                     refreshFocusEvents = false,
-                    clearOwnerFocus = true
+                    clearOwnerFocus = true,
+                    @OptIn(ExperimentalComposeUiApi::class) Exit
                 )
                 it.scheduleInvalidationForFocusEvents()
             }
