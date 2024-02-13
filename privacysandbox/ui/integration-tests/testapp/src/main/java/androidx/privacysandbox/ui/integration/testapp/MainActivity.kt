@@ -19,6 +19,7 @@ package androidx.privacysandbox.ui.integration.testapp
 import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
@@ -33,6 +34,7 @@ import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
+import com.google.android.material.switchmaterial.SwitchMaterial
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,14 +43,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mSdkSandboxManager: SdkSandboxManagerCompat
 
     private var mSdkLoaded = false
+    private lateinit var sdkApi: ISdkApi
 
-    private lateinit var mSandboxedSdkView1: SandboxedSdkView
-    private lateinit var mSandboxedSdkView2: SandboxedSdkView
-    private lateinit var resizableSandboxedSdkView: SandboxedSdkView
-    private lateinit var mNewAdButton: Button
-    private lateinit var mResizeButton: Button
-    private lateinit var mResizeSdkButton: Button
-    private lateinit var mLoadAdButton: Button
+    private lateinit var webViewBannerView: SandboxedSdkView
+    private lateinit var bottomBannerView: SandboxedSdkView
+    private lateinit var resizableBannerView: SandboxedSdkView
+    private lateinit var newAdButton: Button
+    private lateinit var resizeButton: Button
+    private lateinit var resizeSdkButton: Button
+    private lateinit var mediationSwitch: SwitchMaterial
+    private lateinit var localWebViewToggle: SwitchMaterial
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -72,34 +76,77 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun onLoadedSdk(sandboxedSdk: SandboxedSdkCompat) {
         Log.i(TAG, "Loaded successfully")
         mSdkLoaded = true
-        val sdkApi = ISdkApi.Stub.asInterface(sandboxedSdk.getInterface())
+        sdkApi = ISdkApi.Stub.asInterface(sandboxedSdk.getInterface())
 
-        mSandboxedSdkView1 = findViewById(R.id.rendered_view)
-        mSandboxedSdkView1.addStateChangedListener(StateChangeListener(mSandboxedSdkView1))
+        webViewBannerView = findViewById(R.id.webview_ad_view)
+        bottomBannerView = SandboxedSdkView(this@MainActivity)
+        resizableBannerView = findViewById(R.id.resizable_ad_view)
+        newAdButton = findViewById(R.id.new_ad_button)
+        resizeButton = findViewById(R.id.resize_button)
+        resizeSdkButton = findViewById(R.id.resize_sdk_button)
+        mediationSwitch = findViewById(R.id.mediation_switch)
+        localWebViewToggle = findViewById(R.id.local_to_internet_switch)
 
-        mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
-        mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
-        mSandboxedSdkView2.layoutParams = findViewById<LinearLayout>(
+        loadWebViewBannerAd()
+        loadBottomBannerAd()
+        loadResizableBannerAd()
+    }
+
+    private fun loadWebViewBannerAd() {
+        webViewBannerView.addStateChangedListener(StateChangeListener(webViewBannerView))
+        webViewBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadLocalWebViewAd()
+        ))
+
+        localWebViewToggle.setOnCheckedChangeListener { _: View, isChecked: Boolean ->
+            if (isChecked) {
+                webViewBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                    sdkApi.loadLocalWebViewAd()
+                ))
+            } else {
+                webViewBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                    sdkApi.loadWebViewAd()
+                ))
+            }
+        }
+    }
+
+    private fun loadBottomBannerAd() {
+        bottomBannerView.addStateChangedListener(StateChangeListener(bottomBannerView))
+        bottomBannerView.layoutParams = findViewById<LinearLayout>(
             R.id.bottom_banner_container).layoutParams
         runOnUiThread {
-            findViewById<LinearLayout>(R.id.bottom_banner_container).addView(mSandboxedSdkView2)
+            findViewById<LinearLayout>(R.id.bottom_banner_container).addView(bottomBannerView)
         }
+        bottomBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadTestAd(/*text=*/ "Hey!")
+        ))
+    }
 
-        resizableSandboxedSdkView = findViewById(R.id.new_ad_view)
-        resizableSandboxedSdkView.addStateChangedListener(
-            StateChangeListener(resizableSandboxedSdkView))
-
-        mNewAdButton = findViewById(R.id.new_ad_button)
+    private fun loadResizableBannerAd() {
+        resizableBannerView.addStateChangedListener(
+            StateChangeListener(resizableBannerView))
+        resizableBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadTestAdWithWaitInsideOnDraw(/*text=*/ "Resizable View")
+        ))
 
         var count = 1
-        var loadMediatedAd = false
-        mNewAdButton.setOnClickListener {
-            resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Ad #$count",
-                    /*withSlowDraw*/ true, loadMediatedAd)))
+        newAdButton.setOnClickListener {
+            if (mediationSwitch.isChecked) {
+                resizableBannerView.setAdapter(
+                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                        sdkApi.loadMediatedTestAd(count)
+                ))
+            } else {
+                resizableBannerView.setAdapter(
+                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                        sdkApi.loadTestAdWithWaitInsideOnDraw(/*text=*/ "Ad #$count")
+                ))
+            }
             count++
         }
 
@@ -109,51 +156,21 @@ class MainActivity : AppCompatActivity() {
             (currentSize + (100..200).random()) % maxSize
         }
 
-        mResizeButton = findViewById(R.id.resize_button)
-        mResizeButton.setOnClickListener {
-            val newWidth = newSize(resizableSandboxedSdkView.width, maxWidthPixels)
-            val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
-            resizableSandboxedSdkView.layoutParams = resizableSandboxedSdkView.layoutParams.apply {
-                width = newWidth
-                height = newHeight
+        resizeButton.setOnClickListener {
+            val newWidth = newSize(resizableBannerView.width, maxWidthPixels)
+            val newHeight = newSize(resizableBannerView.height, maxHeightPixels)
+            resizableBannerView.layoutParams =
+                resizableBannerView.layoutParams.apply {
+                    width = newWidth
+                    height = newHeight
             }
         }
 
-        mResizeSdkButton = findViewById(R.id.resize_sdk_button)
-        mResizeSdkButton.setOnClickListener {
-            val newWidth = newSize(resizableSandboxedSdkView.width, maxWidthPixels)
-            val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
+        resizeSdkButton.setOnClickListener {
+            val newWidth = newSize(resizableBannerView.width, maxWidthPixels)
+            val newHeight = newSize(resizableBannerView.height, maxHeightPixels)
             sdkApi.requestResize(newWidth, newHeight)
         }
-
-        mLoadAdButton = findViewById(R.id.load_ad_button)
-        loadAllAds(sdkApi, loadMediatedAd)
-        // TODO(b/323888187): use new ad button with toggling for loading Ads.
-        mLoadAdButton.setOnClickListener {
-            if (loadMediatedAd) {
-                loadMediatedAd = false
-                mLoadAdButton.post { mLoadAdButton.setText("load mediated Ad") }
-            } else {
-                loadMediatedAd = true
-                mLoadAdButton.post { mLoadAdButton.setText("load non-mediated Ad") }
-            }
-            loadAllAds(sdkApi, loadMediatedAd)
-        }
-    }
-
-    private fun loadAllAds(sdkApi: ISdkApi, isViewMediated: Boolean) {
-        mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ true, /*text=*/ "", /*withSlowDraw*/ false, isViewMediated)
-        ))
-
-        mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Hey!",
-                /*withSlowDraw*/ false, isViewMediated)
-        ))
-
-        resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Resize view",
-                /*withSlowDraw*/ true, isViewMediated)))
     }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
