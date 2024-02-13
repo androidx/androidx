@@ -17,10 +17,10 @@ package androidx.work.impl.utils
 
 import android.content.Context
 import android.os.Build
+import androidx.concurrent.futures.await
 import androidx.work.ForegroundUpdater
 import androidx.work.ListenableWorker
 import androidx.work.Logger
-import androidx.work.await
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.logd

@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
+import androidx.concurrent.futures.await
 import androidx.work.Clock
 import androidx.work.Configuration
 import androidx.work.Data
@@ -29,7 +30,6 @@ import androidx.work.Logger
 import androidx.work.WorkInfo
 import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
-import androidx.work.await
 import androidx.work.impl.background.systemalarm.RescheduleReceiver
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.model.DependencyDao

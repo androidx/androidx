@@ -18,6 +18,7 @@ package androidx.work
 
 import android.app.job.JobParameters.STOP_REASON_CANCELLED_BY_APP
 import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CHARGING
+import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
