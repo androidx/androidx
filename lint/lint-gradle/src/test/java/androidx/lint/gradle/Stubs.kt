@@ -53,6 +53,12 @@ internal val STUBS =
                 }
                 interface TaskProvider<T : Task> : Provider<T>
 
+                @Retention
+                @Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
+                annotation class Internal(
+                    val value: String = ""
+                )
+
             """.trimIndent()
         ),
         kotlin(
@@ -97,6 +103,32 @@ internal val STUBS =
                 package groovy.lang
 
                 class Closure
+            """.trimIndent()
+        ),
+        kotlin(
+            """
+                package org.gradle.api.component
+
+                interface SoftwareComponent
+            """.trimIndent()
+        ),
+        kotlin(
+            """
+                package org.gradle.api.internal.component
+
+                import org.gradle.api.component.SoftwareComponent
+
+                interface SoftwareComponentInternal : SoftwareComponent {
+                    fun getUsages() : Set<out UsageContext>
+                }
+
+                interface UsageContext
+            """.trimIndent()
+        ),
+        kotlin(
+            """
+                package com.android.build.gradle.internal.lint
+                abstract class VariantInputs
             """.trimIndent()
         )
     )
