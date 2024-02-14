@@ -519,11 +519,10 @@ internal fun computeVerticalBounds(
 }
 
 @Suppress("NOTHING_TO_INLINE")
-private inline fun Double.closeTo(b: Double, epsilon: Double = Epsilon) = abs(this - b) < epsilon
+internal inline fun Double.closeTo(b: Double) = abs(this - b) < Epsilon
 
 @Suppress("NOTHING_TO_INLINE")
-private inline fun Float.closeTo(b: Float, epsilon: Float = FloatEpsilon) =
-    abs(this - b) < epsilon
+internal inline fun Float.closeTo(b: Float) = abs(this - b) < FloatEpsilon
 
 /**
  * Returns [r] if it's in the [0..1] range, and [Float.NaN] otherwise. To account
@@ -1017,6 +1016,40 @@ private fun splitCubicAt(
 
     dst[dstOffset + 12] = p3x
     dst[dstOffset + 13] = p3y
+}
+
+/**
+ * Returns the signed area of the specified cubic Bézier curve.
+ *
+ * @param x0 The x coordinate of the curve's start point
+ * @param y0 The y coordinate of the curve's start point
+ * @param x1 The x coordinate of the curve's first control point
+ * @param y1 The y coordinate of the curve's first control point
+ * @param x2 The x coordinate of the curve's second control point
+ * @param y2 The y coordinate of the curve's second control point
+ * @param x3 The x coordinate of the curve's end point
+ * @param y3 The y coordinate of the curve's end point
+ */
+internal fun cubicArea(
+    x0: Float,
+    y0: Float,
+    x1: Float,
+    y1: Float,
+    x2: Float,
+    y2: Float,
+    x3: Float,
+    y3: Float
+): Float {
+    // See "Computing the area and winding number for a Bézier curve", Jackowski 2012
+    // https://tug.org/TUGboat/tb33-1/tb103jackowski.pdf
+    return (
+        (y3 - y0) * (x1 + x2) -
+        (x3 - x0) * (y1 + y2) +
+        y1 * (x0 - x2) -
+        x1 * (y0 - y2) +
+        y3 * (x2 + x0 / 3.0f) -
+        x3 * (y2 + y0 / 3.0f)
+    ) * 3.0f / 20.0f
 }
 
 private inline val PathSegment.startX: Float
