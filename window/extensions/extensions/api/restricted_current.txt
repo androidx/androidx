@@ -317,7 +317,7 @@ package androidx.window.extensions.layout {
   }
 
   public final class SupportedWindowFeatures {
-    method public java.util.List<androidx.window.extensions.layout.DisplayFoldFeature!> getScreenFoldFeatures();
+    method public java.util.List<androidx.window.extensions.layout.DisplayFoldFeature!> getDisplayFoldFeatures();
   }
 
   public static final class SupportedWindowFeatures.Builder {

@@ -28,11 +28,11 @@ import java.util.List;
  */
 public final class SupportedWindowFeatures {
 
-    private final List<DisplayFoldFeature> mFoldDisplayFeatureList;
+    private final List<DisplayFoldFeature> mDisplayFoldFeatureList;
 
     private SupportedWindowFeatures(
-            @NonNull List<DisplayFoldFeature> foldDisplayFeatureList) {
-        mFoldDisplayFeatureList = new ArrayList<>(foldDisplayFeatureList);
+            @NonNull List<DisplayFoldFeature> displayFoldFeatureList) {
+        mDisplayFoldFeatureList = new ArrayList<>(displayFoldFeatureList);
     }
 
     /**
@@ -40,8 +40,8 @@ public final class SupportedWindowFeatures {
      */
     @NonNull
     @RequiresVendorApiLevel(level = 6)
-    public List<DisplayFoldFeature> getScreenFoldFeatures() {
-        return new ArrayList<>(mFoldDisplayFeatureList);
+    public List<DisplayFoldFeature> getDisplayFoldFeatures() {
+        return new ArrayList<>(mDisplayFoldFeatureList);
     }
 
 
