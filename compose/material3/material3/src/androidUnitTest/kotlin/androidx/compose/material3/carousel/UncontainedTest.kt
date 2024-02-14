@@ -38,7 +38,7 @@ class UncontainedTest {
             itemSpacing = 0f
         )
         val strategy = Strategy { keylineList }.apply(carouselSize)
-        val keylines = strategy.getDefaultKeylines()
+        val keylines = strategy.defaultKeylines
         val anchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
 
         // A fullscreen layout should be [xSmall-large-xSmall] where the xSmall items are
@@ -61,7 +61,7 @@ class UncontainedTest {
             itemSpacing = 0f
         )
         val strategy = Strategy { keylineList }.apply(carouselSize)
-        val keylines = strategy.getDefaultKeylines()
+        val keylines = strategy.defaultKeylines
         val anchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
 
         // The layout should be [xSmall-large-xSmall] where the xSmall items are
@@ -87,7 +87,7 @@ class UncontainedTest {
             itemSpacing = 0f
         )
         val strategy = Strategy { keylineList }.apply(carouselSize)
-        val keylines = strategy.getDefaultKeylines()
+        val keylines = strategy.defaultKeylines
 
         // The layout should be [xSmall-large-large-large-medium-xSmall] where medium is a size
         // such that a third of it is cut off.
@@ -120,7 +120,7 @@ class UncontainedTest {
             itemSpacing = 0f
         )
         val strategy = Strategy { keylineList }.apply(carouselSize)
-        val keylines = strategy.getDefaultKeylines()
+        val keylines = strategy.defaultKeylines
 
         // The layout should be [xSmall-large-large-large-medium-xSmall]
         assertThat(keylines.size).isEqualTo(6)
