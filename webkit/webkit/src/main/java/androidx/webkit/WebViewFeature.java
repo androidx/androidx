@@ -104,6 +104,8 @@ public class WebViewFeature {
             REQUESTED_WITH_HEADER_ALLOW_LIST,
             USER_AGENT_METADATA,
             MULTI_PROFILE,
+            ATTRIBUTION_REGISTRATION_BEHAVIOR,
+            WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
             MUTE_AUDIO,
     })
     @Retention(RetentionPolicy.SOURCE)
