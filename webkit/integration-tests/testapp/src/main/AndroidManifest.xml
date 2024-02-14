@@ -148,6 +148,9 @@
         <activity
             android:name=".MultiProfileTestActivity"
             android:exported="false" />
+        <activity
+            android:name=".MuteAudioActivity"
+            android:exported="true" />
 
         <provider
             android:authorities="com.example.androidx.webkit.DropDataProvider"

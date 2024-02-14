@@ -595,6 +595,17 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
                     Features.WEBVIEW_MEDIA_INTEGRITY_API_STATUS);
 
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#isAudioMuted(WebView)}
+     * {@link androidx.webkit.WebViewCompat#setAudioMuted(WebView, boolean)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework MUTE_AUDIO =
+            new ApiFeature.NoFramework(WebViewFeature.MUTE_AUDIO,
+                    Features.MUTE_AUDIO);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {

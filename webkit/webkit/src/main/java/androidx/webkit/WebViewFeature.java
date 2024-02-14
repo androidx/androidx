@@ -104,6 +104,7 @@ public class WebViewFeature {
             REQUESTED_WITH_HEADER_ALLOW_LIST,
             USER_AGENT_METADATA,
             MULTI_PROFILE,
+            MUTE_AUDIO,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -576,6 +577,14 @@ public class WebViewFeature {
      */
     public static final String WEBVIEW_MEDIA_INTEGRITY_API_STATUS =
             "WEBVIEW_MEDIA_INTEGRITY_API_STATUS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#isAudioMuted(WebView)}
+     * {@link androidx.webkit.WebViewCompat#setAudioMuted(WebView, boolean)}
+     */
+    public static final String MUTE_AUDIO = "MUTE_AUDIO";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
