@@ -1517,8 +1517,7 @@ public final class MediaRouter {
          * speakers, wired headsets, and bluetooth devices.
          *
          * <p>To use system routes, your application should write media sample data to a media
-         * framework API, typically via <a
-         * href="https://developer.android.com/reference/androidx/media3/exoplayer/ExoPlayer">Exoplayer</a>.
+         * framework API, typically via {@link androidx.media3.exoplayer.ExoPlayer ExoPlayer}.
          */
         public boolean isSystemRoute() {
             return mIsSystemRoute;
