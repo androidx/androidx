@@ -65,6 +65,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.invisibleToUser
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
@@ -764,6 +765,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         editableText = AnnotatedString(text)
                         textSelectionRange = TextRange(1)
                         focused = true
+                        maxTextLength = 100
                         editable()
                         getTextLayoutResult { true }
                         setText(setTextActionLabel) { true }
@@ -783,6 +785,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             assertThat(info.isFocusable).isTrue()
             assertThat(info.isFocused).isTrue()
             assertThat(info.isEditable).isTrue()
+            assertThat(info.maxTextLength).isEqualTo(100)
             assertThat(info.actionList)
                 .comparingElementsUsing(IdAndLabel)
                 .containsAtLeast(
@@ -807,6 +810,39 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
                     )
             }
+        }
+    }
+
+    @Test
+    fun testPopulateAccessibilityNodeInfoProperties_textField_no_maxTextLength() {
+        // Arrange.
+        val setSelectionActionLabel = "setSelection"
+        val setTextActionLabel = "setText"
+        val text = "hello"
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .semantics(mergeDescendants = true) {
+                        testTag = tag
+                        editableText = AnnotatedString(text)
+                        textSelectionRange = TextRange(1)
+                        focused = true
+                        editable()
+                        getTextLayoutResult { true }
+                        setText(setTextActionLabel) { true }
+                        setSelection(setSelectionActionLabel) { _, _, _ -> true }
+                    }
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.maxTextLength).isEqualTo(-1)
         }
     }
 
