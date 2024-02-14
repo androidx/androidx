@@ -18,7 +18,6 @@ import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.MutableList
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 import kotlinx.coroutines.flow.Flow
 
@@ -170,7 +169,6 @@ public class MyDao_Impl(
   }
 
   public companion object {
-    @JvmStatic
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }
