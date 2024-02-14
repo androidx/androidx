@@ -57,5 +57,6 @@ val Components = Screen.Selection(
     MaterialComponents,
     Material3Components,
     Screen.Example("NestedScroll") { NestedScrollExample() },
-    Screen.Example("Selection") { SelectionExample() }
+    Screen.Example("Selection") { SelectionExample() },
+    Screen.Example("Pager") { PagerExample() },
 )

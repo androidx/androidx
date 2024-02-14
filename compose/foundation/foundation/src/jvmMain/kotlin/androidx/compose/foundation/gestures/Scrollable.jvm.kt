@@ -28,7 +28,7 @@ internal actual fun platformDefaultFlingBehavior(): ScrollableDefaultFlingBehavi
     )
 
 @Composable
-internal actual fun rememberFlingBehavior(): FlingBehavior {
+internal actual fun rememberPlatformDefaultFlingBehavior(): FlingBehavior {
     val flingSpec = rememberSplineBasedDecay<Float>()
     return remember(flingSpec) {
         DefaultFlingBehavior(flingSpec)

@@ -45,15 +45,13 @@ import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import org.jetbrains.skiko.KotlinBackend
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
-import org.jetbrains.skiko.kotlinBackend
 
 @OptIn(ExperimentalTestApi::class)
 class SkikoScrollableTest {
     @Test
-    fun proper_default_fling_behavior() = runComposeUiTest {
+    fun properDefaultFlingBehavior() = runComposeUiTest {
         val state by mutableStateOf(LazyListState())
 
         setContent {
@@ -78,10 +76,10 @@ class SkikoScrollableTest {
 
     // bug https://github.com/JetBrains/compose-multiplatform/issues/3551 (mouse didn't work)
     @Test
-    fun recreating_list_state_shouldn_t_break_mouse_scrolling() = runComposeUiTest {
+    fun recreatingListStateShouldNotBreakMouseScrolling() = runComposeUiTest {
         var state by mutableStateOf(LazyListState())
         setContent {
-            LazyColumn(state = state, modifier = Modifier.testTag("list").fillMaxSize()) {
+            LazyColumn(Modifier.testTag("list").size(50.dp, 150.dp), state = state) {
                 items(1000) {
                     Box(Modifier.size(50.dp))
                 }
@@ -106,12 +104,10 @@ class SkikoScrollableTest {
 
     // bug https://github.com/JetBrains/compose-multiplatform/issues/3551 (touch always worked)
     @Test
-    fun recreating_list_state_shouldn_t_break_touch_scrolling() = runComposeUiTest {
-        if (kotlinBackend == KotlinBackend.Native) return@runComposeUiTest
-
+    fun recreatingListStateShouldNotBreakTouchScrolling() = runComposeUiTest {
         var state by mutableStateOf(LazyListState())
         setContent {
-            LazyColumn(state = state, modifier = Modifier.testTag("list").fillMaxSize()) {
+            LazyColumn(Modifier.testTag("list").size(50.dp, 150.dp), state = state) {
                 items(1000) {
                     Box(Modifier.size(50.dp))
                 }
@@ -121,7 +117,7 @@ class SkikoScrollableTest {
         runOnIdle { assertTrue(state.firstVisibleItemIndex == 0) }
 
         onNodeWithTag("list").performTouchInput {
-            swipe(Offset(30f, 30f), Offset(30f, 10f))
+            swipe(Offset(30f, 90f), Offset(30f, 10f))
         }
         runOnIdle { assertTrue(state.firstVisibleItemIndex > 0) }
 
@@ -129,7 +125,7 @@ class SkikoScrollableTest {
         runOnIdle { assertTrue(state.firstVisibleItemIndex == 0) }
 
         onNodeWithTag("list").performTouchInput {
-            swipe(Offset(30f, 30f), Offset(30f, 10f))
+            swipe(Offset(30f, 90f), Offset(30f, 10f))
         }
         runOnIdle { assertTrue(state.firstVisibleItemIndex > 0) }
     }

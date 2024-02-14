@@ -26,7 +26,7 @@ internal actual fun platformDefaultFlingBehavior(): ScrollableDefaultFlingBehavi
     CupertinoFlingBehavior(CupertinoScrollDecayAnimationSpec().generateDecayAnimationSpec())
 
 @Composable
-internal actual fun rememberFlingBehavior(): FlingBehavior =
+internal actual fun rememberPlatformDefaultFlingBehavior(): FlingBehavior =
     // Unlike other platforms, we don't need to remember it based on density,
     // because it's density independent
     remember {
