@@ -143,6 +143,9 @@ internal class SkiaParagraph(
             floor((line.baseline - line.ascent).toFloat())
         } ?: 0f
 
+    override fun getLineBaseline(lineIndex: Int) =
+        lineMetrics.getOrNull(lineIndex)?.baseline?.toFloat() ?: 0f
+
     override fun getLineBottom(lineIndex: Int) =
         lineMetrics.getOrNull(lineIndex)?.let { line ->
             floor((line.baseline + line.descent).toFloat())

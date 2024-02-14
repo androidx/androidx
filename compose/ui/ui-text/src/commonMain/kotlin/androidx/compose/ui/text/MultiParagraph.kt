@@ -747,6 +747,20 @@ class MultiParagraph(
         }
     }
 
+    /**
+     * Returns the distance from the top of the [MultiParagraph] to the alphabetic
+     * baseline of the given line.
+     */
+    fun getLineBaseline(lineIndex: Int): Float {
+        requireLineIndexInRange(lineIndex)
+
+        val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getLineBaseline(lineIndex.toLocalLineIndex()).toGlobalYPosition()
+        }
+    }
+
     /** Returns the bottom y coordinate of the given line. */
     fun getLineBottom(lineIndex: Int): Float {
         requireLineIndexInRange(lineIndex)
