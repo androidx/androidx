@@ -45,6 +45,7 @@ actual sealed interface Paragraph {
     actual fun getLineLeft(lineIndex: Int): Float
     actual fun getLineRight(lineIndex: Int): Float
     actual fun getLineTop(lineIndex: Int): Float
+    actual fun getLineBaseline(lineIndex: Int): Float
     actual fun getLineBottom(lineIndex: Int): Float
     actual fun getLineHeight(lineIndex: Int): Float
     actual fun getLineWidth(lineIndex: Int): Float

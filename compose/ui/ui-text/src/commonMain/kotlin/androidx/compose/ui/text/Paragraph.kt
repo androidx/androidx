@@ -119,6 +119,12 @@ expect sealed interface Paragraph {
     /** Returns the bottom y coordinate of the given line. */
     fun getLineTop(lineIndex: Int): Float
 
+    /**
+     * Returns the distance from the top of the paragraph to the alphabetic
+     * baseline of the given line.
+     */
+    fun getLineBaseline(lineIndex: Int): Float
+
     /** Returns the bottom y coordinate of the given line. */
     fun getLineBottom(lineIndex: Int): Float
 

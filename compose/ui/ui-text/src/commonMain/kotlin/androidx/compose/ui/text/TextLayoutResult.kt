@@ -423,6 +423,12 @@ class TextLayoutResult constructor(
     fun getLineTop(lineIndex: Int): Float = multiParagraph.getLineTop(lineIndex)
 
     /**
+     * Returns the distance in pixels from the top of the text layout to the alphabetic baseline of
+     * the line at index [lineIndex].
+     */
+    fun getLineBaseline(lineIndex: Int): Float = multiParagraph.getLineBaseline(lineIndex)
+
+    /**
      * Returns the bottom y coordinate of the given line.
      *
      * @param lineIndex the line number
