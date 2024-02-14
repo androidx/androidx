@@ -34,17 +34,12 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     implementation("androidx.appcompat:appcompat:1.6.1")
-
     implementation(project(":activity:activity-compose"))
     implementation(project(":compose:material3:material3"))
     implementation(project(":navigation:navigation-runtime"))
     implementation(project(":profileinstaller:profileinstaller"))
-    implementation(project(":compose:material:material-icons-core"))
-    implementation(project(":compose:material:material-icons-extended"))
-
-//    implementation 'io.coil-kt:coil-compose:2.2.2'
-//    implementation 'com.google.code.gson:gson:2.8.9'
-
+    implementation("androidx.compose.material:material-icons-core:1.6.0")
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
     implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
 
@@ -99,9 +94,4 @@ configurations.all {
         substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
                 using project(":lifecycle:lifecycle-viewmodel-savedstate")
     }
-}
-
-repositories {
-    mavenCentral()
-    google()
 }
