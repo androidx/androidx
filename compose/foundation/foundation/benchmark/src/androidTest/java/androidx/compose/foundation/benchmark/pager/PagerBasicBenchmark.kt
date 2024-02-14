@@ -33,6 +33,7 @@ import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
+import androidx.compose.testutils.benchmark.benchmarkReuseFor
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -82,6 +83,11 @@ class PagerBasicBenchmark {
     }
 
     @Test
+    fun reuse_full_page() {
+        benchmarkRule.benchmarkReuseFor { PagerTestCase().MeasuredContent() }
+    }
+
+    @Test
     fun first_pixel_multi_page() {
         benchmarkRule.benchmarkToFirstPixel(multiPageBenchmark)
     }
@@ -114,6 +120,11 @@ class PagerBasicBenchmark {
     @Test
     fun draw_multi_page() {
         benchmarkRule.benchmarkDrawPerf(multiPageBenchmark)
+    }
+
+    @Test
+    fun reuse_multi_page() {
+        benchmarkRule.benchmarkReuseFor { PagerTestCase(false).MeasuredContent() }
     }
 }
 
