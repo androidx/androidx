@@ -18,6 +18,7 @@ package androidx.compose.foundation.layout.benchmark
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
+import androidx.compose.testutils.benchmark.benchmarkReuseFor
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -54,6 +55,11 @@ class BoxWithConstraintsBenchmark {
     @Test
     fun boxwithconstraints_app_benchmarkToFirstPixel() {
         benchmarkRule.benchmarkToFirstPixel { BoxWithConstraintsAppTestCase() }
+    }
+
+    @Test
+    fun boxwithconstraints_app_benchmarkReuse() {
+        benchmarkRule.benchmarkReuseFor { BoxWithConstraintsAppTestCase().MeasuredContent() }
     }
 
     @Test
