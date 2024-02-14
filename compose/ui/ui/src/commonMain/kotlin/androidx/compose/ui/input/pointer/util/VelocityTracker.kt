@@ -22,7 +22,9 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.throwIllegalArgumentException
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.sign
@@ -475,10 +477,10 @@ internal fun polyFitLeastSquares(
     coefficients: FloatArray = FloatArray((degree + 1).coerceAtLeast(0))
 ): FloatArray {
     if (degree < 1) {
-        throw IllegalArgumentException("The degree must be at positive integer")
+        throwIllegalArgumentException("The degree must be at positive integer")
     }
     if (sampleCount == 0) {
-        throw IllegalArgumentException("At least one point must be provided")
+        throwIllegalArgumentException("At least one point must be provided")
     }
 
     val truncatedDegree =
@@ -489,8 +491,8 @@ internal fun polyFitLeastSquares(
         }
 
     // Shorthands for the purpose of notation equivalence to original C++ code.
-    val m: Int = sampleCount
-    val n: Int = truncatedDegree + 1
+    val m = sampleCount
+    val n = truncatedDegree + 1
 
     // Expand the X vector to a matrix A, pre-multiplied by the weights.
     val a = Matrix(n, m)
@@ -509,10 +511,8 @@ internal fun polyFitLeastSquares(
     val r = Matrix(n, n)
     for (j in 0 until n) {
         val w = q[j]
-        val aw = a[j]
-        for (h in 0 until m) {
-            w[h] = aw[h]
-        }
+        a[j].copyInto(w, 0, 0, m)
+
         for (i in 0 until j) {
             val z = q[i]
             val dot = w.dot(z)
@@ -521,22 +521,11 @@ internal fun polyFitLeastSquares(
             }
         }
 
-        val norm: Float = w.norm()
-        if (norm < 0.000001f) {
-            // TODO(b/129494471): Determine what this actually means and see if there are
-            // alternatives to throwing an Exception here.
-
-            // Vectors are linearly dependent or zero so no solution.
-            throw IllegalArgumentException(
-                "Vectors are linearly dependent or zero so no " +
-                    "solution. TODO(shepshapard), actually determine what this means"
-            )
-        }
-
-        val inverseNorm: Float = 1.0f / norm
+        val inverseNorm = 1.0f / w.norm().fastCoerceAtLeast(1e-6f)
         for (h in 0 until m) {
             w[h] *= inverseNorm
         }
+
         val v = r[j]
         for (i in 0 until n) {
             v[i] = if (i < j) 0.0f else w.dot(a[i])
@@ -561,11 +550,12 @@ internal fun polyFitLeastSquares(
     }
 
     for (i in n - 1 downTo 0) {
-        coefficients[i] = q[i].dot(wy)
+        var c = q[i].dot(wy)
+        val ri = r[i]
         for (j in n - 1 downTo i + 1) {
-            coefficients[i] -= r[i, j] * coefficients[j]
+            c -= ri[j] * coefficients[j]
         }
-        coefficients[i] /= r[i, i]
+        coefficients[i] = c / ri[i]
     }
 
     return coefficients

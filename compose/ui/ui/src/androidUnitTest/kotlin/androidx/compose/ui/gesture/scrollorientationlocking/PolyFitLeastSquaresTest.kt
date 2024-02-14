@@ -238,27 +238,13 @@ class PolyFitLeastSquaresTest {
     }
 
     @Test
-    fun polyFitLeastSquares_extremeSlope_throwsException() {
-        val x = floatArrayOf(0f, Float.MIN_VALUE)
-        val y = floatArrayOf(0f, Float.MAX_VALUE)
-
-        val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, x.size, 1)
-        }
-
-        assertThat(throwable is IllegalArgumentException).isTrue()
-    }
-
-    @Test
-    fun polyFitLeastSquares_3Points2IdenticalDegree2_throwsException() {
+    fun polyFitLeastSquares_3Points2IdenticalDegree2() {
         val x = floatArrayOf(0f, 0f, 1f)
         val y = floatArrayOf(0f, 0f, 1f)
 
-        val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, x.size, 2)
-        }
+        val actual = polyFitLeastSquares(x, y, x.size, 2)
 
-        assertThat(throwable is IllegalArgumentException).isTrue()
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 0f))
     }
 
     private fun catchThrowable(lambda: () -> Unit): Throwable? {
