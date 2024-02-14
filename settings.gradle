@@ -750,7 +750,7 @@ includeProject(":lifecycle:lifecycle-extensions", [BuildType.MAIN, BuildType.FLA
 includeProject(":lifecycle:lifecycle-livedata", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-livedata-core", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-livedata-core-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
-includeProject(":lifecycle:lifecycle-livedata-core-ktx-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-livedata-core-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-livedata-core-truth", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-livedata-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-process", [BuildType.MAIN, BuildType.FLAN])
