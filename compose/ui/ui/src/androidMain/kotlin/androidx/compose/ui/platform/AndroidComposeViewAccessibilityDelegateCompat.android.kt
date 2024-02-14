@@ -57,6 +57,7 @@ import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.contentcapture.ContentCaptureManager
+import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toComposeRect
@@ -1823,7 +1824,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     view.focusOwner.clearFocus(
                         force = false,
                         refreshFocusEvents = true,
-                        clearOwnerFocus = true
+                        clearOwnerFocus = true,
+                        focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
                     )
                     true
                 } else {
