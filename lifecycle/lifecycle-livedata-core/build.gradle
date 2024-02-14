@@ -42,6 +42,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
+
+    lintPublish(project(":lifecycle:lifecycle-livedata-core-lint"))
 }
 
 androidx {
