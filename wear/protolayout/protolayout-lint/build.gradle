@@ -30,6 +30,7 @@ plugins {
 
 dependencies {
     compileOnly(libs.androidLintApi)
+    compileOnly(libs.androidLintChecks)
     compileOnly(libs.kotlinStdlib)
 
     testImplementation(libs.kotlinStdlib)
