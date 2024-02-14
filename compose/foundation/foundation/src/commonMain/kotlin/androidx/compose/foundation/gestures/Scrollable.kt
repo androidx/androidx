@@ -587,7 +587,7 @@ internal interface ScrollConfig {
      * Enables animated transition of scroll on mouse wheel events.
      */
     val isSmoothScrollingEnabled: Boolean
-        get() = false
+        get() = true
 
     fun isPreciseWheelScroll(event: PointerEvent): Boolean = false
 

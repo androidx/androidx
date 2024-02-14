@@ -30,10 +30,6 @@ import androidx.compose.ui.util.fastFold
 internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig = JsConfig
 
 private object JsConfig : ScrollConfig {
-
-    override val isSmoothScrollingEnabled: Boolean
-        get() = true
-
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         // Note: The returned offset value here is not strictly accurate.
         // However, it serves two primary purposes:

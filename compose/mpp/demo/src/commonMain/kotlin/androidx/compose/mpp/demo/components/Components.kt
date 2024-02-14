@@ -56,5 +56,6 @@ val Components = Screen.Selection(
     LazyLayouts,
     MaterialComponents,
     Material3Components,
+    Screen.Example("NestedScroll") { NestedScrollExample() },
     Screen.Example("Selection") { SelectionExample() }
 )

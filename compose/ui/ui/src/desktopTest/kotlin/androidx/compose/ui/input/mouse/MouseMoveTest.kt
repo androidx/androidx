@@ -371,7 +371,7 @@ class MouseMoveTest {
         val collector2 = EventCollector()
 
         setContent {
-            LazyColumn(Modifier.size(10.dp)) {
+            LazyColumn(Modifier.size(12.dp)) {
                 items(2) {
                     Box(
                         modifier = Modifier
@@ -382,16 +382,16 @@ class MouseMoveTest {
             }
         }
 
-        scene.sendPointerEvent(PointerEventType.Enter, Offset(0f, 0f))
+        scene.sendPointerEvent(PointerEventType.Enter, Offset(5f, 5f))
         collector1.assertCounts(enter = 1, exit = 0)
         collector2.assertCounts(enter = 0, exit = 0)
 
-        scene.sendPointerEvent(PointerEventType.Scroll, Offset(0f, 0f), scrollDelta = Offset(0f, 10000f))
+        scene.sendPointerEvent(PointerEventType.Scroll, Offset(5f, 5f), scrollDelta = Offset(0f, 10000f))
         waitForIdle()
         collector1.assertCounts(enter = 1, exit = 1)
         collector2.assertCounts(enter = 1, exit = 0)
 
-        scene.sendPointerEvent(PointerEventType.Scroll, Offset(0f, 0f), scrollDelta = Offset(0f, -10000f))
+        scene.sendPointerEvent(PointerEventType.Scroll, Offset(5f, 5f), scrollDelta = Offset(0f, -10000f))
         waitForIdle()
         collector1.assertCounts(enter = 2, exit = 1)
         collector2.assertCounts(enter = 1, exit = 1)
