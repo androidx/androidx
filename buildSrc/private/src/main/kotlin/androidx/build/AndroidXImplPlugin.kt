@@ -656,6 +656,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         experimentalProperties.put("android.experimental.art-profile-r8-rewriting", false)
     }
 
+    @Suppress("UnstableApiUsage") // usage of experimentalProperties
+    private fun Variant.aotCompileMicrobenchmarks(project: Project) {
+        if (project.hasBenchmarkPlugin()) {
+            experimentalProperties.put("android.experimental.force-aot-compilation", true)
+        }
+    }
+
     private fun HasAndroidTest.configureLicensePackaging() {
         androidTest?.packaging?.resources?.apply {
             // Workaround a limitation in AGP that fails to merge these META-INF license files.
@@ -726,6 +733,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             onVariants {
                 it.configureTests()
                 it.artRewritingWorkaround()
+                it.aotCompileMicrobenchmarks(project)
             }
         }
 
@@ -1029,9 +1037,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
         project.disableStrictVersionConstraints()
         project.setPublishProperty(androidXExtension)
-        project.afterEvaluate {
-            setBenchmarkAdbOptions(project)
-        }
     }
 
     private fun KotlinMultiplatformAndroidTarget.configureAndroidLibraryOptions(
@@ -1042,21 +1047,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         aarMetadata.minCompileSdk = compileSdk
         project.disableStrictVersionConstraints()
         project.setPublishProperty(androidXExtension)
-    }
-
-    private fun LibraryExtension.setBenchmarkAdbOptions(project: Project) {
-        if (project.hasBenchmarkPlugin()) {
-            // Inject AOT compilation - see b/287358254 for context, b/288167775 for AGP support
-
-            // NOTE: we assume here that all benchmarks have package name $namespace.test
-            val aotCompile = "cmd package compile -m speed -f $namespace.test"
-
-            // only run aotCompile on N+, where it's supported
-            val inject = "if [ `getprop ro.build.version.sdk` -ge 24 ]; then $aotCompile; fi"
-            val options =
-                "/data/local/tmp/${project.name}-$testBuildType-androidTest.apk && $inject #"
-            adbOptions.setInstallOptions(*options.split(" ").toTypedArray())
-        }
     }
 
     /**
