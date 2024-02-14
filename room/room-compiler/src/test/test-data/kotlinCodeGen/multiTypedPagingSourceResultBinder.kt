@@ -13,7 +13,6 @@ import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.MutableList
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 import androidx.paging.rxjava2.RxPagingSource as Rxjava2RxPagingSource
 import androidx.paging.rxjava3.RxPagingSource as Rxjava3RxPagingSource
@@ -108,7 +107,6 @@ public class MyDao_Impl(
   }
 
   public companion object {
-    @JvmStatic
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

@@ -229,9 +229,7 @@ class DaoWriter(
             javaMethodBuilder = {
                 addModifiers(javax.lang.model.element.Modifier.STATIC)
             },
-            kotlinFunctionBuilder = {
-                addAnnotation(kotlin.jvm.JvmStatic::class)
-            },
+            kotlinFunctionBuilder = {},
         ).apply {
             returns(
                 CommonTypeNames.LIST.parametrizedBy(

@@ -9,7 +9,6 @@ import kotlin.Lazy
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -74,7 +73,6 @@ public class MyDao_Impl(
   private fun __fooConverter(): FooConverter = __fooConverter.value
 
   public companion object {
-    @JvmStatic
     public fun getRequiredConverters(): List<KClass<*>> = listOf(FooConverter::class)
   }
 }
