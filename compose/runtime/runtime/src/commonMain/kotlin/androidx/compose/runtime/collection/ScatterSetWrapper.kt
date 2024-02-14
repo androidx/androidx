@@ -53,3 +53,10 @@ internal inline fun <T : Any> Set<T>.fastForEach(block: (T) -> Unit) =
             forEach(block)
         }
     }
+
+internal inline fun Set<Any>.fastAny(block: (Any) -> Boolean) =
+    if (this is ScatterSetWrapper<Any>) {
+        set.any(block)
+    } else {
+        any(block)
+    }
