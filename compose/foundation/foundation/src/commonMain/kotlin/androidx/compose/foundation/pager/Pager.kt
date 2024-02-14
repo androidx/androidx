@@ -597,7 +597,7 @@ private fun SnapLayoutInfoProvider(
         override fun calculateSnappingOffset(currentVelocity: Float): Float {
             val (lowerBoundOffset, upperBoundOffset) = searchForSnappingBounds()
 
-            val isForward = pagerState.isScrollingForward()
+            val isForward = pagerState.isScrollingForward(currentVelocity)
 
             debugLog { "isForward=$isForward" }
 
@@ -956,7 +956,11 @@ private inline fun debugLog(generateMsg: () -> String) {
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private fun PagerState.isScrollingForward() = dragGestureDelta() < 0
+private fun PagerState.isScrollingForward(velocity: Float) = if (isNotGestureAction()) {
+    velocity
+} else {
+    dragGestureDelta()
+} < 0
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun PagerState.dragGestureDelta() = if (layoutInfo.orientation == Orientation.Horizontal) {
