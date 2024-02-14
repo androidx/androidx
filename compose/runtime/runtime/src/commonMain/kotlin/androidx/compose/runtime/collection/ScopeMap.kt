@@ -156,7 +156,19 @@ internal class ScopeMap<Key : Any, Scope : Any> {
      * is removed as well.
      */
     fun removeScope(scope: Scope) {
-        removeScopeIf { it === scope }
+        map.removeIf { _, value ->
+            when (value) {
+                is MutableScatterSet<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val set = value as MutableScatterSet<Scope>
+                    set.remove(scope)
+                    set.isEmpty()
+                }
+                else -> {
+                    value === scope
+                }
+            }
+        }
     }
 
     /**
