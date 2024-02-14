@@ -157,6 +157,11 @@ const val SUPPRESS_COMPATIBILITY_OPT_OUT = "androidx.suppress.compatibility.opto
  */
 const val SUPPRESS_COMPATIBILITY_OPT_IN = "androidx.suppress.compatibility.optin"
 
+/**
+ * If true, include Jetpack library projects that live outside of `frameworks/support`.
+ */
+const val INCLUDE_OPTIONAL_PROJECTS = "androidx.includeOptionalProjects"
+
 val ALL_ANDROIDX_PROPERTIES =
     setOf(
         ADD_GROUP_CONSTRAINTS,
@@ -190,6 +195,7 @@ val ALL_ANDROIDX_PROPERTIES =
         UPDATE_SIGNATURES,
         FilteredAnchorTask.PROP_TASK_NAME,
         FilteredAnchorTask.PROP_PATH_PREFIX,
+        INCLUDE_OPTIONAL_PROJECTS,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
 
 val PREFIXED_ANDROIDX_PROPERTIES =
