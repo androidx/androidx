@@ -50,17 +50,17 @@ actual suspend fun <R> performReadSuspending(
     sql: String,
     block: (SQLiteStatement) -> R
 ): R {
-    return if (db.inCompatibilityMode()) {
+    if (db.inCompatibilityMode()) {
         if (db.isOpenInternal && db.inTransaction()) {
-            db.perform(true, sql, block)
+            return db.perform(true, sql, block)
         }
         val context =
             coroutineContext[TransactionElement]?.transactionDispatcher ?: db.getQueryDispatcher()
-        withContext(context) {
+        return withContext(context) {
             db.perform(true, sql, block)
         }
     } else {
-        db.perform(true, sql, block)
+        return db.perform(true, sql, block)
     }
 }
 
@@ -73,17 +73,17 @@ actual suspend fun <R> performReadTransactionSuspending(
     sql: String,
     block: (SQLiteStatement) -> R
 ): R {
-    return if (db.inCompatibilityMode()) {
+    if (db.inCompatibilityMode()) {
         if (db.isOpenInternal && db.inTransaction()) {
-            db.performTransaction(true) { it.usePrepared(sql, block) }
+            return db.performTransaction(true) { it.usePrepared(sql, block) }
         }
         val context =
             coroutineContext[TransactionElement]?.transactionDispatcher ?: db.transactionDispatcher
-        withContext(context) {
+        return withContext(context) {
             db.performTransaction(true) { it.usePrepared(sql, block) }
         }
     } else {
-        db.performTransaction(true) { it.usePrepared(sql, block) }
+        return db.performTransaction(true) { it.usePrepared(sql, block) }
     }
 }
 
