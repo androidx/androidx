@@ -18,6 +18,7 @@ package androidx.build.buildInfo
 
 import androidx.build.AndroidXExtension
 import androidx.build.LibraryGroup
+import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.requiresDocs
 import androidx.build.getBuildInfoDirectory
 import androidx.build.getGroupZipPath
 import androidx.build.getProjectZipPath
@@ -103,6 +104,9 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
     /** the local project directory without the full framework/support root directory path */
     @get:Input abstract val projectSpecificDirectory: Property<String>
 
+    /** Whether the project should be included in docs-public/build.gradle. */
+    @get:Input abstract val shouldPublishDocs: Property<Boolean>
+
     private fun writeJsonToFile(info: LibraryBuildInfoFile) {
         val resolvedOutputFile: File = outputFile.get()
         val outputDir = resolvedOutputFile.parentFile
@@ -140,6 +144,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.dependencyConstraints =
             if (dependencyConstraintList.isPresent) ArrayList(dependencyConstraintList.get())
             else ArrayList()
+        libraryBuildInfoFile.shouldPublishDocs = shouldPublishDocs.get()
         return libraryBuildInfoFile
     }
 
@@ -162,7 +167,8 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             project: Project,
             mavenGroup: LibraryGroup?,
             variant: VariantPublishPlan,
-            shaProvider: Provider<String>
+            shaProvider: Provider<String>,
+            shouldPublishDocs: Boolean,
         ): TaskProvider<CreateLibraryBuildInfoFileTask> {
             return project.tasks.register(
                 TASK_NAME + variant.taskSuffix,
@@ -202,6 +208,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 task.dependencyConstraintList.set(
                     variant.dependencyConstraints.map { it.asBuildInfoDependencies() }
                 )
+                task.shouldPublishDocs.set(shouldPublishDocs)
             }
         }
 
@@ -251,7 +258,12 @@ fun Project.addCreateLibraryBuildInfoFileTasks(extension: AndroidXExtension) {
                 // java-gradle-plugin creates marker publications that are aliases of the
                 // main publication.  We do not track these aliases.
                 if (!mavenPub.isAlias) {
-                    createTaskForComponent(mavenPub, extension.mavenGroup, mavenPub.artifactId)
+                    createTaskForComponent(
+                        mavenPub,
+                        extension.mavenGroup,
+                        mavenPub.artifactId,
+                        extension.requiresDocs(),
+                    )
                 }
             }
         }
@@ -261,14 +273,16 @@ fun Project.addCreateLibraryBuildInfoFileTasks(extension: AndroidXExtension) {
 private fun Project.createTaskForComponent(
     pub: ProjectComponentPublication,
     libraryGroup: LibraryGroup?,
-    artifactId: String
+    artifactId: String,
+    shouldPublishDocs: Boolean,
 ) {
     val task =
         createBuildInfoTask(
             pub,
             libraryGroup,
             artifactId,
-            getHeadShaProvider(project)
+            getHeadShaProvider(project),
+            shouldPublishDocs,
         )
     rootProject.tasks.named(CreateLibraryBuildInfoFileTask.TASK_NAME).configure {
         it.dependsOn(task)
@@ -280,15 +294,17 @@ private fun Project.createBuildInfoTask(
     pub: ProjectComponentPublication,
     libraryGroup: LibraryGroup?,
     artifactId: String,
-    shaProvider: Provider<String>
+    shaProvider: Provider<String>,
+    shouldPublishDocs: Boolean,
 ): TaskProvider<CreateLibraryBuildInfoFileTask> {
+    val kmpTaskSuffix = computeTaskSuffix(name, artifactId)
     return CreateLibraryBuildInfoFileTask.setup(
         project = project,
         mavenGroup = libraryGroup,
         variant =
             VariantPublishPlan(
                 artifactId = artifactId,
-                taskSuffix = computeTaskSuffix(name, artifactId),
+                taskSuffix = kmpTaskSuffix,
                 dependencies =
                     pub.component.map { component ->
                         val usageDependencies =
@@ -300,7 +316,10 @@ private fun Project.createBuildInfoTask(
                         component.usages.orEmpty().flatMap { it.dependencyConstraints }
                     }
             ),
-        shaProvider = shaProvider
+        shaProvider = shaProvider,
+        // There's a build_info file for each KMP platform, but only the artifact without a platform
+        // suffix is listed in docs-public/build.gradle.
+        shouldPublishDocs = shouldPublishDocs && kmpTaskSuffix == "",
     )
 }
 
