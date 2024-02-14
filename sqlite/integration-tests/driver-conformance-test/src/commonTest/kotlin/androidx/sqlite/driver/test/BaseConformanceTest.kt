@@ -263,6 +263,40 @@ abstract class BaseConformanceTest {
         }
     }
 
+    @Test
+    fun readLastRowId() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (col)")
+        connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
+            it.bindNull(1)
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
+            it.bindNull(1)
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        val lastRowId = connection.prepare("SELECT last_insert_rowid()").use {
+            it.step()
+            it.getLong(0)
+        }
+        assertThat(lastRowId).isEqualTo(2)
+    }
+
+    @Test
+    fun changes() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (col)")
+        connection.prepare("INSERT INTO Test (col) VALUES (?),(?),(?)").use {
+            it.bindNull(1)
+            it.bindNull(2)
+            it.bindNull(3)
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        val changes = connection.prepare("SELECT changes()").use {
+            it.step()
+            it.getLong(0)
+        }
+        assertThat(changes).isEqualTo(3)
+    }
+
     private inline fun testWithConnection(block: (SQLiteConnection) -> Unit) {
         val driver = getDriver()
         val connection = driver.open()
