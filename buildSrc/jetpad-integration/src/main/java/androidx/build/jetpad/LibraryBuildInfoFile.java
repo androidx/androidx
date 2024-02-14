@@ -50,6 +50,7 @@ public final class LibraryBuildInfoFile {
     public Boolean groupIdRequiresSameVersion;
     public ArrayList<Dependency> dependencies;
     public ArrayList<Dependency> dependencyConstraints;
+    public Boolean shouldPublishDocs;
     public ArrayList<Check> checks;
 
     /**

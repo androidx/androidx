@@ -90,6 +90,7 @@ class CreateLibraryBuildInfoFileTaskTest {
             .isEqualTo("androidx.core")
         assertThat(buildInfo.dependencyConstraints.single().artifactId)
             .isEqualTo("core-ktx")
+        assertThat(buildInfo.shouldPublishDocs).isFalse()
     }
 
     fun setupBuildInfoProject() {
@@ -133,7 +134,8 @@ class CreateLibraryBuildInfoFileTaskTest {
                             it,
                             null,
                             it.artifactId,
-                            project.provider { "fakeSha" }
+                            project.provider { "fakeSha" },
+                            false
                         )
                     }
                 }
