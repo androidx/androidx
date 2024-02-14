@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.graphics.Color;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.DimensionProto;
@@ -36,9 +37,8 @@ import androidx.wear.protolayout.proto.TypesProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class LayoutElementBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final DimensionBuilders.DegreesProp DEGREES_PROP =
@@ -283,7 +283,7 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // Intentionally testing deprecated value.
     public void testTextSetOverflow_ellipsizeEnd() {
         LayoutElementBuilders.Text text =
                 new LayoutElementBuilders.Text.Builder()
@@ -426,14 +426,14 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
-    public void textSetText_withoutLayoutConstraint_throws() {
+    public void textSetText_useDynamicValue_withoutLayoutConstraint_throws() {
         assertThrows(
                 IllegalStateException.class,
                 () -> new LayoutElementBuilders.Text.Builder().setText(STRING_PROP).build());
     }
 
     @Test
-    public void arcLineSetStrokeCap_withShadow() {
+    public void test_arcLineSetStrokeCap_withShadow() {
         float blurRadius = 5f;
         int color = Color.BLUE;
         ModifiersBuilders.Shadow shadow =
@@ -457,7 +457,7 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
-    public void arcs_withSetDirection() {
+    public void testArcs_withSetDirection_correctlySetsValues() {
         int arcLineDirection = LayoutElementBuilders.ARC_DIRECTION_COUNTER_CLOCKWISE;
         int arcTextDirection = LayoutElementBuilders.ARC_DIRECTION_NORMAL;
         int arcDirection = LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE;

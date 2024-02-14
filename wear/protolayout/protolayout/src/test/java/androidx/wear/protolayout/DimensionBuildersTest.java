@@ -23,15 +23,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.DimensionProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DimensionBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final DimensionBuilders.DpProp DP_PROP =
@@ -39,22 +39,10 @@ public class DimensionBuildersTest {
                     .setDynamicValue(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))
                     .build();
 
-    @SuppressWarnings("deprecation")
-    private static final DimensionBuilders.DpProp.Builder DP_PROP_WITHOUT_STATIC_VALUE =
-            new DimensionBuilders.DpProp.Builder()
-                    .setDynamicValue(
-                            DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)));
-
     private static final DimensionBuilders.DegreesProp DEGREES_PROP =
             new DimensionBuilders.DegreesProp.Builder(3.14f)
                     .setDynamicValue(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))
                     .build();
-
-    @SuppressWarnings("deprecation")
-    private static final DimensionBuilders.DegreesProp.Builder DEGREES_PROP_WITHOUT_STATIC_VALUE =
-            new DimensionBuilders.DegreesProp.Builder()
-                    .setDynamicValue(
-                            DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)));
 
     @Test
     public void dpPropSupportsDynamicValue() {
@@ -65,9 +53,12 @@ public class DimensionBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void dpProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, DP_PROP_WITHOUT_STATIC_VALUE::build);
+        assertThrows(IllegalStateException.class, new DimensionBuilders.DpProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))::build);
     }
 
     @Test
@@ -79,9 +70,12 @@ public class DimensionBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void degreesProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, DEGREES_PROP_WITHOUT_STATIC_VALUE::build);
+        assertThrows(IllegalStateException.class, new DimensionBuilders.DegreesProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))::build);
     }
 
     @Test
