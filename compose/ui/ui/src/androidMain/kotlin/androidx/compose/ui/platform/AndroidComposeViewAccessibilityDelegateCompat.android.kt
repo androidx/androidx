@@ -866,6 +866,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
         info.isPassword = semanticsNode.unmergedConfig.contains(SemanticsProperties.Password)
         info.isEditable = semanticsNode.unmergedConfig.contains(SemanticsProperties.Editable)
+        info.maxTextLength =
+            semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.MaxTextLength) ?: -1
         info.isEnabled = semanticsNode.enabled()
         info.isFocusable = semanticsNode.unmergedConfig.contains(SemanticsProperties.Focused)
         if (info.isFocusable) {

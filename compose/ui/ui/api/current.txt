@@ -3424,6 +3424,7 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsShowingTextSubstitution();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsTraversalGroup();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.LiveRegionMode> getLiveRegion();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Integer> getMaxTextLength();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> getPaneTitle();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getPassword();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.ProgressBarRangeInfo> getProgressBarRangeInfo();
@@ -3458,6 +3459,7 @@ package androidx.compose.ui.semantics {
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsShowingTextSubstitution;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsTraversalGroup;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.LiveRegionMode> LiveRegion;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Integer> MaxTextLength;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> PaneTitle;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Password;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.ProgressBarRangeInfo> ProgressBarRangeInfo;
@@ -3501,6 +3503,7 @@ package androidx.compose.ui.semantics {
     method public static androidx.compose.ui.semantics.ScrollAxisRange getHorizontalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @Deprecated public static int getImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static int getLiveRegion(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public static int getMaxTextLength(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getPaneTitle(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.ui.semantics.ProgressBarRangeInfo getProgressBarRangeInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static int getRole(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
@@ -3547,6 +3550,7 @@ package androidx.compose.ui.semantics {
     method public static void setHorizontalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.ScrollAxisRange);
     method @Deprecated public static void setImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
     method public static void setLiveRegion(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
+    method public static void setMaxTextLength(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
     method public static void setPaneTitle(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String);
     method public static void setProgress(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean>? action);
     method public static void setProgressBarRangeInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.ProgressBarRangeInfo);
