@@ -953,6 +953,9 @@ internal class DefaultFlingBehavior(
                         lastAnimationCycleCount++
                     }
                 } catch (exception: CancellationException) {
+                    // This is where the ScrollCancellationException should be caught,
+                    // but the parent class CancellationException is caught here for
+                    // backwards compatibility.
                     velocityLeft = animationState.velocity
                 }
                 velocityLeft
@@ -1003,3 +1006,5 @@ internal val UnityDensity = object : Density {
     override val fontScale: Float
         get() = 1f
 }
+
+internal class ScrollCancellationException(message: String?): CancellationException(message)
