@@ -178,7 +178,9 @@ internal fun rememberComposeSceneLayer(
             layoutDirection = layoutDirection,
             focusable = focusable,
             compositionContext = parentComposition,
-        )
+        ).also {
+            it.compositionLocalContext = compositionLocalContext
+        }
     }
     layer.focusable = focusable
     DisposableEffect(Unit) {

@@ -58,7 +58,6 @@ internal class UIViewComposeSceneLayer(
     focusStack: FocusStack<UIView>?,
     windowContext: PlatformWindowContext,
     compositionContext: CompositionContext,
-    compositionLocalContext: CompositionLocalContext?,
 ) : ComposeSceneLayer {
 
     override var focusable: Boolean = focusStack != null
@@ -117,9 +116,7 @@ internal class UIViewComposeSceneLayer(
             coroutineContext = compositionContext.effectCoroutineContext,
             renderingUIViewFactory = ::createSkikoUIView,
             composeSceneFactory = ::createComposeScene
-        ).also {
-            it.compositionLocalContext = compositionLocalContext
-        }
+        )
     }
 
     init {

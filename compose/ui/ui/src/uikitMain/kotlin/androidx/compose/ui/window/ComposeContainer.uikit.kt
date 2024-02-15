@@ -362,7 +362,6 @@ internal class ComposeContainer(
                 focusStack = if (focusable) focusStack else null,
                 windowContext = windowContext,
                 compositionContext = compositionContext,
-                compositionLocalContext = mediator?.compositionLocalContext,
             )
     }
 
