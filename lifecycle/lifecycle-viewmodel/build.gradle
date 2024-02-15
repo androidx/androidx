@@ -54,6 +54,7 @@ androidXMultiplatform {
                 api(project(":annotation:annotation"))
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
+                implementation(libs.atomicFu)
             }
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("ViewModel")
+@file:OptIn(ExperimentalStdlibApi::class)
 
 package androidx.lifecycle
 
 import androidx.annotation.MainThread
-import java.io.Closeable
-import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +26,7 @@ import kotlinx.coroutines.cancel
 
 /**
  * ViewModel is a class that is responsible for preparing and managing the data for
- * an [Activity][android.app.Activity] or a [Fragment][androidx.fragment.app.Fragment].
+ * an [Activity][androidx.activity.ComponentActivity] or a [Fragment][androidx.fragment.app.Fragment].
  * It also handles the communication of the Activity / Fragment with the rest of the application
  * (e.g. calling the business logic classes).
  *
@@ -95,39 +93,7 @@ import kotlinx.coroutines.cancel
  * }
  *```
  */
-public abstract class ViewModel {
-
-    /**
-     * Holds a mapping between [String] keys and [AutoCloseable] resources that have been associated
-     * with this [ViewModel].
-     *
-     * The associated resources will be [AutoCloseable.close] right before the [ViewModel.onCleared]
-     * is called. This provides automatic resource cleanup upon [ViewModel] release.
-     *
-     * The clearing order is:
-     * 1. [keyToCloseables][AutoCloseable.close]
-     * 2. [closeables][Closeable.close]
-     * 3. [ViewModel.onCleared]
-     *
-     * Compatibility considerations:
-     * - **Why manual synchronization?** [java.util.concurrent.ConcurrentHashMap] can cause value
-     * loss on the Android API 21 and 22. Using a regular map and controlling access with
-     * [synchronized] guarantees reliable cleanup even on older devices. See b/37042460.
-     * - **Why nullable collections?** Since [clear] is final, this method is still called on mock
-     * objects. In those cases, [bagOfTags] is `null`. It'll always be empty though because
-     * [addCloseable] and [getCloseable] are open so we can skip clearing it.
-     */
-    @Suppress("RedundantNullableReturnType")
-    private val bagOfTags: MutableMap<String, AutoCloseable>? = mutableMapOf()
-
-    /**
-     * @see [bagOfTags]
-     */
-    @Suppress("RedundantNullableReturnType")
-    private val closeables: MutableSet<AutoCloseable>? = mutableSetOf()
-
-    @Volatile
-    private var isCleared = false
+public expect abstract class ViewModel {
 
     /**
      * Construct a new ViewModel instance.
@@ -144,25 +110,7 @@ public abstract class ViewModel {
      * You should **never** manually construct a ViewModel outside of a
      * [ViewModelProvider.Factory].
      */
-    @Deprecated(message = "Replaced by `AutoCloseable` overload.", level = DeprecationLevel.HIDDEN)
-    public constructor(vararg closeables: Closeable) {
-        if (this.closeables != null) {
-            this.closeables += closeables
-        }
-    }
-
-    /**
-     * Construct a new ViewModel instance. Any [AutoCloseable] objects provided here
-     * will be closed directly before [ViewModel.onCleared] is called.
-     *
-     * You should **never** manually construct a ViewModel outside of a
-     * [ViewModelProvider.Factory].
-     */
-    public constructor(vararg closeables: AutoCloseable) {
-        if (this.closeables != null) {
-            this.closeables += closeables
-        }
-    }
+    public constructor(vararg closeables: AutoCloseable)
 
     /**
      * This method will be called when this ViewModel is no longer used and will be destroyed.
@@ -170,29 +118,10 @@ public abstract class ViewModel {
      * It is useful when ViewModel observes some data and you need to clear this subscription to
      * prevent a leak of this ViewModel.
      */
-    protected open fun onCleared() {}
+    protected open fun onCleared()
 
     @MainThread
-    internal fun clear() {
-        isCleared = true
-        if (bagOfTags != null) {
-            synchronized(bagOfTags) {
-                for (value in bagOfTags.values) {
-                    // see comment for the similar call in `setTagIfAbsent`
-                    closeWithRuntimeException(value)
-                }
-            }
-        }
-        if (closeables != null) {
-            synchronized(closeables) {
-                for (closeable in closeables) {
-                    closeWithRuntimeException(closeable)
-                }
-            }
-            closeables.clear()
-        }
-        onCleared()
-    }
+    internal fun clear()
 
     /**
      * Add a new [AutoCloseable] object that will be closed directly before
@@ -206,19 +135,7 @@ public abstract class ViewModel {
      * @param closeable The object that should be [AutoCloseable.close] directly before
      *                  [ViewModel.onCleared] is called.
      */
-    public fun addCloseable(key: String, closeable: AutoCloseable) {
-        // Although no logic should be done after user calls onCleared(), we will
-        // ensure that if it has already been called, the closeable attempting to
-        // be added will be closed immediately to ensure there will be no leaks.
-        if (isCleared) {
-            closeWithRuntimeException(closeable)
-            return
-        }
-
-        if (bagOfTags != null) {
-            synchronized(bagOfTags) { bagOfTags.put(key, closeable) }
-        }
-    }
+    public fun addCloseable(key: String, closeable: AutoCloseable)
 
     /**
      * Add a new [AutoCloseable] object that will be closed directly before
@@ -230,62 +147,14 @@ public abstract class ViewModel {
      * @param closeable The object that should be [closed][AutoCloseable.close] directly before
      *                  [ViewModel.onCleared] is called.
      */
-    public open fun addCloseable(closeable: AutoCloseable) {
-        // Although no logic should be done after user calls onCleared(), we will
-        // ensure that if it has already been called, the closeable attempting to
-        // be added will be closed immediately to ensure there will be no leaks.
-        if (isCleared) {
-            closeWithRuntimeException(closeable)
-            return
-        }
-
-        if (this.closeables != null) {
-            synchronized(this.closeables) {
-                this.closeables += closeable
-            }
-        }
-    }
-
-    /**
-     * Add a new [Closeable] object that will be closed directly before
-     * [ViewModel.onCleared] is called.
-     *
-     * If `onCleared()` has already been called, the closeable will not be added,
-     * and will instead be closed immediately.
-     *
-     * @param closeable The object that should be [closed][Closeable.close] directly before
-     *                  [ViewModel.onCleared] is called.
-     */
-    @Deprecated(message = "Replaced by `AutoCloseable` overload.", level = DeprecationLevel.HIDDEN)
-    public open fun addCloseable(closeable: Closeable) {
-        // Upcast to `AutoCloseable` to avoid recursive call.
-        addCloseable(closeable as AutoCloseable)
-    }
+    public open fun addCloseable(closeable: AutoCloseable)
 
     /**
      * Returns the closeable previously added with [ViewModel.addCloseable] with the given [key].
      *
      * @param key The key that was used to add the Closeable.
      */
-    public fun <T : AutoCloseable> getCloseable(key: String): T? {
-        if (bagOfTags == null) {
-            return null
-        }
-        synchronized(bagOfTags) {
-            @Suppress("UNCHECKED_CAST")
-            return bagOfTags[key] as T?
-        }
-    }
-
-    private fun closeWithRuntimeException(instance: Any) {
-        if (instance is Closeable) {
-            try {
-                instance.close()
-            } catch (e: IOException) {
-                throw RuntimeException(e)
-            }
-        }
-    }
+    public fun <T : AutoCloseable> getCloseable(key: String): T?
 }
 
 private const val JOB_KEY = "androidx.lifecycle.ViewModelCoroutineScope.JOB_KEY"
@@ -306,7 +175,7 @@ public val ViewModel.viewModelScope: CoroutineScope
         }
     }
 
-private class CloseableCoroutineScope(context: CoroutineContext) : Closeable, CoroutineScope {
+private class CloseableCoroutineScope(context: CoroutineContext) : AutoCloseable, CoroutineScope {
     override val coroutineContext: CoroutineContext = context
 
     override fun close() {
