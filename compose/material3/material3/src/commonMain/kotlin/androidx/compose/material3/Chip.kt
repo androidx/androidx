@@ -1257,8 +1257,8 @@ object FilterChipDefaults {
             return defaultFilterChipColorsCached ?: SelectableChipColors(
                 containerColor = Color.Transparent,
             labelColor = fromToken(FilterChipTokens.UnselectedLabelTextColor),
-            leadingIconColor = fromToken(FilterChipTokens.LeadingIconUnselectedColor),
-                trailingIconColor = fromToken(FilterChipTokens.TrailingIconUnselectedColor),
+            leadingIconColor = fromToken(FilterChipTokens.UnselectedLeadingIconColor),
+                trailingIconColor = fromToken(FilterChipTokens.UnselectedTrailingIconColor),
             disabledContainerColor = Color.Transparent,
             disabledLabelColor = fromToken(FilterChipTokens.DisabledLabelTextColor)
                 .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
@@ -1404,8 +1404,8 @@ object FilterChipDefaults {
             return defaultElevatedFilterChipColorsCached ?: SelectableChipColors(
                 containerColor = fromToken(FilterChipTokens.ElevatedUnselectedContainerColor),
                 labelColor = fromToken(FilterChipTokens.UnselectedLabelTextColor),
-                leadingIconColor = fromToken(FilterChipTokens.LeadingIconUnselectedColor),
-                trailingIconColor = fromToken(FilterChipTokens.TrailingIconUnselectedColor),
+                leadingIconColor = fromToken(FilterChipTokens.UnselectedLeadingIconColor),
+                trailingIconColor = fromToken(FilterChipTokens.UnselectedTrailingIconColor),
                 disabledContainerColor = fromToken(FilterChipTokens.ElevatedDisabledContainerColor),
                 disabledLabelColor = fromToken(FilterChipTokens.DisabledLabelTextColor)
                     .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
@@ -1873,7 +1873,6 @@ private fun Chip(
         enabled = enabled,
         shape = shape,
         color = colors.containerColor(enabled),
-        tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp,
         shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
         border = border,
         interactionSource = interactionSource
@@ -1922,7 +1921,6 @@ private fun SelectableChip(
         enabled = enabled,
         shape = shape,
         color = colors.containerColor(enabled, selected).value,
-        tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp,
         shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
         border = border,
         interactionSource = interactionSource
@@ -2043,10 +2041,8 @@ private fun ChipContent(
  * Represents the elevation used in a selectable chip in different states.
  *
  * Note that this default implementation does not take into consideration the `selectable` state
- * passed into its [tonalElevation] and [shadowElevation]. If you wish to apply that state, use a
- * different [SelectableChipElevation].
- *
- * Note that its [tonalElevation] implementation only depends on [elevation] and [disabledElevation]
+ * passed into its [shadowElevation]. If you wish to apply that state, use a different
+ * [SelectableChipElevation].
  *
  * @param elevation the elevation used when the chip is enabled.
  * @param pressedElevation the elevation used when the chip is pressed.
@@ -2065,27 +2061,11 @@ class ChipElevation(
     val disabledElevation: Dp
 ) {
     /**
-     * Represents the tonal elevation used in a chip, depending on its [enabled] state.
-     *
-     * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
-     * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
-     * color in light theme and lighter color in dark theme.
-     *
-     * See [shadowElevation] which controls the elevation of the shadow drawn around the chip.
-     *
-     * @param enabled whether the chip is enabled
-     */
-    internal fun tonalElevation(enabled: Boolean): Dp {
-        return if (enabled) elevation else disabledElevation
-    }
-
-    /**
      * Represents the shadow elevation used in a chip, depending on its [enabled] state and
      * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the chip to give it higher emphasis.
      *
-     * See [tonalElevation] which controls the elevation with a color shift to the surface.
      *
      * @param enabled whether the chip is enabled
      * @param interactionSource the [InteractionSource] for this chip
@@ -2210,8 +2190,6 @@ class ChipElevation(
 /**
  * Represents the elevation used in a selectable chip in different states.
  *
- * Note that its [tonalElevation] implementation only depends on [elevation] and [disabledElevation]
- *
  * @param elevation the elevation used when the chip is enabled.
  * @param pressedElevation the elevation used when the chip is pressed.
  * @param focusedElevation the elevation used when the chip is focused
@@ -2229,27 +2207,10 @@ class SelectableChipElevation(
     val disabledElevation: Dp
 ) {
     /**
-     * Represents the tonal elevation used in a chip, depending on [enabled].
-     *
-     * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
-     * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
-     * color in light theme and lighter color in dark theme.
-     *
-     * See [shadowElevation] which controls the elevation of the shadow drawn around the Chip.
-     *
-     * @param enabled whether the chip is enabled
-     */
-    internal fun tonalElevation(enabled: Boolean): Dp {
-        return if (enabled) elevation else disabledElevation
-    }
-
-    /**
      * Represents the shadow elevation used in a chip, depending on [enabled] and
      * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the surface to give it higher emphasis.
-     *
-     * See [tonalElevation] which controls the elevation with a color shift to the surface.
      *
      * @param enabled whether the chip is enabled
      * @param interactionSource the [InteractionSource] for this chip
