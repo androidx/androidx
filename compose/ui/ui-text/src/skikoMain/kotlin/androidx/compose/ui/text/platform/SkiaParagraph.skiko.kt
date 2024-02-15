@@ -224,6 +224,7 @@ internal data class ComputedStyle(
                 fontSynthesis ?: FontSynthesis.None
             ).value as FontLoadResult
             res.fontFamilies = resolved.aliases.toTypedArray()
+            res.typeface = resolved.typeface
         }
 
         baselineShift?.let {
