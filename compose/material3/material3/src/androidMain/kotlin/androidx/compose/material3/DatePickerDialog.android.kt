@@ -86,7 +86,14 @@ fun DatePickerDialog(
             tonalElevation = tonalElevation,
         ) {
             Column(verticalArrangement = Arrangement.SpaceBetween) {
-                content()
+                // Wrap the content with a Box and Modifier.weight(1f) to ensure that any "confirm"
+                // and "dismiss" buttons are not pushed out of view when running on small screens,
+                // or when nesting a DateRangePicker.
+                // Fill is false to support collapsing the dialog's height when switching to input
+                // mode.
+                Box(Modifier.weight(1f, fill = false)) {
+                    this@Column.content()
+                }
                 // Buttons
                 Box(
                     modifier = Modifier
