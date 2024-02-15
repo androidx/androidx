@@ -1397,6 +1397,10 @@ package androidx.compose.foundation.relocation {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.ui.geometry.Rect calculateRectForParent(androidx.compose.ui.geometry.Rect localRect);
   }
 
+  public final class ScrollIntoView {
+    method public static suspend Object? scrollIntoView(androidx.compose.ui.node.DelegatableNode, optional androidx.compose.ui.geometry.Rect? rect, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
 }
 
 package androidx.compose.foundation.selection {

@@ -19,8 +19,7 @@ package androidx.compose.foundation
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.BringIntoViewRequesterNode
+import androidx.compose.foundation.relocation.scrollIntoView
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
@@ -183,7 +182,6 @@ private class FocusableElement(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class FocusableNode(
     interactionSource: MutableInteractionSource?
 ) : DelegatingNode(), FocusEventModifierNode, SemanticsModifierNode,
@@ -207,13 +205,6 @@ internal class FocusableNode(
     // 3. Entire window is panned due to `softInputMode=ADJUST_PAN` – report the correct focused
     //    rect to the view system, and the view system itself will keep the focused area in view.
     //    See aosp/1964580.
-    private val bringIntoViewRequester = BringIntoViewRequester()
-
-    /** This is just needed for the delegate, it's not referenced anywhere directly. */
-    @Suppress("unused")
-    private val bringIntoViewRequesterNode = delegate(
-        BringIntoViewRequesterNode(bringIntoViewRequester)
-    )
 
     fun update(interactionSource: MutableInteractionSource?) =
         focusableInteractionNode.update(interactionSource)
@@ -224,7 +215,7 @@ internal class FocusableNode(
             val isFocused = focusState.isFocused
             if (isFocused) {
                 coroutineScope.launch {
-                    bringIntoViewRequester.bringIntoView()
+                    scrollIntoView()
                 }
             }
             if (isAttached) invalidateSemantics()

@@ -19,11 +19,10 @@ package androidx.compose.foundation.relocation
 import android.graphics.Rect as AndroidRect
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.requireView
 
-internal actual fun CompositionLocalConsumerModifierNode.defaultBringIntoViewParent():
-    BringIntoViewParent =
+internal actual fun DelegatableNode.defaultBringIntoViewParent(): BringIntoViewParent =
     BringIntoViewParent { childCoordinates, boundsProvider ->
         val view = requireView()
         val childOffset = childCoordinates.positionInRoot()
