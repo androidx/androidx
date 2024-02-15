@@ -49,7 +49,6 @@ import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -379,7 +378,6 @@ class SurfaceProcessorNodeTest {
         }
     }
 
-    @Ignore("Flaking in presubmit (b/323202283)")
     @Test(expected = IllegalArgumentException::class)
     fun cropSizeMismatchesOutputSize_throwsException() {
         createSurfaceProcessorNode()
