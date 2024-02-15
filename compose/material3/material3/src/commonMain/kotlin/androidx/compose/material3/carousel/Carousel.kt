@@ -150,6 +150,7 @@ internal fun HorizontalUncontainedCarousel(
         },
         modifier = modifier,
         itemSpacing = itemSpacing,
+        flingBehavior = rememberDecaySnapFlingBehavior(),
         content = content
     )
 }
