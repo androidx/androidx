@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtModifierListOwner
+import org.jetbrains.kotlin.psi.psiUtil.forEachDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
 import org.jetbrains.uast.UDeclaration
 import org.jetbrains.uast.UMethod
@@ -249,8 +250,14 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
             analyze(source) {
                 val member = (source as? KtDeclaration)?.getSymbol() ?: return
                 val expect = member.getExpectsForActual().singleOrNull() ?: return
-                (expect.psi as? KtDeclaration)?.docComment?.let {
-                    handleSampleLink(it)
+                val declaration = expect.psi ?: return
+                // Recursively handle everything inside the expect declaration, for example if it
+                // is a class with members that have documentation that we should look at - this
+                // will visit the declaration itself as well
+                declaration.forEachDescendantOfType<KtDeclaration> {
+                    it.docComment?.let { comment ->
+                        handleSampleLink(comment)
+                    }
                 }
             }
         }
