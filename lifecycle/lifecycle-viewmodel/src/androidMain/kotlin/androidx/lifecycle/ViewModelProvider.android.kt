@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("ViewModelProviderGetKt")
-
 package androidx.lifecycle
 
 import android.app.Application
@@ -359,12 +357,3 @@ internal fun defaultCreationExtras(owner: ViewModelStoreOwner): CreationExtras {
         owner.defaultViewModelCreationExtras
     } else CreationExtras.Empty
 }
-
-/**
- * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
- * an activity), associated with this `ViewModelProvider`.
- *
- * @see ViewModelProvider.get(Class)
- */
-@MainThread
-public inline fun <reified VM : ViewModel> ViewModelProvider.get(): VM = get(VM::class.java)
