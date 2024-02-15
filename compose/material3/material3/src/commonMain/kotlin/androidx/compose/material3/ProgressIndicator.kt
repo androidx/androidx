@@ -179,7 +179,14 @@ fun LinearProgressIndicator(
     }
 }
 
-private fun DrawScope.drawStopIndicator(
+/**
+ * Draws the stop indicator at the end of the track.
+ *
+ * @param stopSize size of this stop indicator, it cannot be bigger than the track's height
+ * @param color color of this stop indicator
+ * @param strokeCap stroke cap to use for the ends of this stop indicator
+ */
+fun DrawScope.drawStopIndicator(
     stopSize: Dp,
     color: Color,
     strokeCap: StrokeCap,
