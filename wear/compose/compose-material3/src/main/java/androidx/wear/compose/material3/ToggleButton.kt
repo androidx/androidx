@@ -117,6 +117,7 @@ fun ToggleButton(
             val scope = remember(enabled, checked) { ToggleControlScope(enabled, checked) }
             toggleControl(scope)
         },
+        selectionControl = null,
         modifier = modifier
             .defaultMinSize(minHeight = MIN_HEIGHT)
             .height(IntrinsicSize.Min),
@@ -232,6 +233,7 @@ fun SplitToggleButton(
         val scope = remember(enabled, checked) { ToggleControlScope(enabled, checked) }
         toggleControl(scope)
     },
+    selectionControl = null,
     modifier = modifier
         .defaultMinSize(minHeight = MIN_HEIGHT)
         .height(IntrinsicSize.Min),
