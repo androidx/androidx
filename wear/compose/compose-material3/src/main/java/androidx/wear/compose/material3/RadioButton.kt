@@ -103,8 +103,7 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  * interactions will still happen internally.
  * @param icon An optional slot for providing an icon to indicate the purpose of the button.
  * The contents are expected to be center-aligned, both horizontally and vertically, and should be
- * an icon of size 24.dp. In order to correctly render when the Button is not enabled the
- * icon must set its alpha value to [LocalContentAlpha].
+ * an icon of size 24.dp.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
  * expected to be text which is "start" aligned.
  * @param label A slot for providing the button's main label. The contents are expected to be text

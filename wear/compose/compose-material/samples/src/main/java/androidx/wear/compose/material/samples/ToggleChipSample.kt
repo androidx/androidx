@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Checkbox
 import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.RadioButton
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
@@ -89,14 +88,8 @@ fun ToggleChipWithRadioButton() {
         secondaryLabel = {
             Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
-        checked = selected,
-        toggleControl = {
-            RadioButton(
-                selected = selected,
-                enabled = true,
-            )
-        },
-        onCheckedChange = { selected = it },
+        selected = selected,
+        onSelected = { selected = it },
         appIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
@@ -126,6 +119,25 @@ fun SplitToggleChipWithCheckbox() {
             )
         },
         onCheckedChange = { checked = it },
+        onClick = {
+            /* Do something */
+        },
+        enabled = true,
+    )
+}
+
+@Sampled
+@Composable
+fun SplitToggleChipWithRadioButton() {
+    var selected by remember { mutableStateOf(true) }
+    // The primary label should have a maximum 3 lines of text
+    // and the secondary label should have max 2 lines of text.
+    SplitToggleChip(
+        label = {
+            Text("Split with RadioButton", maxLines = 3, overflow = TextOverflow.Ellipsis)
+        },
+        selected = selected,
+        onSelected = { selected = it },
         onClick = {
             /* Do something */
         },
