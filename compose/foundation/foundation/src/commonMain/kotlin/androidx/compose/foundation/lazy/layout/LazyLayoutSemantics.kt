@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.collectionInfo
+import androidx.compose.ui.semantics.getScrollViewportLength
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.indexForKey
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -123,6 +124,11 @@ internal fun Modifier.lazyLayoutSemantics(
                     scrollToIndex(action = scrollToIndexAction)
                 }
 
+                getScrollViewportLength {
+                    it.add((state.viewport - state.contentPadding).toFloat())
+                    true
+                }
+
                 this.collectionInfo = collectionInfo
             }
         }
@@ -133,6 +139,9 @@ internal interface LazyLayoutSemanticState {
     val firstVisibleItemScrollOffset: Int
     val firstVisibleItemIndex: Int
     val canScrollForward: Boolean
+    val viewport: Int
+    val contentPadding: Int
+
     fun collectionInfo(): CollectionInfo
     suspend fun animateScrollBy(delta: Float)
     suspend fun scrollToItem(index: Int)
