@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.content.internal
+package androidx.compose.ui.node
 
-import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.node.DelegatableNode
+import android.view.View
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.internal.checkPrecondition
 
 /**
- * Requests necessary platform permissions to read the content that's delivered by [event].
+ * The Android [View] hosting the composition.
+ *
+ * @throws IllegalStateException If the modifier node is not [attached][Modifier.Node.isAttached].
  */
-internal expect fun DelegatableNode.dragAndDropRequestPermission(
-    event: DragAndDropEvent
-)
+fun DelegatableNode.requireView(): View {
+    checkPrecondition(node.isAttached) {
+        "Cannot get View because the Modifier node is not currently attached."
+    }
+    return requireLayoutNode().requireOwner() as View
+}
