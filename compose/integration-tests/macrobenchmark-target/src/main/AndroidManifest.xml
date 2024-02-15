@@ -241,5 +241,19 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".CrossfadeActivity"
+            android:label="Compose Crossfade Benchmark"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.CROSSFADE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
