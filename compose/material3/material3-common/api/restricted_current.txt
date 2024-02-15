@@ -12,11 +12,9 @@ package androidx.compose.material3.common {
   }
 
   public final class InteractiveComponentSizeKt {
-    method @SuppressCompatibility @androidx.compose.material3.common.ExperimentalMaterial3CommonApi public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalMinimumInteractiveComponentEnforcement();
-    method @Deprecated @SuppressCompatibility @androidx.compose.material3.common.ExperimentalMaterial3CommonApi public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalMinimumTouchTargetEnforcement();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalMinimumInteractiveComponentSize();
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier minimumInteractiveComponentSize(androidx.compose.ui.Modifier);
-    property @SuppressCompatibility @androidx.compose.material3.common.ExperimentalMaterial3CommonApi public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalMinimumInteractiveComponentEnforcement;
-    property @Deprecated @SuppressCompatibility @androidx.compose.material3.common.ExperimentalMaterial3CommonApi public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalMinimumTouchTargetEnforcement;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalMinimumInteractiveComponentSize;
   }
 
 }
