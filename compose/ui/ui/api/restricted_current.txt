@@ -2635,6 +2635,10 @@ package androidx.compose.ui.node {
     method public static androidx.compose.ui.unit.LayoutDirection requireLayoutDirection(androidx.compose.ui.node.DelegatableNode);
   }
 
+  public final class DelegatableNode_androidKt {
+    method public static android.view.View requireView(androidx.compose.ui.node.DelegatableNode);
+  }
+
   public abstract class DelegatingNode extends androidx.compose.ui.Modifier.Node {
     ctor public DelegatingNode();
     method protected final <T extends androidx.compose.ui.node.DelegatableNode> T delegate(T delegatableNode);
