@@ -723,7 +723,7 @@ public final class CustomTabsIntent {
          * Overrides the effect of {@link #setSession}.
          *
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @ExperimentalPendingSession
         @NonNull
         public Builder setPendingSession(@NonNull CustomTabsSession.PendingSession session) {
             setSessionParameters(null, session.getId());
