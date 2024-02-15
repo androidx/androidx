@@ -28,6 +28,7 @@ import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollCancellationException
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.snapping.FinalSnappingItem
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
@@ -896,7 +897,7 @@ private class DefaultPagerNestedScrollConnection(
         source: NestedScrollSource
     ): Offset {
         if (source == NestedScrollSource.Fling && available != Offset.Zero) {
-            throw CancellationException("")
+            throw ScrollCancellationException("End of scrollable area reached")
         }
         return Offset.Zero
     }
