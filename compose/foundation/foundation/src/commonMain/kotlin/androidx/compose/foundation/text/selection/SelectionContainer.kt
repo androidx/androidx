@@ -150,7 +150,7 @@ internal fun SelectionContainer(
     DisposableEffect(manager) {
         onDispose {
             manager.onRelease()
-            manager.hasFocus = false
+            manager.focusState = null
         }
     }
 }

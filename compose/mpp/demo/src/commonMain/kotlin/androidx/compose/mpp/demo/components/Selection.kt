@@ -17,27 +17,50 @@
 package androidx.compose.mpp.demo.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun SelectionExample() {
-    SelectionContainer(
-        Modifier.padding(24.dp).fillMaxWidth()
-    ) {
-        Column {
-            Text(
-                "I'm a selection container. Double tap on word to select a word." +
-                    " Triple tap on content to select whole paragraph.\nAnother paragraph for testing.\n" +
-                    "And another one."
-            )
-            Text("I'm another Text() block. Let's try to select me!")
-            Text("I'm yet another Text() with multiparagraph structure block.\nLet's try to select me!")
+    var count by remember { mutableStateOf(0) }
+    Column {
+        Button(onClick = { count++ }) {
+            Text("Outside Count: $count")
+        }
+        SelectionContainer(
+            Modifier.padding(24.dp).fillMaxWidth()
+        ) {
+            Column {
+                Text(
+                    "I'm a selection container. Double tap on word to select a word." +
+                        " Triple tap on content to select whole paragraph.\nAnother paragraph for testing.\n" +
+                        "And another one."
+                )
+                Row {
+                    DisableSelection {
+                        Button(onClick = { count++ }) {
+                            Text("DisableSelection Count: $count")
+                        }
+                    }
+                    Button(onClick = { count++ }) {
+                        Text("SelectionContainer Count: $count")
+                    }
+                }
+                Text("I'm another Text() block. Let's try to select me!")
+                Text("I'm yet another Text() with multiparagraph structure block.\nLet's try to select me!")
+            }
         }
     }
 }
