@@ -81,7 +81,7 @@ class SemanticsNodeInteraction constructor(
      * @throws AssertionError if 0 or multiple nodes found.
      */
     fun fetchSemanticsNode(errorMessageOnFail: String? = null): SemanticsNode {
-        return fetchOneOrDie(errorMessageOnFail)
+        return fetchOneOrThrow(errorMessageOnFail)
     }
 
     /**
@@ -122,7 +122,7 @@ class SemanticsNodeInteraction constructor(
      * @throws [AssertionError] if the assert fails.
      */
     fun assertExists(errorMessageOnFail: String? = null): SemanticsNodeInteraction {
-        fetchOneOrDie(errorMessageOnFail)
+        fetchOneOrThrow(errorMessageOnFail)
         return this
     }
 
@@ -135,7 +135,7 @@ class SemanticsNodeInteraction constructor(
      * @throws [AssertionError] if the assert fails.
      */
     fun assertIsDeactivated(errorMessageOnFail: String? = null) {
-        val node = fetchOneOrDie(skipDeactivatedNodes = false)
+        val node = fetchOneOrThrow(skipDeactivatedNodes = false)
         if (!node.layoutInfo.isDeactivated) {
             throw AssertionError(
                 buildGeneralErrorMessage(
@@ -147,7 +147,7 @@ class SemanticsNodeInteraction constructor(
         }
     }
 
-    private fun fetchOneOrDie(
+    private fun fetchOneOrThrow(
         errorMessageOnFail: String? = null,
         skipDeactivatedNodes: Boolean = true
     ): SemanticsNode {
