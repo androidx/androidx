@@ -16,14 +16,22 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.DelegatableNode
 
 /**
  * Platform specific internal API to bring a rectangle into view.
  */
-internal actual fun CompositionLocalConsumerModifierNode.defaultBringIntoViewParent():
-    BringIntoViewParent =
-     BringIntoViewParent { _, _ ->
+internal actual fun DelegatableNode.defaultBringIntoViewParent(): BringIntoViewParent =
+    NoopBringIntoViewParent
+
+private object NoopBringIntoViewParent : BringIntoViewParent {
+    override suspend fun bringChildIntoView(
+        childCoordinates: LayoutCoordinates,
+        boundsProvider: () -> Rect?
+    ) {
         // TODO(b/203204124): Implement this if desktop has a
         //  concept similar to Android's View.requestRectangleOnScreen.
     }
+}

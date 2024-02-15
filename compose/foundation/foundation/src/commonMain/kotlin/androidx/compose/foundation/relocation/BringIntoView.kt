@@ -19,25 +19,15 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.modifier.ModifierLocalModifierNode
-import androidx.compose.ui.modifier.modifierLocalOf
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.LayoutAwareModifierNode
-
-/**
- * The Key for the ModifierLocal that can be used to access the [BringIntoViewParent].
- */
-internal val ModifierLocalBringIntoViewParent = modifierLocalOf<BringIntoViewParent?> { null }
+import androidx.compose.ui.node.DelegatableNode
 
 /**
  * Platform-specific "root" of the [BringIntoViewParent] chain to call into when there are no
- * [ModifierLocalBringIntoViewParent]s above a [BringIntoViewChildNode].
+ * [BringIntoViewParent]s above a node.
  */
-internal expect fun CompositionLocalConsumerModifierNode.defaultBringIntoViewParent():
-    BringIntoViewParent
+internal expect fun DelegatableNode.defaultBringIntoViewParent(): BringIntoViewParent
 
 /**
  * A node that can respond to [bringChildIntoView] requests from its children by scrolling its
@@ -45,8 +35,8 @@ internal expect fun CompositionLocalConsumerModifierNode.defaultBringIntoViewPar
  */
 internal fun interface BringIntoViewParent {
     /**
-     * Scrolls this node's content so that [boundsProvider] will be in visible bounds. Must ensure that the
-     * request is propagated up to the parent node.
+     * Scrolls this node's content so that [boundsProvider] will be in visible bounds. Must ensure
+     * that the request is propagated up to the parent node.
      *
      * This method will not return until this request has been satisfied or interrupted by a
      * newer request.
@@ -60,31 +50,4 @@ internal fun interface BringIntoViewParent {
      * e.g. because [childCoordinates] is not attached, return null.
      */
     suspend fun bringChildIntoView(childCoordinates: LayoutCoordinates, boundsProvider: () -> Rect?)
-}
-
-/**
- * Common modifier logic shared between both requester and responder modifiers, namely recording
- * the [LayoutCoordinates] of the modifier and providing access to the appropriate
- * [BringIntoViewParent]: either one read from the [ModifierLocalBringIntoViewParent], or if no
- * modifier local is specified then the [defaultParent].
- *
- * @property defaultParent The [BringIntoViewParent] to use if there is no
- * [ModifierLocalBringIntoViewParent] available to read. This parent should always be obtained by
- * calling [defaultBringIntoViewParent] to support platform-specific integration.
- */
-internal abstract class BringIntoViewChildNode : Modifier.Node(),
-    ModifierLocalModifierNode, LayoutAwareModifierNode, CompositionLocalConsumerModifierNode {
-    private val defaultParent = defaultBringIntoViewParent()
-
-    private val localParent: BringIntoViewParent? get() = ModifierLocalBringIntoViewParent.current
-
-    protected var hasBeenPlaced = false
-        private set
-
-    protected val parent: BringIntoViewParent
-        get() = localParent ?: defaultParent
-
-    override fun onPlaced(coordinates: LayoutCoordinates) {
-        hasBeenPlaced = true
-    }
 }
