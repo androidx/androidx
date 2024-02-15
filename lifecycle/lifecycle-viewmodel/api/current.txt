@@ -41,8 +41,13 @@ package androidx.lifecycle {
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner, androidx.lifecycle.ViewModelProvider.Factory factory);
+    method public static final androidx.lifecycle.ViewModelProvider create(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory, androidx.lifecycle.viewmodel.CreationExtras extras);
+    method public static final androidx.lifecycle.ViewModelProvider create(androidx.lifecycle.ViewModelStoreOwner owner, androidx.lifecycle.ViewModelProvider.Factory factory, androidx.lifecycle.viewmodel.CreationExtras extras);
     method @MainThread public operator <T extends androidx.lifecycle.ViewModel> T get(Class<T> modelClass);
     method @MainThread public operator <T extends androidx.lifecycle.ViewModel> T get(String key, Class<T> modelClass);
+    method @MainThread public final operator <T extends androidx.lifecycle.ViewModel> T get(String key, kotlin.reflect.KClass<T> modelClass);
+    method @MainThread public final operator <T extends androidx.lifecycle.ViewModel> T get(kotlin.reflect.KClass<T> modelClass);
+    field public static final androidx.lifecycle.ViewModelProvider.Companion Companion;
   }
 
   public static class ViewModelProvider.AndroidViewModelFactory extends androidx.lifecycle.ViewModelProvider.NewInstanceFactory {
@@ -57,9 +62,15 @@ package androidx.lifecycle {
     method public androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application application);
   }
 
+  public static final class ViewModelProvider.Companion {
+    method public androidx.lifecycle.ViewModelProvider create(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory, androidx.lifecycle.viewmodel.CreationExtras extras);
+    method public androidx.lifecycle.ViewModelProvider create(androidx.lifecycle.ViewModelStoreOwner owner, androidx.lifecycle.ViewModelProvider.Factory factory, androidx.lifecycle.viewmodel.CreationExtras extras);
+  }
+
   public static interface ViewModelProvider.Factory {
     method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
     method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass, androidx.lifecycle.viewmodel.CreationExtras extras);
+    method public default <T extends androidx.lifecycle.ViewModel> T create(kotlin.reflect.KClass<T> modelClass, androidx.lifecycle.viewmodel.CreationExtras extras);
     method public static androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
     field public static final androidx.lifecycle.ViewModelProvider.Factory.Companion Companion;
   }
@@ -138,6 +149,7 @@ package androidx.lifecycle.viewmodel {
 
   public final class ViewModelInitializer<T extends androidx.lifecycle.ViewModel> {
     ctor public ViewModelInitializer(Class<T> clazz, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T> initializer);
+    ctor public ViewModelInitializer(kotlin.reflect.KClass<T> clazz, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T> initializer);
   }
 
 }

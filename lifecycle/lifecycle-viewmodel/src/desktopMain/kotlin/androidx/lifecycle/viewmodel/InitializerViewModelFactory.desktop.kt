@@ -25,25 +25,13 @@ public actual class ViewModelInitializer<T : ViewModel>
 actual constructor(
     internal actual val clazz: KClass<T>,
     internal actual val initializer: CreationExtras.() -> T,
-) {
-
-    /**
-     * Construct a new [ViewModelInitializer] instance.
-     *
-     * @param clazz [ViewModel] class with which the specified [initializer] is to be associated.
-     * @param initializer factory lambda to be associated with the specified [ViewModel] class.
-     */
-    public constructor(
-        clazz: Class<T>,
-        initializer: CreationExtras.() -> T
-    ) : this(clazz.kotlin, initializer)
-}
+)
 
 internal actual class InitializerViewModelFactory
 actual constructor(
     private vararg val initializers: ViewModelInitializer<*>
 ) : ViewModelProvider.Factory {
 
-    override fun <VM : ViewModel> create(modelClass: Class<VM>, extras: CreationExtras): VM =
-        ViewModelProviders.createViewModelFromInitializers(modelClass.kotlin, extras, *initializers)
+    override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T =
+        ViewModelProviders.createViewModelFromInitializers(modelClass, extras, *initializers)
 }
