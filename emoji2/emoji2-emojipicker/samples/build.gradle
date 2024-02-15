@@ -17,6 +17,7 @@
 import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
@@ -36,11 +37,12 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = '1.5.8'
-    }
     namespace "androidx.emoji2.emojipicker.samples"
+}
+
+androidx {
+    name = "Emoji Picker Samples"
+    type = LibraryType.SAMPLES
+    inceptionYear = "2022"
+    description = "Contains sample code for the Androidx Emoji Picker"
 }
