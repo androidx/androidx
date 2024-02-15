@@ -46,8 +46,7 @@ androidXMultiplatform {
                 implementation("androidx.compose.material3:material3:1.2.0")
                 implementation(project(":compose:material3:adaptive:adaptive"))
                 implementation("androidx.compose.ui:ui-util:1.6.0")
-                // TODO(conradchen): pin the depe when the change required is released to public
-                implementation(project(":window:window-core"))
+                implementation("androidx.window:window-core:1.3.0-alpha02")
             }
         }
 
