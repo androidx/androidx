@@ -162,6 +162,11 @@ internal class Camera2CaptureSequenceProcessor(
                 checkNotNull(imageWriter) {
                     "Failed to create ImageWriter for capture session: $session"
                 }
+
+                Log.debug {
+                    "Queuing image ${request.inputRequest.image} for reprocessing " +
+                        "to ImageWriter $imageWriter"
+                }
                 // TODO(b/321603591): Queue image closer to when capture request is submitted
                 imageWriter.queueInputImage(request.inputRequest.image)
 
@@ -339,13 +344,15 @@ internal class Camera2CaptureSequenceProcessor(
             checkNotNull(sessionInputSurface) {
                 "inputSurface is required to create instance of imageWriter."
             }
-            AndroidImageWriter.create(
+            val androidImageWriter = AndroidImageWriter.create(
                 sessionInputSurface,
                 inputStream.id,
                 inputStream.maxImages,
                 inputStream.format,
                 threads.camera2Handler
             )
+            Log.debug { "Created ImageWriter $androidImageWriter for session $session" }
+            androidImageWriter
         } else {
             null
         }
