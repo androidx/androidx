@@ -16,6 +16,7 @@
 
 package androidx.room.integration.multiplatformtestapp.test
 
+import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -23,6 +24,18 @@ import kotlinx.coroutines.test.runTest
 abstract class BaseSimpleQueryTest {
 
     abstract fun getRoomDatabase(): SampleDatabase
+
+    @Test
+    fun preparedInsertAndDelete() = runTest {
+        val dao = getRoomDatabase().dao()
+        assertThat(dao.insertItem(1)).isEqualTo(1)
+        assertThat(dao.getSingleItem().pk).isEqualTo(1)
+        assertThat(dao.deleteItem(1)).isEqualTo(1)
+        assertThat(dao.deleteItem(1)).isEqualTo(0) // Nothing deleted
+        assertThrows<IllegalStateException> {
+            dao.getSingleItem()
+        }.hasMessageThat().contains("The query result was empty")
+    }
 
     @Test
     fun emptyResult() = runTest {
