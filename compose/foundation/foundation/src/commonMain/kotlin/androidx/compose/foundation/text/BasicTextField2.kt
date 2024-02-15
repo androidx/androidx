@@ -452,10 +452,7 @@ internal fun BasicTextField2(
         }
     }
 
-    val decorationModifiers = Modifier
-        // put pointerHoverIcon before the user modifier so that they can override it
-        .pointerHoverIcon(textPointerIcon)
-        .then(modifier)
+    val decorationModifiers = modifier
         .then(
             // semantics + some focus + input session + touch to focus
             TextFieldDecoratorModifier(
@@ -487,6 +484,7 @@ internal fun BasicTextField2(
             ),
             interactionSource = interactionSource,
         )
+        .pointerHoverIcon(textPointerIcon)
 
     Box(decorationModifiers, propagateMinConstraints = true) {
         val nonNullDecorator = decorator ?: DefaultTextFieldDecorator

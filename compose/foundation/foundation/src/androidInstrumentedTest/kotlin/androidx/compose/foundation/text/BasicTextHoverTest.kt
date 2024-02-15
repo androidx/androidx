@@ -57,48 +57,72 @@ class BasicTextHoverTest {
     @Test
     fun whenSelectableText_andDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runSelectableTest(
-            selectionContainerIcon = null,
+            selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
-            textIcon = null,
+            textIconModifier = Modifier,
             expectedTextIcon = TYPE_TEXT
         )
 
     @Test
-    fun whenSelectableText_andSetIcon_inBoxWithDefaultIcon_setIconIsUsed() =
+    fun whenSelectableText_andSetIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runSelectableTest(
-            selectionContainerIcon = null,
+            selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
-            textIcon = PointerIcon.Crosshair,
+            textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+            expectedTextIcon = TYPE_TEXT
+        )
+
+    @Test
+    fun whenSelectableText_andSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() =
+        runSelectableTest(
+            selectionContainerIconModifier = Modifier,
+            expectedSelectionContainerIcon = TYPE_DEFAULT,
+            textIconModifier = Modifier.pointerHoverIcon(
+                icon = PointerIcon.Crosshair,
+                overrideDescendants = true
+            ),
             expectedTextIcon = TYPE_CROSSHAIR
         )
 
     @Test
     fun whenSelectableText_andDefaultIcon_inBoxWithSetIcon_textIconIsUsed() =
         runSelectableTest(
-            selectionContainerIcon = PointerIcon.Hand,
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
-            textIcon = null,
+            textIconModifier = Modifier,
             expectedTextIcon = TYPE_TEXT
         )
 
     @Test
-    fun whenSelectableText_andSetIcon_inBoxWithSetIcon_setIconIsUsed() =
+    fun whenSelectableText_andSetIcon_inBoxWithSetIcon_textIconIsUsed() =
         runSelectableTest(
-            selectionContainerIcon = PointerIcon.Hand,
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
-            textIcon = PointerIcon.Crosshair,
+            textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+            expectedTextIcon = TYPE_TEXT
+        )
+
+    @Test
+    fun whenSelectableText_andSetIcon_withOverride_inBoxWithSetIcon_setIconIsUsed() =
+        runSelectableTest(
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
+            expectedSelectionContainerIcon = TYPE_HAND,
+            textIconModifier = Modifier.pointerHoverIcon(
+                icon = PointerIcon.Crosshair,
+                overrideDescendants = true
+            ),
             expectedTextIcon = TYPE_CROSSHAIR
         )
 
     private fun runSelectableTest(
-        selectionContainerIcon: PointerIcon?,
+        selectionContainerIconModifier: Modifier,
         expectedSelectionContainerIcon: Int,
-        textIcon: PointerIcon?,
+        textIconModifier: Modifier,
         expectedTextIcon: Int,
     ) = runTest(
-        selectionContainerIcon,
+        selectionContainerIconModifier,
         expectedSelectionContainerIcon,
-        textIcon,
+        textIconModifier,
         expectedTextIcon,
     ) { containerTag: String, textTag: String, boxModifier: Modifier, textModifier: Modifier ->
         SelectionContainer {
@@ -122,48 +146,72 @@ class BasicTextHoverTest {
     @Test
     fun whenNonSelectableText_andDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runNonSelectableTest(
-            selectionContainerIcon = null,
+            selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
-            textIcon = null,
+            textIconModifier = Modifier,
             expectedTextIcon = TYPE_DEFAULT
         )
 
     @Test
     fun whenNonSelectableText_andSetIcon_inBoxWithDefaultIcon_setIconIsUsed() =
         runNonSelectableTest(
-            selectionContainerIcon = null,
+            selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
-            textIcon = PointerIcon.Crosshair,
+            textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+            expectedTextIcon = TYPE_CROSSHAIR
+        )
+
+    @Test
+    fun whenNonSelectableText_andSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() =
+        runNonSelectableTest(
+            selectionContainerIconModifier = Modifier,
+            expectedSelectionContainerIcon = TYPE_DEFAULT,
+            textIconModifier = Modifier.pointerHoverIcon(
+                icon = PointerIcon.Crosshair,
+                overrideDescendants = true
+            ),
             expectedTextIcon = TYPE_CROSSHAIR
         )
 
     @Test
     fun whenNonSelectableText_andDefaultIcon_inBoxWithSetIcon_textIconIsUsed() =
         runNonSelectableTest(
-            selectionContainerIcon = PointerIcon.Hand,
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
-            textIcon = null,
+            textIconModifier = Modifier,
             expectedTextIcon = TYPE_HAND
         )
 
     @Test
     fun whenNonSelectableText_andSetIcon_inBoxWithSetIcon_setIconIsUsed() =
         runNonSelectableTest(
-            selectionContainerIcon = PointerIcon.Hand,
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
-            textIcon = PointerIcon.Crosshair,
+            textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+            expectedTextIcon = TYPE_CROSSHAIR
+        )
+
+    @Test
+    fun whenNonSelectableText_andSetIcon_withOverride_inBoxWithSetIcon_setIconIsUsed() =
+        runNonSelectableTest(
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
+            expectedSelectionContainerIcon = TYPE_HAND,
+            textIconModifier = Modifier.pointerHoverIcon(
+                icon = PointerIcon.Crosshair,
+                overrideDescendants = true
+            ),
             expectedTextIcon = TYPE_CROSSHAIR
         )
 
     private fun runNonSelectableTest(
-        selectionContainerIcon: PointerIcon?,
+        selectionContainerIconModifier: Modifier,
         expectedSelectionContainerIcon: Int,
-        textIcon: PointerIcon?,
+        textIconModifier: Modifier,
         expectedTextIcon: Int,
     ) = runTest(
-        selectionContainerIcon,
+        selectionContainerIconModifier,
         expectedSelectionContainerIcon,
-        textIcon,
+        textIconModifier,
         expectedTextIcon,
     ) { containerTag: String, textTag: String, boxModifier: Modifier, textModifier: Modifier ->
         Box(
@@ -185,48 +233,72 @@ class BasicTextHoverTest {
     @Test
     fun whenDisabledSelectionText_andDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runDisabledSelectionText(
-            selectionContainerIcon = null,
+            selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
-            textIcon = null,
+            textIconModifier = Modifier,
             expectedTextIcon = TYPE_DEFAULT
         )
 
     @Test
     fun whenDisabledSelectionText_andSetIcon_inBoxWithDefaultIcon_setIconIsUsed() =
         runDisabledSelectionText(
-            selectionContainerIcon = null,
+            selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
-            textIcon = PointerIcon.Crosshair,
+            textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+            expectedTextIcon = TYPE_CROSSHAIR
+        )
+
+    @Test
+    fun whenDisabledSelectionText_andSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() =
+        runDisabledSelectionText(
+            selectionContainerIconModifier = Modifier,
+            expectedSelectionContainerIcon = TYPE_DEFAULT,
+            textIconModifier = Modifier.pointerHoverIcon(
+                icon = PointerIcon.Crosshair,
+                overrideDescendants = true
+            ),
             expectedTextIcon = TYPE_CROSSHAIR
         )
 
     @Test
     fun whenDisabledSelectionText_andDefaultIcon_inBoxWithSetIcon_textIconIsUsed() =
         runDisabledSelectionText(
-            selectionContainerIcon = PointerIcon.Hand,
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
-            textIcon = null,
+            textIconModifier = Modifier,
             expectedTextIcon = TYPE_HAND
         )
 
     @Test
     fun whenDisabledSelectionText_andSetIcon_inBoxWithSetIcon_setIconIsUsed() =
         runDisabledSelectionText(
-            selectionContainerIcon = PointerIcon.Hand,
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
-            textIcon = PointerIcon.Crosshair,
+            textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+            expectedTextIcon = TYPE_CROSSHAIR
+        )
+
+    @Test
+    fun whenDisabledSelectionText_andSetIcon_withOverride_inBoxWithSetIcon_setIconIsUsed() =
+        runDisabledSelectionText(
+            selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
+            expectedSelectionContainerIcon = TYPE_HAND,
+            textIconModifier = Modifier.pointerHoverIcon(
+                icon = PointerIcon.Crosshair,
+                overrideDescendants = true
+            ),
             expectedTextIcon = TYPE_CROSSHAIR
         )
 
     private fun runDisabledSelectionText(
-        selectionContainerIcon: PointerIcon?,
+        selectionContainerIconModifier: Modifier,
         expectedSelectionContainerIcon: Int,
-        textIcon: PointerIcon?,
+        textIconModifier: Modifier,
         expectedTextIcon: Int,
     ) = runTest(
-        selectionContainerIcon,
+        selectionContainerIconModifier,
         expectedSelectionContainerIcon,
-        textIcon,
+        textIconModifier,
         expectedTextIcon,
     ) { containerTag: String, textTag: String, boxModifier: Modifier, textModifier: Modifier ->
         SelectionContainer {
@@ -250,9 +322,9 @@ class BasicTextHoverTest {
     }
 
     private fun runTest(
-        selectionContainerIcon: PointerIcon?,
+        selectionContainerIconModifier: Modifier,
         expectedSelectionContainerIcon: Int,
-        textIcon: PointerIcon?,
+        textIconModifier: Modifier,
         expectedTextIcon: Int,
         contentBlock: @Composable (
             containerTag: String,
@@ -264,15 +336,12 @@ class BasicTextHoverTest {
         val selectionContainerTag = "container"
         val textTag = "text"
 
-        fun testPointerHoverIcon(icon: PointerIcon?): Modifier =
-            if (icon == null) Modifier else Modifier.pointerHoverIcon(icon)
-
         setContent {
             contentBlock(
                 selectionContainerTag,
                 textTag,
-                testPointerHoverIcon(selectionContainerIcon),
-                testPointerHoverIcon(textIcon),
+                selectionContainerIconModifier,
+                textIconModifier,
             )
         }
 

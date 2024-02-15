@@ -57,54 +57,73 @@ class BasicTextFieldHoverTest {
 
     @Test
     fun whenDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() = runTest(
-        boxIcon = null,
+        boxIconModifier = Modifier,
         expectedBoxIcon = TYPE_DEFAULT,
-        textFieldIcon = null,
+        textFieldIconModifier = Modifier,
         expectedTextIcon = TYPE_TEXT
     )
 
     @Test
-    fun whenSetIcon_inBoxWithDefaultIcon_setIconIsUsed() = runTest(
-        boxIcon = null,
+    fun whenSetIcon_inBoxWithDefaultIcon_textIconIsUsed() = runTest(
+        boxIconModifier = Modifier,
         expectedBoxIcon = TYPE_DEFAULT,
-        textFieldIcon = PointerIcon.Crosshair,
+        textFieldIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+        expectedTextIcon = TYPE_TEXT
+    )
+
+    @Test
+    fun whenSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() = runTest(
+        boxIconModifier = Modifier,
+        expectedBoxIcon = TYPE_DEFAULT,
+        textFieldIconModifier = Modifier.pointerHoverIcon(
+            icon = PointerIcon.Crosshair,
+            overrideDescendants = true
+        ),
         expectedTextIcon = TYPE_CROSSHAIR
     )
 
     @Test
     fun whenDefaultIcon_inBoxWithSetIcon_textIconIsUsed() = runTest(
-        boxIcon = PointerIcon.Hand,
+        boxIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
         expectedBoxIcon = TYPE_HAND,
-        textFieldIcon = null,
+        textFieldIconModifier = Modifier,
         expectedTextIcon = TYPE_TEXT
     )
 
     @Test
-    fun whenSetIcon_inBoxWithSetIcon_setIconIsUsed() = runTest(
-        boxIcon = PointerIcon.Hand,
+    fun whenSetIcon_inBoxWithSetIcon_textIconIsUsed() = runTest(
+        boxIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
         expectedBoxIcon = TYPE_HAND,
-        textFieldIcon = PointerIcon.Crosshair,
+        textFieldIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+        expectedTextIcon = TYPE_TEXT
+    )
+
+    @Test
+    fun whenSetIcon_withOverride_inBoxWithSetIcon_setIconIsUsed() = runTest(
+        boxIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
+        expectedBoxIcon = TYPE_HAND,
+        textFieldIconModifier = Modifier.pointerHoverIcon(
+            icon = PointerIcon.Crosshair,
+            overrideDescendants = true
+        ),
         expectedTextIcon = TYPE_CROSSHAIR
     )
 
     private fun runTest(
-        boxIcon: PointerIcon?,
+        boxIconModifier: Modifier,
         expectedBoxIcon: Int,
-        textFieldIcon: PointerIcon?,
+        textFieldIconModifier: Modifier,
         expectedTextIcon: Int,
     ) = with(PointerIconTestScope(rule)) {
         val boxTag = "myParentIcon"
         val textFieldTag = "myCoreTextField"
-
-        fun Modifier.testPointerHoverIcon(icon: PointerIcon?): Modifier =
-            if (icon == null) this else this.pointerHoverIcon(icon)
 
         setContent {
             val tfs = rememberTextFieldState("initial text")
             Box(
                 modifier = Modifier
                     .requiredSize(200.dp)
-                    .testPointerHoverIcon(boxIcon)
+                    .then(boxIconModifier)
                     .border(BorderStroke(2.dp, SolidColor(Color.Red)))
                     .testTag(boxTag)
             ) {
@@ -112,7 +131,7 @@ class BasicTextFieldHoverTest {
                     state = tfs,
                     modifier = Modifier
                         .requiredSize(50.dp)
-                        .testPointerHoverIcon(textFieldIcon)
+                        .then(textFieldIconModifier)
                         .testTag(textFieldTag)
                 )
             }
