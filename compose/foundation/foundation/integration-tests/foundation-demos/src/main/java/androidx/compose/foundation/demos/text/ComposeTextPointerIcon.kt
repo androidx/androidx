@@ -37,8 +37,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+
+private enum class ParentOverride { None, Override, NoOverride }
 
 @Preview
 @Composable
@@ -51,28 +57,64 @@ fun TextPointerIconDemo() {
     ) {
         Text(
             """The texts below demonstrate how different pointer hover icons work on
-                | different texts and text fields."""
+                | different texts and text fields with different permutations of
+                | overrideDescendants."""
                 .trimMargin().replace("\n", "")
         )
-        IconDemoColumn()
-        Column(
-            modifier = Modifier
-                .pointerHoverIcon(PointerIcon.Hand)
-                .border(1.dp, Color.LightGray)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text("This box is set to the hand icon.")
-            IconDemoColumn()
+        IconDemoRectangle(parentOverride = ParentOverride.None, textOverride = false)
+        IconDemoRectangle(parentOverride = ParentOverride.None, textOverride = true)
+        IconDemoRectangle(parentOverride = ParentOverride.NoOverride, textOverride = false)
+        IconDemoRectangle(parentOverride = ParentOverride.NoOverride, textOverride = true)
+        IconDemoRectangle(parentOverride = ParentOverride.Override, textOverride = false)
+        IconDemoRectangle(parentOverride = ParentOverride.Override, textOverride = true)
+    }
+}
+
+@Composable
+private fun IconDemoRectangle(parentOverride: ParentOverride, textOverride: Boolean) {
+    val rectanglePointerIconModifier = when (parentOverride) {
+        ParentOverride.None -> Modifier
+        else -> Modifier.pointerHoverIcon(
+            icon = PointerIcon.Hand,
+            overrideDescendants = parentOverride == ParentOverride.Override
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .then(rectanglePointerIconModifier)
+            .border(1.dp, Color.LightGray)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        val annotatedString = buildAnnotatedString {
+            when (parentOverride) {
+                ParentOverride.None -> {
+                    append("This box does ")
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("not") }
+                    append(" set a pointer hover icon.")
+                }
+
+                else -> {
+                    append("This box sets the hand pointer icon with ")
+                    appendCode("overrideDescendants = ${parentOverride == ParentOverride.Override}")
+                    append(".")
+                }
+            }
+            append(" Each Text/TextField uses ")
+            appendCode("overrideDescendants = $textOverride")
+            append(" when setting their pointer hover icons.")
         }
+        Text(annotatedString)
+        IconDemoColumn(overrideDescendants = textOverride)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun IconDemoColumn() {
+private fun IconDemoColumn(overrideDescendants: Boolean) {
     val borderMod = Modifier.border(1.dp, Color.LightGray)
-    val iconMod = borderMod.pointerHoverIcon(PointerIcon.Crosshair)
+    val iconMod = borderMod.pointerHoverIcon(PointerIcon.Crosshair, overrideDescendants)
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Regular Text, icon not set", borderMod)
 
