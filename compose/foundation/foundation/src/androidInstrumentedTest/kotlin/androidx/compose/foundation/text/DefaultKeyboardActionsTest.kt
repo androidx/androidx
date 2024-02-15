@@ -18,7 +18,6 @@ package androidx.compose.foundation.text
 
 import android.os.Build
 import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -46,7 +45,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@ExperimentalComposeUiApi
 @LargeTest
 @RunWith(Parameterized::class)
 class DefaultKeyboardActionsTest(param: Param) {
