@@ -23,6 +23,7 @@ import androidx.work.impl.background.greedy.GreedyScheduler
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
+import kotlinx.coroutines.CoroutineScope
 
 @JvmName("createWorkManager")
 @JvmOverloads
@@ -90,3 +91,7 @@ private fun createSchedulers(
             workTaskExecutor
         ),
     )
+
+@JvmName("createWorkManagerScope")
+internal fun WorkManagerScope(taskExecutor: TaskExecutor) =
+    CoroutineScope(taskExecutor.taskCoroutineDispatcher)
