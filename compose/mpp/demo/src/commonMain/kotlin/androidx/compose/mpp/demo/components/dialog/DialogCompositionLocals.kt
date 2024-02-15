@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo.components.popup
+package androidx.compose.mpp.demo.components.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -34,7 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
@@ -43,7 +42,13 @@ private val LocalString = staticCompositionLocalOf<String> {
 }
 
 @Composable
-fun PopupCompositionLocalExample() {
+fun DialogCompositionLocalExample() {
+    var dialogOpened: Boolean by remember { mutableStateOf(true) }
+    if (!dialogOpened) {
+        Button(onClick = { dialogOpened = true }) {
+            Text("OpenDialog")
+        }
+    }
     var current by remember { mutableStateOf("test 0") }
     LaunchedEffect(Unit) {
         var i = 1
@@ -54,12 +59,12 @@ fun PopupCompositionLocalExample() {
         }
     }
     CompositionLocalProvider(LocalString provides current) {
-        MaterialTheme {
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Popup {
-                    Box(Modifier.size(200.dp).background(Color.Yellow), contentAlignment = Alignment.Center) {
-                        Text("LocalString: ${LocalString.current}")
-                    }
+        if (dialogOpened) {
+            Dialog(
+                onDismissRequest = { dialogOpened = false },
+            ) {
+                Box(Modifier.size(200.dp).background(Color.Yellow), contentAlignment = Alignment.Center) {
+                    Text("LocalString: ${LocalString.current}")
                 }
             }
         }

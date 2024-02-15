@@ -21,6 +21,7 @@ import androidx.compose.mpp.demo.Screen
 val Dialogs = Screen.Selection(
     "Dialogs",
     DialogExample,
+    Screen.Example("CompositionLocal inside Dialog") { DialogCompositionLocalExample() },
     DialogWithTextField,
     FocusAndKeyInput,
 )
