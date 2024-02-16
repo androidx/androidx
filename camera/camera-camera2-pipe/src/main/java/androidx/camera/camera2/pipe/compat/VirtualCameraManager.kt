@@ -45,6 +45,7 @@ internal data class RequestOpen(
     val virtualCamera: VirtualCameraState,
     val sharedCameraIds: List<CameraId>,
     val graphListener: GraphListener,
+    val isPrewarm: Boolean,
     val isForegroundObserver: (Unit) -> Boolean,
 ) : CameraRequest()
 
@@ -100,10 +101,19 @@ constructor(
         cameraId: CameraId,
         sharedCameraIds: List<CameraId>,
         graphListener: GraphListener,
+        isPrewarm: Boolean = false,
         isForegroundObserver: (Unit) -> Boolean,
     ): VirtualCamera? {
         val result = VirtualCameraState(cameraId, graphListener, threads.globalScope)
-        if (!offerChecked(RequestOpen(result, sharedCameraIds, graphListener, isForegroundObserver))
+        if (!offerChecked(
+                RequestOpen(
+                    result,
+                    sharedCameraIds,
+                    graphListener,
+                    isPrewarm,
+                    isForegroundObserver
+                )
+            )
         ) {
             Log.error { "Camera open request failed: VirtualCameraManager queue size exceeded" }
             graphListener.onGraphError(
@@ -117,9 +127,11 @@ constructor(
         return result
     }
 
-    /** Connects and starts the underlying camera.*/
+    /** Connects and starts the underlying camera. Once the, ActiveCamera, timeout elapses and
+     * it hasn't been utilized, the camera is closed.
+     */
     internal fun prewarm(cameraId: CameraId) {
-        open(cameraId, emptyList(), NoOpGraphListener) { _ -> false }
+        open(cameraId, emptyList(), NoOpGraphListener, isPrewarm = true) { _ -> false }
     }
 
     /** Submits a request to close the underlying camera */
@@ -207,6 +219,11 @@ constructor(
             // B) That request was NOT a Close, or CloseAll request
             val request = requests[0]
             check(request is RequestOpen)
+            if (request.isPrewarm) {
+                check(request.sharedCameraIds.isEmpty()) {
+                    "Prewarming concurrent cameras is not supported"
+                }
+            }
 
             // Sanity Check: If the camera we are attempting to open is now closed or disconnected,
             // skip this virtual camera request.
@@ -281,6 +298,7 @@ constructor(
                     }) {
                     // If the camera of the request and the cameras it is shared with have been
                     // opened, we can connect the ActiveCameras.
+                    check(!request.isPrewarm)
                     realCamera.connectTo(request.virtualCamera)
                     connectPendingRequestOpens(request.sharedCameraIds)
                 } else {
@@ -289,7 +307,9 @@ constructor(
                     pendingRequestOpens.add(request)
                 }
             } else {
-                realCamera.connectTo(request.virtualCamera)
+                if (!request.isPrewarm) {
+                    realCamera.connectTo(request.virtualCamera)
+                }
             }
             requests.remove(request)
         }
