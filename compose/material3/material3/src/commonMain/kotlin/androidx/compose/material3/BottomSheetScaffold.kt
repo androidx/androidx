@@ -28,7 +28,6 @@ import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -195,7 +194,11 @@ fun rememberStandardBottomSheetState(
     initialValue: SheetValue = PartiallyExpanded,
     confirmValueChange: (SheetValue) -> Boolean = { true },
     skipHiddenState: Boolean = true,
-) = rememberSheetState(false, confirmValueChange, initialValue, skipHiddenState)
+) = rememberSheetState(
+    confirmValueChange = confirmValueChange,
+    initialValue = initialValue,
+    skipHiddenState = skipHiddenState,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -332,11 +335,6 @@ private fun BottomSheetScaffoldLayout(
     containerColor: Color,
     contentColor: Color,
 ) {
-    // b/291735717 Remove this once deprecated methods without density are removed
-    val density = LocalDensity.current
-    SideEffect {
-        sheetState.density = density
-    }
     Layout(
         contents = listOf<@Composable () -> Unit>(
             topBar ?: { },
