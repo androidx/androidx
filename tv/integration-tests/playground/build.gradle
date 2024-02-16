@@ -39,9 +39,6 @@ dependencies {
     implementation(project(":compose:material3:material3"))
     implementation(project(":navigation:navigation-compose"))
     implementation(project(":profileinstaller:profileinstaller"))
-    implementation(project(":compose:material:material-icons-core"))
-    implementation(project(":compose:material:material-icons-extended"))
-
     implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
 
