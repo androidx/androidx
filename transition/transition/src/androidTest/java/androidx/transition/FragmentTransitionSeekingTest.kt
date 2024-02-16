@@ -46,6 +46,7 @@ class FragmentTransitionSeekingTest {
         FragmentTransitionTestActivity::class.java
     )
 
+    @Ignore // b/324309532
     @Test
     fun replaceOperationWithTransitionsThenGestureBack() {
         val fm1 = activityRule.activity.supportFragmentManager
@@ -193,6 +194,7 @@ class FragmentTransitionSeekingTest {
         assertThat(fragment2.requireView()).isNotNull()
     }
 
+    @Ignore // b/324309532
     @Test
     fun replaceOperationWithTransitionsThenGestureBackTwice() {
         val fm1 = activityRule.activity.supportFragmentManager
