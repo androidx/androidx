@@ -18,6 +18,7 @@
 package androidx.lifecycle
 
 import androidx.annotation.MainThread
+import kotlin.jvm.JvmName
 
 /**
  * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
@@ -26,4 +27,4 @@ import androidx.annotation.MainThread
  * @see ViewModelProvider.get(Class)
  */
 @MainThread
-public inline fun <reified VM : ViewModel> ViewModelProvider.get(): VM = get(VM::class.java)
+public inline fun <reified VM : ViewModel> ViewModelProvider.get(): VM = get(VM::class)
