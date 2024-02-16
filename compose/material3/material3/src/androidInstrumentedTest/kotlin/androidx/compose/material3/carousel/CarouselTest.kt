@@ -100,6 +100,36 @@ class CarouselTest {
         }
     }
 
+    @Test
+    fun carousel_snapsToPage() {
+        // Arrange
+        createCarousel()
+
+        // Act
+        rule.onNodeWithTag(CarouselTestTag)
+            .performTouchInput { swipeWithVelocity(centerRight, centerLeft, 1000f) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(carouselState.pagerState.currentPageOffsetFraction).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun uncontainedCarousel_doesntSnapToPage() {
+        // Arrange
+        createUncontainedCarousel()
+
+        // Act
+        rule.onNodeWithTag(CarouselTestTag)
+            .performTouchInput { swipeWithVelocity(centerRight, centerLeft, 1000f) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(carouselState.pagerState.currentPageOffsetFraction).isNotEqualTo(0)
+        }
+    }
+
     @Composable
     internal fun Item(index: Int) {
         Box(
@@ -137,6 +167,26 @@ class CarouselTest {
                         itemSpacing = 0f,
                     )
                 },
+                modifier = modifier.testTag(CarouselTestTag),
+                itemSpacing = 0.dp,
+                content = content,
+            )
+        }
+    }
+
+    private fun createUncontainedCarousel(
+        initialItem: Int = 0,
+        itemCount: () -> Int = { DefaultItemCount },
+        modifier: Modifier = Modifier.width(412.dp).height(221.dp),
+        content: @Composable CarouselScope.(item: Int) -> Unit = { Item(index = it) }
+    ) {
+        rule.setMaterialContent(lightColorScheme()) {
+            val state = rememberCarouselState(initialItem, itemCount).also {
+                carouselState = it
+            }
+            HorizontalUncontainedCarousel(
+                state = state,
+                itemSize = 150.dp,
                 modifier = modifier.testTag(CarouselTestTag),
                 itemSpacing = 0.dp,
                 content = content,
