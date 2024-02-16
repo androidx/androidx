@@ -127,6 +127,9 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 projectAfterEvaluate.tasks.withType(KotlinCompile::class.java).configureEach { compile ->
                     // Needed to enable `expect` and `actual` keywords
                     compile.kotlinOptions.freeCompilerArgs += "-Xmulti-platform"
+
+                    // Suppress a warning that 'expect'/'actual' classes are in Beta.
+                    compile.kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
                 }
             }
 
