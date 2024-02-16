@@ -196,6 +196,12 @@ internal fun Carousel(
     }
     val snapPosition = remember(snapPositionMap) { KeylineSnapPosition(snapPositionMap) }
 
+    val currentItemScrollOffset =
+        (state.pagerState.currentPage * pageSize.strategy.itemMainAxisSize) +
+            (state.pagerState.currentPageOffsetFraction * pageSize.strategy.itemMainAxisSize)
+    val scrollOffset = currentItemScrollOffset -
+        (if (snapPositionMap.size > 0) snapPositionMap[state.pagerState.currentPage] else 0)
+
     if (orientation == Orientation.Horizontal) {
         HorizontalPager(
             state = state.pagerState,
@@ -206,7 +212,7 @@ internal fun Carousel(
             flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
-            Box(modifier = Modifier.carouselItem(page, state, pageSize.strategy)) {
+            Box(modifier = Modifier.carouselItem(page, state, pageSize.strategy, scrollOffset)) {
                 carouselScope.content(page)
             }
         }
@@ -220,7 +226,7 @@ internal fun Carousel(
             flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
-            Box(modifier = Modifier.carouselItem(page, state, pageSize.strategy)) {
+            Box(modifier = Modifier.carouselItem(page, state, pageSize.strategy, scrollOffset)) {
                 carouselScope.content(page)
             }
         }
@@ -278,7 +284,8 @@ internal value class CarouselAlignment private constructor(internal val value: I
 internal fun Modifier.carouselItem(
     index: Int,
     state: CarouselState,
-    strategy: Strategy
+    strategy: Strategy,
+    scrollOffset: Float,
 ): Modifier {
     val viewportSize = state.pagerState.layoutInfo.viewportSize
     val orientation = state.pagerState.layoutInfo.orientation
@@ -288,13 +295,7 @@ internal fun Modifier.carouselItem(
     if (mainAxisCarouselSize == 0 || !strategy.isValid()) {
         return this
     }
-    // Scroll offset calculation using currentPage and currentPageOffsetFraction
-    val firstVisibleItemScrollOffset =
-        state.pagerState.currentPageOffsetFraction * strategy.itemMainAxisSize
-    val scrollOffset = (state.pagerState.currentPage * strategy.itemMainAxisSize) +
-        firstVisibleItemScrollOffset
     val itemsCount = state.pagerState.pageCount
-
     val maxScrollOffset =
         itemsCount * strategy.itemMainAxisSize - mainAxisCarouselSize
     val keylines = strategy.getKeylineListForScrollOffset(scrollOffset, maxScrollOffset)
