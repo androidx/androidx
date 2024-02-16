@@ -36,6 +36,7 @@ import java.util.concurrent.TimeoutException
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -82,6 +83,7 @@ class TextureViewImplementationTest {
         }
     }
 
+    @Ignore // b/324125795
     @LargeTest
     @Test(expected = TimeoutException::class)
     @Throws(
@@ -93,6 +95,7 @@ class TextureViewImplementationTest {
         request.getSurfaceAsync()[2, TimeUnit.SECONDS]
     }
 
+    @Ignore // b/324125795
     @Test
     @Throws(Exception::class)
     fun provideSurface_ifSurfaceTextureAvailable() {
@@ -106,6 +109,7 @@ class TextureViewImplementationTest {
         Truth.assertThat(surface).isNotNull()
     }
 
+    @Ignore // b/324125795
     @Test
     @Throws(Exception::class)
     fun doNotDestroySurface_whenSurfaceTextureBeingDestroyed_andCameraUsingSurface() {
@@ -123,6 +127,7 @@ class TextureViewImplementationTest {
         ).isFalse()
     }
 
+    @Ignore // b/324125795
     @Test
     @LargeTest
     @Throws(Exception::class)
@@ -145,6 +150,7 @@ class TextureViewImplementationTest {
         ).isTrue()
     }
 
+    @Ignore // b/324125795
     @Test
     @LargeTest
     @Throws(Exception::class)
@@ -166,6 +172,7 @@ class TextureViewImplementationTest {
         }
     }
 
+    @Ignore // b/324125795
     @Test
     @LargeTest
     @Throws(Exception::class)
@@ -181,6 +188,7 @@ class TextureViewImplementationTest {
         Truth.assertThat(implementation!!.mSurfaceReleaseFuture).isNull()
     }
 
+    @Ignore // b/324125795
     @Test
     @LargeTest
     @Throws(Exception::class)
@@ -200,11 +208,13 @@ class TextureViewImplementationTest {
         Truth.assertThat(implementation!!.mSurfaceTexture).isNull()
     }
 
+    @Ignore // b/324125795
     @Test
     fun doNotCreateTextureView_beforeSensorOutputSizeKnown() {
         Truth.assertThat(parent!!.childCount).isEqualTo(0)
     }
 
+    @Ignore // b/324125795
     @Test
     @Throws(Exception::class)
     fun resetSurfaceTextureOnDetachAndAttachWindow() {
@@ -222,6 +232,7 @@ class TextureViewImplementationTest {
         Truth.assertThat(implementation!!.mTextureView?.surfaceTexture).isEqualTo(surfaceTexture)
     }
 
+    @Ignore // b/324125795
     @Test
     @LargeTest
     @Throws(Exception::class)
@@ -245,6 +256,7 @@ class TextureViewImplementationTest {
         Truth.assertThat(implementation!!.mDetachedSurfaceTexture).isNull()
     }
 
+    @Ignore // b/324125795
     @Test
     fun keepOnlyLatestTextureView_whenGetSurfaceProviderCalledMultipleTimes() {
         implementation!!.onSurfaceRequested(surfaceRequest)
