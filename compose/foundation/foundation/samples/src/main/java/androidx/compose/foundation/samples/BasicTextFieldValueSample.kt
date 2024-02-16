@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text.input.internal
+package androidx.compose.foundation.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusState
@@ -27,33 +33,73 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+
+@Sampled
+@Composable
+fun BasicTextFieldWithValueOnValueChangeSample() {
+    var text by remember { mutableStateOf("") }
+    StringTextField(
+        value = text,
+        onValueChange = { text = it }
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun StringTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    // and other arguments you want to delegate
+) {
+    val state = remember {
+        TextFieldState(
+            initialText = value,
+            // Initialize the cursor to be at the end of the field.
+            initialSelectionInChars = TextRange(value.length)
+        )
+    }
+
+    // This is effectively a rememberUpdatedState, but it combines the updated state (text) with
+    // some state that is preserved across updates (selection).
+    var valueWithSelection by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = value,
+                selection = TextRange(value.length)
+            )
+        )
+    }
+    valueWithSelection = valueWithSelection.copy(text = value)
+
+    BasicTextField(
+        state = state,
+        modifier = modifier.then(StateSyncingModifier(
+            state = state,
+            value = valueWithSelection,
+            onValueChanged = {
+                // Don't fire the callback if only the selection/cursor changed.
+                if (it.text != valueWithSelection.text) {
+                    onValueChange(it.text)
+                }
+                valueWithSelection = it
+            },
+            writeSelectionFromTextFieldValue = false
+        )),
+        // other arguments
+    )
+}
 
 /**
  * Synchronizes between [TextFieldState], immutable values, and value change callbacks for
- * [BasicTextField] overloads that take a value+callback for state instead of taking a
- * [TextFieldState] directly. Effectively a fancy `rememberUpdatedState`.
- *
- * Only intended for use from [BasicTextField].
+ * [BasicTextField] that may take a value+callback for state instead of taking a [TextFieldState]
+ * directly. Effectively a fancy `rememberUpdatedState`.
  *
  * @param writeSelectionFromTextFieldValue If true, [update] will synchronize the selection from the
  * [TextFieldValue] to the [TextFieldState]. The text will be synchronized regardless.
  */
-@OptIn(ExperimentalFoundationApi::class)
-internal fun Modifier.syncTextFieldState(
-    state: TextFieldState,
-    value: TextFieldValue,
-    onValueChanged: (TextFieldValue) -> Unit,
-    writeSelectionFromTextFieldValue: Boolean,
-): Modifier = this.then(
-    StateSyncingModifier(
-        state = state,
-        value = value,
-        onValueChanged = onValueChanged,
-        writeSelectionFromTextFieldValue = writeSelectionFromTextFieldValue
-    )
-)
-
 @OptIn(ExperimentalFoundationApi::class)
 private class StateSyncingModifier(
     private val state: TextFieldState,
@@ -140,8 +186,9 @@ private class StateSyncingModifierNode(
 
     private fun updateState(value: TextFieldValue) {
         state.edit {
-            // Avoid registering a state change if the text isn't actually different.
-            setTextIfChanged(value.text)
+            // Ideally avoid registering a state change if the text isn't actually different.
+            // Take a look at `setTextIfChanged` implementation in TextFieldBuffer
+            replace(0, length, value.text)
 
             // The BasicTextField2(String) variant can't push a selection value, so ignore it.
             if (writeSelectionFromTextFieldValue) {
