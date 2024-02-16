@@ -75,7 +75,12 @@ internal interface RememberManager {
     /**
      * The [RememberObserver] is being forgotten by a slot in the slot table.
      */
-    fun forgetting(instance: RememberObserver, order: Int, priority: Int, after: Int)
+    fun forgetting(
+        instance: RememberObserver,
+        endRelativeOrder: Int,
+        priority: Int,
+        endRelativeAfter: Int
+    )
 
     /**
      * The [effect] should be called when changes are being applied but after the remember/forget
@@ -86,12 +91,22 @@ internal interface RememberManager {
     /**
      * The [ComposeNodeLifecycleCallback] is being deactivated.
      */
-    fun deactivating(instance: ComposeNodeLifecycleCallback)
+    fun deactivating(
+        instance: ComposeNodeLifecycleCallback,
+        endRelativeOrder: Int,
+        priority: Int,
+        endRelativeAfter: Int
+    )
 
     /**
      * The [ComposeNodeLifecycleCallback] is being released.
      */
-    fun releasing(instance: ComposeNodeLifecycleCallback)
+    fun releasing(
+        instance: ComposeNodeLifecycleCallback,
+        endRelativeOrder: Int,
+        priority: Int,
+        endRelativeAfter: Int
+    )
 }
 
 /**
@@ -2059,7 +2074,7 @@ internal class ComposerImpl(
                 if (changeListWriter.pastParent) {
                     // The reader is after the first child of the group so we cannot reposition the
                     // writer to the parent to update it as this will cause the writer to navigate
-                    // backward which violates the single pass, forward walking nature of update.
+                    // backward which violates the single pass, forward walking  nature of update.
                     // Using an anchored updated allows to to violate this principle just for
                     // updating slots as this is required if the update occurs after the writer has
                     // been moved past the parent.
@@ -4081,11 +4096,18 @@ internal fun SlotWriter.removeCurrentGroup(rememberManager: RememberManager) {
         // even that in the documentation we claim ComposeNodeLifecycleCallback should be only
         // implemented on the nodes we do not really enforce it here as doing so will be expensive.
         if (slot is ComposeNodeLifecycleCallback) {
-            rememberManager.releasing(slot)
+            val endRelativeOrder = slotsSize - slotIndex
+            rememberManager.releasing(slot, endRelativeOrder, -1, -1)
         }
         if (slot is RememberObserverHolder) {
-            withAfterAnchorInfo(slot.after) { priority, after ->
-                rememberManager.forgetting(slot.wrapped, slotIndex, priority, after)
+            val endRelativeSlotIndex = slotsSize - slotIndex
+            withAfterAnchorInfo(slot.after) { priority, endRelativeAfter ->
+                rememberManager.forgetting(
+                    slot.wrapped,
+                    endRelativeSlotIndex,
+                    priority,
+                    endRelativeAfter
+                )
             }
         }
         if (slot is RecomposeScopeImpl) {
@@ -4098,12 +4120,12 @@ internal fun SlotWriter.removeCurrentGroup(rememberManager: RememberManager) {
 
 internal inline fun <R> SlotWriter.withAfterAnchorInfo(anchor: Anchor?, cb: (Int, Int) -> R) {
     var priority = -1
-    var after = -1
+    var endRelativeAfter = -1
     if (anchor != null && anchor.valid) {
         priority = anchorIndex(anchor)
-        after = slotsEndAllIndex(priority)
+        endRelativeAfter = slotsSize - slotsEndAllIndex(priority)
     }
-    cb(priority, after)
+    cb(priority, endRelativeAfter)
 }
 
 internal val SlotWriter.isAfterFirstChild get() = currentGroup > parent + 1
@@ -4121,24 +4143,31 @@ internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager)
     for (group in start until end) {
         val node = node(group)
         if (node is ComposeNodeLifecycleCallback) {
-            rememberManager.deactivating(node)
+            val endRelativeOrder = slotsSize - slotsStartIndex(group)
+            rememberManager.deactivating(node, endRelativeOrder, -1, -1)
         }
 
-        forEachData(group) { index, data ->
+        forEachData(group) { slotIndex, data ->
             when (data) {
                 is RememberObserverHolder -> {
                     val wrapped = data.wrapped
                     if (wrapped is ReusableRememberObserver) {
                         // do nothing, the value should be preserved on reuse
                     } else {
-                        removeData(group, index, data)
-                        withAfterAnchorInfo(data.after) { priority, after ->
-                            rememberManager.forgetting(wrapped, index, priority, after)
+                        removeData(group, slotIndex, data)
+                        val endRelativeOrder = slotsSize - slotIndex
+                        withAfterAnchorInfo(data.after) { priority, endRelativeAfter ->
+                            rememberManager.forgetting(
+                                wrapped,
+                                endRelativeOrder,
+                                priority,
+                                endRelativeAfter
+                            )
                         }
                     }
                 }
                 is RecomposeScopeImpl -> {
-                    removeData(group, index, data)
+                    removeData(group, slotIndex, data)
                     data.release()
                 }
             }

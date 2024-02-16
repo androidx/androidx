@@ -1280,7 +1280,7 @@ internal class CompositionImpl(
         private val abandoning: MutableSet<RememberObserver>
     ) : RememberManager {
         private val remembering = mutableListOf<RememberObserver>()
-        private val forgetting = mutableListOf<Any>()
+        private val leaving = mutableListOf<Any>()
         private val sideEffects = mutableListOf<() -> Unit>()
         private var releasing: MutableScatterSet<ComposeNodeLifecycleCallback>? = null
         private val pending = mutableListOf<Any>()
@@ -1290,43 +1290,51 @@ internal class CompositionImpl(
             remembering.add(instance)
         }
 
-        override fun forgetting(instance: RememberObserver, order: Int, priority: Int, after: Int) {
-            processPending(order)
-            if (order < after) {
-                pending.add(instance)
-                priorities.add(priority)
-                afters.add(after)
-            } else {
-                forgetting.add(instance)
-            }
+        override fun forgetting(
+            instance: RememberObserver,
+            endRelativeOrder: Int,
+            priority: Int,
+            endRelativeAfter: Int
+        ) {
+            recordLeaving(instance, endRelativeOrder, priority, endRelativeAfter)
         }
 
         override fun sideEffect(effect: () -> Unit) {
             sideEffects += effect
         }
 
-        override fun deactivating(instance: ComposeNodeLifecycleCallback) {
-            forgetting += instance
+        override fun deactivating(
+            instance: ComposeNodeLifecycleCallback,
+            endRelativeOrder: Int,
+            priority: Int,
+            endRelativeAfter: Int
+        ) {
+            recordLeaving(instance, endRelativeOrder, priority, endRelativeAfter)
         }
 
-        override fun releasing(instance: ComposeNodeLifecycleCallback) {
+        override fun releasing(
+            instance: ComposeNodeLifecycleCallback,
+            endRelativeOrder: Int,
+            priority: Int,
+            endRelativeAfter: Int
+        ) {
             val releasing = releasing
                 ?: mutableScatterSetOf<ComposeNodeLifecycleCallback>().also { releasing = it }
 
             releasing += instance
-            forgetting += instance
+            recordLeaving(instance, endRelativeOrder, priority, endRelativeAfter)
         }
 
         fun dispatchRememberObservers() {
             // Add any pending out-of-order forgotten objects
-            processPending(Int.MAX_VALUE)
+            processPendingLeaving(Int.MIN_VALUE)
 
             // Send forgets and node callbacks
-            if (forgetting.isNotEmpty()) {
+            if (leaving.isNotEmpty()) {
                 trace("Compose:onForgotten") {
                     val releasing = releasing
-                    for (i in forgetting.size - 1 downTo 0) {
-                        val instance = forgetting[i]
+                    for (i in leaving.size - 1 downTo 0) {
+                        val instance = leaving[i]
                         if (instance is RememberObserver) {
                             abandoning.remove(instance)
                             instance.onForgotten()
@@ -1380,37 +1388,105 @@ internal class CompositionImpl(
             }
         }
 
-        private fun processPending(order: Int) {
+        private fun recordLeaving(
+            instance: Any,
+            endRelativeOrder: Int,
+            priority: Int,
+            endRelativeAfter: Int
+        ) {
+            processPendingLeaving(endRelativeOrder)
+            if (endRelativeAfter in 0 until endRelativeOrder) {
+                pending.add(instance)
+                priorities.add(priority)
+                afters.add(endRelativeAfter)
+            } else {
+                leaving.add(instance)
+            }
+        }
+
+        private fun processPendingLeaving(endRelativeOrder: Int) {
             if (pending.isNotEmpty()) {
-                var i = 0
+                var index = 0
                 var toAdd: MutableList<Any>? = null
+                var toAddAfter: MutableIntList? = null
                 var toAddPriority: MutableIntList? = null
-                while (i < afters.size) {
-                    if (order >= afters[i]) {
-                        val priority = priorities[i]
-                        val forgetting = pending[i]
-                        afters.removeAt(i)
-                        priorities.removeAt(i)
-                        pending.removeAt(i)
+                while (index < afters.size) {
+                    if (endRelativeOrder <= afters[index]) {
+                        val instance = pending.removeAt(index)
+                        val endRelativeAfter = afters.removeAt(index)
+                        val priority = priorities.removeAt(index)
+
                         if (toAdd == null) {
-                            toAdd = mutableListOf(forgetting)
+                            toAdd = mutableListOf(instance)
+                            toAddAfter = MutableIntList().also { it.add(endRelativeAfter) }
                             toAddPriority = MutableIntList().also { it.add(priority) }
                         } else {
                             toAddPriority as MutableIntList
-                            val insertLocation = toAddPriority.indexOfFirst { priority > it }.let {
-                                if (it < 0) toAddPriority.size else it
-                            }
-                            toAddPriority.add(insertLocation, priority)
-                            toAdd.add(insertLocation, forgetting)
+                            toAddAfter as MutableIntList
+                            toAdd.add(instance)
+                            toAddAfter.add(endRelativeAfter)
+                            toAddPriority.add(priority)
                         }
                     } else {
-                        i++
+                        index++
                     }
                 }
-                if (toAdd != null) forgetting.addAll(toAdd)
+                if (toAdd != null) {
+                    toAddPriority as MutableIntList
+                    toAddAfter as MutableIntList
+
+                    // Sort the list into [after, -priority] order where it is ordered by after
+                    // in ascending order as the primary key and priority in descending order as
+                    // secondary key.
+
+                    // For example if remember occurs after a child group it must be added after
+                    // all the remembers of the child. This is reported with an after which is the
+                    // slot index of the child's last slot. As this slot might be at the same
+                    // location as where its parents ends this would be ambiguous which should
+                    // first if both the two groups request a slot to be after the same slot.
+                    // Priority is used to break the tie here which is the group index of the group
+                    // which is leaving. Groups that are lower must be added before the parent's
+                    // remember when they have the same after.
+
+                    // The sort must be stable as as consecutive remembers in the same group after
+                    // the same child will have the same after and priority.
+
+                    // A selection sort is used here because it is stable and the groups are
+                    // typically very short so this quickly exit list of one and not loop for
+                    // for sizes of 2. As the information is split between three lists, to
+                    // reduce allocations, [MutableList.sort] cannot be used as it doesn't have
+                    // an option to supply a custom swap.
+                    for (i in 0 until toAdd.size - 1) {
+                        for (j in i + 1 until toAdd.size) {
+                            val iAfter = toAddAfter[i]
+                            val jAfter = toAddAfter[j]
+                            if (
+                                iAfter < jAfter ||
+                                (jAfter == iAfter && toAddPriority[i] < toAddPriority[j])
+                            ) {
+                                toAdd.swap(i, j)
+                                toAddPriority.swap(i, j)
+                                toAddAfter.swap(i, j)
+                            }
+                        }
+                    }
+                    leaving.addAll(toAdd)
+                }
             }
         }
     }
+}
+
+private fun <T> MutableList<T>.swap(a: Int, b: Int) {
+    val item = this[a]
+    this[a] = this[b]
+    this[b] = item
+}
+
+private fun MutableIntList.swap(a: Int, b: Int) {
+    val item = this[a]
+    this[a] = this[b]
+    this[b] = item
 }
 
 internal object ScopeInvalidated
