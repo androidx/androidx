@@ -107,7 +107,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             // Do a quick check to make sure we don't need to bail out in case this work is already
             // running, finished, or is blocked.
             if (workSpec.state !== WorkInfo.State.ENQUEUED) {
-                resolveIncorrectStatus()
+                resetWorkerStatus()
                 logd(TAG) {
                     "${workSpec.workerClassName} is not in ENQUEUED state. Nothing more to do"
                 }
@@ -136,7 +136,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                     // For AlarmManager implementation we need to reschedule this kind  of Work.
                     // This is not a problem for JobScheduler because we will only reschedule
                     // work if JobScheduler is unaware of a jobId.
-                    resolve(true)
+                    resetWorkerStatus()
                     return@Callable true
                 }
             }
@@ -252,7 +252,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 }
             }, workTaskExecutor.getSerialTaskExecutor())
         } else {
-            resolveIncorrectStatus()
+            resetWorkerStatus()
         }
     }
 
@@ -297,16 +297,24 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
     }
 
-    private fun resolveIncorrectStatus() {
-        val status = workSpecDao.getState(workSpecId)
-        if (status === WorkInfo.State.RUNNING) {
+    private fun resetWorkerStatus() {
+        val state = workSpecDao.getState(workSpecId)
+        if (state != null && !state.isFinished) {
             logd(TAG) {
-                "Status for $workSpecId is RUNNING; not doing any work and " +
+                "Status for $workSpecId is $state; not doing any work and " +
                     "rescheduling for later execution"
             }
-            resolve(true)
+            resolve(true) {
+                // Set state to ENQUEUED again.
+                // Reset scheduled state so it's picked up by background schedulers again.
+                // We want to preserve time when work was enqueued so just explicitly set enqueued
+                // instead using markEnqueuedState. Similarly, don't change any override time.
+                workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
+                workSpecDao.setStopReason(workSpecId, interrupted)
+                workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
+            }
         } else {
-            logd(TAG) { "Status for $workSpecId is $status ; not doing any work" }
+            logd(TAG) { "Status for $workSpecId is $state ; not doing any work" }
             resolve(false)
         }
     }
@@ -318,36 +326,10 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         // Worker exceeding a 10 min execution window.
         // One scheduler completing a Worker, and telling other Schedulers to cleanup.
         if (interrupted != WorkInfo.STOP_REASON_NOT_STOPPED) {
-            logd(TAG) { "Work interrupted for $workDescription" }
-            val currentState = workSpecDao.getState(workSpecId)
-            if (currentState == null) {
-                // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
-                // listeners so we can clean up any wake locks, etc.
-                resolve(false)
-            } else {
-                resolve(!currentState.isFinished)
-            }
+            resetWorkerStatus()
             return true
         }
         return false
-    }
-
-    private fun resolve(needsReschedule: Boolean) {
-        workDatabase.runInTransaction {
-            // IMPORTANT: We are using a transaction here as to ensure that we have some guarantees
-            // about the state of the world before we disable RescheduleReceiver.
-
-            if (needsReschedule) {
-                // Set state to ENQUEUED again.
-                // Reset scheduled state so it's picked up by background schedulers again.
-                // We want to preserve time when work was enqueued so just explicitly set enqueued
-                // instead using markEnqueuedState. Similarly, don't change any override time.
-                workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
-                workSpecDao.setStopReason(workSpecId, interrupted)
-                workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
-            }
-        }
-        _future.set(needsReschedule)
     }
 
     private fun handleResult(result: ListenableWorker.Result?) {
@@ -420,6 +402,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 workSpec.nextScheduleTimeOverrideGeneration
             )
             workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
+            workSpecDao.setStopReason(workSpecId, interrupted)
         }
     }
 
@@ -464,11 +447,11 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
     }
 
-    private fun resolve(reschedule: Boolean, block: () -> Unit) {
+    private fun resolve(reschedule: Boolean, block: (() -> Unit)? = null) {
         try {
-            workDatabase.runInTransaction(block)
+            if (block != null) workDatabase.runInTransaction(block)
         } finally {
-            resolve(reschedule)
+            _future.set(reschedule)
         }
     }
 
