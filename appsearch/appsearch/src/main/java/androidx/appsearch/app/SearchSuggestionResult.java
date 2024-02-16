@@ -34,6 +34,7 @@ import androidx.core.util.Preconditions;
  * The result class of the {@link AppSearchSession#searchSuggestionAsync}.
  */
 @SafeParcelable.Class(creator = "SearchSuggestionResultCreator")
+@SuppressWarnings("HiddenSuperclass")
 public final class SearchSuggestionResult extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)

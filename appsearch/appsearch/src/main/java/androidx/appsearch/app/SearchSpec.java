@@ -56,6 +56,7 @@ import java.util.Set;
  * search, like prefix or exact only or apply filters to search for a specific schema type only etc.
  */
 @SafeParcelable.Class(creator = "SearchSpecCreator")
+@SuppressWarnings("HiddenSuperclass")
 public final class SearchSpec extends AbstractSafeParcelable {
 
     /**  Creator class for {@link SearchSpec}. */

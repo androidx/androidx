@@ -56,6 +56,7 @@ import java.util.Set;
  * @see AppSearchSession#searchSuggestionAsync
  */
 @SafeParcelable.Class(creator = "SearchSuggestionSpecCreator")
+@SuppressWarnings("HiddenSuperclass")
 public final class SearchSuggestionSpec extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)

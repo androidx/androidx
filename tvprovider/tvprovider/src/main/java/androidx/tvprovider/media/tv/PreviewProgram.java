@@ -75,6 +75,7 @@ import java.util.Set;
  *         null, null);
  * </pre>
  */
+@SuppressWarnings("HiddenSuperclass")
 public final class PreviewProgram extends BasePreviewProgram {
     /**
      * The projection for a {@link PreviewProgram} query.

@@ -40,6 +40,7 @@ import java.util.Set;
 
 /** The response class of {@link AppSearchSession#setSchemaAsync} */
 @SafeParcelable.Class(creator = "SetSchemaResponseCreator")
+@SuppressWarnings("HiddenSuperclass")
 public final class SetSchemaResponse extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
@@ -318,6 +319,7 @@ public final class SetSchemaResponse extends AbstractSafeParcelable {
      * {@link AppSearchSession#setSchemaAsync}.
      */
     @SafeParcelable.Class(creator = "MigrationFailureCreator")
+    @SuppressWarnings("HiddenSuperclass")
     public static class MigrationFailure extends AbstractSafeParcelable {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)

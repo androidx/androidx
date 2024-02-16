@@ -48,6 +48,7 @@ import java.util.Set;
  * match against.
  */
 @SafeParcelable.Class(creator = "ObserverSpecCreator")
+@SuppressWarnings("HiddenSuperclass")
 public final class ObserverSpec extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
