@@ -21,10 +21,8 @@ import androidx.work.WorkManager
 import java.util.UUID
 import kotlinx.coroutines.flow.first
 
-suspend fun WorkManager.awaitWorkerFinished(id: UUID): WorkInfo = getWorkInfoByIdFlow(id).first {
-    it.state.isFinished
-}
+suspend fun WorkManager.awaitWorkerFinished(id: UUID): WorkInfo =
+    getWorkInfoByIdFlow(id).first { it.state.isFinished }
 
-suspend fun WorkManager.awaitWorkerEnqueued(id: UUID): WorkInfo = getWorkInfoByIdFlow(id).first {
-    it.state == WorkInfo.State.ENQUEUED
-}
+suspend fun WorkManager.awaitWorkerEnqueued(id: UUID): WorkInfo =
+    getWorkInfoByIdFlow(id).first { it.state == WorkInfo.State.ENQUEUED }
