@@ -414,7 +414,7 @@ package androidx.compose.ui.test {
   }
 
   public final class PlatformTextInputMethodOverrideKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.test.ExperimentalTestApi public static void PlatformTextInputMethodTestOverride(androidx.compose.ui.platform.PlatformTextInputSession sessionHandler, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.test.ExperimentalTestApi public static void PlatformTextInputMethodTestOverride(androidx.compose.ui.platform.PlatformTextInputSession sessionHandler, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public interface RotaryInjectionScope extends androidx.compose.ui.test.InjectionScope {

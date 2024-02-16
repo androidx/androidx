@@ -18,17 +18,29 @@
 
 package androidx.compose.ui.samples
 
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import androidx.annotation.Sampled
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.establishTextInputSession
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 
+@Suppress("UnusedReceiverParameter")
 @Sampled
 fun platformTextInputModifierNodeSample() {
     class PlatformTextInputModifierNodeSample : Modifier.Node(),
@@ -47,8 +59,8 @@ fun platformTextInputModifierNodeSample() {
                     // This will automatically cancel any currently-active session.
                     establishTextInputSession {
                         launch {
-                            // TODO: Observe text field state, call into system to update it as required
-                            //  by the platform.
+                            // TODO: Observe text field state, call into system to update it as
+                            //  required by the platform.
                         }
 
                         // Call out to a platform-specific expect/actual function to create the
@@ -66,5 +78,72 @@ fun platformTextInputModifierNodeSample() {
         private fun PlatformTextInputSession.createInputRequest(): PlatformTextInputMethodRequest {
             TODO("Create platform-specific request")
         }
+    }
+}
+
+@Suppress("UNUSED_PARAMETER")
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun InterceptPlatformTextInputSample() {
+    var text by remember { mutableStateOf("") }
+
+    InterceptPlatformTextInput(
+        interceptor = { request, nextHandler ->
+            // Create a new request to wrap the incoming one with some custom logic.
+            val modifiedRequest = object : PlatformTextInputMethodRequest {
+                override fun createInputConnection(outAttributes: EditorInfo): InputConnection {
+                    val inputConnection = request.createInputConnection(outAttributes)
+                    // After the original request finishes initializing the EditorInfo we can
+                    // customize it. If we needed to we could also wrap the InputConnection before
+                    // returning it.
+                    updateEditorInfo(outAttributes)
+                    return inputConnection
+                }
+
+                fun updateEditorInfo(outAttributes: EditorInfo) {
+                    // Your code here, e.g. set some custom properties.
+                }
+            }
+
+            // Send our wrapping request to the next handler, which could be the system or another
+            // interceptor up the tree.
+            nextHandler.startInputMethod(modifiedRequest)
+        }
+    ) {
+        BasicTextField(
+            value = text,
+            onValueChange = { text = it }
+        )
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+fun disableSoftKeyboardSample() {
+    /**
+     * A function that disables the soft keyboard for any text field within its content.
+     *
+     * The keyboard is re-enabled by removing this modifier or passing `disable = false`.
+     */
+    @Composable
+    fun DisableSoftKeyboard(disable: Boolean = true, content: @Composable () -> Unit) {
+        InterceptPlatformTextInput(
+            interceptor = { request, nextHandler ->
+                // If this flag is changed while an input session is active, a new lambda instance
+                // that captures the new value will be passed to InterceptPlatformTextInput, which
+                // will automatically cancel the session upstream and restart it with this new
+                // interceptor.
+                if (!disable) {
+                    // Forward the request to the system.
+                    nextHandler.startInputMethod(request)
+                } else {
+                    // This function has to return Nothing, and since we don't have any work to do
+                    // in this case, we just suspend until cancelled.
+                    awaitCancellation()
+                }
+            },
+            content = content
+        )
     }
 }
