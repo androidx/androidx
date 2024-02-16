@@ -22,7 +22,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 class SimpleQueryTest : BaseSimpleQueryTest() {
 
     override fun getRoomDatabase(): SampleDatabase {
-        return Room.inMemoryDatabaseBuilder { SampleDatabase::class.instantiateImpl() }
+        return Room.inMemoryDatabaseBuilder<SampleDatabase>()
             .setDriver(BundledSQLiteDriver(":memory:"))
             .build()
     }

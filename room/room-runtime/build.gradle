@@ -102,8 +102,11 @@ androidXMultiplatform {
                 implementation(project(":kruth:kruth"))
             }
         }
-        jvmMain {
+        jvmAndroid {
             dependsOn(commonMain)
+        }
+        jvmMain {
+            dependsOn(jvmAndroid)
         }
         jvmTest {
             dependsOn(commonTest)
@@ -113,7 +116,7 @@ androidXMultiplatform {
             }
         }
         androidMain {
-            dependsOn(commonMain)
+            dependsOn(jvmAndroid)
             dependencies {
                 api(project(":sqlite:sqlite-framework"))
                 api(libs.kotlinCoroutinesAndroid)

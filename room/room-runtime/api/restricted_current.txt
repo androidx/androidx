@@ -160,9 +160,9 @@ package androidx.room {
 
   public final class Room {
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
-    method public inline <reified T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, String name, kotlin.jvm.functions.Function0<? extends T> factory);
+    method public inline <reified T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, String name, optional kotlin.jvm.functions.Function0<? extends T> factory);
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
-    method public inline <reified T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, kotlin.jvm.functions.Function0<? extends T> factory);
+    method public inline <reified T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, optional kotlin.jvm.functions.Function0<? extends T> factory);
     field public static final androidx.room.Room INSTANCE;
     field public static final String MASTER_TABLE_NAME = "room_master_table";
   }
@@ -461,6 +461,10 @@ package androidx.room.util {
   public static final class FtsTableInfo.Companion {
     method public androidx.room.util.FtsTableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
     method public androidx.room.util.FtsTableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class KClassUtil {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T, C> T findAndInstantiateDatabaseImpl(Class<C> klass, optional String suffix);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class RelationUtil {

@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-@file:JvmName("KClassUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
-package androidx.room.util
-
-import androidx.annotation.RestrictTo
-import kotlin.jvm.JvmName
-import kotlin.reflect.KClass
+package androidx.room
 
 /**
- * Determines if the class or interface represented by this object is the same as, or is a
- * superclass or superinterface of the class or interface represented by the specified [KClass]
- * parameter.
+ * Entry point for building and initializing a [RoomDatabase].
  */
-internal actual fun KClass<*>.isAssignableFrom(other: KClass<*>): Boolean {
-    return this.java.isAssignableFrom(other.java)
-}
+expect object Room
