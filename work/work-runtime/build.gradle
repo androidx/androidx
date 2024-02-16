@@ -74,6 +74,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-service:2.6.2")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
