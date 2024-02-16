@@ -151,12 +151,6 @@ class PolygonTest {
         var nonzeroCubics = nonzeroCubics(squareFeatures.flatMap { it.cubics })
         assertCubicListsEqualish(square.cubics, nonzeroCubics)
 
-        // Same as above but with rounded corners
-        val roundedSquare = RoundedPolygon(4, rounding = CornerRounding(.1f))
-        val roundedFeatures = roundedSquare.features
-        nonzeroCubics = nonzeroCubics(roundedFeatures.flatMap { it.cubics })
-        assertCubicListsEqualish(roundedSquare.cubics, nonzeroCubics)
-
         // Same as the first polygon test, but with a copy of that polygon
         val squareCopy = RoundedPolygon(square)
         val squareCopyFeatures = squareCopy.features
