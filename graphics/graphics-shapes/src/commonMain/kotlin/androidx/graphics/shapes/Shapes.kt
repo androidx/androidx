@@ -156,8 +156,8 @@ fun RoundedPolygon.Companion.star(
     // Star polygon is just a polygon with all vertices supplied (where we generate
     // those vertices to be on the inner/outer radii)
     return RoundedPolygon(
-        starVerticesFromNumVerts(numVerticesPerRadius, radius, innerRadius, centerX, centerY),
-        rounding, pvRounding, centerX, centerY
+        starVerticesFromNumVerts(numVerticesPerRadius, radius, innerRadius,
+            centerX, centerY), rounding, pvRounding, centerX, centerY
     )
 }
 
@@ -246,6 +246,11 @@ fun RoundedPolygon.Companion.pill(
  * A value of 1 does the opposite, with the outer vertices spaced the same as the
  * vertices on the straight edges. The default value is .5, which takes the average of these
  * two extremes.
+ * @param startLocation A value from 0 to 1 which determines how far along the perimeter of
+ * this shape to start the underlying curves of which it is comprised. This is not usually
+ * needed or noticed by the user. But if the caller wants to manually and gradually stroke the path
+ * when drawing it, it might matter where that path outline begins and ends. The default
+ * value is 0.
  * @param centerX The X coordinate of the center of the polygon, around which all vertices will
  * be placed. The default center is at (0,0).
  * @param centerY The Y coordinate of the center of the polygon, around which all vertices will
@@ -266,6 +271,7 @@ fun RoundedPolygon.Companion.pillStar(
     innerRounding: CornerRounding? = null,
     perVertexRounding: List<CornerRounding>? = null,
     @FloatRange(from = 0.0, to = 1.0) vertexSpacing: Float = 0.5f,
+    @FloatRange(from = 0.0, to = 1.0) startLocation: Float = 0f,
     centerX: Float = 0f,
     centerY: Float = 0f
 ): RoundedPolygon {
@@ -286,7 +292,8 @@ fun RoundedPolygon.Companion.pillStar(
     }
     return RoundedPolygon(
         pillStarVerticesFromNumVerts(
-            numVerticesPerRadius, width, height, innerRadiusRatio, vertexSpacing, centerX, centerY
+            numVerticesPerRadius, width, height, innerRadiusRatio, vertexSpacing,
+            startLocation, centerX, centerY
         ),
         rounding, pvRounding, centerX, centerY
     )
@@ -298,6 +305,7 @@ private fun pillStarVerticesFromNumVerts(
     height: Float,
     innerRadius: Float,
     vertexSpacing: Float,
+    startLocation: Float,
     centerX: Float,
     centerY: Float
 ): FloatArray {
@@ -352,9 +360,10 @@ private fun pillStarVerticesFromNumVerts(
     // in which it lands
     var secStart = 0f
     var secEnd = sections[1]
-    // t value is used to place each vertex. We start at 0, which is on the positive x axis,
-    // moving into section 0 to begin with
-    var t = 0f
+    // t value is used to place each vertex. 0 is on the positive x axis,
+    // moving into section 0 to begin with. startLocation, a value from 0 to 1, varies the location
+    // anywhere on the perimeter of the shape
+    var t = startLocation * perimeter
     // The list of vertices to be returned
     val result = FloatArray(numVerticesPerRadius * 4)
     var arrayIndex = 0
@@ -365,15 +374,18 @@ private fun pillStarVerticesFromNumVerts(
     // Each iteration through this loop uses the next t value as we walk around the shape
     for (i in 0 until numVerticesPerRadius * 2) {
 
-        // Find current section for t. Stop at last section to avoid overflowing past the start.
-        while (currSecIndex < 9 && t >= sections[currSecIndex + 1]) {
-            currSecIndex = currSecIndex + 1
+        // t could start (and end) after 0; extra boundedT logic makes sure it does the right
+        // thing when crossing the boundar past 0 again
+        val boundedT = t % perimeter
+        if (boundedT < secStart) currSecIndex = 0
+        while (boundedT >= sections[(currSecIndex + 1) % sections.size]) {
+            currSecIndex = (currSecIndex + 1) % sections.size
             secStart = sections[currSecIndex]
-            secEnd = sections[currSecIndex + 1]
+            secEnd = sections[(currSecIndex + 1) % sections.size]
         }
 
         // find t in section and its proportion of that section's total length
-        val tInSection = t - secStart
+        val tInSection = boundedT - secStart
         val tProportion = tInSection / (secEnd - secStart)
 
         // The vertex placement in a section varies depending on whether it is on one of the
