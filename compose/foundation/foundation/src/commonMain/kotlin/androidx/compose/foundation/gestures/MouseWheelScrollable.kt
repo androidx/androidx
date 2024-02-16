@@ -20,6 +20,7 @@ import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateTo
+import androidx.compose.animation.core.copy
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.runtime.withFrameNanos
@@ -232,8 +233,9 @@ internal class MouseWheelScrollNode(
             var requiredAnimation = true
             while (requiredAnimation) {
                 requiredAnimation = false
-                if (targetScrollDelta.shouldApplyImmediately || abs(targetValue) < threshold) {
-                    dispatchMouseWheelScroll(targetValue)
+                val targetValueLeftover = targetValue - animationState.value
+                if (targetScrollDelta.shouldApplyImmediately || abs(targetValueLeftover) < threshold) {
+                    dispatchMouseWheelScroll(targetValueLeftover)
                     requiredAnimation = waitNextScrollDelta(
                         timeoutMillis = ScrollProgressTimeout,
 
@@ -245,9 +247,9 @@ internal class MouseWheelScrollNode(
                 } else {
                     // Animation will start only on the next frame,
                     // so apply threshold immediately to avoid delays.
-                    val instantDelta = sign(targetValue) * threshold
+                    val instantDelta = sign(targetValueLeftover) * threshold
                     dispatchMouseWheelScroll(instantDelta)
-                    targetValue -= instantDelta
+                    animationState = animationState.copy(value = animationState.value + instantDelta)
 
                     val durationMillis = (abs(targetValue - animationState.value) / speed)
                         .roundToInt()
