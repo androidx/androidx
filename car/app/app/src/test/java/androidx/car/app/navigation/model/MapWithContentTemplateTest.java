@@ -59,7 +59,7 @@ public class MapWithContentTemplateTest {
     private static GridTemplate createGridTemplate() {
         ItemList list = TestUtils.getGridItemList(2);
         return new GridTemplate.Builder()
-                .setTitle("Title")
+                .setHeader(new Header.Builder().setTitle("Title").build())
                 .setSingleList(list)
                 .build();
     }
