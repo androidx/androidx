@@ -348,7 +348,7 @@ interface WorkSpecDao {
      * @return `true` if there is pending work.
      */
     @Query("SELECT COUNT(*) > 0 FROM workspec WHERE state NOT IN $COMPLETED_STATES LIMIT 1")
-    fun hasUnfinishedWork(): Boolean
+    fun hasUnfinishedWorkFlow(): Flow<Boolean>
 
     /**
      * Marks a [WorkSpec] as scheduled.

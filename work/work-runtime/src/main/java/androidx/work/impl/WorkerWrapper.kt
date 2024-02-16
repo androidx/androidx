@@ -30,14 +30,12 @@ import androidx.work.Logger
 import androidx.work.WorkInfo
 import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
-import androidx.work.impl.background.systemalarm.RescheduleReceiver
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.model.DependencyDao
 import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.model.generationalId
-import androidx.work.impl.utils.PackageManagerHelper
 import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
@@ -339,15 +337,6 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             // IMPORTANT: We are using a transaction here as to ensure that we have some guarantees
             // about the state of the world before we disable RescheduleReceiver.
 
-            // Check to see if there is more work to be done. If there is no more work, then
-            // disable RescheduleReceiver. Using a transaction here, as there could be more than
-            // one thread looking at the list of eligible WorkSpecs.
-            val hasUnfinishedWork = workDatabase.workSpecDao().hasUnfinishedWork()
-            if (!hasUnfinishedWork) {
-                PackageManagerHelper.setComponentEnabled(
-                    appContext, RescheduleReceiver::class.java, false
-                )
-            }
             if (needsReschedule) {
                 // Set state to ENQUEUED again.
                 // Reset scheduled state so it's picked up by background schedulers again.

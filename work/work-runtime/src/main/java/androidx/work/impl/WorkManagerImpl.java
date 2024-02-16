@@ -20,14 +20,16 @@ import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.text.TextUtils.isEmpty;
 
+import static androidx.work.ListenableFutureKt.executeAsync;
+import static androidx.work.impl.UnfinishedWorkListenerKt.launchUnfinishedWorkListener;
 import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
+import static androidx.work.impl.WorkManagerImplExtKt.createWorkManagerScope;
 import static androidx.work.impl.WorkerUpdater.enqueueUniquelyNamedPeriodic;
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
 import static androidx.work.impl.model.RawWorkInfoDaoKt.getWorkInfoPojosFlow;
 import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowDataForIds;
 import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowForName;
 import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowForTag;
-import static androidx.work.ListenableFutureKt.executeAsync;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -78,6 +80,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.flow.Flow;
 
 /**
@@ -105,10 +108,13 @@ public class WorkManagerImpl extends WorkManager {
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
     private volatile RemoteWorkManager mRemoteWorkManager;
     private final Trackers mTrackers;
+    /**
+     * Job for the scope of the whole WorkManager
+     */
+    private final CoroutineScope mWorkManagerScope;
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
     private static final Object sLock = new Object();
-
 
     /**
      * @param delegate The delegate for {@link WorkManagerImpl} for testing; {@code null} to use the
@@ -244,12 +250,13 @@ public class WorkManagerImpl extends WorkManager {
         mTrackers = trackers;
         mConfiguration = configuration;
         mSchedulers = schedulers;
+        mWorkManagerScope = createWorkManagerScope(mWorkTaskExecutor);
         mPreferenceUtils = new PreferenceUtils(mWorkDatabase);
         Schedulers.registerRescheduling(schedulers, mProcessor,
                 workTaskExecutor.getSerialTaskExecutor(), mWorkDatabase, configuration);
-
         // Checks for app force stops.
         mWorkTaskExecutor.executeOnTaskThread(new ForceStopRunnable(context, this));
+        launchUnfinishedWorkListener(mWorkManagerScope, mContext, workDatabase);
     }
 
     /**
