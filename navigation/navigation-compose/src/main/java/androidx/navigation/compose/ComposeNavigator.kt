@@ -20,6 +20,7 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavBackStackEntry
@@ -122,6 +123,9 @@ public class ComposeNavigator : Navigator<Destination>() {
 
         internal var popExitTransition: (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+
+        internal var sizeTransform: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null
     }
 
     internal companion object {
