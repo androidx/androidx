@@ -623,6 +623,101 @@ class ApproachLayoutTest {
         }
     }
 
+    /**
+     * Test that the ApproachLayoutModifierNode does not leave child in a forced lookahead
+     * placement state when removed.
+     */
+    @Test
+    fun testForcedPlacementReset() {
+        var measureWithFixedConstraints by mutableStateOf(false)
+        var removeChild by mutableStateOf(false)
+        val parentNode = object : TestApproachLayoutModifierNode() {
+            override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
+                return false
+            }
+
+            override fun Placeable.PlacementScope.isPlacementApproachComplete(
+                lookaheadCoordinates: LayoutCoordinates
+            ): Boolean {
+                return true
+            }
+
+            @ExperimentalComposeUiApi
+            override fun ApproachMeasureScope.approachMeasure(
+                measurable: Measurable,
+                constraints: Constraints
+            ): MeasureResult {
+                return measurable.measure(
+                    if (measureWithFixedConstraints)
+                        Constraints.fixed(0, 0)
+                    else
+                        constraints
+                ).run {
+                    layout(width, height) {
+                        place(0, 0)
+                    }
+                }
+            }
+        }
+
+        val childNode = object : TestApproachLayoutModifierNode() {
+            override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
+                return true
+            }
+
+            override fun Placeable.PlacementScope.isPlacementApproachComplete(
+                lookaheadCoordinates: LayoutCoordinates
+            ): Boolean {
+                return true
+            }
+
+            @ExperimentalComposeUiApi
+            override fun ApproachMeasureScope.approachMeasure(
+                measurable: Measurable,
+                constraints: Constraints
+            ): MeasureResult {
+                return measurable.measure(constraints).run {
+                    layout(width, height) {
+                        place(0, 0)
+                    }
+                }
+            }
+        }
+        var position = Offset(-1f, -1f)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(Modifier
+                    .then(TestApproachElement(parentNode))
+                    .layout { measurable, constraints ->
+                        measurable
+                            .measure(constraints)
+                            .run {
+                                layout(width, height) {
+                                    place(0, 0)
+                                }
+                            }
+                    }
+                    .then(if (removeChild) Modifier else TestApproachElement(childNode))
+                    .requiredSize(200.dp, 200.dp)
+                    .onGloballyPositioned {
+                        position = it.positionInRoot()
+                    }
+                )
+            }
+        }
+        rule.runOnIdle {
+            assertEquals(Offset(0f, 0f), position)
+        }
+        removeChild = true
+        rule.runOnIdle {
+            assertEquals(Offset(0f, 0f), position)
+        }
+        measureWithFixedConstraints = true
+        rule.runOnIdle {
+            assertEquals(Offset(-100f, -100f), position)
+        }
+    }
+
     private class TestPlacementScope : Placeable.PlacementScope() {
         override val parentWidth: Int
             get() = TODO("Not yet implemented")

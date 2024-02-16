@@ -253,7 +253,7 @@ internal class LayoutModifierNodeCoordinator(
             }
         }
         measureResult.placeChildren()
-        wrappedNonNull.forceMeasureWithLookaheadConstraints = false
+        wrappedNonNull.forcePlaceWithLookaheadOffset = false
     }
 
     override fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int {
