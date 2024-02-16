@@ -202,8 +202,11 @@ internal class AndroidParagraph(
         // Brush is not fully realized on text until layout is complete and size information
         // is known. Brush can now be applied to the overall textpaint and all the spans.
         textPaint.setBrush(style.brush, Size(width, height), style.alpha)
-        layout.getShaderBrushSpans().forEach { shaderBrushSpan ->
-            shaderBrushSpan.size = Size(width, height)
+        val shaderBrushSpans = layout.getShaderBrushSpans()
+        if (shaderBrushSpans != null) {
+            for (shaderBrushSpan in shaderBrushSpans) {
+                shaderBrushSpan.size = Size(width, height)
+            }
         }
     }
 
@@ -378,9 +381,13 @@ internal class AndroidParagraph(
         )
     }
 
-    private val wordBoundary: WordBoundary by lazy(LazyThreadSafetyMode.NONE) {
-        WordBoundary(textLocale, layout.text)
-    }
+    private var backingWordBoundary: WordBoundary? = null
+    private val wordBoundary: WordBoundary
+        get() {
+            val finalWordBoundary = backingWordBoundary
+            if (finalWordBoundary != null) return finalWordBoundary
+            return WordBoundary(textLocale, layout.text).also { backingWordBoundary = it }
+        }
 
     override fun getWordBoundary(offset: Int): TextRange {
         return TextRange(wordBoundary.getWordStart(offset), wordBoundary.getWordEnd(offset))
@@ -437,13 +444,17 @@ internal class AndroidParagraph(
             ResolvedTextDirection.Ltr
     }
 
-    private fun TextLayout.getShaderBrushSpans(): Array<ShaderBrushSpan> {
-        if (text !is Spanned) return emptyArray()
+    private fun TextLayout.getShaderBrushSpans(): Array<ShaderBrushSpan>? {
+        if (text !is Spanned) return null
+        if (!(text as Spanned).hasSpan(ShaderBrushSpan::class.java)) return null
         val brushSpans = (text as Spanned).getSpans(
             0, text.length, ShaderBrushSpan::class.java
         )
-        if (brushSpans.isEmpty()) return emptyArray()
         return brushSpans
+    }
+
+    private fun Spanned.hasSpan(clazz: Class<*>): Boolean {
+        return nextSpanTransition(-1, length, clazz) != length
     }
 
     override fun paint(

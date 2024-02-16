@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asComposePaint
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -49,9 +50,17 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
     }
 
     // A wrapper to use Compose Paint APIs on this TextPaint
-    private val composePaint: Paint = this.asComposePaint()
+    private var backingComposePaint: Paint? = null
+    private val composePaint: Paint
+        get() {
+            val finalBackingComposePaint = backingComposePaint
+            if (finalBackingComposePaint != null) return finalBackingComposePaint
+            return this.asComposePaint().also { backingComposePaint = it }
+        }
 
     private var textDecoration: TextDecoration = TextDecoration.None
+
+    private var backingBlendMode: BlendMode = DrawScope.DefaultBlendMode
 
     @VisibleForTesting
     internal var shadow: Shadow = Shadow.None
@@ -94,7 +103,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
 
     fun setColor(color: Color) {
         if (color.isSpecified) {
-            composePaint.color = color
+            this.color = color.toArgb()
             clearShader()
         }
     }
@@ -142,7 +151,9 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
                     // Stroke properties such as strokeWidth, strokeMiter are not re-set because
                     // Fill style should make those properties no-op. Next time the style is set
                     // as Stroke, stroke properties get re-set as well.
-                    composePaint.style = PaintingStyle.Fill
+
+                    // avoid unnecessarily allocating a composePaint object in hot path.
+                    this.style = Style.FILL
                 }
                 is Stroke -> {
                     composePaint.style = PaintingStyle.Stroke
@@ -158,7 +169,15 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
 
     // BlendMode is only available to DrawScope.drawText.
     // not intended to be used by TextStyle/SpanStyle.
-    var blendMode: BlendMode by composePaint::blendMode
+    var blendMode: BlendMode
+        get() {
+            return backingBlendMode
+        }
+        set(value) {
+            if (value == backingBlendMode) return
+            composePaint.blendMode = value
+            backingBlendMode = value
+        }
 
     /**
      * Clears all shader related cache parameters and native shader property.
@@ -167,7 +186,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
         this.shaderState = null
         this.brush = null
         this.brushSize = null
-        composePaint.shader = null
+        this.shader = null
     }
 }
 
