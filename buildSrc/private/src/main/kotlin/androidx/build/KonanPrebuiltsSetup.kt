@@ -33,6 +33,13 @@ object KonanPrebuiltsSetup {
     private const val DID_SETUP_KONAN_PROPERTIES_FLAG = "androidx.didSetupKonanProperties"
 
     /**
+     * Flag that causes konan to run in a separate process whose working directory
+     * is the compiling project (i.e. frameworks/support/room/room-runtime) and not the root project
+     * (frameworks/support).
+     */
+    private const val DISABLE_COMPILER_DAEMON_FLAG = "kotlin.native.disableCompilerDaemon"
+
+    /**
      * Creates a Konan distribution with the given [prebuiltsDirectory] and [konanHome].
      *
      * @param prebuiltsDirectory The directory where AndroidX prebuilts are present. Can be `null`
@@ -75,9 +82,12 @@ object KonanPrebuiltsSetup {
     }
 
     private fun Project.overrideKotlinNativeDependenciesUrlToLocalDirectory() {
+        val compilerDaemonDisabled =
+            findProperty(DISABLE_COMPILER_DAEMON_FLAG)?.toString()?.toBoolean() == true
         val konanPrebuiltsFolder = getKonanPrebuiltsFolder()
+        val rootBaseDir = if (compilerDaemonDisabled) projectDir else rootProject.projectDir
         // use relative path so it doesn't affect gradle remote cache.
-        val relativeRootPath = konanPrebuiltsFolder.relativeTo(rootProject.projectDir).path
+        val relativeRootPath = konanPrebuiltsFolder.relativeTo(rootBaseDir).path
         val relativeProjectPath = konanPrebuiltsFolder.relativeTo(projectDir).path
         tasks.withType(KotlinNativeCompile::class.java).configureEach {
             it.kotlinOptions.freeCompilerArgs +=
