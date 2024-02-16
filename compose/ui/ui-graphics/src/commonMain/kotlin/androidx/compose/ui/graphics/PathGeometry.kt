@@ -17,18 +17,25 @@
 package androidx.compose.ui.graphics
 
 /**
- * Computes this [Path]'s direction (or winding, or orientation), which can be either
- * [Path.Direction.Clockwise] or [Path.Direction.CounterClockwise].
+ * Computes this [Path]'s direction (or winding, or orientation), which can
+ * be either [Path.Direction.Clockwise] or [Path.Direction.CounterClockwise].
  *
- * If the path is made of multiple contours (the path contains multiple "move" commands),
- * the direction returned by this property is the direction of the first contour.
+ * If the path is made of multiple contours (the path contains multiple "move"
+ * commands), the direction returned by this property is the direction of the
+ * first contour.
  *
- * If the path is empty (contains no lines/curves), the direction is [Path.Direction.Clockwise].
+ * If the path is empty (contains no lines/curves), the direction is
+ * [Path.Direction.Clockwise].
  *
- * If the path has no area (single straight line), the direction is [Path.Direction.Clockwise].
+ * If the path has no area (single straight line), the direction is
+ * [Path.Direction.Clockwise].
  *
- * Calling this property does not cache the result, the direction is computed every
- * time the property is accessed.
+ * Calling this property does not cache the result, the direction is computed
+ * Calling this method does not cache the result, the direction is computed
+ * every time the method is called.
+ *
+ * If you need to query the direction of individual contours, you should
+ * [divide][Path.divide] the path first.
  */
 fun Path.computeDirection(): Path.Direction {
     var first = true
@@ -248,4 +255,107 @@ fun Path.divide(contours: MutableList<Path> = mutableListOf()): MutableList<Path
     }
 
     return contours
+}
+
+/**
+ * Reverses the segments of this path into the specified [destination], turning
+ * a clockwise path into a counter-clockwise path and vice-versa. Each contour
+ * in the path is reversed independently, and the contours appear in the
+ * [destination] in reverse order.
+ *
+ * This method preserves the general structure of this path as much as possible:
+ *
+ * - Lines become lines
+ * - Quadratic Bézier curves become quadratic Bézier curves
+ * - Cubic Bézier curves become cubic Bézier curves
+ * - Close and move commands remain close and move commands
+ * - Conic segments become quadratic Bézier curves
+ *
+ * @return A [Path] containing the reverse of this [Path]. The returned path is
+ * either a newly allocated [Path] if the [destination] parameter was left
+ * unspecified, or the [destination] parameter.
+ */
+fun Path.reverse(destination: Path = Path()): Path {
+    val iterator = iterator()
+
+    val count = iterator.calculateSize(false)
+    val segments = ArrayList<PathSegment.Type>(count)
+    val data = ArrayList<FloatArray>(count)
+
+    // Gather all the segments going forward so we can iterate backward
+    // to construct the new reversed path. It would be unnecessary if
+    // PathIterator supported reverse iteration.
+    var points = FloatArray(8)
+    var type = iterator.next(points)
+    while (type != PathSegment.Type.Done) {
+        segments.add(type)
+        if (type != PathSegment.Type.Close) {
+            data.add(points.copyOf(floatCountForType(type)))
+        }
+        type = iterator.next(points)
+    }
+
+    var insertMove = true
+    var insertClose = false
+    var dataIndex = data.size
+
+    for (i in segments.size - 1 downTo 0) {
+        if (insertMove) {
+            dataIndex--
+            points = data[dataIndex]
+            val offset = points.lastIndex
+            destination.moveTo(points[offset - 1], points[offset])
+            insertMove = false
+        } else {
+            points = data[dataIndex]
+        }
+
+        when (segments[i]) {
+            PathSegment.Type.Move -> {
+                if (insertClose) {
+                    destination.close()
+                    insertClose = false
+                }
+                insertMove = true
+            }
+            PathSegment.Type.Line -> {
+                destination.lineTo(points[0], points[1])
+                dataIndex--
+            }
+            PathSegment.Type.Quadratic -> {
+                destination.quadraticTo(
+                    points[2], points[3],
+                    points[0], points[1]
+                )
+                dataIndex--
+            }
+            PathSegment.Type.Conic -> { } // won't happen, we convert to quadratics
+            PathSegment.Type.Cubic -> {
+                destination.cubicTo(
+                    points[4], points[5],
+                    points[2], points[3],
+                    points[0], points[1]
+                )
+                dataIndex--
+            }
+            PathSegment.Type.Close -> insertClose = true
+            PathSegment.Type.Done -> { } // won't happen, we filtered it out in the previous loop
+        }
+    }
+
+    if (insertClose) {
+        destination.close()
+    }
+
+    return destination
+}
+
+private fun floatCountForType(type: PathSegment.Type) = when (type) {
+    PathSegment.Type.Move -> 2
+    PathSegment.Type.Line -> 4
+    PathSegment.Type.Quadratic -> 6
+    PathSegment.Type.Conic -> 8 // won't happen
+    PathSegment.Type.Cubic -> 8
+    PathSegment.Type.Close -> 0
+    PathSegment.Type.Done -> 0
 }
