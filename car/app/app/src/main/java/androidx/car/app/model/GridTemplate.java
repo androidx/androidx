@@ -68,7 +68,6 @@ public final class GridTemplate implements Template {
      * will be adjusted according to bucket and screen size.
      */
     @ExperimentalCarApi
-    @RequiresCarApi(7)
     @IntDef(
             value = {
                     ITEM_SIZE_SMALL,
@@ -86,7 +85,6 @@ public final class GridTemplate implements Template {
      * @see GridTemplate.Builder#setItemSize(int)
      */
     @ExperimentalCarApi
-    @RequiresCarApi(7)
     public static final int ITEM_SIZE_SMALL = (1 << 0);
 
     /**
@@ -95,7 +93,6 @@ public final class GridTemplate implements Template {
      * @see GridTemplate.Builder#setItemSize(int)
      */
     @ExperimentalCarApi
-    @RequiresCarApi(7)
     public static final int ITEM_SIZE_MEDIUM = (1 << 1);
 
     /**
@@ -104,7 +101,6 @@ public final class GridTemplate implements Template {
      * @see GridTemplate.Builder#setItemSize(int)
      */
     @ExperimentalCarApi
-    @RequiresCarApi(7)
     public static final int ITEM_SIZE_LARGE = (1 << 2);
 
     /**
@@ -113,7 +109,6 @@ public final class GridTemplate implements Template {
      * <p>Grid item images will be cropped by the host to match the shape type.
      */
     @ExperimentalCarApi
-    @RequiresCarApi(7)
     @IntDef(
             value = {
                     ITEM_IMAGE_SHAPE_UNSET,
@@ -132,7 +127,6 @@ public final class GridTemplate implements Template {
      * @see GridTemplate.Builder#setItemImageShape(int)
      */
     @ExperimentalCarApi
-    @RequiresCarApi(7)
     public static final int ITEM_IMAGE_SHAPE_UNSET = (1 << 0);
 
     /**
@@ -141,7 +135,6 @@ public final class GridTemplate implements Template {
      * @see GridTemplate.Builder#setItemImageShape(int)
      */
     @ExperimentalCarApi
-    @RequiresCarApi(7)
     public static final int ITEM_IMAGE_SHAPE_CIRCLE = (1 << 1);
 
     private final boolean mIsLoading;
@@ -228,7 +221,6 @@ public final class GridTemplate implements Template {
      * @see GridTemplate.Builder#setItemSize(int)
      */
     @ExperimentalCarApi
-    @RequiresCarApi(7)
     @ItemSize
     public int getItemSize() {
         return mItemSize;
@@ -243,7 +235,6 @@ public final class GridTemplate implements Template {
      */
     @ExperimentalCarApi
     @ItemImageShape
-    @RequiresCarApi(7)
     public int getItemImageShape() {
         return mItemImageShape;
     }
@@ -442,7 +433,6 @@ public final class GridTemplate implements Template {
          */
         @ExperimentalCarApi
         @NonNull
-        @RequiresCarApi(7)
         public Builder setItemSize(@ItemSize int gridItemSize) {
             mItemSize = gridItemSize;
             return this;
@@ -458,7 +448,6 @@ public final class GridTemplate implements Template {
          */
         @ExperimentalCarApi
         @NonNull
-        @RequiresCarApi(7)
         public Builder setItemImageShape(@ItemImageShape int itemImageShape) {
             mItemImageShape = itemImageShape;
             return this;

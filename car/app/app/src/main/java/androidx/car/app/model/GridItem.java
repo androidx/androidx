@@ -31,7 +31,6 @@ import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 
@@ -153,7 +152,6 @@ public final class GridItem implements Item {
      */
     @ExperimentalCarApi
     @Nullable
-    @RequiresCarApi(7)
     public Badge getBadge() {
         return mBadge;
     }
@@ -360,7 +358,6 @@ public final class GridItem implements Item {
          */
         @NonNull
         @ExperimentalCarApi
-        @RequiresCarApi(7)
         public Builder setImage(@NonNull CarIcon image, @NonNull Badge badge) {
             requireNonNull(badge);
             mBadge = badge;
@@ -380,7 +377,6 @@ public final class GridItem implements Item {
          */
         @NonNull
         @ExperimentalCarApi
-        @RequiresCarApi(7)
         public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType,
                 @NonNull Badge badge) {
             requireNonNull(badge);
