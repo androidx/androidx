@@ -149,7 +149,8 @@ actual constructor(
             @Suppress("DEPRECATION")
             internalInit(connection.db)
         } else {
-            TODO("Not yet migrated to use SQLiteDriver - b/309990302")
+            Log.e(LOG_TAG, "Invalidation tracker is disabled due to lack of driver " +
+                "support. - b/309990302")
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,14 @@
 
 package androidx.room.integration.multiplatformtestapp.test
 
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.RoomDatabase
+import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 
-@Entity
-data class SampleEntity(
-    @PrimaryKey
-    val pk: Long
-)
+class SimpleQueryTest : BaseSimpleQueryTest() {
 
-@Dao
-interface SampleDao {
-    @Query("SELECT * FROM SampleEntity")
-    suspend fun getSingleItem(): SampleEntity
-}
-
-@Database(
-    entities = [SampleEntity::class],
-    version = 1,
-    exportSchema = false
-)
-abstract class SampleDatabase : RoomDatabase() {
-    abstract fun dao(): SampleDao
+    override fun getRoomDatabase(): SampleDatabase {
+        return Room.inMemoryDatabaseBuilder { SampleDatabase::class.instantiateImpl() }
+            .setDriver(BundledSQLiteDriver(":memory:"))
+            .build()
+    }
 }
