@@ -83,6 +83,11 @@ abstract class FtlRunner : DefaultTask() {
 
     @get:Optional
     @get:Input
+    @get:Option(option = "testTimeout", description = "timeout to pass to FTL test runner")
+    abstract val testTimeout: Property<String>
+
+    @get:Optional
+    @get:Input
     @get:Option(
         option = "instrumentationArgs",
         description = "instrumentation arguments to pass to FTL test runner"
@@ -154,6 +159,8 @@ abstract class FtlRunner : DefaultTask() {
                     if (shouldPull) {
                         "/sdcard/Android/data/${apkPackageName.get()}/cache/androidx_screenshots"
                     } else null,
+                    if (testTimeout.isPresent) "--timeout" else null,
+                    if (testTimeout.isPresent) testTimeout.get() else null,
                     if (instrumentationArgs.isPresent) "--environment-variables" else null,
                     if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
                 ) +
