@@ -153,9 +153,11 @@ class SkikoComposeUiTest(
             scene = runOnUiThread(::createUi)
             return block()
         } finally {
+            // Close the scene before calling testScope.runTest so that all the coroutines are
+            // cancelled when we call it.
+            runOnUiThread(scene::close)
             // call runTest instead of deprecated cleanupTestCoroutines()
             testScope.runTest { }
-            runOnUiThread(scene::close)
             uncaughtExceptionHandler.throwUncaught()
         }
     }

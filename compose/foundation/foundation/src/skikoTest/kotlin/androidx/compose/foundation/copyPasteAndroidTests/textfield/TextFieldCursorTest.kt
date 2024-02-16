@@ -26,11 +26,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
@@ -39,9 +42,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SkikoComposeUiTest
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.runSkikoComposeUiTest
@@ -381,6 +387,37 @@ class TextFieldCursorTest {
                 backgroundColor = Color.White,
                 shapeOverlapPixelCount = 0.0f
             )
+    }
+
+    @Test
+    fun cursorBlinkingDoesNotHangTestWithAutoAdvance() = runSkikoComposeUiTest {
+        mainClock.autoAdvance = true
+        cursorBlinkingDoesNotHangTest()
+    }
+
+    @Test
+    fun cursorBlinkingDoesNotHangTestWithoutAutoAdvance() = runSkikoComposeUiTest {
+        mainClock.autoAdvance = false
+        cursorBlinkingDoesNotHangTest()
+    }
+
+    private fun SkikoComposeUiTest.cursorBlinkingDoesNotHangTest() {
+        setContent {
+            val focusRequester = remember { FocusRequester() }
+            BasicTextField(
+                value = "",
+                onValueChange = { },
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .testTag("textfield")
+            )
+
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+        }
+
+        onNodeWithTag("textfield").assertIsFocused()
     }
 
     private fun SkikoComposeUiTest.focusAndWait() {
