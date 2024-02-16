@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -56,6 +57,7 @@ import org.junit.runner.RunWith
 class HardwareKeyboardTest {
     @get:Rule
     val rule = createComposeRule()
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     @Test
     fun textField_typedEvents() {
@@ -580,7 +582,7 @@ class HardwareKeyboardTest {
         sequence: SequenceScope.() -> Unit,
     ) {
         lateinit var clipboardManager: ClipboardManager
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             clipboardManager = LocalClipboardManager.current
             BasicTextField(
                 value = value.value,
