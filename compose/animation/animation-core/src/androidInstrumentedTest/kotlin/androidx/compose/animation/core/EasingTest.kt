@@ -122,8 +122,8 @@ fun compareBitmaps(bitmap1: Bitmap, bitmap2: Bitmap, errorCount: Int, threshold:
     bitmap2.getPixels(p2, 0, bitmap2.width, 0, 0, bitmap2.width, bitmap2.height)
 
     var count = 0
-    for (x in 0 until bitmap1.width) {
-        for (y in 0 until bitmap2.width) {
+    for (y in 0 until bitmap1.height) {
+        for (x in 0 until bitmap1.width) {
             val index = y * bitmap1.width + x
 
             val (r1, g1, b1, _) = p1[index]
