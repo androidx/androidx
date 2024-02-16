@@ -171,7 +171,7 @@ abstract class PagerState(
     internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
     private val animatedScrollScope = PagerLazyAnimateScrollScope(this)
 
-    private var isScrollingForward: Boolean by mutableStateOf(false)
+    internal var isScrollingForward: Boolean by mutableStateOf(false)
 
     internal val scrollPosition = PagerScrollPosition(currentPage, currentPageOffsetFraction, this)
 
