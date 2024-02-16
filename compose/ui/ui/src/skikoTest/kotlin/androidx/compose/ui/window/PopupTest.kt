@@ -74,8 +74,15 @@ class PopupTest {
             override val safeInsets: PlatformInsets
                 @Composable get() = insets
 
+            override val ime: PlatformInsets
+                @Composable get() = PlatformInsets.Zero
+
             @Composable
-            override fun excludeSafeInsets(content: @Composable () -> Unit) {
+            override fun excludeInsets(
+                safeInsets: Boolean,
+                ime: Boolean,
+                content: @Composable () -> Unit
+            ) {
                 content()
             }
         }

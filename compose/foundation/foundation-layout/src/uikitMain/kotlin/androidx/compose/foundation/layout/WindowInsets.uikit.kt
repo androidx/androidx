@@ -74,8 +74,6 @@ actual val WindowInsets.Companion.displayCutout: WindowInsets
 /**
  * An insets type representing the window of an "input method",
  * for iOS IME representing the software keyboard.
- *
- * TODO: Animation doesn't work on iOS yet
  */
 actual val WindowInsets.Companion.ime: WindowInsets
     @Composable

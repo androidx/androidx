@@ -29,11 +29,10 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.InsetsConfig
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
-import androidx.compose.ui.platform.ZeroInsetsConfig
+import androidx.compose.ui.platform.union
 import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.semantics.dialog
@@ -41,6 +40,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
+import androidx.compose.ui.unit.dp
 
 /**
  * The default scrim opacity.
@@ -58,8 +58,10 @@ private val DefaultScrimColor = Color.Black.copy(alpha = DefaultScrimOpacity)
  * dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
  * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
  * the platform default, which is smaller than the screen width.
- * @property usePlatformInsets Whether the width of the popup's content should be limited by
+ * @property usePlatformInsets Whether the size of the dialog's content should be limited by
  * platform insets.
+ * @property useSoftwareKeyboardInset Whether the size of the dialog's content should be limited by
+ * software keyboard inset.
  * @property scrimColor Color of background fill.
  */
 @Immutable
@@ -68,6 +70,7 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
     actual val dismissOnClickOutside: Boolean = true,
     actual val usePlatformDefaultWidth: Boolean = true,
     val usePlatformInsets: Boolean = true,
+    val useSoftwareKeyboardInset: Boolean = true,
     val scrimColor: Color = DefaultScrimColor,
 ) {
     // Constructor with all non-experimental arguments.
@@ -80,6 +83,7 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         dismissOnClickOutside = dismissOnClickOutside,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
         usePlatformInsets = true,
+        useSoftwareKeyboardInset = true,
         scrimColor = DefaultScrimColor,
     )
 
@@ -102,6 +106,7 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         dismissOnClickOutside = dismissOnClickOutside,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
         usePlatformInsets = true,
+        useSoftwareKeyboardInset = true,
         scrimColor = DefaultScrimColor,
     )
 
@@ -113,6 +118,7 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         if (dismissOnClickOutside != other.dismissOnClickOutside) return false
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
         if (usePlatformInsets != other.usePlatformInsets) return false
+        if (useSoftwareKeyboardInset != other.useSoftwareKeyboardInset) return false
         if (scrimColor != other.scrimColor) return false
 
         return true
@@ -123,6 +129,7 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         result = 31 * result + dismissOnClickOutside.hashCode()
         result = 31 * result + usePlatformDefaultWidth.hashCode()
         result = 31 * result + usePlatformInsets.hashCode()
+        result = 31 * result + useSoftwareKeyboardInset.hashCode()
         result = 31 * result + scrimColor.hashCode()
         return result
     }
@@ -173,7 +180,7 @@ private fun DialogLayout(
     onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    val platformInsets = properties.insetsConfig.safeInsets
+    val platformInsets = properties.platformInsets
     val layer = rememberComposeSceneLayer(
         focusable = true
     )
@@ -188,7 +195,10 @@ private fun DialogLayout(
             containerSize = containerSize,
             platformInsets = platformInsets
         )
-        properties.insetsConfig.excludeSafeInsets {
+        PlatformInsetsConfig.excludeInsets(
+            safeInsets = properties.usePlatformInsets,
+            ime = properties.useSoftwareKeyboardInset,
+        ) {
             Layout(
                 content = content,
                 modifier = modifier,
@@ -198,15 +208,27 @@ private fun DialogLayout(
     }
 }
 
+private val DialogProperties.platformInsets: PlatformInsets
+    @Composable get() {
+        val safeInsets = if (usePlatformInsets) {
+            PlatformInsetsConfig.safeInsets
+        } else {
+            PlatformInsets.Zero
+        }
+        val ime = if (useSoftwareKeyboardInset) {
+            PlatformInsetsConfig.ime
+        } else {
+            PlatformInsets.Zero
+        }
+        return safeInsets.union(ime)
+    }
+
 @Composable
 private fun rememberLayerContent(layer: ComposeSceneLayer, content: @Composable () -> Unit) {
     remember(layer, content) {
         layer.setContent(content)
     }
 }
-
-private val DialogProperties.insetsConfig: InsetsConfig
-    get() = if (usePlatformInsets) PlatformInsetsConfig else ZeroInsetsConfig
 
 @Composable
 private fun rememberDialogMeasurePolicy(

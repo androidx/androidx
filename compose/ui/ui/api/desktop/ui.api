@@ -3858,8 +3858,8 @@ public final class androidx/compose/ui/window/DialogProperties {
 	public static final field $stable I
 	public fun <init> (ZZZ)V
 	public synthetic fun <init> (ZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (ZZZZJILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (ZZZZJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZZZZJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZZZZJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZ[Ljava/lang/Void;Z)V
 	public synthetic fun <init> (ZZ[Ljava/lang/Void;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
@@ -3868,6 +3868,7 @@ public final class androidx/compose/ui/window/DialogProperties {
 	public final fun getScrimColor-0d7_KjU ()J
 	public final fun getUsePlatformDefaultWidth ()Z
 	public final fun getUsePlatformInsets ()Z
+	public final fun getUseSoftwareKeyboardInset ()Z
 	public fun hashCode ()I
 }
 

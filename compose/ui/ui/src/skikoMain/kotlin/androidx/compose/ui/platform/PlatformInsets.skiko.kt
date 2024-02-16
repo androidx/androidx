@@ -67,6 +67,13 @@ class PlatformInsets(
     }
 }
 
+internal fun PlatformInsets.union(insets: PlatformInsets) = PlatformInsets(
+    left = maxOf(left, insets.left),
+    top = maxOf(top, insets.top),
+    right = maxOf(right, insets.right),
+    bottom = maxOf(bottom, insets.bottom)
+)
+
 internal fun PlatformInsets.exclude(insets: PlatformInsets) = PlatformInsets(
     left = (left - insets.left).coerceAtLeast(0.dp),
     top = (top - insets.top).coerceAtLeast(0.dp),
@@ -80,18 +87,32 @@ internal interface InsetsConfig {
     val safeInsets: PlatformInsets
         @Composable get
 
+    val ime: PlatformInsets
+        @Composable get
+
     // Don't make it public, it should be implementation details for creating new root layout nodes.
     // TODO: Ensure encapsulation and proper control flow during refactoring [Owner]s
     @Composable
-    fun excludeSafeInsets(content: @Composable () -> Unit)
+    fun excludeInsets(
+        safeInsets: Boolean,
+        ime: Boolean,
+        content: @Composable () -> Unit
+    )
 }
 
 internal object ZeroInsetsConfig : InsetsConfig {
     override val safeInsets: PlatformInsets
         @Composable get() = PlatformInsets.Zero
 
+    override val ime: PlatformInsets
+        @Composable get() = PlatformInsets.Zero
+
     @Composable
-    override fun excludeSafeInsets(content: @Composable () -> Unit) {
+    override fun excludeInsets(
+        safeInsets: Boolean,
+        ime: Boolean,
+        content: @Composable () -> Unit
+    ) {
         content()
     }
 }
@@ -103,6 +124,6 @@ internal object ZeroInsetsConfig : InsetsConfig {
  * different on each platform.
  *
  * TODO: Stabilize and make the window paddings in the foundation-layout module depend on it.
- *  There is a plan to potentially move this variable into the [Platform] interface.
+ *  There is a plan to potentially move this variable into the [PlatformContext] interface.
  */
 internal expect var PlatformInsetsConfig: InsetsConfig
