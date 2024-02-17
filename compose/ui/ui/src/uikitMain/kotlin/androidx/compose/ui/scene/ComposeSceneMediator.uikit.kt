@@ -123,7 +123,7 @@ private class SemanticsOwnerListenerImpl(
     }
 
     override fun onSemanticsOwnerRemoved(semanticsOwner: SemanticsOwner) {
-        val current = checkNotNull(current)
+        val current = current ?: return
 
         if (current.first == semanticsOwner) {
             current.second.dispose()
