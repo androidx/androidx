@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// TODO(b/317120607): Rename to RoomDatabaseKt once the room-ktx artifact is merged.
-@file:JvmName("RoomDatabaseUtils")
+@file:JvmMultifileClass
+@file:JvmName("RoomDatabaseKt")
 
 package androidx.room
 
@@ -27,6 +26,7 @@ import androidx.room.util.isAssignableFrom
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteStatement
+import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 

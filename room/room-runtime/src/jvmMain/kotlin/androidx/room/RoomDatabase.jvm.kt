@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmMultifileClass
+@file:JvmName("RoomDatabaseKt")
+
 package androidx.room
 
 import androidx.annotation.RestrictTo
