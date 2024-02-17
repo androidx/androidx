@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.benchmark.input.pointer
 
+import android.view.InputDevice.SOURCE_TOUCHSCREEN
 import android.view.MotionEvent
 import android.view.View
 
@@ -36,6 +37,9 @@ internal fun MotionEvent(
     dispatchTarget: View
 ): MotionEvent {
 
+    // It's important we get the absolute coordinates first for the construction of the MotionEvent,
+    // and after it is created, adjust it back to the local coordinates. This way there is a history
+    // of the absolute coordinates for developers who rely on that (ViewGroup does this as well).
     val locationOnScreen = IntArray(2) { 0 }
     dispatchTarget.getLocationOnScreen(locationOnScreen)
 
@@ -57,7 +61,7 @@ internal fun MotionEvent(
         0f,
         0,
         0,
-        0,
+        SOURCE_TOUCHSCREEN, // Required for offsetLocation() to work correctly
         0
     ).apply {
         offsetLocation(-locationOnScreen[0].toFloat(), -locationOnScreen[1].toFloat())
