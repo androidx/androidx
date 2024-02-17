@@ -391,7 +391,7 @@ public final class DeletionDao_Impl implements DeletionDao {
     @Override
     public int deleteByUidList(final int... uid) {
         __db.assertNotSuspendingTransaction();
-        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        final StringBuilder _stringBuilder = new StringBuilder();
         _stringBuilder.append("DELETE FROM user where uid IN(");
         final int _inputSize = uid == null ? 1 : uid.length;
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
