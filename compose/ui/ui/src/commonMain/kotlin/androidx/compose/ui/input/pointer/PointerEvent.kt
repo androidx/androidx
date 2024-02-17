@@ -376,7 +376,20 @@ value class PointerEventType private constructor(internal val value: Int) {
  * The [position] represents the position of the pointer relative to the element that
  * this [PointerInputChange] is being dispatched to.
  *
- * Note: The [position] values can be outside the actual bounds of the element itself meaning the
+ * Note 1: A [PointerEvent]'s [PointerEventType] is the cause of an event and the associated
+ * [PointerInputChange]'s properties reflecting that. Most of those are exclusive, in other words,
+ * a Press/Release [PointerEventType] will not cause a scrollDelta change and a
+ * Scroll [PointerEventType] will not cause a pressed or previousPressed change. However, either a
+ * a Scroll or a Press/Release may contain a position change in its [PointerInputChange]s.
+ * (You can imagine one finger moving while another is lifted up.)
+ *
+ * Examples of [PointerEventType] and the associated [PointerInputChange] property changes:
+ *  - Press -> press will change (position may change) but scroll delta will not.
+ *  - Release -> press will change (position may change) but scroll delta will not.
+ *  - Move -> position will change but press and scroll delta will not.
+ *  - Scroll -> scroll delta will change (position may change) but press will not.
+ *
+ * Note 2: The [position] values can be outside the actual bounds of the element itself meaning the
  * numbers can be negative or larger than the element bounds.
  *
  * The [previousPosition] represents the position of the pointer offset to the current
