@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 
 /**
@@ -26,7 +25,6 @@ import androidx.compose.runtime.Composable
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
  */
-@ExperimentalFoundationApi
 fun interface TextFieldDecorator {
 
     /**

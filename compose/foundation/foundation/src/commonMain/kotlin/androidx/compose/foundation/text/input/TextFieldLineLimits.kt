@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
@@ -30,7 +29,6 @@ import androidx.compose.runtime.Stable
  * @see SingleLine
  * @see MultiLine
  */
-@ExperimentalFoundationApi
 @Stable
 sealed interface TextFieldLineLimits {
 

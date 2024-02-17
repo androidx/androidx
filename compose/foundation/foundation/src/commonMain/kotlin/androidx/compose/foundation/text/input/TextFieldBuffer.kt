@@ -45,7 +45,7 @@ import androidx.compose.ui.text.TextRange
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
  */
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 class TextFieldBuffer internal constructor(
     initialValue: TextFieldCharSequence,
     initialChanges: ChangeTracker? = null,
@@ -75,6 +75,7 @@ class TextFieldBuffer internal constructor(
     /**
      * The number of codepoints in the text field. This will be equal to or less than [length].
      */
+    @ExperimentalFoundationApi
     val codepointLength: Int get() = Character.codePointCount(buffer, 0, length)
 
     /**
@@ -85,6 +86,7 @@ class TextFieldBuffer internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
      */
+    @ExperimentalFoundationApi
     val changes: ChangeList get() = changeTracker ?: EmptyChangeList
 
     /**
@@ -102,6 +104,9 @@ class TextFieldBuffer internal constructor(
      *
      * @see selectionInCodepoints
      */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalFoundationApi
+    @get:ExperimentalFoundationApi
     var selectionInChars: TextRange = initialValue.selectionInChars
         private set
 
@@ -110,6 +115,9 @@ class TextFieldBuffer internal constructor(
      *
      * @see selectionInChars
      */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalFoundationApi
+    @get:ExperimentalFoundationApi
     val selectionInCodepoints: TextRange
         get() = charsToCodepoints(selectionInChars)
 
@@ -252,6 +260,7 @@ class TextFieldBuffer internal constructor(
      * Returns a [CharSequence] backed by this buffer. Any subsequent changes to this buffer will
      * be visible in the returned sequence as well.
      */
+    @ExperimentalFoundationApi
     fun asCharSequence(): CharSequence = buffer
 
     private fun clearChangeList() {
@@ -264,6 +273,7 @@ class TextFieldBuffer internal constructor(
      * After calling this method, this object will be in the same state it was when it was initially
      * created, and [changes] will be empty.
      */
+    @ExperimentalFoundationApi
     fun revertAllChanges() {
         replace(0, length, sourceValue.toString())
         selectionInChars = sourceValue.selectionInChars
@@ -285,6 +295,7 @@ class TextFieldBuffer internal constructor(
      * @see placeCursorBeforeCharAt
      * @see placeCursorAfterCodepointAt
      */
+    @ExperimentalFoundationApi
     fun placeCursorBeforeCodepointAt(index: Int) {
         requireValidIndex(index, startExclusive = true, endExclusive = false, inCodepoints = true)
         val charIndex = codepointIndexToCharIndex(index)
@@ -307,6 +318,7 @@ class TextFieldBuffer internal constructor(
      * @see placeCursorBeforeCodepointAt
      * @see placeCursorAfterCharAt
      */
+    @ExperimentalFoundationApi
     fun placeCursorBeforeCharAt(index: Int) {
         requireValidIndex(index, startExclusive = true, endExclusive = false, inCodepoints = false)
         selectionInChars = TextRange(index)
@@ -326,6 +338,7 @@ class TextFieldBuffer internal constructor(
      * @see placeCursorAfterCharAt
      * @see placeCursorBeforeCodepointAt
      */
+    @ExperimentalFoundationApi
     fun placeCursorAfterCodepointAt(index: Int) {
         requireValidIndex(index, startExclusive = false, endExclusive = true, inCodepoints = true)
         val charIndex = codepointIndexToCharIndex((index + 1).coerceAtMost(codepointLength))
@@ -347,6 +360,7 @@ class TextFieldBuffer internal constructor(
      * @see placeCursorAfterCodepointAt
      * @see placeCursorBeforeCharAt
      */
+    @ExperimentalFoundationApi
     fun placeCursorAfterCharAt(index: Int) {
         requireValidIndex(index, startExclusive = false, endExclusive = true, inCodepoints = false)
         selectionInChars = TextRange((index + 1).coerceAtMost(length))
@@ -368,6 +382,7 @@ class TextFieldBuffer internal constructor(
      *
      * @see selectCharsIn
      */
+    @ExperimentalFoundationApi
     fun selectCodepointsIn(range: TextRange) {
         requireValidRange(range, inCodepoints = true)
         selectionInChars = codepointsToChars(range)
@@ -389,6 +404,7 @@ class TextFieldBuffer internal constructor(
      *
      * @see selectCodepointsIn
      */
+    @ExperimentalFoundationApi
     fun selectCharsIn(range: TextRange) {
         requireValidRange(range, inCodepoints = false)
         selectionInChars = range
@@ -591,8 +607,8 @@ inline fun ChangeList.forEachChangeReversed(
  * avoid having to allocate something to hold them. If the [CharSequence]s are identical, the
  * callback is not invoked.
  *
- * E.g. given `a="abcde"` and `b="abbbdefe"`, the middle diff for `a` is `"ab[cd]e"` and for `b` is
- * `ab[bbdef]e`, so reports `aMiddle=TextRange(2, 4)` and `bMiddle=TextRange(2, 7)`.
+ * E.g. given `a="abcde"` and `b="abbbdefe"`, the middle diff for `a` is `"ab|cd|e"` and for `b` is
+ * `ab|bbdef|e`, so reports `aMiddle=TextRange(2, 4)` and `bMiddle=TextRange(2, 7)`.
  */
 internal inline fun findCommonPrefixAndSuffix(
     a: CharSequence,

@@ -33,12 +33,12 @@ import androidx.compose.ui.text.coerceIn
  *
  * @see TextFieldBuffer
  */
-@ExperimentalFoundationApi
 sealed interface TextFieldCharSequence : CharSequence {
     /**
      * The selection range. If the selection is collapsed, it represents cursor
      * location. When selection range is out of bounds, it is constrained with the text length.
      */
+    @ExperimentalFoundationApi
     val selectionInChars: TextRange
 
     /**
@@ -51,6 +51,7 @@ sealed interface TextFieldCharSequence : CharSequence {
      *
      * Composition can only be set by the system.
      */
+    @ExperimentalFoundationApi
     val compositionInChars: TextRange?
 
     /**
@@ -64,13 +65,11 @@ sealed interface TextFieldCharSequence : CharSequence {
     abstract override fun hashCode(): Int
 }
 
-@ExperimentalFoundationApi
 fun TextFieldCharSequence(
     text: String = "",
     selection: TextRange = TextRange.Zero
 ): TextFieldCharSequence = TextFieldCharSequenceWrapper(text, selection, composition = null)
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldCharSequence(
     text: CharSequence,
     selection: TextRange,
@@ -81,7 +80,6 @@ internal fun TextFieldCharSequence(
  * Copies the contents of this sequence from [[sourceStartIndex], [sourceEndIndex]) into
  * [destination] starting at [destinationOffset].
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldCharSequence.toCharArray(
     destination: CharArray,
     destinationOffset: Int,
