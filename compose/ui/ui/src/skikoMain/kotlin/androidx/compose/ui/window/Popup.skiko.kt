@@ -525,10 +525,7 @@ private fun rememberPopupMeasurePolicy(
                 boundsWithoutInsets, sizeWithoutInsets, layoutDirection, contentSize
             )
             if (properties.clippingEnabled) {
-                IntOffset(
-                    x = positionInWindow.x.coerceIn(0, sizeWithoutInsets.width - contentSize.width),
-                    y = positionInWindow.y.coerceIn(0, sizeWithoutInsets.height - contentSize.height)
-                )
+                clipPosition(positionInWindow, contentSize, sizeWithoutInsets)
             } else {
                 positionInWindow
             }
@@ -537,6 +534,16 @@ private fun rememberPopupMeasurePolicy(
         layer.calculateLocalPosition(positionWithInsets)
     }
 }
+
+private fun clipPosition(position: IntOffset, contentSize: IntSize, containerSize: IntSize) =
+    IntOffset(
+        x = if (contentSize.width < containerSize.width) {
+            position.x.coerceIn(0, containerSize.width - contentSize.width)
+        } else 0,
+        y = if (contentSize.height < containerSize.height) {
+            position.y.coerceIn(0, containerSize.height - contentSize.height)
+        } else 0
+    )
 
 private fun KeyEvent.isDismissRequest() =
     type == KeyEventType.KeyDown && key == Key.Escape

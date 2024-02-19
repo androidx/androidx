@@ -35,7 +35,7 @@ internal fun RootMeasurePolicy(
     platformInsets: PlatformInsets,
     usePlatformDefaultWidth: Boolean,
     calculatePosition: MeasureScope.(contentSize: IntSize) -> IntOffset,
-) = MeasurePolicy {measurables, constraints ->
+) = MeasurePolicy { measurables, constraints ->
     val platformConstraints = applyPlatformConstrains(
         constraints, platformInsets, usePlatformDefaultWidth
     )
