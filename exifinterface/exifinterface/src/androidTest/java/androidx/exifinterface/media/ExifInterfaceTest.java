@@ -47,6 +47,9 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,7 +65,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -428,7 +430,7 @@ public class ExifInterfaceTest {
                                     .getResources()
                                     .openRawResource(IMAGE_RESOURCES[i]);
                     FileOutputStream outputStream = new FileOutputStream(file)) {
-                copy(inputStream, outputStream);
+                ByteStreams.copy(inputStream, outputStream);
             }
         }
     }
@@ -1168,11 +1170,11 @@ public class ExifInterfaceTest {
         byte[] exifBytes;
         try (FileInputStream fis = new FileInputStream(imageFile)) {
             // Skip the following marker bytes (0xff, 0xd8, 0xff, 0xe1)
-            fis.skip(4);
+            ByteStreams.skipFully(fis, 4);
             // Read the value of the length of the exif data
             short length = readShort(fis);
             exifBytes = new byte[length];
-            fis.read(exifBytes);
+            ByteStreams.readFully(fis, exifBytes);
         }
 
         ByteArrayInputStream bin = new ByteArrayInputStream(exifBytes);
@@ -1226,11 +1228,9 @@ public class ExifInterfaceTest {
         try (InputStream in =
                 new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedValue.hasThumbnail) {
-                in.skip(expectedValue.thumbnailOffset);
+                ByteStreams.skipFully(in, expectedValue.thumbnailOffset);
                 byte[] thumbnailBytes = new byte[expectedValue.thumbnailLength];
-                if (in.read(thumbnailBytes) != expectedValue.thumbnailLength) {
-                    throw new IOException("Failed to read the expected thumbnail length");
-                }
+                ByteStreams.readFully(in, thumbnailBytes);
                 // TODO: Need a way to check uncompressed thumbnail file
                 Bitmap thumbnailBitmap = BitmapFactory.decodeByteArray(thumbnailBytes, 0,
                         thumbnailBytes.length);
@@ -1246,11 +1246,9 @@ public class ExifInterfaceTest {
         try (InputStream in =
                 new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedValue.hasMake) {
-                in.skip(expectedValue.makeOffset);
+                ByteStreams.skipFully(in, expectedValue.makeOffset);
                 byte[] makeBytes = new byte[expectedValue.makeLength];
-                if (in.read(makeBytes) != expectedValue.makeLength) {
-                    throw new IOException("Failed to read the expected make length");
-                }
+                ByteStreams.readFully(in, makeBytes);
                 String makeString = new String(makeBytes);
                 // Remove null bytes
                 makeString = makeString.replaceAll("\u0000.*", "");
@@ -1261,11 +1259,9 @@ public class ExifInterfaceTest {
         try (InputStream in =
                 new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedValue.hasXmp) {
-                in.skip(expectedValue.xmpOffset);
+                ByteStreams.skipFully(in, expectedValue.xmpOffset);
                 byte[] identifierBytes = new byte[expectedValue.xmpLength];
-                if (in.read(identifierBytes) != expectedValue.xmpLength) {
-                    throw new IOException("Failed to read the expected xmp length");
-                }
+                ByteStreams.readFully(in, identifierBytes);
                 final String xmpIdentifier = "<?xpacket begin=";
                 assertTrue(new String(identifierBytes, Charset.forName("UTF-8"))
                         .startsWith(xmpIdentifier));
@@ -1379,17 +1375,6 @@ public class ExifInterfaceTest {
         }
     }
 
-    private int copy(InputStream in, OutputStream out) throws IOException {
-        int total = 0;
-        byte[] buffer = new byte[8192];
-        int c;
-        while ((c = in.read(buffer)) != -1) {
-            total += c;
-            out.write(buffer, 0, c);
-        }
-        return total;
-    }
-
     private void assertLatLongValuesAreNotSet(ExifInterface exif) {
         assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));
         assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
@@ -1489,10 +1474,7 @@ public class ExifInterfaceTest {
     private File clone(File original) throws IOException {
         File cloned =
                 File.createTempFile("tmp_", System.nanoTime() + "_" + original.getName());
-        try (FileInputStream inputStream = new FileInputStream(original);
-             FileOutputStream outputStream = new FileOutputStream(cloned)) {
-            copy(inputStream, outputStream);
-        }
+        Files.copy(original, cloned);
         return cloned;
     }
 }
