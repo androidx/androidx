@@ -26,12 +26,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.samples.BasicTextField2ChangeIterationSample
-import androidx.compose.foundation.samples.BasicTextField2ChangeReverseIterationSample
-import androidx.compose.foundation.samples.BasicTextField2CustomInputTransformationSample
-import androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueChooseSample
-import androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueReplaceSample
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
+import androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
+import androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
+import androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueChooseSample
+import androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueReplaceSample
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
@@ -53,7 +53,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.core.text.isDigitsOnly
 
 @Composable
-fun BasicTextField2FilterDemos() {
+fun BasicTextFieldFilterDemos() {
     Column(
         Modifier
             .imePadding()
@@ -65,7 +65,7 @@ fun BasicTextField2FilterDemos() {
         TagLine(tag = "maxLength(5)")
         FilterDemo(filter = InputTransformation.maxLengthInChars(5))
 
-        TagLine(tag = "Digits Only BasicTextField2")
+        TagLine(tag = "Digits Only BasicTextField")
         DigitsOnlyDemo()
 
         TagLine(tag = "Change filter")
@@ -73,27 +73,27 @@ fun BasicTextField2FilterDemos() {
 
         TagLine(tag = "Custom (type backwards with prompt)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
-            BasicTextField2CustomInputTransformationSample()
+            BasicTextFieldCustomInputTransformationSample()
         }
 
         TagLine(tag = "Custom (string,string->string with replacement)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
-            BasicTextField2InputTransformationByValueReplaceSample()
+            BasicTextFieldInputTransformationByValueReplaceSample()
         }
 
         TagLine(tag = "Custom (string,string->string with choice)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
-            BasicTextField2InputTransformationByValueChooseSample()
+            BasicTextFieldInputTransformationByValueChooseSample()
         }
 
         TagLine(tag = "Change tracking (change logging sample)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
-            BasicTextField2ChangeIterationSample()
+            BasicTextFieldChangeIterationSample()
         }
 
         TagLine(tag = "Change tracking (insert mode sample)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
-            BasicTextField2ChangeReverseIterationSample()
+            BasicTextFieldChangeReverseIterationSample()
         }
     }
 }
@@ -120,7 +120,7 @@ private fun DigitsOnlyDemo() {
 @Composable
 private fun FilterDemo(filter: InputTransformation) {
     val state = remember { TextFieldState() }
-    BasicTextField2(
+    BasicTextField(
         state = state,
         inputTransformation = filter,
         modifier = demoTextFieldModifiers
@@ -139,7 +139,7 @@ private fun ChangeFilterDemo() {
                 filter = if (filter == null) InputTransformation.allCaps(Locale.current) else null
             })
         }
-        BasicTextField2(
+        BasicTextField(
             state = state,
             inputTransformation = filter,
             modifier = demoTextFieldModifiers

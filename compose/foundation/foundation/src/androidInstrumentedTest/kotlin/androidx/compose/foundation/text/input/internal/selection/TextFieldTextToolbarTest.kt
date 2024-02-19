@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -102,7 +102,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
     val fontSizePx = with(rule.density) { fontSize.toPx() }
 
-    val TAG = "BasicTextField2"
+    val TAG = "BasicTextField"
 
     private var enabled by mutableStateOf(true)
 
@@ -798,7 +798,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
                             .focusable()
                             .size(100.dp)
                     )
-                    BasicTextField2(
+                    BasicTextField(
                         state = state,
                         modifier = Modifier
                             .width(100.dp)
@@ -835,7 +835,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             CompositionLocalProvider(LocalTextToolbar provides textToolbar) {
                 Column {
                     if (toggleState.value) {
-                        BasicTextField2(
+                        BasicTextField(
                             state = state,
                             modifier = Modifier
                                 .width(100.dp)
@@ -898,7 +898,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
                 LocalTextToolbar provides toolbar,
                 LocalClipboardManager provides clipboardManager
             ) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = modifier
                         .width(100.dp)

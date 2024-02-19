@@ -94,22 +94,22 @@ import androidx.compose.ui.unit.dp
  * the contents of the field will _not_ be updated to reflect the value until editing is done. When
  * editing is done (i.e. focus is lost), the field will be updated to the last [value] received. Use
  * a [inputTransformation] to accept or reject changes during editing. For more direct control of
- * the field contents use the [BasicTextField2] overload that accepts a [TextFieldState].
+ * the field contents use the [BasicTextField] overload that accepts a [TextFieldState].
  *
  * Unlike [TextFieldState] overload, this composable does not let the developer control selection,
  * cursor, and observe text composition information. Please check [TextFieldState] and corresponding
- * [BasicTextField2] overload for more information.
+ * [BasicTextField] overload for more information.
  *
  * If you want to add decorations to your text field, such as icon or similar, and increase the
  * hit target area, use the decorator:
- * @sample androidx.compose.foundation.samples.BasicTextField2DecoratorSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
  *
  * In order to filter (e.g. only allow digits, limit the number of characters), or change (e.g.
  * convert every character to uppercase) the input received from the user, use an
  * [InputTransformation].
- * @sample androidx.compose.foundation.samples.BasicTextField2CustomInputTransformationSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
  *
- * Limiting the height of the [BasicTextField2] in terms of line count and choosing a scroll
+ * Limiting the height of the [BasicTextField] in terms of line count and choosing a scroll
  * direction can be achieved by using [TextFieldLineLimits].
  *
  * Scroll state of the composable is also hoisted to enable observation and manipulation of the
@@ -121,9 +121,9 @@ import androidx.compose.ui.unit.dp
  * text. The updated text is passed as a parameter of the callback. The value passed to the callback
  * will already have had the [inputTransformation] applied.
  * @param modifier optional [Modifier] for this text field.
- * @param enabled controls the enabled state of the [BasicTextField2]. When `false`, the text
+ * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text
  * field will be neither editable nor focusable, the input of the text field will not be selectable.
- * @param readOnly controls the editable state of the [BasicTextField2]. When `true`, the text
+ * @param readOnly controls the editable state of the [BasicTextField]. When `true`, the text
  * field can not be modified, however, a user can focus it and copy text from it. Read-only text
  * fields are usually used to display pre-filled forms that user can not edit.
  * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
@@ -211,7 +211,7 @@ fun BasicTextField2(
     }
     valueWithSelection = valueWithSelection.copy(text = value)
 
-    BasicTextField2(
+    BasicTextField(
         state = state,
         modifier = modifier.syncTextFieldState(
             state = state,
@@ -251,25 +251,25 @@ fun BasicTextField2(
  *
  * If you want to add decorations to your text field, such as icon or similar, and increase the
  * hit target area, use the decorator:
- * @sample androidx.compose.foundation.samples.BasicTextField2DecoratorSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
  *
  * In order to filter (e.g. only allow digits, limit the number of characters), or change (e.g.
  * convert every character to uppercase) the input received from the user, use an
  * [InputTransformation].
- * @sample androidx.compose.foundation.samples.BasicTextField2CustomInputTransformationSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
  *
- * Limiting the height of the [BasicTextField2] in terms of line count and choosing a scroll
+ * Limiting the height of the [BasicTextField] in terms of line count and choosing a scroll
  * direction can be achieved by using [TextFieldLineLimits].
  *
  * Scroll state of the composable is also hoisted to enable observation and manipulation of the
  * scroll behavior by the developer, e.g. bringing a searched keyword into view by scrolling to its
  * position without focusing, or changing selection.
  *
- * @param state [TextFieldState] object that holds the internal editing state of [BasicTextField2].
+ * @param state [TextFieldState] object that holds the internal editing state of [BasicTextField].
  * @param modifier optional [Modifier] for this text field.
- * @param enabled controls the enabled state of the [BasicTextField2]. When `false`, the text
+ * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text
  * field will be neither editable nor focusable, the input of the text field will not be selectable.
- * @param readOnly controls the editable state of the [BasicTextField2]. When `true`, the text
+ * @param readOnly controls the editable state of the [BasicTextField]. When `true`, the text
  * field can not be modified, however, a user can focus it and copy text from it. Read-only text
  * fields are usually used to display pre-filled forms that user can not edit.
  * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
@@ -316,7 +316,7 @@ fun BasicTextField2(
 // This takes a composable lambda, but it is not primarily a container.
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
-fun BasicTextField2(
+fun BasicTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -335,7 +335,7 @@ fun BasicTextField2(
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
 ) {
-    BasicTextField2(
+    BasicTextField(
         state = state,
         modifier = modifier,
         enabled = enabled,
@@ -365,7 +365,7 @@ fun BasicTextField2(
 // This takes a composable lambda, but it is not primarily a container.
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
-internal fun BasicTextField2(
+internal fun BasicTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

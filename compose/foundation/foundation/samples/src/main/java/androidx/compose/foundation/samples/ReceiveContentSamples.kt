@@ -29,7 +29,7 @@ import androidx.compose.foundation.content.hasMediaType
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -53,7 +53,7 @@ fun ReceiveContentBasicSample() {
                 Image(bitmap = it, contentDescription = null)
             }
         }
-        BasicTextField2(
+        BasicTextField(
             state = state,
             modifier = Modifier.receiveContent(setOf(MediaType.Image)) { transferableContent ->
                 if (!transferableContent.hasMediaType(MediaType.Image)) {
@@ -85,7 +85,7 @@ fun ReceiveContentFullSample() {
                 Image(bitmap = it, contentDescription = null)
             }
         }
-        BasicTextField2(
+        BasicTextField(
             state = state,
             modifier = Modifier
                 .background(

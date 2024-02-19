@@ -20,7 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.textFieldMagnifierNode
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -66,7 +66,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * Modifier element for the core functionality of [BasicTextField2] that is passed as inner
+ * Modifier element for the core functionality of [BasicTextField] that is passed as inner
  * TextField to the decoration box. This is only half the actual modifiers for the field, the other
  * half are only attached to the decorated text field.
  *

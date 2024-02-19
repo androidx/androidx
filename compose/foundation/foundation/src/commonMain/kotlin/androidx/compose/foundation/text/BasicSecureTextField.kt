@@ -71,7 +71,7 @@ import kotlinx.coroutines.launch
 
 /**
  * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
- * alternative to [BasicTextField2]. It only supports a single line of content and comes with
+ * alternative to [BasicTextField]. It only supports a single line of content and comes with
  * default settings for [KeyboardOptions], [InputTransformation], and [CodepointTransformation] that
  * are appropriate for entering secure content. Additionally, some context menu actions like cut,
  * copy, and drag are disabled for added security.
@@ -91,7 +91,7 @@ import kotlinx.coroutines.launch
  * text. The updated text is passed as a parameter of the callback. The value passed to the callback
  * will already have had the [inputTransformation] applied.
  * @param modifier optional [Modifier] for this text field.
- * @param enabled controls the enabled state of the [BasicTextField2]. When `false`, the text
+ * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text
  * field will be neither editable nor focusable, the input of the text field will not be selectable.
  * @param onSubmit Called when the user submits a form either by pressing the action button in the
  * input method editor (IME), or by pressing the enter key on a hardware keyboard. If the user
@@ -204,14 +204,14 @@ fun BasicSecureTextField(
 
 /**
  * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
- * alternative to [BasicTextField2]. It only supports a single line of content and comes with
+ * alternative to [BasicTextField]. It only supports a single line of content and comes with
  * default settings for [KeyboardOptions], [InputTransformation], and [CodepointTransformation] that
  * are appropriate for entering secure content. Additionally, some context menu actions like cut,
  * copy, and drag are disabled for added security.
  *
- * @param state [TextFieldState] object that holds the internal state of a [BasicTextField2].
+ * @param state [TextFieldState] object that holds the internal state of a [BasicTextField].
  * @param modifier optional [Modifier] for this text field.
- * @param enabled controls the enabled state of the [BasicTextField2]. When `false`, the text
+ * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text
  * field will be neither editable nor focusable, the input of the text field will not be selectable.
  * @param onSubmit Called when the user submits a form either by pressing the action button in the
  * input method editor (IME), or by pressing the enter key on a hardware keyboard. If the user
@@ -318,7 +318,7 @@ fun BasicSecureTextField(
         )
 
     DisableCutCopy {
-        BasicTextField2(
+        BasicTextField(
             state = state,
             modifier = secureTextFieldModifier,
             enabled = enabled,
@@ -357,7 +357,7 @@ internal class SecureTextFieldController(
     val passwordRevealFilter = PasswordRevealFilter(::scheduleHide)
 
     /**
-     * Pass to [BasicTextField2] for obscuring text input.
+     * Pass to [BasicTextField] for obscuring text input.
      */
     val codepointTransformation = CodepointTransformation { codepointIndex, codepoint ->
         if (codepointIndex == passwordRevealFilter.revealCodepointIndex) {
@@ -508,7 +508,7 @@ private fun DisableCutCopy(
     }
     CompositionLocalProvider(LocalTextToolbar provides copyDisabledToolbar) {
         Box(modifier = Modifier.onPreviewKeyEvent { keyEvent ->
-            // BasicTextField2 uses this static mapping
+            // BasicTextField uses this static mapping
             val command = platformDefaultKeyMapping.map(keyEvent)
             // do not propagate copy and cut operations
             command == KeyCommand.COPY || command == KeyCommand.CUT

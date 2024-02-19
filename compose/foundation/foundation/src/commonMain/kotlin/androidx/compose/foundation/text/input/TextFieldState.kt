@@ -56,7 +56,7 @@ internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
  * save and restore the field state. For more advanced use cases, pass [TextFieldState.Saver] to
  * [rememberSaveable].
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2StateCompleteSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldStateCompleteSample
  */
 @ExperimentalFoundationApi
 @Stable
@@ -98,7 +98,7 @@ class TextFieldState internal constructor(
      * To observe changes to this property outside a restartable function, see [forEachTextValue]
      * and [textAsFlow].
      *
-     * @sample androidx.compose.foundation.samples.BasicTextField2TextDerivedStateSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTextDerivedStateSample
      *
      * @see edit
      * @see forEachTextValue
@@ -114,7 +114,7 @@ class TextFieldState internal constructor(
      * text and cursor/selection. See the documentation on [TextFieldBuffer] for a more detailed
      * description of the available operations.
      *
-     * @sample androidx.compose.foundation.samples.BasicTextField2StateEditSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldStateEditSample
      *
      * @see setTextAndPlaceCursorAtEnd
      * @see setTextAndSelectAll
@@ -131,7 +131,7 @@ class TextFieldState internal constructor(
     /**
      * Undo history controller for this TextFieldState.
      *
-     * @sample androidx.compose.foundation.samples.BasicTextField2UndoSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldUndoSample
      */
     // TextField does not implement UndoState because Undo related APIs should be able to remain
     // separately experimental than TextFieldState
@@ -452,7 +452,7 @@ class TextFieldState internal constructor(
  * Returns a [Flow] of the values of [TextFieldState.text] as seen from the global snapshot.
  * The initial value is emitted immediately when the flow is collected.
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2TextValuesSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldTextValuesSample
  */
 @ExperimentalFoundationApi
 fun TextFieldState.textAsFlow(): Flow<TextFieldCharSequence> = snapshotFlow { text }
@@ -559,7 +559,7 @@ fun TextFieldState.clearText() {
  * either a side effect when text is changed, or filter it in some way, use an
  * [InputTransformation].
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2ForEachTextValueSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldForEachTextValueSample
  *
  * @see textAsFlow
  */

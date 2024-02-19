@@ -46,7 +46,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
@@ -180,7 +180,7 @@ fun TextFieldReceiveContentDemo() {
                 }
             }
         }
-        BasicTextField2(
+        BasicTextField(
             state = rememberTextFieldState(),
             modifier = demoTextFieldModifiers,
             textStyle = LocalTextStyle.current
@@ -253,7 +253,7 @@ fun NestedReceiveContentDemo() {
                         }
                     }
                 ) {
-                    BasicTextField2(
+                    BasicTextField(
                         state = state,
                         modifier = demoTextFieldModifiers,
                         textStyle = LocalTextStyle.current
@@ -430,7 +430,7 @@ private const val Description = "Below setup works as follows;\n" +
     "  - The outermost one consumes everything that's passed to it.\n" +
     "  - The middle one only consumes image content.\n" +
     "  - The innermost one only consumes text content.\n" +
-    "  - BasicTextField2 that's nested the deepest would delegate whatever it receives " +
+    "  - BasicTextField that's nested the deepest would delegate whatever it receives " +
     "to all 3 parents in order of proximity.\n" +
     "  - Each node shows all the items it receives, not just what it consumes.\n\n" +
     "ReceiveContent works with keyboard, paste, and drag/drop.\n" +

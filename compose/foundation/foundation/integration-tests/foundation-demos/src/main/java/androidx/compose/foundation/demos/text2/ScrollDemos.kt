@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text.input.TextFieldState
@@ -95,7 +95,7 @@ fun SingleLineHorizontalScrollableTextField() {
             )
         )
     }
-    BasicTextField2(
+    BasicTextField(
         state = state,
         lineLimits = SingleLine,
         textStyle = TextStyle(fontSize = 24.sp),
@@ -117,7 +117,7 @@ fun SingleLineHorizontalScrollableTextFieldWithNewlines() {
             )
         )
     }
-    BasicTextField2(
+    BasicTextField(
         state = state,
         lineLimits = SingleLine,
         textStyle = TextStyle(fontSize = 24.sp)
@@ -137,7 +137,7 @@ fun MultiLineVerticalScrollableTextField() {
             )
         )
     }
-    BasicTextField2(
+    BasicTextField(
         state = state,
         textStyle = TextStyle(fontSize = 24.sp),
         modifier = Modifier.heightIn(max = 200.dp),
@@ -168,7 +168,7 @@ fun HoistedHorizontalScroll() {
             },
             valueRange = 0f..scrollState.maxValue.toFloat()
         )
-        BasicTextField2(
+        BasicTextField(
             state = state,
             scrollState = scrollState,
             textStyle = TextStyle(fontSize = 24.sp),
@@ -209,14 +209,14 @@ fun SharedHoistedScroll() {
             },
             valueRange = 0f..scrollState.maxValue.toFloat()
         )
-        BasicTextField2(
+        BasicTextField(
             state = state1,
             scrollState = scrollState,
             textStyle = TextStyle(fontSize = 24.sp),
             modifier = Modifier.fillMaxWidth(),
             lineLimits = SingleLine
         )
-        BasicTextField2(
+        BasicTextField(
             state = state2,
             scrollState = scrollState,
             textStyle = TextStyle(fontSize = 24.sp),

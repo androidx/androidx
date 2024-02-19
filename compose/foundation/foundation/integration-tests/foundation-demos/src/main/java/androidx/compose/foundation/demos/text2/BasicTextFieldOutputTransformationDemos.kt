@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
@@ -59,7 +59,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BasicTextField2OutputTransformationDemos() {
+fun BasicTextFieldOutputTransformationDemos() {
     Column(
         modifier = Modifier
             .imePadding()
@@ -101,28 +101,28 @@ private fun InsertReplaceDeleteDemo() {
         Checkbox(checked = prefixEnabled, onCheckedChange = { prefixEnabled = it })
         Text("Prefix insertion ")
         Text("\"", style = MaterialTheme.typography.caption)
-        BasicTextField2(prefix, textStyle = MaterialTheme.typography.caption)
+        BasicTextField(prefix, textStyle = MaterialTheme.typography.caption)
         Text("\"", style = MaterialTheme.typography.caption)
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Checkbox(checked = middleWedge, onCheckedChange = { middleWedge = it })
         Text("Middle insertion ")
         Text("\"", style = MaterialTheme.typography.caption)
-        BasicTextField2(middle, textStyle = MaterialTheme.typography.caption)
+        BasicTextField(middle, textStyle = MaterialTheme.typography.caption)
         Text("\"", style = MaterialTheme.typography.caption)
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Checkbox(checked = suffixEnabled, onCheckedChange = { suffixEnabled = it })
         Text("Suffix insertion ")
         Text("\"", style = MaterialTheme.typography.caption)
-        BasicTextField2(suffix, textStyle = MaterialTheme.typography.caption)
+        BasicTextField(suffix, textStyle = MaterialTheme.typography.caption)
         Text("\"", style = MaterialTheme.typography.caption)
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Checkbox(checked = replacementEnabled, onCheckedChange = { replacementEnabled = it })
         Text("Replacement ")
         Text("s/abc/", style = MaterialTheme.typography.caption)
-        BasicTextField2(replacement, textStyle = MaterialTheme.typography.caption)
+        BasicTextField(replacement, textStyle = MaterialTheme.typography.caption)
         Text("/", style = MaterialTheme.typography.caption)
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -135,7 +135,7 @@ private fun InsertReplaceDeleteDemo() {
             mutableStateOf({ null })
         }
         var isFirstFieldFocused by remember { mutableStateOf(false) }
-        BasicTextField2(
+        BasicTextField(
             state = text,
             onTextLayout = { textLayoutResultProvider = it },
             modifier = Modifier
@@ -174,7 +174,7 @@ private fun InsertReplaceDeleteDemo() {
             contentDescription = null,
             modifier = Modifier.alignBy { (it.measuredHeight * 0.75f).toInt() }
         )
-        BasicTextField2(
+        BasicTextField(
             state = text,
             modifier = Modifier
                 .alignByBaseline()
@@ -210,7 +210,7 @@ private fun InsertReplaceDeleteDemo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PhoneNumberAsYouTypeDemo() {
-    BasicTextField2(
+    BasicTextField(
         state = rememberTextFieldState(),
         modifier = demoTextFieldModifiers,
         outputTransformation = PhoneNumberOutputTransformation(pad = false),
@@ -222,7 +222,7 @@ private fun PhoneNumberAsYouTypeDemo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PhoneNumberFullTemplateDemo() {
-    BasicTextField2(
+    BasicTextField(
         state = rememberTextFieldState(),
         modifier = demoTextFieldModifiers,
         // Monospace prevents the template from moving while characters are entered.

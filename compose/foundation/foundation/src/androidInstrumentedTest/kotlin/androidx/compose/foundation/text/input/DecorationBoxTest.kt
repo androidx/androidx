@@ -22,7 +22,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,14 +64,14 @@ class DecorationBoxTest {
     @get:Rule
     val rule = createComposeRule()
 
-    private val Tag = "BasicTextField2"
+    private val Tag = "BasicTextField"
     private val DecorationTag = "DecorationBox"
 
     @Test
     fun focusIsAppliedOnDecoratedComposable() {
         val state = TextFieldState()
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 decorator = { innerTextField ->
@@ -99,7 +98,7 @@ class DecorationBoxTest {
     fun semanticsAreAppliedOnDecoratedComposable() {
         val state = TextFieldState("hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 decorator = { innerTextField ->
@@ -126,7 +125,7 @@ class DecorationBoxTest {
     fun clickGestureIsAppliedOnDecoratedComposable() {
         val state = TextFieldState("hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 decorator = { innerTextField ->
@@ -156,7 +155,7 @@ class DecorationBoxTest {
     fun nonPlacedInnerTextField_stillAcceptsTextInput() {
         val state = TextFieldState()
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 decorator = {
@@ -185,7 +184,7 @@ class DecorationBoxTest {
     fun nonPlacedInnerTextField_stillAcceptsKeyInput() {
         val state = TextFieldState()
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 decorator = {
@@ -220,7 +219,7 @@ class DecorationBoxTest {
         val state = TextFieldState()
         var decorationBoxConstraints: Constraints? = null
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
                 decorator = {
@@ -245,13 +244,12 @@ class DecorationBoxTest {
             .isEqualTo(decorationBoxConstraints?.maxHeight)
     }
 
-    @Ignore // TODO(halilibo): enable when pointerInput gestures are enabled
     @Test
     fun longClickGestureIsAppliedOnDecoratedComposable() {
-        // create a decorated BasicTextField2
+        // create a decorated BasicTextField
         val state = TextFieldState("hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 decorator = { innerTextField ->

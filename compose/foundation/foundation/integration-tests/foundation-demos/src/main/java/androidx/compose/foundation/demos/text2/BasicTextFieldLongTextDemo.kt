@@ -20,7 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.loremIpsumWords
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.Text
@@ -30,11 +30,11 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BasicTextField2LongTextDemo() {
+fun BasicTextFieldLongTextDemo() {
     val text = remember { TextFieldState(generateString(charCount = 100_000)) }
 
     Column(Modifier.imePadding()) {
-        BasicTextField2(
+        BasicTextField(
             state = text,
             modifier = Modifier
                 .weight(1f)

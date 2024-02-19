@@ -20,7 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -53,7 +53,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
 
     private lateinit var state: TextFieldState
 
-    private val TAG = "BasicTextField2"
+    private val TAG = "BasicTextField"
 
     private val fontSize = 10.sp
 
@@ -64,7 +64,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         // this test is more about detecting a possible crash
         state = TextFieldState()
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier
@@ -92,7 +92,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
     fun clickOnText_ltr() {
         state = TextFieldState("abc")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier
@@ -113,7 +113,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         state = TextFieldState("\u05D0\u05D1\u05D2")
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = defaultTextStyle,
                     modifier = Modifier.testTag(TAG).width(50.dp).height(15.dp)
@@ -132,7 +132,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         state = TextFieldState("abc")
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = defaultTextStyle,
                     modifier = Modifier.testTag(TAG).width(50.dp).height(15.dp)
@@ -150,7 +150,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
     fun clickOnText_rtl_in_ltrLayout() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG).width(50.dp).height(15.dp)
@@ -167,7 +167,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
     fun clickOnEmptyRegion_ltr() {
         state = TextFieldState("abc")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG).width(50.dp).height(15.dp)
@@ -185,7 +185,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         state = TextFieldState("\u05D0\u05D1\u05D2")
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = defaultTextStyle,
                     modifier = Modifier.testTag(TAG).width(50.dp).height(15.dp)
@@ -204,7 +204,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         state = TextFieldState("abcabcabcabc")
         val scrollState = ScrollState(0)
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 lineLimits = TextFieldLineLimits.SingleLine,
@@ -231,7 +231,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         state = TextFieldState("abc abc abc abc")
         val scrollState = ScrollState(0)
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = defaultTextStyle,
                 lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),

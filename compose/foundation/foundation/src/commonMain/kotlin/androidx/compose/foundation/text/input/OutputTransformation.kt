@@ -17,12 +17,12 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Stable
 
 /**
  * A function ([transformOutput]) that transforms the text presented to a user by a
- * [BasicTextField2].
+ * [BasicTextField].
  */
 @ExperimentalFoundationApi
 @Stable

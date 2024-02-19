@@ -38,7 +38,7 @@ import androidx.compose.ui.text.toUpperCase
  *  - [InputTransformation].[maxLengthInCodepoints]`()`
  *  - [InputTransformation].[allCaps]`()`
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2CustomInputTransformationSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
  */
 @ExperimentalFoundationApi
 @Stable
@@ -81,7 +81,7 @@ fun interface InputTransformation {
  * The returned filter will use the [KeyboardOptions] from [next] if non-null, otherwise it will
  * use the options from this transformation.
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationChainingSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationChainingSample
  *
  * @param next The [InputTransformation] that will be ran after this one.
  */
@@ -101,7 +101,7 @@ fun InputTransformation?.then(next: InputTransformation?): InputTransformation? 
  * The returned filter will use the [KeyboardOptions] from [next] if non-null, otherwise it will
  * use the options from this transformation.
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationChainingSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationChainingSample
  *
  * @param next The [InputTransformation] that will be ran after this one.
  */
@@ -119,8 +119,8 @@ fun InputTransformation.then(next: InputTransformation): InputTransformation =
  * The selection or cursor will be updated automatically. For more control of selection
  * implement [InputTransformation] directly.
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueChooseSample
- * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueReplaceSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueChooseSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueReplaceSample
  */
 @ExperimentalFoundationApi
 @Stable

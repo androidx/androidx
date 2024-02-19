@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ import kotlin.test.assertNotNull
 import kotlinx.coroutines.awaitCancellation
 
 /**
- * Helper class for testing integration of BasicTextField and BasicTextField2 with the platform IME.
+ * Helper class for testing integration of BasicTextField and Legacy BasicTextField with the
+ * platform IME.
  */
 class InputMethodInterceptor(private val rule: ComposeContentTestRule) {
 
