@@ -57,12 +57,12 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImplBuilder
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl
-import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImplBuilder
 import androidx.camera.extensions.impl.advanced.OutputSurfaceConfigurationImpl
 import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl
 import androidx.camera.extensions.impl.advanced.RequestProcessorImpl
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl
 import androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor
+import androidx.camera.extensions.util.Camera2SessionConfigImplBuilder
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.CameraUtil
@@ -588,7 +588,7 @@ class FakeSessionProcessImpl(
             analysisOutputConfig?.let { addOutputConfig(it) }
         }
 
-        if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+        if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) && sessionType != -1) {
             sessionBuilder.setSessionType(sessionType)
         }
         return sessionBuilder.build()
