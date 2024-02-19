@@ -48,7 +48,7 @@ dependencies {
 
 androidx {
     name = "Compose Google Fonts integration"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2022"
     description = "Compose Downloadable Fonts integration for Google Fonts"
     metalavaK2UastEnabled = true

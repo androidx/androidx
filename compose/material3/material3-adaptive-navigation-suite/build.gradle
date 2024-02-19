@@ -117,7 +117,7 @@ android {
 androidx {
     name = "Material Adaptive Navigation Suite"
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_ADAPTIVE_NAVIGATION_SUITE
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Navigation Suite Library"
 }

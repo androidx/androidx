@@ -148,7 +148,7 @@ dependencies {
 
 androidx {
     name = "Compose Material3 Components"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Compose Material You Design Components library"
 }

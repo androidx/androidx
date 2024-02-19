@@ -69,13 +69,12 @@ android {
 
 androidx {
     name = "Android Wear Compose Navigation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "WearOS Compose Navigation Library. This library makes it easier for developers" +
             "to write Jetpack Compose applications for Wearable devices by providing " +
             "functionality to support navigation. " +
             "It builds upon the Jetpack Compose libraries."
-    targetsJavaConsumers = false
     metalavaK2UastEnabled = true
     samples(project(":wear:compose:compose-navigation-samples"))
 }

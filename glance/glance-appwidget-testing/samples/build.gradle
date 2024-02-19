@@ -47,7 +47,6 @@ dependencies {
 androidx {
     name = "Glance AppWidget Testing Samples"
     type = LibraryType.SAMPLES
-    targetsJavaConsumers = false
     inceptionYear = "2023"
     description = "Contains the sample code for testing the Glance AppWidget Composables"
 }

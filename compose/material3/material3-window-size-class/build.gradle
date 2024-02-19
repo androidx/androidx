@@ -119,7 +119,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Material 3 Window Size Class"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2022"
     description = "Provides window size classes for building responsive UIs"
 }

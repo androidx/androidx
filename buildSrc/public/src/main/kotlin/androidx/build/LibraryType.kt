@@ -72,7 +72,9 @@ sealed class LibraryType(
 
     companion object {
         val PUBLISHED_LIBRARY = PublishedLibrary()
+        val PUBLISHED_KOTLIN_ONLY_LIBRARY = PublishedKotlinOnlyLibrary()
         val PUBLISHED_TEST_LIBRARY = PublishedTestLibrary()
+        val PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY = PublishedKotlinOnlyTestLibrary()
         val INTERNAL_TEST_LIBRARY = InternalTestLibrary()
         val INTERNAL_HOST_TEST_LIBRARY = InternalHostTestLibrary()
         val SAMPLES = Samples()
@@ -93,7 +95,9 @@ sealed class LibraryType(
         private val allTypes =
             mapOf(
                 "PUBLISHED_LIBRARY" to PUBLISHED_LIBRARY,
+                "PUBLISHED_KOTLIN_ONLY_LIBRARY" to PUBLISHED_KOTLIN_ONLY_LIBRARY,
                 "PUBLISHED_TEST_LIBRARY" to PUBLISHED_TEST_LIBRARY,
+                "PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY" to PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY,
                 "INTERNAL_TEST_LIBRARY" to INTERNAL_TEST_LIBRARY,
                 "INTERNAL_HOST_TEST_LIBRARY" to INTERNAL_HOST_TEST_LIBRARY,
                 "SAMPLES" to SAMPLES,
@@ -125,6 +129,14 @@ sealed class LibraryType(
             allowCallingVisibleForTestsApis = allowCallingVisibleForTestsApis
         )
 
+    open class PublishedKotlinOnlyLibrary(allowCallingVisibleForTestsApis: Boolean = false) :
+        LibraryType(
+            publish = Publish.SNAPSHOT_AND_RELEASE,
+            sourceJars = true,
+            checkApi = RunApiTasks.Yes(),
+            allowCallingVisibleForTestsApis = allowCallingVisibleForTestsApis
+        )
+
     open class InternalLibrary(
         compilationTarget: CompilationTarget = CompilationTarget.DEVICE,
         allowCallingVisibleForTestsApis: Boolean = false
@@ -136,6 +148,9 @@ sealed class LibraryType(
         )
 
     class PublishedTestLibrary() : PublishedLibrary(allowCallingVisibleForTestsApis = true)
+
+    class PublishedKotlinOnlyTestLibrary() : PublishedKotlinOnlyLibrary(
+        allowCallingVisibleForTestsApis = true)
 
     class InternalTestLibrary() : InternalLibrary(allowCallingVisibleForTestsApis = true)
 

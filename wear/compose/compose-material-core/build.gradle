@@ -75,12 +75,11 @@ android {
 
 androidx {
     name = "Android Wear Compose Material Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2022"
     description = "WearOS Compose Material Core Library. This library contains themeless " +
             "components that are shared between different WearOS Compose Material libraries. It " +
             "builds upon the Jetpack Compose libraries."
-    targetsJavaConsumers = false
     metalavaK2UastEnabled = true
 }
 

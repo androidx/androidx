@@ -79,14 +79,13 @@ android {
 
 androidx {
     name = "Android Wear Compose Material 3"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     mavenVersion = LibraryVersions.WEAR_COMPOSE_MATERIAL3
     inceptionYear = "2022"
     description = "WearOS Compose Material 3 Library. This library makes it easier for " +
             "developers to write Jetpack Compose applications for Wearable devices that " +
             "implement Wear Material 3 Design UX guidelines and specifications. It builds upon " +
             "the Jetpack Compose libraries."
-    targetsJavaConsumers = false
     samples(project(":wear:compose:compose-material-samples"))
 }
 
