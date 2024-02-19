@@ -16,12 +16,16 @@
 
 package androidx.compose.mpp.demo.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -60,6 +65,21 @@ fun SelectionExample() {
                 }
                 Text("I'm another Text() block. Let's try to select me!")
                 Text("I'm yet another Text() with multiparagraph structure block.\nLet's try to select me!")
+            }
+        }
+        Column(
+            Modifier
+                .height(100.dp)
+                .padding(2.dp)
+                .border(1.dp, Color.Blue)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            SelectionContainer {
+                Text(
+                    text = "Select text and scroll\n".repeat(100),
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
     }
