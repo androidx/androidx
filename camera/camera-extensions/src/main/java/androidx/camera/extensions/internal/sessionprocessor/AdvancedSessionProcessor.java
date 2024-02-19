@@ -16,6 +16,13 @@
 
 package androidx.camera.extensions.internal.sessionprocessor;
 
+import static android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_AUTOMATIC;
+import static android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_BOKEH;
+import static android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_FACE_RETOUCH;
+import static android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_HDR;
+import static android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_NIGHT;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureFailure;
@@ -24,10 +31,13 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.media.Image;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -39,6 +49,7 @@ import androidx.camera.core.impl.OutputSurface;
 import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionProcessor;
+import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl;
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl;
 import androidx.camera.extensions.impl.advanced.ImageProcessorImpl;
@@ -53,11 +64,14 @@ import androidx.camera.extensions.internal.RequestOptionConfig;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Preconditions;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A {@link SessionProcessor} based on OEMs' {@link SessionProcessorImpl}.
@@ -71,16 +85,51 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     private final VendorExtender mVendorExtender;
     @NonNull
     private final Context mContext;
+    @ExtensionMode.Mode
+    private final int mMode;
+    @Nullable
+    private final MutableLiveData<Integer> mCurrentExtensionTypeLiveData;
     private boolean mIsPostviewConfigured = false;
+    // Caches the working capture config so that the new extension strength can be applied on top
+    // of the existing config.
+    @GuardedBy("mLock")
+    private HashMap<CaptureRequest.Key<?>, Object> mWorkingCaptureConfigMap = new HashMap<>();
+    // Caches the capture callback adapter so that repeating can be started again to apply the
+    // new extension strength setting.
+    @GuardedBy("mLock")
+    private SessionProcessorImplCaptureCallbackAdapter mRepeatingCaptureCallbackAdapter = null;
+    @Nullable
+    private final MutableLiveData<Integer> mExtensionStrengthLiveData;
+    @Nullable
+    private final ExtensionMetadataMonitor mExtensionMetadataMonitor;
 
     public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl,
             @NonNull List<CaptureRequest.Key> supportedKeys,
             @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
+        this(impl, supportedKeys, vendorExtender, context, ExtensionMode.NONE);
+    }
+
+    public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl,
+            @NonNull List<CaptureRequest.Key> supportedKeys,
+            @NonNull VendorExtender vendorExtender,
+            @NonNull Context context,
+            @ExtensionMode.Mode int mode) {
         super(supportedKeys);
         mImpl = impl;
         mVendorExtender = vendorExtender;
         mContext = context;
+        mMode = mode;
+        mCurrentExtensionTypeLiveData = isCurrentExtensionTypeAvailable() ? new MutableLiveData<>(
+                mMode) : null;
+        mExtensionStrengthLiveData = isExtensionStrengthAvailable() ? new MutableLiveData<>(100)
+                : null;
+        if (mCurrentExtensionTypeLiveData != null || mExtensionStrengthLiveData != null) {
+            mExtensionMetadataMonitor = new ExtensionMetadataMonitor(mCurrentExtensionTypeLiveData,
+                    mExtensionStrengthLiveData);
+        } else {
+            mExtensionMetadataMonitor = null;
+        }
     }
 
     @NonNull
@@ -119,6 +168,13 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         }
 
         mIsPostviewConfigured = outputSurfaceConfig.getPostviewOutputSurface() != null;
+        // Resets the extension type and strength result when initializing the session
+        if (mCurrentExtensionTypeLiveData != null) {
+            mCurrentExtensionTypeLiveData.postValue(mMode);
+        }
+        if (mExtensionStrengthLiveData != null) {
+            mExtensionStrengthLiveData.postValue(100);
+        }
         // Convert Camera2SessionConfigImpl(implemented in OEM) into Camera2SessionConfig
         return convertToCamera2SessionConfig(sessionConfigImpl);
     }
@@ -157,14 +213,83 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
 
     @Override
     protected void deInitSessionInternal() {
+        synchronized (mLock) {
+            // Clears the working config map
+            mWorkingCaptureConfigMap = new HashMap<>();
+            mRepeatingCaptureCallbackAdapter = null;
+        }
         mImpl.deInitSession();
+    }
+
+    @Override
+    public boolean isCurrentExtensionTypeAvailable() {
+        return mVendorExtender.isCurrentExtensionTypeAvailable();
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Integer> getCurrentExtensionType() {
+        return mCurrentExtensionTypeLiveData;
+    }
+
+    @Override
+    public boolean isExtensionStrengthAvailable() {
+        return mVendorExtender.isExtensionStrengthAvailable();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void setExtensionStrength(@IntRange(from = 0, to = 100) int strength) {
+        if (!isExtensionStrengthAvailable()
+                || Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return;
+        }
+
+        SessionProcessorImplCaptureCallbackAdapter captureCallbackAdapter;
+        HashMap<CaptureRequest.Key<?>, Object> captureConfigMap;
+
+        synchronized (mLock) {
+            mExtensionStrength = strength;
+            mWorkingCaptureConfigMap.put(CaptureRequest.EXTENSION_STRENGTH, mExtensionStrength);
+            captureCallbackAdapter = mRepeatingCaptureCallbackAdapter;
+            captureConfigMap =
+                    (HashMap<CaptureRequest.Key<?>, Object>) mWorkingCaptureConfigMap.clone();
+        }
+
+        mImpl.setParameters(captureConfigMap);
+
+        // Starts the repeating again to apply the new strength setting if it has been started.
+        // Otherwise, the new strength setting will be applied when the capture session is
+        // configured and repeating is started.
+        if (captureCallbackAdapter != null) {
+            mImpl.startRepeating(captureCallbackAdapter);
+        }
+    }
+
+    @SuppressLint("KotlinPropertyAccess")
+    @NonNull
+    @Override
+    public LiveData<Integer> getExtensionStrength() {
+        return mExtensionStrengthLiveData;
     }
 
     @Override
     public void setParameters(
             @NonNull Config parameters) {
-        HashMap<CaptureRequest.Key<?>, Object> map = convertConfigToMap(parameters);
-        mImpl.setParameters(map);
+        HashMap<CaptureRequest.Key<?>, Object> captureConfigMap;
+
+        synchronized (mLock) {
+            captureConfigMap = convertConfigToMap(parameters);
+            // Applies extension strength setting if it is set via
+            // CameraExtensionsControl#setExtensionStrength() API.
+            if (mExtensionStrength != EXTENSION_STRENGTH_UNKNOWN
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                captureConfigMap.put(CaptureRequest.EXTENSION_STRENGTH, mExtensionStrength);
+            }
+            mWorkingCaptureConfigMap = captureConfigMap;
+        }
+
+        mImpl.setParameters(captureConfigMap);
     }
 
     @NonNull
@@ -215,7 +340,13 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
 
     @Override
     public int startRepeating(@NonNull SessionProcessor.CaptureCallback callback) {
-        return mImpl.startRepeating(new SessionProcessorImplCaptureCallbackAdapter(callback));
+        SessionProcessorImplCaptureCallbackAdapter captureCallbackAdapter;
+        synchronized (mLock) {
+            captureCallbackAdapter = new SessionProcessorImplCaptureCallbackAdapter(callback,
+                    mExtensionMetadataMonitor);
+            mRepeatingCaptureCallbackAdapter = captureCallbackAdapter;
+        }
+        return mImpl.startRepeating(captureCallbackAdapter);
     }
 
     @Override
@@ -232,6 +363,9 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     @Override
     public void stopRepeating() {
         mImpl.stopRepeating();
+        synchronized (mLock) {
+            mRepeatingCaptureCallbackAdapter = null;
+        }
     }
 
     @Override
@@ -300,11 +434,11 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
             mAnalysisOutputSurface =
                     outputSurfaceConfig.getImageAnalysisOutputSurface() != null
                             ? new OutputSurfaceImplAdapter(
-                                    outputSurfaceConfig.getImageAnalysisOutputSurface()) : null;
+                            outputSurfaceConfig.getImageAnalysisOutputSurface()) : null;
             mPostviewOutputSurface =
                     outputSurfaceConfig.getPostviewOutputSurface() != null
                             ? new OutputSurfaceImplAdapter(
-                                    outputSurfaceConfig.getPostviewOutputSurface()) : null;
+                            outputSurfaceConfig.getPostviewOutputSurface()) : null;
         }
 
         @NonNull
@@ -494,7 +628,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         private final RequestProcessorImpl.Callback mCallback;
 
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        CallbackAdapter(RequestProcessorImpl.Callback callback) {
+        CallbackAdapter(@NonNull RequestProcessorImpl.Callback callback) {
             mCallback = callback;
         }
 
@@ -571,11 +705,20 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     private static class SessionProcessorImplCaptureCallbackAdapter implements
             SessionProcessorImpl.CaptureCallback {
         private final SessionProcessor.CaptureCallback mCaptureCallback;
+        @Nullable
+        private final ExtensionMetadataMonitor mExtensionMetadataMonitor;
+
+        SessionProcessorImplCaptureCallbackAdapter(
+                @NonNull SessionProcessor.CaptureCallback callback) {
+            this(callback, null);
+        }
 
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         SessionProcessorImplCaptureCallbackAdapter(
-                @NonNull SessionProcessor.CaptureCallback callback) {
+                @NonNull SessionProcessor.CaptureCallback callback,
+                @Nullable ExtensionMetadataMonitor extensionMetadataMonitor) {
             mCaptureCallback = callback;
+            mExtensionMetadataMonitor = extensionMetadataMonitor;
         }
 
         @Override
@@ -609,12 +752,78 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         @Override
         public void onCaptureCompleted(long timestamp, int captureSequenceId,
                 Map<CaptureResult.Key, Object> result) {
+            if (mExtensionMetadataMonitor != null) {
+                mExtensionMetadataMonitor.checkExtensionMetadata(result);
+            }
             mCaptureCallback.onCaptureCompleted(timestamp, captureSequenceId, result);
         }
 
         @Override
         public void onCaptureProcessProgressed(int progress) {
             mCaptureCallback.onCaptureProcessProgressed(progress);
+        }
+    }
+
+    /**
+     * Monitors the extension metadata (extension strength, type) changes from the capture results.
+     */
+    private static class ExtensionMetadataMonitor {
+        @Nullable
+        private final MutableLiveData<Integer> mCurrentExtensionTypeLiveData;
+        @Nullable
+        private final MutableLiveData<Integer> mExtensionStrengthLiveData;
+
+        ExtensionMetadataMonitor(
+                @Nullable MutableLiveData<Integer> currentExtensionTypeLiveData,
+                @Nullable MutableLiveData<Integer> extensionStrengthLiveData) {
+            mCurrentExtensionTypeLiveData = currentExtensionTypeLiveData;
+            mExtensionStrengthLiveData = extensionStrengthLiveData;
+        }
+
+        void checkExtensionMetadata(Map<CaptureResult.Key, Object> captureResult) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+
+                if (mCurrentExtensionTypeLiveData != null) {
+                    // Monitors and update current extension type
+                    Object extensionType = captureResult.get(CaptureResult.EXTENSION_CURRENT_TYPE);
+                    // The returned type should be the value defined by the Camera2 API.
+                    // Needs to
+                    // convert it to the value defined by CameraX.
+                    if (extensionType != null && !Objects.equals(
+                            mCurrentExtensionTypeLiveData.getValue(),
+                            convertExtensionMode((int) extensionType))) {
+                        mCurrentExtensionTypeLiveData.postValue(
+                                convertExtensionMode((int) extensionType));
+                    }
+                }
+
+                if (mExtensionStrengthLiveData != null) {
+                    // Monitors and update current extension strength
+                    Object extensionStrength = captureResult.get(CaptureResult.EXTENSION_STRENGTH);
+                    if (extensionStrength != null && !Objects.equals(
+                            mExtensionStrengthLiveData.getValue(), extensionStrength)) {
+                        mExtensionStrengthLiveData.postValue((Integer) extensionStrength);
+                    }
+                }
+            }
+        }
+
+        @ExtensionMode.Mode
+        private int convertExtensionMode(int camera2ExtensionMode) {
+            switch (camera2ExtensionMode) {
+                case EXTENSION_AUTOMATIC:
+                    return ExtensionMode.AUTO;
+                case EXTENSION_FACE_RETOUCH:
+                    return ExtensionMode.FACE_RETOUCH;
+                case EXTENSION_BOKEH:
+                    return ExtensionMode.BOKEH;
+                case EXTENSION_HDR:
+                    return ExtensionMode.HDR;
+                case EXTENSION_NIGHT:
+                    return ExtensionMode.NIGHT;
+                default:
+                    return ExtensionMode.NONE;
+            }
         }
     }
 }

@@ -28,6 +28,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DynamicRange;
@@ -510,6 +512,42 @@ public final class ExtensionsManager {
         }
 
         return mExtensionsInfo.isImageAnalysisSupported(cameraSelector, mode);
+    }
+
+    /**
+     * Retrieves a {@link CameraExtensionsControl} object that allows customization of capture
+     * request settings for supported camera extensions.
+     *
+     * <p>If the provided {@link CameraControl} doesn't represent a camera with enabled
+     * extensions, a no-op {@link CameraExtensionsControl} will be returned.
+     *
+     * @param cameraControl the camera control for a camera with a specific extension mode turned
+     *                     on.
+     * @return a {@link CameraExtensionsControl} object to manage extension-related settings.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public CameraExtensionsControl getCameraExtensionsControl(
+            @NonNull CameraControl cameraControl) {
+        return CameraExtensionsControls.from(cameraControl);
+    }
+
+    /**
+     * Retrieves a {@link CameraExtensionsInfo} object that allows to observe or monitor capture
+     * request settings and results for supported camera extensions.
+     *
+     * <p>If the provided {@link CameraControl} doesn't represent a camera with enabled
+     * extensions, a placeholder {@link CameraExtensionsInfo} object will be returned, indicating
+     * no extension type and strength support.
+     *
+     * @param cameraInfo the camera info for a camera with a specific extension mode turned on.
+     * @return a {@link CameraExtensionsInfo} object for observing extension-specific capture
+     * request settings and results.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public CameraExtensionsInfo getCameraExtensionsInfo(@NonNull CameraInfo cameraInfo) {
+        return CameraExtensionsInfos.from(cameraInfo);
     }
 
     @VisibleForTesting

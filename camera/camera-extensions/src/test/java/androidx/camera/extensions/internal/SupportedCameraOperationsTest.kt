@@ -259,6 +259,19 @@ class SupportedCameraOperationsTest(
         )
     }
 
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun supportedCameraOperations_extensionStrengthIsEnabled() {
+        testSupportedCameraOperation(
+            supportedCaptureRequestKeys = listOf(
+                CaptureRequest.EXTENSION_STRENGTH,
+            ),
+            expectSupportedOperations = setOf(
+                RestrictedCameraControl.EXTENSION_STRENGTH
+            )
+        )
+    }
+
     // For Basic extender under 1.3.0, ensures all operations are supported
     @Test
     fun supportedCameraOperations_allOperationsEnabled_basic1_2_and_below() {

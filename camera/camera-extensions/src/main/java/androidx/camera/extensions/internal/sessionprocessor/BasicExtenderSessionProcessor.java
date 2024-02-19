@@ -78,7 +78,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @NonNull
     private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
 
-    final Object mLock = new Object();
     volatile StillCaptureProcessor mStillCaptureProcessor = null;
     volatile PreviewProcessor mPreviewProcessor = null;
     volatile RequestUpdateProcessorImpl mRequestUpdateProcessor = null;

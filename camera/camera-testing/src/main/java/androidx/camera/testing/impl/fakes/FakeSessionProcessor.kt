@@ -51,7 +51,7 @@ const val FAKE_CAPTURE_SEQUENCE_ID = 1
 class FakeSessionProcessor(
     val inputFormatPreview: Int? = null,
     val inputFormatCapture: Int? = null,
-    val postviewSupportedSizes: Map<Int, List<Size>>? = null
+    val postviewSupportedSizes: Map<Int, List<Size>>? = null,
 ) : SessionProcessor {
     private lateinit var previewProcessorSurface: DeferrableSurface
     private lateinit var captureProcessorSurface: DeferrableSurface
