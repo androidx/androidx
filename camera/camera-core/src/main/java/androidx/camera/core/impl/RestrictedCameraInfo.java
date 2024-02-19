@@ -20,6 +20,7 @@ import android.util.Range;
 import android.util.Rational;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
@@ -37,6 +38,8 @@ import androidx.lifecycle.MutableLiveData;
 public class RestrictedCameraInfo extends ForwardingCameraInfo {
     private final CameraInfoInternal mCameraInfo;
     private final RestrictedCameraControl mRestrictedCameraControl;
+    @Nullable
+    private final SessionProcessor mSessionProcessor;
     private boolean mIsPostviewSupported = false;
     private boolean mIsCaptureProcessProgressSupported = false;
 
@@ -45,6 +48,15 @@ public class RestrictedCameraInfo extends ForwardingCameraInfo {
         super(cameraInfo);
         mCameraInfo = cameraInfo;
         mRestrictedCameraControl = restrictedCameraControl;
+        mSessionProcessor = mRestrictedCameraControl.getSessionProcessor();
+    }
+
+    /**
+     * Returns the session processor associated with the RestrictedCameraInfo.
+     */
+    @Nullable
+    public SessionProcessor getSessionProcessor() {
+        return mSessionProcessor;
     }
 
     @NonNull

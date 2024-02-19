@@ -1415,6 +1415,27 @@ class CameraUseCaseAdapterTest {
         assertThat(cameraInfoInternal.isCaptureProcessProgressSupported).isTrue()
     }
 
+    @RequiresApi(23)
+    @Test
+    fun returnsCorrectSessionProcessorFromRestrictedCameraControl() {
+        val fakeSessionProcessor = FakeSessionProcessor()
+        val cameraConfig: CameraConfig = FakeCameraConfig(fakeSessionProcessor)
+
+        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+            fakeCamera,
+            cameraCoordinator,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory,
+            cameraConfig
+        )
+
+        val cameraControl = cameraUseCaseAdapter.cameraControl
+        assertThat(cameraControl).isInstanceOf(RestrictedCameraControl::class.java)
+        assertThat((cameraControl as RestrictedCameraControl).sessionProcessor).isSameInstanceAs(
+            fakeSessionProcessor
+        )
+    }
+
     private fun createFakeVideoCaptureUseCase(): FakeUseCase {
         return FakeUseCaseConfig.Builder()
             .setCaptureType(CaptureType.VIDEO_CAPTURE)

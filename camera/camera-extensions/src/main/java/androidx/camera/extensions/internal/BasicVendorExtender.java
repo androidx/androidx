@@ -422,6 +422,12 @@ public class BasicVendorExtender implements VendorExtender {
         }
     }
 
+    @Override
+    public boolean isExtensionStrengthAvailable() {
+        // Extension strength function won't be supported by the basic extender mode.
+        return false;
+    }
+
     @Nullable
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {
