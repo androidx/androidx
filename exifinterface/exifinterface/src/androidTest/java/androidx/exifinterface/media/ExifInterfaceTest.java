@@ -55,7 +55,6 @@ import org.junit.runner.RunWith;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -424,16 +423,12 @@ public class ExifInterfaceTest {
 
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
             File file = tempFolder.newFile(IMAGE_FILENAMES[i]);
-            InputStream inputStream = null;
-            FileOutputStream outputStream = null;
-            try {
-                inputStream = getApplicationContext()
-                        .getResources().openRawResource(IMAGE_RESOURCES[i]);
-                outputStream = new FileOutputStream(file);
+            try (InputStream inputStream =
+                            getApplicationContext()
+                                    .getResources()
+                                    .openRawResource(IMAGE_RESOURCES[i]);
+                    FileOutputStream outputStream = new FileOutputStream(file)) {
                 copy(inputStream, outputStream);
-            } finally {
-                closeQuietly(inputStream);
-                closeQuietly(outputStream);
             }
         }
     }
@@ -1170,13 +1165,15 @@ public class ExifInterfaceTest {
         File imageFile = resolveImageFile(fileName);
         String verboseTag = imageFile.getName();
 
-        FileInputStream fis = new FileInputStream(imageFile);
-        // Skip the following marker bytes (0xff, 0xd8, 0xff, 0xe1)
-        fis.skip(4);
-        // Read the value of the length of the exif data
-        short length = readShort(fis);
-        byte[] exifBytes = new byte[length];
-        fis.read(exifBytes);
+        byte[] exifBytes;
+        try (FileInputStream fis = new FileInputStream(imageFile)) {
+            // Skip the following marker bytes (0xff, 0xd8, 0xff, 0xe1)
+            fis.skip(4);
+            // Read the value of the length of the exif data
+            short length = readShort(fis);
+            exifBytes = new byte[length];
+            fis.read(exifBytes);
+        }
 
         ByteArrayInputStream bin = new ByteArrayInputStream(exifBytes);
         ExifInterface exifInterface =
@@ -1199,14 +1196,11 @@ public class ExifInterfaceTest {
         assertNotNull(exifInterface);
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
 
-        InputStream in = null;
         // Creates via InputStream.
-        try {
-            in = new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()));
+        try (InputStream in =
+                new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             exifInterface = new ExifInterface(in);
             compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
-        } finally {
-            closeQuietly(in);
         }
 
         // Creates via FileDescriptor.
@@ -1229,9 +1223,8 @@ public class ExifInterfaceTest {
             throws IOException {
         File imageFile = resolveImageFile(fileName);
 
-        InputStream in = null;
-        try {
-            in = new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()));
+        try (InputStream in =
+                new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedValue.hasThumbnail) {
                 in.skip(expectedValue.thumbnailOffset);
                 byte[] thumbnailBytes = new byte[expectedValue.thumbnailLength];
@@ -1245,11 +1238,13 @@ public class ExifInterfaceTest {
                 assertEquals(expectedValue.thumbnailWidth, thumbnailBitmap.getWidth());
                 assertEquals(expectedValue.thumbnailHeight, thumbnailBitmap.getHeight());
             }
+        }
 
-            // TODO: Creating a new input stream is a temporary
-            //  workaround for BufferedInputStream#mark/reset not working properly for
-            //  LG_G4_ISO_800_DNG. Need to investigate cause.
-            in = new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()));
+        // TODO: Creating a new input stream is a temporary
+        //  workaround for BufferedInputStream#mark/reset not working properly for
+        //  LG_G4_ISO_800_DNG. Need to investigate cause.
+        try (InputStream in =
+                new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedValue.hasMake) {
                 in.skip(expectedValue.makeOffset);
                 byte[] makeBytes = new byte[expectedValue.makeLength];
@@ -1261,8 +1256,10 @@ public class ExifInterfaceTest {
                 makeString = makeString.replaceAll("\u0000.*", "");
                 assertEquals(expectedValue.make, makeString);
             }
+        }
 
-            in = new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()));
+        try (InputStream in =
+                new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedValue.hasXmp) {
                 in.skip(expectedValue.xmpOffset);
                 byte[] identifierBytes = new byte[expectedValue.xmpLength];
@@ -1274,8 +1271,6 @@ public class ExifInterfaceTest {
                         .startsWith(xmpIdentifier));
             }
             // TODO: Add code for retrieving raw latitude data using offset and length
-        } finally {
-            closeQuietly(in);
         }
     }
 
@@ -1370,17 +1365,6 @@ public class ExifInterfaceTest {
         assertNotNull(thumbnailBitmap);
         assertEquals(expectedValue.thumbnailWidth, thumbnailBitmap.getWidth());
         assertEquals(expectedValue.thumbnailHeight, thumbnailBitmap.getHeight());
-    }
-
-    private void closeQuietly(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (RuntimeException rethrown) {
-                throw rethrown;
-            } catch (Exception ignored) {
-            }
-        }
     }
 
     @RequiresApi(21)
