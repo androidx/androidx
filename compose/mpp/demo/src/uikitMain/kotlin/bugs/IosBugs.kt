@@ -19,6 +19,7 @@ package bugs
 import androidx.compose.mpp.demo.Screen
 import androidx.compose.mpp.demo.bug.BackspaceIssue
 import androidx.compose.mpp.demo.bug.DropdownMenuIssue
+import androidx.compose.mpp.demo.bug.KeyboardIMEActionPopup
 
 val IosBugs = Screen.Selection(
     "IosBugs",
@@ -31,4 +32,5 @@ val IosBugs = Screen.Selection(
     StartRecompositionCheck,
     BackspaceIssue,
     DropdownMenuIssue,
+    KeyboardIMEActionPopup,
 )
