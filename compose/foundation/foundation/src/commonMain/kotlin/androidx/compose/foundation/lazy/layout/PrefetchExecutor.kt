@@ -30,8 +30,12 @@ internal expect fun rememberDefaultPrefetchExecutor(): PrefetchExecutor
 /**
  * Implementations of this interface accept prefetch requests via [requestPrefetch] and decide when
  * to execute them in a way that will have minimal impact on user experience, e.g. during frame idle
- * time. Executing a request involves invoking [Request.performComposition] and
- * [Request.performMeasure].
+ * time.
+ *
+ * Requests should be executed by invoking [PrefetchRequest.execute]. The implementation of
+ * [PrefetchRequest.execute] will return `false` when all work for that request is done, or `true`
+ * when it still has more to do but doesn't think it can complete it within
+ * [PrefetchRequestScope.availableTimeNanos].
  */
 @ExperimentalFoundationApi
 interface PrefetchExecutor {
@@ -40,30 +44,36 @@ interface PrefetchExecutor {
      * Accepts a prefetch request. Implementations should find a time to execute them which will
      * have minimal impact on user experience.
      */
-    fun requestPrefetch(request: Request)
+    fun requestPrefetch(prefetchRequest: PrefetchRequest)
+}
 
-    sealed interface Request {
+/**
+ * A request for prefetch which can be submitted to a [PrefetchExecutor] to execute during idle
+ * time.
+ */
+@ExperimentalFoundationApi
+sealed interface PrefetchRequest {
 
-        /**
-         * Whether this is still a valid request (wasn't canceled, within list bounds). If it's
-         * not valid, it should be dropped and not executed.
-         */
-        val isValid: Boolean
+    /**
+     * Gives this request a chance to execute work. It should only do work if it thinks it can
+     * finish it within [PrefetchRequestScope.availableTimeNanos].
+     *
+     * @return whether this request has more work it wants to do, but ran out of time. `true`
+     * indicates this request wants to have [execute] called again to do more work, while `false`
+     * indicates its work is complete.
+     */
+    fun PrefetchRequestScope.execute(): Boolean
+}
 
-        /**
-         * Whether this request has been composed via [performComposition].
-         */
-        val isComposed: Boolean
+/**
+ * Scope for [PrefetchRequest.execute], supplying info about how much time it has to execute requests.
+ */
+@ExperimentalFoundationApi
+interface PrefetchRequestScope {
 
-        /**
-         * Composes the content belonging to this request.
-         */
-        fun performComposition()
-
-        /**
-         * Measures the Composition belonging to this request. Must be called after
-         * [performComposition].
-         */
-        fun performMeasure()
-    }
+    /**
+     * How much time is available to do prefetch work. Implementations of [PrefetchRequest] should
+     * do their best to fit their work into this time without going over.
+     */
+    val availableTimeNanos: Long
 }

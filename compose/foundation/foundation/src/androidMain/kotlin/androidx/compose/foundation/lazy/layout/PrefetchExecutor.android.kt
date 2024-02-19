@@ -25,8 +25,8 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.util.trace
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 @ExperimentalFoundationApi
 @Composable
@@ -101,18 +101,8 @@ internal class AndroidPrefetchExecutor(
      * The list of currently not processed prefetch requests. The requests will be processed one by
      * during subsequent [run]s.
      */
-    private val prefetchRequests = mutableVectorOf<PrefetchExecutor.Request>()
-
-    /**
-     * Average time the prefetching operations takes. Keeping it allows us to not start the work
-     * if in this frame we are most likely not going to finish the work in time to not delay the
-     * next frame.
-     */
-    private var averagePrecomposeTimeNs: Long = 0
-    private var averagePremeasureTimeNs: Long = 0
-
+    private val prefetchRequests = mutableVectorOf<PrefetchRequest>()
     private var prefetchScheduled = false
-
     private val choreographer = Choreographer.getInstance()
 
     /** Is true when LazyList was composed and not yet disposed. */
@@ -136,52 +126,16 @@ internal class AndroidPrefetchExecutor(
         }
         val latestFrameVsyncNs = TimeUnit.MILLISECONDS.toNanos(view.drawingTime)
         val nextFrameNs = latestFrameVsyncNs + frameIntervalNs
-        var oneOverTimeTaskAllowed = System.nanoTime() > nextFrameNs
+        val oneOverTimeTaskAllowed = System.nanoTime() > nextFrameNs
+        val scope = PrefetchRequestScopeImpl(nextFrameNs, oneOverTimeTaskAllowed)
         var scheduleForNextFrame = false
         while (prefetchRequests.isNotEmpty() && !scheduleForNextFrame) {
             val request = prefetchRequests[0]
-            if (!request.isValid) {
-                prefetchRequests.removeAt(0)
-            } else if (!request.isComposed) {
-                val beforeTimeNs = System.nanoTime()
-                // check if there is enough time left in this frame. otherwise, we schedule
-                // a next frame callback in which we will post the message in the handler again.
-                if (enoughTimeLeft(
-                        beforeTimeNs,
-                        nextFrameNs,
-                        averagePrecomposeTimeNs
-                    ) || oneOverTimeTaskAllowed
-                ) {
-                    trace("compose:lazylist:prefetch:compose") {
-                        oneOverTimeTaskAllowed = false
-                        request.performComposition()
-                        averagePrecomposeTimeNs = calculateAverageTime(
-                            System.nanoTime() - beforeTimeNs, averagePrecomposeTimeNs
-                        )
-                    }
-                } else {
-                    scheduleForNextFrame = true
-                }
+            val hasMoreWorkToDo = with(request) { scope.execute() }
+            if (hasMoreWorkToDo) {
+                scheduleForNextFrame = true
             } else {
-                val beforeTimeNs = System.nanoTime()
-                if (enoughTimeLeft(
-                        beforeTimeNs,
-                        nextFrameNs,
-                        averagePremeasureTimeNs
-                    ) || oneOverTimeTaskAllowed
-                ) {
-                    trace("compose:lazylist:prefetch:measure") {
-                        oneOverTimeTaskAllowed = false
-                        request.performMeasure()
-                        averagePremeasureTimeNs = calculateAverageTime(
-                            System.nanoTime() - beforeTimeNs, averagePremeasureTimeNs
-                        )
-                        // we finished this request
-                        prefetchRequests.removeAt(0)
-                    }
-                } else {
-                    scheduleForNextFrame = true
-                }
+                prefetchRequests.removeAt(0)
             }
         }
 
@@ -194,9 +148,6 @@ internal class AndroidPrefetchExecutor(
         }
     }
 
-    private fun enoughTimeLeft(now: Long, nextFrame: Long, average: Long) =
-        now + average < nextFrame
-
     /**
      * Choreographer frame callback. It will be called when during the previous frame we didn't
      * have enough time left. We will post a new message in the handler in order to try to
@@ -208,20 +159,8 @@ internal class AndroidPrefetchExecutor(
         }
     }
 
-    private fun calculateAverageTime(new: Long, current: Long): Long {
-        // Calculate a weighted moving average of time taken to compose an item. We use weighted
-        // moving average to bias toward more recent measurements, and to minimize storage /
-        // computation cost. (the idea is taken from RecycledViewPool)
-        return if (current == 0L) {
-            new
-        } else {
-            // dividing first to avoid a potential overflow
-            current / 4 * 3 + new / 4
-        }
-    }
-
-    override fun requestPrefetch(request: PrefetchExecutor.Request) {
-        prefetchRequests.add(request)
+    override fun requestPrefetch(prefetchRequest: PrefetchRequest) {
+        prefetchRequests.add(prefetchRequest)
         if (!prefetchScheduled) {
             prefetchScheduled = true
             // schedule the prefetching
@@ -240,6 +179,28 @@ internal class AndroidPrefetchExecutor(
     }
 
     override fun onAbandoned() {}
+
+    class PrefetchRequestScopeImpl(
+        private val nextFrameTimeNs: Long,
+        isOneOverTimeTaskAllowed: Boolean
+    ) : PrefetchRequestScope {
+
+        private var canDoOverTimeTask = isOneOverTimeTaskAllowed
+
+        override val availableTimeNanos: Long
+            get() {
+                // This logic is meant to be temporary until we replace the isOneOverTimeTaskAllowed
+                // logic with something more general. For now, we assume that a PrefetchRequest
+                // impl will check availableTimeNanos once per task and we give it a large amount
+                // of time the first time it checks if we allow an overtime task.
+                return if (canDoOverTimeTask) {
+                    canDoOverTimeTask = false
+                    Long.MAX_VALUE
+                } else {
+                    max(0, nextFrameTimeNs - System.nanoTime())
+                }
+            }
+    }
 
     companion object {
 

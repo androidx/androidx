@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchH
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.util.trace
+import kotlin.system.measureNanoTime
 
 /**
  * State for lazy items prefetching, used by lazy layouts to instruct the prefetcher.
@@ -35,6 +37,8 @@ import androidx.compose.ui.unit.Constraints
 @ExperimentalFoundationApi
 @Stable
 class LazyLayoutPrefetchState(internal val prefetchExecutor: PrefetchExecutor? = null) {
+
+    private val prefetchMetrics: PrefetchMetrics = PrefetchMetrics()
     internal var prefetchHandleProvider: PrefetchHandleProvider? = null
 
     /**
@@ -44,7 +48,8 @@ class LazyLayoutPrefetchState(internal val prefetchExecutor: PrefetchExecutor? =
      * @param constraints [Constraints] to use for premeasuring.
      */
     fun schedulePrefetch(index: Int, constraints: Constraints): PrefetchHandle {
-        return prefetchHandleProvider?.schedulePrefetch(index, constraints) ?: DummyHandle
+        return prefetchHandleProvider?.schedulePrefetch(index, constraints, prefetchMetrics)
+            ?: DummyHandle
     }
 
     sealed interface PrefetchHandle {
@@ -53,6 +58,57 @@ class LazyLayoutPrefetchState(internal val prefetchExecutor: PrefetchExecutor? =
          * was precomposed already it will be disposed.
          */
         fun cancel()
+    }
+}
+
+/**
+ * [PrefetchMetrics] tracks composition and measure timings for subcompositions so that they can be
+ * used to estimate whether we can fit prefetch work into idle time without delaying the start of
+ * the next frame.
+ */
+@ExperimentalFoundationApi
+internal class PrefetchMetrics {
+
+    /**
+     * The current average time composition has taken during prefetches of this LazyLayout.
+     */
+    var averageCompositionTimeNanos: Long = 0L
+        private set
+
+    /**
+     * The current average time measure has taken during prefetches of this LazyLayout.
+     */
+    var averageMeasureTimeNanos: Long = 0L
+        private set
+
+    /**
+     * Executes the [doComposition] block and updates [averageCompositionTimeNanos] with the new
+     * average.
+     */
+    internal inline fun recordCompositionTiming(doComposition: () -> Unit) {
+        val executionTime = measureNanoTime(doComposition)
+        averageCompositionTimeNanos =
+            calculateAverageTime(executionTime, averageCompositionTimeNanos)
+    }
+
+    /**
+     * Executes the [doMeasure] block and updates [averageMeasureTimeNanos] with the new average.
+     */
+    internal inline fun recordMeasureTiming(doMeasure: () -> Unit) {
+        val executionTime = measureNanoTime(doMeasure)
+        averageMeasureTimeNanos = calculateAverageTime(executionTime, averageMeasureTimeNanos)
+    }
+
+    private fun calculateAverageTime(new: Long, current: Long): Long {
+        // Calculate a weighted moving average of time taken to compose an item. We use weighted
+        // moving average to bias toward more recent measurements, and to minimize storage /
+        // computation cost. (the idea is taken from RecycledViewPool)
+        return if (current == 0L) {
+            new
+        } else {
+            // dividing first to avoid a potential overflow
+            current / 4 * 3 + new / 4
+        }
     }
 }
 
@@ -73,26 +129,29 @@ internal class PrefetchHandleProvider(
     private val subcomposeLayoutState: SubcomposeLayoutState,
     private val executor: PrefetchExecutor
 ) {
-    fun schedulePrefetch(index: Int, constraints: Constraints): PrefetchHandle =
-        HandleAndRequestImpl(index, constraints).also {
+    fun schedulePrefetch(
+        index: Int,
+        constraints: Constraints,
+        prefetchMetrics: PrefetchMetrics
+    ): PrefetchHandle =
+        HandleAndRequestImpl(index, constraints, prefetchMetrics).also {
             executor.requestPrefetch(it)
         }
 
     @ExperimentalFoundationApi
     private inner class HandleAndRequestImpl(
         private val index: Int,
-        private val constraints: Constraints
-    ) : PrefetchHandle, PrefetchExecutor.Request {
+        private val constraints: Constraints,
+        private val prefetchMetrics: PrefetchMetrics,
+    ) : PrefetchHandle, PrefetchRequest {
 
         private var precomposeHandle: SubcomposeLayoutState.PrecomposedSlotHandle? = null
         private var isMeasured = false
         private var isCanceled = false
-
-        override val isValid: Boolean
+        private val isComposed get() = precomposeHandle != null
+        private val isValid
             get() = !isCanceled &&
                 index in 0 until itemContentFactory.itemProvider().itemCount
-
-        override val isComposed get() = precomposeHandle != null
 
         override fun cancel() {
             if (!isCanceled) {
@@ -102,7 +161,40 @@ internal class PrefetchHandleProvider(
             }
         }
 
-        override fun performComposition() {
+        override fun PrefetchRequestScope.execute(): Boolean {
+            if (!isValid) {
+                return false
+            }
+
+            if (!isComposed) {
+                if (prefetchMetrics.averageCompositionTimeNanos < availableTimeNanos) {
+                    prefetchMetrics.recordCompositionTiming {
+                        trace("compose:lazy:prefetch:compose") {
+                            performComposition()
+                        }
+                    }
+                } else {
+                    return true
+                }
+            }
+
+            if (!isMeasured) {
+                if (prefetchMetrics.averageMeasureTimeNanos < availableTimeNanos) {
+                    prefetchMetrics.recordMeasureTiming {
+                        trace("compose:lazy:prefetch:measure") {
+                            performMeasure()
+                        }
+                    }
+                } else {
+                    return true
+                }
+            }
+
+            // All our work is done
+            return false
+        }
+
+        private fun performComposition() {
             require(isValid) {
                 "Callers should check whether the request is still valid before calling " +
                     "performComposition()"
@@ -115,7 +207,7 @@ internal class PrefetchHandleProvider(
             precomposeHandle = subcomposeLayoutState.precompose(key, content)
         }
 
-        override fun performMeasure() {
+        private fun performMeasure() {
             require(!isCanceled) {
                 "Callers should check whether the request is still valid before calling " +
                     "performMeasure()"

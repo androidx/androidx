@@ -1132,16 +1132,16 @@ package androidx.compose.foundation.lazy.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchExecutor {
-    method public void requestPrefetch(androidx.compose.foundation.lazy.layout.PrefetchExecutor.Request request);
+    method public void requestPrefetch(androidx.compose.foundation.lazy.layout.PrefetchRequest prefetchRequest);
   }
 
-  public static sealed interface PrefetchExecutor.Request {
-    method public boolean isComposed();
-    method public boolean isValid();
-    method public void performComposition();
-    method public void performMeasure();
-    property public abstract boolean isComposed;
-    property public abstract boolean isValid;
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PrefetchRequest {
+    method public boolean execute(androidx.compose.foundation.lazy.layout.PrefetchRequestScope);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchRequestScope {
+    method public long getAvailableTimeNanos();
+    property public abstract long availableTimeNanos;
   }
 
 }
