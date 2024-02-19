@@ -5224,7 +5224,8 @@ public class ExifInterface {
     }
 
     /**
-     * Returns number of milliseconds since Jan. 1, 1970, midnight UTC.
+     * Returns number of milliseconds since 1970-01-01 00:00:00 UTC.
+     *
      * @return null if the date time information is not available.
      */
     @SuppressLint("AutoBoxing") /* Not a performance-critical call, thus not a big concern. */
