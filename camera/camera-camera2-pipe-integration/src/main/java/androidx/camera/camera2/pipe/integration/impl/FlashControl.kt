@@ -59,7 +59,10 @@ class FlashControl @Inject constructor(
     private var _updateSignal: CompletableDeferred<Unit>? = null
 
     @Volatile
+    @ImageCapture.FlashMode
     private var _flashMode: Int = DEFAULT_FLASH_MODE
+
+    @ImageCapture.FlashMode
     var flashMode: Int = _flashMode
         get() = _flashMode
         private set
@@ -72,7 +75,10 @@ class FlashControl @Inject constructor(
         }
         private set
 
-    fun setFlashAsync(flashMode: Int, cancelPreviousTask: Boolean = true): Deferred<Unit> {
+    fun setFlashAsync(
+        @ImageCapture.FlashMode flashMode: Int,
+        cancelPreviousTask: Boolean = true
+    ): Deferred<Unit> {
         val signal = CompletableDeferred<Unit>()
 
         useCaseCamera?.let {

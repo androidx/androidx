@@ -93,7 +93,7 @@ interface CapturePipeline {
         sessionConfigOptions: Config,
         captureMode: Int,
         flashType: Int,
-        flashMode: Int,
+        @FlashMode flashMode: Int,
     ): List<Deferred<Void?>>
 }
 
@@ -125,7 +125,7 @@ class CapturePipelineImpl @Inject constructor(
         sessionConfigOptions: Config,
         captureMode: Int,
         flashType: Int,
-        flashMode: Int,
+        @FlashMode flashMode: Int,
     ): List<Deferred<Void?>> = if (isTorchAsFlash(flashType)) {
         torchAsFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode, flashMode)
     } else {
