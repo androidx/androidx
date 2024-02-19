@@ -58,7 +58,7 @@ internal class FocusStackImpl : FocusStack<UIView> {
     override fun popUntilNext(view: UIView) {
         if (activeViews.contains(view)) {
             val index = activeViews.indexOf(view)
-            resignedViews += activeViews.subList(index, activeViews.lastIndex)
+            resignedViews += activeViews.subList(index, activeViews.size)
             activeViews = activeViews.subList(0, index)
 
             mainScope.launch {
