@@ -58,7 +58,7 @@ private fun StringTextField(
         TextFieldState(
             initialText = value,
             // Initialize the cursor to be at the end of the field.
-            initialSelectionInChars = TextRange(value.length)
+            initialSelection = TextRange(value.length)
         )
     }
 
@@ -192,7 +192,7 @@ private class StateSyncingModifierNode(
 
             // The BasicTextField2(String) variant can't push a selection value, so ignore it.
             if (writeSelectionFromTextFieldValue) {
-                selectCharsIn(value.selection)
+                selection = value.selection
             }
         }
     }
@@ -208,8 +208,8 @@ private class StateSyncingModifierNode(
         if (fireOnValueChanged) {
             val newValue = TextFieldValue(
                 text = text.toString(),
-                selection = text.selectionInChars,
-                composition = text.compositionInChars
+                selection = text.selection,
+                composition = text.composition
             )
             onValueChanged(newValue)
         }

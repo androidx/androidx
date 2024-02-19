@@ -78,7 +78,7 @@ internal fun calculateSelectionMagnifierCenterAndroid(
         return Offset.Unspecified
     }
 
-    val selection = textFieldState.visualText.selectionInChars
+    val selection = textFieldState.visualText.selection
     val textOffset = when (selectionState.draggingHandle) {
         null -> return Offset.Unspecified
         Handle.Cursor,

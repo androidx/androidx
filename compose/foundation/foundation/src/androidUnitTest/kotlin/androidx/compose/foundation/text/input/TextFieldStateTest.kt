@@ -46,21 +46,21 @@ class TextFieldStateTest {
     fun defaultInitialTextAndSelection() {
         val state = TextFieldState()
         assertThat(state.text.toString()).isEqualTo("")
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange.Zero)
+        assertThat(state.text.selection).isEqualTo(TextRange.Zero)
     }
 
     @Test
     fun customInitialTextAndDefaultSelection() {
         val state = TextFieldState(initialText = "hello")
         assertThat(state.text.toString()).isEqualTo("hello")
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+        assertThat(state.text.selection).isEqualTo(TextRange(5))
     }
 
     @Test
     fun customInitialTextAndSelection() {
-        val state = TextFieldState(initialText = "hello", initialSelectionInChars = TextRange(0, 1))
+        val state = TextFieldState(initialText = "hello", initialSelection = TextRange(0, 1))
         assertThat(state.text.toString()).isEqualTo("hello")
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 1))
+        assertThat(state.text.selection).isEqualTo(TextRange(0, 1))
     }
 
     @Test
@@ -80,7 +80,7 @@ class TextFieldStateTest {
     @Test
     fun edit_invalidates_whenSelectionChanged() = runTestWithSnapshotsThenCancelChildren {
         val text = "hello"
-        val state = TextFieldState(text, initialSelectionInChars = TextRange(0))
+        val state = TextFieldState(text, initialSelection = TextRange(0))
         var invalidationCount = 0
         val observer = SnapshotStateObserver(onChangedExecutor = { it() })
         val observeState: () -> Unit = { state.text }
@@ -98,7 +98,7 @@ class TextFieldStateTest {
 
             // Act.
             state.edit {
-                selectCharsIn(TextRange(0, length))
+                selection = TextRange(0, length)
             }
             advanceUntilIdle()
             runCurrent()
@@ -113,7 +113,7 @@ class TextFieldStateTest {
     @Test
     fun edit_invalidates_whenTextChanged() = runTestWithSnapshotsThenCancelChildren {
         val text = "hello"
-        val state = TextFieldState(text, initialSelectionInChars = TextRange(0))
+        val state = TextFieldState(text, initialSelection = TextRange(0))
         var invalidationCount = 0
         val observer = SnapshotStateObserver(onChangedExecutor = { it() })
         val observeState: () -> Unit = { state.text }
@@ -146,7 +146,7 @@ class TextFieldStateTest {
     @Test
     fun edit_doesNotInvalidate_whenNoChangesMade() = runTestWithSnapshotsThenCancelChildren {
         val text = "hello"
-        val state = TextFieldState(text, initialSelectionInChars = TextRange(0))
+        val state = TextFieldState(text, initialSelection = TextRange(0))
         var invalidationCount = 0
         val observer = SnapshotStateObserver(onChangedExecutor = { it() })
         val observeState: () -> Unit = { state.text }
@@ -165,9 +165,9 @@ class TextFieldStateTest {
             // Act.
             state.edit {
                 // Change the selection but restore it before returning.
-                val originalSelection = selectionInChars
-                selectCharsIn(TextRange(0, length))
-                selectCharsIn(originalSelection)
+                val originalSelection = selection
+                selection = TextRange(0, length)
+                selection = originalSelection
 
                 // This will be a no-op too.
                 setTextIfChanged(text)
@@ -230,7 +230,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorAtEnd()
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+        assertThat(state.text.selection).isEqualTo(TextRange(5))
     }
 
     @Test
@@ -239,7 +239,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorBeforeCharAt(2)
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(state.text.selection).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -256,87 +256,37 @@ class TextFieldStateTest {
     }
 
     @Test
-    fun edit_placeCursorBeforeCodepoint_simpleCase() {
-        state.edit {
-            replace(0, 0, "hello")
-            placeCursorBeforeCodepointAt(2)
-        }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
-    }
-
-    @Test
-    fun edit_placeCursorBeforeCodepoint_throws_whenInvalid() {
-        state.edit {
-            assertFailsWith<IllegalArgumentException> {
-                placeCursorBeforeCodepointAt(500)
-            }
-            assertFailsWith<IllegalArgumentException> {
-                placeCursorBeforeCodepointAt(-1)
-            }
-            placeCursorAtEnd()
-        }
-    }
-
-    @Test
     fun edit_selectAll() {
         state.edit {
             replace(0, 0, "hello")
             selectAll()
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+        assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
     }
 
     @Test
     fun edit_selectChars_simpleCase() {
         state.edit {
             replace(0, 0, "hello")
-            selectCharsIn(TextRange(1, 4))
+            selection = TextRange(1, 4)
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1, 4))
+        assertThat(state.text.selection).isEqualTo(TextRange(1, 4))
     }
 
     @Test
     fun edit_selectChars_throws_whenInvalid() {
         state.edit {
             assertFailsWith<IllegalArgumentException> {
-                selectCharsIn(TextRange(500, 501))
+                selection = TextRange(500, 501)
             }
             assertFailsWith<IllegalArgumentException> {
-                selectCharsIn(TextRange(-1, 500))
+                selection = TextRange(-1, 500)
             }
             assertFailsWith<IllegalArgumentException> {
-                selectCharsIn(TextRange(500, -1))
+                selection = TextRange(500, -1)
             }
             assertFailsWith<IllegalArgumentException> {
-                selectCharsIn(TextRange(-500, -1))
-            }
-            placeCursorAtEnd()
-        }
-    }
-
-    @Test
-    fun edit_selectCodepoints_simpleCase() {
-        state.edit {
-            replace(0, 0, "hello")
-            selectCodepointsIn(TextRange(1, 4))
-        }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1, 4))
-    }
-
-    @Test
-    fun edit_selectCodepoints_throws_whenInvalid() {
-        state.edit {
-            assertFailsWith<IllegalArgumentException> {
-                selectCodepointsIn(TextRange(500, 501))
-            }
-            assertFailsWith<IllegalArgumentException> {
-                selectCodepointsIn(TextRange(-1, 500))
-            }
-            assertFailsWith<IllegalArgumentException> {
-                selectCodepointsIn(TextRange(500, -1))
-            }
-            assertFailsWith<IllegalArgumentException> {
-                selectCodepointsIn(TextRange(-500, -1))
+                selection = TextRange(-500, -1)
             }
             placeCursorAtEnd()
         }
@@ -388,14 +338,14 @@ class TextFieldStateTest {
     fun setTextAndPlaceCursorAtEnd_works() {
         state.setTextAndPlaceCursorAtEnd("Hello")
         assertThat(state.text.toString()).isEqualTo("Hello")
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+        assertThat(state.text.selection).isEqualTo(TextRange(5))
     }
 
     @Test
     fun setTextAndSelectAll_works() {
         state.setTextAndSelectAll("Hello")
         assertThat(state.text.toString()).isEqualTo("Hello")
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+        assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
     }
 
     @Test
@@ -452,7 +402,7 @@ class TextFieldStateTest {
 
     @Test
     fun forEachValues_fires_immediately() = runTestWithSnapshotsThenCancelChildren {
-        val state = TextFieldState("hello", initialSelectionInChars = TextRange(5))
+        val state = TextFieldState("hello", initialSelection = TextRange(5))
         val texts = mutableListOf<TextFieldCharSequence>()
 
         launch(Dispatchers.Unconfined) {
@@ -462,12 +412,12 @@ class TextFieldStateTest {
         assertThat(texts).hasSize(1)
         assertThat(texts.single()).isSameInstanceAs(state.text)
         assertThat(texts.single().toString()).isEqualTo("hello")
-        assertThat(texts.single().selectionInChars).isEqualTo(TextRange(5))
+        assertThat(texts.single().selection).isEqualTo(TextRange(5))
     }
 
     @Test
     fun forEachValue_fires_whenTextChanged() = runTestWithSnapshotsThenCancelChildren {
-        val state = TextFieldState(initialSelectionInChars = TextRange(0))
+        val state = TextFieldState(initialSelection = TextRange(0))
         val texts = mutableListOf<TextFieldCharSequence>()
         val initialText = state.text
 
@@ -483,12 +433,12 @@ class TextFieldStateTest {
         assertThat(texts).hasSize(2)
         assertThat(texts.last()).isSameInstanceAs(state.text)
         assertThat(texts.last().toString()).isEqualTo("hello")
-        assertThat(texts.last().selectionInChars).isEqualTo(initialText.selectionInChars)
+        assertThat(texts.last().selection).isEqualTo(initialText.selection)
     }
 
     @Test
     fun forEachValue_fires_whenSelectionChanged() = runTestWithSnapshotsThenCancelChildren {
-        val state = TextFieldState("hello", initialSelectionInChars = TextRange(0))
+        val state = TextFieldState("hello", initialSelection = TextRange(0))
         val texts = mutableListOf<TextFieldCharSequence>()
 
         launch(Dispatchers.Unconfined) {
@@ -502,7 +452,7 @@ class TextFieldStateTest {
         assertThat(texts).hasSize(2)
         assertThat(texts.last()).isSameInstanceAs(state.text)
         assertThat(texts.last().toString()).isEqualTo("hello")
-        assertThat(texts.last().selectionInChars).isEqualTo(TextRange(5))
+        assertThat(texts.last().selection).isEqualTo(TextRange(5))
     }
 
     @Test

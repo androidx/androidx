@@ -83,7 +83,7 @@ class StatelessInputConnectionTest {
     private var value: TextFieldCharSequence = TextFieldCharSequence()
         set(value) {
             field = value
-            state = TextFieldState(value.toString(), value.selectionInChars)
+            state = TextFieldState(value.toString(), value.selection)
         }
     private var onRequestEdit: ((EditingBuffer.() -> Unit) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null

@@ -318,7 +318,7 @@ internal class StatelessInputConnection(
 
     override fun getSelectedText(flags: Int): CharSequence? {
         // https://source.chromium.org/chromium/chromium/src/+/master:content/public/android/java/src/org/chromium/content/browser/input/TextInputState.java;l=56;drc=0e20d1eb38227949805a4c0e9d5cdeddc8d23637
-        val result: CharSequence? = if (text.selectionInChars.collapsed) {
+        val result: CharSequence? = if (text.selection.collapsed) {
             null
         } else {
             // TODO(b/135556699) should return styled text
@@ -347,7 +347,7 @@ internal class StatelessInputConnection(
 
     override fun getCursorCapsMode(reqModes: Int): Int {
         logDebug("getCursorCapsMode($reqModes)")
-        return TextUtils.getCapsMode(text, text.selectionInChars.min, reqModes)
+        return TextUtils.getCapsMode(text, text.selection.min, reqModes)
     }
 
     // endregion
@@ -500,8 +500,8 @@ private fun TextFieldCharSequence.toExtractedText(): ExtractedText {
     res.startOffset = 0
     res.partialEndOffset = length
     res.partialStartOffset = -1 // -1 means full text
-    res.selectionStart = selectionInChars.min
-    res.selectionEnd = selectionInChars.max
+    res.selectionStart = selection.min
+    res.selectionEnd = selection.max
     res.flags = if ('\n' in this) 0 else ExtractedText.FLAG_SINGLE_LINE
     return res
 }

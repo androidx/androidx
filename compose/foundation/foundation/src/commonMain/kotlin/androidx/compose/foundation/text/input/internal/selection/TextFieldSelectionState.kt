@@ -234,7 +234,7 @@ internal class TextFieldSelectionState(
         // Visible bounds calculation lags one frame behind to let auto-scrolling settle.
         val text = textFieldState.visualText
         val visible = showCursorHandle &&
-            text.selectionInChars.collapsed &&
+            text.selection.collapsed &&
             text.isNotEmpty() &&
             (draggingHandle == Handle.Cursor || cursorHandleInBounds)
 
@@ -275,8 +275,8 @@ internal class TextFieldSelectionState(
     val cursorRect: Rect by derivedStateOf {
         val layoutResult = textLayoutState.layoutResult ?: return@derivedStateOf Rect.Zero
         val value = textFieldState.visualText
-        if (!value.selectionInChars.collapsed) return@derivedStateOf Rect.Zero
-        val cursorRect = layoutResult.getCursorRect(value.selectionInChars.start)
+        if (!value.selection.collapsed) return@derivedStateOf Rect.Zero
+        val cursorRect = layoutResult.getCursorRect(value.selection.start)
 
         val cursorWidth = with(density) { DefaultCursorThickness.toPx() }
         // left and right values in cursorRect should be the same but in any case use the
@@ -537,7 +537,7 @@ internal class TextFieldSelectionState(
         val untransformedCursorRange = TextRange(untransformedCursor)
 
         // Nothing changed, skip onValueChange and hapticFeedback.
-        if (untransformedCursorRange == textFieldState.untransformedText.selectionInChars &&
+        if (untransformedCursorRange == textFieldState.untransformedText.selection &&
             (newAffinity == null || newAffinity == textFieldState.selectionWedgeAffinity)
         ) {
             return false
@@ -712,7 +712,7 @@ internal class TextFieldSelectionState(
                     adjustment = SelectionAdjustment.Word
                 }
 
-                val prevSelection = textFieldState.visualText.selectionInChars
+                val prevSelection = textFieldState.visualText.selection
                 var newSelection = updateSelection(
                     textFieldCharSequence = textFieldState.visualText,
                     startOffset = startOffset,
@@ -826,16 +826,16 @@ internal class TextFieldSelectionState(
                     val startOffset = if (isStartHandle) {
                         layoutResult.getOffsetForPosition(handleDragPosition)
                     } else {
-                        textFieldState.visualText.selectionInChars.start
+                        textFieldState.visualText.selection.start
                     }
 
                     val endOffset = if (isStartHandle) {
-                        textFieldState.visualText.selectionInChars.end
+                        textFieldState.visualText.selection.end
                     } else {
                         layoutResult.getOffsetForPosition(handleDragPosition)
                     }
 
-                    val prevSelection = textFieldState.visualText.selectionInChars
+                    val prevSelection = textFieldState.visualText.selection
                     val newSelection = updateSelection(
                         textFieldCharSequence = textFieldState.visualText,
                         startOffset = startOffset,
@@ -889,7 +889,7 @@ internal class TextFieldSelectionState(
      */
     private suspend fun observeTextToolbarVisibility() {
         snapshotFlow {
-            val isCollapsed = textFieldState.visualText.selectionInChars.collapsed
+            val isCollapsed = textFieldState.visualText.selection.collapsed
             val textToolbarStateVisible =
                 isCollapsed && textToolbarState == TextToolbarState.Cursor ||
                     !isCollapsed && textToolbarState == TextToolbarState.Selection
@@ -945,7 +945,7 @@ internal class TextFieldSelectionState(
         // accept cursor position as content rect when selection is collapsed
         // contentRect is defined in text layout node coordinates, so it needs to be realigned to
         // the root container.
-        if (text.selectionInChars.collapsed) {
+        if (text.selection.collapsed) {
             val topLeft = textLayoutCoordinates?.localToRoot(cursorRect.topLeft) ?: Offset.Zero
             return Rect(topLeft, cursorRect.size)
         }
@@ -958,7 +958,7 @@ internal class TextFieldSelectionState(
                 Offset(
                     0f,
                     textLayoutState.layoutResult?.getCursorRect(
-                        text.selectionInChars.start
+                        text.selection.start
                     )?.top ?: 0f
                 )
             )?.y ?: 0f
@@ -967,7 +967,7 @@ internal class TextFieldSelectionState(
                 Offset(
                     0f,
                     textLayoutState.layoutResult?.getCursorRect(
-                        text.selectionInChars.end
+                        text.selection.end
                     )?.top ?: 0f
                 )
             )?.y ?: 0f
@@ -994,7 +994,7 @@ internal class TextFieldSelectionState(
 
         val layoutResult = textLayoutState.layoutResult ?: return TextFieldHandleState.Hidden
 
-        val selection = textFieldState.visualText.selectionInChars
+        val selection = textFieldState.visualText.selection
 
         if (selection.collapsed) return TextFieldHandleState.Hidden
 
@@ -1032,7 +1032,7 @@ internal class TextFieldSelectionState(
 
     private fun getHandlePosition(isStartHandle: Boolean): Offset {
         val layoutResult = textLayoutState.layoutResult ?: return Offset.Zero
-        val selection = textFieldState.visualText.selectionInChars
+        val selection = textFieldState.visualText.selection
         val offset = if (isStartHandle) {
             selection.start
         } else {
@@ -1092,7 +1092,7 @@ internal class TextFieldSelectionState(
      */
     fun cut() {
         val text = textFieldState.visualText
-        if (text.selectionInChars.collapsed) return
+        if (text.selection.collapsed) return
 
         clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
 
@@ -1111,7 +1111,7 @@ internal class TextFieldSelectionState(
      */
     fun copy(cancelSelection: Boolean = true) {
         val text = textFieldState.visualText
-        if (text.selectionInChars.collapsed) return
+        if (text.selection.collapsed) return
 
         clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
 
@@ -1171,7 +1171,7 @@ internal class TextFieldSelectionState(
      * @param contentRect Rectangle region where the toolbar will be anchored.
      */
     private fun showTextToolbar(contentRect: Rect) {
-        val selection = textFieldState.visualText.selectionInChars
+        val selection = textFieldState.visualText.selection
 
         // if receive content is configured, hasClip should be enough to show the paste option
         val canPasteContent = receiveContentConfiguration?.invoke() != null &&
@@ -1219,7 +1219,7 @@ internal class TextFieldSelectionState(
     }
 
     fun deselect() {
-        if (!textFieldState.visualText.selectionInChars.collapsed) {
+        if (!textFieldState.visualText.selection.collapsed) {
             textFieldState.collapseSelectionToEnd()
         }
 
@@ -1257,17 +1257,17 @@ internal class TextFieldSelectionState(
         val newSelection = getTextFieldSelection(
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
-            previousSelection = textFieldCharSequence.selectionInChars
+            previousSelection = textFieldCharSequence.selection
                 .takeIf { allowPreviousSelectionCollapsed || !it.collapsed },
             isStartHandle = isStartHandle,
             adjustment = adjustment,
         )
 
-        if (newSelection == textFieldCharSequence.selectionInChars) return newSelection
+        if (newSelection == textFieldCharSequence.selection) return newSelection
 
         val onlyChangeIsReversed =
-            newSelection.reversed != textFieldCharSequence.selectionInChars.reversed &&
-                newSelection.run { TextRange(end, start) } == textFieldCharSequence.selectionInChars
+            newSelection.reversed != textFieldCharSequence.selection.reversed &&
+                newSelection.run { TextRange(end, start) } == textFieldCharSequence.selection
 
         // don't haptic if we are using a mouse or if we aren't moving the selection bounds
         if (isInTouchMode && !onlyChangeIsReversed) {

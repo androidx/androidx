@@ -233,7 +233,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         val tag = "BasicTextField"
         val state = TextFieldState(
             "aaaa",
-            initialSelectionInChars = TextRange.Zero
+            initialSelection = TextRange.Zero
         )
 
         rule.setTextFieldTestContent {
@@ -271,7 +271,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         val tag = "BasicTextField"
         val state = TextFieldState(
             "aaaa\naaaa\naaaa\n".repeat(5),
-            initialSelectionInChars = TextRange.Zero
+            initialSelection = TextRange.Zero
         )
         val scrollState = ScrollState(0)
         var coroutineScope: CoroutineScope? = null
@@ -318,7 +318,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         val tag = "BasicTextField"
         val state = TextFieldState(
             "aaaa aaaa aaaa ".repeat(5),
-            initialSelectionInChars = TextRange.Zero
+            initialSelection = TextRange.Zero
         )
         val scrollState = ScrollState(0)
         var coroutineScope: CoroutineScope? = null
@@ -377,7 +377,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         val tag = "BasicTextField"
         val state = TextFieldState(
             "$fillerWord $fillerWord $fillerWord ".repeat(10),
-            initialSelectionInChars = TextRange.Zero
+            initialSelection = TextRange.Zero
         )
 
         rule.setTextFieldTestContent {
@@ -430,7 +430,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
     private fun setupDragAndDropContent(): View {
         val state = TextFieldState(
             "aaaa",
-            initialSelectionInChars = TextRange.Zero
+            initialSelection = TextRange.Zero
         )
         var view: View? = null
         rule.setContent { // Do not use setTextFieldTestContent for DnD tests.

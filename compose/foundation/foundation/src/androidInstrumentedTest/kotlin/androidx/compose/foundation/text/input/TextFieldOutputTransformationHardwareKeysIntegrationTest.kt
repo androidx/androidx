@@ -52,7 +52,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
 
     @Test
     fun replacement_visualText() {
-        val text = TextFieldState("abcd", initialSelectionInChars = TextRange(0))
+        val text = TextFieldState("abcd", initialSelection = TextRange(0))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -67,7 +67,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
 
     @Test
     fun replacement_cursorMovement_leftToRight_byCharacter_stateOffsets() {
-        val text = TextFieldState("abcd", initialSelectionInChars = TextRange(0))
+        val text = TextFieldState("abcd", initialSelection = TextRange(0))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -78,18 +78,18 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
         }
         rule.onNodeWithTag(Tag).requestFocus()
 
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(0))
+        assertThat(text.text.selection).isEqualTo(TextRange(0))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(text.text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(3))
+        assertThat(text.text.selection).isEqualTo(TextRange(3))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(4))
+        assertThat(text.text.selection).isEqualTo(TextRange(4))
     }
 
     @Test
     fun replacement_cursorMovement_rightToLeft_byCharacter_stateOffsets() {
-        val text = TextFieldState("abcd", initialSelectionInChars = TextRange(4))
+        val text = TextFieldState("abcd", initialSelection = TextRange(4))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -100,18 +100,18 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
         }
         rule.onNodeWithTag(Tag).requestFocus()
 
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(4))
+        assertThat(text.text.selection).isEqualTo(TextRange(4))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(3))
+        assertThat(text.text.selection).isEqualTo(TextRange(3))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(text.text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(0))
+        assertThat(text.text.selection).isEqualTo(TextRange(0))
     }
 
     @Test
     fun replacement_cursorMovement_leftToRight_byCharacter_semanticsOffsets() {
-        val text = TextFieldState("abcd", initialSelectionInChars = TextRange(0))
+        val text = TextFieldState("abcd", initialSelection = TextRange(0))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -133,7 +133,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
 
     @Test
     fun replacement_cursorMovement_rightToLeft_byCharacter_semanticsOffsets() {
-        val text = TextFieldState("abcd", initialSelectionInChars = TextRange(4))
+        val text = TextFieldState("abcd", initialSelection = TextRange(4))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -155,7 +155,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
 
     @Test
     fun insert_visualText() {
-        val text = TextFieldState("ab", initialSelectionInChars = TextRange(0))
+        val text = TextFieldState("ab", initialSelection = TextRange(0))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -170,7 +170,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
 
     @Test
     fun insert_cursorMovement_leftToRight_byCharacter_stateOffsets() {
-        val text = TextFieldState("ab", initialSelectionInChars = TextRange(0))
+        val text = TextFieldState("ab", initialSelection = TextRange(0))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -181,18 +181,18 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
         }
         rule.onNodeWithTag(Tag).requestFocus()
 
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(0))
+        assertThat(text.text.selection).isEqualTo(TextRange(0))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(text.text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(text.text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(text.text.selection).isEqualTo(TextRange(2))
     }
 
     @Test
     fun insert_cursorMovement_rightToLeft_byCharacter_stateOffsets() {
-        val text = TextFieldState("ab", initialSelectionInChars = TextRange(2))
+        val text = TextFieldState("ab", initialSelection = TextRange(2))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -203,18 +203,18 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
         }
         rule.onNodeWithTag(Tag).requestFocus()
 
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(text.text.selection).isEqualTo(TextRange(2))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(text.text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(text.text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selectionInChars).isEqualTo(TextRange(0))
+        assertThat(text.text.selection).isEqualTo(TextRange(0))
     }
 
     @Test
     fun insert_cursorMovement_leftToRight_byCharacter_semanticsOffsets() {
-        val text = TextFieldState("ab", initialSelectionInChars = TextRange(0))
+        val text = TextFieldState("ab", initialSelection = TextRange(0))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
@@ -236,7 +236,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
 
     @Test
     fun insert_cursorMovement_rightToLeft_byCharacter_semanticsOffsets() {
-        val text = TextFieldState("ab", initialSelectionInChars = TextRange(2))
+        val text = TextFieldState("ab", initialSelection = TextRange(2))
         inputMethodInterceptor.setContent {
             BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),

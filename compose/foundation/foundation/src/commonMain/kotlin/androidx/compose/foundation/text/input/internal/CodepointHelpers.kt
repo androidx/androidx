@@ -17,5 +17,4 @@
 package androidx.compose.foundation.text.input.internal
 
 internal expect fun CharSequence.codePointAt(index: Int): Int
-internal expect fun CharSequence.codePointCount(): Int
 internal expect fun charCount(codePoint: Int): Int
