@@ -235,10 +235,10 @@ interface FlowRowOverflowScope : FlowRowScope {
 @ExperimentalLayoutApi
 interface FlowColumnScope : ColumnScope {
     /**
-     * Have the item fill (possibly only partially) the max width of the tallest item in the
+     * Have the item fill (possibly only partially) the max width of the widest item in the
      * column it was placed in, within the [FlowColumn].
      *
-     * @param fraction The fraction of the max width of the tallest item
+     * @param fraction The fraction of the max width of the widest item
      * between `0` and `1`, inclusive.
      *
      * Example usage:
