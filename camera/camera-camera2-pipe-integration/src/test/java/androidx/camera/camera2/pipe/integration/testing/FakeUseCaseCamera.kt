@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -164,7 +165,7 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         captureSequence: List<CaptureConfig>,
         captureMode: Int,
         flashType: Int,
-        flashMode: Int,
+        @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
         return captureSequence.map {
             CompletableDeferred<Void?>(null).apply { complete(null) }

@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -124,7 +125,7 @@ class CameraControlAdapter @Inject constructor(
         return flashControl.flashMode
     }
 
-    override fun setFlashMode(flashMode: Int) {
+    override fun setFlashMode(@ImageCapture.FlashMode flashMode: Int) {
         flashControl.setFlashAsync(flashMode)
     }
 
