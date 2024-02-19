@@ -39,7 +39,6 @@ import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -348,6 +347,15 @@ private class InteropPointerInputModifier<T : Component>(
 
     private fun dispatchToView(pointerEvent: PointerEvent) {
         val e = pointerEvent.awtEventOrNull ?: return
+        when (e.id) {
+            // Do not redispatch Enter/Exit events since they are related exclusively
+            // to original component.
+            MouseEvent.MOUSE_ENTERED, MouseEvent.MOUSE_EXITED -> return
+        }
+        if (SwingUtilities.isDescendingFrom(e.component, componentInfo.container)) {
+            // Do not redispatch the event if it originally from this interop view.
+            return
+        }
         val containerPoint = SwingUtilities.convertPoint(root, e.point, componentInfo.component)
         val component = SwingUtilities.getDeepestComponentAt(
             componentInfo.component,
