@@ -25,7 +25,7 @@ import androidx.compose.foundation.content.internal.getReceiveContentConfigurati
 import androidx.compose.foundation.content.readPlainText
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
@@ -99,7 +99,7 @@ private val MediaTypesText = setOf(MediaType.Text)
 private val MediaTypesAll = setOf(MediaType.All)
 
 /**
- * Modifier element for most of the functionality of [BasicTextField2] that is attached to the
+ * Modifier element for most of the functionality of [BasicTextField] that is attached to the
  * decoration box. This is only half the actual modifiers for the field, the other half are only
  * attached to the internal text field.
  *
@@ -212,7 +212,7 @@ internal class TextFieldDecoratorModifierNode(
     private var dragEnterEvent: HoverInteraction.Enter? = null
 
     /**
-     * Special Drag and Drop node for BasicTextField2 that is also aware of `receiveContent` API.
+     * Special Drag and Drop node for BasicTextField that is also aware of `receiveContent` API.
      */
     private val dragAndDropNode = delegate(
         textFieldDragAndDropNode(
@@ -235,7 +235,7 @@ internal class TextFieldDecoratorModifierNode(
                 dragEnterEvent = HoverInteraction.Enter().also {
                     interactionSource.tryEmit(it)
                 }
-                // Although BasicTextField2 itself is not a `receiveContent` node, it should
+                // Although BasicTextField itself is not a `receiveContent` node, it should
                 // behave like one. Delegate the enter event to the ancestor nodes just like
                 // `receiveContent` itself would.
                 getReceiveContentConfiguration()?.receiveContentListener?.onDragEnter()
@@ -272,7 +272,7 @@ internal class TextFieldDecoratorModifierNode(
             onExited = {
                 emitDragExitEvent()
                 textFieldSelectionState.clearHandleDragging()
-                // Although BasicTextField2 itself is not a `receiveContent` node, it should
+                // Although BasicTextField itself is not a `receiveContent` node, it should
                 // behave like one. Delegate the exit event to the ancestor nodes just like
                 // `receiveContent` itself would.
                 getReceiveContentConfiguration()?.receiveContentListener?.onDragExit()

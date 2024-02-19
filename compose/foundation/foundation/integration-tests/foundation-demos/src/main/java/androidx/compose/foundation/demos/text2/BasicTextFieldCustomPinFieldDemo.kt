@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
@@ -74,7 +74,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 
 @Composable
-fun BasicTextField2CustomPinFieldDemo() {
+fun BasicTextFieldCustomPinFieldDemo() {
     val viewModel = remember { VerifyPinViewModel() }
     VerifyPinScreen(viewModel)
 }
@@ -188,7 +188,7 @@ private fun PinField(
     val contentAlpha = if (enabled) 1f else 0.3f
     val contentColor = LocalContentColor.current.copy(alpha = contentAlpha)
 
-    BasicTextField2(
+    BasicTextField(
         state = state.textState,
         inputTransformation = state.filter,
         modifier = modifier

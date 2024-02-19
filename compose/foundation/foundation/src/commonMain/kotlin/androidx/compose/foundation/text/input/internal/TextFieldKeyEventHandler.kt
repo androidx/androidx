@@ -41,7 +41,7 @@ import androidx.compose.ui.text.TextRange
 internal expect fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler
 
 /**
- * Handles KeyEvents coming to a BasicTextField2. This is mostly to support hardware keyboard but
+ * Handles KeyEvents coming to a BasicTextField. This is mostly to support hardware keyboard but
  * any KeyEvent can also be sent by the IME or other platform systems.
  *
  * This class is left abstract to make sure that each platform extends from it. Platforms can

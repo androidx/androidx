@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
@@ -553,7 +553,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         lateinit var coroutineScope: CoroutineScope
         rule.setContent {
             coroutineScope = rememberCoroutineScope()
-            BasicTextField2(
+            BasicTextField(
                 state,
                 scrollState = scrollState,
                 lineLimits = SingleLine,
@@ -602,7 +602,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         val state = TextFieldState("aaaaaaaaaa")
         val scrollState = ScrollState(0)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state,
                 scrollState = scrollState,
                 lineLimits = SingleLine,
@@ -632,7 +632,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         val state = TextFieldState("a\na\na\na\n", initialSelectionInChars = TextRange(0))
         val scrollState = ScrollState(Int.MAX_VALUE)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state,
                 scrollState = scrollState,
                 lineLimits = MultiLine(maxHeightInLines = 1),
@@ -655,7 +655,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         val state = TextFieldState("a\na\na\na\n")
         val scrollState = ScrollState(0)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state,
                 scrollState = scrollState,
                 lineLimits = MultiLine(maxHeightInLines = 1),
@@ -681,7 +681,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         val state = TextFieldState("a\na\na\na\n")
         val scrollState = ScrollState(Int.MAX_VALUE)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state,
                 scrollState = scrollState,
                 lineLimits = MultiLine(maxHeightInLines = 1),
@@ -720,7 +720,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                     .border(1.dp, Color.Red)
                     .verticalScroll(scrollState)
             ) {
-                BasicTextField2(
+                BasicTextField(
                     state,
                     // The field should never scroll internally.
                     lineLimits = MultiLine(maxHeightInLines = Int.MAX_VALUE),
@@ -802,7 +802,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         lineLimits: TextFieldLineLimits
     ) {
         testScope = rememberCoroutineScope()
-        BasicTextField2(
+        BasicTextField(
             state = state,
             scrollState = scrollState,
             lineLimits = lineLimits,

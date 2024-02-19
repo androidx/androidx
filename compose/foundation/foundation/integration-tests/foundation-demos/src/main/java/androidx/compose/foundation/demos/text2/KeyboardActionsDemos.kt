@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -131,7 +131,7 @@ private fun KeyboardActionDemoItem(
 ) {
     TagLine(tag = "Ime Action: $imeAction, singleLine: $singleLine")
     val state = remember { TextFieldState() }
-    BasicTextField2(
+    BasicTextField(
         modifier = demoTextFieldModifiers,
         state = state,
         keyboardOptions = KeyboardOptions(

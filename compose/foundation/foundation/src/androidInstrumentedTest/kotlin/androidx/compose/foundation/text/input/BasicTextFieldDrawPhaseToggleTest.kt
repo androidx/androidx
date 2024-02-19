@@ -19,7 +19,7 @@ package androidx.compose.foundation.text.input
 import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,7 +45,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalFoundationApi::class)
-class BasicTextField2DrawPhaseToggleTest {
+class BasicTextFieldDrawPhaseToggleTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -64,7 +64,7 @@ class BasicTextField2DrawPhaseToggleTest {
         state = TextFieldState("abc")
         var color by mutableStateOf(Color.Red)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(color = color),
                 modifier = Modifier.background(Color.White)
@@ -94,7 +94,7 @@ class BasicTextField2DrawPhaseToggleTest {
             Brush.linearGradient(listOf(Color.Red, Color.Blue), end = Offset(20f, 20f))
         )
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(brush = brush),
                 // use brush also for background to get rid of weird antialiasing edges
@@ -125,7 +125,7 @@ class BasicTextField2DrawPhaseToggleTest {
         state = TextFieldState("abc")
         var shadow by mutableStateOf<Shadow?>(null)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(color = Color.White, shadow = shadow),
                 modifier = Modifier.background(Color.White)
@@ -155,7 +155,7 @@ class BasicTextField2DrawPhaseToggleTest {
         state = TextFieldState("abc")
         var textDecoration by mutableStateOf(TextDecoration.None)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(
                     textDecoration = textDecoration

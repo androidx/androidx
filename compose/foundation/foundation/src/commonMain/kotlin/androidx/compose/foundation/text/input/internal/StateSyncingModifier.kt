@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.Modifier
@@ -31,10 +31,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 
 /**
  * Synchronizes between [TextFieldState], immutable values, and value change callbacks for
- * [BasicTextField2] overloads that take a value+callback for state instead of taking a
+ * [BasicTextField] overloads that take a value+callback for state instead of taking a
  * [TextFieldState] directly. Effectively a fancy `rememberUpdatedState`.
  *
- * Only intended for use from [BasicTextField2].
+ * Only intended for use from [BasicTextField].
  *
  * @param writeSelectionFromTextFieldValue If true, [update] will synchronize the selection from the
  * [TextFieldValue] to the [TextFieldState]. The text will be synchronized regardless.

@@ -19,7 +19,7 @@ package androidx.compose.foundation.text.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardOptions
@@ -70,7 +70,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class BasicTextField2SemanticsTest : FocusedWindowTest {
+class BasicTextFieldSemanticsTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -79,7 +79,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     @Test
     fun defaultSemantics() {
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 state = remember { TextFieldState() },
                 decorator = {
@@ -122,7 +122,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         var enabled by mutableStateOf(true)
         rule.setContent {
             val state = remember { TextFieldState() }
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 enabled = enabled
@@ -143,7 +143,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_setTextAction() {
         val state = TextFieldState()
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -163,7 +163,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_performSetTextAction_whenReadOnly() {
         val state = TextFieldState("", initialSelectionInChars = TextRange(1))
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 readOnly = true
@@ -180,7 +180,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_setTextAction_appliesFilter() {
         val state = TextFieldState()
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 inputTransformation = { _, changes ->
@@ -206,7 +206,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_performTextInputAction() {
         val state = TextFieldState("Hello", initialSelectionInChars = TextRange(1))
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -226,7 +226,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_performTextInputAction_whenReadOnly() {
         val state = TextFieldState("", initialSelectionInChars = TextRange(1))
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 readOnly = true
@@ -243,7 +243,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_performTextInputAction_appliesFilter() {
         val state = TextFieldState("Hello", initialSelectionInChars = TextRange(1))
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 inputTransformation = { _, changes ->
@@ -267,7 +267,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_clickAction() {
         rule.setContent {
             val state = remember { TextFieldState() }
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -284,7 +284,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_imeOption() {
         rule.setContent {
             val state = remember { TextFieldState() }
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
@@ -298,7 +298,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun contentSemanticsAreSet_inTheFirstComposition() {
         val state = TextFieldState("hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -311,7 +311,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun contentSemanticsAreSet_afterRecomposition() {
         val state = TextFieldState("hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -328,7 +328,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun selectionSemanticsAreSet_inTheFirstComposition() {
         val state = TextFieldState("hello", initialSelectionInChars = TextRange(2))
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -344,7 +344,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun selectionSemanticsAreSet_afterRecomposition() {
         val state = TextFieldState("hello", initialSelectionInChars = TextRange.Zero)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -370,7 +370,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun inputSelection_changesSelectionState() {
         val state = TextFieldState("hello")
         rule.setTextFieldTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -391,7 +391,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun inputSelection_changesSelectionState_appliesFilter() {
         val state = TextFieldState("hello", initialSelectionInChars = TextRange(5))
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 inputTransformation = { _, changes ->
@@ -411,7 +411,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun textLayoutResultSemanticsAreSet_inTheFirstComposition() {
         val state = TextFieldState("hello")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier
                     .testTag(Tag)
@@ -427,7 +427,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun textLayoutResultSemanticsAreUpdated_afterRecomposition() {
         val state = TextFieldState()
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier
                     .testTag(Tag)
@@ -446,7 +446,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         val state2 = TextFieldState("world", initialSelectionInChars = TextRange(2))
         var chosenState by mutableStateOf(true)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = if (chosenState) state1 else state2,
                 modifier = Modifier.testTag(Tag)
             )
@@ -471,7 +471,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         var enabled by mutableStateOf(false)
         var readOnly by mutableStateOf(false)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 enabled = enabled,
@@ -503,7 +503,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         val clipboardManager = FakeClipboardManager("Hello")
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag)
                 )
@@ -526,7 +526,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         val clipboardManager = FakeClipboardManager("Hello")
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag),
                     inputTransformation = { _, changes ->
@@ -557,7 +557,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         val clipboardManager = FakeClipboardManager()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag)
                 )
@@ -576,7 +576,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
     fun semantics_copy_disabled_whenSelectionCollapsed() {
         val state = TextFieldState("Hello World!")
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
             )
@@ -592,7 +592,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         val clipboardManager = FakeClipboardManager()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag),
                     inputTransformation = { original, changes ->
@@ -619,7 +619,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         val clipboardManager = FakeClipboardManager()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag)
                 )
@@ -642,7 +642,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         val clipboardManager = FakeClipboardManager()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag),
                     inputTransformation = { _, changes ->
@@ -667,7 +667,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         var enabled by mutableStateOf(false)
         var readOnly by mutableStateOf(false)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 enabled = enabled,
@@ -698,7 +698,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         var enabled by mutableStateOf(true)
         var readOnly by mutableStateOf(false)
         rule.setContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 enabled = enabled,

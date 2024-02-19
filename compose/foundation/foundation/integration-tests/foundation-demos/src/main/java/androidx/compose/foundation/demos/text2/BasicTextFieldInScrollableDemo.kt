@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LocalTextStyle
@@ -59,7 +59,7 @@ private enum class ScrollableType2 {
 
 @Preview(showBackground = true)
 @Composable
-fun BasicTextField2InScrollableDemo() {
+fun BasicTextFieldInScrollableDemo() {
     var scrollableType by remember { mutableStateOf(ScrollableType2.values().first()) }
 
     Column(Modifier.windowInsetsPadding(WindowInsets.ime)) {
@@ -127,7 +127,7 @@ private fun DemoTextField(index: Int) {
     val state = rememberTextFieldState()
     Row {
         Text("$index", modifier = Modifier.padding(end = 8.dp))
-        BasicTextField2(
+        BasicTextField(
             state = state,
             textStyle = LocalTextStyle.current,
             modifier = demoTextFieldModifiers

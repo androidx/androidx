@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -48,13 +48,13 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
-    private val Tag = "BasicTextField2"
+    private val Tag = "BasicTextField"
 
     @Test
     fun replacement_visualText() {
         val text = TextFieldState("abcd", initialSelectionInChars = TextRange(0))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     replace(1, 3, "efg") // "aefgd"
@@ -69,7 +69,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun replacement_cursorMovement_leftToRight_byCharacter_stateOffsets() {
         val text = TextFieldState("abcd", initialSelectionInChars = TextRange(0))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     replace(1, 3, "efg") // "aefgd"
@@ -91,7 +91,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun replacement_cursorMovement_rightToLeft_byCharacter_stateOffsets() {
         val text = TextFieldState("abcd", initialSelectionInChars = TextRange(4))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     replace(1, 3, "efg") // "aefgd"
@@ -113,7 +113,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun replacement_cursorMovement_leftToRight_byCharacter_semanticsOffsets() {
         val text = TextFieldState("abcd", initialSelectionInChars = TextRange(0))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     replace(1, 3, "efg") // "aefgd"
@@ -135,7 +135,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun replacement_cursorMovement_rightToLeft_byCharacter_semanticsOffsets() {
         val text = TextFieldState("abcd", initialSelectionInChars = TextRange(4))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     replace(1, 3, "efg") // "aefgd"
@@ -157,7 +157,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun insert_visualText() {
         val text = TextFieldState("ab", initialSelectionInChars = TextRange(0))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     insert(1, "efg") // "aefgb"
@@ -172,7 +172,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun insert_cursorMovement_leftToRight_byCharacter_stateOffsets() {
         val text = TextFieldState("ab", initialSelectionInChars = TextRange(0))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     insert(1, "efg") // "aefgb"
@@ -194,7 +194,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun insert_cursorMovement_rightToLeft_byCharacter_stateOffsets() {
         val text = TextFieldState("ab", initialSelectionInChars = TextRange(2))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     insert(1, "efg") // "aefgb"
@@ -216,7 +216,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun insert_cursorMovement_leftToRight_byCharacter_semanticsOffsets() {
         val text = TextFieldState("ab", initialSelectionInChars = TextRange(0))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     insert(1, "efg") // "aefgb"
@@ -238,7 +238,7 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
     fun insert_cursorMovement_rightToLeft_byCharacter_semanticsOffsets() {
         val text = TextFieldState("ab", initialSelectionInChars = TextRange(2))
         inputMethodInterceptor.setContent {
-            BasicTextField2(state = text,
+            BasicTextField(state = text,
                 modifier = Modifier.testTag(Tag),
                 outputTransformation = {
                     insert(1, "efg") // "aefgb"

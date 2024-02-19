@@ -26,7 +26,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -175,7 +175,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun textFieldFocused_cursorRendered() {
         state = TextFieldState()
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -199,7 +199,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         state = TextFieldState()
         rule.setTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = textStyle,
                     modifier = textFieldModifier.width(30.dp),
@@ -225,7 +225,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun textFieldFocused_cursorRendered_rtlText_ltrLayout() {
         state = TextFieldState("\u05D0\u05D1\u05D2", TextRange(3))
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -249,7 +249,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         state = TextFieldState("\u05D0\u05D1\u05D2", TextRange(3))
         rule.setTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = textStyle,
                     modifier = textFieldModifier.width(50.dp),
@@ -274,7 +274,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun textFieldCursorAtTheEnd_coercedIntoView() {
         state = TextFieldState("hello", TextRange(5))
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier.width(50.dp),
@@ -298,7 +298,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         state = TextFieldState("\u05D0\u05D1\u05D2", TextRange(3))
         rule.setTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = textStyle,
                     modifier = textFieldModifier.width(30.dp),
@@ -322,7 +322,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun textFieldFocused_cursorWithBrush() {
         state = TextFieldState()
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(fontSize = textStyle.fontSize * 2),
                 modifier = Modifier
@@ -363,7 +363,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun cursorBlinkingAnimation() {
         state = TextFieldState()
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -402,7 +402,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         state = TextFieldState()
 
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -437,7 +437,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun cursorUnsetColor_noCursor() {
         state = TextFieldState("hello", initialSelectionInChars = TextRange(2))
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -477,7 +477,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun cursorNotBlinking_whileTyping() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(4))
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier.width(100.dp),
@@ -511,7 +511,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun selectionChanges_cursorNotBlinking() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(2))
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -547,7 +547,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         state = TextFieldState()
         rule.setTestContent {
             Box(Modifier.padding(boxPadding)) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = textStyle,
                     modifier = textFieldModifier,
@@ -583,7 +583,7 @@ class TextFieldCursorTest : FocusedWindowTest {
             CompositionLocalProvider(
                 LocalTextSelectionColors provides TextSelectionColors(Color.Blue, Color.Blue)
             ) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     // make sure that background is not obstructing selection
                     textStyle = textStyle.copy(
@@ -613,7 +613,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         state = TextFieldState("test")
         rule.setTestContent {
             Column {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     // make sure that background is not obstructing selection
                     textStyle = textStyle,
@@ -658,7 +658,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     fun readOnly_cursorIsNotDrawn() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(4))
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -684,7 +684,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         var readOnly by mutableStateOf(true)
         state = TextFieldState("test", initialSelectionInChars = TextRange(4))
         rule.setTestContent {
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -724,7 +724,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         rule.setTestContent {
             CompositionLocalProvider(LocalWindowInfo provides createWindowInfo(focusWindow.value)) {
                 Box(Modifier.padding(boxPadding)) {
-                    BasicTextField2(
+                    BasicTextField(
                         state = state,
                         textStyle = textStyle,
                         modifier = textFieldModifier,
@@ -767,7 +767,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         rule.setTestContent {
             CompositionLocalProvider(LocalWindowInfo provides createWindowInfo(focusWindow.value)) {
                 Box(Modifier.padding(boxPadding)) {
-                    BasicTextField2(
+                    BasicTextField(
                         state = state,
                         textStyle = textStyle,
                         modifier = textFieldModifier,
@@ -820,7 +820,7 @@ class TextFieldCursorTest : FocusedWindowTest {
                     selectionColor
                 )
             ) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     // make sure that background is not obstructing selection
                     textStyle = textStyle.copy(background = Color.Unspecified),
@@ -852,7 +852,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         var view: View? = null
         rule.setTestContent {
             view = LocalView.current
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -891,7 +891,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         var view: View? = null
         rule.setTestContent {
             view = LocalView.current
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -936,7 +936,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         var view: View? = null
         rule.setTestContent {
             view = LocalView.current
-            BasicTextField2(
+            BasicTextField(
                 state = state,
                 textStyle = textStyle,
                 modifier = textFieldModifier,
@@ -987,7 +987,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         rule.setContent {
             Box(Modifier.padding(boxPadding)) {
                 view = LocalView.current
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = textStyle,
                     modifier = textFieldModifier,
@@ -1074,7 +1074,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         state = TextFieldState("hello world", TextRange(5))
         rule.setTestContent {
             Box(Modifier.padding(boxPadding)) {
-                BasicTextField2(
+                BasicTextField(
                     state = state,
                     textStyle = textStyle,
                     modifier = textFieldModifier.layout { measurable, constraints ->

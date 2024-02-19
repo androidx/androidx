@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.input.internal.undo
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboardManager
 import androidx.compose.runtime.CompositionLocalProvider
@@ -48,7 +48,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-internal class BasicTextField2UndoTest {
+internal class BasicTextFieldUndoTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -57,7 +57,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("Hello", TextRange(5))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         rule.onNode(hasSetTextAction()).performTextInput(", World")
@@ -73,7 +73,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("Hello", TextRange(5))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         rule.onNode(hasSetTextAction()).performTextInput(", World")
@@ -90,7 +90,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("Hello", TextRange(5))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         rule.onNode(hasSetTextAction()).typeText(", World")
@@ -106,7 +106,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("Hello", TextRange(5))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         with(rule.onNode(hasSetTextAction())) {
@@ -130,7 +130,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("Hello, World", TextRange(12))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         with(rule.onNode(hasSetTextAction())) {
@@ -153,7 +153,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("Hello, World", TextRange(6))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         with(rule.onNode(hasSetTextAction())) {
@@ -181,7 +181,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("Hello", TextRange(5))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         with(rule.onNode(hasSetTextAction())) {
@@ -199,7 +199,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("Hello", TextRange(5))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         with(rule.onNode(hasSetTextAction())) {
@@ -225,7 +225,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState()
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         with(rule.onNode(hasSetTextAction())) {
@@ -256,7 +256,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState()
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         with(rule.onNode(hasSetTextAction())) {
@@ -295,7 +295,7 @@ internal class BasicTextField2UndoTest {
 
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicTextField2(state)
+                BasicTextField(state)
             }
         }
 
@@ -322,7 +322,7 @@ internal class BasicTextField2UndoTest {
         val state = TextFieldState("abc def ghi", TextRange(11))
 
         rule.setContent {
-            BasicTextField2(state)
+            BasicTextField(state)
         }
 
         with(rule.onNode(hasSetTextAction())) {

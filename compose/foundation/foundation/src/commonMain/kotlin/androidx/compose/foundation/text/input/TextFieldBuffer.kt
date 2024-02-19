@@ -82,8 +82,8 @@ class TextFieldBuffer internal constructor(
      * means that the returned [ChangeList] always reflects the complete list of changes made to
      * this value at any given time, even those made after reading this property.
      *
-     * @sample androidx.compose.foundation.samples.BasicTextField2ChangeIterationSample
-     * @sample androidx.compose.foundation.samples.BasicTextField2ChangeReverseIterationSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
      */
     val changes: ChangeList get() = changeTracker ?: EmptyChangeList
 
@@ -547,7 +547,7 @@ fun TextFieldBuffer.selectAll() {
  * will be visited more than once. If you need to make changes, consider using
  * [forEachChangeReversed].
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2ChangeIterationSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
  *
  * @see forEachChangeReversed
  */
@@ -570,7 +570,7 @@ inline fun ChangeList.forEachChange(
  * one or changes may be skipped. [block] may make non-overlapping changes after the current one
  * safely, such changes will not be visited.
  *
- * @sample androidx.compose.foundation.samples.BasicTextField2ChangeReverseIterationSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
  *
  * @see forEachChange
  */

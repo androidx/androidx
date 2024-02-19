@@ -26,7 +26,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.text.BasicTextField2
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.PointerIconTestScope
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.ui.Modifier
@@ -127,7 +127,7 @@ class BasicTextFieldHoverTest {
                     .border(BorderStroke(2.dp, SolidColor(Color.Red)))
                     .testTag(boxTag)
             ) {
-                BasicTextField2(
+                BasicTextField(
                     state = tfs,
                     modifier = Modifier
                         .requiredSize(50.dp)
