@@ -1478,7 +1478,12 @@ internal class AndroidComposeView(
         // we don't have to observe here because the root has a layer modifier
         // that will observe all children. The AndroidComposeView has only the
         // root, so it doesn't have to invalidate itself based on model changes.
-        canvasHolder.drawInto(canvas) { root.draw(this) }
+        canvasHolder.drawInto(canvas) {
+            root.draw(
+                canvas = this,
+                graphicsLayer = null // the root node will provide the root graphics layer
+            )
+        }
 
         if (dirtyLayers.isNotEmpty()) {
             for (i in 0 until dirtyLayers.size) {

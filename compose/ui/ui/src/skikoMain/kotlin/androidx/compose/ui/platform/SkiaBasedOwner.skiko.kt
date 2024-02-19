@@ -415,7 +415,7 @@ internal class SkiaBasedOwner(
     override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
 
     fun draw(canvas: org.jetbrains.skia.Canvas) {
-        root.draw(canvas.asComposeCanvas())
+        root.draw(canvas.asComposeCanvas(), null)
     }
 
     private var desiredPointerIcon: PointerIcon? = null

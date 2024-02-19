@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.AlignmentLine
@@ -354,31 +355,33 @@ internal abstract class NodeCoordinator(
     /**
      * Draws the content of the LayoutNode
      */
-    fun draw(canvas: Canvas) {
+    fun draw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
         val layer = layer
         if (layer != null) {
+            // todo graphicsLayer should be used as a parent layer here when we migrate
+            //  the local implementation to the new implementation.
             layer.drawLayer(canvas)
         } else {
             val x = position.x.toFloat()
             val y = position.y.toFloat()
             canvas.translate(x, y)
-            drawContainedDrawModifiers(canvas)
+            drawContainedDrawModifiers(canvas, graphicsLayer)
             canvas.translate(-x, -y)
         }
     }
 
-    private fun drawContainedDrawModifiers(canvas: Canvas) {
+    private fun drawContainedDrawModifiers(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
         val head = head(Nodes.Draw)
         if (head == null) {
-            performDraw(canvas)
+            performDraw(canvas, graphicsLayer)
         } else {
             val drawScope = layoutNode.mDrawScope
-            drawScope.draw(canvas, size.toSize(), this, head)
+            drawScope.draw(canvas, size.toSize(), this, head, graphicsLayer)
         }
     }
 
-    open fun performDraw(canvas: Canvas) {
-        wrapped?.draw(canvas)
+    open fun performDraw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
+        wrapped?.draw(canvas, graphicsLayer)
     }
 
     fun onPlaced() {
@@ -392,7 +395,8 @@ internal abstract class NodeCoordinator(
     private val drawBlock: (Canvas) -> Unit = { canvas ->
         if (layoutNode.isPlaced) {
             snapshotObserver.observeReads(this, onCommitAffectingLayer) {
-                drawContainedDrawModifiers(canvas)
+                // todo local layers will be passing the reference here when we migrate them.
+                drawContainedDrawModifiers(canvas, null)
             }
             lastLayerDrawingWasSkipped = false
         } else {

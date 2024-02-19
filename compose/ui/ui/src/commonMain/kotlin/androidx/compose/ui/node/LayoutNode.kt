@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.internal.checkPrecondition
@@ -959,7 +960,8 @@ internal class LayoutNode(
         lookaheadPassDelegate!!.replace()
     }
 
-    internal fun draw(canvas: Canvas) = outerCoordinator.draw(canvas)
+    internal fun draw(canvas: Canvas, graphicsLayer: GraphicsLayer?) =
+        outerCoordinator.draw(canvas, graphicsLayer)
 
     /**
      * Carries out a hit test on the [PointerInputModifier]s associated with this [LayoutNode] and

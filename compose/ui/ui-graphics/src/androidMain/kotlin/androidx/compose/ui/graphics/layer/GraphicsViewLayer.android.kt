@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.layer.GraphicsLayerImpl.Companion.DefaultDrawBlock
 import androidx.compose.ui.graphics.layer.view.DrawChildContainer
 import androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas
@@ -80,15 +81,18 @@ internal class ViewLayer(
     private var density: Density = DefaultDensity
     private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
     private var drawBlock: DrawScope.() -> Unit = DefaultDrawBlock
+    private var parentLayer: GraphicsLayer? = null
 
     fun setDrawParams(
         density: Density,
         layoutDirection: LayoutDirection,
+        parentLayer: GraphicsLayer?,
         drawBlock: DrawScope.() -> Unit
     ) {
         this.density = density
         this.layoutDirection = layoutDirection
         this.drawBlock = drawBlock
+        this.parentLayer = parentLayer
     }
 
     init {
@@ -114,6 +118,7 @@ internal class ViewLayer(
                 layoutDirection,
                 this,
                 Size(width.toFloat(), height.toFloat()),
+                parentLayer,
                 drawBlock
             )
         }
@@ -336,9 +341,10 @@ internal class GraphicsViewLayer(
     override fun buildLayer(
         density: Density,
         layoutDirection: LayoutDirection,
+        layer: GraphicsLayer,
         block: DrawScope.() -> Unit
     ) {
-        viewLayer.setDrawParams(density, layoutDirection, block)
+        viewLayer.setDrawParams(density, layoutDirection, layer, block)
         try {
             canvasHolder.drawInto(PlaceholderCanvas) {
                 layerContainer.drawChild(this, viewLayer, viewLayer.drawingTime)
@@ -370,12 +376,8 @@ internal class GraphicsViewLayer(
        }
     }
 
-    override fun release() {
-        layerContainer.removeViewInLayout(viewLayer)
-    }
-
     override fun discardDisplayList() {
-        release()
+        layerContainer.removeViewInLayout(viewLayer)
     }
 
     companion object {
