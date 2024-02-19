@@ -59,13 +59,13 @@ internal class RadioButtonTestCase(
     @Composable
     override fun MeasuredContent() {
         if (type == RadioButtonType.RadioButton) {
-            RadioButton(selected = true, onSelected = { /* do something*/ }) {
+            RadioButton(selected = true, onSelect = { /* do something*/ }) {
                 Text(text = "RadioButton")
             }
         } else {
             SplitRadioButton(
                 selected = true,
-                onSelected = { /* do something */ },
+                onSelect = { /* do something */ },
                 onClick = { /* do something */ }) {
                 Text(text = "SplitRadioButton")
             }
