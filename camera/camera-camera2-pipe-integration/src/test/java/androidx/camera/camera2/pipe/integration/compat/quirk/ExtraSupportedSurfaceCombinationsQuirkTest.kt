@@ -135,7 +135,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "Pixel 6",
                 "0",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Google",
@@ -143,7 +143,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "Pixel 6",
                 "1",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Google",
@@ -151,7 +151,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "Pixel 6 Pro",
                 "0",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Google",
@@ -159,7 +159,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "Pixel 6 Pro",
                 "1",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Google",
@@ -167,7 +167,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "Pixel 7",
                 "0",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Google",
@@ -175,7 +175,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "Pixel 6 Pro",
                 "1",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Google",
@@ -183,7 +183,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "Pixel 7 Pro",
                 "0",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Google",
@@ -191,7 +191,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "Pixel 7 Pro",
                 "1",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             // Tests for FULL Samsung devices
             Config(
@@ -200,7 +200,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "SM-S926B",
                 "0",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Samsung",
@@ -208,7 +208,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "SM-S926B",
                 "1",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Samsung",
@@ -216,7 +216,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "SM-S928U",
                 "0",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             Config(
                 "Samsung",
@@ -224,7 +224,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 "SM-S928U",
                 "1",
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                createLevel3PrivPrivYuvRawConfiguration()
+                createLevel3PrivPrivYuvSubsetConfiguration()
             ),
             // Other cases
             Config(
@@ -305,8 +305,8 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
             return arrayOf(surfaceCombination1, surfaceCombination2)
         }
 
-        private fun createLevel3PrivPrivYuvRawConfiguration(): Array<SurfaceCombination> {
-            // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
+        private fun createLevel3PrivPrivYuvSubsetConfiguration(): Array<SurfaceCombination> {
+            // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM)
             val surfaceCombination = SurfaceCombination()
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
@@ -323,12 +323,6 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
                     SurfaceConfig.ConfigType.YUV,
-                    SurfaceConfig.ConfigSize.MAXIMUM
-                )
-            )
-            surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.RAW,
                     SurfaceConfig.ConfigSize.MAXIMUM
                 )
             )
