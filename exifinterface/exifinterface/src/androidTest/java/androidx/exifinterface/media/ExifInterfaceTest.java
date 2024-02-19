@@ -34,7 +34,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Build;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.system.Os;
 import android.system.OsConstants;
@@ -48,10 +47,10 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import java.io.BufferedInputStream;
@@ -151,13 +150,10 @@ public class ExifInterfaceTest {
             JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT,
             HEIF_WITH_EXIF};
 
-    private static final int USER_READ_WRITE = 0600;
-    private static final String TEST_TEMP_FILE_NAME = "testImage";
     private static final double DELTA = 1e-8;
     // We translate double to rational in a 1/10000 precision.
     private static final double RATIONAL_DELTA = 0.0001;
     private static final int TEST_LAT_LONG_VALUES_ARRAY_LENGTH = 8;
-    private static final int TEST_NUMBER_OF_CORRUPTED_IMAGE_STREAMS = 30;
     private static final double[] TEST_LATITUDE_VALID_VALUES = new double[]
             {0, 45, 90, -60, 0.00000001, -89.999999999, 14.2465923626, -68.3434534737};
     private static final double[] TEST_LONGITUDE_VALID_VALUES = new double[]
@@ -414,6 +410,9 @@ public class ExifInterfaceTest {
         }
     }
 
+    @Rule
+    public final TemporaryFolder tempFolder = new TemporaryFolder();
+
     @Before
     public void setUp() throws Exception {
         if (ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO && Build.VERSION.SDK_INT >= 26) {
@@ -424,7 +423,7 @@ public class ExifInterfaceTest {
         }
 
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            File file = getFileFromExternalDir(IMAGE_FILENAMES[i]);
+            File file = tempFolder.newFile(IMAGE_FILENAMES[i]);
             InputStream inputStream = null;
             FileOutputStream outputStream = null;
             try {
@@ -435,16 +434,6 @@ public class ExifInterfaceTest {
             } finally {
                 closeQuietly(inputStream);
                 closeQuietly(outputStream);
-            }
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            File imageFile = getFileFromExternalDir(IMAGE_FILENAMES[i]);
-            if (imageFile.exists()) {
-                imageFile.delete();
             }
         }
     }
@@ -482,7 +471,7 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testJpegWithFullApp1Segment() throws Throwable {
-        File srcFile = getFileFromExternalDir(JPEG_WITH_EXIF_FULL_APP1_SEGMENT);
+        File srcFile = resolveImageFile(JPEG_WITH_EXIF_FULL_APP1_SEGMENT);
         File imageFile = clone(srcFile);
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         // Add a really long string that makes the Exif data too large for the JPEG APP1 segment.
@@ -582,7 +571,7 @@ public class ExifInterfaceTest {
         } else {
             // Make sure that an exception is not thrown and that image length/width tag values
             // return default values, not the actual values.
-            File imageFile = getFileFromExternalDir(HEIF_WITH_EXIF);
+            File imageFile = resolveImageFile(HEIF_WITH_EXIF);
             ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
             String defaultTagValue = "0";
             assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH));
@@ -723,7 +712,7 @@ public class ExifInterfaceTest {
                 + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
         final String expectedDatetimeOffsetStringValue = "+09:00";
 
-        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
+        File imageFile = resolveImageFile(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
         // Test getting datetime values
         assertEquals(expectedGetDatetimeValue, (long) exif.getDateTime());
@@ -788,7 +777,7 @@ public class ExifInterfaceTest {
                 + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
         final String expectedDateTimeStringValue = "2016-01-29 18:32:27";
 
-        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT);
+        File imageFile = resolveImageFile(JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals(expectedDateTimeStringValue,
                 exif.getAttribute(ExifInterface.TAG_DATETIME));
@@ -812,7 +801,7 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testAddDefaultValuesForCompatibility() throws Exception {
-        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
+        File imageFile = resolveImageFile(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
 
         // 1. Check that the TAG_DATETIME value is not overwritten by TAG_DATETIME_ORIGINAL's value
@@ -836,7 +825,7 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testSubsec() throws IOException {
-        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
+        File imageFile = resolveImageFile(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
 
         // Set initial value to 0
@@ -912,7 +901,7 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testRotation() throws IOException {
-        File imageFile = getFileFromExternalDir(JPEG_WITH_EXIF_BYTE_ORDER_II);
+        File imageFile = resolveImageFile(JPEG_WITH_EXIF_BYTE_ORDER_II);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
 
         int num;
@@ -1178,7 +1167,7 @@ public class ExifInterfaceTest {
         ExpectedValue expectedValue = new ExpectedValue(
                 getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
-        File imageFile = getFileFromExternalDir(fileName);
+        File imageFile = resolveImageFile(fileName);
         String verboseTag = imageFile.getName();
 
         FileInputStream fis = new FileInputStream(imageFile);
@@ -1197,7 +1186,7 @@ public class ExifInterfaceTest {
 
     private void testExifInterfaceCommon(String fileName, ExpectedValue expectedValue)
             throws IOException {
-        File imageFile = getFileFromExternalDir(fileName);
+        File imageFile = resolveImageFile(fileName);
         String verboseTag = imageFile.getName();
 
         // Creates via file.
@@ -1238,7 +1227,7 @@ public class ExifInterfaceTest {
 
     private void testExifInterfaceRange(String fileName, ExpectedValue expectedValue)
             throws IOException {
-        File imageFile = getFileFromExternalDir(fileName);
+        File imageFile = resolveImageFile(fileName);
 
         InputStream in = null;
         try {
@@ -1295,7 +1284,7 @@ public class ExifInterfaceTest {
         ExpectedValue expectedValue = new ExpectedValue(
                 getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
-        File srcFile = getFileFromExternalDir(fileName);
+        File srcFile = resolveImageFile(fileName);
         File imageFile = clone(srcFile);
         String verboseTag = imageFile.getName();
 
@@ -1358,7 +1347,7 @@ public class ExifInterfaceTest {
     }
 
     private void writeToFilesWithoutExif(String fileName) throws IOException {
-        File srcFile = getFileFromExternalDir(fileName);
+        File srcFile = resolveImageFile(fileName);
         File imageFile = clone(srcFile);
 
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
@@ -1425,9 +1414,12 @@ public class ExifInterfaceTest {
     }
 
     private ExifInterface createTestExifInterface() throws IOException {
-        File image = File.createTempFile(TEST_TEMP_FILE_NAME, ".jpg");
-        image.deleteOnExit();
-        return new ExifInterface(image.getAbsolutePath());
+        File originalFile = tempFolder.newFile();
+        File jpgFile = new File(originalFile.getAbsolutePath() + ".jpg");
+        if (!originalFile.renameTo(jpgFile)) {
+            throw new IOException("Rename from " + originalFile + " to " + jpgFile + " failed.");
+        }
+        return new ExifInterface(jpgFile.getAbsolutePath());
     }
 
     private short readShort(InputStream is) throws IOException {
@@ -1439,9 +1431,8 @@ public class ExifInterfaceTest {
         return (short) ((ch1 << 8) + (ch2));
     }
 
-    private File getFileFromExternalDir(String fileName) {
-        return new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                fileName);
+    private File resolveImageFile(String fileName) {
+        return new File(tempFolder.getRoot(), fileName);
     }
 
     /**
