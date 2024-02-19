@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.data.PdfStatus;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
@@ -74,6 +75,9 @@ public interface PdfLoaderCallbacks {
 
     /** This is called in response to getPageUrlLinks. */
     void setPageUrlLinks(int pageNum, LinkRects result);
+
+    /** This is called in response to getPageGotoLinks. */
+    void setPageGotoLinks(int pageNum, List<GotoLink> links);
 
     /**
      * This is called in response to a call to {@link PdfLoader#cloneWithoutSecurity}.

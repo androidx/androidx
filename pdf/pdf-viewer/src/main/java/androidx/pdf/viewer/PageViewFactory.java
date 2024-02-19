@@ -22,12 +22,15 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.util.Accessibility;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.widget.MosaicView;
 import androidx.pdf.widget.ZoomView;
+
+import java.util.List;
 
 /**
  * Factory to create the appropriate {@link PageView}, determined by whether TalkBack is on or off.
@@ -60,6 +63,9 @@ public class PageViewFactory {
 
         /** Set page URL links. */
         void setPageUrlLinks(@Nullable LinkRects links);
+
+        /** Set page goto links. */
+        void setPageGotoLinks(List<GotoLink> links);
 
         /**
          * Returns the base view that implements this interface.

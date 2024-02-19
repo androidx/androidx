@@ -18,16 +18,21 @@ package androidx.pdf.viewer;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
+import androidx.pdf.models.GotoLinkDestination;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.util.Accessibility;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.widget.MosaicView;
+
+import java.util.List;
 
 /**
  * Renders one Page.
@@ -41,6 +46,7 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     private final int mPageNum;
     private String mPageText;
     private LinkRects mUrlLinks;
+    private List<GotoLink> mGotoLinks;
 
     public PageMosaicView(
             Context context,
@@ -91,10 +97,32 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
         return mUrlLinks != null;
     }
 
+    /** Returns true if we have data about any internal links on the page. */
+    public boolean hasPageGotoLinks() {
+        return mGotoLinks != null && !mGotoLinks.isEmpty();
+    }
+
     /** Return the URL corresponding to the given point. */
     @Nullable
     public String getLinkUrl(Point p) {
         return (mUrlLinks != null) ? mUrlLinks.getUrlAtPoint(p.x, p.y) : null;
+    }
+
+    /** Return the goto link corresponding to the given point. */
+    @Nullable
+    public GotoLinkDestination getGotoDestination(Point p) {
+        if (mGotoLinks != null) {
+            for (GotoLink link : mGotoLinks) {
+                if (link.getBounds() != null) {
+                    // TODO: Add list handling instead of taking its first element
+                    Rect rect = link.getBounds().get(0);
+                    if (rect.contains(p.x, p.y)) {
+                        return link.getDestination();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -117,6 +145,11 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     @Override
     public void setPageUrlLinks(@Nullable LinkRects links) {
         this.mUrlLinks = links;
+    }
+
+    @Override
+    public void setPageGotoLinks(List<GotoLink> links) {
+        mGotoLinks = links;
     }
 
     @Override

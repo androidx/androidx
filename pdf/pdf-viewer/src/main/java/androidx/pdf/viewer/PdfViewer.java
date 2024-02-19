@@ -60,6 +60,8 @@ import androidx.pdf.find.FindInFileListener;
 import androidx.pdf.find.FindInFileView;
 import androidx.pdf.find.MatchCount;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
+import androidx.pdf.models.GotoLinkDestination;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
@@ -931,7 +933,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (!pageMosaicView.hasPageUrlLinks()) {
             mPdfLoader.loadPageUrlLinks(page);
         }
-
+        if (!pageMosaicView.hasPageGotoLinks()) {
+            mPdfLoader.loadPageGotoLinks(page);
+        }
         if (page == mSelectionModel.getPage()) {
             pageMosaicView.setOverlay(new PdfHighlightOverlay(mSelectionModel.selection().get()));
         } else if (mSearchModel.query().get() != null) {
@@ -1183,7 +1187,43 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 ExternalLinks.open(linkUrl, getActivity());
             }
 
+            GotoLinkDestination gotoDest = mPageView.getPageView().getGotoDestination(point);
+            if (gotoDest != null) {
+                gotoPageDest(gotoDest);
+            }
+
             return true;
+        }
+
+        private void gotoPageDest(GotoLinkDestination destination) {
+
+            if (destination.getPageNumber() >= mPaginationModel.getSize()) {
+                // We have not yet loaded our destination.
+                layoutPages(destination.getPageNumber() + 1);
+                mDimensCallbackQueue.add(
+                        pageNum -> {
+                            if (pageNum == destination.getPageNumber()) {
+                                gotoPageDest(destination);
+                                return false;
+                            }
+                            return true;
+                        });
+                return;
+            }
+
+            int pageY = (int) destination.getYCoordinate();
+
+            Rect pageRect = mPaginationModel.getPageLocation(destination.getPageNumber());
+            int x = pageRect.left + (pageRect.width() / 2);
+            int y = mPaginationModel.getLookAtY(destination.getPageNumber(), pageY);
+            // Zoom should match the width of the page.
+            float zoom =
+                    ZoomUtils.calculateZoomToFit(
+                            mZoomView.getViewportWidth(), mZoomView.getViewportHeight(),
+                            pageRect.width(), 1);
+
+            mZoomView.setZoom(zoom);
+            mZoomView.centerAt(x, y);
         }
     }
 
@@ -1475,6 +1515,13 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         if (viewState().get() != ViewState.NO_VIEW && links != null
                                 && isPageCreated(pageNum)) {
                             getPage(pageNum).setPageUrlLinks(links);
+                        }
+                    }
+
+                    @Override
+                    public void setPageGotoLinks(int pageNum, List<GotoLink> links) {
+                        if (viewState().get() != ViewState.NO_VIEW && isPageCreated(pageNum)) {
+                            getPage(pageNum).setPageGotoLinks(links);
                         }
                     }
 

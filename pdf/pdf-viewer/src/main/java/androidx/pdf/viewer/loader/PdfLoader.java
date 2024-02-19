@@ -291,6 +291,14 @@ public class PdfLoader {
         getPageLoader(pageNum).loadPageLinks();
     }
 
+    /**
+     * Finds all the go-to links on the page - once it is ready, will call the {@link
+     * PdfLoaderCallbacks#setPageGotoLinks} callback.
+     */
+    public void loadPageGotoLinks(int pageNum) {
+        getPageLoader(pageNum).loadPageGotoLinks();
+    }
+
     /** Cancels all data requested for every page. */
     public void cancelAll() {
         for (int i = 0; i < mPageLoaders.size(); i++) {

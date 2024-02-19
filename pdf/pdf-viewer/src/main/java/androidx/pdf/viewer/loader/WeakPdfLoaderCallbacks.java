@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.pdf.data.PdfStatus;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
@@ -142,6 +143,14 @@ public class WeakPdfLoaderCallbacks implements PdfLoaderCallbacks {
         PdfLoaderCallbacks callbacks = getCallbacks();
         if (callbacks != null) {
             callbacks.setPageUrlLinks(pageNum, links);
+        }
+    }
+
+    @Override
+    public void setPageGotoLinks(int pageNum, List<GotoLink> links) {
+        PdfLoaderCallbacks callbacks = getCallbacks();
+        if (callbacks != null) {
+            callbacks.setPageGotoLinks(pageNum, links);
         }
     }
 

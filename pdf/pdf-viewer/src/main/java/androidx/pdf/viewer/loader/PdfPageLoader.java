@@ -22,9 +22,11 @@ import android.graphics.Point;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
@@ -34,7 +36,10 @@ import androidx.pdf.util.BitmapParcel;
 import androidx.pdf.util.StrictModeUtils;
 import androidx.pdf.util.TileBoard.TileInfo;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -73,6 +78,7 @@ public class PdfPageLoader {
     SearchPageTextTask mSearchPageTextTask;
     SelectionTask mSelectionTask;
     GetPageLinksTask mLinksTask;
+    GetPageGotoLinksTask mGotoLinksTask;
 
     /**
      * All currently scheduled tile tasks.
@@ -255,6 +261,14 @@ public class PdfPageLoader {
         }
     }
 
+    /** Schedule task to get a page's goto links. */
+    public void loadPageGotoLinks() {
+        if (!mIsBroken && mGotoLinksTask == null) {
+            mGotoLinksTask = new GetPageGotoLinksTask();
+            mParent.mExecutor.schedule(mGotoLinksTask);
+        }
+    }
+
     /**
      *
      */
@@ -314,11 +328,6 @@ public class PdfPageLoader {
         @Override
         protected void cleanup() {
             mDimensionsTask = null;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("GetDimensionsTask(page=%d)", mPageNum);
         }
     }
 
@@ -591,6 +600,45 @@ public class PdfPageLoader {
         @Override
         public String toString() {
             return String.format("GetPageLinksTask(page=%d)", mPageNum);
+        }
+    }
+
+    /** AsyncTask for getting a page's go-to links. */
+    class GetPageGotoLinksTask extends AbstractPdfTask<List<GotoLink>> {
+        GetPageGotoLinksTask() {
+            // Go-to links are a subset of links so we will follow all link settings.
+            super(mParent, Priority.LINKS);
+        }
+
+        @Override
+        protected String getLogTag() {
+            return "GetPageGotoLinksTask";
+        }
+
+        @Override
+        protected List<GotoLink> doInBackground(PdfDocumentRemoteProto pdfDocument)
+                throws RemoteException {
+            if (TaskDenyList.sDisableLinks) {
+                return ImmutableList.of();
+            } else {
+                return pdfDocument.getPdfDocumentRemote().getPageGotoLinks(mPageNum);
+            }
+        }
+
+        @Override
+        protected void doCallback(PdfLoaderCallbacks callbacks, List<GotoLink> links) {
+            callbacks.setPageGotoLinks(mPageNum, links);
+        }
+
+        @Override
+        protected void cleanup() {
+            mGotoLinksTask = null;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.format("GetPageGotoLinksTask(page=%d)", mPageNum);
         }
     }
 }

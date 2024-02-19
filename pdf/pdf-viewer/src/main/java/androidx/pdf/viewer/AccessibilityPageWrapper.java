@@ -22,7 +22,10 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
+
+import java.util.List;
 
 /**
  * Container to hold a {@link PageMosaicView}, a {@link PageLinksView} and sometimes a {@link
@@ -77,6 +80,12 @@ public class AccessibilityPageWrapper extends FrameLayout implements PageViewFac
     public void setPageUrlLinks(@Nullable LinkRects links) {
         mPageView.setPageUrlLinks(links);
         mPageLinksView.setPageUrlLinks(links);
+    }
+
+    @Override
+    public void setPageGotoLinks(List<GotoLink> links) {
+        mPageView.setPageGotoLinks(links);
+        mPageLinksView.setPageGotoLinks(links);
     }
 
     @Override
