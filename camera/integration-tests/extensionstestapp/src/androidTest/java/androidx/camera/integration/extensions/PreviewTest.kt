@@ -70,10 +70,11 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
             Manifest.permission.RECORD_AUDIO,
         )
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var extensionsManager: ExtensionsManager
 
     companion object {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()

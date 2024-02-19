@@ -37,12 +37,14 @@ import android.os.Looper
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.AVAILABLE_CAMERA2_EXTENSION_MODES
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.concurrent.futures.await
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CompletableDeferred
@@ -72,12 +74,22 @@ object Camera2ExtensionsTestUtil {
 
     /** Gets a list of all camera id and extension mode combinations. */
     @JvmStatic
-    fun getAllCameraIdExtensionModeCombinations(): List<CameraIdExtensionModePair> =
-        CameraUtil.getBackwardCompatibleCameraIdListOrThrow().flatMap { cameraId ->
-            AVAILABLE_CAMERA2_EXTENSION_MODES.map { extensionMode ->
-                CameraIdExtensionModePair(cameraId, extensionMode)
+    fun getAllCameraIdExtensionModeCombinations(
+        context: Context = ApplicationProvider.getApplicationContext()
+    ): List<CameraIdExtensionModePair> =
+        CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
+            .flatMap { cameraId ->
+                AVAILABLE_CAMERA2_EXTENSION_MODES.map { extensionMode ->
+                    CameraIdExtensionModePair(cameraId, extensionMode)
+                }
             }
-        }
+            .filter {
+                Camera2ExtensionsUtil.isCamera2ExtensionModeSupported(
+                    context,
+                    it.cameraId,
+                    it.extensionMode
+                )
+            }
 
     suspend fun assertCanOpenExtensionsSession(
         cameraManager: CameraManager,

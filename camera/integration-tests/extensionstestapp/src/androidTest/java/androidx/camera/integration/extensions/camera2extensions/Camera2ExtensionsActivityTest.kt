@@ -33,7 +33,6 @@ import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCame
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
-import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.StressTestRule
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -69,12 +68,11 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @get:Rule
     val permissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-    @get:Rule val labTest: LabTestRule = LabTestRule()
-
     @Before
     fun setup() {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumeTrue(isCamera2ExtensionModeSupported(context, config.cameraId, config.extensionMode))
         // Clears the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -94,6 +92,7 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     }
 
     companion object {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         @ClassRule @JvmField val stressTest = StressTestRule()
 
         @Parameterized.Parameters(name = "config = {0}")
@@ -101,7 +100,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         fun parameters() = Camera2ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun checkPreviewUpdated() {
         val activityScenario =
@@ -114,7 +112,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         }
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun canCaptureSingleImage() {
         val activityScenario =
@@ -127,7 +124,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         }
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun checkPreviewUpdated_afterPauseResume() {
         val activityScenario =
@@ -147,7 +143,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         }
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun canCaptureImage_afterPauseResume() {
         val activityScenario =
@@ -170,7 +165,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         }
     }
 
-    @LabTestRule.LabTestOnly
     @Test
     fun canCaptureMultipleImages() {
         val activityScenario =
@@ -190,7 +184,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     ): ActivityScenario<Camera2ExtensionsActivity> {
         val (cameraId, extensionMode) = config
         val context = ApplicationProvider.getApplicationContext<Context>()
-        assumeTrue(isCamera2ExtensionModeSupported(context, cameraId, extensionMode))
         val intent =
             context.packageManager.getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)!!.apply {
                 putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)

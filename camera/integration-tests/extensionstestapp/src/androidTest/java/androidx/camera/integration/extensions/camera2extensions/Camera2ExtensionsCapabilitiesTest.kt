@@ -52,12 +52,13 @@ class Camera2ExtensionsCapabilitiesTest(private val config: CameraIdExtensionMod
         )
 
     companion object {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = Camera2ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
     private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
     private lateinit var extensionsCharacteristics: CameraExtensionCharacteristics
