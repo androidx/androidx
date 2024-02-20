@@ -25,6 +25,8 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavDestination.Companion.createRoute
@@ -48,6 +50,8 @@ import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
@@ -1614,6 +1618,8 @@ class NavControllerRouteTest {
 
         Intents.init()
 
+        val destroyActivityLatch = CountDownLatch(1)
+
         with(ActivityScenario.launchActivityForResult<TestActivity>(intent)) {
             moveToState(Lifecycle.State.CREATED)
             onActivity { activity ->
@@ -1632,8 +1638,17 @@ class NavControllerRouteTest {
                     // The parent will be constructed in a new Activity after navigateUp()
                     navController.navigateUp()
                 }
+
+                activity.lifecycle.addObserver(object : LifecycleEventObserver {
+                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                        if (event.targetState == Lifecycle.State.DESTROYED) {
+                            destroyActivityLatch.countDown()
+                        }
+                    }
+                })
             }
 
+            assertThat(destroyActivityLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(this.state).isEqualTo(Lifecycle.State.DESTROYED)
         }
 
