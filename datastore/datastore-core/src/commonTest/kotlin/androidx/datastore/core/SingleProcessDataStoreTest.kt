@@ -37,12 +37,19 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
@@ -513,6 +520,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val flowCollectionJob = async {
             store.data.take(8).toList(collectedBytes)
         }
+        runCurrent()
 
         repeat(7) {
             store.updateData { it.inc() }
@@ -538,6 +546,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             flowOf8.toList(bytesFromSecondCollect)
         }
 
+        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -566,6 +575,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             flowOf8.take(8).toList(collectedBytes)
         }
 
+        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -592,7 +602,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
                 flowCollection2.await()
             }
         }
-
+        runCurrent()
         repeat(15) {
             store.updateData { it.inc() }
         }
@@ -966,6 +976,61 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         assertThrows<CancellationException> {
             store.data.first()
         }
+    }
+
+    @Test
+    fun observeFileOnlyWhenDatastoreIsObserved() = runTest {
+        class InterProcessCoordinatorWithInfiniteUpdates(
+            val delegate: InterProcessCoordinator,
+            val observerCount: MutableStateFlow<Int> = MutableStateFlow(0)
+        ) : InterProcessCoordinator by delegate {
+            override val updateNotifications: Flow<Unit>
+                get() {
+                    return flow<Unit> {
+                        // never emit but never finish either so we know when we are being collected
+                        suspendCancellableCoroutine { }
+                    }.onStart {
+                        observerCount.update { it + 1 }
+                    }.onCompletion {
+                        observerCount.update { it - 1 }
+                    }
+                }
+        }
+        val observerCount = MutableStateFlow(0)
+        store = testIO.getStore(
+            serializerConfig,
+            dataStoreScope,
+            {
+                InterProcessCoordinatorWithInfiniteUpdates(
+                    delegate = createSingleProcessCoordinator(testFile.path()),
+                    observerCount = observerCount
+                )
+            }
+        ) { testFile }
+        fun hasObservers(): Boolean {
+            runCurrent()
+            return observerCount.value > 0
+        }
+        assertThat(hasObservers()).isFalse()
+        val collector1 = async {
+            store.data.collect {}
+        }
+        runCurrent()
+        assertThat(hasObservers()).isTrue()
+        val collector2 = async {
+            store.data.collect {}
+        }
+        assertThat(hasObservers()).isTrue()
+        collector1.cancelAndJoin()
+        assertThat(hasObservers()).isTrue()
+        collector2.cancelAndJoin()
+        assertThat(hasObservers()).isFalse()
+        val collector3 = async {
+            store.data.collect {}
+        }
+        assertThat(hasObservers()).isTrue()
+        collector3.cancelAndJoin()
+        assertThat(hasObservers()).isFalse()
     }
 
     private class TestingCorruptionHandler(
