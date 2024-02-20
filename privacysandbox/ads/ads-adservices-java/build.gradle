@@ -37,7 +37,6 @@ dependencies {
 
     // To use CallbackToFutureAdapter
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
-    implementation(libs.guavaAndroid)
     api(libs.guavaListenableFuture)
     implementation project(path: ':privacysandbox:ads:ads-adservices')
 
