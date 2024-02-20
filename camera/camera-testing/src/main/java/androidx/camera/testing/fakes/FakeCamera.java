@@ -16,10 +16,7 @@
 
 package androidx.camera.testing.fakes;
 
-import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.text.TextUtils;
-import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.IntRange;
@@ -45,6 +42,7 @@ import androidx.camera.core.impl.UseCaseAttachState;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.testing.impl.CaptureSimulationKt;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -56,6 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -559,39 +558,36 @@ public class FakeCamera implements CameraInternal {
      * Simulates a capture frame being drawn on the session config surfaces to imitate a real
      * camera.
      */
+    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void simulateCaptureFrame() {
+    public ListenableFuture<Void> simulateCaptureFrameAsync() {
+        return simulateCaptureFrameAsync(null);
+    }
+
+    /**
+     * Simulates a capture frame being drawn on the session config surfaces to imitate a real
+     * camera.
+     *
+     * <p> This method uses the provided {@link Executor} for the asynchronous operations in case
+     * of specific thread requirements.
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public ListenableFuture<Void> simulateCaptureFrameAsync(@Nullable Executor executor) {
         // Since capture session is not configured synchronously and may be dependent on when a
         // surface can be obtained from DeferrableSurface, we should wait for the session
         // configuration here just-in-case.
         awaitSessionConfiguration(1000);
 
         if (mSessionConfig == null || mState != State.CONFIGURED) {
-            Logger.e(TAG, "Session config not successfully configured yet.");
-            return;
+            return Futures.immediateFailedFuture(
+                    new IllegalStateException("Session config not successfully configured yet."));
         }
 
-        for (DeferrableSurface deferrableSurface : mSessionConfig.getSurfaces()) {
-            Size surfaceSize = deferrableSurface.getPrescribedSize();
-            Futures.addCallback(deferrableSurface.getSurface(), new FutureCallback<Surface>() {
-                @Override
-                public void onSuccess(@Nullable Surface surface) {
-                    if (surface == null) {
-                        Logger.e(TAG, "Null surface obtained from " + deferrableSurface);
-                        return;
-                    }
-                    Canvas canvas = surface.lockCanvas(
-                            new Rect(0, 0, surfaceSize.getWidth(), surfaceSize.getHeight()));
-                    // TODO: Draw something on the canvas (e.g. fake image bitmap or
-                    //  alternating color).
-                    surface.unlockCanvasAndPost(canvas);
-                }
-
-                @Override
-                public void onFailure(@NonNull Throwable t) {
-                    Logger.e(TAG, "Could not obtain surface from " + deferrableSurface, t);
-                }
-            }, CameraXExecutors.directExecutor());
+        if (executor == null) {
+            return CaptureSimulationKt.simulateCaptureFrameAsync(mSessionConfig.getSurfaces());
         }
+        return CaptureSimulationKt.simulateCaptureFrameAsync(mSessionConfig.getSurfaces(),
+                executor);
     }
 }
