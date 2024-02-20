@@ -50,6 +50,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.getScrollViewportLength
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollBy
@@ -295,6 +296,11 @@ private fun Modifier.scroll(
                         return@scrollBy true
                     }
                 )
+
+                getScrollViewportLength {
+                    it.add(state.viewportSize.toFloat())
+                    true
+                }
             }
         }
             .scrollingContainer(

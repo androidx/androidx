@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import android.annotation.SuppressLint
 import android.graphics.Region
 import android.view.View
 import androidx.collection.IntObjectMap
@@ -70,6 +71,18 @@ internal fun getTextLayoutResult(configuration: SemanticsConfiguration): TextLay
     }
 }
 
+@SuppressLint("PrimitiveInCollection")
+internal fun getScrollViewportLength(configuration: SemanticsConfiguration): Float? {
+    val viewPortCalculationsResult = mutableListOf<Float>()
+    val actionResult = configuration.getOrNull(SemanticsActions.GetScrollViewportLength)
+        ?.action?.invoke(viewPortCalculationsResult) ?: return null
+    return if (actionResult) {
+        viewPortCalculationsResult[0]
+    } else {
+        null
+    }
+}
+
 /**
  * These objects are used as snapshot observation scopes for the purpose of sending accessibility
  * scroll events whenever the scroll offset changes.  There is one per scroller and their lifecycle
@@ -108,7 +121,7 @@ internal fun Role.toLegacyClassName(): String? =
 internal fun SemanticsNode.isImportantForAccessibility() =
     isVisible &&
         (unmergedConfig.isMergingSemanticsOfDescendants ||
-        unmergedConfig.containsImportantForAccessibility())
+            unmergedConfig.containsImportantForAccessibility())
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal val SemanticsNode.isVisible: Boolean
