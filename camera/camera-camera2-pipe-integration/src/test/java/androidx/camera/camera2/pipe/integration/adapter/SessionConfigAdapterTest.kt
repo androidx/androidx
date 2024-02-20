@@ -151,10 +151,15 @@ class SessionConfigAdapterTest {
 class FakeTestUseCase(
     config: FakeUseCaseConfig,
 ) : FakeUseCase(config) {
+    var cameraControlReady = false
 
     fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
         updateSessionConfig(sessionConfigBuilder.build())
         notifyActive()
+    }
+
+    override fun onCameraControlReady() {
+        cameraControlReady = true
     }
 }
 

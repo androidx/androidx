@@ -149,6 +149,9 @@ class UseCaseManager @Inject constructor(
     @GuardedBy("lock")
     private var pendingSessionProcessorInitialization = false
 
+    @GuardedBy("lock")
+    private val pendingUseCasesToNotifyCameraControlReady = mutableSetOf<UseCase>()
+
     private val meteringRepeating by lazy {
         MeteringRepeating.Builder(
             cameraProperties,
@@ -193,7 +196,7 @@ class UseCaseManager @Inject constructor(
      * changes are identified (i.e., a new use case is added), the subsequent actions would trigger
      * a recreation of the current CameraGraph if there is one.
      */
-    fun attach(useCases: List<UseCase>) = synchronized(lock) {
+    fun attach(useCases: List<UseCase>): Unit = synchronized(lock) {
         if (useCases.isEmpty()) {
             Log.warn { "Attach [] from $this (Ignored)" }
             return
@@ -215,10 +218,13 @@ class UseCaseManager @Inject constructor(
             }
         }
 
-        // TODO: Handle when initialization is not finished (session processor).
-        unattachedUseCases.forEach { useCase ->
-            // Notify CameraControl is ready after the UseCaseCamera is created
-            useCase.onCameraControlReady()
+        if (sessionProcessor != null || !shouldCreateCameraGraphImmediately) {
+            pendingUseCasesToNotifyCameraControlReady.addAll(unattachedUseCases)
+        } else {
+            unattachedUseCases.forEach { useCase ->
+                // Notify CameraControl is ready after the UseCaseCamera is created
+                useCase.onCameraControlReady()
+            }
         }
     }
 
@@ -227,7 +233,7 @@ class UseCaseManager @Inject constructor(
      * changes are identified (i.e., an existing use case is removed), the subsequent actions would
      * trigger a recreation of the current CameraGraph.
      */
-    fun detach(useCases: List<UseCase>) = synchronized(lock) {
+    fun detach(useCases: List<UseCase>): Unit = synchronized(lock) {
         if (useCases.isEmpty()) {
             Log.warn { "Detaching [] from $this (Ignored)" }
             return
@@ -254,6 +260,7 @@ class UseCaseManager @Inject constructor(
             }
             refreshAttachedUseCases(attachedUseCases)
         }
+        pendingUseCasesToNotifyCameraControlReady.removeAll(useCases)
     }
 
     /**
@@ -367,6 +374,18 @@ class UseCaseManager @Inject constructor(
             return
         }
 
+        if (sessionProcessor != null || !shouldCreateCameraGraphImmediately) {
+            // We will need to set the UseCaseCamera to null since the new UseCaseCamera along with
+            // its respective CameraGraph configurations won't be ready until:
+            //
+            // - SessionProcessorManager finishes the initialization, _acquires the lock_, and
+            //    resume UseCaseManager successfully
+            // - And/or, the UseCaseManager is ready to be resumed under concurrent camera settings.
+            for (control in allControls) {
+                control.useCaseCamera = null
+            }
+        }
+
         if (sessionProcessor != null) {
             Log.debug { "Setting up UseCaseManager with SessionProcessorManager" }
             sessionProcessorManager = SessionProcessorManager(
@@ -422,12 +441,11 @@ class UseCaseManager @Inject constructor(
         beginComponentCreation(useCaseManagerConfig, cameraGraph)
     }
 
-    internal fun resumeDeferredComponentCreation(cameraGraph: CameraGraph) {
-        val config = synchronized(lock) { deferredUseCaseManagerConfig }
-        checkNotNull(config)
-        beginComponentCreation(config, cameraGraph)
+    internal fun resumeDeferredComponentCreation(cameraGraph: CameraGraph) = synchronized(lock) {
+        beginComponentCreation(checkNotNull(deferredUseCaseManagerConfig), cameraGraph)
     }
 
+    @GuardedBy("lock")
     private fun beginComponentCreation(
         useCaseManagerConfig: UseCaseManagerConfig,
         cameraGraph: CameraGraph
@@ -464,6 +482,12 @@ class UseCaseManager @Inject constructor(
 
             refreshRunningUseCases()
         }
+
+        Log.debug { "Notifying $pendingUseCasesToNotifyCameraControlReady camera control ready" }
+        for (useCase in pendingUseCasesToNotifyCameraControlReady) {
+            useCase.onCameraControlReady()
+        }
+        pendingUseCasesToNotifyCameraControlReady.clear()
     }
 
     @GuardedBy("lock")
