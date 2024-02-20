@@ -16,14 +16,15 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.os.IBinder
 import androidx.annotation.RestrictTo
-import androidx.window.extensions.embedding.ActivityStack.Token
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 /**
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
  */
-class ActivityStack @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmOverloads constructor(
+class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
     /**
      * The [Activity] list in this application's process that belongs to this [ActivityStack].
      *
@@ -44,7 +45,7 @@ class ActivityStack @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmOverloads co
     /**
      * A token uniquely identifying this `ActivityStack`.
      */
-    internal val token: Token = Token.INVALID_ACTIVITY_STACK_TOKEN,
+    internal val token: IBinder,
 ) {
 
     /**

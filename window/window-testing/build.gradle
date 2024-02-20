@@ -40,7 +40,6 @@ android {
 dependencies {
     api(libs.kotlinStdlib)
     api(project(":window:window"))
-    api(project(":window:extensions:extensions"))
     api(libs.junit)
     implementation("androidx.core:core:1.8.0")
     implementation("androidx.annotation:annotation:1.7.0")

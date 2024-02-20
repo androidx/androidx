@@ -20,6 +20,7 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import androidx.core.util.Consumer as JetpackConsumer
 import androidx.window.RequiresWindowSdkExtension
@@ -168,11 +169,12 @@ internal class EmbeddingCompat(
 
     @RequiresWindowSdkExtension(5)
     override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        // This API requires version 5 because the implementation needs ActivityStack#getToken,
+        // which is targeting vendor API level 5.
         windowSdkExtensions.requireExtensionVersion(5)
 
-        embeddingExtension.finishActivityStacksWithTokens(
-            activityStacks.mapTo(mutableSetOf()) { it.token }
-        )
+        val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
+        embeddingExtension.finishActivityStacks(stackTokens)
     }
 
     @OptIn(ExperimentalWindowApi::class)
@@ -213,7 +215,6 @@ internal class EmbeddingCompat(
         invalidateTopVisibleSplitAttributes()
     }
 
-    @Suppress("Deprecation") // To compat with device with extension version 3 and 4.
     @RequiresWindowSdkExtension(3)
     override fun updateSplitAttributes(
         splitInfo: SplitInfo,
@@ -221,27 +222,22 @@ internal class EmbeddingCompat(
     ) {
         windowSdkExtensions.requireExtensionVersion(3)
 
-        if (windowSdkExtensions.extensionVersion >= 5) {
-            embeddingExtension.updateSplitAttributes(
-                splitInfo.getToken(),
-                adapter.translateSplitAttributes(splitAttributes)
-            )
-        } else {
-            embeddingExtension.updateSplitAttributes(
-                splitInfo.getBinder(),
-                adapter.translateSplitAttributes(splitAttributes)
-            )
-        }
+        embeddingExtension.updateSplitAttributes(
+            splitInfo.token,
+            adapter.translateSplitAttributes(splitAttributes)
+        )
     }
 
     @RequiresWindowSdkExtension(5)
     override fun setLaunchingActivityStack(
         options: ActivityOptions,
-        activityStack: ActivityStack,
+        token: IBinder
     ): ActivityOptions {
+        // This API requires version 5 because the implementation needs ActivityStack#getToken,
+        // which is targeting vendor API level 5.
         windowSdkExtensions.requireExtensionVersion(5)
 
-        return embeddingExtension.setLaunchingActivityStack(options, activityStack.token)
+        return embeddingExtension.setLaunchingActivityStack(options, token)
     }
 
     @RequiresWindowSdkExtension(5)

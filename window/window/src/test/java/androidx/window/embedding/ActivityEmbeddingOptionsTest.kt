@@ -20,7 +20,6 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import androidx.window.core.ExperimentalWindowApi
-import androidx.window.extensions.embedding.ActivityStack.Token as ActivityStackToken
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -49,11 +48,7 @@ class ActivityEmbeddingOptionsTest {
         mockContext = mock()
         mockActivity = mock()
         mockActivityOptions = mock()
-        mockActivityStack = ActivityStack(
-            listOf(),
-            true,
-            ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
-        )
+        mockActivityStack = ActivityStack(listOf(), true, mock())
 
         whenever(mockActivity.applicationContext).doReturn(mockContext)
         whenever(mockEmbeddingBackend.getActivityStack(mockActivity)).doReturn(mockActivityStack)
@@ -74,7 +69,7 @@ class ActivityEmbeddingOptionsTest {
         mockActivityOptions.setLaunchingActivityStack(mockActivity, mockActivityStack)
 
         verify(mockEmbeddingBackend).setLaunchingActivityStack(
-            mockActivityOptions, mockActivityStack)
+            mockActivityOptions, mockActivityStack.token)
     }
 
     @Test
@@ -82,6 +77,6 @@ class ActivityEmbeddingOptionsTest {
         mockActivityOptions.setLaunchingActivityStack(mockActivity)
 
         verify(mockEmbeddingBackend).setLaunchingActivityStack(
-            mockActivityOptions, mockActivityStack)
+            mockActivityOptions, mockActivityStack.token)
     }
 }
