@@ -15,10 +15,14 @@
  */
 package androidx.credentials.provider.ui;
 
+import static androidx.credentials.CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
 import android.app.slice.Slice;
@@ -144,6 +148,75 @@ public class PublicKeyCredentialEntryJavaTest {
         assertNotNull(entry);
         assertEntryWithAllParams(entry);
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void isDefaultIcon_noIconSet_returnsTrue() {
+        PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginOption).build();
+
+        assertTrue(entry.hasDefaultIcon());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void isDefaultIcon_noIconSetFromSlice_returnsTrue() {
+        PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginOption).build();
+        Slice slice = PublicKeyCredentialEntry.toSlice(entry);
+
+        assertNotNull(slice);
+
+        PublicKeyCredentialEntry entryFromSlice = PublicKeyCredentialEntry.fromSlice(slice);
+
+        assertTrue(entryFromSlice.hasDefaultIcon());
+        assertTrue(entry.hasDefaultIcon());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void isDefaultIcon_customIconAfterSlice_returnsFalse() {
+        PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginOption)
+                .setIcon(ICON).build();
+        Slice slice = PublicKeyCredentialEntry.toSlice(entry);
+
+        assertNotNull(slice);
+
+        PublicKeyCredentialEntry entryFromSlice = PublicKeyCredentialEntry.fromSlice(slice);
+
+        assertFalse(entryFromSlice.hasDefaultIcon());
+        assertFalse(entry.hasDefaultIcon());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void isDefaultIcon_customIcon_returnsFalse() {
+        PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginOption)
+                .setIcon(ICON).build();
+
+        assertFalse(entry.hasDefaultIcon());
+    }
+
+    @Test
+    public void isAutoSelectAllowedFromOption_optionAllows_returnsTrue() {
+        mBeginOption.getCandidateQueryData().putBoolean(
+                BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, true);
+        PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginOption).build();
+
+        assertTrue(entry.isAutoSelectAllowedFromOption());
+    }
+
+    @Test
+    public void isAutoSelectAllowedFromOption_optionDisallows_returnsFalse() {
+        PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginOption).build();
+
+        assertFalse(entry.isAutoSelectAllowedFromOption());
+    }
+
     private PublicKeyCredentialEntry constructWithRequiredParamsOnly() {
         return new PublicKeyCredentialEntry.Builder(mContext, USERNAME, mPendingIntent,
                 mBeginOption).build();

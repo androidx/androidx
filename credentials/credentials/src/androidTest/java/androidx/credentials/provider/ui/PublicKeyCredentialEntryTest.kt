@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.service.credentials.CredentialEntry
+import androidx.credentials.CredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
 import androidx.credentials.equals
@@ -170,6 +171,96 @@ class PublicKeyCredentialEntryTest {
         }
     }
     @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun isDefaultIcon_noIconSet_returnsTrue() {
+        val entry = PublicKeyCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+        Assert.assertTrue(entry.hasDefaultIcon)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun isDefaultIcon_customIcon_returnsFalse() {
+        val entry = PublicKeyCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        )
+            .setIcon(ICON).build()
+        Assert.assertFalse(entry.hasDefaultIcon)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun isDefaultIcon_noIconSetFromSlice_returnsTrue() {
+        val entry = PublicKeyCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+        val slice = toSlice(entry)
+
+        Assert.assertNotNull(slice)
+
+        val entryFromSlice = fromSlice(slice!!)
+
+        Assert.assertNotNull(entryFromSlice)
+        Assert.assertTrue(entryFromSlice!!.hasDefaultIcon)
+        Assert.assertTrue(entry.hasDefaultIcon)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun isDefaultIcon_customIconAfterSlice_returnsFalse() {
+        val entry = PublicKeyCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).setIcon(ICON).build()
+        val slice = toSlice(entry)
+
+        Assert.assertNotNull(slice)
+
+        val entryFromSlice = fromSlice(slice!!)
+
+        Assert.assertFalse(entryFromSlice!!.hasDefaultIcon)
+        Assert.assertFalse(entry.hasDefaultIcon)
+    }
+
+    @Test
+    fun isAutoSelectAllowedFromOption_optionAllows_returnsTrue() {
+        BEGIN_OPTION.candidateQueryData.putBoolean(
+            CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, true
+        )
+        val entry = PublicKeyCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+
+        Assert.assertTrue(entry.isAutoSelectAllowedFromOption)
+    }
+
+    @Test
+    fun isAutoSelectAllowedFromOption_optionDisallows_returnsFalse() {
+        val entry = PublicKeyCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+        Assert.assertFalse(entry.isAutoSelectAllowedFromOption)
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 34)
     fun fromCredentialEntry_success() {
         val originalEntry = constructWithAllParams()
@@ -222,14 +313,19 @@ class PublicKeyCredentialEntryTest {
 
     companion object {
         private val BEGIN_OPTION: BeginGetPublicKeyCredentialOption =
-            BeginGetPublicKeyCredentialOption(Bundle(), "id",
-                "{\"key1\":{\"key2\":{\"key3\":\"value3\"}}}")
+            BeginGetPublicKeyCredentialOption(
+                Bundle(), "id",
+                "{\"key1\":{\"key2\":{\"key3\":\"value3\"}}}"
+            )
         private val USERNAME: CharSequence = "title"
         private val DISPLAYNAME: CharSequence = "subtitle"
         private val TYPE_DISPLAY_NAME: CharSequence = "Password"
         private const val LAST_USED_TIME: Long = 10L
-        private val ICON = Icon.createWithBitmap(Bitmap.createBitmap(
-            100, 100, Bitmap.Config.ARGB_8888))
+        private val ICON = Icon.createWithBitmap(
+            Bitmap.createBitmap(
+                100, 100, Bitmap.Config.ARGB_8888
+            )
+        )
         private const val IS_AUTO_SELECT_ALLOWED = true
         private const val DEFAULT_SINGLE_PROVIDER_ICON_BIT = false
         private const val SINGLE_PROVIDER_ICON_BIT = true

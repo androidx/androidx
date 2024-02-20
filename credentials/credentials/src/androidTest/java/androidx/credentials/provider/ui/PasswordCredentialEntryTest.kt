@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.service.credentials.CredentialEntry
+import androidx.credentials.CredentialOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.equals
@@ -35,6 +36,7 @@ import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
+import org.junit.Assert
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,22 +76,117 @@ class PasswordCredentialEntryTest {
             )
         }
     }
+
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     fun constructor_nullIcon_defaultIconSet() {
         val entry = PasswordCredentialEntry.Builder(
-            mContext, USERNAME, mPendingIntent, BEGIN_OPTION).build()
+            mContext, USERNAME, mPendingIntent, BEGIN_OPTION
+        ).build()
         assertThat(
             equals(
                 entry.icon,
                 Icon.createWithResource(mContext, R.drawable.ic_password)
             )
         ).isTrue()
+        Assert.assertTrue(entry.hasDefaultIcon)
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    fun isDefaultIcon_noIconSet_returnsTrue() {
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+
+        Assert.assertTrue(entry.hasDefaultIcon)
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    fun isDefaultIcon_customIconSetFromSlice_returnsFalse() {
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).setIcon(ICON).build()
+
+        val slice = PasswordCredentialEntry.toSlice(entry)
+        assertNotNull(slice)
+
+        val entryFromSlice = fromSlice(slice!!)
+
+        Assert.assertNotNull(entryFromSlice)
+        Assert.assertFalse(entryFromSlice!!.hasDefaultIcon)
+        Assert.assertFalse(entry.hasDefaultIcon)
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    fun isDefaultIcon_noIconSetFromSlice_returnsTrue() {
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+
+        val slice = PasswordCredentialEntry.toSlice(entry)
+        assertNotNull(slice)
+        val entryFromSlice = fromSlice(slice!!)
+
+        Assert.assertNotNull(entryFromSlice)
+        Assert.assertTrue(entryFromSlice!!.hasDefaultIcon)
+        Assert.assertTrue(entry.hasDefaultIcon)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun isDefaultIcon_customIcon_returnsFalse() {
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        )
+            .setIcon(ICON).build()
+        Assert.assertFalse(entry.hasDefaultIcon)
+    }
+
+    @Test
+    fun isAutoSelectAllowedFromOption_optionAllows_returnsTrue() {
+        BEGIN_OPTION.candidateQueryData.putBoolean(
+            CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, true
+        )
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+        Assert.assertTrue(entry.isAutoSelectAllowedFromOption)
+    }
+
+    @Test
+    fun isAutoSelectAllowedFromOption_optionDisallows_returnsFalse() {
+        val entry = PasswordCredentialEntry.Builder(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+        Assert.assertFalse(entry.isAutoSelectAllowedFromOption)
     }
     @Test
     @Suppress("DEPRECATION")
     fun constructor_nullTypeDisplayName_defaultDisplayNameSet() {
         val entry = PasswordCredentialEntry(
-            mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
+            mContext, USERNAME, mPendingIntent, BEGIN_OPTION
+        )
         assertThat(entry.typeDisplayName).isEqualTo(
             mContext.getString(
                 R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
@@ -268,7 +365,8 @@ class PasswordCredentialEntryTest {
         assertNotNull(entry.lastUsedTime)
         entry.lastUsedTime?.let {
             assertThat(LAST_USED_TIME.toEpochMilli()).isEqualTo(
-                it.toEpochMilli())
+                it.toEpochMilli()
+            )
         }
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
         assertThat(entry.isAutoSelectAllowed).isEqualTo(IS_AUTO_SELECT_ALLOWED)
@@ -283,7 +381,8 @@ class PasswordCredentialEntryTest {
         private val LAST_USED_TIME = Instant.now()
         private val BEGIN_OPTION = BeginGetPasswordOption(
             emptySet<String>(),
-            Bundle.EMPTY, "id")
+            Bundle(), "id"
+        )
         private val ICON = Icon.createWithBitmap(
             Bitmap.createBitmap(
                 100, 100, Bitmap.Config.ARGB_8888
