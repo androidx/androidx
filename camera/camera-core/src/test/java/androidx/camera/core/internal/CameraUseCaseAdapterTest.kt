@@ -49,6 +49,7 @@ import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.RestrictedCameraControl
+import androidx.camera.core.impl.RestrictedCameraInfo
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
@@ -1063,7 +1064,7 @@ class CameraUseCaseAdapterTest {
 
     @RequiresApi(23)
     private fun createAdapterWithSupportedCameraOperations(
-        @RestrictedCameraControl.CameraOperation supportedOps: Set<Int>
+        @RestrictedCameraInfo.CameraOperation supportedOps: Set<Int>
     ): CameraUseCaseAdapter {
         val fakeSessionProcessor = FakeSessionProcessor()
         // no camera operations are supported.
@@ -1123,7 +1124,7 @@ class CameraUseCaseAdapterTest {
         // 1. Arrange
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
-                supportedOps = setOf(RestrictedCameraControl.ZOOM))
+                supportedOps = setOf(RestrictedCameraInfo.CAMERA_OPERATION_ZOOM))
 
         // 2. Act && Assert
         cameraUseCaseAdapter.cameraControl.setZoomRatio(2.0f).await()
@@ -1138,7 +1139,7 @@ class CameraUseCaseAdapterTest {
         // 1. Arrange
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
-                supportedOps = setOf(RestrictedCameraControl.TORCH))
+                supportedOps = setOf(RestrictedCameraInfo.CAMERA_OPERATION_TORCH))
 
         // 2. Act
         cameraUseCaseAdapter.cameraControl.enableTorch(true).await()
@@ -1154,8 +1155,8 @@ class CameraUseCaseAdapterTest {
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
                 supportedOps = setOf(
-                    RestrictedCameraControl.AUTO_FOCUS,
-                    RestrictedCameraControl.AF_REGION,
+                    RestrictedCameraInfo.CAMERA_OPERATION_AUTO_FOCUS,
+                    RestrictedCameraInfo.CAMERA_OPERATION_AF_REGION,
                     ))
 
         // 2. Act
@@ -1180,7 +1181,7 @@ class CameraUseCaseAdapterTest {
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
                 supportedOps = setOf(
-                    RestrictedCameraControl.AE_REGION,
+                    RestrictedCameraInfo.CAMERA_OPERATION_AE_REGION,
                 ))
 
         // 2. Act
@@ -1205,7 +1206,7 @@ class CameraUseCaseAdapterTest {
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
                 supportedOps = setOf(
-                    RestrictedCameraControl.AWB_REGION,
+                    RestrictedCameraInfo.CAMERA_OPERATION_AWB_REGION,
                 ))
 
         // 2. Act
@@ -1230,7 +1231,7 @@ class CameraUseCaseAdapterTest {
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
                 supportedOps = setOf(
-                    RestrictedCameraControl.AE_REGION,
+                    RestrictedCameraInfo.CAMERA_OPERATION_AE_REGION,
                 ))
 
         // 2. Act && Assert
@@ -1248,7 +1249,7 @@ class CameraUseCaseAdapterTest {
         // 1. Arrange
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
-                supportedOps = setOf(RestrictedCameraControl.EXPOSURE_COMPENSATION))
+                supportedOps = setOf(RestrictedCameraInfo.CAMERA_OPERATION_EXPOSURE_COMPENSATION))
 
         // 2. Act
         cameraUseCaseAdapter.cameraControl.setExposureCompensationIndex(0).await()
@@ -1301,7 +1302,7 @@ class CameraUseCaseAdapterTest {
         // 1. Arrange
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
-                supportedOps = setOf(RestrictedCameraControl.ZOOM)
+                supportedOps = setOf(RestrictedCameraInfo.CAMERA_OPERATION_ZOOM)
             )
         fakeCameraInfo.setZoom(10f, 0.6f, 10f, 1f)
 
@@ -1322,7 +1323,7 @@ class CameraUseCaseAdapterTest {
         // 1. Arrange
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
-                supportedOps = setOf(RestrictedCameraControl.TORCH)
+                supportedOps = setOf(RestrictedCameraInfo.CAMERA_OPERATION_TORCH)
             )
         fakeCameraInfo.setTorch(TorchState.ON)
 
@@ -1338,8 +1339,8 @@ class CameraUseCaseAdapterTest {
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
                 supportedOps = setOf(
-                    RestrictedCameraControl.AUTO_FOCUS,
-                    RestrictedCameraControl.AF_REGION
+                    RestrictedCameraInfo.CAMERA_OPERATION_AUTO_FOCUS,
+                    RestrictedCameraInfo.CAMERA_OPERATION_AF_REGION
                 )
             )
         fakeCameraInfo.setIsFocusMeteringSupported(true)
@@ -1357,7 +1358,7 @@ class CameraUseCaseAdapterTest {
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
                 supportedOps = setOf(
-                    RestrictedCameraControl.EXPOSURE_COMPENSATION,
+                    RestrictedCameraInfo.CAMERA_OPERATION_EXPOSURE_COMPENSATION,
                 )
             )
         fakeCameraInfo.setExposureState(2, Range.create(0, 10), Rational(1, 1), true)
@@ -1379,7 +1380,7 @@ class CameraUseCaseAdapterTest {
         // 1. Arrange
         val cameraUseCaseAdapter =
             createAdapterWithSupportedCameraOperations(
-                supportedOps = setOf(RestrictedCameraControl.FLASH)
+                supportedOps = setOf(RestrictedCameraInfo.CAMERA_OPERATION_FLASH)
             )
 
         // 2. Act && Assert

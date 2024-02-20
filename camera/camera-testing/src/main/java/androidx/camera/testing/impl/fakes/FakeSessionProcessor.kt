@@ -34,7 +34,7 @@ import androidx.camera.core.impl.ImageReaderProxy
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.RequestProcessor
-import androidx.camera.core.impl.RestrictedCameraControl
+import androidx.camera.core.impl.RestrictedCameraInfo
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
@@ -85,7 +85,7 @@ class FakeSessionProcessor(
     private var rotationDegrees = 0
     private var jpegQuality = 100
 
-    @RestrictedCameraControl.CameraOperation
+    @RestrictedCameraInfo.CameraOperation
     var restrictedCameraOperations: Set<Int> = emptySet()
 
     fun releaseSurfaces() {
@@ -233,7 +233,7 @@ class FakeSessionProcessor(
         return latestParameters
     }
 
-    @RestrictedCameraControl.CameraOperation
+    @RestrictedCameraInfo.CameraOperation
     override fun getSupportedCameraOperations(): Set<Int> {
         return restrictedCameraOperations
     }

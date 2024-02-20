@@ -203,8 +203,7 @@ public final class CameraUseCaseAdapter implements Camera {
         mAdapterCameraControl = new RestrictedCameraControl(
                 mCameraInternal.getCameraControlInternal(), sessionProcessor);
         mAdapterCameraInfo =
-                new RestrictedCameraInfo(mCameraInternal.getCameraInfoInternal(),
-                        mAdapterCameraControl);
+                new RestrictedCameraInfo(mCameraInternal.getCameraInfoInternal(), sessionProcessor);
         mAdapterCameraInfo.setPostviewSupported(
                 mCameraConfig.isPostviewSupported());
         mAdapterCameraInfo.setCaptureProcessProgressSupported(
