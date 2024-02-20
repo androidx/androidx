@@ -27,10 +27,12 @@ import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
 import androidx.room.TransactionElement
+import androidx.room.Transactor
+import androidx.room.coroutines.RawConnectionAccessor
 import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.getQueryDispatcher
 import androidx.room.transactionDispatcher
-import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import java.io.File
@@ -42,77 +44,85 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 /**
- * Performs a single database read operation.
+ * Performs a database operation.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual suspend fun <R> performReadSuspending(
+actual suspend fun <R> performSuspending(
     db: RoomDatabase,
-    sql: String,
-    block: (SQLiteStatement) -> R
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> R
+): R = db.compatCoroutineExecute(inTransaction) {
+    db.internalPerform(isReadOnly, inTransaction, block)
+}
+
+/**
+ * Blocking version of [performSuspending]
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun <R> performBlocking(
+    db: RoomDatabase,
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> R
 ): R {
-    if (db.inCompatibilityMode()) {
-        if (db.isOpenInternal && db.inTransaction()) {
-            return db.perform(true, sql, block)
+    db.assertNotMainThread()
+    db.assertNotSuspendingTransaction()
+    return runBlocking {
+        db.internalPerform(isReadOnly, inTransaction, block)
+    }
+}
+
+private suspend inline fun <R> RoomDatabase.internalPerform(
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    crossinline block: (SQLiteConnection) -> R
+): R = useConnection(isReadOnly) { transactor ->
+    if (inTransaction) {
+        val type = if (isReadOnly) {
+            Transactor.SQLiteTransactionType.DEFERRED
+        } else {
+            Transactor.SQLiteTransactionType.IMMEDIATE
         }
-        val context =
-            coroutineContext[TransactionElement]?.transactionDispatcher ?: db.getQueryDispatcher()
-        return withContext(context) {
-            db.perform(true, sql, block)
+        // TODO(b/309990302): Commonize Invalidation Tracker
+        if (!isReadOnly) {
+            invalidationTracker.syncTriggers(openHelper.writableDatabase)
         }
+        val result = transactor.withTransaction(type) {
+            val rawConnection = (this as RawConnectionAccessor).rawConnection
+            block.invoke(rawConnection)
+        }
+        if (!isReadOnly && !transactor.inTransaction()) {
+            invalidationTracker.refreshVersionsAsync()
+        }
+        result
     } else {
-        return db.perform(true, sql, block)
+        val rawConnection = (transactor as RawConnectionAccessor).rawConnection
+        block.invoke(rawConnection)
     }
 }
 
 /**
- * Performs a single database read transaction operation.
+ * Compatibility dispatcher behaviour in [androidx.room.CoroutinesRoom.execute] for driver codegen
+ * utility functions.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual suspend fun <R> performReadTransactionSuspending(
-    db: RoomDatabase,
-    sql: String,
-    block: (SQLiteStatement) -> R
+private suspend inline fun <R> RoomDatabase.compatCoroutineExecute(
+    inTransaction: Boolean,
+    crossinline block: suspend () -> R
 ): R {
-    if (db.inCompatibilityMode()) {
-        if (db.isOpenInternal && db.inTransaction()) {
-            return db.performTransaction(true) { it.usePrepared(sql, block) }
+    if (inCompatibilityMode()) {
+        if (isOpenInternal && inTransaction()) {
+            return block.invoke()
         }
         val context =
-            coroutineContext[TransactionElement]?.transactionDispatcher ?: db.transactionDispatcher
+            coroutineContext[TransactionElement]?.transactionDispatcher
+                ?: if (inTransaction) transactionDispatcher else getQueryDispatcher()
         return withContext(context) {
-            db.performTransaction(true) { it.usePrepared(sql, block) }
+            block.invoke()
         }
     } else {
-        return db.performTransaction(true) { it.usePrepared(sql, block) }
+        return block.invoke()
     }
-}
-
-/**
- * Performs a single database read query operation.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun <R> performReadBlocking(
-    db: RoomDatabase,
-    sql: String,
-    block: (SQLiteStatement) -> R
-): R {
-    db.assertNotMainThread()
-    db.assertNotSuspendingTransaction()
-    return runBlocking { db.perform(isReadOnly = true, sql, block) }
-}
-
-/**
- * Performs a single database read query transaction operation.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun <R> performReadTransactionBlocking(
-    db: RoomDatabase,
-    sql: String,
-    block: (SQLiteStatement) -> R
-): R {
-    db.assertNotMainThread()
-    db.assertNotSuspendingTransaction()
-    return runBlocking { db.performTransaction(isReadOnly = true) { it.usePrepared(sql, block) } }
 }
 
 /**

@@ -23,30 +23,17 @@ import androidx.annotation.RestrictTo
 import androidx.room.PooledConnection
 import androidx.room.RoomDatabase
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.execSQL
 import androidx.sqlite.use
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
-/**
- * Performs a single database read operation.
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-expect suspend fun <R> performReadSuspending(
+expect suspend fun <R> performSuspending(
     db: RoomDatabase,
-    sql: String,
-    block: (SQLiteStatement) -> R
-): R
-
-/**
- * Performs a single database read transaction operation.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-expect suspend fun <R> performReadTransactionSuspending(
-    db: RoomDatabase,
-    sql: String,
-    block: (SQLiteStatement) -> R
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> R
 ): R
 
 /**

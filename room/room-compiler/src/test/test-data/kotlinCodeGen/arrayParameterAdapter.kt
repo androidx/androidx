@@ -2,7 +2,8 @@ import androidx.room.RoomDatabase
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.newStringBuilder
-import androidx.room.util.performReadBlocking
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import java.lang.StringBuilder
 import javax.`annotation`.processing.Generated
 import kotlin.Array
@@ -30,22 +31,27 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return performReadBlocking(__db, _sql) { _stmt ->
-      var _argIndex: Int = 1
-      for (_item: String in arg) {
-        _stmt.bindText(_argIndex, _item)
-        _argIndex++
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String in arg) {
+          _stmt.bindText(_argIndex, _item)
+          _argIndex++
+        }
+        val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpId: String
+          _tmpId = _stmt.getText(_cursorIndexOfId)
+          _result = MyEntity(_tmpId)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpId: String
-        _tmpId = _stmt.getText(_cursorIndexOfId)
-        _result = MyEntity(_tmpId)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
-      }
-      _result
     }
   }
 
@@ -56,26 +62,31 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return performReadBlocking(__db, _sql) { _stmt ->
-      var _argIndex: Int = 1
-      if (arg == null) {
-        _stmt.bindNull(_argIndex)
-      } else {
-        for (_item: String in arg) {
-          _stmt.bindText(_argIndex, _item)
-          _argIndex++
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        if (arg == null) {
+          _stmt.bindNull(_argIndex)
+        } else {
+          for (_item: String in arg) {
+            _stmt.bindText(_argIndex, _item)
+            _argIndex++
+          }
         }
+        val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpId: String
+          _tmpId = _stmt.getText(_cursorIndexOfId)
+          _result = MyEntity(_tmpId)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpId: String
-        _tmpId = _stmt.getText(_cursorIndexOfId)
-        _result = MyEntity(_tmpId)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
-      }
-      _result
     }
   }
 
@@ -86,26 +97,31 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return performReadBlocking(__db, _sql) { _stmt ->
-      var _argIndex: Int = 1
-      for (_item: String? in arg) {
-        if (_item == null) {
-          _stmt.bindNull(_argIndex)
-        } else {
-          _stmt.bindText(_argIndex, _item)
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String? in arg) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex)
+          } else {
+            _stmt.bindText(_argIndex, _item)
+          }
+          _argIndex++
         }
-        _argIndex++
+        val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpId: String
+          _tmpId = _stmt.getText(_cursorIndexOfId)
+          _result = MyEntity(_tmpId)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpId: String
-        _tmpId = _stmt.getText(_cursorIndexOfId)
-        _result = MyEntity(_tmpId)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
-      }
-      _result
     }
   }
 
@@ -116,22 +132,27 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return performReadBlocking(__db, _sql) { _stmt ->
-      var _argIndex: Int = 1
-      for (_item: String in arg) {
-        _stmt.bindText(_argIndex, _item)
-        _argIndex++
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String in arg) {
+          _stmt.bindText(_argIndex, _item)
+          _argIndex++
+        }
+        val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpId: String
+          _tmpId = _stmt.getText(_cursorIndexOfId)
+          _result = MyEntity(_tmpId)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpId: String
-        _tmpId = _stmt.getText(_cursorIndexOfId)
-        _result = MyEntity(_tmpId)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
-      }
-      _result
     }
   }
 
@@ -142,26 +163,31 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return performReadBlocking(__db, _sql) { _stmt ->
-      var _argIndex: Int = 1
-      for (_item: String? in arg) {
-        if (_item == null) {
-          _stmt.bindNull(_argIndex)
-        } else {
-          _stmt.bindText(_argIndex, _item)
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String? in arg) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex)
+          } else {
+            _stmt.bindText(_argIndex, _item)
+          }
+          _argIndex++
         }
-        _argIndex++
+        val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpId: String
+          _tmpId = _stmt.getText(_cursorIndexOfId)
+          _result = MyEntity(_tmpId)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpId: String
-        _tmpId = _stmt.getText(_cursorIndexOfId)
-        _result = MyEntity(_tmpId)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
-      }
-      _result
     }
   }
 
@@ -172,22 +198,27 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return performReadBlocking(__db, _sql) { _stmt ->
-      var _argIndex: Int = 1
-      for (_item: Int in arg) {
-        _stmt.bindLong(_argIndex, _item.toLong())
-        _argIndex++
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: Int in arg) {
+          _stmt.bindLong(_argIndex, _item.toLong())
+          _argIndex++
+        }
+        val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpId: String
+          _tmpId = _stmt.getText(_cursorIndexOfId)
+          _result = MyEntity(_tmpId)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpId: String
-        _tmpId = _stmt.getText(_cursorIndexOfId)
-        _result = MyEntity(_tmpId)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
-      }
-      _result
     }
   }
 
@@ -198,26 +229,31 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return performReadBlocking(__db, _sql) { _stmt ->
-      var _argIndex: Int = 1
-      if (arg == null) {
-        _stmt.bindNull(_argIndex)
-      } else {
-        for (_item: Int in arg) {
-          _stmt.bindLong(_argIndex, _item.toLong())
-          _argIndex++
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        if (arg == null) {
+          _stmt.bindNull(_argIndex)
+        } else {
+          for (_item: Int in arg) {
+            _stmt.bindLong(_argIndex, _item.toLong())
+            _argIndex++
+          }
         }
+        val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpId: String
+          _tmpId = _stmt.getText(_cursorIndexOfId)
+          _result = MyEntity(_tmpId)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _cursorIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpId: String
-        _tmpId = _stmt.getText(_cursorIndexOfId)
-        _result = MyEntity(_tmpId)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
-      }
-      _result
     }
   }
 
