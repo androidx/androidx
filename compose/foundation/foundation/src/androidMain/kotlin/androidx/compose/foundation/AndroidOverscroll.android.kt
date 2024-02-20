@@ -17,9 +17,11 @@
 package androidx.compose.foundation
 
 import android.content.Context
+import android.graphics.RenderNode
 import android.os.Build
 import android.widget.EdgeEffect
 import androidx.annotation.ColorInt
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.EdgeEffectCompat.distanceCompat
 import androidx.compose.foundation.EdgeEffectCompat.onAbsorbCompat
@@ -36,16 +38,17 @@ import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.draw
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
@@ -70,38 +73,341 @@ internal actual fun rememberOverscrollEffect(): OverscrollEffect {
     }
 }
 
-private class DrawOverscrollModifier(
+@RequiresApi(Build.VERSION_CODES.S)
+private class DrawStretchOverscrollModifier(
     private val overscrollEffect: AndroidEdgeEffectOverscrollEffect,
+    private val edgeEffectWrapper: EdgeEffectWrapper,
     inspectorInfo: InspectorInfo.() -> Unit
 ) : DrawModifier, InspectorValueInfo(inspectorInfo) {
 
+    /**
+     * There is an unwanted behavior in the stretch overscroll effect we have to workaround:
+     * when the effect is started it is getting the current RenderNode bounds and clips the content
+     * by those bounds. Even if this RenderNode is not configured to do clipping. Or if it clips,
+     * but not within its bounds, but by the outline provided which could have a completely
+     * different bounds. That is what happens with our scrolling containers - they all clip by the
+     * rect which is larger than the RenderNode bounds in order to not clip the shadows drawn in
+     * the cross axis of the scrolling direction. This issue is not that visible in the Views world
+     * because Views do clip by default. So adding one more clip doesn't change much. Thus why the
+     * whole shadows mechanism in the Views world works differently, the shadows are drawn not
+     * in-place, but with the background of the first parent which has a background.
+     *
+     * To solve this we need to render into a larger area, either by creating a larger layer for the
+     * child to draw in, or by manually rendering the stretch into a larger RenderNode, and then
+     * drawing that RenderNode into the existing layer. The difficulty here is that we only want to
+     * extend the cross axis / clip the main axis (scrolling containers do this already), otherwise
+     * the extra layer space will be transformed by the stretch, which results in an incorrect
+     * effect that can also end up revealing content underneath the scrolling container, as we
+     * stretch the transparent pixels in the extra space. For this to work we would need to know
+     * the stretch direction at layer creation time (i.e, placeWithLayer inside placement), but
+     * [OverscrollEffect] has no knowledge of directionality until an event is received. Creating a
+     * larger layer in this way is also more expensive and requires more parts, as we have to use
+     * two layout modifiers to achieve the desired effect.
+     *
+     * As a result we instead create a RenderNode that we extend in the cross-axis direction by
+     * [MaxSupportedElevation] on each side, to allow for non-clipped space without affecting layer
+     * size. We then draw the content (translated to be centered) and apply the stretch into this
+     * larger RenderNode, and then draw the RenderNode back into the original canvas (translated
+     * back to balance the previous translation), allowing for any shadows / other content drawn
+     * outside the cross-axis bounds to be unclipped by the RenderNode stretch.
+     */
+    private var _renderNode: RenderNode? = null
+    private val renderNode
+        get() = _renderNode ?: RenderNode("AndroidEdgeEffectOverscrollEffect")
+            .also { _renderNode = it }
+
+    @Suppress("KotlinConstantConditions")
     override fun ContentDrawScope.draw() {
-        drawContent()
-        with(overscrollEffect) {
-            drawOverscroll()
+        if (overscrollEffect.containerSize.isEmpty()) {
+            // Draw any out of bounds content
+            drawContent()
+            return
+        }
+        overscrollEffect.redrawSignal.value // <-- value read to redraw if needed
+        val maxElevation = MaxSupportedElevation.toPx()
+        val canvas = drawContext.canvas.nativeCanvas
+        var needsInvalidate = false
+        with(edgeEffectWrapper) {
+            val shouldDrawVerticalStretch = shouldDrawVerticalStretch()
+            val shouldDrawHorizontalStretch = shouldDrawHorizontalStretch()
+            when {
+                // Drawing in both directions, so we need to match canvas size and essentially clip
+                // both directions. We don't need the renderNode in this case, but it would
+                // complicate the rest of the drawing logic.
+                shouldDrawVerticalStretch && shouldDrawHorizontalStretch ->
+                    renderNode.setPosition(0, 0, canvas.width, canvas.height)
+                // Drawing vertical stretch, so expand the width to prevent clipping
+                shouldDrawVerticalStretch ->
+                    renderNode.setPosition(
+                        0,
+                        0,
+                        canvas.width + (maxElevation.roundToInt() * 2),
+                        canvas.height
+                    )
+                // Drawing horizontal stretch, so expand the height to prevent clipping
+                shouldDrawHorizontalStretch ->
+                    renderNode.setPosition(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height + (maxElevation.roundToInt() * 2)
+                    )
+                // Not drawing any stretch, so early return - we can draw into the existing canvas
+                else -> {
+                    drawContent()
+                    return
+                }
+            }
+            val recordingCanvas = renderNode.beginRecording()
+            // Views call RenderNode.clearStretch() (@hide API) to reset the stretch as part of
+            // the draw pass. We can't call this API, so by default the stretch would just keep on
+            // increasing for each new delta. Instead, to work around this, we can effectively
+            // 'negate' the previously rendered stretch by applying it, rotated 180 degrees, which
+            // cancels out the stretch applied to the RenderNode by the real stretch. To do this,
+            // we pull the negated stretch by the distance of the real stretch amount in each draw
+            // frame. Then in the next draw frame, we draw the negated stretch first, and then
+            // finish it so we can pull it by the real effect's distance again.
+            // Note that `draw` here isn't really drawing anything, it's applying a stretch to the
+            // whole RenderNode, so we can't clip / translate the drawing region here.
+            if (isLeftNegationStretched()) {
+                val leftEffectNegation = getOrCreateLeftEffectNegation()
+                // Invert the stretch
+                drawRightStretch(leftEffectNegation, recordingCanvas)
+                leftEffectNegation.finish()
+            }
+            if (isLeftAnimating()) {
+                val leftEffect = getOrCreateLeftEffect()
+                needsInvalidate = drawLeftStretch(leftEffect, recordingCanvas) || needsInvalidate
+                if (isLeftStretched()) {
+                    getOrCreateLeftEffectNegation()
+                        .onPullDistanceCompat(leftEffect.distanceCompat, 0f)
+                }
+            }
+            if (isTopNegationStretched()) {
+                val topEffectNegation = getOrCreateTopEffectNegation()
+                // Invert the stretch
+                drawBottomStretch(topEffectNegation, recordingCanvas)
+                topEffectNegation.finish()
+            }
+            if (isTopAnimating()) {
+                val topEffect = getOrCreateTopEffect()
+                needsInvalidate = drawTopStretch(topEffect, recordingCanvas) || needsInvalidate
+                if (isTopStretched()) {
+                    getOrCreateTopEffectNegation()
+                        .onPullDistanceCompat(topEffect.distanceCompat, 0f)
+                }
+            }
+            if (isRightNegationStretched()) {
+                val rightEffectNegation = getOrCreateRightEffectNegation()
+                // Invert the stretch
+                drawLeftStretch(rightEffectNegation, recordingCanvas)
+                rightEffectNegation.finish()
+            }
+            if (isRightAnimating()) {
+                val rightEffect = getOrCreateRightEffect()
+                needsInvalidate = drawRightStretch(rightEffect, recordingCanvas) || needsInvalidate
+                if (isRightStretched()) {
+                    getOrCreateRightEffectNegation()
+                        .onPullDistanceCompat(rightEffect.distanceCompat, 0f)
+                }
+            }
+            if (isBottomNegationStretched()) {
+                val bottomEffectNegation = getOrCreateBottomEffectNegation()
+                // Invert the stretch
+                drawTopStretch(bottomEffectNegation, recordingCanvas)
+                bottomEffectNegation.finish()
+            }
+            if (isBottomAnimating()) {
+                val bottomEffect = getOrCreateBottomEffect()
+                needsInvalidate =
+                    drawBottomStretch(bottomEffect, recordingCanvas) || needsInvalidate
+                if (isBottomStretched()) {
+                    getOrCreateBottomEffectNegation()
+                        .onPullDistanceCompat(bottomEffect.distanceCompat, 0f)
+                }
+            }
+
+            if (needsInvalidate) overscrollEffect.invalidateOverscroll()
+            // Render the content for ContentDrawScope into the RenderNode, using the same size
+            // provided by ContentDrawScope - we only want to prevent clipping, not actually
+            // change the size of the content.
+            // Since we expand the size of the RenderNode so we don't clip the cross-axis content,
+            // we need to re-center the content in the RenderNode.
+            // We 'clip' in the direction of the stretch, so in that case there is no extra space
+            // and hence no need to translate. Otherwise, add the extra space.
+            val left = if (shouldDrawHorizontalStretch) 0f else maxElevation
+            val top = if (shouldDrawVerticalStretch) 0f else maxElevation
+            val outerDraw = this@draw
+            with(outerDraw) {
+                draw(this, this.layoutDirection, Canvas(recordingCanvas), size) {
+                    translate(left, top) {
+                        // Since the stretch effect isn't really 'drawn', but is just set on
+                        // the RenderNode, it doesn't really matter when we call this in terms of
+                        // draw ordering.
+                        outerDraw.drawContent()
+                    }
+                }
+            }
+            renderNode.endRecording()
+            // Now we can draw the larger RenderNode inside the actual canvas - but we need to
+            // translate it back by the amount we previously offset by inside the larger RenderNode.
+            val restore = canvas.save()
+            canvas.translate(-left, -top)
+            canvas.drawRenderNode(renderNode)
+            canvas.restoreToCount(restore)
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is DrawOverscrollModifier) return false
-
-        return overscrollEffect == other.overscrollEffect
+    private fun shouldDrawVerticalStretch() = with(edgeEffectWrapper) {
+        isTopAnimating() || isTopNegationStretched() ||
+            isBottomAnimating() || isBottomNegationStretched()
+    }
+    private fun shouldDrawHorizontalStretch() = with(edgeEffectWrapper) {
+        isLeftAnimating() || isLeftNegationStretched() ||
+            isRightAnimating() || isRightNegationStretched()
     }
 
-    override fun hashCode(): Int {
-        return overscrollEffect.hashCode()
+    private fun drawLeftStretch(left: EdgeEffect, canvas: NativeCanvas): Boolean {
+        return drawWithRotation(rotationDegrees = 270f, edgeEffect = left, canvas = canvas)
     }
 
-    override fun toString(): String {
-        return "DrawOverscrollModifier(overscrollEffect=$overscrollEffect)"
+    private fun drawTopStretch(top: EdgeEffect, canvas: NativeCanvas): Boolean {
+        return drawWithRotation(rotationDegrees = 0f, edgeEffect = top, canvas = canvas)
+    }
+
+    private fun drawRightStretch(right: EdgeEffect, canvas: NativeCanvas): Boolean {
+        return drawWithRotation(rotationDegrees = 90f, edgeEffect = right, canvas = canvas)
+    }
+
+    private fun drawBottomStretch(bottom: EdgeEffect, canvas: NativeCanvas): Boolean {
+        return drawWithRotation(rotationDegrees = 180f, edgeEffect = bottom, canvas = canvas)
+    }
+
+    private fun drawWithRotation(
+        rotationDegrees: Float,
+        edgeEffect: EdgeEffect,
+        canvas: NativeCanvas
+    ): Boolean {
+        if (rotationDegrees == 0f) {
+            val needsInvalidate = edgeEffect.draw(canvas)
+            return needsInvalidate
+        }
+        val restore = canvas.save()
+        canvas.rotate(rotationDegrees)
+        val needsInvalidate = edgeEffect.draw(canvas)
+        canvas.restoreToCount(restore)
+        return needsInvalidate
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private class DrawGlowOverscrollModifier(
+    private val overscrollEffect: AndroidEdgeEffectOverscrollEffect,
+    private val edgeEffectWrapper: EdgeEffectWrapper,
+    private val overscrollConfig: OverscrollConfiguration,
+    inspectorInfo: InspectorInfo.() -> Unit
+) : DrawModifier, InspectorValueInfo(inspectorInfo) {
+
+    @Suppress("KotlinConstantConditions")
+    override fun ContentDrawScope.draw() {
+        if (overscrollEffect.containerSize.isEmpty()) {
+            // Draw any out of bounds content
+            drawContent()
+            return
+        }
+        drawContent()
+        overscrollEffect.redrawSignal.value // <-- value read to redraw if needed
+        val canvas = drawContext.canvas.nativeCanvas
+        var needsInvalidate = false
+        with(edgeEffectWrapper) {
+            if (isLeftAnimating()) {
+                val leftEffect = getOrCreateLeftEffect()
+                needsInvalidate = drawLeftGlow(leftEffect, canvas) || needsInvalidate
+            }
+            if (isTopAnimating()) {
+                val topEffect = getOrCreateTopEffect()
+                needsInvalidate = drawTopGlow(topEffect, canvas) || needsInvalidate
+            }
+            if (isRightAnimating()) {
+                val rightEffect = getOrCreateRightEffect()
+                needsInvalidate = drawRightGlow(rightEffect, canvas) || needsInvalidate
+            }
+            if (isBottomAnimating()) {
+                val bottomEffect = getOrCreateBottomEffect()
+                needsInvalidate = drawBottomGlow(bottomEffect, canvas) || needsInvalidate
+            }
+            if (needsInvalidate) overscrollEffect.invalidateOverscroll()
+        }
+    }
+
+    private fun DrawScope.drawLeftGlow(left: EdgeEffect, canvas: NativeCanvas): Boolean {
+        val offset = Offset(
+            -overscrollEffect.containerSize.height,
+            overscrollConfig.drawPadding.calculateLeftPadding(layoutDirection).toPx()
+        )
+        return drawWithRotationAndOffset(
+            rotationDegrees = 270f,
+            offset = offset,
+            edgeEffect = left,
+            canvas = canvas
+        )
+    }
+
+    private fun DrawScope.drawTopGlow(top: EdgeEffect, canvas: NativeCanvas): Boolean {
+        val offset = Offset(0f, overscrollConfig.drawPadding.calculateTopPadding().toPx())
+        return drawWithRotationAndOffset(
+            rotationDegrees = 0f,
+            offset = offset,
+            edgeEffect = top,
+            canvas = canvas
+        )
+    }
+
+    private fun DrawScope.drawRightGlow(right: EdgeEffect, canvas: NativeCanvas): Boolean {
+        val width = overscrollEffect.containerSize.width.roundToInt()
+        val rightPadding = overscrollConfig.drawPadding.calculateRightPadding(layoutDirection)
+        val offset = Offset(0f, -width.toFloat() + rightPadding.toPx())
+        return drawWithRotationAndOffset(
+            rotationDegrees = 90f,
+            offset = offset,
+            edgeEffect = right,
+            canvas = canvas
+        )
+    }
+
+    private fun DrawScope.drawBottomGlow(bottom: EdgeEffect, canvas: NativeCanvas): Boolean {
+        val bottomPadding = overscrollConfig.drawPadding.calculateBottomPadding().toPx()
+        val offset = Offset(
+            -overscrollEffect.containerSize.width,
+            -overscrollEffect.containerSize.height + bottomPadding
+        )
+        return drawWithRotationAndOffset(
+            rotationDegrees = 180f,
+            offset = offset,
+            edgeEffect = bottom,
+            canvas = canvas
+        )
+    }
+
+    private fun drawWithRotationAndOffset(
+        rotationDegrees: Float,
+        offset: Offset,
+        edgeEffect: EdgeEffect,
+        canvas: NativeCanvas
+    ): Boolean {
+        val restore = canvas.save()
+        canvas.rotate(rotationDegrees)
+        canvas.translate(offset.x, offset.y)
+        val needsInvalidate = edgeEffect.draw(canvas)
+        canvas.restoreToCount(restore)
+        return needsInvalidate
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class AndroidEdgeEffectOverscrollEffect(
     context: Context,
-    private val overscrollConfig: OverscrollConfiguration
+    overscrollConfig: OverscrollConfiguration
 ) : OverscrollEffect {
     private var pointerPosition: Offset? = null
 
@@ -110,7 +416,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
         glowColor = overscrollConfig.glowColor.toArgb()
     )
 
-    private val redrawSignal = mutableStateOf(Unit, neverEqualPolicy())
+    internal val redrawSignal = mutableStateOf(Unit, neverEqualPolicy())
 
     @VisibleForTesting
     internal var invalidationEnabled = true
@@ -264,7 +570,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
         animateToRelease()
     }
 
-    private var containerSize = Size.Zero
+    internal var containerSize = Size.Zero
 
     override val isInProgress: Boolean
         get() {
@@ -309,7 +615,6 @@ internal class AndroidEdgeEffectOverscrollEffect(
     private var pointerId: PointerId? = null
 
     override val effectModifier: Modifier = Modifier
-        .then(StretchOverscrollNonClippingLayer)
         .pointerInput(Unit) {
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
@@ -334,131 +639,29 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
         .onSizeChanged(onNewSize)
         .then(
-            DrawOverscrollModifier(
-                this@AndroidEdgeEffectOverscrollEffect,
-                debugInspectorInfo {
-                    name = "overscroll"
-                    value = this@AndroidEdgeEffectOverscrollEffect
-                })
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                DrawStretchOverscrollModifier(
+                    this@AndroidEdgeEffectOverscrollEffect,
+                    edgeEffectWrapper,
+                    debugInspectorInfo {
+                        name = "overscroll"
+                        value = this@AndroidEdgeEffectOverscrollEffect
+                    }
+                )
+            } else {
+                DrawGlowOverscrollModifier(
+                    this@AndroidEdgeEffectOverscrollEffect,
+                    edgeEffectWrapper,
+                    overscrollConfig,
+                    debugInspectorInfo {
+                        name = "overscroll"
+                        value = this@AndroidEdgeEffectOverscrollEffect
+                    }
+                )
+            }
         )
 
-    fun DrawScope.drawOverscroll() {
-        if (containerSize.isEmpty()) {
-            return
-        }
-        this.drawIntoCanvas {
-            redrawSignal.value // <-- value read to redraw if needed
-            val canvas = it.nativeCanvas
-            var needsInvalidate = false
-            // each side workflow:
-            // 1. reset what was draw in the past cycle, effectively clearing the effect
-            // 2. Draw the effect on the edge
-            // 3. Remember how much was drawn to clear in 1. in the next cycle
-            if (edgeEffectWrapper.isLeftNegationStretched()) {
-                val leftEffectNegation = edgeEffectWrapper.getOrCreateLeftEffectNegation()
-                drawRight(leftEffectNegation, canvas)
-                leftEffectNegation.finish()
-            }
-            if (edgeEffectWrapper.isLeftAnimating()) {
-                val leftEffect = edgeEffectWrapper.getOrCreateLeftEffect()
-                needsInvalidate = drawLeft(leftEffect, canvas) || needsInvalidate
-                if (edgeEffectWrapper.isLeftStretched()) {
-                    edgeEffectWrapper
-                        .getOrCreateLeftEffectNegation()
-                        .onPullDistanceCompat(leftEffect.distanceCompat, 0f)
-                }
-            }
-            if (edgeEffectWrapper.isTopNegationStretched()) {
-                val topEffectNegation = edgeEffectWrapper.getOrCreateTopEffectNegation()
-                drawBottom(topEffectNegation, canvas)
-                topEffectNegation.finish()
-            }
-            if (edgeEffectWrapper.isTopAnimating()) {
-                val topEffect = edgeEffectWrapper.getOrCreateTopEffect()
-                needsInvalidate = drawTop(topEffect, canvas) ||
-                    needsInvalidate
-                if (edgeEffectWrapper.isTopStretched()) {
-                    edgeEffectWrapper
-                        .getOrCreateTopEffectNegation()
-                        .onPullDistanceCompat(topEffect.distanceCompat, 0f)
-                }
-            }
-            if (edgeEffectWrapper.isRightNegationStretched()) {
-                val rightEffectNegation = edgeEffectWrapper.getOrCreateRightEffectNegation()
-                drawLeft(rightEffectNegation, canvas)
-                rightEffectNegation.finish()
-            }
-            if (edgeEffectWrapper.isRightAnimating()) {
-                val rightEffect = edgeEffectWrapper.getOrCreateRightEffect()
-                needsInvalidate = drawRight(rightEffect, canvas) ||
-                    needsInvalidate
-                if (edgeEffectWrapper.isRightStretched()) {
-                    edgeEffectWrapper
-                        .getOrCreateRightEffectNegation()
-                        .onPullDistanceCompat(rightEffect.distanceCompat, 0f)
-                }
-            }
-            if (edgeEffectWrapper.isBottomNegationStretched()) {
-                val bottomEffectNegation = edgeEffectWrapper.getOrCreateBottomEffectNegation()
-                drawTop(bottomEffectNegation, canvas)
-                bottomEffectNegation.finish()
-            }
-            if (edgeEffectWrapper.isBottomAnimating()) {
-                val bottomEffect = edgeEffectWrapper.getOrCreateBottomEffect()
-                needsInvalidate = drawBottom(bottomEffect, canvas) ||
-                    needsInvalidate
-                if (edgeEffectWrapper.isBottomStretched()) {
-                    edgeEffectWrapper
-                        .getOrCreateBottomEffectNegation()
-                        .onPullDistanceCompat(bottomEffect.distanceCompat, 0f)
-                }
-            }
-            if (needsInvalidate) invalidateOverscroll()
-        }
-    }
-
-    private fun DrawScope.drawLeft(left: EdgeEffect, canvas: NativeCanvas): Boolean {
-        val restore = canvas.save()
-        canvas.rotate(270f)
-        canvas.translate(
-            -containerSize.height,
-            overscrollConfig.drawPadding.calculateLeftPadding(layoutDirection).toPx()
-        )
-        val needsInvalidate = left.draw(canvas)
-        canvas.restoreToCount(restore)
-        return needsInvalidate
-    }
-
-    private fun DrawScope.drawTop(top: EdgeEffect, canvas: NativeCanvas): Boolean {
-        val restore = canvas.save()
-        canvas.translate(0f, overscrollConfig.drawPadding.calculateTopPadding().toPx())
-        val needsInvalidate = top.draw(canvas)
-        canvas.restoreToCount(restore)
-        return needsInvalidate
-    }
-
-    private fun DrawScope.drawRight(right: EdgeEffect, canvas: NativeCanvas): Boolean {
-        val restore = canvas.save()
-        val width = containerSize.width.roundToInt()
-        val rightPadding = overscrollConfig.drawPadding.calculateRightPadding(layoutDirection)
-        canvas.rotate(90f)
-        canvas.translate(0f, -width.toFloat() + rightPadding.toPx())
-        val needsInvalidate = right.draw(canvas)
-        canvas.restoreToCount(restore)
-        return needsInvalidate
-    }
-
-    private fun DrawScope.drawBottom(bottom: EdgeEffect, canvas: NativeCanvas): Boolean {
-        val restore = canvas.save()
-        canvas.rotate(180f)
-        val bottomPadding = overscrollConfig.drawPadding.calculateBottomPadding().toPx()
-        canvas.translate(-containerSize.width, -containerSize.height + bottomPadding)
-        val needsInvalidate = bottom.draw(canvas)
-        canvas.restoreToCount(restore)
-        return needsInvalidate
-    }
-
-    private fun invalidateOverscroll() {
+    internal fun invalidateOverscroll() {
         if (invalidationEnabled) {
             redrawSignal.value = Unit
         }
@@ -574,9 +777,8 @@ private class EdgeEffectWrapper(
     private var leftEffect: EdgeEffect? = null
     private var rightEffect: EdgeEffect? = null
 
-    // hack explanation: those edge effects are used to negate the previous effect
-    // of the corresponding edge
-    // used to mimic the render node reset that is not available in the platform
+    // These are used to negate the previous stretch, since RenderNode#clearStretch() is not public
+    // API. See DrawStretchOverscrollModifier for more information.
     private var topEffectNegation: EdgeEffect? = null
     private var bottomEffectNegation: EdgeEffect? = null
     private var leftEffectNegation: EdgeEffect? = null
@@ -652,58 +854,3 @@ private class EdgeEffectWrapper(
         rightEffectNegation?.setSize(size.height, size.width)
     }
 }
-
-/**
- * There is an unwanted behavior in the stretch overscroll effect we have to workaround:
- * When the effect is started it is getting the current RenderNode bounds and clips the content
- * by those bounds. Even if this RenderNode is not configured to do clipping. Or if it clips,
- * but not within its bounds, but by the outline provided which could have a completely different
- * bounds. That is what happens with our scrolling containers - they all clip by the rect which is
- * larger than the RenderNode bounds in order to not clip the shadows drawn in the cross axis of
- * the scrolling direction. This issue is not that visible in the Views world because Views do
- * clip by default. So adding one more clip doesn't change much. Thus why the whole shadows
- * mechanism in the Views world works differently, the shadows are drawn not in-place, but with
- * the background of the first parent which has a background.
- * In order to neutralize this unnecessary clipping we can use similar technique to what we
- * use in those scrolling container clipping by extending the layer size on some predefined
- * [MaxSupportedElevation] constant. In this case we have to solve that with two layout modifiers:
- * 1) the inner one will measure its measurable as previously, but report to the parent modifier
- * with added extra size.
- * 2) the outer modifier will position its measurable with the layer, so the layer size is
- * increased, and then report the measured size of its measurable without the added extra size.
- * With such approach everything is measured and positioned as before, but we introduced an
- * extra layer with the incremented size, which will be used by the overscroll effect and allows
- * to draw the content without clipping the shadows.
- */
-private val StretchOverscrollNonClippingLayer: Modifier =
-    // we only need to fix the layer size when the stretch overscroll is active (Android 12+)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        Modifier
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                val extraSizePx = (MaxSupportedElevation * 2).roundToPx()
-                layout(
-                    (placeable.measuredWidth - extraSizePx).coerceAtLeast(0),
-                    (placeable.measuredHeight - extraSizePx).coerceAtLeast(0)
-                ) {
-                    // because this modifier report the size which is larger than the passed max
-                    // constraints this larger box will be automatically centered within the
-                    // constraints. we need to first add out offset and then neutralize the centering.
-                    placeable.placeWithLayer(
-                        -extraSizePx / 2 - (placeable.width - placeable.measuredWidth) / 2,
-                        -extraSizePx / 2 - (placeable.height - placeable.measuredHeight) / 2
-                    )
-                }
-            }
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                val extraSizePx = (MaxSupportedElevation * 2).roundToPx()
-                val width = placeable.width + extraSizePx
-                val height = placeable.height + extraSizePx
-                layout(width, height) {
-                    placeable.place(extraSizePx / 2, extraSizePx / 2)
-                }
-            }
-    } else {
-        Modifier
-    }
