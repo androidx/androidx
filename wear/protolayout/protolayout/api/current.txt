@@ -209,6 +209,15 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint.Builder setAngularAlignment(int);
   }
 
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final class DimensionBuilders.BoundingBoxRatio implements androidx.wear.protolayout.DimensionBuilders.PivotDimension {
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp getRatio();
+  }
+
+  public static final class DimensionBuilders.BoundingBoxRatio.Builder {
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public DimensionBuilders.BoundingBoxRatio.Builder(androidx.wear.protolayout.TypeBuilders.FloatProp);
+    method public androidx.wear.protolayout.DimensionBuilders.BoundingBoxRatio build();
+  }
+
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static interface DimensionBuilders.ContainerDimension {
   }
 
@@ -225,7 +234,7 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.DimensionBuilders.DegreesProp.Builder setValue(float);
   }
 
-  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class DimensionBuilders.DpProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension androidx.wear.protolayout.DimensionBuilders.ExtensionDimension androidx.wear.protolayout.DimensionBuilders.ImageDimension androidx.wear.protolayout.DimensionBuilders.SpacerDimension {
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class DimensionBuilders.DpProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension androidx.wear.protolayout.DimensionBuilders.ExtensionDimension androidx.wear.protolayout.DimensionBuilders.ImageDimension androidx.wear.protolayout.DimensionBuilders.PivotDimension androidx.wear.protolayout.DimensionBuilders.SpacerDimension {
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getDynamicValue();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public float getValue();
   }
@@ -273,6 +282,9 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static interface DimensionBuilders.ImageDimension {
+  }
+
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static interface DimensionBuilders.PivotDimension {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class DimensionBuilders.ProportionalDimensionProp implements androidx.wear.protolayout.DimensionBuilders.ImageDimension {
@@ -886,14 +898,18 @@ package androidx.wear.protolayout {
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class ModifiersBuilders.ArcModifiers {
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable? getClickable();
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp? getOpacity();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics? getSemantics();
+    method public androidx.wear.protolayout.ModifiersBuilders.Transformation? getTransformation();
   }
 
   public static final class ModifiersBuilders.ArcModifiers.Builder {
     ctor public ModifiersBuilders.ArcModifiers.Builder();
     method public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers.Builder setClickable(androidx.wear.protolayout.ModifiersBuilders.Clickable);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers.Builder setOpacity(androidx.wear.protolayout.TypeBuilders.FloatProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers.Builder setSemantics(androidx.wear.protolayout.ModifiersBuilders.Semantics);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers.Builder setTransformation(androidx.wear.protolayout.ModifiersBuilders.Transformation);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class ModifiersBuilders.Background {
@@ -1019,8 +1035,10 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable? getClickable();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility? getContentUpdateAnimation();
     method public androidx.wear.protolayout.ModifiersBuilders.ElementMetadata? getMetadata();
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp? getOpacity();
     method public androidx.wear.protolayout.ModifiersBuilders.Padding? getPadding();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics? getSemantics();
+    method public androidx.wear.protolayout.ModifiersBuilders.Transformation? getTransformation();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.TypeBuilders.BoolProp isVisible();
   }
 
@@ -1032,8 +1050,10 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.protolayout.ModifiersBuilders.Clickable);
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setContentUpdateAnimation(androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setMetadata(androidx.wear.protolayout.ModifiersBuilders.ElementMetadata);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setOpacity(androidx.wear.protolayout.TypeBuilders.FloatProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.protolayout.ModifiersBuilders.Padding);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.protolayout.ModifiersBuilders.Semantics);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setTransformation(androidx.wear.protolayout.ModifiersBuilders.Transformation);
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setVisible(androidx.wear.protolayout.TypeBuilders.BoolProp);
   }
 
@@ -1133,6 +1153,28 @@ package androidx.wear.protolayout {
     ctor public ModifiersBuilders.SpanModifiers.Builder();
     method public androidx.wear.protolayout.ModifiersBuilders.SpanModifiers build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.protolayout.ModifiersBuilders.Clickable);
+  }
+
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final class ModifiersBuilders.Transformation {
+    method public androidx.wear.protolayout.DimensionBuilders.PivotDimension? getPivotX();
+    method public androidx.wear.protolayout.DimensionBuilders.PivotDimension? getPivotY();
+    method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getRotation();
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp? getScaleX();
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp? getScaleY();
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp? getTranslationX();
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp? getTranslationY();
+  }
+
+  public static final class ModifiersBuilders.Transformation.Builder {
+    ctor public ModifiersBuilders.Transformation.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.Transformation build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Transformation.Builder setPivotX(androidx.wear.protolayout.DimensionBuilders.PivotDimension);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Transformation.Builder setPivotY(androidx.wear.protolayout.DimensionBuilders.PivotDimension);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Transformation.Builder setRotation(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Transformation.Builder setScaleX(androidx.wear.protolayout.TypeBuilders.FloatProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Transformation.Builder setScaleY(androidx.wear.protolayout.TypeBuilders.FloatProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Transformation.Builder setTranslationX(androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Transformation.Builder setTranslationY(androidx.wear.protolayout.DimensionBuilders.DpProp);
   }
 
   public final class ResourceBuilders {

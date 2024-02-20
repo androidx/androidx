@@ -173,3 +173,22 @@ message ExtensionDimension {
     DpProp linear_dimension = 1;
   }
 }
+
+// Provide a length measurement proportional to the element's bounding box.
+message BoundingBoxRatio {
+  // The ratio relative to the bounding box width/height, with the bounding box
+  // top / start as 0 and bottom / end as 1. Values outside [0, 1] are also valid.
+  // Dynamic value is supported. If not set, default to the middle of the element.
+  FloatProp ratio = 1;
+}
+
+// A dimension that can be applied to a pivot location for scale and rotate transformations.
+message PivotDimension {
+  oneof inner {
+    // Location in dp, with the default pivot (view center) as 0
+    DpProp offset_dp = 1;
+    // Location proportion to bounding box, with the bounding box top / start as
+    // 0 and bottom / end as 1. Values outside [0, 1] are also valid.
+    BoundingBoxRatio location_ratio = 2;
+  }
+}
