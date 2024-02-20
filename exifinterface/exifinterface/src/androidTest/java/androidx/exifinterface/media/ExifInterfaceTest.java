@@ -954,6 +954,7 @@ public class ExifInterfaceTest {
         writeToFilesWithExif(imageFile, ExpectedValue.WEBP_WITH_EXIF);
     }
 
+    // https://issuetracker.google.com/281638358
     @Test
     @LargeTest
     public void testWebpWithExifApp1() throws Throwable {
