@@ -88,7 +88,7 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  * [RadioButtonDefaults], e.g. [RadioButtonDefaults.radioButtonColors].
  *
  * @param selected Boolean flag indicating whether this button is currently selected.
- * @param onSelected Callback to be invoked when this button has been selected by clicking.
+ * @param onSelect Callback to be invoked when this button has been selected by clicking.
  * @param selectionControl A slot for the button's selection control.
  * The [Radio] selection control is provided for this purpose.
  * @param modifier Modifier to be applied to the [RadioButton].
@@ -115,7 +115,7 @@ import androidx.wear.compose.materialcore.animateSelectionColor
 @Composable
 fun RadioButton(
     selected: Boolean,
-    onSelected: () -> Unit,
+    onSelect: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     selectionControl: @Composable SelectionControlScope.() -> Unit = {
@@ -140,7 +140,7 @@ fun RadioButton(
             .selectable(
                 enabled = enabled,
                 selected = selected,
-                onClick = onSelected,
+                onClick = onSelect,
                 indication = rippleOrFallbackImplementation(),
                 interactionSource = interactionSource
             )
@@ -199,7 +199,7 @@ fun RadioButton(
  *
  * A [SplitRadioButton] has two tappable areas, one tap area for the labels and another for the
  * selection control. The [onClick] listener will be associated with the main body of the
- * split radio button with the [onSelected] listener associated with the selection control
+ * split radio button with the [onSelect] listener associated with the selection control
  * area only.
  *
  * Samples:
@@ -216,7 +216,7 @@ fun RadioButton(
  * click events.
  *
  * @param selected Boolean flag indicating whether this button is currently selected.
- * @param onSelected Callback to be invoked when this button has been selected by clicking.
+ * @param onSelect Callback to be invoked when this button has been selected by clicking.
  * @param onClick Click listener called when the user clicks the main body of the button, the area
  * behind the labels.
  * @param selectionControl A slot for providing the button's selection control.
@@ -246,7 +246,7 @@ fun RadioButton(
 @Composable
 fun SplitRadioButton(
     selected: Boolean,
-    onSelected: () -> Unit,
+    onSelect: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -314,7 +314,7 @@ fun SplitRadioButton(
                 .selectable(
                     enabled = enabled,
                     selected = selected,
-                    onClick = onSelected,
+                    onClick = onSelect,
                     indication = rippleOrFallbackImplementation(),
                     interactionSource = selectionInteractionSource
                 )

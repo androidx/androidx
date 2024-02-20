@@ -172,7 +172,7 @@ fun ToggleChips(
                         Text("Radio", maxLines = 2, overflow = TextOverflow.Ellipsis)
                     },
                     selected = radioIconSelected,
-                    onSelected = { radioIconSelected = it },
+                    onSelect = { radioIconSelected = it },
                     enabled = enabled,
                 )
             }
@@ -203,7 +203,7 @@ fun ToggleChips(
                             ),
                         )
                     },
-                    onSelected = { radioIconWithSecondarySelected = it },
+                    onSelect = { radioIconWithSecondarySelected = it },
                     enabled = enabled,
                     colors = ToggleChipDefaults.toggleChipColors(
                         checkedToggleControlColor = AlternatePrimaryColor3,
@@ -374,7 +374,7 @@ fun ToggleChips(
                 SplitToggleChip(
                     label = { Text("Split with Radio") },
                     selected = splitWithRadioIconSelected,
-                    onSelected = { splitWithRadioIconSelected = it },
+                    onSelect = { splitWithRadioIconSelected = it },
                     onClick = {
                         Toast.makeText(
                             applicationContext, "Text was clicked",

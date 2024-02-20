@@ -192,7 +192,7 @@ public fun ToggleChip(
  * guide.
  *
  * @param selected Boolean flag indicating whether this button is currently selected.
- * @param onSelected Callback to be invoked when this button is selected.
+ * @param onSelect Callback to be invoked when this button is selected.
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
  * @param modifier Modifier to be applied to the chip
@@ -224,7 +224,7 @@ public fun ToggleChip(
 @Composable
 public fun ToggleChip(
     selected: Boolean,
-    onSelected: (Boolean) -> Unit,
+    onSelect: (Boolean) -> Unit,
     label: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
     appIcon: @Composable (BoxScope.() -> Unit)? = null,
@@ -239,7 +239,7 @@ public fun ToggleChip(
     }
 ) = androidx.wear.compose.materialcore.ToggleButton(
     checked = selected,
-    onCheckedChange = onSelected,
+    onCheckedChange = onSelect,
     label = provideScopeContent(
         contentColor = colors.contentColor(enabled = enabled, selected),
         textStyle = MaterialTheme.typography.button,
@@ -421,7 +421,7 @@ public fun SplitToggleChip(
  *
  * A [SplitToggleChip] has two tappable areas, one tap area for the labels and another for the
  * toggle control. The [onClick] listener will be associated with the main body of the split toggle
- * chip with the [onSelected] listener associated with the selection control area only.
+ * chip with the [onSelect] listener associated with the selection control area only.
  *
  * For a split toggle chip the background of the tappable background area behind the toggle control
  * will have a visual effect applied to provide a "divider" between the two tappable areas.
@@ -444,7 +444,7 @@ public fun SplitToggleChip(
  * guide.
  *
  * @param selected Boolean flag indicating whether this button is currently selected.
- * @param onSelected Callback to be invoked when this button is selected.
+ * @param onSelect Callback to be invoked when this button is selected.
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
  * @param onClick Click listener called when the user clicks the main body of the chip, the area
@@ -458,7 +458,7 @@ public fun SplitToggleChip(
  * [ToggleChipDefaults.splitToggleChipColors].
  * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
  * be clickable
- * @param selectedInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * @param selectionInteractionSource an optional hoisted [MutableInteractionSource] for observing and
  * emitting [Interaction]s for this chip's "selectable" tap area. You can use this to change the
  * chip's appearance or preview the chip in different states. Note that if `null` is provided,
  * interactions will still happen internally.
@@ -477,14 +477,14 @@ public fun SplitToggleChip(
 @Composable
 public fun SplitToggleChip(
     selected: Boolean,
-    onSelected: (Boolean) -> Unit,
+    onSelect: (Boolean) -> Unit,
     label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     colors: SplitToggleChipColors = ToggleChipDefaults.splitToggleChipColors(),
     enabled: Boolean = true,
-    selectedInteractionSource: MutableInteractionSource? = null,
+    selectionInteractionSource: MutableInteractionSource? = null,
     clickInteractionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
@@ -493,7 +493,7 @@ public fun SplitToggleChip(
     },
 ) = androidx.wear.compose.materialcore.SplitToggleButton(
     checked = selected,
-    onCheckedChange = onSelected,
+    onCheckedChange = onSelect,
     label = provideScopeContent(
         contentColor = colors.contentColor(enabled = enabled),
         textStyle = MaterialTheme.typography.button,
@@ -521,7 +521,7 @@ public fun SplitToggleChip(
         )
     },
     enabled = enabled,
-    checkedInteractionSource = selectedInteractionSource,
+    checkedInteractionSource = selectionInteractionSource,
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
     shape = shape,

@@ -50,7 +50,7 @@ fun RadioButton() {
                 Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
             },
             selected = selectedButton == 0,
-            onSelected = { selectedButton = 0 },
+            onSelect = { selectedButton = 0 },
             icon = {
                 Icon(
                     Icons.Filled.Favorite,
@@ -68,7 +68,7 @@ fun RadioButton() {
                 Text("With secondary label", maxLines = 3, overflow = TextOverflow.Ellipsis)
             },
             selected = selectedButton == 1,
-            onSelected = { selectedButton = 1 },
+            onSelect = { selectedButton = 1 },
             icon = {
                 Icon(
                     Icons.Filled.Favorite,
@@ -91,7 +91,7 @@ fun SplitRadioButton() {
                 Text("First Radio Button", maxLines = 3, overflow = TextOverflow.Ellipsis)
             },
             selected = selectedButton == 0,
-            onSelected = { selectedButton = 0 },
+            onSelect = { selectedButton = 0 },
             onClick = {
                 /* Do something */
             },
@@ -103,7 +103,7 @@ fun SplitRadioButton() {
                 Text("Second Radio Button", maxLines = 3, overflow = TextOverflow.Ellipsis)
             },
             selected = selectedButton == 1,
-            onSelected = { selectedButton = 1 },
+            onSelect = { selectedButton = 1 },
             onClick = {
                 /* Do something */
             },

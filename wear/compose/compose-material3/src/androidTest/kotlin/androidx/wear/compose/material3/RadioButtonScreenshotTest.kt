@@ -194,7 +194,7 @@ class RadioButtonScreenshotTest {
             selected = selected,
             enabled = enabled,
             selectionControl = selectionControl,
-            onSelected = {},
+            onSelect = {},
             modifier = Modifier.testTag(TEST_TAG),
         )
     }
@@ -217,7 +217,7 @@ class RadioButtonScreenshotTest {
             selectionControl = {
                 selectionControl()
             },
-            onSelected = {},
+            onSelect = {},
             onClick = {},
             modifier = Modifier.testTag(TEST_TAG),
         )
