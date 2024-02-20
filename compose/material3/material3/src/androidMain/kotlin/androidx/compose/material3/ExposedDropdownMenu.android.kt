@@ -16,9 +16,12 @@
 
 package androidx.compose.material3
 
+import android.content.Context
 import android.graphics.Rect as ViewRect
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.WindowManager
+import android.view.accessibility.AccessibilityManager
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -34,16 +37,17 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.internal.ExposedDropdownMenuPopup
 import androidx.compose.material3.tokens.FilledAutocompleteTokens
 import androidx.compose.material3.tokens.OutlinedAutocompleteTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -61,6 +65,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
@@ -77,7 +82,9 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -274,34 +281,39 @@ abstract class ExposedDropdownMenuBoxScope {
         scrollState: ScrollState = rememberScrollState(),
         content: @Composable ColumnScope.() -> Unit
     ) {
-        // TODO(b/202810604): use DropdownMenu when PopupProperties constructor is stable
-        // return DropdownMenu(
-        //     expanded = expanded,
-        //     onDismissRequest = onDismissRequest,
-        //     modifier = modifier.exposedDropdownSize(),
-        //     properties = ExposedDropdownMenuDefaults.PopupProperties,
-        //     content = content
-        // )
+        // Workaround for b/326394521. We create a state that's read in `calculatePosition`.
+        // Then trigger a state change in `SoftKeyboardListener` to force recalculation.
+        val keyboardSignalState = remember { mutableStateOf(Unit, neverEqualPolicy()) }
+        val view = LocalView.current
+        val density = LocalDensity.current
+        val topWindowInsets = WindowInsets.statusBars.getTop(density)
 
+        if (expanded) {
+            SoftKeyboardListener(view, density) {
+                keyboardSignalState.value = Unit
+            }
+        }
+
+        // TODO(b/326064777): use DropdownMenu when it supports custom PositionProvider
         val expandedState = remember { MutableTransitionState(false) }
         expandedState.targetState = expanded
 
         if (expandedState.currentState || expandedState.targetState) {
             val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
-            val density = LocalDensity.current
-            val topWindowInsets = WindowInsets.statusBars.getTop(density)
             val popupPositionProvider = remember(density, topWindowInsets) {
                 ExposedDropdownMenuPositionProvider(
                     density = density,
                     topWindowInsets = topWindowInsets,
+                    keyboardSignalState = keyboardSignalState,
                 ) { anchorBounds, menuBounds ->
                     transformOriginState.value = calculateTransformOrigin(anchorBounds, menuBounds)
                 }
             }
 
-            ExposedDropdownMenuPopup(
+            Popup(
                 onDismissRequest = onDismissRequest,
-                popupPositionProvider = popupPositionProvider
+                popupPositionProvider = popupPositionProvider,
+                properties = ExposedDropdownMenuDefaults.popupProperties(),
             ) {
                 DropdownMenuContent(
                     expandedState = expandedState,
@@ -656,6 +668,27 @@ object ExposedDropdownMenuDefaults {
         horizontal = ExposedDropdownMenuItemHorizontalPadding,
         vertical = 0.dp
     )
+
+    @Composable
+    internal fun popupProperties(): PopupProperties {
+        val context = LocalContext.current
+        val a11yManager =
+            context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
+        val flags = remember(a11yManager) {
+            // In all cases, focusable = true (NOT_FOCUSABLE is *not* set).
+            // In order for TalkBack focus to jump to the menu when opened,
+            // it needs to be touch modal as well (NOT_TOUCH_MODAL is *not* set).
+            if (a11yManager?.isTouchExplorationEnabled == true) {
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+            } else {
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+            }
+        }
+        return PopupProperties(flags = flags)
+    }
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable
@@ -1045,10 +1078,11 @@ object ExposedDropdownMenuDefaults {
     )
 }
 
-@Immutable
-internal data class ExposedDropdownMenuPositionProvider(
+@Stable
+internal class ExposedDropdownMenuPositionProvider(
     val density: Density,
     val topWindowInsets: Int,
+    val keyboardSignalState: State<Unit>? = null,
     val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
     val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> }
 ) : PopupPositionProvider {
@@ -1070,7 +1104,14 @@ internal data class ExposedDropdownMenuPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        // TODO(b/256233441): Popup fails to account for window insets so we do it here instead
+        // Workaround for b/326394521
+        // Read the state because we want any changes to the state to trigger recalculation.
+        // See PopupLayout.snapshotStateObserver and PopupLayout.onCommitAffectingPopupPosition
+        // for more info.
+        keyboardSignalState?.value
+
+        // Workaround for b/256233441
+        // Popup fails to account for window insets so we do it here instead
         @Suppress("NAME_SHADOWING")
         val windowSize = IntSize(windowSize.width, windowSize.height + topWindowInsets)
 

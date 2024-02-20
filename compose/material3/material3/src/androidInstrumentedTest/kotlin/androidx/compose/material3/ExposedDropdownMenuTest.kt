@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -57,7 +58,6 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
@@ -78,7 +78,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeNotNull
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -105,8 +104,8 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
+                textFieldModifier = Modifier.onGloballyPositioned {
+                    textFieldBounds = it.boundsInRoot()
                 }
             )
         }
@@ -211,8 +210,8 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
+                textFieldModifier = Modifier.onGloballyPositioned {
+                    textFieldBounds = it.boundsInRoot()
                 }
             )
         }
@@ -383,11 +382,15 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
-                },
-                onMenuBoundsChanged = {
-                    menuBounds = it
+                textFieldModifier = Modifier
+                    // Make text field nearly full screen width to test that
+                    // menu is not limited by the default system popup width
+                    .fillMaxWidth(fraction = 0.98f)
+                    .onGloballyPositioned {
+                        textFieldBounds = it.boundsInRoot()
+                    },
+                menuModifier = Modifier.onGloballyPositioned {
+                    menuBounds = it.boundsInRoot()
                 }
             )
         }
@@ -467,7 +470,6 @@ class ExposedDropdownMenuTest {
         assertThat(actualMenuSize!!.height).isLessThan(menuPreferredHeight)
     }
 
-    @Ignore("b/266109857")
     @Test
     fun edm_doesNotCrash_whenAnchorDetachedFirst() {
         var parent: FrameLayout? = null
@@ -558,27 +560,13 @@ class ExposedDropdownMenuTest {
     @Test
     fun edm_hasDropdownSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExposedDropdownMenuBox(
+            ExposedDropdownMenuForTest(
                 expanded = false,
-                onExpandedChange = { },
-            ) {
-                TextField(
-                    modifier = Modifier.menuAnchor(),
-                    value = "",
-                    onValueChange = { },
-                    label = { Text("Label") },
-                    readOnly = true,
-                )
-                ExposedDropdownMenu(
-                    expanded = false,
-                    onDismissRequest = { },
-                ) {
-                    Text("Menu Item")
-                }
-            }
+                onExpandChange = { },
+            )
         }
 
-        rule.onNodeWithText("Label")
+        rule.onNodeWithTag(TFTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList))
     }
 
@@ -658,8 +646,8 @@ class ExposedDropdownMenuTest {
     fun ExposedDropdownMenuForTest(
         expanded: Boolean,
         onExpandChange: (Boolean) -> Unit,
-        onTextFieldBoundsChanged: ((Rect) -> Unit)? = null,
-        onMenuBoundsChanged: ((Rect) -> Unit)? = null
+        textFieldModifier: Modifier = Modifier,
+        menuModifier: Modifier = Modifier,
     ) {
         var selectedOptionText by remember { mutableStateOf("") }
         Box(Modifier.fillMaxSize()) {
@@ -669,32 +657,21 @@ class ExposedDropdownMenuTest {
                 onExpandedChange = onExpandChange,
             ) {
                 TextField(
-                    modifier = Modifier
+                    modifier = textFieldModifier
                         .menuAnchor()
-                        .testTag(TFTag)
-                        .onGloballyPositioned {
-                            onTextFieldBoundsChanged?.invoke(it.boundsInRoot())
-                        },
+                        .testTag(TFTag),
                     value = selectedOptionText,
                     onValueChange = { selectedOptionText = it },
                     label = { Text("Label") },
                     trailingIcon = {
-                        Box(
-                            modifier = Modifier.testTag(TrailingIconTag)
-                        ) {
-                            ExposedDropdownMenuDefaults.TrailingIcon(
-                                expanded = expanded
-                            )
+                        Box(Modifier.testTag(TrailingIconTag)) {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         }
                     },
                     colors = ExposedDropdownMenuDefaults.textFieldColors()
                 )
                 ExposedDropdownMenu(
-                    modifier = Modifier
-                        .testTag(EDMTag)
-                        .onGloballyPositioned {
-                            onMenuBoundsChanged?.invoke(it.boundsInRoot())
-                        },
+                    modifier = menuModifier.testTag(EDMTag),
                     expanded = expanded,
                     onDismissRequest = { onExpandChange(false) }
                 ) {

@@ -30,7 +30,7 @@ import org.junit.Assert
 
 internal fun ComposeBenchmarkRule.benchmarkDrawUntilStable(
     caseFactory: () -> LayeredComposeTestCase,
-    maxSteps: Int = 10,
+    maxSteps: Int = MaxSteps,
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {

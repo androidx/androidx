@@ -19,7 +19,6 @@ package androidx.compose.material3.benchmark
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +35,7 @@ import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -54,26 +54,34 @@ class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
     val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
+    fun edm_firstPixel() {
+        benchmarkRule.benchmarkToFirstPixel { ExposedDropdownMenuTestCase(expanded) }
+    }
+
+    @Ignore
+    @Test
     fun edm_first_compose() {
         benchmarkRule.benchmarkFirstCompose { ExposedDropdownMenuTestCase(expanded) }
     }
 
+    @Ignore
     @Test
     fun edm_measure() {
         benchmarkRule.benchmarkFirstMeasure { ExposedDropdownMenuTestCase(expanded) }
     }
 
+    @Ignore
     @Test
     fun edm_layout() {
         benchmarkRule.benchmarkFirstLayout { ExposedDropdownMenuTestCase(expanded) }
     }
 
+    @Ignore
     @Test
     fun edm_draw() {
         benchmarkRule.benchmarkFirstDraw { ExposedDropdownMenuTestCase(expanded) }
     }
 
-    @Ignore("b/311257475")
     @Test
     fun edm_textFieldAnchor_repositioned() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout({
@@ -107,11 +115,8 @@ internal class ExposedDropdownMenuTestCase(
                 onExpandedChange = {},
             ) {
                 Spacer(modifier = Modifier.size(100.dp).menuAnchor())
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = {},
-                    content = { Spacer(modifier = Modifier.height(50.dp).fillMaxWidth()) },
-                )
+                // Can't test ExposedDropdownMenu directly because
+                // Popup can't be benchmarked
             }
         }
     }
