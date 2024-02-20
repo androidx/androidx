@@ -42,7 +42,7 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui"))
                 api(project(":compose:ui:ui-text"))
                 api(project(":compose:ui:ui-unit"))
-                api("androidx.compose.runtime:runtime:1.6.0")
+                api(project(":compose:runtime:runtime"))
                 api(libs.kotlinStdlib)
 
                 implementation(project(":compose:ui:ui-util"))
