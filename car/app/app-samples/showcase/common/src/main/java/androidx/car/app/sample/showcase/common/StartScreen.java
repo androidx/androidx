@@ -19,8 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -63,10 +63,10 @@ public final class StartScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle(getCarContext().getString(R.string.showcase_demos_title))
-                .setHeaderAction(Action.APP_ICON)
-                .setActionStrip(new ActionStrip.Builder()
-                        .addAction(createSettingsActionButton())
+                .setHeader(new Header.Builder()
+                        .setTitle(getCarContext().getString(R.string.showcase_demos_title))
+                        .setStartHeaderAction(Action.APP_ICON)
+                        .addEndHeaderAction(createSettingsActionButton())
                         .build())
                 .build();
     }

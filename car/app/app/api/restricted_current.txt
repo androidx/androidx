@@ -1382,12 +1382,13 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ListTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
     method @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
-    method public androidx.car.app.model.Action? getHeaderAction();
+    method public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionedLists();
     method public androidx.car.app.model.ItemList? getSingleList();
-    method public androidx.car.app.model.CarText? getTitle();
+    method @Deprecated public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder toBuilder();
   }
@@ -1398,11 +1399,12 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ListTemplate.Builder addSectionedList(androidx.car.app.model.SectionedItemList);
     method public androidx.car.app.model.ListTemplate build();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder clearSectionedLists();
-    method public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.model.ListTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method @Deprecated public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.ListTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.model.ListTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ListTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.ListTemplate.Builder setSingleList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.model.ListTemplate.Builder setTitle(CharSequence);
+    method @Deprecated public androidx.car.app.model.ListTemplate.Builder setTitle(CharSequence);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.RequiresCarApi(2) public final class LongMessageTemplate implements androidx.car.app.model.Template {
