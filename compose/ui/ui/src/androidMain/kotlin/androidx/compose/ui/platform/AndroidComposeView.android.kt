@@ -111,6 +111,7 @@ import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.graphics.toComposeRect
@@ -1376,8 +1377,12 @@ internal class AndroidComposeView(
 
     override fun createLayer(
         drawBlock: (Canvas) -> Unit,
-        invalidateParentLayer: () -> Unit
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
     ): OwnedLayer {
+        if (explicitLayer != null) {
+            return GraphicsLayerOwnerLayer(explicitLayer, this, drawBlock, invalidateParentLayer)
+        }
         // First try the layer cache
         val layer = layerCache.pop()
         if (layer !== null) {

@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -254,7 +255,11 @@ internal interface Owner : PositionCalculator {
     /**
      * Creates an [OwnedLayer] which will be drawing the passed [drawBlock].
      */
-    fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit): OwnedLayer
+    fun createLayer(
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer? = null
+    ): OwnedLayer
 
     /**
      * The semantics have changed. This function will be called when a SemanticsNode is added to

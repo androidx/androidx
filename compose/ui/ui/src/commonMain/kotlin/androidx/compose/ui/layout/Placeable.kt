@@ -17,6 +17,7 @@
 package androidx.compose.ui.layout
 
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.node.LookaheadCapablePlaceable
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.unit.Constraints
@@ -103,6 +104,24 @@ abstract class Placeable : Measured {
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?
     )
+
+    /**
+     * Positions the [Placeable] at [position] in its parent's coordinate system.
+     *
+     * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
+     * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
+     * have the same [zIndex] the order in which the items were placed is used.
+     * @param layer [GraphicsLayer] to place this placeable with. If the [Placeable] will be
+     * placed with a new [position] next time only the graphic layer will be moved without
+     * requiring to redrawn the [Placeable] content.
+     */
+    protected open fun placeAt(
+        position: IntOffset,
+        zIndex: Float,
+        layer: GraphicsLayer
+    ) {
+        placeAt(position, zIndex, null)
+    }
 
     /**
      * The constraints used for the measurement made to obtain this [Placeable].
@@ -331,6 +350,98 @@ abstract class Placeable : Measured {
             layerBlock: GraphicsLayerScope.() -> Unit = DefaultLayerBlock
         ) = placeApparentToRealOffset(position, zIndex, layerBlock)
 
+        /**
+         * Place a [Placeable] at [x], [y] in its parent's coordinate system with an introduced
+         * graphic layer.
+         * Unlike [placeRelative], the given position will not implicitly react in RTL layout direction
+         * contexts.
+         *
+         * @param x x coordinate in the parent's coordinate system.
+         * @param y y coordinate in the parent's coordinate system.
+         * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
+         * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
+         * have the same [zIndex] the order in which the items were placed is used.
+         * @param layer [GraphicsLayer] to place this placeable with. If the [Placeable] will be
+         * placed with a new [x] or [y] next time only the graphic layer will be moved without
+         * requiring to redrawn the [Placeable] content.
+         */
+        fun Placeable.placeWithLayer(
+            x: Int,
+            y: Int,
+            layer: GraphicsLayer,
+            zIndex: Float = 0f,
+        ) = placeApparentToRealOffset(IntOffset(x, y), zIndex, layer)
+
+        /**
+         * Place a [Placeable] at [position] in its parent's coordinate system with an introduced
+         * graphic layer.
+         * Unlike [placeRelative], the given [position] will not implicitly react in RTL layout direction
+         * contexts.
+         *
+         * @param position position it parent's coordinate system.
+         * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
+         * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
+         * have the same [zIndex] the order in which the items were placed is used.
+         * @param layer [GraphicsLayer] to place this placeable with. If the [Placeable] will be
+         * placed with a new [position] next time only the graphic layer will be moved without
+         * requiring to redrawn the [Placeable] content.
+         */
+        fun Placeable.placeWithLayer(
+            position: IntOffset,
+            layer: GraphicsLayer,
+            zIndex: Float = 0f,
+        ) = placeApparentToRealOffset(position, zIndex, layer)
+
+        /**
+         * Place a [Placeable] at [x], [y] in its parent's coordinate system with an introduced
+         * graphic layer.
+         * If the layout direction is right-to-left, the given position will be horizontally
+         * mirrored so that the position of the [Placeable] implicitly reacts to RTL layout
+         * direction contexts.
+         * If this method is used outside the [MeasureScope.layout] positioning block, the
+         * automatic position mirroring will not happen and the [Placeable] will be placed at the
+         * given position, similar to the [place] method.
+         *
+         * @param x x coordinate in the parent's coordinate system.
+         * @param y y coordinate in the parent's coordinate system.
+         * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
+         * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
+         * have the same [zIndex] the order in which the items were placed is used.
+         * @param layer [GraphicsLayer] to place this placeable with. If the [Placeable] will be
+         * placed with a new [x] or [y] next time only the graphic layer will be moved without
+         * requiring to redrawn the [Placeable] content.
+         */
+        fun Placeable.placeRelativeWithLayer(
+            x: Int,
+            y: Int,
+            layer: GraphicsLayer,
+            zIndex: Float = 0f
+        ) = placeAutoMirrored(IntOffset(x, y), zIndex, layer)
+
+        /**
+         * Place a [Placeable] at [position] in its parent's coordinate system with an introduced
+         * graphic layer.
+         * If the layout direction is right-to-left, the given [position] will be horizontally
+         * mirrored so that the position of the [Placeable] implicitly reacts to RTL layout
+         * direction contexts.
+         * If this method is used outside the [MeasureScope.layout] positioning block, the
+         * automatic position mirroring will not happen and the [Placeable] will be placed at the
+         * given [position], similar to the [place] method.
+         *
+         * @param position position it parent's coordinate system.
+         * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
+         * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
+         * have the same [zIndex] the order in which the items were placed is used.
+         * @param layer [GraphicsLayer] to place this placeable with. If the [Placeable] will be
+         * placed with a new [position] next time only the graphic layer will be moved without
+         * requiring to redrawn the [Placeable] content.
+         */
+        fun Placeable.placeRelativeWithLayer(
+            position: IntOffset,
+            layer: GraphicsLayer,
+            zIndex: Float = 0f
+        ) = placeAutoMirrored(position, zIndex, layer)
+
         @Suppress("NOTHING_TO_INLINE")
         internal inline fun Placeable.placeAutoMirrored(
             position: IntOffset,
@@ -349,12 +460,38 @@ abstract class Placeable : Measured {
         }
 
         @Suppress("NOTHING_TO_INLINE")
+        internal inline fun Placeable.placeAutoMirrored(
+            position: IntOffset,
+            zIndex: Float,
+            layer: GraphicsLayer
+        ) {
+            if (parentLayoutDirection == LayoutDirection.Ltr || parentWidth == 0) {
+                placeApparentToRealOffset(position, zIndex, layer)
+            } else {
+                placeApparentToRealOffset(
+                    IntOffset((parentWidth - width - position.x), position.y),
+                    zIndex,
+                    layer
+                )
+            }
+        }
+
+        @Suppress("NOTHING_TO_INLINE")
         internal inline fun Placeable.placeApparentToRealOffset(
             position: IntOffset,
             zIndex: Float,
-            noinline layerBlock: (GraphicsLayerScope.() -> Unit)?
+            noinline layerBlock: (GraphicsLayerScope.() -> Unit)?,
         ) {
             placeAt(position + apparentToRealOffset, zIndex, layerBlock)
+        }
+
+        @Suppress("NOTHING_TO_INLINE")
+        internal inline fun Placeable.placeApparentToRealOffset(
+            position: IntOffset,
+            zIndex: Float,
+            layer: GraphicsLayer
+        ) {
+            placeAt(position + apparentToRealOffset, zIndex, layer)
         }
     }
 }

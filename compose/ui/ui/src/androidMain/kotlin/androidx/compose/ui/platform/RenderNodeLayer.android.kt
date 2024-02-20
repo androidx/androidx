@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.GraphicLayerInfo
@@ -276,7 +277,7 @@ internal class RenderNodeLayer(
         }
     }
 
-    override fun drawLayer(canvas: Canvas) {
+    override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
         val androidCanvas = canvas.nativeCanvas
         if (androidCanvas.isHardwareAccelerated) {
             updateDisplayList()
