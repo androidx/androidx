@@ -130,5 +130,19 @@ internal val STUBS =
                 package com.android.build.gradle.internal.lint
                 abstract class VariantInputs
             """.trimIndent()
+        ),
+        kotlin(
+            """
+                package org.gradle.testkit.runner
+
+                class GradleRunner {
+                    companion object {
+                         fun create(): GradleRunner = GradleRunner()
+                    }
+                    fun withProjectDir(projectDir: java.io.File): GradleRunner = this
+                    fun withPluginClasspath(): GradleRunner = this
+                    fun build(): org.gradle.testkit.runner.BuildResult = TODO()
+                }
+            """.trimIndent()
         )
     )

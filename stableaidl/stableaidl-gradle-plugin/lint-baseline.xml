@@ -19,4 +19,13 @@
             file="src/main/java/androidx/stableaidl/internal/process/GradleProcessResult.kt"/>
     </issue>
 
+    <issue
+        id="WithPluginClasspathUsage"
+        message="Avoid usage of GradleRunner#withPluginClasspath, which is broken. Instead use something like https://github.com/autonomousapps/dependency-analysis-gradle-plugin/tree/main/testkit#gradle-testkit-support-plugin"
+        errorLine1="            .withPluginClasspath()"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/stableaidl/StableAidlPluginTest.kt"/>
+    </issue>
+
 </issues>
