@@ -69,7 +69,6 @@ public class TestCasesGenerator {
      * different for different user font sizes. Note that some of the golden will have the same name
      * as it should point on the same size independent image.
      */
-    @SuppressWarnings("deprecation")
     @NonNull
     static Map<String, Layout> generateTestCases(
             @NonNull Context context,
@@ -524,15 +523,16 @@ public class TestCasesGenerator {
                         .build();
         testCases.put(
                 "edgecontentlayout2_all_present_golden" + goldenSuffix,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(progressIndicatorBuilder.build())
-                        .setPrimaryLabelContent(
+                        .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.PRIMARY))
                                         .build())
                         .setContent(mainContentText)
-                        .setSecondaryLabelContent(
+                        .setSecondaryLabelTextContent(
                                 new Text.Builder(context, "Secondary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.ON_SURFACE))
@@ -540,7 +540,8 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "edgecontentlayout2_all_present_other_edgecontent_golden" + goldenSuffix,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(
                                 new Arc.Builder()
                                         .addContent(
@@ -554,13 +555,13 @@ public class TestCasesGenerator {
                                                         .build())
                                         .build())
                         .setEdgeContentThickness(12)
-                        .setPrimaryLabelContent(
+                        .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.PRIMARY))
                                         .build())
                         .setContent(mainContentText)
-                        .setSecondaryLabelContent(
+                        .setSecondaryLabelTextContent(
                                 new Text.Builder(context, "Secondary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.ON_SURFACE))
@@ -568,12 +569,14 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "edgecontentlayout2_only_edgecontent_golden" + NORMAL_SCALE_SUFFIX,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(progressIndicatorBuilder.build())
                         .build());
         testCases.put(
                 "edgecontentlayout2_all_present_bigger_thickness_golden" + goldenSuffix,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(
                                 new CircularProgressIndicator.Builder()
                                         .setProgress(0.3f)
@@ -581,14 +584,14 @@ public class TestCasesGenerator {
                                         .build())
                         .setEdgeContentThickness(16
                                 + ProgressIndicatorDefaults.DEFAULT_PADDING.getValue())
-                        .setPrimaryLabelContent(
+                        .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label that overflows")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.PRIMARY))
                                         .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
                                         .build())
                         .setContent(mainContentText)
-                        .setSecondaryLabelContent(
+                        .setSecondaryLabelTextContent(
                                 new Text.Builder(context, "Secondary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.ON_SURFACE))
@@ -597,14 +600,15 @@ public class TestCasesGenerator {
         testCases.put(
                 "edgecontentlayout2_all_present_smaller_thickness_custom_spacer_golden"
                         + goldenSuffix,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(
                                 new CircularProgressIndicator.Builder()
                                         .setProgress(0.3f)
                                         .setStrokeWidth(2).build())
                         .setEdgeContentThickness(2
                                 + ProgressIndicatorDefaults.DEFAULT_PADDING.getValue())
-                        .setPrimaryLabelContent(
+                        .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label that overflows")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.PRIMARY))
@@ -612,7 +616,7 @@ public class TestCasesGenerator {
                                         .build())
                         .setContent(mainContentText)
                         .setContentAndSecondaryLabelSpacing(dp(11))
-                        .setSecondaryLabelContent(
+                        .setSecondaryLabelTextContent(
                                 new Text.Builder(context, "Secondary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.ON_SURFACE))
@@ -620,9 +624,10 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "edgecontentlayout2_all_present_overflows_golden" + goldenSuffix,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(progressIndicatorBuilder.build())
-                        .setPrimaryLabelContent(
+                        .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label that overflows")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.PRIMARY))
@@ -634,7 +639,7 @@ public class TestCasesGenerator {
                                         .setTypography(Typography.TYPOGRAPHY_DISPLAY2)
                                         .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
                                         .build())
-                        .setSecondaryLabelContent(
+                        .setSecondaryLabelTextContent(
                                 new Text.Builder(context, "Secondary label that overflows")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.ON_SURFACE))
@@ -643,10 +648,11 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "edgecontentlayout2_no_primarylabel_golden" + goldenSuffix,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(progressIndicatorBuilder.build())
                         .setContent(mainContentText)
-                        .setSecondaryLabelContent(
+                        .setSecondaryLabelTextContent(
                                 new Text.Builder(context, "Secondary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.ON_SURFACE))
@@ -654,9 +660,10 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "edgecontentlayout2_no_secondarylabel_present_golden" + goldenSuffix,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(progressIndicatorBuilder.build())
-                        .setPrimaryLabelContent(
+                        .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.PRIMARY))
@@ -665,15 +672,16 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "edgecontentlayout2_all_double_secondarylabel_present_golden" + goldenSuffix,
-                new EdgeContentLayout2.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
                         .setEdgeContent(progressIndicatorBuilder.build())
-                        .setPrimaryLabelContent(
+                        .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .setColor(argb(Colors.PRIMARY))
                                         .build())
                         .setContent(mainContentText)
-                        .setSecondaryLabelContent(
+                        .setSecondaryLabelTextContent(
                                 new Column.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "Data point 1")
