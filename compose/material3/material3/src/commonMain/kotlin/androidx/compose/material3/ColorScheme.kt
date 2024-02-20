@@ -441,6 +441,13 @@ class ColorScheme(
     internal var defaultDatePickerColorsCached: DatePickerColors? = null
 
     internal var defaultIconButtonColorsCached: IconButtonColors? = null
+    internal var defaultIconToggleButtonColorsCached: IconToggleButtonColors? = null
+    internal var defaultFilledIconButtonColorsCached: IconButtonColors? = null
+    internal var defaultFilledIconToggleButtonColorsCached: IconToggleButtonColors? = null
+    internal var defaultFilledTonalIconButtonColorsCached: IconButtonColors? = null
+    internal var defaultFilledTonalIconToggleButtonColorsCached: IconToggleButtonColors? = null
+    internal var defaultOutlinedIconButtonColorsCached: IconButtonColors? = null
+    internal var defaultOutlinedIconToggleButtonColorsCached: IconToggleButtonColors? = null
 
     internal var defaultMenuItemColorsCached: MenuItemColors? = null
 

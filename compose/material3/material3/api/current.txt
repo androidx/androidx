@@ -824,18 +824,25 @@ package androidx.compose.material3 {
   }
 
   public final class IconButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors filledIconButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors filledIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors filledIconToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors filledIconToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors filledTonalIconButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors filledTonalIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors filledTonalIconToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors filledTonalIconToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getFilledShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors iconButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors iconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors iconToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors iconToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedIconButtonBorder(boolean enabled);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors outlinedIconButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors outlinedIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke? outlinedIconToggleButtonBorder(boolean enabled, boolean checked);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors outlinedIconToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors outlinedIconToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape filledShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape outlinedShape;
@@ -861,6 +868,7 @@ package androidx.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class IconToggleButtonColors {
     ctor public IconToggleButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor, long checkedContainerColor, long checkedContentColor);
+    method public androidx.compose.material3.IconToggleButtonColors copy(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
     method public long getCheckedContainerColor();
     method public long getCheckedContentColor();
     method public long getContainerColor();
