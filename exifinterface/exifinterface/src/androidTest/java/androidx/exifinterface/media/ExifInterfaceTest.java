@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.Manifest;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -40,6 +39,7 @@ import android.system.OsConstants;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.exifinterface.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -297,17 +297,506 @@ public class ExifInterfaceTest {
             ExifInterface.TAG_WHITE_BALANCE
     };
 
+    // TODO: b/270554381 - Rename this to ExpectedAttributes, make it final, and move it to the
+    //  bottom of the file.
     private static class ExpectedValue {
+
+        /** Expected attributes for {@link R.raw#jpeg_with_exif_byte_order_ii}. */
+        public static final ExpectedValue JPEG_WITH_EXIF_BYTE_ORDER_II =
+                new Builder()
+                        .setThumbnailOffsetAndLength(3500, 6265)
+                        .setThumbnailSize(512, 288)
+                        .setIsThumbnailCompressed(true)
+                        .setMake("SAMSUNG")
+                        .setMakeOffsetAndLength(160, 8)
+                        .setModel("SM-N900S")
+                        .setAperture(2.2f)
+                        .setDateTimeOriginal("2016:01:29 18:32:27")
+                        .setExposureTime(0.033f)
+                        .setFocalLength("413/100")
+                        .setImageSize(640, 480)
+                        .setIso("50")
+                        .setOrientation(ExifInterface.ORIENTATION_ROTATE_90)
+                        .build();
+
+        /**
+         * Expected attributes for {@link R.raw#jpeg_with_exif_byte_order_ii} when only the Exif
+         * data is read using {@link ExifInterface#STREAM_TYPE_EXIF_DATA_ONLY}.
+         */
+        public static final ExpectedValue JPEG_WITH_EXIF_BYTE_ORDER_II_STANDALONE =
+                JPEG_WITH_EXIF_BYTE_ORDER_II
+                        .buildUpon()
+                        .setThumbnailOffset(JPEG_WITH_EXIF_BYTE_ORDER_II.thumbnailOffset - 6)
+                        .setMakeOffset(JPEG_WITH_EXIF_BYTE_ORDER_II.makeOffset - 6)
+                        .build();
+
+        /** Expected attributes for {@link R.raw#jpeg_with_exif_byte_order_mm}. */
+        public static final ExpectedValue JPEG_WITH_EXIF_BYTE_ORDER_MM =
+                new Builder()
+                        .setLatitudeOffsetAndLength(584, 24)
+                        .setLatLong(0, 0)
+                        .setAltitude(0)
+                        .setMake("LGE")
+                        .setMakeOffsetAndLength(414, 4)
+                        .setModel("Nexus 5")
+                        .setAperture(2.4f)
+                        .setDateTimeOriginal("2016:01:29 15:44:58")
+                        .setExposureTime(0.017f)
+                        .setFocalLength("3970/1000")
+                        .setGpsAltitude("0/1000")
+                        .setGpsAltitudeRef("0")
+                        .setGpsDatestamp("1970:01:01")
+                        .setGpsLatitude("0/1,0/1,0/10000")
+                        .setGpsLatitudeRef("N")
+                        .setGpsLongitude("0/1,0/1,0/10000")
+                        .setGpsLongitudeRef("E")
+                        .setGpsProcessingMethod("GPS")
+                        .setGpsTimestamp("00:00:00")
+                        .setImageSize(144, 176)
+                        .setIso("146")
+                        .build();
+
+        /**
+         * Expected attributes for {@link R.raw#jpeg_with_exif_byte_order_mm} when only the Exif
+         * data is read using {@link ExifInterface#STREAM_TYPE_EXIF_DATA_ONLY}.
+         */
+        public static final ExpectedValue JPEG_WITH_EXIF_BYTE_ORDER_MM_STANDALONE =
+                JPEG_WITH_EXIF_BYTE_ORDER_MM
+                        .buildUpon()
+                        .setLatitudeOffset(JPEG_WITH_EXIF_BYTE_ORDER_MM.latitudeOffset - 6)
+                        .setMakeOffset(JPEG_WITH_EXIF_BYTE_ORDER_MM.makeOffset - 6)
+                        .setImageSize(0, 0)
+                        .build();
+
+        /** Expected attributes for {@link R.raw#jpeg_with_exif_invalid_offset}. */
+        public static final ExpectedValue JPEG_WITH_EXIF_INVALID_OFFSET =
+                JPEG_WITH_EXIF_BYTE_ORDER_MM
+                        .buildUpon()
+                        .setAperture(0)
+                        .setDateTimeOriginal(null)
+                        .setExposureTime(0)
+                        .setFocalLength(null)
+                        .setIso(null)
+                        .build();
+
+        /** Expected attributes for {@link R.raw#dng_with_exif_with_xmp}. */
+        public static final ExpectedValue DNG_WITH_EXIF_WITH_XMP =
+                new Builder()
+                        .setThumbnailOffsetAndLength(12570, 15179)
+                        .setThumbnailSize(256, 144)
+                        .setIsThumbnailCompressed(true)
+                        .setLatitudeOffsetAndLength(12486, 24)
+                        .setLatLong(53.834507f, 10.69585f)
+                        .setAltitude(0)
+                        .setMake("LGE")
+                        .setMakeOffsetAndLength(102, 4)
+                        .setModel("LG-H815")
+                        .setAperture(1.8f)
+                        .setDateTimeOriginal("2015:11:12 16:46:18")
+                        .setExposureTime(0.0040f)
+                        .setFocalLength("442/100")
+                        .setGpsDatestamp("1970:01:17")
+                        .setGpsLatitude("53/1,50/1,423/100")
+                        .setGpsLatitudeRef("N")
+                        .setGpsLongitude("10/1,41/1,4506/100")
+                        .setGpsLongitudeRef("E")
+                        .setGpsTimestamp("18:08:10")
+                        .setImageSize(600, 337)
+                        .setIso("800")
+                        .setXmpOffsetAndLength(826, 10067)
+                        .build();
+
+        /** Expected attributes for {@link R.raw#jpeg_with_exif_with_xmp}. */
+        public static final ExpectedValue JPEG_WITH_EXIF_WITH_XMP =
+                DNG_WITH_EXIF_WITH_XMP
+                        .buildUpon()
+                        .clearThumbnail()
+                        .setLatitudeOffset(1692)
+                        .setMakeOffset(84)
+                        .setOrientation(ExifInterface.ORIENTATION_NORMAL)
+                        .setXmpOffsetAndLength(1809, 13197)
+                        .build();
+
+        /** Expected attributes for {@link R.raw#png_with_exif_byte_order_ii}. */
+        public static final ExpectedValue PNG_WITH_EXIF_BYTE_ORDER_II =
+                JPEG_WITH_EXIF_BYTE_ORDER_II
+                        .buildUpon()
+                        .setThumbnailOffset(212271)
+                        .setMakeOffset(211525)
+                        .setFocalLength("41/10")
+                        .build();
+
+        /** Expected attributes for {@link R.raw#webp_with_exif}. */
+        public static final ExpectedValue WEBP_WITH_EXIF =
+                JPEG_WITH_EXIF_BYTE_ORDER_II
+                        .buildUpon()
+                        .setThumbnailOffset(9646)
+                        .setMakeOffset(6306)
+                        .build();
+
+        /** Expected attributes for {@link R.raw#invalid_webp_with_jpeg_app1_marker}. */
+        public static final ExpectedValue INVALID_WEBP_WITH_JPEG_APP1_MARKER =
+                new Builder().setOrientation(ExifInterface.ORIENTATION_ROTATE_270).build();
+
+        /**
+         * Expected attributes for {@link R.raw#heif_with_exif} when read on a device below API 31.
+         */
+        public static final ExpectedValue HEIF_WITH_EXIF_BELOW_API_31 =
+                new Builder()
+                        .setMake("LGE")
+                        .setMakeOffsetAndLength(3519, 4)
+                        .setModel("Nexus 5")
+                        .setImageSize(1920, 1080)
+                        .setOrientation(ExifInterface.ORIENTATION_NORMAL)
+                        .build();
+
+        /**
+         * Expected attributes for {@link R.raw#heif_with_exif} when read on a device running API 31
+         * or above.
+         */
+        public static final ExpectedValue HEIF_WITH_EXIF_API_31_AND_ABOVE =
+                HEIF_WITH_EXIF_BELOW_API_31.buildUpon().setXmpOffsetAndLength(3721, 3020).build();
+
+        public static class Builder {
+            // Thumbnail information.
+            private boolean mHasThumbnail;
+            private int mThumbnailOffset;
+            private int mThumbnailLength;
+            private int mThumbnailWidth;
+            private int mThumbnailHeight;
+            private boolean mIsThumbnailCompressed;
+
+            // GPS information.
+            private boolean mHasLatLong;
+            private int mLatitudeOffset;
+            private int mLatitudeLength;
+            private float mLatitude;
+            private float mLongitude;
+            private float mAltitude;
+
+            // Make information
+            private boolean mHasMake;
+            private int mMakeOffset;
+            private int mMakeLength;
+            @Nullable private String mMake;
+
+            // Values.
+            @Nullable private String mModel;
+            private float mAperture;
+            @Nullable private String mDateTimeOriginal;
+            private float mExposureTime;
+            private float mFlash;
+            @Nullable private String mFocalLength;
+            @Nullable private String mGpsAltitude;
+            @Nullable private String mGpsAltitudeRef;
+            @Nullable private String mGpsDatestamp;
+            @Nullable private String mGpsLatitude;
+            @Nullable private String mGpsLatitudeRef;
+            @Nullable private String mGpsLongitude;
+            @Nullable private String mGpsLongitudeRef;
+            @Nullable private String mGpsProcessingMethod;
+            @Nullable private String mGpsTimestamp;
+            private int mImageLength;
+            private int mImageWidth;
+            @Nullable private String mIso;
+            private int mOrientation;
+            private int mWhiteBalance;
+
+            // XMP information.
+            private boolean mHasXmp;
+            private int mXmpOffset;
+            private int mXmpLength;
+
+            Builder() {}
+
+            private Builder(ExpectedValue attributes) {
+                mHasThumbnail = attributes.hasThumbnail;
+                mThumbnailOffset = attributes.thumbnailOffset;
+                mThumbnailLength = attributes.thumbnailLength;
+                mThumbnailWidth = attributes.thumbnailWidth;
+                mThumbnailHeight = attributes.thumbnailHeight;
+                mIsThumbnailCompressed = attributes.isThumbnailCompressed;
+                mHasLatLong = attributes.hasLatLong;
+                mLatitude = attributes.latitude;
+                mLatitudeOffset = attributes.latitudeOffset;
+                mLatitudeLength = attributes.latitudeLength;
+                mLongitude = attributes.longitude;
+                mAltitude = attributes.altitude;
+                mHasMake = attributes.hasMake;
+                mMakeOffset = attributes.makeOffset;
+                mMakeLength = attributes.makeLength;
+                mMake = attributes.make;
+                mModel = attributes.model;
+                mAperture = attributes.aperture;
+                mDateTimeOriginal = attributes.dateTimeOriginal;
+                mExposureTime = attributes.exposureTime;
+                mFocalLength = attributes.focalLength;
+                mGpsAltitude = attributes.gpsAltitude;
+                mGpsAltitudeRef = attributes.gpsAltitudeRef;
+                mGpsDatestamp = attributes.gpsDatestamp;
+                mGpsLatitude = attributes.gpsLatitude;
+                mGpsLatitudeRef = attributes.gpsLatitudeRef;
+                mGpsLongitude = attributes.gpsLongitude;
+                mGpsLongitudeRef = attributes.gpsLongitudeRef;
+                mGpsProcessingMethod = attributes.gpsProcessingMethod;
+                mGpsTimestamp = attributes.gpsTimestamp;
+                mImageLength = attributes.imageLength;
+                mImageWidth = attributes.imageWidth;
+                mIso = attributes.iso;
+                mOrientation = attributes.orientation;
+                mHasXmp = attributes.hasXmp;
+                mXmpOffset = attributes.xmpOffset;
+                mXmpLength = attributes.xmpLength;
+            }
+
+            public Builder setThumbnailSize(int width, int height) {
+                mHasThumbnail = true;
+                mThumbnailWidth = width;
+                mThumbnailHeight = height;
+                return this;
+            }
+
+            public Builder setIsThumbnailCompressed(boolean isThumbnailCompressed) {
+                mHasThumbnail = true;
+                mIsThumbnailCompressed = isThumbnailCompressed;
+                return this;
+            }
+
+            public Builder setThumbnailOffsetAndLength(int offset, int length) {
+                mHasThumbnail = true;
+                mThumbnailOffset = offset;
+                mThumbnailLength = length;
+                return this;
+            }
+
+            public Builder setThumbnailOffset(int offset) {
+                if (!mHasThumbnail) {
+                    throw new IllegalStateException(
+                            "Thumbnail position in the file must first be set with "
+                                    + "setThumbnailOffsetAndLength(int, int)");
+                }
+                mThumbnailOffset = offset;
+                return this;
+            }
+
+            public Builder clearThumbnail() {
+                mHasThumbnail = false;
+                mThumbnailWidth = 0;
+                mThumbnailHeight = 0;
+                mThumbnailOffset = 0;
+                mThumbnailLength = 0;
+                mIsThumbnailCompressed = false;
+                return this;
+            }
+
+            public Builder setLatLong(float latitude, float longitude) {
+                mHasLatLong = true;
+                mLatitude = latitude;
+                mLongitude = longitude;
+                return this;
+            }
+
+            public Builder setLatitudeOffsetAndLength(int offset, int length) {
+                mHasLatLong = true;
+                mLatitudeOffset = offset;
+                mLatitudeLength = length;
+                return this;
+            }
+
+            public Builder setLatitudeOffset(int offset) {
+                if (!mHasLatLong) {
+                    throw new IllegalStateException(
+                            "Latitude position in the file must first be "
+                                    + "set with setLatitudeOffsetAndLength(int, int)");
+                }
+                mLatitudeOffset = offset;
+                return this;
+            }
+
+            public Builder clearLatLong() {
+                mHasLatLong = false;
+                mLatitude = 0;
+                mLongitude = 0;
+                return this;
+            }
+
+            public Builder setAltitude(float altitude) {
+                mAltitude = altitude;
+                return this;
+            }
+
+            public Builder setMake(@Nullable String make) {
+                if (make == null) {
+                    mHasMake = false;
+                    mMakeOffset = 0;
+                    mMakeLength = 0;
+                } else {
+                    mHasMake = true;
+                    mMake = make;
+                }
+                return this;
+            }
+
+            // TODO: b/270554381 - consider deriving length automatically from `make.length() + 1`
+            //  (since the string is null-terminated in the format).
+            public Builder setMakeOffsetAndLength(int offset, int length) {
+                mHasMake = true;
+                mMakeOffset = offset;
+                mMakeLength = length;
+                return this;
+            }
+
+            public Builder setMakeOffset(int offset) {
+                if (!mHasMake) {
+                    throw new IllegalStateException(
+                            "Make position in the file must first be set with"
+                                    + " setMakeOffsetAndLength(int, int)");
+                }
+                mMakeOffset = offset;
+                return this;
+            }
+
+            public Builder setModel(@Nullable String model) {
+                mModel = model;
+                return this;
+            }
+
+            public Builder setAperture(float aperture) {
+                mAperture = aperture;
+                return this;
+            }
+
+            public Builder setDateTimeOriginal(@Nullable String dateTimeOriginal) {
+                mDateTimeOriginal = dateTimeOriginal;
+                return this;
+            }
+
+            public Builder setExposureTime(float exposureTime) {
+                mExposureTime = exposureTime;
+                return this;
+            }
+
+            public Builder setFlash(float flash) {
+                mFlash = flash;
+                return this;
+            }
+
+            public Builder setFocalLength(@Nullable String focalLength) {
+                mFocalLength = focalLength;
+                return this;
+            }
+
+            public Builder setGpsAltitude(@Nullable String gpsAltitude) {
+                mGpsAltitude = gpsAltitude;
+                return this;
+            }
+
+            public Builder setGpsAltitudeRef(@Nullable String gpsAltitudeRef) {
+                mGpsAltitudeRef = gpsAltitudeRef;
+                return this;
+            }
+
+            public Builder setGpsDatestamp(@Nullable String gpsDatestamp) {
+                mGpsDatestamp = gpsDatestamp;
+                return this;
+            }
+
+            public Builder setGpsLatitude(@Nullable String gpsLatitude) {
+                mGpsLatitude = gpsLatitude;
+                return this;
+            }
+
+            public Builder setGpsLatitudeRef(@Nullable String gpsLatitudeRef) {
+                mGpsLatitudeRef = gpsLatitudeRef;
+                return this;
+            }
+
+            public Builder setGpsLongitude(@Nullable String gpsLongitude) {
+                mGpsLongitude = gpsLongitude;
+                return this;
+            }
+
+            public Builder setGpsLongitudeRef(@Nullable String gpsLongitudeRef) {
+                mGpsLongitudeRef = gpsLongitudeRef;
+                return this;
+            }
+
+            public Builder setGpsProcessingMethod(@Nullable String gpsProcessingMethod) {
+                mGpsProcessingMethod = gpsProcessingMethod;
+                return this;
+            }
+
+            public Builder setGpsTimestamp(@Nullable String gpsTimestamp) {
+                mGpsTimestamp = gpsTimestamp;
+                return this;
+            }
+
+            public Builder setImageSize(int imageWidth, int imageLength) {
+                mImageWidth = imageWidth;
+                mImageLength = imageLength;
+                return this;
+            }
+
+            public Builder setIso(@Nullable String iso) {
+                mIso = iso;
+                return this;
+            }
+
+            public Builder setOrientation(int orientation) {
+                mOrientation = orientation;
+                return this;
+            }
+
+            public Builder setWhiteBalance(int whiteBalance) {
+                mWhiteBalance = whiteBalance;
+                return this;
+            }
+
+            public Builder setXmpOffsetAndLength(int offset, int length) {
+                mHasXmp = true;
+                mXmpOffset = offset;
+                mXmpLength = length;
+                return this;
+            }
+
+            public Builder setXmpOffset(int offset) {
+                if (!mHasXmp) {
+                    throw new IllegalStateException(
+                            "XMP position in the file must first be set with"
+                                    + " setXmpOffsetAndLength(int, int)");
+                }
+                mXmpOffset = offset;
+                return this;
+            }
+
+            public Builder clearXmp() {
+                mHasXmp = false;
+                mXmpOffset = 0;
+                mXmpLength = 0;
+                return this;
+            }
+
+            public ExpectedValue build() {
+                return new ExpectedValue(this);
+            }
+        }
+
+        // TODO: b/270554381 - Add nullability annotations below.
+
         // Thumbnail information.
         public final boolean hasThumbnail;
         public final int thumbnailWidth;
         public final int thumbnailHeight;
         public final boolean isThumbnailCompressed;
+        // TODO: b/270554381 - Merge these offset and length (and others) into long[] arrays, and
+        //  move them down to their own section. This may also allow removing some of the hasXXX
+        // fields.
         public final int thumbnailOffset;
         public final int thumbnailLength;
 
         // GPS information.
         public final boolean hasLatLong;
+        // TODO: b/270554381 - Merge this and longitude into a double[]
         public final float latitude;
         public final int latitudeOffset;
         public final int latitudeLength;
@@ -326,6 +815,10 @@ public class ExifInterfaceTest {
         public final String dateTimeOriginal;
         public final float exposureTime;
         public final String focalLength;
+        // TODO: b/270554381 - Rename these to make them clear they're strings, or original values,
+        //  and move them closer to the (computed) latitude/longitude/altitude values. Consider
+        //  also having a verification check that they are consistent with latitude/longitude (but
+        //  not sure how to reconcile that with "don't duplicate business logic in tests").
         public final String gpsAltitude;
         public final String gpsAltitudeRef;
         public final String gpsDatestamp;
@@ -345,65 +838,49 @@ public class ExifInterfaceTest {
         public final int xmpOffset;
         public final int xmpLength;
 
-        private static String getString(TypedArray typedArray, int index) {
-            String stringValue = typedArray.getString(index);
-            if (stringValue == null || stringValue.equals("")) {
-                return null;
-            }
-            return stringValue.trim();
+        private ExpectedValue(Builder builder) {
+            // TODO: b/270554381 - Re-order these assignments to match the fields above.
+            hasThumbnail = builder.mHasThumbnail;
+            thumbnailOffset = builder.mThumbnailOffset;
+            thumbnailLength = builder.mThumbnailLength;
+            thumbnailWidth = builder.mThumbnailWidth;
+            thumbnailHeight = builder.mThumbnailHeight;
+            isThumbnailCompressed = builder.mIsThumbnailCompressed;
+            hasLatLong = builder.mHasLatLong;
+            latitudeOffset = builder.mLatitudeOffset;
+            latitudeLength = builder.mLatitudeLength;
+            latitude = builder.mLatitude;
+            longitude = builder.mLongitude;
+            altitude = builder.mAltitude;
+            hasMake = builder.mHasMake;
+            makeOffset = builder.mMakeOffset;
+            makeLength = builder.mMakeLength;
+            make = builder.mMake;
+            model = builder.mModel;
+            aperture = builder.mAperture;
+            dateTimeOriginal = builder.mDateTimeOriginal;
+            exposureTime = builder.mExposureTime;
+            focalLength = builder.mFocalLength;
+            gpsAltitude = builder.mGpsAltitude;
+            gpsAltitudeRef = builder.mGpsAltitudeRef;
+            gpsDatestamp = builder.mGpsDatestamp;
+            gpsLatitude = builder.mGpsLatitude;
+            gpsLatitudeRef = builder.mGpsLatitudeRef;
+            gpsLongitude = builder.mGpsLongitude;
+            gpsLongitudeRef = builder.mGpsLongitudeRef;
+            gpsProcessingMethod = builder.mGpsProcessingMethod;
+            gpsTimestamp = builder.mGpsTimestamp;
+            imageLength = builder.mImageLength;
+            imageWidth = builder.mImageWidth;
+            iso = builder.mIso;
+            orientation = builder.mOrientation;
+            hasXmp = builder.mHasXmp;
+            xmpOffset = builder.mXmpOffset;
+            xmpLength = builder.mXmpLength;
         }
 
-        ExpectedValue(TypedArray typedArray) {
-            int index = 0;
-
-            // Reads thumbnail information.
-            hasThumbnail = typedArray.getBoolean(index++, false);
-            thumbnailOffset = typedArray.getInt(index++, -1);
-            thumbnailLength = typedArray.getInt(index++, -1);
-            thumbnailWidth = typedArray.getInt(index++, 0);
-            thumbnailHeight = typedArray.getInt(index++, 0);
-            isThumbnailCompressed = typedArray.getBoolean(index++, false);
-
-            // Reads GPS information.
-            hasLatLong = typedArray.getBoolean(index++, false);
-            latitudeOffset = typedArray.getInt(index++, -1);
-            latitudeLength = typedArray.getInt(index++, -1);
-            latitude = typedArray.getFloat(index++, 0f);
-            longitude = typedArray.getFloat(index++, 0f);
-            altitude = typedArray.getFloat(index++, 0f);
-
-            // Reads Make information.
-            hasMake = typedArray.getBoolean(index++, false);
-            makeOffset = typedArray.getInt(index++, -1);
-            makeLength = typedArray.getInt(index++, -1);
-            make = getString(typedArray, index++);
-
-            // Reads values.
-            model = getString(typedArray, index++);
-            aperture = typedArray.getFloat(index++, 0f);
-            dateTimeOriginal = getString(typedArray, index++);
-            exposureTime = typedArray.getFloat(index++, 0f);
-            focalLength = getString(typedArray, index++);
-            gpsAltitude = getString(typedArray, index++);
-            gpsAltitudeRef = getString(typedArray, index++);
-            gpsDatestamp = getString(typedArray, index++);
-            gpsLatitude = getString(typedArray, index++);
-            gpsLatitudeRef = getString(typedArray, index++);
-            gpsLongitude = getString(typedArray, index++);
-            gpsLongitudeRef = getString(typedArray, index++);
-            gpsProcessingMethod = getString(typedArray, index++);
-            gpsTimestamp = getString(typedArray, index++);
-            imageLength = typedArray.getInt(index++, 0);
-            imageWidth = typedArray.getInt(index++, 0);
-            iso = getString(typedArray, index++);
-            orientation = typedArray.getInt(index++, 0);
-
-            // Reads XMP information.
-            hasXmp = typedArray.getBoolean(index++, false);
-            xmpOffset = typedArray.getInt(index++, 0);
-            xmpLength = typedArray.getInt(index++, 0);
-
-            typedArray.recycle();
+        public Builder buildUpon() {
+            return new Builder(this);
         }
     }
 
@@ -434,30 +911,36 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testJpegWithExifIntelByteOrder() throws Throwable {
-        readFromFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II, R.array.jpeg_with_exif_byte_order_ii);
-        writeToFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II, R.array.jpeg_with_exif_byte_order_ii);
+        readFromFilesWithExif(
+                JPEG_WITH_EXIF_BYTE_ORDER_II, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II);
+        writeToFilesWithExif(
+                JPEG_WITH_EXIF_BYTE_ORDER_II, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II);
     }
 
     @Test
     @LargeTest
     public void testJpegWithExifMotorolaByteOrder() throws Throwable {
-        readFromFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM, R.array.jpeg_with_exif_byte_order_mm);
-        writeToFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM, R.array.jpeg_with_exif_byte_order_mm);
+        readFromFilesWithExif(
+                JPEG_WITH_EXIF_BYTE_ORDER_MM, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM);
+        writeToFilesWithExif(
+                JPEG_WITH_EXIF_BYTE_ORDER_MM, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM);
     }
 
     @Test
     @LargeTest
     public void testJpegWithExifAndXmp() throws Throwable {
-        readFromFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
-        writeToFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
+        readFromFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, ExpectedValue.JPEG_WITH_EXIF_WITH_XMP);
+        writeToFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, ExpectedValue.JPEG_WITH_EXIF_WITH_XMP);
     }
 
     // https://issuetracker.google.com/264729367
     @Test
     @LargeTest
     public void testJpegWithInvalidOffset() throws Throwable {
-        readFromFilesWithExif(JPEG_WITH_EXIF_INVALID_OFFSET, R.array.jpeg_with_exif_invalid_offset);
-        writeToFilesWithExif(JPEG_WITH_EXIF_INVALID_OFFSET, R.array.jpeg_with_exif_invalid_offset);
+        readFromFilesWithExif(
+                JPEG_WITH_EXIF_INVALID_OFFSET, ExpectedValue.JPEG_WITH_EXIF_INVALID_OFFSET);
+        writeToFilesWithExif(
+                JPEG_WITH_EXIF_INVALID_OFFSET, ExpectedValue.JPEG_WITH_EXIF_INVALID_OFFSET);
     }
 
     // https://issuetracker.google.com/263747161
@@ -485,14 +968,16 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testDngWithExifAndXmp() throws Throwable {
-        readFromFilesWithExif(DNG_WITH_EXIF_WITH_XMP, R.array.dng_with_exif_with_xmp);
+        readFromFilesWithExif(DNG_WITH_EXIF_WITH_XMP, ExpectedValue.DNG_WITH_EXIF_WITH_XMP);
     }
 
     @Test
     @LargeTest
     public void testPngWithExif() throws Throwable {
-        readFromFilesWithExif(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.png_with_exif_byte_order_ii);
-        writeToFilesWithExif(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.png_with_exif_byte_order_ii);
+        readFromFilesWithExif(
+                PNG_WITH_EXIF_BYTE_ORDER_II, ExpectedValue.PNG_WITH_EXIF_BYTE_ORDER_II);
+        writeToFilesWithExif(
+                PNG_WITH_EXIF_BYTE_ORDER_II, ExpectedValue.PNG_WITH_EXIF_BYTE_ORDER_II);
     }
 
     @Test
@@ -504,26 +989,30 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testStandaloneData() throws Throwable {
-        readFromStandaloneDataWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II,
-                R.array.standalone_data_with_exif_byte_order_ii);
-        readFromStandaloneDataWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM,
-                R.array.standalone_data_with_exif_byte_order_mm);
+        readFromStandaloneDataWithExif(
+                JPEG_WITH_EXIF_BYTE_ORDER_II,
+                ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II_STANDALONE);
+        readFromStandaloneDataWithExif(
+                JPEG_WITH_EXIF_BYTE_ORDER_MM,
+                ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM_STANDALONE);
     }
 
     @Test
     @LargeTest
     public void testWebpWithExif() throws Throwable {
-        readFromFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
-        writeToFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
+        readFromFilesWithExif(WEBP_WITH_EXIF, ExpectedValue.WEBP_WITH_EXIF);
+        writeToFilesWithExif(WEBP_WITH_EXIF, ExpectedValue.WEBP_WITH_EXIF);
     }
 
     @Test
     @LargeTest
     public void testWebpWithExifApp1() throws Throwable {
-        readFromFilesWithExif(INVALID_WEBP_WITH_JPEG_APP1_MARKER,
-                R.array.invalid_webp_with_jpeg_app1_marker);
-        writeToFilesWithExif(INVALID_WEBP_WITH_JPEG_APP1_MARKER,
-                R.array.invalid_webp_with_jpeg_app1_marker);
+        readFromFilesWithExif(
+                INVALID_WEBP_WITH_JPEG_APP1_MARKER,
+                ExpectedValue.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
+        writeToFilesWithExif(
+                INVALID_WEBP_WITH_JPEG_APP1_MARKER,
+                ExpectedValue.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
     }
 
     @Test
@@ -557,10 +1046,11 @@ public class ExifInterfaceTest {
     public void testHeifFile() throws Throwable {
         if (Build.VERSION.SDK_INT >= 28) {
             // Reading XMP data from HEIF was added in SDK 31.
-            readFromFilesWithExif(HEIF_WITH_EXIF,
+            readFromFilesWithExif(
+                    HEIF_WITH_EXIF,
                     Build.VERSION.SDK_INT >= 31
-                            ? R.array.heif_with_exif_31_and_above
-                            : R.array.heif_with_exif);
+                            ? ExpectedValue.HEIF_WITH_EXIF_API_31_AND_ABOVE
+                            : ExpectedValue.HEIF_WITH_EXIF_BELOW_API_31);
         } else {
             // Make sure that an exception is not thrown and that image length/width tag values
             // return default values, not the actual values.
@@ -1153,11 +1643,8 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void readFromStandaloneDataWithExif(String fileName, int typedArrayResourceId)
+    private void readFromStandaloneDataWithExif(String fileName, ExpectedValue expectedValue)
             throws IOException {
-        ExpectedValue expectedValue = new ExpectedValue(
-                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
-
         File imageFile = resolveImageFile(fileName);
         String verboseTag = imageFile.getName();
 
@@ -1264,10 +1751,8 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void writeToFilesWithExif(String fileName, int typedArrayResourceId)
+    private void writeToFilesWithExif(String fileName, ExpectedValue expectedValue)
             throws IOException {
-        ExpectedValue expectedValue = new ExpectedValue(
-                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
         File srcFile = resolveImageFile(fileName);
         File imageFile = clone(srcFile);
@@ -1319,10 +1804,8 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void readFromFilesWithExif(String fileName, int typedArrayResourceId)
+    private void readFromFilesWithExif(String fileName, ExpectedValue expectedValue)
             throws IOException {
-        ExpectedValue expectedValue = new ExpectedValue(
-                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
         // Test for reading from external data storage.
         testExifInterfaceCommon(fileName, expectedValue);
