@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: v0_210
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,33 +21,25 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object OutlinedAutocompleteTokens {
-    val MenuContainerColor = ColorSchemeKeyTokens.Surface
+    val MenuContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val MenuContainerElevation = ElevationTokens.Level2
     val MenuContainerShape = ShapeKeyTokens.CornerExtraSmall
-    val MenuContainerSurfaceTintLayerColor = ColorSchemeKeyTokens.SurfaceTint
-    val MenuDividerColor = ColorSchemeKeyTokens.SurfaceVariant
-    val MenuDividerHeight = 1.0.dp
-    val MenuListItemContainerHeight = 48.0.dp
-    val MenuListItemLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val MenuListItemLabelTextFont = TypographyKeyTokens.LabelLarge
-    val MenuListItemSelectedContainerColor = ColorSchemeKeyTokens.SurfaceVariant
     val TextFieldCaretColor = ColorSchemeKeyTokens.Primary
-    val TextFieldContainerColor = ColorSchemeKeyTokens.SurfaceVariant
-    val TextFieldContainerHeight = 56.0.dp
+    val TextFieldContainerColor = ColorSchemeKeyTokens.SurfaceContainerHighest
     val TextFieldContainerShape = ShapeKeyTokens.CornerExtraSmall
     val FieldDisabledInputTextColor = ColorSchemeKeyTokens.OnSurface
-    const val FieldDisabledInputTextOpacity = 0.38f
+    val FieldDisabledInputTextOpacity = 0.38f
     val FieldDisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    const val FieldDisabledLabelTextOpacity = 0.38f
+    val FieldDisabledLabelTextOpacity = 0.38f
     val TextFieldDisabledLeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    const val TextFieldDisabledLeadingIconOpacity = 0.38f
+    val TextFieldDisabledLeadingIconOpacity = 0.38f
     val TextFieldDisabledOutlineColor = ColorSchemeKeyTokens.OnSurface
-    const val TextFieldDisabledOutlineOpacity = 0.12f
+    val TextFieldDisabledOutlineOpacity = 0.12f
     val TextFieldDisabledOutlineWidth = 1.0.dp
     val FieldDisabledSupportingTextColor = ColorSchemeKeyTokens.OnSurface
-    const val FieldDisabledSupportingTextOpacity = 0.38f
+    val FieldDisabledSupportingTextOpacity = 0.38f
     val TextFieldDisabledTrailingIconColor = ColorSchemeKeyTokens.OnSurface
-    const val TextFieldDisabledTrailingIconOpacity = 0.38f
+    val TextFieldDisabledTrailingIconOpacity = 0.38f
     val TextFieldErrorFocusCaretColor = ColorSchemeKeyTokens.Error
     val FieldErrorFocusInputTextColor = ColorSchemeKeyTokens.OnSurface
     val FieldErrorFocusLabelTextColor = ColorSchemeKeyTokens.Error
