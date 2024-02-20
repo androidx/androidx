@@ -27,7 +27,7 @@ import androidx.window.extensions.RequiresVendorApiLevel;
 /**
  * Attributes used to update the layout and configuration of an {@link ActivityStack}.
  */
-public class ActivityStackAttributes {
+public final class ActivityStackAttributes {
 
     @NonNull
     private final Rect mRelativeBounds;

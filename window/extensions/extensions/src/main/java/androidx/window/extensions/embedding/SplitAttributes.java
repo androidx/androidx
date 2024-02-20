@@ -68,7 +68,7 @@ import java.util.Objects;
  * @see AnimationBackground
  */
 @RequiresVendorApiLevel(level = 2)
-public class SplitAttributes {
+public final class SplitAttributes {
 
     /**
      * The type of window split, which defines the proportion of the parent
