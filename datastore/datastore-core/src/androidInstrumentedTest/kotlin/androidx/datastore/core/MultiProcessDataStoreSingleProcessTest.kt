@@ -54,6 +54,7 @@ import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -602,6 +603,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             store.data.take(8).toList(collectedBytes)
         }
 
+        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -626,6 +628,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             flowOf8.toList(bytesFromSecondCollect)
         }
 
+        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -659,6 +662,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             flowOf8.take(8).toList(collectedBytes)
         }
 
+        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -685,6 +689,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             }
         }
 
+        runCurrent()
         repeat(15) {
             store.updateData { it.inc() }
         }
