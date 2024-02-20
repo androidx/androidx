@@ -138,12 +138,30 @@ public final class GridTemplate implements Template {
     public static final int ITEM_IMAGE_SHAPE_CIRCLE = (1 << 1);
 
     private final boolean mIsLoading;
+
+    /**
+     * @deprecated use {@link Header.Builder#setTitle(CarText)}; mHeader replaces the need
+     * for this field.
+     */
+    @Deprecated
     @Nullable
     private final CarText mTitle;
+
+    /**
+     * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
+     * need for this field.
+     */
+    @Deprecated
     @Nullable
     private final Action mHeaderAction;
     @Nullable
     private final ItemList mSingleList;
+
+    /**
+     * @deprecated use {@link Header.Builder#addEndHeaderAction(Action)} for each action; mHeader
+     * replaces the need for this field.
+     */
+    @Deprecated
     @Nullable
     private final ActionStrip mActionStrip;
     private final List<Action> mActions;
@@ -153,10 +171,22 @@ public final class GridTemplate implements Template {
     private final int mItemImageShape;
 
     /**
+     * Represents a Header object to set the startHeaderAction, the title and the endHeaderActions
+     *
+     * @see GridTemplate.Builder#setHeader(Header)
+     */
+    @Nullable
+    @RequiresCarApi(7)
+    private final Header mHeader;
+
+    /**
      * Returns the title of the template or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
+     *
+     * @deprecated use {@link Header#getTitle()} instead.
      */
+    @Deprecated
     @Nullable
     public CarText getTitle() {
         return mTitle;
@@ -167,7 +197,10 @@ public final class GridTemplate implements Template {
      * {@code null} if not set.
      *
      * @see Builder#setHeaderAction(Action)
+     *
+     * @deprecated use {@link Header#getStartHeaderAction()} instead.
      */
+    @Deprecated
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
@@ -177,7 +210,10 @@ public final class GridTemplate implements Template {
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
      * @see Builder#setActionStrip(ActionStrip)
+     *
+     * @deprecated use {@link Header#getEndHeaderActions()} instead.
      */
+    @Deprecated
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
@@ -239,6 +275,37 @@ public final class GridTemplate implements Template {
         return mItemImageShape;
     }
 
+    /**
+     * Returns the {@link Header} to display in this template.
+     *
+     * <p>This method was introduced in API 7, but is backwards compatible even if the client is
+     * using API 6 or below. </p>
+     *
+     * @see GridTemplate.Builder#setHeader(Header)
+     */
+    @Nullable
+    public Header getHeader() {
+        if (mHeader != null) {
+            return mHeader;
+        }
+        if (mTitle == null && mHeaderAction == null && mActionStrip == null) {
+            return null;
+        }
+        Header.Builder headerBuilder = new Header.Builder();
+        if (mTitle != null) {
+            headerBuilder.setTitle(mTitle);
+        }
+        if (mHeaderAction != null) {
+            headerBuilder.setStartHeaderAction(mHeaderAction);
+        }
+        if (mActionStrip != null) {
+            for (Action action: mActionStrip.getActions()) {
+                headerBuilder.addEndHeaderAction(action);
+            }
+        }
+        return headerBuilder.build();
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -248,7 +315,7 @@ public final class GridTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mActionStrip,
-                mItemSize, mItemImageShape);
+                mItemSize, mItemImageShape, mHeader);
     }
 
     @Override
@@ -268,7 +335,8 @@ public final class GridTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
                 && Objects.equals(mActions, otherTemplate.mActions)
                 && mItemSize == otherTemplate.mItemSize
-                && mItemImageShape == otherTemplate.mItemImageShape;
+                && mItemImageShape == otherTemplate.mItemImageShape
+                && Objects.equals(mHeader, otherTemplate.mHeader);
     }
 
     GridTemplate(Builder builder) {
@@ -280,6 +348,7 @@ public final class GridTemplate implements Template {
         mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
         mItemSize = builder.mItemSize;
         mItemImageShape = builder.mItemImageShape;
+        mHeader = builder.mHeader;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -293,6 +362,7 @@ public final class GridTemplate implements Template {
         mActions = Collections.emptyList();
         mItemSize = ITEM_SIZE_SMALL;
         mItemImageShape = ITEM_IMAGE_SHAPE_UNSET;
+        mHeader = null;
     }
 
     /** A builder of {@link GridTemplate}. */
@@ -311,6 +381,8 @@ public final class GridTemplate implements Template {
         @ItemSize
         int mItemSize = ITEM_SIZE_SMALL;
         @ItemImageShape int mItemImageShape = ITEM_IMAGE_SHAPE_UNSET;
+        @Nullable
+        Header mHeader;
 
         /**
          * Sets whether the template is in a loading state.
@@ -340,7 +412,10 @@ public final class GridTemplate implements Template {
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
+         *
+         * @deprecated Use {@link Header.Builder#setStartHeaderAction(Action)}
          */
+        @Deprecated
         @NonNull
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(Collections.singletonList(headerAction));
@@ -358,7 +433,10 @@ public final class GridTemplate implements Template {
          *
          * @throws NullPointerException     if {@code title} is null
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
+         *
+         * @deprecated Use {@link Header.Builder#setTitle(CarText)}
          */
+        @Deprecated
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
@@ -390,7 +468,10 @@ public final class GridTemplate implements Template {
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
+         *
+         * @deprecated Use {@link Header.Builder#addEndHeaderAction(Action) for each action}
          */
+        @Deprecated
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
@@ -450,6 +531,34 @@ public final class GridTemplate implements Template {
         @NonNull
         public Builder setItemImageShape(@ItemImageShape int itemImageShape) {
             mItemImageShape = itemImageShape;
+            return this;
+        }
+
+        /**
+         * Sets the {@link Header} for this template.
+         *
+         * <p>The end header actions will show up differently inside vs outside of a map template.
+         * See {@link Header.Builder#addEndHeaderAction} for more details.</p>
+         *
+         * @throws NullPointerException if {@code header} is null
+         */
+        @NonNull
+        @RequiresCarApi(7)
+        public Builder setHeader(@NonNull Header header) {
+            if (header.getStartHeaderAction() != null) {
+                mHeaderAction = header.getStartHeaderAction();
+            }
+            if (header.getTitle() != null) {
+                mTitle = header.getTitle();
+            }
+            if (!header.getEndHeaderActions().isEmpty()) {
+                ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
+                for (Action action: header.getEndHeaderActions()) {
+                    actionStripBuilder.addAction(action);
+                }
+                mActionStrip = actionStripBuilder.build();
+            }
+            mHeader = header;
             return this;
         }
 
