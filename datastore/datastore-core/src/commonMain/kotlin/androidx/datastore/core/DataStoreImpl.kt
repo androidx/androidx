@@ -157,15 +157,20 @@ internal class DataStoreImpl<T>(
     }
 
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
-        val ack = CompletableDeferred<T>()
-        val currentDownStreamFlowState = inMemoryCache.currentState
-
-        val updateMsg =
-            Message.Update(transform, ack, currentDownStreamFlowState, coroutineContext)
-
-        writeActor.offer(updateMsg)
-
-        return ack.await()
+        val parentContextElement = coroutineContext[UpdatingDataContextElement.Companion.Key]
+        parentContextElement?.checkNotUpdating(this)
+        val childContextElement = UpdatingDataContextElement(
+            parent = parentContextElement,
+            instance = this
+        )
+        return withContext(childContextElement) {
+            val ack = CompletableDeferred<T>()
+            val currentDownStreamFlowState = inMemoryCache.currentState
+            val updateMsg =
+                Message.Update(transform, ack, currentDownStreamFlowState, coroutineContext)
+            writeActor.offer(updateMsg)
+            ack.await()
+        }
     }
 
     // cache is only set by the reads who have file lock, so cache always has stable data
@@ -512,4 +517,40 @@ internal abstract class RunOnce {
             didRun.complete(Unit)
         }
     }
+}
+
+/**
+ * [CoroutineContext.Element] that is added to the coroutineContext when [DataStore.updateData] is
+ * called to detect nested calls. b/241760537 (see: [DataStoreImpl.updateData])
+ *
+ * It is OK for different DataStore instances to nest updateData calls, they just cannot be on the
+ * same DataStore. To track these instances, each [UpdatingDataContextElement] holds a reference
+ * to a parent.
+ */
+internal class UpdatingDataContextElement(
+    private val parent: UpdatingDataContextElement?,
+    private val instance: DataStoreImpl<*>
+) : CoroutineContext.Element {
+
+    companion object {
+        internal val NESTED_UPDATE_ERROR_MESSAGE = """
+                Calling updateData inside updateData on the same DataStore instance is not supported
+                since updates made in the parent updateData call will not be visible to the nested
+                updateData call. See https://issuetracker.google.com/issues/241760537 for details.
+            """.trimIndent()
+        internal object Key : CoroutineContext.Key<UpdatingDataContextElement>
+    }
+    /**
+     * Checks the given [candidate] is not currently in a [DataStore.updateData] block.
+     */
+    fun checkNotUpdating(candidate: DataStore<*>) {
+        if (instance === candidate) {
+            error(NESTED_UPDATE_ERROR_MESSAGE)
+        }
+        // check the parent if it exists to detect nested calls between [DataStore] instances.
+        parent?.checkNotUpdating(candidate)
+    }
+
+    override val key: CoroutineContext.Key<*>
+        get() = Key
 }
