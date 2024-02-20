@@ -197,9 +197,3 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/golden"
     }
 }
-
-project.tasks.configureEach {
-    if (name == "compileJsWasmMainKotlinMetadata") {
-        enabled = false
-    }
-}

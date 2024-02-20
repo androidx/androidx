@@ -135,8 +135,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             nativeMain.dependsOn(jsNativeMain)
             jsWasmMain.dependsOn(jsNativeMain)
-            jsMain.dependsOn(jsWasmMain)
+            jsMain {
+                kotlin.srcDir("src/webCommonW3C/kotlin")
+                dependsOn(jsWasmMain)
+            }
             wasmJsMain {
+                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(jsWasmMain)
                 dependencies {
                     implementation(libs.kotlinStdlib)
@@ -219,10 +223,4 @@ android {
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/golden/compose/material3/material3"
     namespace "androidx.compose.material3"
-}
-
-project.tasks.configureEach {
-    if (name == "compileJsWasmMainKotlinMetadata") {
-        enabled = false
-    }
 }

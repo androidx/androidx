@@ -138,10 +138,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             jsWasmMain.dependsOn(jsNativeMain)
 
             jsMain {
+                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(jsWasmMain)
             }
 
             wasmJsMain {
+                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(jsWasmMain)
                 dependencies {
                     implementation(libs.create("skikoWasm"))
@@ -249,12 +251,6 @@ androidx {
 
 android {
     namespace "androidx.compose.ui.text"
-}
-
-project.tasks.configureEach {
-    if (name == "compileJsWasmMainKotlinMetadata") {
-        enabled = false
-    }
 }
 
 afterEvaluate {

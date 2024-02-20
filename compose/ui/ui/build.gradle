@@ -219,6 +219,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             macosMain.dependsOn(notMobileMain)
 
             jsMain {
+                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(jsWasmMain)
                 dependencies {
                     api(libs.skikoCommon)
@@ -226,6 +227,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             wasmJsMain {
+                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(jsWasmMain)
                 dependencies {
                     implementation(libs.kotlinStdlib)
@@ -386,11 +388,5 @@ def verifyKotlinModule(String variant) {
 if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     for (variant in ["debug", "release"]) {
         verifyKotlinModule(variant)
-    }
-}
-
-project.tasks.configureEach {
-    if (name == "compileJsWasmMainKotlinMetadata") {
-        enabled = false
     }
 }

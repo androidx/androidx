@@ -18,7 +18,6 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.State
 import androidx.compose.ui.SystemTheme
-import org.w3c.dom.Window
 
 
 internal interface SystemThemeObserver {
@@ -27,4 +26,4 @@ internal interface SystemThemeObserver {
     fun dispose()
 }
 
-internal expect fun getSystemThemeObserver(window: Window): SystemThemeObserver
+internal expect fun getSystemThemeObserver(): SystemThemeObserver

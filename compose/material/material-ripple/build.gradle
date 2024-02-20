@@ -126,9 +126,3 @@ androidx {
 android {
     namespace "androidx.compose.material.ripple"
 }
-
-project.tasks.configureEach {
-    if (name == "compileJsWasmMainKotlinMetadata") {
-        enabled = false
-    }
-}

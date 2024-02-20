@@ -19,6 +19,7 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.SystemTheme
+import kotlinx.browser.window
 import org.w3c.dom.MediaQueryList
 import org.w3c.dom.MediaQueryListEvent
 import org.w3c.dom.Window
@@ -67,7 +68,7 @@ internal class SystemThemeObserverImpl(window : Window) : SystemThemeObserver {
     }
 }
 
-internal actual fun getSystemThemeObserver(window: Window): SystemThemeObserver =
+internal actual fun getSystemThemeObserver(): SystemThemeObserver =
     SystemThemeObserverImpl(window)
 
 // supported by all browsers since 2015
