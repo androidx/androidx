@@ -484,8 +484,7 @@ internal constructor(
  * [NavigationDrawerItem] of the [NavigationSuiteScope.item]
  */
 @ExperimentalMaterial3AdaptiveNavigationSuiteApi
-class NavigationSuiteItemColors
-internal constructor(
+class NavigationSuiteItemColors constructor(
     val navigationBarItemColors: NavigationBarItemColors,
     val navigationRailItemColors: NavigationRailItemColors,
     val navigationDrawerItemColors: NavigationDrawerItemColors,
