@@ -27,6 +27,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Padding;
 import androidx.wear.protolayout.material.ButtonDefaults;
+import androidx.wear.protolayout.material.ProgressIndicatorDefaults;
 
 
 /** Contains the default values used by layout templates for ProtoLayout. */
@@ -111,37 +112,44 @@ public class LayoutDefaults {
 
     /**
      * The default percentage of the screen width for the horizontal margin in the {@link
-     * EdgeContentLayout2}.
+     * EdgeContentLayout} with responsiveness.
      */
-    static final float EDGE_CONTENT_LAYOUT2_MARGIN_HORIZONTAL_PERCENT = 6.3f / 100;
+    static final float EDGE_CONTENT_LAYOUT_RESPONSIVE_MARGIN_HORIZONTAL_PERCENT = 6.3f / 100;
 
     /**
      * The default percentage of the screen height for the vertical margin in the {@link
-     * EdgeContentLayout2}.
+     * EdgeContentLayout} with responsiveness.
      */
-    static final float EDGE_CONTENT_LAYOUT2_MARGIN_VERTICAL_PERCENT = 12f / 100;
+    static final float EDGE_CONTENT_LAYOUT_RESPONSIVE_MARGIN_VERTICAL_PERCENT = 12f / 100;
 
-    /** The margins used in the {@link EdgeContentLayout2}. */
+    /** The margins used in the {@link EdgeContentLayout} with responsiveness. */
     @Dimension(unit = DP)
-    static final int EDGE_CONTENT_LAYOUT2_OUTER_MARGIN_DP = 8;
+    static final float EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP =
+            ProgressIndicatorDefaults.DEFAULT_PADDING.getValue();
 
     /**
      * The default spacer width that should be between main content and secondary label if set in
-     * the {@link EdgeContentLayout2}.
+     * the {@link EdgeContentLayout}.
      *
      * <p>It is recommended to use this on smaller screen sizes or when there's a lot of content in
      * the layout.
      */
-    public static final DpProp EDGE_CONTENT_LAYOUT2_CONTENT_AND_SECONDARY_LABEL_SPACING_DP = dp(8);
+    public static final DpProp EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP = dp(8);
 
     /**
      * The default spacer width that should be between main content and secondary label if set in
-     * the {@link EdgeContentLayout2}.
+     * the {@link EdgeContentLayout}.
      *
      * <p>It is recommended to use this on larger screen sizes (screen sizes above 225dp).
      */
-    public static final DpProp EDGE_CONTENT_LAYOUT2_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP =
+    public static final DpProp EDGE_CONTENT_LAYOUT_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP =
             dp(12);
+
+    /**
+     * The default spacing below primary label in the {@link EdgeContentLayout} to ensure that inner
+     * content is not too high up and not near the primary label.
+     */
+    static final DpProp EDGE_CONTENT_LAYOUT_RESPONSIVE_PRIMARY_LABEL_SPACING_DP = dp(8);
 
     /**
      * The recommended padding that should be above the main content (text) in the {@link

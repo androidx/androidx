@@ -238,7 +238,7 @@ public class CircularProgressIndicator implements LayoutElement {
          * additional margin around it by setting it to {@code false}.
          *
          * <p>Otherwise, if this indicator is used as a full screen one or in {@link
-         * androidx.wear.protolayout.material.layouts.EdgeContentLayout2}, it's strongly recommended
+         * androidx.wear.protolayout.material.layouts.EdgeContentLayout}, it's strongly recommended
          * to set this to {@code true}.
          *
          * <p>If not set, defaults to true.
