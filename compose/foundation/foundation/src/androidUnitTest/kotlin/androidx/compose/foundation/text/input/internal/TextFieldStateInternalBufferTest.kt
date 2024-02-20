@@ -45,7 +45,10 @@ class TextFieldStateInternalBufferTest {
         val state = TextFieldState(firstValue)
 
         var resetCalled = 0
-        state.addNotifyImeListener { _, _ -> resetCalled++ }
+        var selectionCalled = 0
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
 
         state.editAsUser { commitText("X", 1) }
         val newState = state.text
@@ -55,6 +58,7 @@ class TextFieldStateInternalBufferTest {
         assertThat(newState.selectionInChars.max).isEqualTo(1)
         // edit command updates should not trigger reset listeners.
         assertThat(resetCalled).isEqualTo(0)
+        assertThat(selectionCalled).isEqualTo(1)
     }
 
     @Test
@@ -63,7 +67,10 @@ class TextFieldStateInternalBufferTest {
         val state = TextFieldState(firstValue)
 
         var resetCalled = 0
-        state.addNotifyImeListener { _, _ -> resetCalled++ }
+        var selectionCalled = 0
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
 
         state.editAsUser { setSelection(0, 2) }
         val newState = state.text
@@ -73,13 +80,18 @@ class TextFieldStateInternalBufferTest {
         assertThat(newState.selectionInChars.max).isEqualTo(2)
         // edit command updates should not trigger reset listeners.
         assertThat(resetCalled).isEqualTo(0)
+        assertThat(selectionCalled).isEqualTo(1)
     }
 
     @Test
     fun testNewState_bufferNotUpdated_ifSameModelStructurally() {
         val state = TextFieldState()
+
         var resetCalled = 0
-        state.addNotifyImeListener { _, _ -> resetCalled++ }
+        var selectionCalled = 0
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
 
         val initialBuffer = state.mainBuffer
         state.resetStateAndNotifyIme(
@@ -94,13 +106,18 @@ class TextFieldStateInternalBufferTest {
         assertThat(state.mainBuffer).isSameInstanceAs(updatedBuffer)
 
         assertThat(resetCalled).isEqualTo(2)
+        assertThat(selectionCalled).isEqualTo(0)
     }
 
     @Test
     fun testNewState_new_buffer_created_if_text_is_different() {
         val state = TextFieldState()
+
         var resetCalled = 0
-        state.addNotifyImeListener { _, _ -> resetCalled++ }
+        var selectionCalled = 0
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
 
         val textFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero)
         state.resetStateAndNotifyIme(textFieldValue)
@@ -111,13 +128,18 @@ class TextFieldStateInternalBufferTest {
 
         assertThat(state.mainBuffer).isNotSameInstanceAs(initialBuffer)
         assertThat(resetCalled).isEqualTo(2)
+        assertThat(selectionCalled).isEqualTo(0)
     }
 
     @Test
     fun testNewState_buffer_not_recreated_if_selection_is_different() {
         val state = TextFieldState()
+
         var resetCalled = 0
-        state.addNotifyImeListener { _, _ -> resetCalled++ }
+        var selectionCalled = 0
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
 
         val textFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero)
         state.resetStateAndNotifyIme(textFieldValue)
@@ -133,13 +155,18 @@ class TextFieldStateInternalBufferTest {
             state.mainBuffer.selectionEnd
         )
         assertThat(resetCalled).isEqualTo(2)
+        assertThat(selectionCalled).isEqualTo(0)
     }
 
     @Test
     fun testNewState_buffer_not_recreated_if_composition_is_different() {
         val state = TextFieldState()
+
         var resetCalled = 0
-        state.addNotifyImeListener { _, _ -> resetCalled++ }
+        var selectionCalled = 0
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
 
         val textFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, TextRange(1))
         state.resetStateAndNotifyIme(textFieldValue)
@@ -160,6 +187,7 @@ class TextFieldStateInternalBufferTest {
         assertThat(EditingBuffer.NOWHERE).isEqualTo(state.mainBuffer.compositionStart)
         assertThat(EditingBuffer.NOWHERE).isEqualTo(state.mainBuffer.compositionEnd)
         assertThat(resetCalled).isEqualTo(2)
+        assertThat(selectionCalled).isEqualTo(0)
     }
 
     @Test
@@ -167,8 +195,12 @@ class TextFieldStateInternalBufferTest {
         val initialSelection = TextRange(2, 1)
         val textFieldValue = TextFieldCharSequence("qwerty", initialSelection, TextRange(1))
         val state = TextFieldState(textFieldValue)
+
         var resetCalled = 0
-        state.addNotifyImeListener { _, _ -> resetCalled++ }
+        var selectionCalled = 0
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
 
         val initialBuffer = state.mainBuffer
 
@@ -184,19 +216,26 @@ class TextFieldStateInternalBufferTest {
         assertThat(updatedSelection.start).isEqualTo(initialBuffer.selectionStart)
         assertThat(updatedSelection.end).isEqualTo(initialBuffer.selectionEnd)
         assertThat(resetCalled).isEqualTo(1)
+        assertThat(selectionCalled).isEqualTo(0)
     }
 
     @Test
     fun compositionIsCleared_when_textChanged() {
         val state = TextFieldState()
+
         var resetCalled = 0
-        state.addNotifyImeListener { _, _ -> resetCalled++ }
+        var selectionCalled = 0
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
 
         // set the initial value
         state.editAsUser {
             commitText("ab", 0)
             setComposingRegion(0, 2)
         }
+        assertThat(resetCalled).isEqualTo(0)
+        assertThat(selectionCalled).isEqualTo(1)
 
         // change the text
         val newValue =
@@ -209,6 +248,8 @@ class TextFieldStateInternalBufferTest {
 
         assertThat(state.text.toString()).isEqualTo(newValue.toString())
         assertThat(state.text.compositionInChars).isNull()
+        assertThat(resetCalled).isEqualTo(1)
+        assertThat(selectionCalled).isEqualTo(1)
     }
 
     @Test
@@ -360,7 +401,7 @@ class TextFieldStateInternalBufferTest {
 
         var resetCalledOld: TextFieldCharSequence? = null
         var resetCalledNew: TextFieldCharSequence? = null
-        state.addNotifyImeListener { old, new ->
+        state.addImeContentListener { old, new, _ ->
             resetCalledOld = old
             resetCalledNew = new
         }
@@ -369,7 +410,7 @@ class TextFieldStateInternalBufferTest {
 
         state.editAsUser(
             inputTransformation = { _, new -> new.revertAllChanges() },
-            notifyImeOfChanges = false
+            restartImeIfContentChanges = false
         ) {
             commitText("d", 4)
         }
@@ -391,7 +432,7 @@ class TextFieldStateInternalBufferTest {
             fail("filter ran, old=\"$old\", new=\"$new\"")
         }
 
-        state.editAsUser(inputTransformation, notifyImeOfChanges = false) {}
+        state.editAsUser(inputTransformation, restartImeIfContentChanges = false) {}
     }
 
     @Test
@@ -405,7 +446,7 @@ class TextFieldStateInternalBufferTest {
 
         state.editAsUser(
             inputTransformation = inputTransformation,
-            notifyImeOfChanges = false
+            restartImeIfContentChanges = false
         ) { finishComposingText() }
     }
 
@@ -420,7 +461,7 @@ class TextFieldStateInternalBufferTest {
 
         state.editAsUser(
             inputTransformation = inputTransformation,
-            notifyImeOfChanges = false
+            restartImeIfContentChanges = false
         ) { finishComposingText() }
     }
 
@@ -436,7 +477,10 @@ class TextFieldStateInternalBufferTest {
             )
         }
 
-        state.editAsUser(inputTransformation = inputTransformation, notifyImeOfChanges = false) {
+        state.editAsUser(
+            inputTransformation = inputTransformation,
+            restartImeIfContentChanges = false
+        ) {
             setComposingRegion(0, 5)
             commitText("hello", 1)
             setSelection(2, 2)
@@ -460,7 +504,7 @@ class TextFieldStateInternalBufferTest {
 
         state.editAsUser(
             inputTransformation = inputTransformation,
-            notifyImeOfChanges = false
+            restartImeIfContentChanges = false
         ) { setSelection(0, 5) }
     }
 
@@ -479,7 +523,10 @@ class TextFieldStateInternalBufferTest {
             assertThat(new.toString()).isEqualTo("world")
         }
 
-        state.editAsUser(inputTransformation = inputTransformation, notifyImeOfChanges = false) {
+        state.editAsUser(
+            inputTransformation = inputTransformation,
+            restartImeIfContentChanges = false
+        ) {
             deleteAll()
             commitText("world", 1)
             setSelection(2, 2)
@@ -513,6 +560,18 @@ class TextFieldStateInternalBufferTest {
     ) = TextFieldState(value.toString(), value.selectionInChars)
 
     private fun TextFieldState.editAsUser(block: EditingBuffer.() -> Unit) {
-        editAsUser(inputTransformation = null, notifyImeOfChanges = false, block = block)
+        editAsUser(inputTransformation = null, restartImeIfContentChanges = false, block = block)
+    }
+
+    private fun TextFieldState.addImeContentListener(
+        listener: (TextFieldCharSequence, TextFieldCharSequence, Boolean) -> Unit
+    ) {
+        addNotifyImeListener { oldValue, newValue, restartImeIfContentChanges ->
+            listener(
+                oldValue,
+                newValue,
+                restartImeIfContentChanges
+            )
+        }
     }
 }

@@ -358,8 +358,7 @@ internal class StatelessInputConnection(
         logDebug("performContextMenuAction($id)")
         when (id) {
             android.R.id.selectAll -> {
-                // no need to batch context menu actions.
-                session.requestEdit(notifyImeOfChanges = true) {
+                addEditCommandWithBatch {
                     setSelection(0, text.length)
                 }
             }
