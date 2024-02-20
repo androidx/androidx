@@ -35,7 +35,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.TypefaceResult
-import androidx.compose.ui.text.intl.AndroidLocale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.extensions.applySpanStyle
 import androidx.compose.ui.text.platform.extensions.setTextMotion
@@ -161,7 +160,7 @@ internal fun resolveTextDirectionHeuristics(
         TextDirection.Rtl -> LayoutCompat.TEXT_DIRECTION_RTL
         TextDirection.Content, TextDirection.Unspecified -> {
             val currentLocale = localeList?.let {
-                (it[0].platformLocale as AndroidLocale).javaLocale
+                it[0].platformLocale
             } ?: Locale.getDefault()
             when (TextUtilsCompat.getLayoutDirectionFromLocale(currentLocale)) {
                 View.LAYOUT_DIRECTION_LTR -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR

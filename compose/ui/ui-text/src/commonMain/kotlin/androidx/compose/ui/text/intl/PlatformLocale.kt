@@ -17,30 +17,29 @@
 package androidx.compose.ui.text.intl
 
 /**
- * Interface for providing platform dependent locale object.
+ * Class for providing Locale functionality from the current platform.
  */
-internal interface PlatformLocale {
+expect class PlatformLocale
 
-    /**
-     * Implementation must give ISO 639 compliant language code.
-     */
-    val language: String
+/**
+ * Implementation must give ISO 639 compliant language code.
+ */
+internal expect val PlatformLocale.language: String
 
-    /**
-     * Implementation must give ISO 15924 compliant 4-letter script code.
-     */
-    val script: String
+/**
+ * Implementation must give ISO 15924 compliant 4-letter script code.
+ */
+internal expect val PlatformLocale.script: String
 
-    /**
-     * Implementation must give ISO 3166 compliant region code.
-     */
-    val region: String
+/**
+ * Implementation must give ISO 3166 compliant region code.
+ */
+internal expect val PlatformLocale.region: String
 
-    /**
-     * Implementation must return IETF BCP47 compliant language tag representation of this Locale.
-     */
-    fun toLanguageTag(): String
-}
+/**
+ * Implementation must return IETF BCP47 compliant language tag representation of this Locale.
+ */
+internal expect fun PlatformLocale.getLanguageTag(): String
 
 /**
  * Interface for providing platform dependent locale non-instance helper functions.

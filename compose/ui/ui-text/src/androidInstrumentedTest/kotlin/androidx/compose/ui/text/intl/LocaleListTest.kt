@@ -65,9 +65,7 @@ class LocaleListTest {
         for (javaLocale in javaLocales) {
             java.util.Locale.setDefault(javaLocale)
 
-            assertThat(LocaleList.current.first()).isEqualTo(
-                Locale(AndroidLocale(javaLocale))
-            )
+            assertThat(LocaleList.current.first()).isEqualTo(Locale(javaLocale))
         }
     }
 }
