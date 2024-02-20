@@ -17,7 +17,7 @@
 package androidx.camera.core.processing;
 
 import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
-import static androidx.camera.core.impl.utils.Threads.isMainThread;
+import static androidx.camera.core.impl.utils.Threads.runOnMain;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
@@ -286,7 +286,9 @@ public class SurfaceProcessorNode implements
     @Override
     public void release() {
         mSurfaceProcessor.release();
-        runOnMainThread(() -> {
+        // Required for b/309409701. For some reason, the cleanup posted on {@link #release()} is
+        // not executed in unit tests which causes failures.
+        runOnMain(() -> {
             if (mOutput != null) {
                 for (SurfaceEdge surface : mOutput.values()) {
                     // The output DeferrableSurface will later be terminated by the processor.
@@ -294,23 +296,6 @@ public class SurfaceProcessorNode implements
                 }
             }
         });
-    }
-
-    /**
-     * Runs the given {@link Runnable} on the main thread.
-     *
-     * <p>If the current thread is the main thread, the runnable is executed immediately.
-     * Otherwise, the runnable is posted to the main thread.
-     *
-     * <p>This is added for b/309409701. For some reason, the cleanup posted on
-     * {@link #release()} is not executed in unit tests which causes failures.
-     */
-    private static void runOnMainThread(@NonNull Runnable runnable) {
-        if (isMainThread()) {
-            runnable.run();
-        } else {
-            mainThreadExecutor().execute(runnable);
-        }
     }
 
     /**
