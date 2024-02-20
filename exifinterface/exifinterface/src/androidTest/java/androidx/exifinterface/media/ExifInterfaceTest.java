@@ -932,18 +932,22 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testStandaloneData() throws Throwable {
-        File jpegIiImageFile =
+    public void testStandaloneData_jpegIntelByteOrder() throws Throwable {
+        File imageFile =
                 copyFromResourceToFile(
                         R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
         readFromStandaloneDataWithExif(
-                jpegIiImageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II_STANDALONE);
+                imageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II_STANDALONE);
+    }
 
-        File jpegMmImageFile =
+    @Test
+    @LargeTest
+    public void testStandaloneData_jpegMotorolaByteOrder() throws Throwable {
+        File imageFile =
                 copyFromResourceToFile(
                         R.raw.jpeg_with_exif_byte_order_mm, "jpeg_with_exif_byte_order_mm.jpg");
         readFromStandaloneDataWithExif(
-                jpegMmImageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM_STANDALONE);
+                imageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM_STANDALONE);
     }
 
     @Test
