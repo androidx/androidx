@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room
+package androidx.room.support
 
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.io.File
@@ -22,9 +22,9 @@ import java.util.concurrent.Callable
 
 /**
  * Implementation of [SupportSQLiteOpenHelper.Factory] that creates
- * [SQLiteCopyOpenHelper].
+ * [PrePackagedCopyOpenHelper].
  */
-internal class SQLiteCopyOpenHelperFactory(
+internal class PrePackagedCopyOpenHelperFactory(
     private val mCopyFromAssetPath: String?,
     private val mCopyFromFile: File?,
     private val mCopyFromInputStream: Callable<InputStream>?,
@@ -33,7 +33,7 @@ internal class SQLiteCopyOpenHelperFactory(
     override fun create(
         configuration: SupportSQLiteOpenHelper.Configuration
     ): SupportSQLiteOpenHelper {
-        return SQLiteCopyOpenHelper(
+        return PrePackagedCopyOpenHelper(
             configuration.context,
             mCopyFromAssetPath,
             mCopyFromFile,

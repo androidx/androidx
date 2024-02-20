@@ -27,6 +27,7 @@ import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.LiveData
 import androidx.room.Room.LOG_TAG
 import androidx.room.driver.SupportSQLiteConnection
+import androidx.room.support.AutoCloser
 import androidx.room.util.useCursor
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SimpleSQLiteQuery

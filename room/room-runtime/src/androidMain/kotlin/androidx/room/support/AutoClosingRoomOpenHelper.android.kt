@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room
+package androidx.room.support
 
 import android.content.ContentResolver
 import android.content.ContentValues
@@ -26,6 +26,7 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.util.Pair
 import androidx.annotation.RequiresApi
+import androidx.room.DelegatingOpenHelper
 import androidx.sqlite.db.SupportSQLiteCompat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper

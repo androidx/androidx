@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.room
+package androidx.room.support
 
+import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteStatement
 import java.util.concurrent.Executor
 
