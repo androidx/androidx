@@ -31,9 +31,8 @@ plugins {
 }
 
 dependencies {
-
-    api(project(":compose:ui:ui"))
-    api(project(":compose:runtime:runtime"))
+    api("androidx.compose.ui:ui:1.6.0")
+    api("androidx.compose.runtime:runtime:1.6.0")
     api("androidx.navigation:navigation-runtime:2.6.0")
     api(project(":wear:compose:compose-material"))
     api("androidx.activity:activity-compose:1.7.0")
