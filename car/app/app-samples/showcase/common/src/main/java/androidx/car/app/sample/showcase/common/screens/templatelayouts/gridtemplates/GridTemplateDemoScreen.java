@@ -32,10 +32,10 @@ import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.GridItem;
 import androidx.car.app.model.GridTemplate;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.Template;
@@ -182,14 +182,12 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                                 .show())
                 .build();
         return new GridTemplate.Builder()
-                .setHeaderAction(Action.APP_ICON)
+                .setHeader(new Header.Builder()
+                        .setStartHeaderAction(BACK)
+                        .setTitle(getCarContext().getString(R.string.grid_template_demo_title))
+                        .addEndHeaderAction(settings)
+                        .build())
                 .setSingleList(gridItemListBuilder.build())
-                .setTitle(getCarContext().getString(R.string.grid_template_demo_title))
-                .setActionStrip(
-                        new ActionStrip.Builder()
-                                .addAction(settings)
-                                .build())
-                .setHeaderAction(BACK)
                 .build();
     }
 

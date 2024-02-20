@@ -1295,13 +1295,14 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class GridTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public java.util.List<androidx.car.app.model.Action!> getActions();
-    method public androidx.car.app.model.Action? getHeaderAction();
+    method public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public int getItemImageShape();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public int getItemSize();
     method public androidx.car.app.model.ItemList? getSingleList();
-    method public androidx.car.app.model.CarText? getTitle();
+    method @Deprecated public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
     field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int ITEM_IMAGE_SHAPE_CIRCLE = 2; // 0x2
     field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int ITEM_IMAGE_SHAPE_UNSET = 1; // 0x1
@@ -1314,13 +1315,14 @@ package androidx.car.app.model {
     ctor public GridTemplate.Builder();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.GridTemplate build();
-    method public androidx.car.app.model.GridTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.model.GridTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method @Deprecated public androidx.car.app.model.GridTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.model.GridTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.GridTemplate.Builder setItemImageShape(@SuppressCompatibility int);
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.GridTemplate.Builder setItemSize(@SuppressCompatibility int);
     method public androidx.car.app.model.GridTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.GridTemplate.Builder setSingleList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.model.GridTemplate.Builder setTitle(CharSequence);
+    method @Deprecated public androidx.car.app.model.GridTemplate.Builder setTitle(CharSequence);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Header {
