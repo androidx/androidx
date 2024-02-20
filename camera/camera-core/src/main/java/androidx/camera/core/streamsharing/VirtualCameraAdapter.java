@@ -330,7 +330,6 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     public void onUseCaseReset(@NonNull UseCase useCase) {
         checkMainThread();
         SurfaceEdge edge = getUseCaseEdge(useCase);
-        edge.invalidate();
         if (!isUseCaseActive(useCase)) {
             // No-op if the child is inactive. It will connect when it becomes active.
             return;
