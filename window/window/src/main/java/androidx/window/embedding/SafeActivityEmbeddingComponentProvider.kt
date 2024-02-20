@@ -32,7 +32,6 @@ import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.AnimationBackground
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
-import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import androidx.window.extensions.embedding.SplitPinRule
 import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.extensions.layout.WindowLayoutInfo
@@ -152,7 +151,6 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [SplitPinRule.isSticky]
      * - [ActivityEmbeddingComponent.pinTopActivityStack]
      * - [ActivityEmbeddingComponent.unpinTopActivityStack]
-     * - [ActivityEmbeddingComponent.updateSplitAttributes] with [OEMSplitInfo.Token]
      * // TODO(b/316493273): Guard other AEComponentMethods
      */
     @VisibleForTesting
@@ -169,8 +167,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodRegisterActivityStackCallbackValid() &&
             isMethodUnregisterActivityStackCallbackValid() &&
             isClassWindowAttributesValid() &&
-            isMethodPinUnpinTopActivityStackValid() &&
-            isMethodUpdateSplitAttributesWithTokenValid()
+            isMethodPinUnpinTopActivityStackValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -283,7 +280,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val activityStackClass = ActivityStack::class.java
             val getTokenMethod = activityStackClass.getMethod("getToken")
 
-            getTokenMethod.isPublic && getTokenMethod.doesReturn(ActivityStack.Token::class.java)
+            getTokenMethod.isPublic && getTokenMethod.doesReturn(IBinder::class.java)
         }
 
     private fun isActivityStackGetTagValid(): Boolean =
@@ -315,7 +312,7 @@ internal class SafeActivityEmbeddingComponentProvider(
         validateReflection {
             val getParentContainerInfoMethod = activityEmbeddingComponentClass.getMethod(
                 "getParentContainerInfo",
-                ActivityStack.Token::class.java
+                IBinder::class.java
             )
             getParentContainerInfoMethod.isPublic &&
                 getParentContainerInfoMethod.doesReturn(ParentContainerInfo::class.java)
@@ -328,7 +325,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 String::class.java
             )
             getActivityStackTokenMethod.isPublic &&
-                getActivityStackTokenMethod.doesReturn(ActivityStack.Token::class.java)
+                getActivityStackTokenMethod.doesReturn(IBinder::class.java)
         }
 
     private fun isMethodSetActivityStackAttributesCalculatorValid(): Boolean =
@@ -362,17 +359,6 @@ internal class SafeActivityEmbeddingComponentProvider(
                 .getMethod(
                     "unregisterActivityStackCallback",
                     Consumer::class.java
-                )
-            unregisterActivityStackCallbackMethod.isPublic
-        }
-
-    private fun isMethodUpdateSplitAttributesWithTokenValid(): Boolean =
-        validateReflection("updateSplitAttributes is not valid") {
-            val unregisterActivityStackCallbackMethod = activityEmbeddingComponentClass
-                .getMethod(
-                    "updateSplitAttributes",
-                    OEMSplitInfo.Token::class.java,
-                    SplitAttributes::class.java,
                 )
             unregisterActivityStackCallbackMethod.isPublic
         }

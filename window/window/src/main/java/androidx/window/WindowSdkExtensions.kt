@@ -55,23 +55,6 @@ abstract class WindowSdkExtensions internal constructor() {
         }
     }
 
-    /**
-     * Checks the [extensionVersion] and throws [UnsupportedOperationException] if the version is
-     * not in the [range].
-     *
-     * This is useful to provide compatibility for APIs updated in 2+ but deprecated in latest
-     * version.
-     *
-     * @param range the required extension range of the targeting API.
-     * @throws UnsupportedOperationException if the required [range] is not satisfied.
-     */
-    internal fun requireExtensionVersion(range: kotlin.ranges.IntRange) {
-        if (extensionVersion !in range) {
-            throw UnsupportedOperationException("This API requires extension version " +
-                "$range, but the device is on $extensionVersion")
-        }
-    }
-
     companion object {
         /** Returns a [WindowSdkExtensions] instance. */
         @JvmStatic

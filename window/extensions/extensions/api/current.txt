@@ -56,11 +56,10 @@ package androidx.window.extensions.embedding {
     method public default void clearEmbeddedActivityWindowInfoCallback();
     method public void clearSplitAttributesCalculator();
     method public void clearSplitInfoCallback();
-    method @Deprecated public default void finishActivityStacks(java.util.Set<android.os.IBinder!>);
-    method public default void finishActivityStacksWithTokens(java.util.Set<androidx.window.extensions.embedding.ActivityStack.Token!>);
-    method public default androidx.window.extensions.embedding.ActivityStack.Token? getActivityStackToken(String);
+    method public default void finishActivityStacks(java.util.Set<android.os.IBinder!>);
+    method public default android.os.IBinder? getActivityStackToken(String);
     method public default androidx.window.extensions.embedding.EmbeddedActivityWindowInfo? getEmbeddedActivityWindowInfo(android.app.Activity);
-    method public default androidx.window.extensions.embedding.ParentContainerInfo? getParentContainerInfo(androidx.window.extensions.embedding.ActivityStack.Token);
+    method public default androidx.window.extensions.embedding.ParentContainerInfo? getParentContainerInfo(android.os.IBinder);
     method public default void invalidateTopVisibleSplitAttributes();
     method public boolean isActivityEmbedded(android.app.Activity);
     method public default boolean pinTopActivityStack(int, androidx.window.extensions.embedding.SplitPinRule);
@@ -68,16 +67,14 @@ package androidx.window.extensions.embedding {
     method public default void setActivityStackAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.ActivityStackAttributesCalculatorParams!,androidx.window.extensions.embedding.ActivityStackAttributes!>);
     method public default void setEmbeddedActivityWindowInfoCallback(java.util.concurrent.Executor, androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.embedding.EmbeddedActivityWindowInfo!>);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
-    method @Deprecated public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.os.IBinder);
-    method public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, androidx.window.extensions.embedding.ActivityStack.Token);
+    method public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.os.IBinder);
     method public void setSplitAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.SplitAttributesCalculatorParams!,androidx.window.extensions.embedding.SplitAttributes!>);
     method public default void setSplitInfoCallback(androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
     method @Deprecated public void setSplitInfoCallback(java.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
     method public default void unpinTopActivityStack(int);
     method public default void unregisterActivityStackCallback(androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.ActivityStack!>!>);
-    method public default void updateActivityStackAttributes(androidx.window.extensions.embedding.ActivityStack.Token, androidx.window.extensions.embedding.ActivityStackAttributes);
-    method @Deprecated public default void updateSplitAttributes(android.os.IBinder, androidx.window.extensions.embedding.SplitAttributes);
-    method public default void updateSplitAttributes(androidx.window.extensions.embedding.SplitInfo.Token, androidx.window.extensions.embedding.SplitAttributes);
+    method public default void updateActivityStackAttributes(android.os.IBinder, androidx.window.extensions.embedding.ActivityStackAttributes);
+    method public default void updateSplitAttributes(android.os.IBinder, androidx.window.extensions.embedding.SplitAttributes);
   }
 
   public class ActivityEmbeddingOptionsProperties {
@@ -101,15 +98,8 @@ package androidx.window.extensions.embedding {
   public class ActivityStack {
     method public java.util.List<android.app.Activity!> getActivities();
     method public String? getTag();
-    method public androidx.window.extensions.embedding.ActivityStack.Token getToken();
+    method public android.os.IBinder getToken();
     method public boolean isEmpty();
-  }
-
-  public static final class ActivityStack.Token {
-    method public static androidx.window.extensions.embedding.ActivityStack.Token createFromBinder(android.os.IBinder);
-    method public static androidx.window.extensions.embedding.ActivityStack.Token readFromBundle(android.os.Bundle);
-    method public android.os.Bundle toBundle();
-    field public static final androidx.window.extensions.embedding.ActivityStack.Token INVALID_ACTIVITY_STACK_TOKEN;
   }
 
   public class ActivityStackAttributes {
@@ -212,13 +202,8 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.ActivityStack getPrimaryActivityStack();
     method public androidx.window.extensions.embedding.ActivityStack getSecondaryActivityStack();
     method public androidx.window.extensions.embedding.SplitAttributes getSplitAttributes();
-    method public androidx.window.extensions.embedding.SplitInfo.Token getSplitInfoToken();
     method @Deprecated public float getSplitRatio();
-    method @Deprecated public android.os.IBinder getToken();
-  }
-
-  public static final class SplitInfo.Token {
-    method public static androidx.window.extensions.embedding.SplitInfo.Token createFromBinder(android.os.IBinder);
+    method public android.os.IBinder getToken();
   }
 
   public class SplitPairRule extends androidx.window.extensions.embedding.SplitRule {

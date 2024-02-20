@@ -44,7 +44,7 @@ fun ActivityOptions.setLaunchingActivityStack(
     activityStack: ActivityStack
 ): ActivityOptions = let {
     ActivityEmbeddingController.getInstance(context)
-        .setLaunchingActivityStack(this, activityStack)
+        .setLaunchingActivityStack(this, activityStack.token)
 }
 
 // TODO(b/295993745): Migrate to use bundle

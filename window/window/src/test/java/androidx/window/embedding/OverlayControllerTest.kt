@@ -18,7 +18,6 @@ package androidx.window.embedding
 
 import android.os.Bundle
 import androidx.core.util.Consumer
-import androidx.window.extensions.embedding.ActivityStack.Token as ActivityStackToken
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -78,11 +77,7 @@ internal class OverlayControllerTest {
         val expected = OverlayInfo(
             overlayTag = tag,
             currentOverlayAttributes = OverlayAttributes(),
-            activityStack = ActivityStack(
-                emptyList(),
-                true,
-                ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
-            )
+            activityStack = ActivityStack(emptyList(), true, mock())
         )
         doAnswer { invocationOnMock ->
             @Suppress("UNCHECKED_CAST")

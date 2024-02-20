@@ -19,6 +19,7 @@ package androidx.window.embedding
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
+import android.os.IBinder
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
@@ -65,9 +66,9 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
     @RequiresWindowSdkExtension(5)
     internal fun setLaunchingActivityStack(
         options: ActivityOptions,
-        activityStack: ActivityStack
+        token: IBinder
     ): ActivityOptions {
-        return backend.setLaunchingActivityStack(options, activityStack)
+        return backend.setLaunchingActivityStack(options, token)
     }
 
     /**

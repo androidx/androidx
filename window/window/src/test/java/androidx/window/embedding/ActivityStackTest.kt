@@ -18,7 +18,6 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.os.Binder
-import androidx.window.extensions.embedding.ActivityStack.Token as ActivityStackToken
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -32,7 +31,7 @@ class ActivityStackTest {
     @Test
     fun testContainsActivity() {
         val activity = mock<Activity>()
-        val stack = ActivityStack(listOf(activity), isEmpty = false)
+        val stack = ActivityStack(listOf(activity), isEmpty = false, Binder())
 
         assertTrue(activity in stack)
     }
@@ -40,14 +39,14 @@ class ActivityStackTest {
     @Test
     fun testEqualsImpliesHashCode() {
         val activity = mock<Activity>()
-        val token = ActivityStackToken.createFromBinder(Binder())
+        val token = Binder()
         val first = ActivityStack(listOf(activity), isEmpty = false, token)
         val second = ActivityStack(listOf(activity), isEmpty = false, token)
 
         assertEquals(first, second)
         assertEquals(first.hashCode(), second.hashCode())
 
-        val anotherToken = ActivityStackToken.createFromBinder(Binder())
+        val anotherToken = Binder()
         val third = ActivityStack(emptyList(), isEmpty = true, anotherToken)
 
         assertNotEquals(first, third)
@@ -56,11 +55,11 @@ class ActivityStackTest {
 
     @Test
     fun testIsEmpty() {
-        var stack = ActivityStack(emptyList(), isEmpty = true)
+        var stack = ActivityStack(emptyList(), isEmpty = true, Binder())
 
         assertTrue(stack.isEmpty)
 
-        stack = ActivityStack(emptyList(), isEmpty = false)
+        stack = ActivityStack(emptyList(), isEmpty = false, Binder())
 
         assertFalse(stack.isEmpty)
     }
@@ -69,7 +68,7 @@ class ActivityStackTest {
     fun testToString() {
         val activitiesInProcess = mock<List<Activity>>()
         val isEmpty = false
-        val token = ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+        val token = Binder()
 
         val stackString = ActivityStack(activitiesInProcess, isEmpty, token).toString()
 
