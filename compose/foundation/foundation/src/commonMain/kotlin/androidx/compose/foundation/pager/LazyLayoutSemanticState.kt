@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.ui.semantics.CollectionInfo
@@ -47,4 +48,13 @@ internal fun LazyLayoutSemanticState(
         } else {
             CollectionInfo(rowCount = 1, columnCount = state.pageCount)
         }
+
+    override val viewport: Int
+        get() = if (state.layoutInfo.orientation == Orientation.Vertical) {
+            state.layoutInfo.viewportSize.height
+        } else {
+            state.layoutInfo.viewportSize.width
+        }
+    override val contentPadding: Int
+        get() = state.layoutInfo.beforeContentPadding + state.layoutInfo.afterContentPadding
 }

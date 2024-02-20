@@ -3339,6 +3339,7 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getCutText();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getDismiss();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getExpand();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<java.lang.Float>,java.lang.Boolean>>> getGetScrollViewportLength();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>,java.lang.Boolean>>> getGetTextLayoutResult();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> getInsertTextAtCursor();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getOnClick();
@@ -3365,6 +3366,7 @@ package androidx.compose.ui.semantics {
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> CutText;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> Dismiss;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> Expand;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<java.lang.Float>,java.lang.Boolean>>> GetScrollViewportLength;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>,java.lang.Boolean>>> GetTextLayoutResult;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> InsertTextAtCursor;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> OnClick;
@@ -3571,6 +3573,7 @@ package androidx.compose.ui.semantics {
     method public static String getPaneTitle(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.ui.semantics.ProgressBarRangeInfo getProgressBarRangeInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static int getRole(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public static void getScrollViewportLength(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super java.util.List<java.lang.Float>,java.lang.Boolean> action);
     method public static boolean getSelected(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getStateDescription(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getTestTag(androidx.compose.ui.semantics.SemanticsPropertyReceiver);

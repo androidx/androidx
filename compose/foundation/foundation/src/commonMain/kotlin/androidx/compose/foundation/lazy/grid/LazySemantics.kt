@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.runtime.Composable
@@ -49,5 +50,14 @@ internal fun rememberLazyGridSemanticState(
             // TODO(popam): check if this is correct - it would be nice to provide correct columns
             override fun collectionInfo(): CollectionInfo =
                 CollectionInfo(rowCount = -1, columnCount = -1)
+
+            override val viewport: Int
+                get() = if (state.layoutInfo.orientation == Orientation.Vertical) {
+                    state.layoutInfo.viewportSize.height
+                } else {
+                    state.layoutInfo.viewportSize.width
+                }
+            override val contentPadding: Int
+                get() = state.layoutInfo.beforeContentPadding + state.layoutInfo.afterContentPadding
         }
     }

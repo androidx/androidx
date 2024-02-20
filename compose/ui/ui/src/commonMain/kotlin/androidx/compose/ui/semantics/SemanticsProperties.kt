@@ -418,6 +418,12 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.pageRight
      */
     val PageRight = ActionPropertyKey<() -> Boolean>("PageRight")
+
+    /**
+     * @see SemanticsPropertyReceiver.getScrollViewportLength
+     */
+    val GetScrollViewportLength =
+        ActionPropertyKey<(MutableList<Float>) -> Boolean>("GetScrollViewportLength")
 }
 
 /**
@@ -1559,4 +1565,19 @@ fun SemanticsPropertyReceiver.pageRight(
     action: (() -> Boolean)?
 ) {
     this[SemanticsActions.PageRight] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to get a scrollable's active view port amount for scrolling actions. The result is the
+ * first element of the array in the argument of the AccessibilityAction.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.GetScrollViewportLength] is
+ * called.
+ */
+fun SemanticsPropertyReceiver.getScrollViewportLength(
+    label: String? = null,
+    action: ((MutableList<Float>) -> Boolean)
+) {
+    this[SemanticsActions.GetScrollViewportLength] = AccessibilityAction(label, action)
 }
