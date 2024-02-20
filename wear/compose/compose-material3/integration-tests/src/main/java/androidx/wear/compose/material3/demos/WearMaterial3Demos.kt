@@ -62,6 +62,10 @@ val WearMaterial3Demos = DemoCategory(
                 ListHeaderDemo()
             }
         },
+        DemoCategory(
+            "Time Text",
+            TimeTextDemos
+        ),
         ComposableDemo("Card") {
             CardDemo()
         },
