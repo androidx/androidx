@@ -65,9 +65,9 @@ dependencies {
     implementation(project(':wear:compose:integration-tests:demos:common'))
     implementation(project(":wear:compose:compose-material3-integration-tests"))
 
-    androidTestImplementation(project(":activity:activity"))
-    androidTestImplementation(project(":activity:activity-compose"))
-    androidTestImplementation(project(":activity:activity-ktx"))
+    androidTestImplementation("androidx.activity:activity:1.8.2")
+    androidTestImplementation("androidx.activity:activity-compose:1.8.2")
+    androidTestImplementation("androidx.activity:activity-ktx:1.8.2")
     androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.7.0")

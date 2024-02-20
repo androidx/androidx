@@ -34,7 +34,7 @@ dependencies {
     api("androidx.annotation:annotation:1.5.0")
     api(project(":compose:ui:ui-tooling-preview"))
 
-    implementation(libs.kotlinStdlibCommon)
+    implementation(libs.kotlinStdlib)
     implementation("androidx.wear:wear-tooling-preview:1.0.0")
 }
 
