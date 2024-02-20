@@ -20,6 +20,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
 import androidx.kruth.assertThat
+import androidx.room.support.AutoClosingRoomOpenHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch

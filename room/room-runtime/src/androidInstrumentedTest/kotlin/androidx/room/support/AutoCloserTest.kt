@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room
+package androidx.room.support
 
 import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor

@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room
 
+package androidx.room.support
+
+import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import java.util.concurrent.Executor
 
 /**
- * Factory class for AutoClosingRoomOpenHelper
+ * Implements [SupportSQLiteOpenHelper.Factory] to wrap [QueryInterceptorOpenHelper].
  */
-internal class AutoClosingRoomOpenHelperFactory(
+internal class QueryInterceptorOpenHelperFactory(
     private val delegate: SupportSQLiteOpenHelper.Factory,
-    private val autoCloser: AutoCloser
-) : SupportSQLiteOpenHelper.Factory {
-    /**
-     * @return AutoClosingRoomOpenHelper instances.
-     */
+    private val queryCallbackExecutor: Executor,
+    private val queryCallback: RoomDatabase.QueryCallback,
+) : SupportSQLiteOpenHelper.Factory by delegate {
     override fun create(
         configuration: SupportSQLiteOpenHelper.Configuration
-    ): AutoClosingRoomOpenHelper {
-        return AutoClosingRoomOpenHelper(delegate.create(configuration), autoCloser)
+    ): SupportSQLiteOpenHelper {
+        return QueryInterceptorOpenHelper(
+            delegate.create(configuration),
+            queryCallbackExecutor,
+            queryCallback
+        )
     }
 }

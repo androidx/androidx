@@ -35,6 +35,12 @@ import androidx.room.Room.LOG_TAG
 import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
+import androidx.room.support.AutoCloser
+import androidx.room.support.AutoClosingRoomOpenHelper
+import androidx.room.support.AutoClosingRoomOpenHelperFactory
+import androidx.room.support.PrePackagedCopyOpenHelper
+import androidx.room.support.PrePackagedCopyOpenHelperFactory
+import androidx.room.support.QueryInterceptorOpenHelperFactory
 import androidx.room.util.contains as containsExt
 import androidx.room.util.findMigrationPath as findMigrationPathExt
 import androidx.sqlite.SQLiteConnection
@@ -230,7 +236,7 @@ actual abstract class RoomDatabase {
 
         // Configure SQLiteCopyOpenHelper if it is available
         unwrapOpenHelper(
-            clazz = SQLiteCopyOpenHelper::class.java,
+            clazz = PrePackagedCopyOpenHelper::class.java,
             openHelper = connectionManager.supportOpenHelper
         )?.setDatabaseConfiguration(configuration)
 
@@ -1631,7 +1637,7 @@ actual abstract class RoomDatabase {
                             "Builder, but the database can only be created using one of the " +
                             "three configurations."
                     }
-                    SQLiteCopyOpenHelperFactory(
+                    PrePackagedCopyOpenHelperFactory(
                         copyFromAssetPath,
                         copyFromFile,
                         copyFromInputStream,

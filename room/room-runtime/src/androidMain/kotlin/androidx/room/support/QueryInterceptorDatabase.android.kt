@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.room
+package androidx.room.support
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteTransactionListener
 import android.os.CancellationSignal
+import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteStatement

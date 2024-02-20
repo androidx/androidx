@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room
+package androidx.room.support
 
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import androidx.annotation.GuardedBy
-import androidx.annotation.VisibleForTesting
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.io.IOException
@@ -204,7 +203,6 @@ internal class AutoCloser(
      *
      * @return current ref count
      */
-    @get:VisibleForTesting
     internal val refCountForTest: Int
         get() {
             synchronized(lock) { return refCount }

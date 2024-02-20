@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room
+package androidx.room.support
 
 import android.content.Context
 import android.util.Log
+import androidx.room.DatabaseConfiguration
+import androidx.room.DelegatingOpenHelper
 import androidx.room.Room.LOG_TAG
 import androidx.room.util.copy
 import androidx.room.util.readVersion
@@ -38,7 +40,7 @@ import java.util.concurrent.Callable
  * storage.
  */
 @Suppress("BanSynchronizedMethods")
-internal class SQLiteCopyOpenHelper(
+internal class PrePackagedCopyOpenHelper(
     private val context: Context,
     private val copyFromAssetPath: String?,
     private val copyFromFile: File?,

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.room
+package androidx.room.support
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.AssetManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.room.DatabaseConfiguration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.io.File
@@ -48,7 +49,7 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.`when`
 
 @RunWith(JUnit4::class)
-class SQLiteCopyOpenHelperTest {
+class PrePackagedCopyOpenHelperTest {
 
     companion object {
         const val DB_NAME = "test.db"
@@ -222,7 +223,7 @@ class SQLiteCopyOpenHelperTest {
     }
 
     internal fun createOpenHelper(copyFromAssetFile: File) =
-        SQLiteCopyOpenHelper(
+        PrePackagedCopyOpenHelper(
             context,
             copyFromAssetFile.name,
             null,
@@ -282,7 +283,8 @@ class RoomCopyTestProcess {
         fun main(args: Array<String>) {
             val tmpDir = File(args[0])
             val copyFromFile = File(args[1])
-            val openHelper = SQLiteCopyOpenHelperTest().apply { setupMocks(tmpDir, copyFromFile) }
+            val openHelper = PrePackagedCopyOpenHelperTest()
+                .apply { setupMocks(tmpDir, copyFromFile) }
                 .createOpenHelper(copyFromFile)
             openHelper.writableDatabase
         }

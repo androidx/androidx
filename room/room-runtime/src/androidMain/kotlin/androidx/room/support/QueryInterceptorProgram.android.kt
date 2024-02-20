@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room
+package androidx.room.support
 
 import androidx.sqlite.db.SupportSQLiteProgram
 
