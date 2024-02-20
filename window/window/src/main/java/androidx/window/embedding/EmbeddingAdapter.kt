@@ -78,6 +78,7 @@ internal class EmbeddingAdapter(
         get() = WindowSdkExtensions.getInstance().extensionVersion
     private val api1Impl = VendorApiLevel1Impl(predicateAdapter)
     private val api2Impl = VendorApiLevel2Impl()
+    private val api3Impl = VendorApiLevel3Impl()
     @OptIn(ExperimentalWindowApi::class)
     var embeddingConfiguration: EmbeddingConfiguration? = null
 
@@ -89,14 +90,13 @@ internal class EmbeddingAdapter(
         return when (extensionVersion) {
             1 -> api1Impl.translateCompat(splitInfo)
             2 -> api2Impl.translateCompat(splitInfo)
-            else -> {
-                SplitInfo(
-                    translate(splitInfo.primaryActivityStack),
-                    translate(splitInfo.secondaryActivityStack),
-                    translate(splitInfo.splitAttributes),
-                    splitInfo.token,
-                )
-            }
+            in 3..4 -> api3Impl.translateCompat(splitInfo)
+            else -> SplitInfo(
+                translate(splitInfo.primaryActivityStack),
+                translate(splitInfo.secondaryActivityStack),
+                translate(splitInfo.splitAttributes),
+                splitInfo.splitInfoToken,
+            )
         }
     }
 
@@ -415,13 +415,24 @@ internal class EmbeddingAdapter(
         }
     }
 
+    /** Provides backward compatibility for Window extensions with API level 3 */
+    // Suppress deprecation because this object is to provide backward compatibility.
+    @Suppress("DEPRECATION")
+    private inner class VendorApiLevel3Impl {
+        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo = SplitInfo(
+            api1Impl.translateCompat(splitInfo.primaryActivityStack),
+            api1Impl.translateCompat(splitInfo.secondaryActivityStack),
+            translate(splitInfo.splitAttributes),
+            splitInfo.token,
+        )
+    }
+
     /** Provides backward compatibility for Window extensions with API level 2 */
     private inner class VendorApiLevel2Impl {
         fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo = SplitInfo(
                 api1Impl.translateCompat(splitInfo.primaryActivityStack),
                 api1Impl.translateCompat(splitInfo.secondaryActivityStack),
                 translate(splitInfo.splitAttributes),
-                INVALID_SPLIT_INFO_TOKEN,
             )
     }
 
@@ -585,13 +596,11 @@ internal class EmbeddingAdapter(
                 translateCompat(splitInfo.primaryActivityStack),
                 translateCompat(splitInfo.secondaryActivityStack),
                 getSplitAttributesCompat(splitInfo),
-                INVALID_SPLIT_INFO_TOKEN,
             )
 
         fun translateCompat(activityStack: OEMActivityStack): ActivityStack = ActivityStack(
             activityStack.activities,
             activityStack.isEmpty,
-            INVALID_ACTIVITY_STACK_TOKEN,
         )
     }
 
@@ -601,10 +610,5 @@ internal class EmbeddingAdapter(
          * vendor API level 3
          */
         val INVALID_SPLIT_INFO_TOKEN = Binder()
-        /**
-         * The default token of [ActivityStack], which provides compatibility for device prior to
-         * vendor API level 3
-         */
-        val INVALID_ACTIVITY_STACK_TOKEN = Binder()
     }
 }

@@ -17,7 +17,6 @@
 
 package androidx.window.testing.embedding
 
-import android.os.Binder
 import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitInfo
@@ -47,7 +46,4 @@ fun TestSplitInfo(
     primaryActivityStack,
     secondActivityStack,
     splitAttributes,
-    TEST_SPLIT_INFO_TOKEN
 )
-
-private val TEST_SPLIT_INFO_TOKEN = Binder()

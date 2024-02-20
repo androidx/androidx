@@ -44,10 +44,9 @@ internal class SplitControllerTest {
     @Test
     fun test_splitInfoListComesFromBackend() = testScope.runTest {
         val expected = listOf(SplitInfo(
-            ActivityStack(emptyList(), true, mock()),
-            ActivityStack(emptyList(), true, mock()),
+            ActivityStack(emptyList(), true),
+            ActivityStack(emptyList(), true),
             SplitAttributes(),
-            mock()
         ))
         doAnswer { invocationOnMock ->
             @Suppress("UNCHECKED_CAST")
@@ -88,10 +87,9 @@ internal class SplitControllerTest {
     fun test_updateSplitAttribute_delegates() {
         val mockSplitAttributes = SplitAttributes()
         val mockSplitInfo = SplitInfo(
-            ActivityStack(emptyList(), true, mock()),
-            ActivityStack(emptyList(), true, mock()),
+            ActivityStack(emptyList(), true),
+            ActivityStack(emptyList(), true),
             mockSplitAttributes,
-            mock()
         )
         splitController.updateSplitAttributes(mockSplitInfo, mockSplitAttributes)
         verify(mockBackend).updateSplitAttributes(eq(mockSplitInfo), eq(mockSplitAttributes))
