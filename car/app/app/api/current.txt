@@ -1428,7 +1428,7 @@ package androidx.car.app.model {
     method @Deprecated @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.ActionStrip? getActionStrip();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarText? getDebugMessage();
-    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.Header? getHeader();
+    method public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public androidx.car.app.model.CarText getMessage();
@@ -1510,7 +1510,7 @@ package androidx.car.app.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PaneTemplate implements androidx.car.app.model.Template {
     method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.Header? getHeader();
+    method public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.Pane getPane();
     method @Deprecated public androidx.car.app.model.CarText? getTitle();

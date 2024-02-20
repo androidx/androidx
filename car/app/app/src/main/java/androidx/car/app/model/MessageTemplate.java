@@ -103,15 +103,11 @@ public final class MessageTemplate implements Template {
     /**
      * Returns the title of the template or {@code null} if not set.
      *
-     * @deprecated use {@link Header.Builder#setTitle(CarText)}; mHeader replaces the need
-     * for this field.
+     * @deprecated use {@link Header#getTitle()} instead.
      */
     @Deprecated
     @Nullable
     public CarText getTitle() {
-        if (mHeader != null && mHeader.getTitle() != null) {
-            return mHeader.getTitle();
-        }
         return mTitle;
     }
 
@@ -119,35 +115,23 @@ public final class MessageTemplate implements Template {
      * Returns the {@link Action} that is set to be displayed in the header of the template, or
      * {@code null} if not set.
      *
-     * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
-     * need for this field.
+     * @deprecated use {@link Header#getStartHeaderAction()} instead.
      */
     @Deprecated
     @Nullable
     public Action getHeaderAction() {
-        if (mHeader != null && mHeader.getStartHeaderAction() != null) {
-            return mHeader.getStartHeaderAction();
-        }
         return mHeaderAction;
     }
 
     /**
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
-     * @deprecated use {@link Header.Builder#addEndHeaderAction(Action) for each action}; mHeader
-     * replaces the need for this field.
+     * @deprecated use {@link Header#getEndHeaderActions()} instead.
      */
     @Deprecated
     @RequiresCarApi(2)
     @Nullable
     public ActionStrip getActionStrip() {
-        if (mHeader != null && !mHeader.getEndHeaderActions().isEmpty()) {
-            ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
-            for (Action action: mHeader.getEndHeaderActions()) {
-                actionStripBuilder.addAction(action);
-            }
-            return actionStripBuilder.build();
-        }
         return mActionStrip;
     }
 
@@ -195,12 +179,32 @@ public final class MessageTemplate implements Template {
     /**
      * Returns the {@link Header} to display in this template.
      *
-     * @see Builder#setHeader(Header)
+     * <p>This method was introduced in API 7, but is backwards compatible even if the client is
+     * using API 6 or below. </p>
+     *
+     * @see MessageTemplate.Builder#setHeader(Header)
      */
-    @RequiresCarApi(7)
     @Nullable
     public Header getHeader() {
-        return mHeader;
+        if (mHeader != null) {
+            return mHeader;
+        }
+        if (mTitle == null && mHeaderAction == null && mActionStrip == null) {
+            return null;
+        }
+        Header.Builder headerBuilder = new Header.Builder();
+        if (mTitle != null) {
+            headerBuilder.setTitle(mTitle);
+        }
+        if (mHeaderAction != null) {
+            headerBuilder.setStartHeaderAction(mHeaderAction);
+        }
+        if (mActionStrip != null) {
+            for (Action action: mActionStrip.getActions()) {
+                headerBuilder.addEndHeaderAction(action);
+            }
+        }
+        return headerBuilder.build();
     }
 
     @NonNull
