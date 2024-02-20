@@ -22,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.Item;
@@ -71,18 +70,16 @@ public final class UserInteractionsDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(builder.build())
-                .setTitle(getCarContext().getString(R.string.user_interactions_demo_title))
-                .setHeaderAction(BACK)
-                .setActionStrip(
-                        new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle(getCarContext().getString(
-                                                        R.string.home_caps_action_title))
-                                                .setOnClickListener(
-                                                        () -> getScreenManager().popToRoot())
-                                                .build())
+                .setHeader(new Header.Builder()
+                        .setTitle(getCarContext().getString(R.string.user_interactions_demo_title))
+                        .setStartHeaderAction(BACK)
+                        .addEndHeaderAction(new Action.Builder()
+                                .setTitle(getCarContext().getString(
+                                        R.string.home_caps_action_title))
+                                .setOnClickListener(
+                                        () -> getScreenManager().popToRoot())
                                 .build())
+                        .build())
                 .build();
 
     }
