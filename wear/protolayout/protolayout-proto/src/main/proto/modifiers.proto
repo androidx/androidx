@@ -159,6 +159,35 @@ message ElementMetadata {
   bytes tag_data = 1;
 }
 
+// A modifier to apply transformations to the element. All of these transformations can be animated
+// by setting dynamic values. This modifier is not layout affecting.
+message Transformation {
+  // The horizontal offset of this element relative to the location where the element's layout
+  // placed it.
+  DpProp translation_x = 1;
+  // The vertical offset of this element in addition to the location where the element's layout
+  // placed it.
+  DpProp translation_y = 2;
+  // The scale of this element in the x direction around the pivot point, as a proportion of the
+  // element's unscaled width .
+  FloatProp scale_x = 3;
+  // The scale of this element in the y direction around the pivot point, as a proportion of the
+  // element's unscaled height.
+  FloatProp scale_y = 4;
+  // The clockwise Degrees that the element is rotated around the pivot point.
+  DegreesProp rotation = 5;
+  // The x offset of the point around which the element is rotated
+  // and scaled. Dynamic value is supported. By default, the pivot is centered
+  // on the element. Note that, for ArcText or ArcLine, the element inscribes the
+  // entire circle and the default pivot is located at the center of the circle.
+  PivotDimension pivot_x = 6;
+  // The y offset of the point around which the element is rotated
+  // and scaled. Dynamic value is supported. By default, the pivot is centered
+  // on the element. Note that, for ArcText or ArcLine, the element inscribes the
+  // entire circle and the default pivot is located at the center of the circle.
+  PivotDimension pivot_y = 7;
+}
+
 // Modifiers for an element. These may change the way they are drawn (e.g.
 // Padding or Background), or change their behaviour (e.g. Clickable, or
 // Semantics).
@@ -204,6 +233,14 @@ message Modifiers {
   // Note that a hidden element also cannot be clickable (i.e. a Clickable
   // modifier would be ignored).
   BoolProp visible = 10;
+
+  // The transformation applied to the element post-layout
+  Transformation transformation = 11;
+
+  // The opacity of the element with a value from 0 to 1, where 0 means
+  // the element is completely transparent and 1 means the element is
+  // completely opaque. Dynamic value is supported.
+  FloatProp opacity = 12;
 }
 
 // The content transition of an element. Any update to the element or its
@@ -366,6 +403,12 @@ message ArcModifiers {
   // Adds metadata for the modified element, for example, screen reader content
   // descriptions.
   Semantics semantics = 2;
+
+  // The transformation applied to the element post-layout
+  Transformation transformation = 3;
+
+  // The opacity of the element
+  FloatProp opacity = 4;
 }
 
 // Modifiers that can be used with Span elements. These may change the way

@@ -101,4 +101,55 @@ public class ModifiersBuildersTest {
                                                                 Color.GRAY))
                                                 .build()));
     }
+
+    @Test
+    public void buildTransformationModifier() {
+        DimensionBuilders.DpProp translation =
+                new DimensionBuilders.DpProp.Builder(42)
+                        .setDynamicValue(
+                                DynamicBuilders.DynamicFloat.from(new AppDataKey<>("some-state")))
+                        .build();
+        TypeBuilders.FloatProp scaleX = new TypeBuilders.FloatProp.Builder(0.8f).build();
+        TypeBuilders.FloatProp scaleY = new TypeBuilders.FloatProp.Builder(1.2f).build();
+        DimensionBuilders.DegreesProp rotation =
+                new DimensionBuilders.DegreesProp.Builder(210.f).build();
+        DimensionBuilders.PivotDimension pivotDimensionX =
+                new DimensionBuilders.DpProp.Builder(42)
+                        .setDynamicValue(
+                                DynamicBuilders.DynamicFloat.from(new AppDataKey<>("other-state")))
+                        .build();
+        DimensionBuilders.PivotDimension pivotDimensionY =
+                new DimensionBuilders.BoundingBoxRatio.Builder(
+                        new TypeBuilders.FloatProp.Builder(0.8f)
+                                .setDynamicValue(
+                                        DynamicBuilders.DynamicFloat.constant(0.2f))
+                                .build())
+                        .build();
+
+        ModifiersBuilders.Transformation transformationModifier=
+                new ModifiersBuilders.Transformation.Builder()
+                        .setTranslationX(translation)
+                        .setTranslationY(translation)
+                        .setRotation(rotation)
+                        .setScaleX(scaleX)
+                        .setScaleY(scaleY)
+                        .setPivotX(pivotDimensionX)
+                        .setPivotY(pivotDimensionY)
+                        .build();
+
+        ModifiersProto.Transformation transformationProto = transformationModifier.toProto();
+        assertThat(transformationProto.getTranslationX()).isEqualTo(translation.toProto());
+        assertThat(transformationProto.getTranslationY())
+                .isEqualTo(transformationProto.getTranslationX());
+        assertThat(transformationProto.getRotation()).isEqualTo(rotation.toProto());
+        assertThat(transformationProto.getScaleX()).isNotEqualTo(transformationProto.getScaleY());
+        assertThat(transformationProto.getScaleX().getValue()).isEqualTo(0.8f);
+        assertThat(transformationProto.getScaleY().getValue()).isEqualTo(1.2f);
+        assertThat(transformationProto.getPivotX())
+                .isEqualTo(pivotDimensionX.toPivotDimensionProto());
+        assertThat(transformationProto.getPivotY())
+                .isEqualTo(pivotDimensionY.toPivotDimensionProto());
+
+
+    }
 }
