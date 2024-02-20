@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -60,6 +61,7 @@ fun KeyboardOptionsDemos() {
         item { Item(KeyboardType.NumberPassword) }
         item { ShowKeyboardOnFocus(true) }
         item { ShowKeyboardOnFocus(false) }
+        item { HintLocaleDemo(LocaleList("de")) }
     }
 }
 
@@ -104,6 +106,22 @@ private fun ShowKeyboardOnFocus(showKeyboardOnFocus: Boolean) {
         Button(onClick = { focusRequester.requestFocus() }) {
             BasicText("Focus me", style = LocalTextStyle.current)
         }
+    }
+}
+
+@Composable
+private fun HintLocaleDemo(localeList: LocaleList) {
+    Column {
+        TagLine(tag = "Hints IME Locale: $localeList")
+
+        val state = remember { TextFieldState("") }
+        BasicTextField(
+            modifier = demoTextFieldModifiers,
+            state = state,
+            keyboardOptions = KeyboardOptions(
+                hintLocales = localeList
+            )
+        )
     }
 }
 
