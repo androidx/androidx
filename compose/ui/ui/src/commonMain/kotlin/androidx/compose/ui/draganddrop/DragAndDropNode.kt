@@ -20,10 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction.CancelTraversal
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction.ContinueTraversal
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.traverseDescendants
@@ -112,23 +116,6 @@ internal class DragAndDropNode(
     DragAndDropModifierNode {
     companion object {
         private object DragAndDropTraversableKey
-
-        private inline fun DragAndDropModifierNode.firstChildOrNull(
-            crossinline predicate: (DragAndDropModifierNode) -> Boolean
-        ): DragAndDropModifierNode? {
-            // TODO: b/303904810 unattached nodes should not be found from an attached
-            //  root drag and drop node
-            if (!node.isAttached) return null
-            var match: DragAndDropModifierNode? = null
-            traverseDescendants(DragAndDropTraversableKey) { child ->
-                if (child is DragAndDropModifierNode && predicate(child)) {
-                    match = child
-                    return@traverseDescendants TraverseDescendantsAction.CancelTraversal
-                }
-                TraverseDescendantsAction.ContinueTraversal
-            }
-            return match
-        }
     }
 
     override val traverseKey: Any = DragAndDropTraversableKey
@@ -163,31 +150,30 @@ internal class DragAndDropNode(
     }
 
     override fun acceptDragAndDropTransfer(startEvent: DragAndDropEvent): Boolean {
-        // TODO: b/303904810 unattached nodes should not be found from an attached
-        //  root drag and drop node
-        if (!isAttached) return false
-
-        check(thisDragAndDropTarget == null) {
-            "DragAndDropTarget self reference must be null at the start of a drag and drop session"
-        }
-
-        // Start receiving events
-        thisDragAndDropTarget = onDragAndDropStart(startEvent)
-
-        var handledByChild = false
-
-        // TODO(b/324935431) Use flatter API when available
-        traverseDescendants { child ->
-            handledByChild = handledByChild or child.acceptDragAndDropTransfer(
-                startEvent = startEvent,
-            ).also { accepted ->
-                if (accepted) requireOwner().dragAndDropManager.registerNodeInterest(child)
+        var handled = false
+        traverseSelfAndDescendants { currentNode ->
+            // TODO: b/303904810 unattached nodes should not be found from an attached
+            //  root drag and drop node
+            if (!currentNode.isAttached) {
+                return@traverseSelfAndDescendants SkipSubtreeAndContinueTraversal
             }
-            // Only find the first descendant in any trees
-            TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
-        }
 
-        return handledByChild || thisDragAndDropTarget != null
+            checkPrecondition(currentNode.thisDragAndDropTarget == null) {
+                "DragAndDropTarget self reference must be null" +
+                    " at the start of a drag and drop session"
+            }
+
+            // Start receiving events
+            currentNode.thisDragAndDropTarget = currentNode.onDragAndDropStart(startEvent)
+
+            val accepted = currentNode.thisDragAndDropTarget != null
+            if (accepted) {
+                requireOwner().dragAndDropManager.registerNodeInterest(currentNode)
+            }
+            handled = handled || accepted
+            ContinueTraversal
+        }
+        return handled
     }
 
     // end DragAndDropModifierNode
@@ -214,7 +200,7 @@ internal class DragAndDropNode(
             // Moved within child.
             currentChildNode?.contains(event.positionInRoot) == true -> currentChildNode
             // Position is now outside active child, maybe it entered a different one.
-            else -> firstChildOrNull { child ->
+            else -> firstDescendantOrNull { child ->
                 // Only dispatch to children who previously accepted the onStart gesture
                 requireOwner().dragAndDropManager.isInterestedNode(child) &&
                     child.contains(event.positionInRoot)
@@ -268,20 +254,16 @@ internal class DragAndDropNode(
         }
     }
 
-    override fun onEnded(event: DragAndDropEvent) {
+    override fun onEnded(event: DragAndDropEvent) = traverseSelfAndDescendants { currentNode ->
         // TODO: b/303904810 unattached nodes should not be found from an attached
         //  root drag and drop node
-        if (!node.isAttached) return
-
-        // TODO(b/324935431) Use flatter API when available
-        traverseDescendants { child ->
-            child.onEnded(event = event)
-            // Only find the first descendant in any trees
-            TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
+        if (!currentNode.node.isAttached) {
+            return@traverseSelfAndDescendants SkipSubtreeAndContinueTraversal
         }
-        thisDragAndDropTarget?.onEnded(event = event)
-        thisDragAndDropTarget = null
-        lastChildDragAndDropModifierNode = null
+        currentNode.thisDragAndDropTarget?.onEnded(event = event)
+        currentNode.thisDragAndDropTarget = null
+        currentNode.lastChildDragAndDropModifierNode = null
+        ContinueTraversal
     }
     // end DropTarget
 }
@@ -307,4 +289,28 @@ private fun DragAndDropModifierNode.contains(position: Offset): Boolean {
     val y2 = y1 + height
 
     return position.x in x1..x2 && position.y in y1..y2
+}
+
+private fun <T : TraversableNode> T.traverseSelfAndDescendants(
+    block: (T) -> TraverseDescendantsAction
+) {
+    if (block(this) != ContinueTraversal) return
+    traverseDescendants(block)
+}
+
+private inline fun <T : TraversableNode> T.firstDescendantOrNull(
+    crossinline predicate: (T) -> Boolean
+): T? {
+    // TODO: b/303904810 unattached nodes should not be found from an attached
+    //  root drag and drop node
+    if (!node.isAttached) return null
+    var match: T? = null
+    traverseDescendants { child ->
+        if (predicate(child)) {
+            match = child
+            return@traverseDescendants CancelTraversal
+        }
+        ContinueTraversal
+    }
+    return match
 }
