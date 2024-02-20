@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-@file:JvmName("KClassUtil")
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
-import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
 /**

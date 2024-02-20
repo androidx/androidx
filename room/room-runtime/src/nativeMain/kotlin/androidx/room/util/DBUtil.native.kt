@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-@file:JvmMultifileClass
-@file:JvmName("DBUtil")
-
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
 import androidx.sqlite.SQLiteStatement
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
 
 /**
  * Performs a single database read operation.
