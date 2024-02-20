@@ -87,9 +87,10 @@ public class RemoteListenableWorkerTest {
             .setTaskExecutor(mExecutor)
             .setWorkerFactory(workerFactory)
             .build()
-        mTaskExecutor = mock(TaskExecutor::class.java)
-        `when`(mTaskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
-        `when`(mTaskExecutor.mainThreadExecutor).thenReturn(mExecutor)
+        mTaskExecutor = object : TaskExecutor {
+            override fun getMainThreadExecutor() = mExecutor
+            override fun getSerialTaskExecutor() = SerialExecutorImpl(mExecutor)
+        }
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
