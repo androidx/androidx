@@ -152,7 +152,7 @@ private fun DemoRadioButton(
             }
         },
         selected = selected,
-        onSelected = onSelected,
+        onSelect = onSelected,
         enabled = enabled,
     )
 }

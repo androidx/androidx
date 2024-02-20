@@ -89,7 +89,7 @@ fun ToggleChipWithRadioButton() {
             Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
         selected = selected,
-        onSelected = { selected = it },
+        onSelect = { selected = it },
         appIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
@@ -137,7 +137,7 @@ fun SplitToggleChipWithRadioButton() {
             Text("Split with RadioButton", maxLines = 3, overflow = TextOverflow.Ellipsis)
         },
         selected = selected,
-        onSelected = { selected = it },
+        onSelect = { selected = it },
         onClick = {
             /* Do something */
         },

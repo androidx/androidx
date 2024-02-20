@@ -77,7 +77,7 @@ private fun RadioDemo(
             Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         selected = selected,
-        onSelected = onSelected,
+        onSelect = onSelected,
         enabled = enabled,
     )
 }

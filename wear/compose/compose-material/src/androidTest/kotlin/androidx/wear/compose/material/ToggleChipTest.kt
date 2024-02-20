@@ -79,7 +79,7 @@ class ToggleChipBehaviourTest {
         rule.setContentWithTheme {
             ToggleChip(
                 selected = true,
-                onSelected = {},
+                onSelect = {},
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
@@ -110,7 +110,7 @@ class ToggleChipBehaviourTest {
         rule.setContentWithTheme {
             SplitToggleChip(
                 selected = true,
-                onSelected = {},
+                onSelect = {},
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 onClick = {},
@@ -222,7 +222,7 @@ class ToggleChipBehaviourTest {
         rule.setContentWithTheme {
             ToggleChip(
                 selected = true,
-                onSelected = {},
+                onSelect = {},
                 label = { Text("Label") },
                 modifier = Modifier.testTag(TEST_TAG),
                 selectionControl = { TestImage() },
@@ -237,7 +237,7 @@ class ToggleChipBehaviourTest {
         rule.setContentWithTheme {
             SplitToggleChip(
                 selected = true,
-                onSelected = {},
+                onSelect = {},
                 label = { Text("Label") },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG),
@@ -365,7 +365,7 @@ class ToggleChipBehaviourTest {
         rule.setContentWithTheme {
             ToggleChip(
                 selected = true,
-                onSelected = {},
+                onSelect = {},
                 label = { Text("Label") },
                 modifier = Modifier.testTag(TEST_TAG),
                 selectionControl = { TestImage() },
@@ -380,7 +380,7 @@ class ToggleChipBehaviourTest {
         rule.setContentWithTheme {
             SplitToggleChip(
                 selected = true,
-                onSelected = {},
+                onSelect = {},
                 label = { Text("Label") },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG),
@@ -427,7 +427,7 @@ class ToggleChipBehaviourTest {
         rule.setContentWithTheme {
             ToggleChip(
                 selected = false,
-                onSelected = {},
+                onSelect = {},
                 label = { Text("Label") },
                 modifier = Modifier.testTag(TEST_TAG),
                 selectionControl = { TestImage() },
@@ -442,7 +442,7 @@ class ToggleChipBehaviourTest {
         rule.setContentWithTheme {
             SplitToggleChip(
                 selected = false,
-                onSelected = {},
+                onSelect = {},
                 label = { Text("Label") },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG),
@@ -503,7 +503,7 @@ class ToggleChipBehaviourTest {
             val (selected, onSelected) = remember { mutableStateOf(false) }
             ToggleChip(
                 selected = selected,
-                onSelected = onSelected,
+                onSelect = onSelected,
                 label = { Text("Label") },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG),
@@ -524,7 +524,7 @@ class ToggleChipBehaviourTest {
             val (selected, onSelected) = remember { mutableStateOf(false) }
             SplitToggleChip(
                 selected = selected,
-                onSelected = onSelected,
+                onSelect = onSelected,
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 enabled = true,
@@ -635,7 +635,7 @@ class ToggleChipBehaviourTest {
             val (selected, onSelected) = remember { mutableStateOf(false) }
             ToggleChip(
                 selected = selected,
-                onSelected = onSelected,
+                onSelect = onSelected,
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 enabled = false,
@@ -656,7 +656,7 @@ class ToggleChipBehaviourTest {
             val (selected, onSelected) = remember { mutableStateOf(false) }
             SplitToggleChip(
                 selected = selected,
-                onSelected = onSelected,
+                onSelect = onSelected,
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 enabled = false,
