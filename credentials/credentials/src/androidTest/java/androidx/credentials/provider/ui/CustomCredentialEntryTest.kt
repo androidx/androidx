@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.service.credentials.CredentialEntry
+import androidx.credentials.CredentialOption
 import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetCredentialOption
@@ -35,6 +36,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import org.junit.Assert
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -225,7 +227,7 @@ class CustomCredentialEntryTest {
     @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_requiredParams_success() {
         val originalEntry = constructEntryWithRequiredParams()
-        val slice = CustomCredentialEntry.toSlice(
+        val slice = toSlice(
             originalEntry)
         assertNotNull(slice)
         val entry = fromSlice(slice!!)
@@ -261,6 +263,61 @@ class CustomCredentialEntryTest {
         assertNotNull(entry)
         assertEntryWithAllParamsFromSlice(entry!!)
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun isDefaultIcon_noIconSet_returnsTrue() {
+        val entry = CustomCredentialEntry.Builder(
+            mContext,
+            TYPE,
+            TITLE,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+        Assert.assertTrue(entry.hasDefaultIcon)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun isDefaultIcon_customIcon_returnsFalse() {
+        val entry = CustomCredentialEntry.Builder(
+            mContext,
+            TYPE,
+            TITLE,
+            mPendingIntent,
+            BEGIN_OPTION
+        )
+            .setIcon(ICON).build()
+        Assert.assertFalse(entry.hasDefaultIcon)
+    }
+
+    @Test
+    fun isAutoSelectAllowedFromOption_optionAllows_returnsTrue() {
+        BEGIN_OPTION.candidateQueryData.putBoolean(
+            CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, true
+        )
+        val entry = CustomCredentialEntry.Builder(
+            mContext,
+            TYPE,
+            TITLE,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+        Assert.assertTrue(entry.isAutoSelectAllowedFromOption)
+    }
+
+    @Test
+    fun isAutoSelectAllowedFromOption_optionDisallows_returnsFalse() {
+        val entry = CustomCredentialEntry.Builder(
+            mContext,
+            TYPE,
+            TITLE,
+            mPendingIntent,
+            BEGIN_OPTION
+        ).build()
+        Assert.assertFalse(entry.isAutoSelectAllowedFromOption)
+    }
+
     private fun constructEntryWithRequiredParams(): CustomCredentialEntry {
         return CustomCredentialEntry(
             mContext,

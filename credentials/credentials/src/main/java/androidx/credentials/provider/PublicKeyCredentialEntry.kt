@@ -59,15 +59,15 @@ import java.util.Collections
  * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
  * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
  * times
- * @property isAutoSelectAllowed whether this entry is allowed to be auto
- * selected if it is the only one on the UI. Note that setting this value
- * to true does not guarantee this behavior. The developer must also set this to true, and the
- * framework must determine that this is the only entry available for the user.
  * @property affiliatedDomain the user visible affiliated domain, a CharSequence
  * representation of a web domain or an app package name that the given credential in this
  * entry is associated with when it is different from the requesting entity, default null
  * @property entryGroupId an ID used for deduplication or grouping entries during display, always
  * set to [username]; for more info on this id, see [CredentialEntry]
+ * @property isAutoSelectAllowedFromOption whether the [beginGetCredentialOption] request
+ * for which this entry was created allows this entry to be auto-selected
+ * @property hasDefaultIcon whether this entry was created without a custom icon and hence
+ * contains a default icon set by the library, only to be used in Android API levels >= 28
  *
  * @throws IllegalArgumentException If [username] is empty
  *
@@ -86,8 +86,11 @@ class PublicKeyCredentialEntry internal constructor(
     entryGroupId: CharSequence? = username,
     affiliatedDomain: CharSequence? = null,
     isDefaultIconPreferredAsSingleProvider: Boolean,
-    private val autoSelectAllowedFromOption: Boolean = false,
-    private val isDefaultIcon: Boolean = false
+    autoSelectAllowedFromOption: Boolean = CredentialOption.extractAutoSelectValue(
+        beginGetPublicKeyCredentialOption.candidateQueryData
+    ),
+    private val isCreatedFromSlice: Boolean = false,
+    private val isDefaultIconFromSlice: Boolean = false
 ) : CredentialEntry(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     beginGetPublicKeyCredentialOption,
@@ -95,6 +98,16 @@ class PublicKeyCredentialEntry internal constructor(
     affiliatedDomain,
     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
 ) {
+    val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
+
+    @get:JvmName("hasDefaultIcon")
+    val hasDefaultIcon: Boolean
+        get() {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.isDefaultIcon(this)
+            }
+            return false
+        }
 
     init {
         require(username.isNotEmpty()) { "username must not be empty" }
@@ -226,6 +239,16 @@ class PublicKeyCredentialEntry internal constructor(
     private object Api28Impl {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
+        fun isDefaultIcon(entry: PublicKeyCredentialEntry): Boolean {
+            if (entry.isCreatedFromSlice) {
+                return entry.isDefaultIconFromSlice
+            }
+            return entry.icon.type == Icon.TYPE_RESOURCE &&
+                entry.icon.resId == R.drawable.ic_passkey
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
         fun toSlice(
             entry: PublicKeyCredentialEntry
         ): Slice {
@@ -296,7 +319,7 @@ class PublicKeyCredentialEntry internal constructor(
                     listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
                 )
             try {
-                if (icon.resId == R.drawable.ic_passkey) {
+                if (entry.hasDefaultIcon) {
                     sliceBuilder.addInt(
                         /*true=*/1,
                         /*subType=*/null,
@@ -306,10 +329,7 @@ class PublicKeyCredentialEntry internal constructor(
             } catch (_: IllegalStateException) {
             }
 
-            if (CredentialOption.extractAutoSelectValue(
-                    beginGetPublicKeyCredentialOption.candidateQueryData
-                )
-            ) {
+            if (entry.isAutoSelectAllowedFromOption) {
                 sliceBuilder.addInt(
                     /*true=*/1,
                     /*subType=*/null,
@@ -394,22 +414,24 @@ class PublicKeyCredentialEntry internal constructor(
 
             return try {
                 PublicKeyCredentialEntry(
-                    title!!,
-                    subtitle,
-                    typeDisplayName!!,
-                    pendingIntent!!,
-                    icon!!,
-                    lastUsedTime,
-                    autoSelectAllowed,
-                    BeginGetPublicKeyCredentialOption.createFromEntrySlice(
-                        Bundle(),
-                        beginGetPublicKeyCredentialOptionId!!.toString()
-                    ),
+                    username = title!!,
+                    displayName = subtitle,
+                    typeDisplayName = typeDisplayName!!,
+                    pendingIntent = pendingIntent!!,
+                    icon = icon!!,
+                    lastUsedTime = lastUsedTime,
+                    isAutoSelectAllowed = autoSelectAllowed,
+                    beginGetPublicKeyCredentialOption = BeginGetPublicKeyCredentialOption
+                        .createFromEntrySlice(
+                            Bundle(),
+                            beginGetPublicKeyCredentialOptionId!!.toString(),
+                        ),
                     entryGroupId = entryGroupId,
                     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
                     affiliatedDomain = affiliatedDomain,
                     autoSelectAllowedFromOption = autoSelectAllowedFromOption,
-                    isDefaultIcon = isDefaultIcon,
+                    isCreatedFromSlice = true,
+                    isDefaultIconFromSlice = isDefaultIcon,
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
