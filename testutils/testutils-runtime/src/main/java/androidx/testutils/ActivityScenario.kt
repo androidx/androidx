@@ -17,7 +17,6 @@
 package androidx.testutils
 
 import android.app.Activity
-import androidx.fragment.app.FragmentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import java.io.Closeable
@@ -46,16 +45,6 @@ inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
     }
     err?.let { throw it }
     return value
-}
-
-inline fun <reified A : FragmentActivity> ActivityScenario<A>.waitForExecution(cycles: Int = 2) {
-    try {
-        for (i in 0 until cycles) {
-            withActivity {}
-        }
-    } catch (throwable: Throwable) {
-        throw RuntimeException(throwable)
-    }
 }
 
 /**
