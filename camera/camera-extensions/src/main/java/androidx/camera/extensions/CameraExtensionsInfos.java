@@ -35,6 +35,7 @@ class CameraExtensionsInfos {
     /**
      * Returns a {@link CameraExtensionsInfo} instance converted from a {@link CameraInfo} object.
      */
+    @NonNull
     static CameraExtensionsInfo from(@NonNull CameraInfo cameraInfo) {
         Preconditions.checkArgument(cameraInfo instanceof RestrictedCameraInfo, "The input camera"
                 + " info must be an instance retrieved from the camera that is returned "

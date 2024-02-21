@@ -17,7 +17,6 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.lifecycle.LiveData;
 
@@ -29,11 +28,10 @@ import androidx.lifecycle.LiveData;
  * method to acquire a CameraExtensionsInfo object for observing extension-specific settings and
  * results.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface CameraExtensionsInfo {
 
     /**
-     * Returns whether extension strength is supported for the extensions enabled camera
+     * Returns whether extension strength is supported for the extensions-enabled camera that is
      * associated with the CameraExtensionsInfo.
      *
      * <p>When extension strength is supported, applications can change the strength setting via
@@ -47,8 +45,8 @@ public interface CameraExtensionsInfo {
     }
 
     /**
-     * Returns a {@link LiveData} which is allowed to observe the extension strength changes for
-     * the extensions enabled camera associated with the CameraExtensionsInfo.
+     * Returns a {@link LiveData} which observes the extension strength changes for the
+     * extensions-enabled camera that is associated with the CameraExtensionsInfo.
      *
      * <p>This is only available when {@link #isExtensionStrengthAvailable()} returns {@code true
      * }. When this is supported, the extension strength value will range from 0 to 100 and will
@@ -64,8 +62,8 @@ public interface CameraExtensionsInfo {
     }
 
     /**
-     * Returns whether current extension type is supported for the extensions enabled camera
-     * associated with the CameraExtensionsInfo.
+     * Returns whether reporting the currently active extension type is supported for the
+     * extensions-enabled camera that is associated with the CameraExtensionsInfo.
      *
      * <p>When current extension type is supported, applications can observe the current extension
      * value changes via the {@link LiveData} object returned by {@link #getCurrentExtensionType()}.
@@ -78,8 +76,8 @@ public interface CameraExtensionsInfo {
     }
 
     /**
-     * Returns a {@link LiveData} which is allowed to observe the extension type changes for
-     * the extensions enabled camera associated with the CameraExtensionsInfo.
+     * Returns a {@link LiveData} which observes the extension type changes for the
+     * extensions-enabled camera that is associated with the CameraExtensionsInfo.
      *
      * <p>This is only available when {@link #isCurrentExtensionTypeAvailable()} returns {@code
      * true}. When this is supported, the initial value will be equal to the extension type the

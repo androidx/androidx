@@ -798,6 +798,25 @@ class ExtensionsManagerTest(
         assertThat(cameraExtensionsInfo.extensionStrength).isNull()
     }
 
+    @Test
+    fun retrievesCameraExtensionsControlFromCameraControl(): Unit = runBlocking {
+        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
+
+        // Retrieves null CameraExtensionsControl from normal mode camera's CameraControl
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), baseCameraSelector)
+        }.also {
+            assertThat(extensionsManager.getCameraExtensionsControl(it.cameraControl)).isNull()
+        }
+
+        // Retrieves non-null CameraExtensionsControl from extensions-enabled camera's CameraControl
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }.also {
+            assertThat(extensionsManager.getCameraExtensionsControl(it.cameraControl)).isNotNull()
+        }
+    }
+
     private fun isExtensionAvailableByCameraInfo(cameraInfo: CameraInfo): Boolean {
         var vendorExtender = ExtensionsTestUtil.createVendorExtender(extensionMode)
         val cameraId = (cameraInfo as CameraInfoInternal).cameraId

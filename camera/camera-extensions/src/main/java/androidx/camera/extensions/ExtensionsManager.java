@@ -518,15 +518,13 @@ public final class ExtensionsManager {
      * Retrieves a {@link CameraExtensionsControl} object that allows customization of capture
      * request settings for supported camera extensions.
      *
-     * <p>If the provided {@link CameraControl} doesn't represent a camera with enabled
-     * extensions, a no-op {@link CameraExtensionsControl} will be returned.
-     *
      * @param cameraControl the camera control for a camera with a specific extension mode turned
      *                     on.
-     * @return a {@link CameraExtensionsControl} object to manage extension-related settings.
+     * @return a {@link CameraExtensionsControl} object to manage extension-related settings. Or
+     * returns {@code null} if the provided {@link CameraControl} doesn't represent a camera with
+     * enabled extensions.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @NonNull
+    @Nullable
     public CameraExtensionsControl getCameraExtensionsControl(
             @NonNull CameraControl cameraControl) {
         return CameraExtensionsControls.from(cameraControl);
@@ -536,15 +534,14 @@ public final class ExtensionsManager {
      * Retrieves a {@link CameraExtensionsInfo} object that allows to observe or monitor capture
      * request settings and results for supported camera extensions.
      *
-     * <p>If the provided {@link CameraControl} doesn't represent a camera with enabled
-     * extensions, a placeholder {@link CameraExtensionsInfo} object will be returned, indicating
-     * no extension type and strength support.
+     * <p>If the provided {@link CameraInfo} doesn't represent a camera with enabled extensions, a
+     * placeholder {@link CameraExtensionsInfo} object will be returned, indicating no extension
+     * type and strength support.
      *
      * @param cameraInfo the camera info for a camera with a specific extension mode turned on.
      * @return a {@link CameraExtensionsInfo} object for observing extension-specific capture
      * request settings and results.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public CameraExtensionsInfo getCameraExtensionsInfo(@NonNull CameraInfo cameraInfo) {
         return CameraExtensionsInfos.from(cameraInfo);
