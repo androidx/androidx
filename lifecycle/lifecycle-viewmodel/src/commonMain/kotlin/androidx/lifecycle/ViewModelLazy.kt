@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.lifecycle
 
 import androidx.lifecycle.viewmodel.CreationExtras
+import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 /**
@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  * [factoryProducer] is a lambda that will be called during initialization,
  * returned [ViewModelProvider.Factory] will be used for creation of [VM]
  *
- * [providerOwner] is a lambda that will be called during initialization,
+ * [extrasProducer] is a lambda that will be called during initialization,
  * returned [HasDefaultViewModelProviderFactory] will get [CreationExtras] used for creation of [VM]
  */
 public class ViewModelLazy<VM : ViewModel> @JvmOverloads constructor(
@@ -44,15 +44,12 @@ public class ViewModelLazy<VM : ViewModel> @JvmOverloads constructor(
         get() {
             val viewModel = cached
             return if (viewModel == null) {
-                val factory = factoryProducer()
                 val store = storeProducer()
-                ViewModelProvider(
-                    store,
-                    factory,
-                    extrasProducer()
-                ).get(viewModelClass.java).also {
-                    cached = it
-                }
+                val factory = factoryProducer()
+                val extras = extrasProducer()
+                ViewModelProvider.create(store, factory, extras)
+                    .get(viewModelClass)
+                    .also { cached = it }
             } else {
                 viewModel
             }
