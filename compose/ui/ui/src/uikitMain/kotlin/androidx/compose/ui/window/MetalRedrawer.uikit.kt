@@ -37,6 +37,8 @@ import org.jetbrains.skia.Rect
 import platform.Foundation.NSLock
 import platform.Foundation.NSRunLoopCommonModes
 import platform.Foundation.NSTimeInterval
+import platform.Metal.MTLCommandQueueProtocol
+import platform.Metal.MTLDeviceProtocol
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationState
 
@@ -197,8 +199,7 @@ internal class MetalRedrawer(
     @Suppress("USELESS_CAST")
     private val device = metalLayer.device as platform.Metal.MTLDeviceProtocol?
         ?: throw IllegalStateException("CAMetalLayer.device can not be null")
-    private val queue = device.newCommandQueue()
-        ?: throw IllegalStateException("Couldn't create Metal command queue")
+    private val queue = getCachedCommandQueue(device)
     private val context = DirectContext.makeMetal(device.objcPtr(), queue.objcPtr())
     private var lastRenderTimestamp: NSTimeInterval = CACurrentMediaTime()
     private val pictureRecorder = PictureRecorder()
@@ -299,6 +300,8 @@ internal class MetalRedrawer(
 
     fun dispose() {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
+
+        releaseCachedCommandQueue(queue)
 
         applicationStateListener.dispose()
 
@@ -461,6 +464,46 @@ internal class MetalRedrawer(
     companion object {
         private val renderingDispatchQueue =
             dispatch_queue_create("RenderingDispatchQueue", null)
+
+        private class CachedCommandQueue(
+            val queue: MTLCommandQueueProtocol,
+            var refCount: Int = 1
+        )
+
+        /**
+         * Cached command queue record. Assumed to be associated with default MTLDevice.
+         */
+        private var cachedCommandQueue: CachedCommandQueue? = null
+
+        /**
+         * Get an existing command queue associated with the device or create a new one and cache it.
+         * Assumed to be run on the main thread.
+         */
+        private fun getCachedCommandQueue(device: MTLDeviceProtocol): MTLCommandQueueProtocol {
+            val cached = cachedCommandQueue
+            if (cached != null) {
+                cached.refCount++
+                return cached.queue
+            } else {
+                val queue = device.newCommandQueue() ?: throw IllegalStateException("MTLDevice.newCommandQueue() returned null")
+                cachedCommandQueue = CachedCommandQueue(queue)
+                return queue
+            }
+        }
+
+        /**
+         * Release the cached command queue. Release the cache if refCount reaches 0.
+         * Assumed to be run on the main thread.
+         */
+        private fun releaseCachedCommandQueue(queue: MTLCommandQueueProtocol) {
+            val cached = cachedCommandQueue ?: return
+            if (cached.queue == queue) {
+                cached.refCount--
+                if (cached.refCount == 0) {
+                    cachedCommandQueue = null
+                }
+            }
+        }
     }
 }
 
