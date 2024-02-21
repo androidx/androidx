@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 @file:JvmName("StringUtil")
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 
 package androidx.room.util
 
-import android.util.Log
 import androidx.annotation.RestrictTo
-import java.lang.NumberFormatException
-import java.lang.StringBuilder
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmName
 
 @Suppress("unused")
 @JvmField
+@Deprecated("No longer used by generated code")
 val EMPTY_STRING_ARRAY = arrayOfNulls<String>(0)
 
 /**
@@ -32,10 +33,8 @@ val EMPTY_STRING_ARRAY = arrayOfNulls<String>(0)
  *
  * @return A new or recycled StringBuilder
  */
-fun newStringBuilder(): StringBuilder {
-    // TODO pool:
-    return StringBuilder()
-}
+@Deprecated("No longer used by generated code")
+fun newStringBuilder(): StringBuilder = StringBuilder()
 
 /**
  * Adds bind variable placeholders (?) to the given string. Each placeholder is separated
@@ -56,7 +55,6 @@ fun appendPlaceholders(builder: StringBuilder, count: Int) {
 /**
  * Splits a comma separated list of integers to integer list.
  *
- *
  * If an input is malformed, it is omitted from the result.
  *
  * @param input Comma separated list of integers.
@@ -67,7 +65,6 @@ fun splitToIntList(input: String?): List<Int>? {
         try {
             item.toInt()
         } catch (ex: NumberFormatException) {
-            Log.e("ROOM", "Malformed integer list", ex)
             null
         }
     }
