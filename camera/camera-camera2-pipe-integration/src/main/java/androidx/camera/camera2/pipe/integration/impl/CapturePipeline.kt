@@ -39,6 +39,7 @@ import android.hardware.camera2.CameraCharacteristics.CONTROL_AE_STATE_FLASH_REQ
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureResult
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
@@ -84,6 +85,7 @@ import kotlinx.coroutines.launch
 
 private val CHECK_3A_TIMEOUT_IN_NS = TimeUnit.SECONDS.toNanos(1)
 private val CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS = TimeUnit.SECONDS.toNanos(5)
+private val CHECK_3A_WITH_SCREEN_FLASH_TIMEOUT_IN_NS = TimeUnit.SECONDS.toNanos(2)
 
 interface CapturePipeline {
 
@@ -105,6 +107,7 @@ interface CapturePipeline {
 @UseCaseCameraScope
 class CapturePipelineImpl @Inject constructor(
     private val configAdapter: CaptureConfigAdapter,
+    private val flashControl: FlashControl,
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val requestListener: ComboRequestListener,
@@ -128,10 +131,20 @@ class CapturePipelineImpl @Inject constructor(
         @CaptureMode captureMode: Int,
         @FlashType flashType: Int,
         @FlashMode flashMode: Int,
-    ): List<Deferred<Void?>> = if (isTorchAsFlash(flashType)) {
-        torchAsFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode, flashMode)
-    } else {
-        defaultCapture(configs, requestTemplate, sessionConfigOptions, captureMode, flashMode)
+    ): List<Deferred<Void?>> {
+        return if (flashMode == FLASH_MODE_SCREEN) {
+            screenFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
+        } else if (isTorchAsFlash(flashType)) {
+            torchAsFlashCapture(
+                configs,
+                requestTemplate,
+                sessionConfigOptions,
+                captureMode,
+                flashMode
+            )
+        } else {
+            defaultCapture(configs, requestTemplate, sessionConfigOptions, captureMode, flashMode)
+        }
     }
 
     private suspend fun torchAsFlashCapture(
@@ -142,7 +155,7 @@ class CapturePipelineImpl @Inject constructor(
         @FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#torchAsFlashCapture" }
-        return if (hasFlashUnit && isFlashRequired(flashMode)) {
+        return if (hasFlashUnit && isPhysicalFlashRequired(flashMode)) {
             torchApplyCapture(
                 configs,
                 requestTemplate,
@@ -163,7 +176,7 @@ class CapturePipelineImpl @Inject constructor(
         @FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
         return if (hasFlashUnit) {
-            val isFlashRequired = isFlashRequired(flashMode)
+            val isFlashRequired = isPhysicalFlashRequired(flashMode)
             val timeout =
                 if (isFlashRequired) CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS else CHECK_3A_TIMEOUT_IN_NS
 
@@ -294,6 +307,75 @@ class CapturePipelineImpl @Inject constructor(
                     debug { "CapturePipeline#aePreCaptureApplyCapture: Unlocking 3A done" }
                 }
             }
+        }
+    }
+
+    private suspend fun screenFlashCapture(
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
+        @CaptureMode captureMode: Int,
+    ): List<Deferred<Void?>> {
+        debug { "CapturePipeline#screenFlashCapture" }
+
+        invokeScreenFlashPreCaptureTasks(captureMode)
+
+        return submitRequestInternal(
+            configs,
+            requestTemplate,
+            sessionConfigOptions
+        ).also { captureSignal ->
+            // new coroutine launch to return the submitRequestInternal deferred early
+            threads.sequentialScope.launch {
+                debug { "CapturePipeline#screenFlashCapture: Waiting for capture signal" }
+                captureSignal.joinAll()
+                debug {
+                    "CapturePipeline#screenFlashCapture: Done waiting for capture signal"
+                }
+
+                invokeScreenFlashPostCaptureTasks(captureMode)
+            }
+        }
+    }
+
+    /**
+     * Invokes the pre-capture tasks required for a screen flash capture.
+     *
+     * This method may modify the preferred AE mode in [State3AControl] to enable external flash AE
+     * mode. [invokeScreenFlashPostCaptureTasks] should be used to restore the previous AE mode in
+     * such case.
+     *
+     * @return The previous preferred AE mode in [State3AControl], null if not modified.
+     */
+    @VisibleForTesting
+    suspend fun invokeScreenFlashPreCaptureTasks(@CaptureMode captureMode: Int) {
+        flashControl.startScreenFlashCaptureTasks()
+
+        graph.acquireSession().use { session ->
+            // Trigger AE precapture & wait for 3A converge
+            debug { "screenFlashPreCapture: Locking 3A for capture" }
+            val result3A = session.lock3AForCapture(
+                timeLimitNs = CHECK_3A_WITH_SCREEN_FLASH_TIMEOUT_IN_NS,
+                triggerAf = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY,
+                waitForAwb = true,
+            ).await()
+            debug { "screenFlashPreCapture: Locking 3A for capture done, result3A = $result3A" }
+        }
+    }
+
+    @VisibleForTesting
+    suspend fun invokeScreenFlashPostCaptureTasks(
+        @CaptureMode captureMode: Int
+    ) {
+        flashControl.stopScreenFlashCaptureTasks()
+
+        // Unlock 3A
+        debug { "screenFlashPostCapture: Acquiring session for unlocking 3A" }
+        graph.acquireSession().use { session ->
+            debug { "screenFlashPostCapture: Unlocking 3A" }
+            @Suppress("DeferredResultUnused")
+            session.unlock3APostCapture(cancelAf = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY)
+            debug { "screenFlashPostCapture: Unlocking 3A done" }
         }
     }
 
@@ -473,7 +555,7 @@ class CapturePipelineImpl @Inject constructor(
         return deferredList
     }
 
-    private suspend fun isFlashRequired(@FlashMode flashMode: Int): Boolean =
+    private suspend fun isPhysicalFlashRequired(@FlashMode flashMode: Int): Boolean =
         when (flashMode) {
             FLASH_MODE_ON -> true
             FLASH_MODE_AUTO -> {
@@ -484,7 +566,6 @@ class CapturePipelineImpl @Inject constructor(
 
             FLASH_MODE_OFF -> false
 
-            // TODO: b/325899701 - Turn it on once screen flash is supported.
             FLASH_MODE_SCREEN -> false
             else -> throw AssertionError(flashMode)
         }

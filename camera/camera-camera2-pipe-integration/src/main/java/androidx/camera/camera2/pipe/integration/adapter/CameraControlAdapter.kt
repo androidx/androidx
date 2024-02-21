@@ -129,6 +129,10 @@ class CameraControlAdapter @Inject constructor(
         flashControl.setFlashAsync(flashMode)
     }
 
+    override fun setScreenFlash(screenFlash: ImageCapture.ScreenFlash?) {
+        flashControl.setScreenFlash(screenFlash)
+    }
+
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =
         Futures.nonCancellationPropagating(
             evCompControl.updateAsync(exposure).asListenableFuture()
