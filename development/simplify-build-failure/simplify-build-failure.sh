@@ -291,7 +291,9 @@ if [ "$gradleCommand" != "" ]; then
     # process output and split into files
     mkdir -p "$allTasks"
     taskListFile="$allTasksWork/tasklist"
-    cat "$allTasksWork/log" | grep '^:' | sed 's/ .*//' > "$taskListFile"
+    # A task line will start with one or more project names separated by ":", then have a task name, and lastly either end of line or " " followed by a status (like UP-TO-DATE)
+    # We want the task path so we search for task lines and remove any trailing status
+    cat "$allTasksWork/log" | grep '^\(:[a-zA-Z0-9\-]\+\)\+\( \|$\)' | sed 's/ .*//' > "$taskListFile"
     bash -c "cd $allTasks && split -l 1 '$taskListFile'"
     # also include the original tasks in case either we failed to compute the list of tasks (due to the build failing during project configuration) or there are too many tasks to fit in one command line invocation
     bash -c "cd $allTasks && echo '$gradleTasks' > givenTasks"
