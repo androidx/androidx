@@ -17,6 +17,7 @@
 package androidx.room
 
 import androidx.room.coroutines.ConnectionPool
+import androidx.room.coroutines.RawConnectionAccessor
 import androidx.room.coroutines.newConnectionPool
 import androidx.room.coroutines.newSingleConnectionPool
 import androidx.room.driver.SupportSQLiteConnection
@@ -239,9 +240,12 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
      */
     private class SupportPooledConnection(
         val delegate: SupportSQLiteConnection
-    ) : Transactor {
+    ) : Transactor, RawConnectionAccessor {
 
         private var currentTransactionType: Transactor.SQLiteTransactionType? = null
+
+        override val rawConnection: SQLiteConnection
+            get() = delegate
 
         override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R {
             return delegate.prepare(sql).use { block.invoke(it) }
@@ -289,7 +293,10 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
 
         private class RollbackException(val result: Any?) : Throwable()
 
-        private inner class SupportTransactor<T> : TransactionScope<T> {
+        private inner class SupportTransactor<T> : TransactionScope<T>, RawConnectionAccessor {
+
+            override val rawConnection: SQLiteConnection
+                get() = this@SupportPooledConnection.rawConnection
 
             override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R {
                 return this@SupportPooledConnection.usePrepared(sql, block)

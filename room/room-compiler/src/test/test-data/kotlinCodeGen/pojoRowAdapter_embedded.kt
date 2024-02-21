@@ -1,7 +1,8 @@
 import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.performReadBlocking
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -55,38 +56,43 @@ public class MyDao_Impl(
 
   public override fun getEntity(): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity"
-    return performReadBlocking(__db, _sql) { _stmt ->
-      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-      val _cursorIndexOfNumberData: Int = getColumnIndexOrThrow(_stmt, "numberData")
-      val _cursorIndexOfStringData: Int = getColumnIndexOrThrow(_stmt, "stringData")
-      val _cursorIndexOfNumberData_1: Int = getColumnIndexOrThrow(_stmt, "nullablenumberData")
-      val _cursorIndexOfStringData_1: Int = getColumnIndexOrThrow(_stmt, "nullablestringData")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpPk: Int
-        _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
-        val _tmpFoo: Foo
-        val _tmpNumberData: Long
-        _tmpNumberData = _stmt.getLong(_cursorIndexOfNumberData)
-        val _tmpStringData: String
-        _tmpStringData = _stmt.getText(_cursorIndexOfStringData)
-        _tmpFoo = Foo(_tmpNumberData,_tmpStringData)
-        val _tmpNullableFoo: Foo?
-        if (!(_stmt.isNull(_cursorIndexOfNumberData_1) &&
-            _stmt.isNull(_cursorIndexOfStringData_1))) {
-          val _tmpNumberData_1: Long
-          _tmpNumberData_1 = _stmt.getLong(_cursorIndexOfNumberData_1)
-          val _tmpStringData_1: String
-          _tmpStringData_1 = _stmt.getText(_cursorIndexOfStringData_1)
-          _tmpNullableFoo = Foo(_tmpNumberData_1,_tmpStringData_1)
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfNumberData: Int = getColumnIndexOrThrow(_stmt, "numberData")
+        val _cursorIndexOfStringData: Int = getColumnIndexOrThrow(_stmt, "stringData")
+        val _cursorIndexOfNumberData_1: Int = getColumnIndexOrThrow(_stmt, "nullablenumberData")
+        val _cursorIndexOfStringData_1: Int = getColumnIndexOrThrow(_stmt, "nullablestringData")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpFoo: Foo
+          val _tmpNumberData: Long
+          _tmpNumberData = _stmt.getLong(_cursorIndexOfNumberData)
+          val _tmpStringData: String
+          _tmpStringData = _stmt.getText(_cursorIndexOfStringData)
+          _tmpFoo = Foo(_tmpNumberData,_tmpStringData)
+          val _tmpNullableFoo: Foo?
+          if (!(_stmt.isNull(_cursorIndexOfNumberData_1) &&
+              _stmt.isNull(_cursorIndexOfStringData_1))) {
+            val _tmpNumberData_1: Long
+            _tmpNumberData_1 = _stmt.getLong(_cursorIndexOfNumberData_1)
+            val _tmpStringData_1: String
+            _tmpStringData_1 = _stmt.getText(_cursorIndexOfStringData_1)
+            _tmpNullableFoo = Foo(_tmpNumberData_1,_tmpStringData_1)
+          } else {
+            _tmpNullableFoo = null
+          }
+          _result = MyEntity(_tmpPk,_tmpFoo,_tmpNullableFoo)
         } else {
-          _tmpNullableFoo = null
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
         }
-        _result = MyEntity(_tmpPk,_tmpFoo,_tmpNullableFoo)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        _result
+      } finally {
+        _stmt.close()
       }
-      _result
     }
   }
 

@@ -17,7 +17,7 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
@@ -109,26 +109,40 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val performFunctionName = getPerformFunctionName(inTransaction)
+        val connectionVar = scope.getTmpVar("_connection")
         val statementVar = scope.getTmpVar("_stmt")
         scope.builder.addStatement(
-            "return %M(%N, %L, %L)",
-            RoomTypeNames.DB_UTIL.packageMember(performFunctionName),
+            "return %M(%N, %L, %L, %L)",
+            RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
             dbProperty,
-            sqlQueryVar,
+            true, // isReadOnly
+            inTransaction,
             // TODO(b/322387497): Generate lambda syntax if possible
             Function1TypeSpec(
                 language = scope.language,
-                parameterTypeName = SQLiteDriverTypeNames.STATEMENT,
-                parameterName = statementVar,
+                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                parameterName = connectionVar,
                 returnTypeName = returnTypeName.box()
             ) {
                 val functionScope = scope.fork()
-                bindStatement(functionScope, statementVar)
                 val outVar = functionScope.getTmpVar("_result")
-                adapter?.convert(outVar, statementVar, functionScope)
-                this.addCode(functionScope.generate())
-                this.addStatement("return %L", outVar)
+                val functionCode = functionScope.builder.apply {
+                    addLocalVal(
+                        statementVar,
+                        SQLiteDriverTypeNames.STATEMENT,
+                        "%L.prepare(%L)",
+                        connectionVar,
+                        sqlQueryVar
+                    )
+                    beginControlFlow("try")
+                    bindStatement(functionScope, statementVar)
+                    adapter?.convert(outVar, statementVar, functionScope)
+                    addStatement("return %L", outVar)
+                    nextControlFlow("finally")
+                    addStatement("%L.close()", statementVar)
+                    endControlFlow()
+                }.build()
+                this.addCode(functionCode)
             }
         )
     }
@@ -140,28 +154,33 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val connectionVar = scope.getTmpVar("_connection")
         val statementVar = scope.getTmpVar("_stmt")
-        val performFunctionName = getPerformFunctionName(inTransaction)
         scope.builder.apply {
             beginControlFlow(
-                "return %M(%N, %L) { %L ->",
-                RoomTypeNames.DB_UTIL.packageMember(performFunctionName),
+                "return %M(%N, %L, %L) { %L ->",
+                RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
                 dbProperty,
-                sqlQueryVar,
-                statementVar
+                true, // isReadOnly
+                inTransaction,
+                connectionVar
             )
+            addLocalVal(
+                statementVar,
+                SQLiteDriverTypeNames.STATEMENT,
+                "%L.prepare(%L)",
+                connectionVar,
+                sqlQueryVar
+            )
+            beginControlFlow("try")
             bindStatement(scope, statementVar)
             val outVar = scope.getTmpVar("_result")
             adapter?.convert(outVar, statementVar, scope)
             addStatement("%L", outVar)
+            nextControlFlow("finally")
+            addStatement("%L.close()", statementVar)
+            endControlFlow()
             endControlFlow()
         }
     }
-
-    private fun getPerformFunctionName(inTransaction: Boolean) =
-        if (inTransaction) {
-            "performReadTransactionBlocking"
-        } else {
-            "performReadBlocking"
-        }
 }

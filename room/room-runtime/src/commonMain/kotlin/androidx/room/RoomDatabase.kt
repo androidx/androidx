@@ -25,7 +25,6 @@ import androidx.room.util.contains
 import androidx.room.util.isAssignableFrom
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.SQLiteStatement
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
@@ -164,19 +163,9 @@ expect abstract class RoomDatabase {
     fun close()
 
     /**
-     * Performs a database operation.
+     * Use a connection to perform database operations.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    suspend fun <R> perform(isReadOnly: Boolean, sql: String, block: (SQLiteStatement) -> R): R
-
-    /**
-     * Performs a database transaction operation.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    suspend fun <R> performTransaction(
-        isReadOnly: Boolean,
-        block: suspend (TransactionScope<R>) -> R
-    ): R
+    internal suspend fun <R> useConnection(isReadOnly: Boolean, block: suspend (Transactor) -> R): R
 
     /**
      * Journal modes for SQLite database.

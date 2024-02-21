@@ -14,28 +14,42 @@
  * limitations under the License.
  */
 
+@file:JvmMultifileClass
+@file:JvmName("DBUtil")
+
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
-import androidx.sqlite.SQLiteStatement
+import androidx.room.Transactor
+import androidx.room.coroutines.RawConnectionAccessor
+import androidx.sqlite.SQLiteConnection
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /**
- * Performs a single database read operation.
+ * Performs a database operation.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual suspend fun <R> performReadSuspending(
+actual suspend fun <R> performSuspending(
     db: RoomDatabase,
-    sql: String,
-    block: (SQLiteStatement) -> R
-): R = db.perform(true, sql, block)
-
-/**
- * Performs a single database read transaction operation.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual suspend fun <R> performReadTransactionSuspending(
-    db: RoomDatabase,
-    sql: String,
-    block: (SQLiteStatement) -> R
-): R = db.performTransaction(true) { it.usePrepared(sql, block) }
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> R
+): R = db.useConnection(isReadOnly) { transactor ->
+    if (inTransaction) {
+        val type = if (isReadOnly) {
+            Transactor.SQLiteTransactionType.DEFERRED
+        } else {
+            Transactor.SQLiteTransactionType.IMMEDIATE
+        }
+        // TODO(b/309990302): Notify Invalidation Tracker before and after transaction block.
+        transactor.withTransaction(type) {
+            val rawConnection = (this as RawConnectionAccessor).rawConnection
+            block.invoke(rawConnection)
+        }
+    } else {
+        val rawConnection = (transactor as RawConnectionAccessor).rawConnection
+        block.invoke(rawConnection)
+    }
+}
