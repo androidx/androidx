@@ -488,6 +488,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                         );
                     }
                     if (USE_PREDICTIVE_BACK) {
+                        endAnimatingAwayFragments();
                         prepareBackStackTransition();
                     }
                 }

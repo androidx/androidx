@@ -1117,7 +1117,11 @@ class FragmentTransitionTest(
                 .commit()
         }
 
-        fragment1.waitForTransition()
+        // In the none reordered case, the new transaction immediately completes the pop so
+        // there is no transition to wait on.
+        if (reorderingAllowed == Reordered) {
+            fragment1.waitForTransition()
+        }
 
         // This shouldn't give an error.
         activityRule.executePendingTransactions()
