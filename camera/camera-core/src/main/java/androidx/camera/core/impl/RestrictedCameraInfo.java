@@ -129,10 +129,12 @@ public class RestrictedCameraInfo extends ForwardingCameraInfo {
 
     @Override
     public boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {
-        if (mRestrictedCameraControl.getModifiedFocusMeteringAction(action) == null) {
+        FocusMeteringAction modifiedAction =
+                mRestrictedCameraControl.getModifiedFocusMeteringAction(action);
+        if (modifiedAction == null) {
             return false;
         }
-        return mCameraInfo.isFocusMeteringSupported(action);
+        return mCameraInfo.isFocusMeteringSupported(modifiedAction);
     }
 
     /**
