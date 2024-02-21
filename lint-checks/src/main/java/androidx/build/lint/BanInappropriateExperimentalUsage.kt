@@ -219,6 +219,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
 
         val annotationGroupId = annotationCoordinates.groupId
 
+        val isUsedInAlpha = usageCoordinates.version.contains("-alpha")
         val isUsedInSameGroup = usageCoordinates.groupId == annotationCoordinates.groupId
         val isUsedInSameArtifact = usageCoordinates.artifactId == annotationCoordinates.artifactId
         val isAtomic = atomicGroupList.contains(usageGroupId)
@@ -226,11 +227,13 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         /**
          * Usage of experimental APIs is allowed in either of the following conditions:
          *
+         * - The usage is in an alpha library
          * - Both the group ID and artifact ID in `usageCoordinates` and
          *   `annotationCoordinates` match
          * - The group IDs match, and that group ID is atomic
          */
-        if ((isUsedInSameGroup && isUsedInSameArtifact) ||
+        if (isUsedInAlpha ||
+            (isUsedInSameGroup && isUsedInSameArtifact) ||
             (isUsedInSameGroup && isAtomic)) return
 
         // Log inappropriate experimental usage
