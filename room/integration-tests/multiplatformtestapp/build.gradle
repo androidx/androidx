@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -24,8 +23,6 @@ plugins {
 
 // Disabled due to https://youtrack.jetbrains.com/issue/KT-65761
 ext["kotlin.native.disableCompilerDaemon"] = 'true'
-
-def nativeEnabled = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
     android()
@@ -58,10 +55,8 @@ androidXMultiplatform {
                 implementation(libs.kotlinTestJunit)
             }
         }
-        if (nativeEnabled) {
-            nativeTest {
-                dependsOn(commonTest)
-            }
+        nativeTest {
+            dependsOn(commonTest)
         }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
@@ -78,13 +73,11 @@ dependencies {
     def roomCompilerDependency = project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     add("kspAndroidAndroidTest", roomCompilerDependency)
     add("kspJvmTest", roomCompilerDependency)
-    if (nativeEnabled) {
-        add("kspIosSimulatorArm64Test", roomCompilerDependency)
-        add("kspIosX64Test", roomCompilerDependency)
-        add("kspLinuxX64Test", roomCompilerDependency)
-        add("kspMacosX64Test", roomCompilerDependency)
-        add("kspMacosArm64Test", roomCompilerDependency)
-    }
+    add("kspIosSimulatorArm64Test", roomCompilerDependency)
+    add("kspIosX64Test", roomCompilerDependency)
+    add("kspLinuxX64Test", roomCompilerDependency)
+    add("kspMacosX64Test", roomCompilerDependency)
+    add("kspMacosArm64Test", roomCompilerDependency)
 }
 
 ksp {

@@ -22,11 +22,8 @@
  * modifying its settings.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
