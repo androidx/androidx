@@ -76,16 +76,6 @@ final class CaptureSession implements CaptureSessionInterface {
     /** The configuration for the currently issued single capture requests. */
     @GuardedBy("mSessionLock")
     private final List<CaptureConfig> mCaptureConfigs = new ArrayList<>();
-    /** Callback for handling image captures. */
-    private final CameraCaptureSession.CaptureCallback mCaptureCallback =
-            new CaptureCallback() {
-                @Override
-                public void onCaptureCompleted(
-                        @NonNull CameraCaptureSession session,
-                        @NonNull CaptureRequest request,
-                        @NonNull TotalCaptureResult result) {
-                }
-            };
     @GuardedBy("mSessionLock")
     private final StateCallback mCaptureSessionStateCallback;
     /** The Opener to help on creating the SynchronizedCaptureSession. */
@@ -634,8 +624,7 @@ final class CaptureSession implements CaptureSessionInterface {
 
                 CameraCaptureSession.CaptureCallback comboCaptureCallback =
                         createCamera2CaptureCallback(
-                                captureConfig.getCameraCaptureCallbacks(),
-                                mCaptureCallback);
+                                captureConfig.getCameraCaptureCallbacks());
 
                 return mSynchronizedCaptureSession.setSingleRepeatingRequest(captureRequest,
                         comboCaptureCallback);
@@ -1006,22 +995,5 @@ final class CaptureSession implements CaptureSessionInterface {
                 Logger.e(TAG, "CameraCaptureSession.onConfigureFailed() " + mState);
             }
         }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mSessionLock")
-    List<CaptureConfig> setupConfiguredSurface(List<CaptureConfig> list) {
-        List<CaptureConfig> ret = new ArrayList<>();
-        for (CaptureConfig c : list) {
-            CaptureConfig.Builder builder = CaptureConfig.Builder.from(c);
-            builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            for (DeferrableSurface deferrableSurface :
-                    mSessionConfig.getRepeatingCaptureConfig().getSurfaces()) {
-                builder.addSurface(deferrableSurface);
-            }
-            ret.add(builder.build());
-        }
-
-        return ret;
     }
 }
