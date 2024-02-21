@@ -84,7 +84,7 @@ class ConstraintTrackingWorkerTest {
     @Test
     fun testFailingWorker() = runBlocking {
         val workerWrapper = create(ExceptionWorker::class)
-        taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        workerWrapper.launch()
         workerFactory.await(workerWrapper.workSpecId)
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.FAILED)
     }
@@ -92,9 +92,9 @@ class ConstraintTrackingWorkerTest {
     @Test
     fun testSelfCancellingWorker() = runBlocking {
         val workerWrapper = create(SelfCancellingWorker::class)
-        taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        val future = workerWrapper.launch()
         val worker = awaitWorker<SelfCancellingWorker>(workerWrapper)
-        workerWrapper.future.await()
+        future.await()
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.FAILED)
         assertThat(worker.stopCounter).isEqualTo(0)
     }
@@ -104,18 +104,18 @@ class ConstraintTrackingWorkerTest {
         // charging constraint isn't satisfied
         fakeChargingTracker.constraintState = false
         val workerWrapper = create(TestWorker::class)
-        taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        val future = workerWrapper.launch()
         workerFactory.await(workerWrapper.workSpecId)
-        workerWrapper.future.await()
+        future.await()
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.ENQUEUED)
     }
 
     @Test
     fun testConstraintTrackingWorker_onConstraintsMet() = runBlocking {
         val workerWrapper = create(EchoingWorker::class)
-        taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        val future = workerWrapper.launch()
         workerFactory.await(workerWrapper.workSpecId)
-        workerWrapper.future.await()
+        future.await()
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.SUCCEEDED)
         val outputData = workManager.getWorkInfoById(workerWrapper.workSpecId).await().outputData
         assertThat(outputData.getBoolean(TEST_ARGUMENT_NAME, false)).isTrue()
@@ -124,10 +124,10 @@ class ConstraintTrackingWorkerTest {
     @Test
     fun testConstraintTrackingWorker_onConstraintsChanged() = runBlocking {
         val workerWrapper = create(CompletableWorker::class)
-        taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        val future = workerWrapper.launch()
         workerFactory.await(workerWrapper.workSpecId)
         fakeChargingTracker.constraintState = false
-        workerWrapper.future.await()
+        future.await()
         val state = workManager.awaitNotRunning(workerWrapper)
         assertThat(state).isEqualTo(State.ENQUEUED)
     }
@@ -135,13 +135,12 @@ class ConstraintTrackingWorkerTest {
     @Test
     fun testConstraintTrackingWorker_stopPropagated() = runBlocking {
         val workerWrapper = create(DoWorkAwareWorker::class)
-        taskExecutor.serialTaskExecutor.execute(workerWrapper)
-
+        val future = workerWrapper.launch()
         val worker = awaitWorker<DoWorkAwareWorker>(workerWrapper)
         worker.doWorkEvent.await()
         launch { workerWrapper.interrupt(0) }
 
-        workerWrapper.future.await()
+        future.await()
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.ENQUEUED)
         // WorkerWrapper future is resolved before cancellation is fully propagated in coroutines
         withTimeoutOrNull(300) { worker.onStopEvent.await() }
@@ -151,8 +150,8 @@ class ConstraintTrackingWorkerTest {
     @Test
     fun test_runOnMain() = runBlocking {
         val workerWrapper = create(ThreadAssertingWorker::class)
-        taskExecutor.serialTaskExecutor.execute(workerWrapper)
-        workerWrapper.future.await()
+        val future = workerWrapper.launch()
+        future.await()
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.SUCCEEDED)
     }
 

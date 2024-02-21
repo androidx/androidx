@@ -118,8 +118,7 @@ public class RemoteListenableWorkerTest {
 
         val request = buildRequest<RemoteSuccessWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.SUCCEEDED)
         assertEquals(workSpec.output, RemoteSuccessWorker.outputData())
@@ -135,8 +134,7 @@ public class RemoteListenableWorkerTest {
 
         val request = buildRequest<RemoteFailureWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.FAILED)
         assertEquals(workSpec.output, RemoteFailureWorker.outputData())
@@ -152,8 +150,7 @@ public class RemoteListenableWorkerTest {
 
         val request = buildRequest<RemoteRetryWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
     }
@@ -169,7 +166,7 @@ public class RemoteListenableWorkerTest {
 
         val request = buildRequest<RemoteStopWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
+        wrapper.launch()
         val remote = workerFactory.awaitRemote(request.id) as RemoteStopWorker
         remote.startRemoteDeferred.await()
         wrapper.interrupt(STOP_REASON_CONSTRAINT_CONNECTIVITY)

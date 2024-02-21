@@ -102,8 +102,7 @@ public class RemoteCoroutineWorkerTest {
 
         val request = buildRequest<RemoteSuccessWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.SUCCEEDED)
     }
@@ -118,8 +117,7 @@ public class RemoteCoroutineWorkerTest {
 
         val request = buildRequest<RemoteFailureWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.FAILED)
     }
@@ -134,8 +132,7 @@ public class RemoteCoroutineWorkerTest {
 
         val request = buildRequest<RemoteRetryWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
     }
