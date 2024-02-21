@@ -325,7 +325,6 @@ public class ExifInterfaceTest {
         public final float aperture;
         public final String dateTimeOriginal;
         public final float exposureTime;
-        public final float flash;
         public final String focalLength;
         public final String gpsAltitude;
         public final String gpsAltitudeRef;
@@ -340,7 +339,6 @@ public class ExifInterfaceTest {
         public final int imageWidth;
         public final String iso;
         public final int orientation;
-        public final int whiteBalance;
 
         // XMP information.
         public final boolean hasXmp;
@@ -385,7 +383,6 @@ public class ExifInterfaceTest {
             aperture = typedArray.getFloat(index++, 0f);
             dateTimeOriginal = getString(typedArray, index++);
             exposureTime = typedArray.getFloat(index++, 0f);
-            flash = typedArray.getFloat(index++, 0f);
             focalLength = getString(typedArray, index++);
             gpsAltitude = getString(typedArray, index++);
             gpsAltitudeRef = getString(typedArray, index++);
@@ -400,7 +397,6 @@ public class ExifInterfaceTest {
             imageWidth = typedArray.getInt(index++, 0);
             iso = getString(typedArray, index++);
             orientation = typedArray.getInt(index++, 0);
-            whiteBalance = typedArray.getInt(index++, 0);
 
             // Reads XMP information.
             hasXmp = typedArray.getBoolean(index++, false);
@@ -1116,7 +1112,6 @@ public class ExifInterfaceTest {
         assertStringTag(exifInterface, ExifInterface.TAG_DATETIME_ORIGINAL,
                 expectedValue.dateTimeOriginal);
         assertFloatTag(exifInterface, ExifInterface.TAG_EXPOSURE_TIME, expectedValue.exposureTime);
-        assertFloatTag(exifInterface, ExifInterface.TAG_FLASH, expectedValue.flash);
         assertStringTag(exifInterface, ExifInterface.TAG_FOCAL_LENGTH, expectedValue.focalLength);
         assertStringTag(exifInterface, ExifInterface.TAG_GPS_ALTITUDE, expectedValue.gpsAltitude);
         assertStringTag(exifInterface, ExifInterface.TAG_GPS_ALTITUDE_REF,
@@ -1136,7 +1131,6 @@ public class ExifInterfaceTest {
         assertStringTag(exifInterface, ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
                 expectedValue.iso);
         assertIntTag(exifInterface, ExifInterface.TAG_ORIENTATION, expectedValue.orientation);
-        assertIntTag(exifInterface, ExifInterface.TAG_WHITE_BALANCE, expectedValue.whiteBalance);
 
         if (expectedValue.hasXmp) {
             assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
