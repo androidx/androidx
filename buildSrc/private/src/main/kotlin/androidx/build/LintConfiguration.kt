@@ -19,6 +19,7 @@ package androidx.build
 import com.android.build.api.dsl.Lint
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
+import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
@@ -42,6 +43,7 @@ fun Project.configureLint() {
         when (plugin) {
             is AppPlugin -> configureAndroidProjectForLint(isLibrary = false)
             is LibraryPlugin -> configureAndroidProjectForLint(isLibrary = true)
+            is KotlinMultiplatformAndroidPlugin -> configureAndroidProjectForLint(isLibrary = true)
             // Only configure non-multiplatform Java projects via JavaPlugin. Multiplatform
             // projects targeting Java (e.g. `jvm { withJava() }`) are configured via
             // KotlinBasePlugin.
@@ -56,7 +58,8 @@ fun Project.configureLint() {
                 if (
                     project.multiplatformExtension != null &&
                         !project.plugins.hasPlugin(AppPlugin::class.java) &&
-                        !project.plugins.hasPlugin(LibraryPlugin::class.java)
+                        !project.plugins.hasPlugin(LibraryPlugin::class.java) &&
+                        !project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
                 ) {
                     configureNonAndroidProjectForLint()
                 }
@@ -207,8 +210,9 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             project.dependencies.add("lintChecks", it)
         }
     }
-
-    afterEvaluate { addSourceSetsForAndroidMultiplatformAfterEvaluate() }
+    if (!project.hasAndroidMultiplatformPlugin()) {
+        afterEvaluate { addSourceSetsForAndroidMultiplatformAfterEvaluate() }
+    }
 
     // The purpose of this specific project is to test that lint is running, so
     // it contains expected violations that we do not want to trigger a build failure

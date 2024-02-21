@@ -80,7 +80,12 @@ fun AndroidXExtension.registerSamplesLibrary(samplesProject: Project) {
             it.destinationJar.set(project.layout.buildDirectory.file(srcJarFilename))
         }
     // this publishing variant is used in non-KMP projects and non-KMP source jars of KMP projects
-    val publishingVariants = mutableListOf(sourcesConfigurationName)
+    val publishingVariants = mutableListOf<String>()
+    if (project.hasAndroidMultiplatformPlugin()) {
+        publishingVariants.add(androidMultiplatformSourcesConfigurationName)
+    } else {
+        publishingVariants.add(sourcesConfigurationName)
+    }
     project.multiplatformExtension?.let {
         publishingVariants += kmpSourcesConfigurationName // used for KMP source jars
         if (it.targets.any { it.platformType == KotlinPlatformType.androidJvm })

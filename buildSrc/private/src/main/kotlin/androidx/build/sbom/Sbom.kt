@@ -83,7 +83,10 @@ private val excludeTaskNames =
         "bundleDebugLocalLintAar",
         "bundleReleaseLocalLintAar",
         "bundleDebugAar",
-        "bundleReleaseAar"
+        "bundleReleaseAar",
+        "bundleAndroidMainAar",
+        "bundleAndroidMainLocalLintAar",
+        "repackageAndroidMainAar",
     )
 
 /**

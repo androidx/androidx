@@ -41,7 +41,6 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
@@ -74,34 +73,36 @@ fun Project.configureSourceJarForAndroid(libraryExtension: LibraryExtension) {
         }
     }
     project.afterEvaluate {
-        // we can only tell if a project is multiplatform after it is configured
-        if (it.multiplatformExtension != null && it.extra.has("publish")) {
-            libraryExtension.defaultPublishVariant { variant ->
-                val kotlinExt = project.extensions.getByName("kotlin") as KotlinProjectExtension
-                val sourceJar =
-                    project.tasks.named(
-                        "sourceJar${variant.name.replaceFirstChar {
-                            if (it.isLowerCase()) {
-                                it.titlecase(Locale.getDefault())
-                            } else it.toString()
-                        }}",
-                        Jar::class.java
-                    )
-                // multiplatform projects use different source sets, so we need to modify the task
-                sourceJar.configure { sourceJarTask ->
-                    // use an inclusion list of source sets, because that is the preferred policy
-                    sourceJarTask.from(kotlinExt.sourceSets.getByName("commonMain").kotlin.srcDirs)
-                    sourceJarTask.from(kotlinExt.sourceSets.getByName("androidMain").kotlin.srcDirs)
-                }
-            }
+        project.configureMultiplatformSourcesForAndroid { action ->
+            libraryExtension.defaultPublishVariant { action(it.name) }
         }
     }
-
     val disableNames =
         setOf(
             "releaseSourcesJar",
         )
     disableUnusedSourceJarTasks(disableNames)
+}
+
+fun Project.configureMultiplatformSourcesForAndroid(
+    withVariant: (action: (variantName: String) -> Unit) -> Unit
+) {
+    val mpExtension = multiplatformExtension
+    if (mpExtension != null && extra.has("publish")) {
+        withVariant { variantName ->
+            val sourceJar =
+                project.tasks.named(
+                    "sourceJar${variantName.capitalize()}",
+                    Jar::class.java
+                )
+            // multiplatform projects use different source sets, so we need to modify the task
+            sourceJar.configure { sourceJarTask ->
+                // use an inclusion list of source sets, because that is the preferred policy
+                sourceJarTask.from(mpExtension.sourceSets.getByName("commonMain").kotlin.srcDirs)
+                sourceJarTask.from(mpExtension.sourceSets.getByName("androidMain").kotlin.srcDirs)
+            }
+        }
+    }
 }
 
 /** Sets up a source jar task for a Java library project. */
@@ -282,6 +283,7 @@ private const val PROJECT_STRUCTURE_METADATA_FILEPATH =
     "project_structure_metadata/$PROJECT_STRUCTURE_METADATA_FILENAME"
 
 internal const val sourcesConfigurationName = "sourcesElements"
+internal const val androidMultiplatformSourcesConfigurationName = "androidSourcesElements"
 internal const val kmpSourcesConfigurationName = "androidxSourcesElements"
 internal fun String.capitalize() = replaceFirstChar {
     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
