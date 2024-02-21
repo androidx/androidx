@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("InitializerViewModelFactoryKt")
 
 package androidx.lifecycle.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.internal.ViewModelProviders
+import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
 @DslMarker
@@ -34,27 +37,31 @@ public inline fun viewModelFactory(
  * DSL for constructing a new [ViewModelProvider.Factory]
  */
 @ViewModelFactoryDsl
-public class InitializerViewModelFactoryBuilder {
+public class InitializerViewModelFactoryBuilder
+public constructor() {
+
     private val initializers = mutableListOf<ViewModelInitializer<*>>()
 
     /**
-     * Add the initializer for the given ViewModel class.
+     * Associates the specified [initializer] with the given [ViewModel] class.
      *
-     * @param clazz the class the initializer is associated with.
-     * @param initializer lambda used to create an instance of the ViewModel class
+     * @param clazz [ViewModel] class with which the specified [initializer] is to be associated.
+     * @param initializer factory lambda to be associated with the specified [ViewModel] class.
      */
+    @Suppress("SetterReturnsThis", "MissingGetterMatchingBuilder")
     public fun <T : ViewModel> addInitializer(
         clazz: KClass<T>,
         initializer: CreationExtras.() -> T,
     ) {
-        initializers.add(ViewModelInitializer(clazz.java, initializer))
+        initializers += ViewModelInitializer(clazz, initializer)
     }
 
     /**
-     * Build the InitializerViewModelFactory.
+     * Returns an instance of [ViewModelProvider.Factory] created from the initializers set on this
+     * builder.
      */
     public fun build(): ViewModelProvider.Factory =
-        InitializerViewModelFactory(*initializers.toTypedArray())
+        ViewModelProviders.createInitializerFactory(initializers)
 }
 
 /**
@@ -69,10 +76,20 @@ public inline fun <reified VM : ViewModel> InitializerViewModelFactoryBuilder.in
 /**
  * Holds a [ViewModel] class and initializer for that class
  */
-public class ViewModelInitializer<T : ViewModel>(
-    internal val clazz: Class<T>,
-    internal val initializer: CreationExtras.() -> T,
-)
+public expect class ViewModelInitializer<T : ViewModel>
+/**
+ * Construct a new [ViewModelInitializer] instance.
+ *
+ * @param clazz [ViewModel] class with which the specified [initializer] is to be associated.
+ * @param initializer factory lambda to be associated with the specified [ViewModel] class.
+ */
+public constructor(
+    clazz: KClass<T>,
+    initializer: CreationExtras.() -> T,
+) {
+    internal val clazz: KClass<T>
+    internal val initializer: CreationExtras.() -> T
+}
 
 /**
  * A [ViewModelProvider.Factory] that allows you to add lambda initializers for handling
@@ -86,32 +103,6 @@ public class ViewModelInitializer<T : ViewModel>(
  * val viewModel: TestViewModel = factory.create(TestViewModel::class.java, extras)
  * ```
  */
-internal class InitializerViewModelFactory(
-    private vararg val initializers: ViewModelInitializer<*>
-) : ViewModelProvider.Factory {
-
-    /**
-     * Creates a new instance of the given `Class`.
-     *
-     * This will use the initializer if one has been set for the class, otherwise it throw an
-     * [IllegalArgumentException].
-     *
-     * @param modelClass a `Class` whose instance is requested
-     * @param extras an additional information for this creation request
-     * @return a newly created ViewModel
-     *
-     * @throws IllegalArgumentException if no initializer has been set for the given class.
-     */
-    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-        var viewModel: T? = null
-        @Suppress("UNCHECKED_CAST")
-        initializers.forEach {
-            if (it.clazz == modelClass) {
-                viewModel = it.initializer.invoke(extras) as? T
-            }
-        }
-        return viewModel ?: throw IllegalArgumentException(
-            "No initializer set for given class ${modelClass.name}"
-        )
-    }
-}
+internal expect class InitializerViewModelFactory(
+    vararg initializers: ViewModelInitializer<*>,
+) : ViewModelProvider.Factory
