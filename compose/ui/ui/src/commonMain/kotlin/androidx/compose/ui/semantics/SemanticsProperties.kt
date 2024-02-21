@@ -18,6 +18,7 @@ package androidx.compose.ui.semantics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
@@ -300,6 +301,11 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.scrollBy
      */
     val ScrollBy = ActionPropertyKey<(x: Float, y: Float) -> Boolean>("ScrollBy")
+
+    /**
+     * @see SemanticsPropertyReceiver.scrollByOffset
+     */
+    val ScrollByOffset = SemanticsPropertyKey<suspend (offset: Offset) -> Offset>("ScrollByOffset")
 
     /**
      * @see SemanticsPropertyReceiver.scrollToIndex
@@ -1244,18 +1250,38 @@ fun SemanticsPropertyReceiver.onLongClick(label: String? = null, action: (() -> 
 }
 
 /**
- * Action to scroll by a specified amount.
+ * Action to asynchronously scroll by a specified amount.
  *
- * Expected to be used in conjunction with verticalScrollAxisRange/horizontalScrollAxisRange.
+ * [scrollByOffset] should be preferred in most cases, since it is synchronous and returns the
+ * amount of scroll that was actually consumed.
+ *
+ * Expected to be used in conjunction with [verticalScrollAxisRange]/[horizontalScrollAxisRange].
  *
  * @param label Optional label for this action.
- * @param action Action to be performed when the [SemanticsActions.ScrollBy] is called.
+ * @param action Action to be performed when [SemanticsActions.ScrollBy] is called.
  */
 fun SemanticsPropertyReceiver.scrollBy(
     label: String? = null,
     action: ((x: Float, y: Float) -> Boolean)?
 ) {
     this[SemanticsActions.ScrollBy] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to scroll by a specified amount and return how much of the offset was actually consumed.
+ * E.g. if the node can't scroll at all in the given direction, [Offset.Zero] should be returned.
+ * The action should not return until the scroll operation has finished.
+ *
+ * Expected to be used in conjunction with [verticalScrollAxisRange]/[horizontalScrollAxisRange].
+ *
+ * Unlike [scrollBy], this action is synchronous, and returns the amount of scroll consumed.
+ *
+ * @param action Action to be performed when [SemanticsActions.ScrollByOffset] is called.
+ */
+fun SemanticsPropertyReceiver.scrollByOffset(
+    action: suspend (offset: Offset) -> Offset
+) {
+    this[SemanticsActions.ScrollByOffset] = action
 }
 
 /**
