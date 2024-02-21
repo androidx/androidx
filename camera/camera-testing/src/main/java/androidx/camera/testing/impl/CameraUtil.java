@@ -1182,7 +1182,8 @@ public final class CameraUtil {
             if (deviceHolder.get() == null) {
                 ret = false;
             }
-            if (Build.MODEL.equalsIgnoreCase("sm-g920v")) {
+            if (Build.HARDWARE.equalsIgnoreCase("universal7420")
+                    || Build.HARDWARE.equalsIgnoreCase("samsungexynos7420")) {
                 // Please see b/305835396
                 TimeUnit.SECONDS.sleep(1);
             }
