@@ -46,6 +46,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -600,6 +602,7 @@ class RulerTest {
         var offset by mutableIntStateOf(0)
         var rulerValue = 0f
         var rootX = 0f
+        var rulerChanged = CountDownLatch(1)
         rule.setContent {
             Box(
                 Modifier
@@ -624,6 +627,7 @@ class RulerTest {
                                     val p = measurable.measure(constraints)
                                     layout(p.width, p.height) {
                                         rulerValue = verticalRuler.current(Float.NaN)
+                                        rulerChanged.countDown()
                                     }
                                 })
                             }
@@ -632,11 +636,15 @@ class RulerTest {
                 })
             }
         }
+        assertThat(rulerChanged.await(1, TimeUnit.SECONDS)).isTrue()
         rule.runOnUiThread {
             assertThat(rulerValue).isWithin(0.01f).of(-rootX)
+            rulerChanged = CountDownLatch(1)
             offset = 100
+            rule.activity.window.decorView.invalidate()
         }
-        rule.runOnIdle {
+        assertThat(rulerChanged.await(1, TimeUnit.SECONDS)).isTrue()
+        rule.runOnUiThread {
             assertThat(rulerValue).isWithin(0.01f).of(-100f - rootX)
         }
     }
