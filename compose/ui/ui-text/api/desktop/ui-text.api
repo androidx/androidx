@@ -103,6 +103,42 @@ public final class androidx/compose/ui/text/DesktopTextStyle_skikoKt {
 public abstract interface annotation class androidx/compose/ui/text/ExperimentalTextApi : java/lang/annotation/Annotation {
 }
 
+public final class androidx/compose/ui/text/FontHinting : java/lang/Enum {
+	public static final field Full Landroidx/compose/ui/text/FontHinting;
+	public static final field None Landroidx/compose/ui/text/FontHinting;
+	public static final field Normal Landroidx/compose/ui/text/FontHinting;
+	public static final field Slight Landroidx/compose/ui/text/FontHinting;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/text/FontHinting;
+	public static fun values ()[Landroidx/compose/ui/text/FontHinting;
+}
+
+public final class androidx/compose/ui/text/FontRasterizationSettings {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/FontRasterizationSettings$Companion;
+	public fun <init> (Landroidx/compose/ui/text/FontSmoothing;Landroidx/compose/ui/text/FontHinting;ZZ)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAutoHintingForced ()Z
+	public final fun getHinting ()Landroidx/compose/ui/text/FontHinting;
+	public final fun getSmoothing ()Landroidx/compose/ui/text/FontSmoothing;
+	public final fun getSubpixelPositioning ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/FontRasterizationSettings$Companion {
+	public final fun getPlatformDefault ()Landroidx/compose/ui/text/FontRasterizationSettings;
+}
+
+public final class androidx/compose/ui/text/FontSmoothing : java/lang/Enum {
+	public static final field AntiAlias Landroidx/compose/ui/text/FontSmoothing;
+	public static final field None Landroidx/compose/ui/text/FontSmoothing;
+	public static final field SubpixelAntiAlias Landroidx/compose/ui/text/FontSmoothing;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/text/FontSmoothing;
+	public static fun values ()[Landroidx/compose/ui/text/FontSmoothing;
+}
+
 public abstract interface annotation class androidx/compose/ui/text/InternalTextApi : java/lang/annotation/Annotation {
 }
 
@@ -321,7 +357,10 @@ public final class androidx/compose/ui/text/PlatformParagraphStyle {
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/text/PlatformParagraphStyle$Companion;
 	public fun <init> ()V
+	public fun <init> (Landroidx/compose/ui/text/FontRasterizationSettings;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/FontRasterizationSettings;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFontRasterizationSettings ()Landroidx/compose/ui/text/FontRasterizationSettings;
 	public fun hashCode ()I
 	public final fun merge (Landroidx/compose/ui/text/PlatformParagraphStyle;)Landroidx/compose/ui/text/PlatformParagraphStyle;
 }

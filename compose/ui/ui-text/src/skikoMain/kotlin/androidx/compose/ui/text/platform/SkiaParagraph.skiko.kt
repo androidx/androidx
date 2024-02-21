@@ -26,6 +26,7 @@ import org.jetbrains.skia.paragraph.ParagraphBuilder as SkParagraphBuilder
 import org.jetbrains.skia.paragraph.Shadow as SkShadow
 import org.jetbrains.skia.paragraph.TextIndent as SkTextIndent
 import org.jetbrains.skia.paragraph.TextStyle as SkTextStyle
+import org.jetbrains.skia.paragraph.FontRastrSettings as SkFontRastrSettings
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -493,11 +494,18 @@ internal class ParagraphBuilder(
         return null
     }
 
+    private fun makeSkFontRasterizationSettings(style: TextStyle): SkFontRastrSettings {
+        val rasterizationSettings = style.paragraphStyle.platformStyle?.fontRasterizationSettings
+            ?: FontRasterizationSettings.PlatformDefault
+        return rasterizationSettings.toSkFontRastrSettings()
+    }
+
     private fun textStyleToParagraphStyle(
         style: TextStyle,
         computedStyle: ComputedStyle
     ): ParagraphStyle {
         val pStyle = ParagraphStyle()
+        pStyle.fontRastrSettings = makeSkFontRasterizationSettings(style)
         pStyle.textStyle = makeSkTextStyle(computedStyle)
         style.textAlign.let {
             pStyle.alignment = it.toSkAlignment()

@@ -57,9 +57,10 @@ actual class PlatformTextStyle {
         return true
     }
 
-    @Suppress("RedundantOverride")
     override fun hashCode(): Int {
-        return super.hashCode()
+        var result = spanStyle?.hashCode() ?: 0
+        result = 31 * result + (paragraphStyle?.hashCode() ?: 0)
+        return result
     }
 }
 
@@ -78,19 +79,33 @@ actual class PlatformParagraphStyle {
         actual val Default: PlatformParagraphStyle = PlatformParagraphStyle()
     }
 
+    @ExperimentalTextApi
+    val fontRasterizationSettings: FontRasterizationSettings
+
+    constructor() {
+        this.fontRasterizationSettings = FontRasterizationSettings.PlatformDefault
+    }
+
+    @ExperimentalTextApi
+    constructor(fontRasterizationSettings: FontRasterizationSettings = FontRasterizationSettings.PlatformDefault) {
+        this.fontRasterizationSettings = fontRasterizationSettings
+    }
+
     actual fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle {
-        return this
+        if (other == null) return this
+        // merge strategy is simple overwrite for current params, update if a optional param happens
+        return other
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformParagraphStyle) return false
+        if (fontRasterizationSettings != other.fontRasterizationSettings) return false
         return true
     }
 
-    @Suppress("RedundantOverride")
     override fun hashCode(): Int {
-        return super.hashCode()
+        return fontRasterizationSettings.hashCode()
     }
 }
 
