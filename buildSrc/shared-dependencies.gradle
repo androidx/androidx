@@ -25,9 +25,8 @@ dependencies {
     // Force jsoup upgrade on spdx (b/309773103)
     implementation(libs.jsoup)
 
-    // variety of json parsers
+    // json parser
     implementation(libs.gson)
-    implementation(libs.jsonSimple)
 
     // XML parsers used in MavenUploadHelper.kt
     implementation(libs.dom4j) {
