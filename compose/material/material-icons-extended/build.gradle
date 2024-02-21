@@ -48,7 +48,7 @@ androidXMultiplatform {
             dependencies {
                 api(project(":compose:material:material-icons-core"))
                 implementation(libs.kotlinStdlibCommon)
-                implementation("androidx.compose.runtime:runtime:1.6.0")
+                implementation(project(":compose:runtime:runtime"))
             }
         }
 
