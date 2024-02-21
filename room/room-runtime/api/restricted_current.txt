@@ -440,10 +440,12 @@ package androidx.room.util {
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {
     method public static void appendPlaceholders(StringBuilder builder, int count);
+    method @Deprecated public String?[] getEMPTY_STRING_ARRAY();
     method public static String? joinIntoString(java.util.List<java.lang.Integer>? input);
-    method public static StringBuilder newStringBuilder();
+    method @Deprecated public static StringBuilder newStringBuilder();
     method public static java.util.List<java.lang.Integer>? splitToIntList(String? input);
-    field public static final String?[] EMPTY_STRING_ARRAY;
+    property @Deprecated public String?[] EMPTY_STRING_ARRAY;
+    field @Deprecated public static final String?[] EMPTY_STRING_ARRAY;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TableInfo {

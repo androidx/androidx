@@ -285,6 +285,7 @@ object KotlinTypeNames {
     val COLLECTIONS_KT = XClassName.get("kotlin.collections", "CollectionsKt")
     val SETS_KT = XClassName.get("kotlin.collections", "SetsKt")
     val MAPS_KT = XClassName.get("kotlin.collections", "MapsKt")
+    val STRING_BUILDER = XClassName.get("kotlin.text", "StringBuilder")
 }
 
 object RoomMemberNames {

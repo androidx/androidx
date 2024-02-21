@@ -1,10 +1,8 @@
 import androidx.room.RoomDatabase
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.newStringBuilder
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
-import java.lang.StringBuilder
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
@@ -12,6 +10,7 @@ import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.Set
 import kotlin.reflect.KClass
+import kotlin.text.StringBuilder
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
@@ -24,7 +23,7 @@ public class MyDao_Impl(
   }
 
   public override fun listOfString(arg: List<String>): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE string IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -55,7 +54,7 @@ public class MyDao_Impl(
   }
 
   public override fun nullableListOfString(arg: List<String>?): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE string IN (")
     val _inputSize: Int = if (arg == null) 1 else arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -90,7 +89,7 @@ public class MyDao_Impl(
   }
 
   public override fun listOfNullableString(arg: List<String?>): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE string IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -125,7 +124,7 @@ public class MyDao_Impl(
   }
 
   public override fun setOfString(arg: Set<String>): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE string IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)

@@ -1,10 +1,8 @@
 import androidx.room.RoomDatabase
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.newStringBuilder
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
-import java.lang.StringBuilder
 import javax.`annotation`.processing.Generated
 import kotlin.Array
 import kotlin.Int
@@ -13,6 +11,7 @@ import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.reflect.KClass
+import kotlin.text.StringBuilder
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
@@ -25,7 +24,7 @@ public class MyDao_Impl(
   }
 
   public override fun arrayOfString(arg: Array<String>): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE id IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -56,7 +55,7 @@ public class MyDao_Impl(
   }
 
   public override fun nullableArrayOfString(arg: Array<String>?): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE id IN (")
     val _inputSize: Int = if (arg == null) 1 else arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -91,7 +90,7 @@ public class MyDao_Impl(
   }
 
   public override fun arrayOfNullableString(arg: Array<String?>): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE id IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -126,7 +125,7 @@ public class MyDao_Impl(
   }
 
   public override fun varargOfString(vararg arg: String): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE id IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -157,7 +156,7 @@ public class MyDao_Impl(
   }
 
   public override fun varargOfNullableString(vararg arg: String?): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE id IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -192,7 +191,7 @@ public class MyDao_Impl(
   }
 
   public override fun primitiveIntArray(arg: IntArray): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE id IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -223,7 +222,7 @@ public class MyDao_Impl(
   }
 
   public override fun nullablePrimitiveIntArray(arg: IntArray?): MyEntity {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE id IN (")
     val _inputSize: Int = if (arg == null) 1 else arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
