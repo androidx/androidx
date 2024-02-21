@@ -17,7 +17,10 @@
 package androidx.compose.testutils
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -71,20 +74,22 @@ private class ParameterizedComposeTestRuleImpl<T>(private val rule: ComposeConte
         block: T.() -> Unit
     ) {
         check(parameters.isNotEmpty()) { "Config List Cannot Be Empty" }
-        val configState = mutableStateOf(parameters.first())
+        var configState by mutableStateOf(parameters.first())
 
         // setting content on the first config
         rule.setContent {
-            content(configState.value)
+            key(configState) {
+                content(configState)
+            }
         }
-        runBlockCheck(block, configState.value)
+        runBlockCheck(block, configState)
         rule.mainClock.advanceTimeByFrame() // push time forward
 
         // changing contents on remaining configs
         for (index in 1..parameters.lastIndex) {
-            configState.value = parameters[index] // change params
+            configState = parameters[index] // change params
             rule.mainClock.advanceTimeByFrame() // push time forward
-            runBlockCheck(block, configState.value)
+            runBlockCheck(block, configState)
         }
     }
 
