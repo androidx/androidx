@@ -89,67 +89,8 @@ public class ExifInterfaceTest {
     public GrantPermissionRule mRuntimePermissionRule =
             GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-    private static final String JPEG_WITH_EXIF_BYTE_ORDER_II = "jpeg_with_exif_byte_order_ii.jpg";
-    private static final String JPEG_WITH_EXIF_BYTE_ORDER_MM = "jpeg_with_exif_byte_order_mm.jpg";
-    private static final String JPEG_WITH_EXIF_INVALID_OFFSET = "jpeg_with_exif_invalid_offset.jpg";
-    private static final String JPEG_WITH_EXIF_FULL_APP1_SEGMENT =
-            "jpeg_with_exif_full_app1_segment.jpg";
-
-    private static final String DNG_WITH_EXIF_WITH_XMP = "dng_with_exif_with_xmp.dng";
-    private static final String JPEG_WITH_EXIF_WITH_XMP = "jpeg_with_exif_with_xmp.jpg";
-    private static final String PNG_WITH_EXIF_BYTE_ORDER_II = "png_with_exif_byte_order_ii.png";
-    private static final String PNG_WITHOUT_EXIF = "png_without_exif.png";
-    private static final String WEBP_WITH_EXIF = "webp_with_exif.webp";
-    private static final String INVALID_WEBP_WITH_JPEG_APP1_MARKER =
-            "invalid_webp_with_jpeg_app1_marker.webp";
     private static final String WEBP_WITHOUT_EXIF_WITH_ANIM_DATA =
             "webp_with_anim_without_exif.webp";
-    private static final String WEBP_WITHOUT_EXIF = "webp_without_exif.webp";
-    private static final String WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING =
-            "webp_lossless_without_exif.webp";
-    private static final String WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA =
-            "webp_lossless_alpha_without_exif.webp";
-    private static final String JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT =
-            "jpeg_with_datetime_tag_primary_format.jpg";
-    private static final String JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT =
-            "jpeg_with_datetime_tag_secondary_format.jpg";
-    private static final String HEIF_WITH_EXIF = "heif_with_exif.heic";
-    private static final int[] IMAGE_RESOURCES = new int[] {
-            R.raw.jpeg_with_exif_byte_order_ii,
-            R.raw.jpeg_with_exif_byte_order_mm,
-            R.raw.jpeg_with_exif_invalid_offset,
-            R.raw.jpeg_with_exif_full_app1_segment,
-            R.raw.dng_with_exif_with_xmp,
-            R.raw.jpeg_with_exif_with_xmp,
-            R.raw.png_with_exif_byte_order_ii,
-            R.raw.png_without_exif,
-            R.raw.webp_with_exif,
-            R.raw.invalid_webp_with_jpeg_app1_marker,
-            R.raw.webp_with_anim_without_exif,
-            R.raw.webp_without_exif,
-            R.raw.webp_lossless_without_exif,
-            R.raw.webp_lossless_alpha_without_exif,
-            R.raw.jpeg_with_datetime_tag_primary_format,
-            R.raw.jpeg_with_datetime_tag_secondary_format,
-            R.raw.heif_with_exif};
-    private static final String[] IMAGE_FILENAMES = new String[] {
-            JPEG_WITH_EXIF_BYTE_ORDER_II,
-            JPEG_WITH_EXIF_BYTE_ORDER_MM,
-            JPEG_WITH_EXIF_INVALID_OFFSET,
-            JPEG_WITH_EXIF_FULL_APP1_SEGMENT,
-            DNG_WITH_EXIF_WITH_XMP,
-            JPEG_WITH_EXIF_WITH_XMP,
-            PNG_WITH_EXIF_BYTE_ORDER_II,
-            PNG_WITHOUT_EXIF,
-            WEBP_WITH_EXIF,
-            INVALID_WEBP_WITH_JPEG_APP1_MARKER,
-            WEBP_WITHOUT_EXIF_WITH_ANIM_DATA,
-            WEBP_WITHOUT_EXIF,
-            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING,
-            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA,
-            JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT,
-            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT,
-            HEIF_WITH_EXIF};
 
     private static final double DELTA = 1e-8;
     // We translate double to rational in a 1/10000 precision.
@@ -888,66 +829,64 @@ public class ExifInterfaceTest {
     public final TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         if (ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO && Build.VERSION.SDK_INT >= 26) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectUnbufferedIo()
                     .penaltyDeath()
                     .build());
         }
-
-        for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            File file = tempFolder.newFile(IMAGE_FILENAMES[i]);
-            try (InputStream inputStream =
-                            getApplicationContext()
-                                    .getResources()
-                                    .openRawResource(IMAGE_RESOURCES[i]);
-                    FileOutputStream outputStream = new FileOutputStream(file)) {
-                ByteStreams.copy(inputStream, outputStream);
-            }
-        }
     }
 
     @Test
     @LargeTest
     public void testJpegWithExifIntelByteOrder() throws Throwable {
-        readFromFilesWithExif(
-                JPEG_WITH_EXIF_BYTE_ORDER_II, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II);
-        writeToFilesWithExif(
-                JPEG_WITH_EXIF_BYTE_ORDER_II, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        readFromFilesWithExif(imageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II);
+        writeToFilesWithExif(imageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II);
     }
 
     @Test
     @LargeTest
     public void testJpegWithExifMotorolaByteOrder() throws Throwable {
-        readFromFilesWithExif(
-                JPEG_WITH_EXIF_BYTE_ORDER_MM, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM);
-        writeToFilesWithExif(
-                JPEG_WITH_EXIF_BYTE_ORDER_MM, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_mm, "jpeg_with_exif_byte_order_mm.jpg");
+        readFromFilesWithExif(imageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM);
+        writeToFilesWithExif(imageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM);
     }
 
     @Test
     @LargeTest
     public void testJpegWithExifAndXmp() throws Throwable {
-        readFromFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, ExpectedValue.JPEG_WITH_EXIF_WITH_XMP);
-        writeToFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, ExpectedValue.JPEG_WITH_EXIF_WITH_XMP);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
+        readFromFilesWithExif(imageFile, ExpectedValue.JPEG_WITH_EXIF_WITH_XMP);
+        writeToFilesWithExif(imageFile, ExpectedValue.JPEG_WITH_EXIF_WITH_XMP);
     }
 
     // https://issuetracker.google.com/264729367
     @Test
     @LargeTest
     public void testJpegWithInvalidOffset() throws Throwable {
-        readFromFilesWithExif(
-                JPEG_WITH_EXIF_INVALID_OFFSET, ExpectedValue.JPEG_WITH_EXIF_INVALID_OFFSET);
-        writeToFilesWithExif(
-                JPEG_WITH_EXIF_INVALID_OFFSET, ExpectedValue.JPEG_WITH_EXIF_INVALID_OFFSET);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_invalid_offset, "jpeg_with_exif_invalid_offset.jpg");
+        readFromFilesWithExif(imageFile, ExpectedValue.JPEG_WITH_EXIF_INVALID_OFFSET);
+        writeToFilesWithExif(imageFile, ExpectedValue.JPEG_WITH_EXIF_INVALID_OFFSET);
     }
 
     // https://issuetracker.google.com/263747161
     @Test
     @LargeTest
     public void testJpegWithFullApp1Segment() throws Throwable {
-        File srcFile = resolveImageFile(JPEG_WITH_EXIF_FULL_APP1_SEGMENT);
+        File srcFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_full_app1_segment,
+                        "jpeg_with_exif_full_app1_segment.jpg");
         File imageFile = clone(srcFile);
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         // Add a really long string that makes the Exif data too large for the JPEG APP1 segment.
@@ -968,74 +907,96 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testDngWithExifAndXmp() throws Throwable {
-        readFromFilesWithExif(DNG_WITH_EXIF_WITH_XMP, ExpectedValue.DNG_WITH_EXIF_WITH_XMP);
+        File imageFile =
+                copyFromResourceToFile(R.raw.dng_with_exif_with_xmp, "dng_with_exif_with_xmp.dng");
+        readFromFilesWithExif(imageFile, ExpectedValue.DNG_WITH_EXIF_WITH_XMP);
     }
 
     @Test
     @LargeTest
     public void testPngWithExif() throws Throwable {
-        readFromFilesWithExif(
-                PNG_WITH_EXIF_BYTE_ORDER_II, ExpectedValue.PNG_WITH_EXIF_BYTE_ORDER_II);
-        writeToFilesWithExif(
-                PNG_WITH_EXIF_BYTE_ORDER_II, ExpectedValue.PNG_WITH_EXIF_BYTE_ORDER_II);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.png_with_exif_byte_order_ii, "png_with_exif_byte_order_ii.png");
+        readFromFilesWithExif(imageFile, ExpectedValue.PNG_WITH_EXIF_BYTE_ORDER_II);
+        writeToFilesWithExif(imageFile, ExpectedValue.PNG_WITH_EXIF_BYTE_ORDER_II);
     }
 
     @Test
     @LargeTest
     public void testPngWithoutExif() throws Throwable {
-        writeToFilesWithoutExif(PNG_WITHOUT_EXIF);
+        File imageFile =
+                copyFromResourceToFile(R.raw.png_with_exif_byte_order_ii, "png_without_exif.png");
+        writeToFilesWithoutExif(imageFile);
     }
 
     @Test
     @LargeTest
     public void testStandaloneData() throws Throwable {
+        File jpegIiImageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
         readFromStandaloneDataWithExif(
-                JPEG_WITH_EXIF_BYTE_ORDER_II,
-                ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II_STANDALONE);
+                jpegIiImageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_II_STANDALONE);
+
+        File jpegMmImageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_mm, "jpeg_with_exif_byte_order_mm.jpg");
         readFromStandaloneDataWithExif(
-                JPEG_WITH_EXIF_BYTE_ORDER_MM,
-                ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM_STANDALONE);
+                jpegMmImageFile, ExpectedValue.JPEG_WITH_EXIF_BYTE_ORDER_MM_STANDALONE);
     }
 
     @Test
     @LargeTest
     public void testWebpWithExif() throws Throwable {
-        readFromFilesWithExif(WEBP_WITH_EXIF, ExpectedValue.WEBP_WITH_EXIF);
-        writeToFilesWithExif(WEBP_WITH_EXIF, ExpectedValue.WEBP_WITH_EXIF);
+        File imageFile = copyFromResourceToFile(R.raw.webp_with_exif, "webp_with_exif.jpg");
+        readFromFilesWithExif(imageFile, ExpectedValue.WEBP_WITH_EXIF);
+        writeToFilesWithExif(imageFile, ExpectedValue.WEBP_WITH_EXIF);
     }
 
     @Test
     @LargeTest
     public void testWebpWithExifApp1() throws Throwable {
-        readFromFilesWithExif(
-                INVALID_WEBP_WITH_JPEG_APP1_MARKER,
-                ExpectedValue.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
-        writeToFilesWithExif(
-                INVALID_WEBP_WITH_JPEG_APP1_MARKER,
-                ExpectedValue.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.invalid_webp_with_jpeg_app1_marker,
+                        "invalid_webp_with_jpeg_app1_marker.webp");
+        readFromFilesWithExif(imageFile, ExpectedValue.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
+        writeToFilesWithExif(imageFile, ExpectedValue.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
     }
 
     @Test
     @LargeTest
     public void testWebpWithoutExif() throws Throwable {
-        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF);
+        File imageFile = copyFromResourceToFile(R.raw.webp_without_exif, "webp_without_exif.webp");
+        writeToFilesWithoutExif(imageFile);
     }
 
     @Test
     @LargeTest
     public void testWebpWithoutExifWithAnimData() throws Throwable {
-        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.webp_with_anim_without_exif, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
+        writeToFilesWithoutExif(imageFile);
     }
     @Test
     @LargeTest
     public void testWebpWithoutExifWithLosslessEncoding() throws Throwable {
-        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.webp_lossless_without_exif, "webp_lossless_without_exif.webp");
+        writeToFilesWithoutExif(imageFile);
     }
 
     @Test
     @LargeTest
     public void testWebpWithoutExifWithLosslessEncodingAndAlpha() throws Throwable {
-        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.webp_lossless_alpha_without_exif,
+                        "webp_lossless_alpha_without_exif.webp");
+        writeToFilesWithoutExif(imageFile);
     }
 
     /**
@@ -1044,17 +1005,17 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testHeifFile() throws Throwable {
+        File imageFile = copyFromResourceToFile(R.raw.heif_with_exif, "heif_with_exif.heic");
         if (Build.VERSION.SDK_INT >= 28) {
             // Reading XMP data from HEIF was added in SDK 31.
             readFromFilesWithExif(
-                    HEIF_WITH_EXIF,
+                    imageFile,
                     Build.VERSION.SDK_INT >= 31
                             ? ExpectedValue.HEIF_WITH_EXIF_API_31_AND_ABOVE
                             : ExpectedValue.HEIF_WITH_EXIF_BELOW_API_31);
         } else {
             // Make sure that an exception is not thrown and that image length/width tag values
             // return default values, not the actual values.
-            File imageFile = resolveImageFile(HEIF_WITH_EXIF);
             ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
             String defaultTagValue = "0";
             assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH));
@@ -1195,7 +1156,10 @@ public class ExifInterfaceTest {
                 + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
         final String expectedDatetimeOffsetStringValue = "+09:00";
 
-        File imageFile = resolveImageFile(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_datetime_tag_primary_format,
+                        "jpeg_with_datetime_tag_primary_format.jpg");
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
         // Test getting datetime values
         assertEquals(expectedGetDatetimeValue, (long) exif.getDateTime());
@@ -1260,7 +1224,10 @@ public class ExifInterfaceTest {
                 + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
         final String expectedDateTimeStringValue = "2016-01-29 18:32:27";
 
-        File imageFile = resolveImageFile(JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_datetime_tag_secondary_format,
+                        "jpeg_with_datetime_tag_secondary_format.jpg");
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals(expectedDateTimeStringValue,
                 exif.getAttribute(ExifInterface.TAG_DATETIME));
@@ -1284,7 +1251,10 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testAddDefaultValuesForCompatibility() throws Exception {
-        File imageFile = resolveImageFile(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_datetime_tag_primary_format,
+                        "jpeg_with_datetime_tag_primary_format.jpg");
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
 
         // 1. Check that the TAG_DATETIME value is not overwritten by TAG_DATETIME_ORIGINAL's value
@@ -1308,7 +1278,10 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testSubsec() throws IOException {
-        File imageFile = resolveImageFile(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_datetime_tag_primary_format,
+                        "jpeg_with_datetime_tag_primary_format.jpg");
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
 
         // Set initial value to 0
@@ -1384,7 +1357,9 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testRotation() throws IOException {
-        File imageFile = resolveImageFile(JPEG_WITH_EXIF_BYTE_ORDER_II);
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
 
         int num;
@@ -1643,9 +1618,8 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void readFromStandaloneDataWithExif(String fileName, ExpectedValue expectedValue)
+    private void readFromStandaloneDataWithExif(File imageFile, ExpectedValue expectedValue)
             throws IOException {
-        File imageFile = resolveImageFile(fileName);
         String verboseTag = imageFile.getName();
 
         byte[] exifBytes;
@@ -1664,9 +1638,8 @@ public class ExifInterfaceTest {
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
     }
 
-    private void testExifInterfaceCommon(String fileName, ExpectedValue expectedValue)
+    private void testExifInterfaceCommon(File imageFile, ExpectedValue expectedValue)
             throws IOException {
-        File imageFile = resolveImageFile(fileName);
         String verboseTag = imageFile.getName();
 
         // Creates via file.
@@ -1702,10 +1675,8 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void testExifInterfaceRange(String fileName, ExpectedValue expectedValue)
+    private void testExifInterfaceRange(File imageFile, ExpectedValue expectedValue)
             throws IOException {
-        File imageFile = resolveImageFile(fileName);
-
         try (InputStream in =
                 new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedValue.hasThumbnail) {
@@ -1751,10 +1722,8 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void writeToFilesWithExif(String fileName, ExpectedValue expectedValue)
+    private void writeToFilesWithExif(File srcFile, ExpectedValue expectedValue)
             throws IOException {
-
-        File srcFile = resolveImageFile(fileName);
         File imageFile = clone(srcFile);
         String verboseTag = imageFile.getName();
 
@@ -1804,18 +1773,17 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void readFromFilesWithExif(String fileName, ExpectedValue expectedValue)
+    private void readFromFilesWithExif(File imageFile, ExpectedValue expectedValue)
             throws IOException {
 
         // Test for reading from external data storage.
-        testExifInterfaceCommon(fileName, expectedValue);
+        testExifInterfaceCommon(imageFile, expectedValue);
 
         // Test for checking expected range by retrieving raw data with given offset and length.
-        testExifInterfaceRange(fileName, expectedValue);
+        testExifInterfaceRange(imageFile, expectedValue);
     }
 
-    private void writeToFilesWithoutExif(String fileName) throws IOException {
-        File srcFile = resolveImageFile(fileName);
+    private void writeToFilesWithoutExif(File srcFile) throws IOException {
         File imageFile = clone(srcFile);
 
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
@@ -1875,10 +1843,6 @@ public class ExifInterfaceTest {
             throw new EOFException();
         }
         return (short) ((ch1 << 8) + (ch2));
-    }
-
-    private File resolveImageFile(String fileName) {
-        return new File(tempFolder.getRoot(), fileName);
     }
 
     /**
@@ -1953,5 +1917,15 @@ public class ExifInterfaceTest {
                 File.createTempFile("tmp_", System.nanoTime() + "_" + original.getName());
         Files.copy(original, cloned);
         return cloned;
+    }
+
+    private File copyFromResourceToFile(int resourceId, String filename) throws IOException {
+        File file = tempFolder.newFile(filename);
+        try (InputStream inputStream =
+                        getApplicationContext().getResources().openRawResource(resourceId);
+                FileOutputStream outputStream = new FileOutputStream(file)) {
+            ByteStreams.copy(inputStream, outputStream);
+        }
+        return file;
     }
 }
