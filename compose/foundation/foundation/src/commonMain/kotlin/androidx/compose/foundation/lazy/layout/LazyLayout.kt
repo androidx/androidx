@@ -107,7 +107,7 @@ fun LazyLayout(
 
         SubcomposeLayout(
             subcomposeLayoutState,
-            modifier,
+            modifier.traversablePrefetchState(prefetchState),
             remember(itemContentFactory, measurePolicy) {
                 { constraints ->
                     with(
