@@ -85,9 +85,6 @@ supportRoot="$(pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
 tempDir="$checkoutRoot/simplify-tmp"
 
-# If the this script was run from a subdirectory, then we run our test command from the same subdirectory
-commandSubdir="$(echo $workingDir | sed "s|^$supportRoot|.|g")"
-
 if [ ! -e "$workingDir/gradlew" ]; then
   echo "Error; ./gradlew does not exist. Must cd to a dir containing a ./gradlew first"
   # so that this script knows which gradlew to use (in frameworks/support or frameworks/support/ui)
@@ -123,7 +120,7 @@ while [ "$1" != "" ]; do
     if [ "$1" == "" ]; then
       usage
     fi
-    testCommand="cd $commandSubdir && $1"
+    testCommand="$1"
     shift
     gradleCommand=""
     grepCommand=""
@@ -230,14 +227,14 @@ if [ "$gradleCommand" != "" ]; then
       mkdir -p "$tempDir"
       cp -r "$referenceFailingDir" "$outTestDir"
       echo Doing first test build
-      if bash -c "cd "$outTestDir/$commandSubdir" && $gradleCommand $gradleTasks; $grepCommand"; then
+      if bash -c "cd "$outTestDir" && $gradleCommand $gradleTasks; $grepCommand"; then
         echo Reproduced the problem
       else
         echo Failed to reproduce the problem
         exit 1
       fi
       echo Doing another test build to determine if cleaning between builds is necessary
-      if bash -c "cd "$outTestDir/$commandSubdir" && $gradleCommand $gradleTasks; $grepCommand"; then
+      if bash -c "cd "$outTestDir" && $gradleCommand $gradleTasks; $grepCommand"; then
         echo Reproduced the problem even when not starting from a clean out/ dir
       else
         echo Did not reproduce the problem when starting from previous out/ dir
@@ -255,9 +252,9 @@ if [ "$gradleCommand" != "" ]; then
       rm "$outTestDir" -rf
       mkdir -p "$tempDir"
       cp -r "$supportRoot" "$outTestDir"
-      if bash -c "cd "$outTestDir/$commandSubdir" && OUT_DIR=out ./gradlew projects --no-daemon && cp -r out out-base && $gradleCommand $gradleTasks; $grepCommand"; then
+      if bash -c "cd "$outTestDir" && OUT_DIR=out ./gradlew projects --no-daemon && cp -r out out-base && $gradleCommand $gradleTasks; $grepCommand"; then
         echo Will reuse base out dir of "$startingOutDir"
-        cp -r "$outTestDir/$commandSubdir/out-base" "$startingOutDir"
+        cp -r "$outTestDir/out-base" "$startingOutDir"
       else
         echo Will start subsequent builds from empty out dir
         mkdir -p "$startingOutDir"
@@ -300,10 +297,8 @@ if [ "$gradleCommand" != "" ]; then
   fi
 
   # build command for passing to diff-filterer
-  # cd to ./ui if needed
-  testCommand="cd $commandSubdir"
   # set OUT_DIR
-  testCommand="$testCommand && export OUT_DIR=out"
+  testCommand="export OUT_DIR=out"
   # delete generated files if needed
   if [ "$gradle_prepareState_command" != "" ]; then
     testCommand="$testCommand && $gradle_prepareState_command"
