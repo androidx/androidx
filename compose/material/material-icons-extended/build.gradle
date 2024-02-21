@@ -125,7 +125,7 @@ IconGenerationTask.registerExtendedIconThemeProject(project, android)
 
 androidx {
     name = "Compose Material Icons Extended"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     // This module has a large number (5000+) of generated source files and so doc generation /
     // API tracking will simply take too long
     runApiTasks = new RunApiTasks.No("Five thousand generated source files")

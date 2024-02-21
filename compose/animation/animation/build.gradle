@@ -120,7 +120,7 @@ dependencies {
 
 androidx {
     name = "Compose Animation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2019"
     description = "Compose animation library"
     legacyDisableKotlinStrictApiMode = true

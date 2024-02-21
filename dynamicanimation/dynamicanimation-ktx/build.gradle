@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,7 @@ dependencies {
 
 androidx {
     name = "Dynamic animation Kotlin Extensions"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     mavenVersion = LibraryVersions.DYNAMICANIMATION_KTX
     inceptionYear = "2018"
     description = "Kotlin extensions for 'dynamicanimation' artifact"

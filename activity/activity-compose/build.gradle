@@ -21,8 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
-import androidx.build.RunApiTasks
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -55,10 +54,9 @@ dependencies {
 
 androidx {
     name = "Activity Compose"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2020"
     description = "Compose integration with Activity"
-    runApiTasks = new RunApiTasks.Yes()
     metalavaK2UastEnabled = true
     samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
 }

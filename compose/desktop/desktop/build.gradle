@@ -97,7 +97,7 @@ tasks.findByName("jvmTest").configure {
 
 androidx {
     name = "Compose Desktop"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     legacyDisableKotlinStrictApiMode = true

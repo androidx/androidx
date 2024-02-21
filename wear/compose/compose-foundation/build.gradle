@@ -73,12 +73,11 @@ android {
 
 androidx {
     name = "Android Wear Compose Foundation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "WearOS Compose Foundation Library. This library makes it easier for developers" +
             "to write Jetpack Compose applications for Wearable devices by providing " +
             "functionality to support wearable specific devices sizes, shapes and navigation " +
             "gestures. It builds upon the Jetpack Compose libraries."
-    targetsJavaConsumers = false
     samples(project(":wear:compose:compose-foundation-samples"))
 }

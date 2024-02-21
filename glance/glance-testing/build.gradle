@@ -59,9 +59,8 @@ android {
 
 androidx {
     name = "Glance Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2023"
     description = "This library provides base APIs to enable testing Glance"
-    targetsJavaConsumers = false
     metalavaK2UastEnabled = true
 }

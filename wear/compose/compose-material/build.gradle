@@ -77,12 +77,11 @@ android {
 
 androidx {
     name = "Android Wear Compose Material"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "WearOS Compose Material Library. This library makes it easier for developers " +
             "to write Jetpack Compose applications for Wearable devices that implement Wear " +
             "Material Design UX guidelines and specifications. It builds upon the Jetpack Compose" +
             " libraries."
-    targetsJavaConsumers = false
     samples(project(":wear:compose:compose-material-samples"))
 }
