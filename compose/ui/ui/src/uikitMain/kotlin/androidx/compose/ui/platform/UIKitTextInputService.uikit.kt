@@ -132,6 +132,7 @@ internal class UIKitTextInputService(
         currentImeActionHandler = null
         hideSoftwareKeyboard()
 
+        textUIView?.inputTraits = EmptyInputTraits
         textUIView?.input = null
         textUIView?.let { view ->
             mainScope.launch {
