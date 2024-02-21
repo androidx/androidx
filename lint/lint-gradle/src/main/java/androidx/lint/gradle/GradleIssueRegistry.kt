@@ -29,6 +29,7 @@ class GradleIssueRegistry : IssueRegistry() {
     override val issues = listOf(
         EagerConfigurationDetector.ISSUE,
         InternalApiUsageDetector.ISSUE,
+        WithPluginClasspathUsageDetector.ISSUE,
     )
 
     override val vendor = Vendor(
