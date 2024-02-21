@@ -1143,7 +1143,9 @@ internal constructor(
             best = screenLockedFallback // This is NoDataComplicationData.
         }
 
-        if (!forceUpdate && selectedData == best) return
+        // When b/323483515 is fixed, go back to using regular equality rather than reference
+        // equality.
+        if (!forceUpdate && selectedData === best) return
 
         val frozen = frozenDataSourceForEdit != null
         if (!frozen || forceLoad) {
