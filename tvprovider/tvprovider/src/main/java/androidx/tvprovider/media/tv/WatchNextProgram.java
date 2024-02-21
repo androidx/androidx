@@ -78,6 +78,7 @@ import java.util.Set;
  *         null, null);
  * </pre>
  */
+@SuppressWarnings("HiddenSuperclass")
 public final class WatchNextProgram extends BasePreviewProgram {
     /**
      * The projection for a {@link WatchNextProgram} query.

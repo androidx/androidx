@@ -30,6 +30,7 @@ import androidx.appsearch.safeparcel.stub.StubCreators.StorageInfoCreator;
 
 /** The response class of {@code AppSearchSession#getStorageInfo}. */
 @SafeParcelable.Class(creator = "StorageInfoCreator")
+@SuppressWarnings("HiddenSuperclass")
 public final class StorageInfo extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)

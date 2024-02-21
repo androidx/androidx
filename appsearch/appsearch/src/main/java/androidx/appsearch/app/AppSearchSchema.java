@@ -64,6 +64,7 @@ import java.util.Set;
  * @see AppSearchSession#setSchemaAsync
  */
 @SafeParcelable.Class(creator = "AppSearchSchemaCreator")
+@SuppressWarnings("HiddenSuperclass")
 public final class AppSearchSchema extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
