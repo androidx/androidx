@@ -49,14 +49,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
@@ -118,7 +116,8 @@ private class DrawStretchOverscrollModifier(
 
     @Suppress("KotlinConstantConditions")
     override fun ContentDrawScope.draw() {
-        if (overscrollEffect.containerSize.isEmpty()) {
+        overscrollEffect.updateSize(size)
+        if (size.isEmpty()) {
             // Draw any out of bounds content
             drawContent()
             return
@@ -179,8 +178,11 @@ private class DrawStretchOverscrollModifier(
                 val leftEffect = getOrCreateLeftEffect()
                 needsInvalidate = drawLeftStretch(leftEffect, recordingCanvas) || needsInvalidate
                 if (isLeftStretched()) {
+                    // Displacement isn't currently used in AOSP for stretch, but provide the same
+                    // displacement in case any OEMs have custom behavior.
+                    val displacementY = overscrollEffect.displacement().y
                     getOrCreateLeftEffectNegation()
-                        .onPullDistanceCompat(leftEffect.distanceCompat, 0f)
+                        .onPullDistanceCompat(leftEffect.distanceCompat, 1 - displacementY)
                 }
             }
             if (isTopNegationStretched()) {
@@ -193,8 +195,11 @@ private class DrawStretchOverscrollModifier(
                 val topEffect = getOrCreateTopEffect()
                 needsInvalidate = drawTopStretch(topEffect, recordingCanvas) || needsInvalidate
                 if (isTopStretched()) {
+                    // Displacement isn't currently used in AOSP for stretch, but provide the same
+                    // displacement in case any OEMs have custom behavior.
+                    val displacementX = overscrollEffect.displacement().x
                     getOrCreateTopEffectNegation()
-                        .onPullDistanceCompat(topEffect.distanceCompat, 0f)
+                        .onPullDistanceCompat(topEffect.distanceCompat, displacementX)
                 }
             }
             if (isRightNegationStretched()) {
@@ -207,8 +212,11 @@ private class DrawStretchOverscrollModifier(
                 val rightEffect = getOrCreateRightEffect()
                 needsInvalidate = drawRightStretch(rightEffect, recordingCanvas) || needsInvalidate
                 if (isRightStretched()) {
+                    // Displacement isn't currently used in AOSP for stretch, but provide the same
+                    // displacement in case any OEMs have custom behavior.
+                    val displacementY = overscrollEffect.displacement().y
                     getOrCreateRightEffectNegation()
-                        .onPullDistanceCompat(rightEffect.distanceCompat, 0f)
+                        .onPullDistanceCompat(rightEffect.distanceCompat, displacementY)
                 }
             }
             if (isBottomNegationStretched()) {
@@ -222,8 +230,11 @@ private class DrawStretchOverscrollModifier(
                 needsInvalidate =
                     drawBottomStretch(bottomEffect, recordingCanvas) || needsInvalidate
                 if (isBottomStretched()) {
+                    // Displacement isn't currently used in AOSP for stretch, but provide the same
+                    // displacement in case any OEMs have custom behavior.
+                    val displacementX = overscrollEffect.displacement().x
                     getOrCreateBottomEffectNegation()
-                        .onPullDistanceCompat(bottomEffect.distanceCompat, 0f)
+                        .onPullDistanceCompat(bottomEffect.distanceCompat, 1 - displacementX)
                 }
             }
 
@@ -310,7 +321,8 @@ private class DrawGlowOverscrollModifier(
 
     @Suppress("KotlinConstantConditions")
     override fun ContentDrawScope.draw() {
-        if (overscrollEffect.containerSize.isEmpty()) {
+        overscrollEffect.updateSize(size)
+        if (size.isEmpty()) {
             // Draw any out of bounds content
             drawContent()
             return
@@ -342,7 +354,7 @@ private class DrawGlowOverscrollModifier(
 
     private fun DrawScope.drawLeftGlow(left: EdgeEffect, canvas: NativeCanvas): Boolean {
         val offset = Offset(
-            -overscrollEffect.containerSize.height,
+            -size.height,
             overscrollConfig.drawPadding.calculateLeftPadding(layoutDirection).toPx()
         )
         return drawWithRotationAndOffset(
@@ -364,7 +376,7 @@ private class DrawGlowOverscrollModifier(
     }
 
     private fun DrawScope.drawRightGlow(right: EdgeEffect, canvas: NativeCanvas): Boolean {
-        val width = overscrollEffect.containerSize.width.roundToInt()
+        val width = size.width.roundToInt()
         val rightPadding = overscrollConfig.drawPadding.calculateRightPadding(layoutDirection)
         val offset = Offset(0f, -width.toFloat() + rightPadding.toPx())
         return drawWithRotationAndOffset(
@@ -377,10 +389,7 @@ private class DrawGlowOverscrollModifier(
 
     private fun DrawScope.drawBottomGlow(bottom: EdgeEffect, canvas: NativeCanvas): Boolean {
         val bottomPadding = overscrollConfig.drawPadding.calculateBottomPadding().toPx()
-        val offset = Offset(
-            -overscrollEffect.containerSize.width,
-            -overscrollEffect.containerSize.height + bottomPadding
-        )
+        val offset = Offset(-size.width, -size.height + bottomPadding)
         return drawWithRotationAndOffset(
             rotationDegrees = 180f,
             offset = offset,
@@ -437,12 +446,11 @@ internal class AndroidEdgeEffectOverscrollEffect(
             stopOverscrollAnimation()
             scrollCycleInProgress = true
         }
-        val pointer = pointerPosition ?: containerSize.center
         // Relax existing stretches if needed before performing scroll
         val consumedPixelsY = when {
             delta.y == 0f -> 0f
             edgeEffectWrapper.isTopStretched() -> {
-                pullTop(delta, pointer).also {
+                pullTop(delta).also {
                     // Release / reset state if we have fully relaxed the stretch
                     if (!edgeEffectWrapper.isTopStretched()) {
                         edgeEffectWrapper.getOrCreateTopEffect().onRelease()
@@ -450,7 +458,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
                 }
             }
             edgeEffectWrapper.isBottomStretched() -> {
-                pullBottom(delta, pointer).also {
+                pullBottom(delta).also {
                     // Release / reset state if we have fully relaxed the stretch
                     if (!edgeEffectWrapper.isBottomStretched()) {
                         edgeEffectWrapper.getOrCreateBottomEffect().onRelease()
@@ -462,7 +470,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
         val consumedPixelsX = when {
             delta.x == 0f -> 0f
             edgeEffectWrapper.isLeftStretched() -> {
-                pullLeft(delta, pointer).also {
+                pullLeft(delta).also {
                     // Release / reset state if we have fully relaxed the stretch
                     if (!edgeEffectWrapper.isLeftStretched()) {
                         edgeEffectWrapper.getOrCreateLeftEffect().onRelease()
@@ -470,7 +478,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
                 }
             }
             edgeEffectWrapper.isRightStretched() -> {
-                pullRight(delta, pointer).also {
+                pullRight(delta).also {
                     // Release / reset state if we have fully relaxed the stretch
                     if (!edgeEffectWrapper.isRightStretched()) {
                         edgeEffectWrapper.getOrCreateRightEffect().onRelease()
@@ -491,19 +499,19 @@ internal class AndroidEdgeEffectOverscrollEffect(
             // Ignore small deltas (< 0.5) as this usually comes from floating point rounding issues
             // and can cause scrolling to lock up (b/265363356)
             val appliedHorizontalOverscroll = if (leftForOverscroll.x > 0.5f) {
-                pullLeft(leftForOverscroll, pointer)
+                pullLeft(leftForOverscroll)
                 true
             } else if (leftForOverscroll.x < -0.5f) {
-                pullRight(leftForOverscroll, pointer)
+                pullRight(leftForOverscroll)
                 true
             } else {
                 false
             }
             val appliedVerticalOverscroll = if (leftForOverscroll.y > 0.5f) {
-                pullTop(leftForOverscroll, pointer)
+                pullTop(leftForOverscroll)
                 true
             } else if (leftForOverscroll.y < -0.5f) {
-                pullBottom(leftForOverscroll, pointer)
+                pullBottom(leftForOverscroll)
                 true
             } else {
                 false
@@ -570,7 +578,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
         animateToRelease()
     }
 
-    internal var containerSize = Size.Zero
+    private var containerSize = Size.Zero
 
     override val isInProgress: Boolean
         get() {
@@ -580,39 +588,50 @@ internal class AndroidEdgeEffectOverscrollEffect(
 
     private fun stopOverscrollAnimation(): Boolean {
         var stopped = false
-        val fakeDisplacement = containerSize.center // displacement doesn't matter here
+        // Displacement doesn't matter here
         if (edgeEffectWrapper.isLeftStretched()) {
-            pullLeft(Offset.Zero, fakeDisplacement)
+            pullLeft(Offset.Zero)
             stopped = true
         }
         if (edgeEffectWrapper.isRightStretched()) {
-            pullRight(Offset.Zero, fakeDisplacement)
+            pullRight(Offset.Zero)
             stopped = true
         }
         if (edgeEffectWrapper.isTopStretched()) {
-            pullTop(Offset.Zero, fakeDisplacement)
+            pullTop(Offset.Zero)
             stopped = true
         }
         if (edgeEffectWrapper.isBottomStretched()) {
-            pullBottom(Offset.Zero, fakeDisplacement)
+            pullBottom(Offset.Zero)
             stopped = true
         }
         return stopped
     }
 
-    private val onNewSize: (IntSize) -> Unit = { size ->
-        val differentSize = size.toSize() != containerSize
-        containerSize = size.toSize()
+    internal fun updateSize(size: Size) {
+        val initialSetSize = containerSize == Size.Zero
+        val differentSize = size != containerSize
+        containerSize = size
         if (differentSize) {
-            edgeEffectWrapper.setSize(size)
+            edgeEffectWrapper.setSize(IntSize(size.width.roundToInt(), size.height.roundToInt()))
         }
-        if (differentSize) {
+        if (!initialSetSize && differentSize) {
             invalidateOverscroll()
             animateToRelease()
         }
     }
 
     private var pointerId: PointerId? = null
+
+    /**
+     * @return displacement based on the last [pointerPosition] and [containerSize]
+     */
+    internal fun displacement(): Offset {
+        val pointer = pointerPosition ?: containerSize.center
+        val x = pointer.x / containerSize.width
+        val y = pointer.y / containerSize.height
+        return Offset(x, y)
+    }
 
     override val effectModifier: Modifier = Modifier
         .pointerInput(Unit) {
@@ -637,7 +656,6 @@ internal class AndroidEdgeEffectOverscrollEffect(
                 // don't change any existing effects
             }
         }
-        .onSizeChanged(onNewSize)
         .then(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 DrawStretchOverscrollModifier(
@@ -698,8 +716,8 @@ internal class AndroidEdgeEffectOverscrollEffect(
         return needsInvalidation
     }
 
-    private fun pullTop(scroll: Offset, displacement: Offset): Float {
-        val displacementX: Float = displacement.x / containerSize.width
+    private fun pullTop(scroll: Offset): Float {
+        val displacementX = displacement().x
         val pullY = scroll.y / containerSize.height
         val topEffect = edgeEffectWrapper.getOrCreateTopEffect()
         val consumed = topEffect.onPullDistanceCompat(pullY, displacementX) * containerSize.height
@@ -712,8 +730,8 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
     }
 
-    private fun pullBottom(scroll: Offset, displacement: Offset): Float {
-        val displacementX: Float = displacement.x / containerSize.width
+    private fun pullBottom(scroll: Offset): Float {
+        val displacementX = displacement().x
         val pullY = scroll.y / containerSize.height
         val bottomEffect = edgeEffectWrapper.getOrCreateBottomEffect()
         val consumed = -bottomEffect.onPullDistanceCompat(
@@ -729,8 +747,8 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
     }
 
-    private fun pullLeft(scroll: Offset, displacement: Offset): Float {
-        val displacementY: Float = displacement.y / containerSize.height
+    private fun pullLeft(scroll: Offset): Float {
+        val displacementY = displacement().y
         val pullX = scroll.x / containerSize.width
         val leftEffect = edgeEffectWrapper.getOrCreateLeftEffect()
         val consumed = leftEffect.onPullDistanceCompat(
@@ -746,8 +764,8 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
     }
 
-    private fun pullRight(scroll: Offset, displacement: Offset): Float {
-        val displacementY: Float = displacement.y / containerSize.height
+    private fun pullRight(scroll: Offset): Float {
+        val displacementY = displacement().y
         val pullX = scroll.x / containerSize.width
         val rightEffect = edgeEffectWrapper.getOrCreateRightEffect()
         val consumed = -rightEffect.onPullDistanceCompat(
