@@ -19,6 +19,7 @@ package androidx.datastore.core
 import androidx.datastore.TestFile
 import androidx.datastore.TestIO
 import androidx.datastore.TestingSerializerConfig
+import androidx.datastore.core.UpdatingDataContextElement.Companion.NESTED_UPDATE_ERROR_MESSAGE
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
@@ -1031,6 +1032,68 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         assertThat(hasObservers()).isTrue()
         collector3.cancelAndJoin()
         assertThat(hasObservers()).isFalse()
+    }
+
+    @Test
+    fun nestedUpdateCallsShouldntDeadlock() = runTest {
+        val result = store.updateData {
+            assertThrows<IllegalStateException> {
+                store.updateData {
+                    // won't execute
+                    2.toByte()
+                }
+            }.hasMessageThat().isEqualTo(NESTED_UPDATE_ERROR_MESSAGE)
+            1.toByte()
+        }
+        assertThat(result).isEqualTo(1.toByte())
+        assertThat(store.data.first()).isEqualTo(1.toByte())
+        // write again, make sure we allow new transactions
+        store.updateData {
+            3.toByte()
+        }
+        assertThat(store.data.first()).isEqualTo(3.toByte())
+    }
+
+    @Test
+    fun nestedUpdatesInDifferentStores() = runTest {
+        val testFile2 = testIO.newTempFile(parentFile = tempFolder)
+        val store2 = testIO.getStore(
+            serializerConfig,
+            dataStoreScope,
+            { createSingleProcessCoordinator(testFile2.path()) }
+        ) { testFile2 }
+        store.updateData {
+            store2.updateData {
+                2.toByte()
+            }
+            1.toByte()
+        }
+        assertThat(store.data.first()).isEqualTo(1.toByte())
+        assertThat(store2.data.first()).isEqualTo(2.toByte())
+    }
+
+    @Test
+    fun nestedUpdatesInDifferentStores_fail() = runTest {
+        val testFile2 = testIO.newTempFile(parentFile = tempFolder)
+        val store2 = testIO.getStore(
+            serializerConfig,
+            dataStoreScope,
+            { createSingleProcessCoordinator(testFile2.path()) }
+        ) { testFile2 }
+        store.updateData {
+            store2.updateData {
+                assertThrows<IllegalStateException> {
+                    // we are in a nested transaction from store, hence this won't be allowed
+                    store.updateData {
+                        3.toByte()
+                    }
+                }.hasMessageThat().isEqualTo(NESTED_UPDATE_ERROR_MESSAGE)
+                2.toByte()
+            }
+            1.toByte()
+        }
+        assertThat(store.data.first()).isEqualTo(1.toByte())
+        assertThat(store2.data.first()).isEqualTo(2.toByte())
     }
 
     private class TestingCorruptionHandler(
