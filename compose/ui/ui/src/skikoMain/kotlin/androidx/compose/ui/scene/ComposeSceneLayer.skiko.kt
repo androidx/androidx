@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -64,7 +65,7 @@ interface ComposeSceneLayer {
     var layoutDirection: LayoutDirection
 
     /**
-     * The real bounds of content in scaled pixels relative to window.
+     * The real bounds of content in pixels relative to [WindowInfo.containerSize].
      * This property is used to set the position and size of [Popup]/[Dialog].
      * The implementation should be ready to react on the changes in size/position that can
      * happen during recompositions.
@@ -150,7 +151,7 @@ interface ComposeSceneLayer {
 
     /**
      * Returns the position relative to the [ComposeScene] of the [positionInWindow],
-     * the position relative to the window.
+     * the position relative to the window in pixels.
      */
     fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset
 }

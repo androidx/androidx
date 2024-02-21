@@ -28,9 +28,9 @@ import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
+import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
@@ -39,7 +39,6 @@ import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toIntRect
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
@@ -178,12 +177,11 @@ class SkikoComposeUiTest(
 
     private fun createUi() = MultiLayerComposeScene(
         density = density,
+        size = size,
         coroutineContext = coroutineContext,
         composeSceneContext = TestComposeSceneContext(),
         invalidate = { }
-    ).also {
-        it.boundsInWindow = size.toIntRect()
-    }
+    )
 
     private fun shouldPumpTime(): Boolean {
         return mainClock.autoAdvance &&

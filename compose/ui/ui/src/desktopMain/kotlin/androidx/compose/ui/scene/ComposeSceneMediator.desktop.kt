@@ -23,33 +23,65 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
-import androidx.compose.ui.input.pointer.*
-import androidx.compose.ui.platform.*
+import androidx.compose.ui.input.pointer.AwtCursor
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerButtons
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.platform.AccessibilityController
+import androidx.compose.ui.platform.ComposeSceneAccessible
+import androidx.compose.ui.platform.DelegateRootForTestListener
+import androidx.compose.ui.platform.DesktopTextInputService
+import androidx.compose.ui.platform.EmptyViewConfiguration
+import androidx.compose.ui.platform.PlatformComponent
+import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.platform.PlatformWindowContext
+import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.sizeInPx
-import java.awt.*
+import java.awt.Component
 import java.awt.Cursor
-import java.awt.event.*
+import java.awt.Dimension
+import java.awt.Point
+import java.awt.Toolkit
+import java.awt.event.ContainerEvent
+import java.awt.event.ContainerListener
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
+import java.awt.event.InputEvent
+import java.awt.event.InputMethodEvent
+import java.awt.event.InputMethodListener
+import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.event.MouseWheelEvent
 import java.awt.im.InputMethodRequests
 import javax.accessibility.Accessible
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToInt
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.*
+import org.jetbrains.skiko.ClipComponent
+import org.jetbrains.skiko.ExperimentalSkikoApi
+import org.jetbrains.skiko.GraphicsApi
+import org.jetbrains.skiko.SkikoInput
+import org.jetbrains.skiko.SkikoView
+import org.jetbrains.skiko.hostOs
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
 /**
@@ -182,7 +214,15 @@ internal class ComposeSceneMediator(
      * For example if we want to show dialog in a separate window with size of this
      * dialog, but constrains (and scene size) should remain the size of the main window.
      */
-    var sceneBoundsInPx: IntRect? = null
+    var sceneBoundsInPx: Rect? = null
+
+    private var offsetInWindow = Point(0, 0)
+        set(value) {
+            if (field != value) {
+                field = value
+                scene.invalidatePositionInWindow()
+            }
+        }
 
     private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
     var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
@@ -346,7 +386,7 @@ internal class ComposeSceneMediator(
     private val MouseEvent.position: Offset
         get() {
             val pointInContainer = SwingUtilities.convertPoint(component, point, container)
-            val offset = sceneBoundsInPx?.topLeft?.toOffset() ?: Offset.Zero
+            val offset = sceneBoundsInPx?.topLeft ?: Offset.Zero
             val density = contentComponent.density
             return Offset(pointInContainer.x.toFloat(), pointInContainer.y.toFloat()) * density.density - offset
         }
@@ -464,22 +504,21 @@ internal class ComposeSceneMediator(
         skiaLayerComponent.onComposeInvalidation()
     }
 
+    fun onChangeComponentPosition() = catchExceptions {
+        if (!container.isDisplayable) return
+
+        offsetInWindow = windowContext.offsetInWindow(container)
+    }
+
     fun onChangeComponentSize() = catchExceptions {
         if (!container.isDisplayable) return
 
-        val offsetInWindow = windowContext.offsetInWindow(container)
         val size = sceneBoundsInPx?.size ?: container.sizeInPx
-        val boundsInWindow = IntRect(
-            offset = offsetInWindow,
-            size = IntSize(
-                // container.sizeInPx can be negative
-                width = size.width.coerceAtLeast(0),
-                height = size.height.coerceAtLeast(0)
-            )
+        scene.size = IntSize(
+            // container.sizeInPx can be negative
+            width = size.width.coerceAtLeast(0f).roundToInt(),
+            height = size.height.coerceAtLeast(0f).roundToInt()
         )
-        if (scene.boundsInWindow != boundsInWindow) {
-            scene.boundsInWindow = boundsInWindow
-        }
     }
 
     fun onChangeComponentDensity() = catchExceptions {
@@ -514,10 +553,10 @@ internal class ComposeSceneMediator(
         override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
             catchExceptions {
                 val composeCanvas = canvas.asComposeCanvas()
-                val offset = sceneBoundsInPx?.topLeft ?: IntOffset.Zero
+                val offset = sceneBoundsInPx?.topLeft ?: Offset.Zero
                 val scale = contentComponent.density.density
-                val dx = contentComponent.x * scale - offset.x.toFloat()
-                val dy = contentComponent.y * scale - offset.y.toFloat()
+                val dx = contentComponent.x * scale - offset.x
+                val dy = contentComponent.y * scale - offset.y
                 composeCanvas.translate(-dx, -dy)
                 scene.render(composeCanvas, nanoTime)
                 composeCanvas.translate(dx, dy)
@@ -595,6 +634,13 @@ internal class ComposeSceneMediator(
     private inner class DesktopPlatformContext : PlatformContext by PlatformContext.Empty {
         override val windowInfo: WindowInfo get() = windowContext.windowInfo
         override val isWindowTransparent: Boolean get() = windowContext.isWindowTransparent
+
+        override fun calculatePositionInWindow(localPosition: Offset): Offset =
+            windowContext.calculatePositionInWindow(container, localPosition)
+
+        override fun calculateLocalPosition(positionInWindow: Offset): Offset =
+            windowContext.calculateLocalPosition(container, positionInWindow)
+
         override val viewConfiguration: ViewConfiguration = DesktopViewConfiguration()
         override val textInputService: PlatformTextInputService = this@ComposeSceneMediator.textInputService
 

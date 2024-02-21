@@ -19,6 +19,7 @@ package androidx.compose.ui
 import org.jetbrains.skia.Canvas as SkCanvas
 import androidx.compose.runtime.*
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.key.KeyEvent
@@ -193,8 +194,8 @@ class ComposeScene internal constructor(
      * Constraints used to measure and layout content.
      */
     var constraints: Constraints
-        get() = replacement.boundsInWindow?.size?.toConstraints() ?: Constraints()
-        set(value) { replacement.boundsInWindow = value.toSize()?.toIntRect() }
+        get() = replacement.size?.toConstraints() ?: Constraints()
+        set(value) { replacement.size = value.toIntSize() }
 
     /**
      * Returns the current content size
@@ -366,7 +367,7 @@ class ComposeScene internal constructor(
     }
 }
 
-private fun Constraints.toSize() =
+private fun Constraints.toIntSize() =
     if (maxWidth != Constraints.Infinity || maxHeight != Constraints.Infinity) {
         IntSize(width = maxWidth, height = maxHeight)
     } else {

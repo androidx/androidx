@@ -18,6 +18,7 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -38,10 +39,10 @@ import org.jetbrains.skiko.currentNanoTime
 @InternalComposeUiApi
 interface PlatformRootForTest : RootForTest {
     /**
-     * The non-clipped area of the [Owner] in scaled pixels relative to window.
+     * The non-clipped area of the [Owner] in pixels relative to window.
      * It's used to check if [SemanticsNode] is visible (in screen bounds).
      */
-    val visibleBounds: IntRect
+    val visibleBounds: Rect
 
     /**
      * Whether the [Owner] has pending layout work.

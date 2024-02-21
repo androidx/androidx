@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
@@ -69,8 +70,8 @@ import kotlinx.coroutines.Dispatchers
  *
  * @param density Initial density of the content which will be used to convert [Dp] units.
  * @param layoutDirection Initial layout direction of the content.
- * @param boundsInWindow The bounds of the ComposeScene. Default value is `null`, which means
- * the size will be determined by the content.
+ * @param size The size of the [ComposeScene]. Default value is `null`, which means the size will be
+ * determined by the content.
  * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
  * [rememberCoroutineScope]) and run recompositions.
  * @param composeSceneContext The context to share resources between multiple scenes and provide
@@ -86,14 +87,14 @@ import kotlinx.coroutines.Dispatchers
 fun MultiLayerComposeScene(
     density: Density = Density(1f),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    boundsInWindow: IntRect? = null,
+    size: IntSize? = null,
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     composeSceneContext: ComposeSceneContext = ComposeSceneContext.Empty,
     invalidate: () -> Unit = {},
 ): ComposeScene = MultiLayerComposeSceneImpl(
     density = density,
     layoutDirection = layoutDirection,
-    boundsInWindow = boundsInWindow,
+    size = size,
     coroutineContext = coroutineContext,
     composeSceneContext = composeSceneContext,
     invalidate = invalidate
@@ -102,7 +103,7 @@ fun MultiLayerComposeScene(
 private class MultiLayerComposeSceneImpl(
     density: Density,
     layoutDirection: LayoutDirection,
-    boundsInWindow: IntRect?,
+    size: IntSize?,
     coroutineContext: CoroutineContext,
     composeSceneContext: ComposeSceneContext,
     invalidate: () -> Unit = {},
@@ -114,7 +115,7 @@ private class MultiLayerComposeSceneImpl(
     private val mainOwner = RootNodeOwner(
         density = density,
         layoutDirection = layoutDirection,
-        bounds = boundsInWindow,
+        size = size,
         coroutineContext = compositionContext.effectCoroutineContext,
         platformContext = composeSceneContext.platformContext,
         snapshotInvalidationTracker = snapshotInvalidationTracker,
@@ -135,15 +136,15 @@ private class MultiLayerComposeSceneImpl(
             mainOwner.layoutDirection = value
         }
 
-    override var boundsInWindow: IntRect? = boundsInWindow
+    override var size: IntSize? = size
         set(value) {
             check(!isClosed) { "ComposeScene is closed" }
-            check(value == null || (value.size.width >= 0 && value.size.height >= 0)) {
+            check(value == null || (value.width >= 0f && value.height >= 0)) {
                 "Size of ComposeScene cannot be negative"
             }
             field = value
-            mainOwner.bounds = value
-            forEachLayer { it.owner.bounds = value }
+            mainOwner.size = value
+            forEachLayer { it.owner.size = value }
         }
 
     private val _focusManager = ComposeSceneFocusManagerImpl()
@@ -197,6 +198,11 @@ private class MultiLayerComposeSceneImpl(
     override fun calculateContentSize(): IntSize {
         check(!isClosed) { "ComposeScene is closed" }
         return mainOwner.measureInConstraints(Constraints())
+    }
+
+    override fun invalidatePositionInWindow() {
+        check(!isClosed) { "ComposeScene is closed" }
+        mainOwner.invalidatePositionInWindow()
     }
 
     override fun createComposition(content: @Composable () -> Unit): Composition {
@@ -390,7 +396,6 @@ private class MultiLayerComposeSceneImpl(
     ): ComposeSceneLayer = AttachedComposeSceneLayer(
         density = density,
         layoutDirection = layoutDirection,
-        bounds = boundsInWindow,
         focusable = focusable,
         compositionContext = compositionContext,
     )
@@ -476,7 +481,6 @@ private class MultiLayerComposeSceneImpl(
     private inner class AttachedComposeSceneLayer(
         density: Density,
         layoutDirection: LayoutDirection,
-        bounds: IntRect?,
         focusable: Boolean,
         private val compositionContext: CompositionContext,
     ) : ComposeSceneLayer {
@@ -484,7 +488,7 @@ private class MultiLayerComposeSceneImpl(
             density = density,
             layoutDirection = layoutDirection,
             coroutineContext = compositionContext.effectCoroutineContext,
-            bounds = bounds,
+            size = this@MultiLayerComposeSceneImpl.size,
             platformContext = object : PlatformContext by composeSceneContext.platformContext {
 
                 /**
@@ -590,16 +594,10 @@ private class MultiLayerComposeSceneImpl(
             }
         }
 
-        override fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset {
-            val offset = owner.bounds?.topLeft ?: IntOffset.Zero
-            return positionInWindow - offset
-        }
+        override fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset =
+            positionInWindow // [ComposeScene] is equal to window in this implementation.
 
-        fun isInBounds(position: Offset): Boolean {
-            val offset = owner.bounds?.topLeft ?: IntOffset.Zero
-            val positionInWindow = IntOffset(position.x.toInt(), position.y.toInt()) + offset
-            return boundsInWindow.contains(positionInWindow)
-        }
+        fun isInBounds(position: Offset) = boundsInWindow.contains(position.round())
 
         fun onOutsidePointerEvent(event: PointerInputEvent) {
             if (!event.isMainAction()) {

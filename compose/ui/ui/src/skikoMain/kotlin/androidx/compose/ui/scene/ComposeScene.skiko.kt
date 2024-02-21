@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -34,12 +35,13 @@ import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.Dialog
@@ -86,20 +88,15 @@ interface ComposeScene {
     var layoutDirection: LayoutDirection
 
     /**
-     * Represents the scene bounds relatively to window in pixels.
-     *
-     * The position is used to convert local coordinates to window ones.
-     *
-     * The size is used to impose constraints on the content. If the size is undefined, it can be
-     * set to `null`. In such a case, the content will be laid out without any restrictions and
-     * the window size will be utilized to bounds verification.
-     *
-     * TODO split boundsInWindow and size https://youtrack.jetbrains.com/issue/COMPOSE-964
+     * The size (in pixels) is used to impose constraints on the content. If the size is undefined,
+     * it can be set to `null`. In such a case, the content will be laid out without any
+     * restrictions and the window size will be utilized to bounds verification.
      */
-    var boundsInWindow: IntRect?
+    var size: IntSize?
 
     /**
-     * Top-level composition locals, which will be provided for the Composable content, which is set by [setContent].
+     * Top-level composition locals, which will be provided for the Composable content,
+     * which is set by [setContent].
      *
      * `null` if no composition locals should be provided.
      */
@@ -130,12 +127,21 @@ interface ComposeScene {
     fun close()
 
     /**
-     * Returns the current content size in infinity constraints.
+     * Returns the current content size (in pixels) in infinity constraints.
      *
-     * @throws IllegalStateException when [ComposeScene] content has lazy layouts without maximum size bounds
-     * (e.g. LazyColumn without maximum height).
+     * @throws IllegalStateException when [ComposeScene] content has lazy layouts without maximum
+     * size bounds (e.g. LazyColumn without maximum height).
      */
     fun calculateContentSize(): IntSize
+
+    /**
+     * Invalidates position of [ComposeScene] in window. It will trigger callbacks like
+     * [Modifier.onGloballyPositioned] so they can recalculate actual position in the window.
+     *
+     * @see PlatformContext.calculatePositionInWindow
+     * @see PlatformContext.calculateLocalPosition
+     */
+    fun invalidatePositionInWindow()
 
     /**
      * Returns true if there are pending recompositions, renders or dispatched tasks.

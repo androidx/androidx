@@ -202,7 +202,7 @@ internal class SwingComposeSceneLayer(
         )
     }
 
-    override fun onChangeWindowBounds() {
+    override fun onChangeWindowSize() {
         containerSize = IntSize(windowContainer.width, windowContainer.height)
     }
 

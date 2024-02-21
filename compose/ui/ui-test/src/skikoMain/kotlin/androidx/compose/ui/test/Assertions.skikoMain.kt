@@ -74,14 +74,7 @@ internal actual fun SemanticsNode.isInScreenBounds(assertIsFullyVisible: Boolean
             nodeBoundsInWindow.bottom <= visibleBounds.bottom
     } else {
         // assertIsDisplayed only throws if the element is fully offscreen
-        !nodeBoundsInWindow.intersect(
-            Rect(
-                visibleBounds.left.toFloat(),
-                visibleBounds.top.toFloat(),
-                visibleBounds.right.toFloat(),
-                visibleBounds.bottom.toFloat()
-            )
-        ).isEmpty
+        !nodeBoundsInWindow.intersect(visibleBounds).isEmpty
     }
 }
 

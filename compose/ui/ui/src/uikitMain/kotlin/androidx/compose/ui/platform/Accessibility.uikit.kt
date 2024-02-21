@@ -18,30 +18,30 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.semantics.SemanticsOwner
-import androidx.compose.ui.semantics.SemanticsProperties
-import kotlinx.cinterop.CValue
-import kotlinx.coroutines.delay
-import platform.CoreGraphics.CGRect
-import platform.Foundation.NSNotFound
-import platform.UIKit.accessibilityElements
-import platform.UIKit.isAccessibilityElement
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.toCGRect
 import androidx.compose.ui.uikit.utils.*
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.asCGRect
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toSize
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.measureTime
+import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
+import platform.Foundation.NSNotFound
 import platform.UIKit.NSStringFromCGRect
 import platform.UIKit.UIAccessibilityCustomAction
 import platform.UIKit.UIAccessibilityFocusedElement
@@ -65,6 +65,8 @@ import platform.UIKit.UIAccessibilityTraitUpdatesFrequently
 import platform.UIKit.UIAccessibilityTraits
 import platform.UIKit.UIView
 import platform.UIKit.accessibilityCustomActions
+import platform.UIKit.accessibilityElements
+import platform.UIKit.isAccessibilityElement
 import platform.darwin.NSInteger
 import platform.darwin.NSObject
 
@@ -967,8 +969,8 @@ internal class AccessibilityMediator(
 
     fun convertRectToWindowSpaceCGRect(rect: Rect): CValue<CGRect> {
         val window = view.window ?: return CGRectMake(0.0, 0.0, 0.0, 0.0)
-
-        val localSpaceCGRect = rect.toCGRect(window.screen.scale)
+        val density = Density(window.screen.scale.toFloat())
+        val localSpaceCGRect = rect.toDpRect(density).asCGRect()
         return window.convertRect(localSpaceCGRect, fromView = view)
     }
 

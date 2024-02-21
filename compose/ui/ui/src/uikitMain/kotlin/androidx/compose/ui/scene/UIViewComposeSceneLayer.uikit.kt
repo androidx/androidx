@@ -24,12 +24,12 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
-import androidx.compose.ui.toDpOffset
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.ComposeContainer
@@ -82,10 +82,10 @@ internal class UIViewComposeSceneLayer(
          */
         override fun touchesEnded(touches: Set<*>, withEvent: UIEvent?) {
             val touch = touches.firstOrNull() as? UITouch
-            val locationInView = touch?.locationInView(this)
+            val locationInView = touch?.locationInView(this)?.useContents { asDpOffset() }
             if (locationInView != null) {
-                val offset = locationInView.useContents { toDpOffset() }
-                val contains = boundsInWindow.contains(offset.toOffset(density).round())
+                // This view's coordinate space is equal to [ComposeScene]'s
+                val contains = boundsInWindow.contains(locationInView.toOffset(density).round())
                 if (!contains) {
                     onOutsidePointerEvent?.invoke(PointerEventType.Release)
                 }
@@ -100,7 +100,8 @@ internal class UIViewComposeSceneLayer(
             ) {
                 touchStartedOutside(withEvent)
                 if (focusable) {
-                    return this // block touches
+                    // Focusable layers don't pass touches through, even if it's out of bounds.
+                    return this
                 }
             }
             return null // transparent for touches
@@ -139,11 +140,11 @@ internal class UIViewComposeSceneLayer(
         coroutineContext: CoroutineContext,
     ): ComposeScene =
         SingleLayerComposeScene(
+            density = initDensity, // We should use the local density already set for the current layer.
+            layoutDirection = initLayoutDirection,
             coroutineContext = coroutineContext,
             composeSceneContext = composeContainer.createComposeSceneContext(platformContext),
-            density = initDensity, // We should use the local density already set for the current layer.
             invalidate = invalidate,
-            layoutDirection = initLayoutDirection,
         )
 
     override var density by mediator::density

@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.toDpOffset
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.asDpOffset
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
@@ -83,7 +83,7 @@ internal class InteractionUIView(
      * https://developer.apple.com/documentation/uikit/uiview/1622533-point
      */
     override fun pointInside(point: CValue<CGPoint>, withEvent: UIEvent?): Boolean {
-        val pointOffset = point.useContents { this.toDpOffset() }
+        val pointOffset = point.useContents { this.asDpOffset() }
         return checkBounds(pointOffset) && touchesDelegate.pointInside(point, withEvent)
     }
 

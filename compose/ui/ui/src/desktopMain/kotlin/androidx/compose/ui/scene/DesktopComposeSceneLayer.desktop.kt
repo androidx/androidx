@@ -20,6 +20,6 @@ internal abstract class DesktopComposeSceneLayer : ComposeSceneLayer {
     open fun onChangeWindowFocus() {
     }
 
-    open fun onChangeWindowBounds() {
+    open fun onChangeWindowSize() {
     }
 }

@@ -29,15 +29,13 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.scene.ComposeScenePointer
+import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toIntRect
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.DurationUnit.NANOSECONDS
@@ -137,9 +135,9 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
     private val scene = MultiLayerComposeScene(
         density = density,
         layoutDirection = layoutDirection,
+        size = IntSize(width, height),
         coroutineContext = coroutineContext,
     ).also {
-        it.boundsInWindow = IntRect(0, 0, width, height)
         it.setContent(content = content)
     }
 
@@ -172,8 +170,8 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
      * Constraints used to measure and layout content.
      */
     var constraints: Constraints
-        get() = scene.boundsInWindow?.size?.toConstraints() ?: Constraints()
-        set(value) { scene.boundsInWindow = value.toSize()?.toIntRect() }
+        get() = scene.size?.toConstraints() ?: Constraints()
+        set(value) { scene.size = value.toIntSize() }
 
     /**
      * Returns true if there are pending recompositions, renders or dispatched tasks.
@@ -301,7 +299,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
     fun sendKeyEvent(event: KeyEvent): Boolean = scene.sendKeyEvent(event)
 }
 
-private fun Constraints.toSize() =
+private fun Constraints.toIntSize() =
     if (maxWidth != Constraints.Infinity || maxHeight != Constraints.Infinity) {
         IntSize(width = maxWidth, height = maxHeight)
     } else {

@@ -40,7 +40,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.asCGRect
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.unit.toRect
+import androidx.compose.ui.unit.width
 import kotlinx.atomicfu.atomic
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGRect
@@ -89,7 +94,7 @@ fun <T : UIView> UIKitView(
             onRelease
         )
     }
-    val density = LocalDensity.current.density
+    val density = LocalDensity.current
     var rectInPixels by remember { mutableStateOf(IntRect(0, 0, 0, 0)) }
     var localToWindowOffset: IntOffset by remember { mutableStateOf(IntOffset.Zero) }
     val interopContext = LocalUIKitInteropContext.current
@@ -99,17 +104,17 @@ fun <T : UIView> UIKitView(
             localToWindowOffset = coordinates.positionInRoot().round()
             val newRectInPixels = IntRect(localToWindowOffset, coordinates.size)
             if (rectInPixels != newRectInPixels) {
-                val rect = newRectInPixels / density
+                val rect = newRectInPixels.toRect().toDpRect(density)
 
                 interopContext.deferAction {
-                    embeddedInteropComponent.wrappingView.setFrame(rect.toCGRect())
+                    embeddedInteropComponent.wrappingView.setFrame(rect.asCGRect())
                 }
 
                 if (rectInPixels.width != newRectInPixels.width || rectInPixels.height != newRectInPixels.height) {
                     interopContext.deferAction {
                         onResize(
                             embeddedInteropComponent.component,
-                            CGRectMake(0.0, 0.0, rect.width.toDouble(), rect.height.toDouble()),
+                            CGRectMake(0.0, 0.0, rect.width.value.toDouble(), rect.height.value.toDouble()),
                         )
                     }
                 }
@@ -188,7 +193,7 @@ fun <T : UIViewController> UIKitViewController(
         )
     }
 
-    val density = LocalDensity.current.density
+    val density = LocalDensity.current
     var rectInPixels by remember { mutableStateOf(IntRect(0, 0, 0, 0)) }
     var localToWindowOffset: IntOffset by remember { mutableStateOf(IntOffset.Zero) }
     val interopContext = LocalUIKitInteropContext.current
@@ -198,17 +203,17 @@ fun <T : UIViewController> UIKitViewController(
             localToWindowOffset = coordinates.positionInRoot().round()
             val newRectInPixels = IntRect(localToWindowOffset, coordinates.size)
             if (rectInPixels != newRectInPixels) {
-                val rect = newRectInPixels / density
+                val rect = newRectInPixels.toRect().toDpRect(density)
 
                 interopContext.deferAction {
-                    embeddedInteropComponent.wrappingView.setFrame(rect.toCGRect())
+                    embeddedInteropComponent.wrappingView.setFrame(rect.asCGRect())
                 }
 
                 if (rectInPixels.width != newRectInPixels.width || rectInPixels.height != newRectInPixels.height) {
                     interopContext.deferAction {
                         onResize(
                             embeddedInteropComponent.component,
-                            CGRectMake(0.0, 0.0, rect.width.toDouble(), rect.height.toDouble()),
+                            CGRectMake(0.0, 0.0, rect.width.value.toDouble(), rect.height.value.toDouble()),
                         )
                     }
                 }

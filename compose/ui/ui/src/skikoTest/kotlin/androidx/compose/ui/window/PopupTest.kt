@@ -673,7 +673,8 @@ class PopupTest {
     @Test
     fun popupContentLargerThanWindowInfoContainer() = runTest(StandardTestDispatcher()) {
         lateinit var scene: ComposeScene
-        val surface = Surface.makeRasterN32Premul(100, 100)
+        val size = IntSize(100, 100)
+        val surface = Surface.makeRasterN32Premul(size.width, size.height)
         fun invalidate() {
             scene.render(surface.canvas.asComposeCanvas(), 1)
         }
@@ -686,7 +687,7 @@ class PopupTest {
             invalidate = ::invalidate
         )
         try {
-            scene.boundsInWindow = IntRect(0, 0, 100, 100)
+            scene.size = size
             scene.setContent {
                 Popup {
                     Box(Modifier.size(200.dp))

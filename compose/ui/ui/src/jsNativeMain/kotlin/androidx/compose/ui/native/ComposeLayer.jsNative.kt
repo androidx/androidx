@@ -26,12 +26,12 @@ import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.toCompose
 import androidx.compose.ui.platform.PlatformContext
-import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeScenePointer
+import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.scene.platformContext
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
@@ -145,7 +145,7 @@ internal class ComposeLayer(
     }
 
     fun setSize(width: Int, height: Int) {
-        scene.boundsInWindow = IntRect(0, 0, width, height)
+        scene.size = IntSize(width, height)
 
         layer.needRedraw()
     }

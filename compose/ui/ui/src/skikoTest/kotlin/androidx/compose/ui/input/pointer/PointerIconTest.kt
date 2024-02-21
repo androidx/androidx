@@ -37,15 +37,12 @@ import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.SingleLayerComposeScene
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runSkikoComposeUiTest
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.use
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -93,13 +90,13 @@ class PointerIconTest {
     @Test
     fun commitsToComponent() {
         val iconContext = IconPlatformContext()
-        val surface = Surface.makeRasterN32Premul(100, 100)
+        val size = IntSize(100, 100)
         val scene = SingleLayerComposeScene(
             platformContext = iconContext,
         )
 
         try {
-            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
+            scene.size = size
             scene.setContent {
                 Box(
                     modifier = Modifier
@@ -123,13 +120,13 @@ class PointerIconTest {
     @Test
     fun preservedIfSameEventDispatchedTwice() {
         val iconContext = IconPlatformContext()
-        val surface = Surface.makeRasterN32Premul(100, 100)
+        val size = IntSize(100, 100)
         val scene = SingleLayerComposeScene(
             platformContext = iconContext,
         )
 
         try {
-            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
+            scene.size = size
             scene.setContent {
                 Box(
                     modifier = Modifier
@@ -213,10 +210,10 @@ class PointerIconTest {
     }
 
     @Test
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun whenHoveredShouldCommitWithoutMoveWhenIconChanges() = runTest(StandardTestDispatcher()) {
         val iconContext = IconPlatformContext()
-        val surface = Surface.makeRasterN32Premul(100, 100)
+        val size = IntSize(100, 100)
+        val surface = Surface.makeRasterN32Premul(size.width, size.height)
         lateinit var scene: ComposeScene
 
         val frameDispatcher = FrameDispatcher(coroutineContext) {
@@ -234,7 +231,7 @@ class PointerIconTest {
         val recomposeChannel = Channel<Int>(Channel.CONFLATED) // helps with waiting for recomposition
         var count = 0
         try {
-            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
+            scene.size = size
             scene.setContent {
                 Box(
                     modifier = Modifier.pointerHoverIcon(iconState.value).size(30.dp, 30.dp)
@@ -256,10 +253,10 @@ class PointerIconTest {
     }
 
     @Test
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun whenNotHoveredShouldNeverCommit() = runTest(StandardTestDispatcher()) {
         val iconContext = IconPlatformContext()
-        val surface = Surface.makeRasterN32Premul(100, 100)
+        val size = IntSize(100, 100)
+        val surface = Surface.makeRasterN32Premul(size.width, size.height)
         lateinit var scene: ComposeScene
 
         val frameDispatcher = FrameDispatcher(coroutineContext) {
@@ -278,7 +275,7 @@ class PointerIconTest {
         val recomposeChannel = Channel<Int>(Channel.CONFLATED) // helps with waiting for recomposition
         var count = 0
         try {
-            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
+            scene.size = size
             scene.setContent {
                 Box(
                     modifier = Modifier.size(100.dp, 100.dp).pointerHoverIcon(PointerIcon.Default)
