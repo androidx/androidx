@@ -345,6 +345,7 @@ fun rememberModalBottomSheetState(
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
+// Keep defaults in sync with androidx.compose.material.navigation.ModalBottomSheetLayout
 fun ModalBottomSheetLayout(
     sheetContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
