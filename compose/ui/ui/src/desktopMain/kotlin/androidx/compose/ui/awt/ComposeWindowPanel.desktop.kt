@@ -18,6 +18,8 @@ package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.ComposeFeatureFlags
+import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.scene.ComposeContainer
@@ -55,7 +57,13 @@ internal class ComposeWindowPanel(
         container = this,
         skiaLayerAnalytics = skiaLayerAnalytics,
         window = window,
-        useSwingGraphics = false
+        useSwingGraphics = false,
+        layerType = ComposeFeatureFlags.layerType.let {
+            // LayerType.OnComponent might be used only with rendering to Swing graphics,
+            // but it's always disabled here. Using fallback instead of [check] to support
+            // opening separate windows from [ComposePanel] with such layer type.
+            if (it == LayerType.OnComponent) LayerType.OnSameCanvas else it
+        }
     )
     private val composeContainer
         get() = requireNotNull(_composeContainer) {
