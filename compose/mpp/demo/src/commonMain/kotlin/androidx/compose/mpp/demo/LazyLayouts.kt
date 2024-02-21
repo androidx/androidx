@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -34,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
@@ -82,15 +84,21 @@ private fun ExampleLazyGrid() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+private data class StaggeredGridItem(val color: Color, val height: Dp)
+
 @Composable
 private fun ExampleStaggeredGrid() {
+    val items: List<StaggeredGridItem> = remember {
+        List(100) {
+            StaggeredGridItem(color = Color(Random.nextInt()), height = Random.nextInt(100, 200).dp)
+        }
+    }
     LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(3), Modifier.fillMaxSize()) {
-        items(100) {
+        items(items) {
             Box(
                 Modifier.fillMaxSize()
-                    .height(remember { Random.nextInt(100, 200).dp })
-                    .background(remember { Color(Random.nextInt()) })
+                    .height(it.height)
+                    .background(it.color)
             )
         }
     }
@@ -125,9 +133,9 @@ private fun ExampleTwoDirectionsAndRTL() {
                 Text("Toggle layout direction")
             }
             LazyColumn(Modifier.fillMaxSize()) {
-                items(rows) {row ->
+                items(rows) { row ->
                     LazyRow(Modifier.height(rowHeight)) {
-                        items(columns) {col ->
+                        items(columns) { col ->
                             val color = colors[(row + col) % colors.size]
 
                             Box(
