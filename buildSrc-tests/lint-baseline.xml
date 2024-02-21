@@ -568,4 +568,13 @@
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/dependencyTracker/ToStringLogger.kt"/>
     </issue>
 
+    <issue
+        id="WithPluginClasspathUsage"
+        message="Avoid usage of GradleRunner#withPluginClasspath, which is broken. Instead use something like https://github.com/autonomousapps/dependency-analysis-gradle-plugin/tree/main/testkit#gradle-testkit-support-plugin"
+        errorLine1="            .withPluginClasspath()"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/build/buildInfo/CreateLibraryBuildInfoFileTaskTest.kt"/>
+    </issue>
+
 </issues>
