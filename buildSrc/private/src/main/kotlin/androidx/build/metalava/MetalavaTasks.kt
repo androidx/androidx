@@ -17,6 +17,7 @@
 package androidx.build.metalava
 
 import androidx.build.AndroidXExtension
+import androidx.build.LibraryType
 import androidx.build.addFilterableTasks
 import androidx.build.addToBuildOnServer
 import androidx.build.addToCheckTask
@@ -51,6 +52,9 @@ object MetalavaTasks {
         // implemented by excluding APIs with this annotation from the restricted API file.
         val generateRestrictToLibraryGroupAPIs = !extension.mavenGroup!!.requireSameVersion
         val kotlinSourceLevel: Provider<KotlinVersion> = extension.kotlinApiVersion
+        val targetsJavaConsumers = (extension.type != LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY &&
+            extension.type != LibraryType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
+            )
         val generateApi =
             project.tasks.register("generateApi", GenerateApiTask::class.java) { task ->
                 task.group = "API"
@@ -59,7 +63,7 @@ object MetalavaTasks {
                 task.metalavaClasspath.from(metalavaClasspath)
                 task.generateRestrictToLibraryGroupAPIs = generateRestrictToLibraryGroupAPIs
                 task.baselines.set(baselinesApiLocation)
-                task.targetsJavaConsumers = extension.targetsJavaConsumers
+                task.targetsJavaConsumers = targetsJavaConsumers
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
 
@@ -120,7 +124,7 @@ object MetalavaTasks {
             ) { task ->
                 task.metalavaClasspath.from(metalavaClasspath)
                 task.baselines.set(baselinesApiLocation)
-                task.targetsJavaConsumers.set(extension.targetsJavaConsumers)
+                task.targetsJavaConsumers.set(targetsJavaConsumers)
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
                 processManifest?.let { task.manifestPath.set(processManifest.manifestOutputFile) }

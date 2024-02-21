@@ -119,7 +119,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Animation Graphics"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Compose Animation Graphics Library for using animated-vector resources in Compose"
 }

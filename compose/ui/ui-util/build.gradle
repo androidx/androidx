@@ -95,7 +95,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Util"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2020"
     description = "Internal Compose utilities used by other modules"
     legacyDisableKotlinStrictApiMode = true

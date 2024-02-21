@@ -111,7 +111,7 @@ android {
 androidx {
     name = "Compose Material 3 Common components"
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_COMMON
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     publish = Publish.NONE
     inceptionYear = "2023"
     description = "Compose Material 3 Common Library. This library contains foundational, themeless " +

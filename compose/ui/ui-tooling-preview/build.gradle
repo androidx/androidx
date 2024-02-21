@@ -105,7 +105,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose UI Preview Tooling"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Compose tooling library API. This library provides the API required to declare" +
             " @Preview composables in user apps."

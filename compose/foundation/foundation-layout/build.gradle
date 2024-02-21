@@ -115,7 +115,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Layouts"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2019"
     description = "Compose layout implementations"
     legacyDisableKotlinStrictApiMode = true

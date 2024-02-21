@@ -123,7 +123,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Tooling Data"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Compose tooling library data. This library provides data about compose" +
             " for different tooling purposes."

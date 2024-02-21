@@ -49,7 +49,7 @@ dependencies {
 
 androidx {
     name = "Compose LiveData integration"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2020"
     description = "Compose integration with LiveData"
     legacyDisableKotlinStrictApiMode = true

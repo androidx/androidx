@@ -59,9 +59,8 @@ android {
 
 androidx {
     name = "TV Material"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2022"
     description = "build TV applications using controls that adhere to Material Design Language."
-    targetsJavaConsumers = false
     samples(project(":tv:tv-samples"))
 }

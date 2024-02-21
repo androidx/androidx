@@ -145,7 +145,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose UI Text"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2019"
     description = "Compose Text primitives and utilities"
     legacyDisableKotlinStrictApiMode = true

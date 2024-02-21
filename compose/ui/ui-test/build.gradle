@@ -162,7 +162,7 @@ android {
 
 androidx {
     name = "Compose Testing"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2019"
     description = "Compose testing library"
     legacyDisableKotlinStrictApiMode = true

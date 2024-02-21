@@ -117,7 +117,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Material Ripple"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2020"
     description = "Material ripple used to build interactive components"
     // Disable strict API mode for MPP builds as it will fail to compile androidAndroidTest
