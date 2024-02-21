@@ -15,9 +15,9 @@
  */
 package androidx.lifecycle
 
+import androidx.kruth.assertThat
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test

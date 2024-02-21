@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,30 @@
 
 package androidx.lifecycle
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import androidx.lifecycle.viewmodel.CreationExtras
+import kotlin.reflect.KClass
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class ViewModelLazyTest {
 
     @Test
     fun test() {
-        val factoryProducer = { TestFactory() }
         val store = ViewModelStore()
-        val vm by ViewModelLazy(TestVM::class, { store }, factoryProducer)
-        assertThat(vm.prop).isEqualTo("spb")
+        val viewModel by ViewModelLazy(
+            viewModelClass = TestViewModel::class,
+            storeProducer = { store },
+            factoryProducer = { TestFactory() },
+        )
+        assertThat(viewModel.prop).isEqualTo(expected = "spb")
         assertThat(store.keys()).isNotEmpty()
     }
 
-    class TestVM(val prop: String) : ViewModel()
+    private class TestViewModel(val prop: String) : ViewModel()
 
-    @Suppress("UNCHECKED_CAST")
-    class TestFactory : ViewModelProvider.Factory {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = TestVM("spb") as T
+    private class TestFactory : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T =
+            TestViewModel(prop = "spb") as T
     }
 }

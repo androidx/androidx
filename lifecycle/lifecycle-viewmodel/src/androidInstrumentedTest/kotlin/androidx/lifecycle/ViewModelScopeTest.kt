@@ -16,9 +16,9 @@
 
 package androidx.lifecycle
 
+import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -29,35 +29,39 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class ViewModelTest {
+class ViewModelScopeTest {
 
-    @Test fun testVmScope() {
+    @Test
+    fun testVmScope() {
         val vm = object : ViewModel() {}
         val job1 = vm.viewModelScope.launch { delay(1000) }
         val job2 = vm.viewModelScope.launch { delay(1000) }
         vm.clear()
-        Truth.assertThat(job1.isCancelled).isTrue()
-        Truth.assertThat(job2.isCancelled).isTrue()
+        assertThat(job1.isCancelled).isTrue()
+        assertThat(job2.isCancelled).isTrue()
     }
 
-    @Test fun testStartJobInClearedVM() {
+    @Test
+    fun testStartJobInClearedVM() {
         val vm = object : ViewModel() {}
         vm.clear()
         val job1 = vm.viewModelScope.launch { delay(1000) }
-        Truth.assertThat(job1.isCancelled).isTrue()
+        assertThat(job1.isCancelled).isTrue()
     }
 
-    @Test fun testSameScope() {
+    @Test
+    fun testSameScope() {
         val vm = object : ViewModel() {}
         val scope1 = vm.viewModelScope
         val scope2 = vm.viewModelScope
-        Truth.assertThat(scope1).isSameInstanceAs(scope2)
+        assertThat(scope1).isSameInstanceAs(scope2)
         vm.clear()
         val scope3 = vm.viewModelScope
-        Truth.assertThat(scope3).isSameInstanceAs(scope2)
+        assertThat(scope3).isSameInstanceAs(scope2)
     }
 
-    @Test fun testJobIsSuperVisor() {
+    @Test
+    fun testJobIsSuperVisor() {
         val vm = object : ViewModel() {}
         val scope = vm.viewModelScope
         val delayingDeferred = scope.async { delay(Long.MAX_VALUE) }
@@ -68,7 +72,7 @@ class ViewModelTest {
                 failingDeferred.await()
             } catch (e: Error) {
             }
-            Truth.assertThat(delayingDeferred.isActive).isTrue()
+            assertThat(delayingDeferred.isActive).isTrue()
             delayingDeferred.cancelAndJoin()
         }
     }
