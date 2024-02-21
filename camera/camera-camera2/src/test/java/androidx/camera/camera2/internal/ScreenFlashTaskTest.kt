@@ -45,7 +45,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
-import org.robolectric.shadows.ShadowSystem
 import org.robolectric.shadows.ShadowTotalCaptureResult
 
 @Config(minSdk = 21)
@@ -64,18 +63,30 @@ class ScreenFlashTaskTest {
         executorService.shutdown()
     }
 
+    // 3s timeout is hardcoded in ImageCapture.ScreenFlash.apply documentation
     @Test
     fun screenFlashApplyInvokedWithAtLeast3sTimeout_whenPreCaptureCalled() {
         val screenFlashTask = createScreenFlashTask()
-        val initialTime = ShadowSystem.currentTimeMillis()
+        val initialTime = System.currentTimeMillis()
 
         screenFlashTask.preCapture(null)
         shadowOf(getMainLooper()).idle()
 
         assertThat(screenFlash.lastApplyExpirationTimeMillis).isAtLeast(
-            initialTime + TimeUnit.SECONDS.toMillis(
-                3
-            )
+            initialTime + TimeUnit.SECONDS.toMillis(3)
+        )
+    }
+
+    @Test
+    fun screenFlashApplyInvokedWithLessThan4sTimeout_whenPreCaptureCalled() {
+        val screenFlashTask = createScreenFlashTask()
+        val initialTime = System.currentTimeMillis()
+
+        screenFlashTask.preCapture(null)
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(screenFlash.lastApplyExpirationTimeMillis).isLessThan(
+            initialTime + TimeUnit.SECONDS.toMillis(4)
         )
     }
 
