@@ -81,6 +81,8 @@ internal interface SkikoUITextInputTraits {
 
 }
 
+internal object EmptyInputTraits : SkikoUITextInputTraits
+
 internal fun getUITextInputTraits(currentImeOptions: ImeOptions?) =
     object : SkikoUITextInputTraits {
         override fun keyboardType(): UIKeyboardType =

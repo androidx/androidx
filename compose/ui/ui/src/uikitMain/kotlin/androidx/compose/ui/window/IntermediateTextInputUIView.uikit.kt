@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.platform.EmptyInputTraits
 import androidx.compose.ui.platform.IOSSkikoInput
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextActions
@@ -80,7 +81,7 @@ internal class IntermediateTextInputUIView(
     private var _inputDelegate: UITextInputDelegateProtocol? = null
     var input: IOSSkikoInput? = null
     private var _currentTextMenuActions: TextActions? = null
-    var inputTraits: SkikoUITextInputTraits = object : SkikoUITextInputTraits {}
+    var inputTraits: SkikoUITextInputTraits = EmptyInputTraits
 
     override fun canBecomeFirstResponder() = true
 
