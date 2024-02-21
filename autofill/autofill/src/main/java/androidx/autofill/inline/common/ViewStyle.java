@@ -33,6 +33,7 @@ import androidx.core.util.Preconditions;
  * Specifies the style for a {@link View} or a {@link android.view.ViewGroup}.
  */
 @RequiresApi(api = Build.VERSION_CODES.R)
+@SuppressWarnings("HiddenSuperclass")
 public class ViewStyle extends BundledStyle {
 
     private static final String KEY_VIEW_STYLE = "view_style";

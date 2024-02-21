@@ -49,8 +49,6 @@ fun runMetalavaWithArgs(
         args +
             listOf(
                 "--hide",
-                "HiddenSuperclass", // We allow having a hidden parent class
-                "--hide",
                 // Removing final from a method does not cause compatibility issues for AndroidX.
                 "RemovedFinalStrict",
                 "--error",
