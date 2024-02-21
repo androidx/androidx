@@ -642,4 +642,28 @@ class DialogWindowTest {
             assertThat(renderedText).isEqualTo("2")
         }
     }
+
+    @Test
+    fun `change alwaysOnTop`() = runApplicationTest {
+        var dialog: ComposeDialog? = null
+
+        var alwaysOnTop by mutableStateOf(false)
+
+        launchTestApplication {
+            DialogWindow(onCloseRequest = ::exitApplication, alwaysOnTop = alwaysOnTop) {
+                dialog = this.window
+                Box(Modifier.size(32.dp).background(Color.Red))
+            }
+        }
+
+        awaitIdle()
+        assertThat(dialog?.isAlwaysOnTop).isFalse()
+
+        alwaysOnTop = true
+        awaitIdle()
+        assertThat(dialog?.isAlwaysOnTop).isTrue()
+
+        dialog?.dispatchEvent(WindowEvent(dialog, WindowEvent.WINDOW_CLOSING))
+    }
+
 }

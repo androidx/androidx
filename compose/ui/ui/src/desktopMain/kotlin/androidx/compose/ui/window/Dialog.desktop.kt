@@ -27,7 +27,6 @@ import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.scene.BaseComposeScene
 import androidx.compose.ui.scene.LocalComposeScene
 import androidx.compose.ui.scene.platformContext
 import androidx.compose.ui.unit.DpSize
@@ -77,10 +76,49 @@ fun Dialog(
     resizable,
     enabled,
     focusable,
+    alwaysOnTop = false,
     onPreviewKeyEvent,
     onKeyEvent,
     content
 )
+
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced by an overload that also takes alwaysOnTop",
+)
+@Composable
+fun DialogWindow(
+    onCloseRequest: () -> Unit,
+    state: DialogState = rememberDialogState(),
+    visible: Boolean = true,
+    title: String = "Untitled",
+    icon: Painter? = null,
+    undecorated: Boolean = false,
+    transparent: Boolean = false,
+    resizable: Boolean = true,
+    enabled: Boolean = true,
+    focusable: Boolean = true,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    content: @Composable DialogWindowScope.() -> Unit
+) {
+    DialogWindow(
+        onCloseRequest,
+        state,
+        visible,
+        title,
+        icon,
+        undecorated,
+        transparent,
+        resizable,
+        enabled,
+        focusable,
+        alwaysOnTop = false,
+        onPreviewKeyEvent,
+        onKeyEvent,
+        content
+    )
+}
 
 /**
  * Composes platform dialog in the current composition. When Dialog enters the composition,
@@ -129,6 +167,7 @@ fun Dialog(
  * changing [state])
  * @param enabled Can dialog react to input events
  * @param focusable Can dialog receive focus
+ * @param alwaysOnTop Should the dialog always be on top of another windows and dialogs
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
  * Return true to stop propagation of this event. If you return false, the key event will be
@@ -151,6 +190,7 @@ fun DialogWindow(
     resizable: Boolean = true,
     enabled: Boolean = true,
     focusable: Boolean = true,
+    alwaysOnTop: Boolean = false,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable DialogWindowScope.() -> Unit
@@ -165,6 +205,7 @@ fun DialogWindow(
     val currentResizable by rememberUpdatedState(resizable)
     val currentEnabled by rememberUpdatedState(enabled)
     val currentFocusable by rememberUpdatedState(focusable)
+    val currentAlwaysOnTop by rememberUpdatedState(alwaysOnTop)
     val currentOnCloseRequest by rememberUpdatedState(onCloseRequest)
 
     val updater = remember(::ComponentUpdater)
@@ -243,6 +284,7 @@ fun DialogWindow(
                 set(currentResizable, dialog::setResizable)
                 set(currentEnabled, dialog::setEnabled)
                 set(currentFocusable, dialog::setFocusableWindowState)
+                set(currentAlwaysOnTop, dialog::setAlwaysOnTop)
             }
             if (state.size != appliedState.size) {
                 dialog.setSizeSafely(state.size, WindowPlacement.Floating)
