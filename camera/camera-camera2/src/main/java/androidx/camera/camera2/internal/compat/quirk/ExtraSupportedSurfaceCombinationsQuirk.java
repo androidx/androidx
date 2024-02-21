@@ -56,8 +56,8 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
     private static final SurfaceCombination FULL_LEVEL_YUV_YUV_YUV_CONFIGURATION =
             createFullYuvYuvYuvConfiguration();
 
-    private static final SurfaceCombination LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION =
-            createLevel3PrivPrivYuvRawConfiguration();
+    private static final SurfaceCombination LEVEL_3_LEVEL_PRIV_PRIV_YUV_SUBSET_CONFIGURATION =
+            createLevel3PrivPrivYuvSubsetConfiguration();
 
     private static final Set<String> SUPPORT_EXTRA_FULL_CONFIGURATIONS_SAMSUNG_MODELS =
             new HashSet<>(Arrays.asList(
@@ -280,7 +280,7 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
 
         if (supportExtraLevel3ConfigurationsGoogleDevice()
                 || supportExtraLevel3ConfigurationsSamsungDevice()) {
-            return Collections.singletonList(LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION);
+            return Collections.singletonList(LEVEL_3_LEVEL_PRIV_PRIV_YUV_SUBSET_CONFIGURATION);
         }
 
         return Collections.emptyList();
@@ -341,7 +341,15 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         return surfaceCombination;
     }
 
-    private static SurfaceCombination createLevel3PrivPrivYuvRawConfiguration() {
+    /**
+     * Creates (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) surface combination.
+     *
+     * <p>This is a subset of LEVEL_3 camera devices'
+     * (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
+     * guaranteed supported configuration. This configuration has been verified to make sure that
+     * the surface combination can work well on the target devices.
+     */
+    private static SurfaceCombination createLevel3PrivPrivYuvSubsetConfiguration() {
         // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
         SurfaceCombination surfaceCombination = new SurfaceCombination();
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
@@ -349,8 +357,6 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
                 SurfaceConfig.ConfigSize.VGA));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.MAXIMUM));
-        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.RAW,
                 SurfaceConfig.ConfigSize.MAXIMUM));
 
         return surfaceCombination;
