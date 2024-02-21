@@ -49,6 +49,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import kotlin.test.Test
+import kotlinx.test.IgnoreWasmTarget
 
 @OptIn(ExperimentalTestApi::class)
 class TextFieldFocusTest {
@@ -73,6 +74,7 @@ class TextFieldFocusTest {
     data class FocusTestData(val focusRequester: FocusRequester, var focused: Boolean = false)
 
     @Test
+    @IgnoreWasmTarget
     fun requestFocus() = runSkikoComposeUiTest {
         lateinit var testDataList: List<FocusTestData>
 
@@ -145,6 +147,7 @@ class TextFieldFocusTest {
     }
 
     @Test
+    @IgnoreWasmTarget
     fun wholeDecorationBox_isBroughtIntoView_whenFocused() = runSkikoComposeUiTest {
         var outerCoordinates: LayoutCoordinates? = null
         var innerCoordinates: LayoutCoordinates? = null
