@@ -193,6 +193,39 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 createLevel3PrivPrivYuvRawConfiguration()
             ),
+            // Tests for FULL Samsung devices
+            Config(
+                "Samsung",
+                null,
+                "SM-S926B",
+                "0",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration()
+            ),
+            Config(
+                "Samsung",
+                null,
+                "SM-S926B",
+                "1",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration()
+            ),
+            Config(
+                "Samsung",
+                null,
+                "SM-S928U",
+                "0",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration()
+            ),
+            Config(
+                "Samsung",
+                null,
+                "SM-S928U",
+                "1",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration()
+            ),
             // Other cases
             Config(
                 null,
