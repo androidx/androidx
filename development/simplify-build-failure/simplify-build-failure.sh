@@ -125,8 +125,7 @@ while [ "$1" != "" ]; do
     gradleCommand=""
     grepCommand=""
     if echo "$testCommand" | grep -v OUT_DIR 2>/dev/null; then
-      echo "Error: must set OUT_DIR in the test command to prevent concurrent Gradle executions from interfering with each other"
-      exit 1
+      testCommand="export OUT_DIR=out; $testCommand"
     fi
     continue
   fi
