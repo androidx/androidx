@@ -17,6 +17,7 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.impl.RestrictedCameraControl;
@@ -29,14 +30,12 @@ import androidx.core.util.Preconditions;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraExtensionsControls {
 
-    private static final CameraExtensionsControl NO_OP_CAMERA_EXTENSIONS_CONTROL =
-            new CameraExtensionsControl() {
-            };
-
     /**
      * Returns a {@link CameraExtensionsControl} instance converted from a {@link CameraControl}
-     * object.
+     * object when the {@link CameraControl} is retrieved from a extensions-enabled camera.
+     * Otherwise, returns {@code null}.
      */
+    @Nullable
     static CameraExtensionsControl from(@NonNull CameraControl cameraControl) {
         Preconditions.checkArgument(cameraControl instanceof RestrictedCameraControl, "The input "
                 + "camera control must be an instance retrieved from the camera that is returned "
@@ -48,7 +47,7 @@ class CameraExtensionsControls {
         if (sessionProcessor instanceof CameraExtensionsControl) {
             return (CameraExtensionsControl) sessionProcessor;
         } else {
-            return NO_OP_CAMERA_EXTENSIONS_CONTROL;
+            return null;
         }
     }
 
