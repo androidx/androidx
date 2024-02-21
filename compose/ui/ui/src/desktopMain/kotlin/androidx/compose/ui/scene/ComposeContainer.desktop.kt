@@ -27,6 +27,7 @@ import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
@@ -43,12 +44,16 @@ import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
 import androidx.compose.ui.window.sizeInPx
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ComponentEvent
 import java.awt.event.ComponentListener
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
+import java.awt.event.WindowListener
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities
 import kotlin.coroutines.AbstractCoroutineContextElement
@@ -80,7 +85,7 @@ internal class ComposeContainer(
 
     private val useSwingGraphics: Boolean = ComposeFeatureFlags.useSwingGraphics,
     private val layerType: LayerType = ComposeFeatureFlags.layerType,
-) : ComponentListener, WindowFocusListener {
+) : ComponentListener, WindowFocusListener, WindowListener, LifecycleOwner {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
         private set
@@ -145,6 +150,8 @@ internal class ComposeContainer(
     val renderApi by mediator::renderApi
     val preferredSize by mediator::preferredSize
 
+    override val lifecycle = LifecycleRegistry(this)
+
     init {
         setWindow(window)
         this.windowContainer = windowContainer
@@ -152,9 +159,13 @@ internal class ComposeContainer(
         if (layerType == LayerType.OnComponent && !useSwingGraphics) {
             error("Unsupported LayerType.OnComponent might be used only with rendering to Swing graphics")
         }
+
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
     fun dispose() {
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+
         _windowContainer?.removeComponentListener(this)
         mediator.dispose()
         layers.fastForEach(DesktopComposeSceneLayer::close)
@@ -175,10 +186,27 @@ internal class ComposeContainer(
     override fun windowGainedFocus(event: WindowEvent) = onChangeWindowFocus()
     override fun windowLostFocus(event: WindowEvent) = onChangeWindowFocus()
 
+    override fun windowOpened(e: WindowEvent) = Unit
+    override fun windowClosing(e: WindowEvent) = Unit
+    override fun windowClosed(e: WindowEvent) = Unit
+    override fun windowIconified(e: WindowEvent) =
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+    override fun windowDeiconified(e: WindowEvent) =
+        // The window is always in focus at this moment, so bump the state to [RESUMED].
+        // It will generate [ON_START] event implicitly or skip it at all if [windowGainedFocus]
+        // happened first.
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    override fun windowActivated(e: WindowEvent) = Unit
+    override fun windowDeactivated(e: WindowEvent) = Unit
+
     private fun onChangeWindowFocus() {
-        windowContext.setWindowFocused(window?.isFocused ?: false)
+        val isFocused = window?.isFocused ?: false
+        windowContext.setWindowFocused(isFocused)
         mediator.onChangeWindowFocus()
         layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowFocus)
+        lifecycle.handleLifecycleEvent(
+            event = if (isFocused) Lifecycle.Event.ON_RESUME else Lifecycle.Event.ON_PAUSE
+        )
     }
 
     private fun onChangeWindowPosition() {
@@ -227,9 +255,13 @@ internal class ComposeContainer(
         // Re-checking the actual size if it wasn't available during init.
         onChangeWindowSize()
         onChangeWindowPosition()
+
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
     fun removeNotify() {
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+
         setWindow(null)
     }
 
@@ -248,7 +280,9 @@ internal class ComposeContainer(
         }
 
         this.window?.removeWindowFocusListener(this)
+        this.window?.removeWindowListener(this)
         window?.addWindowFocusListener(this)
+        window?.addWindowListener(this)
         this.window = window
 
         onChangeWindowFocus()
@@ -441,5 +475,6 @@ private fun ProvideContainerCompositionLocals(
     composeContainer: ComposeContainer,
     content: @Composable () -> Unit,
 ) = CompositionLocalProvider(
+    LocalLifecycleOwner provides composeContainer,
     content = content
 )
