@@ -25,6 +25,7 @@ package androidx.compose.material3.adaptive.navigationsuite {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public final class NavigationSuiteItemColors {
+    ctor public NavigationSuiteItemColors(androidx.compose.material3.NavigationBarItemColors navigationBarItemColors, androidx.compose.material3.NavigationRailItemColors navigationRailItemColors, androidx.compose.material3.NavigationDrawerItemColors navigationDrawerItemColors);
     method public androidx.compose.material3.NavigationBarItemColors getNavigationBarItemColors();
     method public androidx.compose.material3.NavigationDrawerItemColors getNavigationDrawerItemColors();
     method public androidx.compose.material3.NavigationRailItemColors getNavigationRailItemColors();
