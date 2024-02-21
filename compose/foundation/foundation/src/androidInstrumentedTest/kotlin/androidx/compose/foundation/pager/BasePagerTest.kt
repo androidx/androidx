@@ -70,6 +70,7 @@ open class BasePagerTest(private val config: ParamConfig) :
     var pagerSize: Int = 0
     var placed = mutableSetOf<Int>()
     var focused = mutableSetOf<Int>()
+    var focusRequesters = mutableMapOf<Int, FocusRequester>()
     var pageSize: Int = 0
     lateinit var focusManager: FocusManager
     lateinit var initialFocusedItem: FocusRequester
@@ -180,6 +181,7 @@ open class BasePagerTest(private val config: ParamConfig) :
     internal fun Page(index: Int, initialFocusedItemIndex: Int = 0) {
         val focusRequester = FocusRequester().also {
             if (index == initialFocusedItemIndex) initialFocusedItem = it
+            focusRequesters[index] = it
         }
         Box(modifier = Modifier
             .focusRequester(focusRequester)
