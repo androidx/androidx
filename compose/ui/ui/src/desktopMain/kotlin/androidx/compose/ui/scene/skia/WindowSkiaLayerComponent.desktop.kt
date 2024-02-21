@@ -39,7 +39,11 @@ internal class WindowSkiaLayerComponent(
      * See also backend layer for swing interop in [SwingSkiaLayerComponent]
      */
     override val contentComponent: SkiaLayer = object : SkiaLayer(
-        externalAccessibleFactory = { mediator.accessible },
+        externalAccessibleFactory = {
+            // It depends on initialization order, so explicitly
+            // apply `checkNotNull` for "non-null" field.
+            checkNotNull(mediator.accessible)
+        },
         analytics = skiaLayerAnalytics
     ) {
         override fun paint(g: Graphics) {
