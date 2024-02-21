@@ -22,8 +22,8 @@ import android.os.IBinder
 import android.view.WindowMetrics
 import androidx.annotation.VisibleForTesting
 import androidx.window.SafeWindowExtensionsProvider
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.core.util.function.Function
@@ -32,6 +32,7 @@ import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.AnimationBackground
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
+import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import androidx.window.extensions.embedding.SplitPinRule
 import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.extensions.layout.WindowLayoutInfo
@@ -72,7 +73,7 @@ internal class SafeActivityEmbeddingComponentProvider(
         }
         // TODO(b/267573854) : update logic to fallback to lower version
         //  if higher version is not matched
-        return when (ExtensionsUtil.safeVendorApiLevel) {
+        return when (WindowSdkExtensions.getInstance().extensionVersion) {
             1 -> hasValidVendorApiLevel1()
             2 -> hasValidVendorApiLevel2()
             in 3..4 -> hasValidVendorApiLevel3() // No additional API in 4.
@@ -151,6 +152,7 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [SplitPinRule.isSticky]
      * - [ActivityEmbeddingComponent.pinTopActivityStack]
      * - [ActivityEmbeddingComponent.unpinTopActivityStack]
+     * - [ActivityEmbeddingComponent.updateSplitAttributes] with [OEMSplitInfo.Token]
      * // TODO(b/316493273): Guard other AEComponentMethods
      */
     @VisibleForTesting
@@ -167,7 +169,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodRegisterActivityStackCallbackValid() &&
             isMethodUnregisterActivityStackCallbackValid() &&
             isClassWindowAttributesValid() &&
-            isMethodPinUnpinTopActivityStackValid()
+            isMethodPinUnpinTopActivityStackValid() &&
+            isMethodUpdateSplitAttributesWithTokenValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -280,7 +283,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val activityStackClass = ActivityStack::class.java
             val getTokenMethod = activityStackClass.getMethod("getToken")
 
-            getTokenMethod.isPublic && getTokenMethod.doesReturn(IBinder::class.java)
+            getTokenMethod.isPublic && getTokenMethod.doesReturn(ActivityStack.Token::class.java)
         }
 
     private fun isActivityStackGetTagValid(): Boolean =
@@ -312,7 +315,7 @@ internal class SafeActivityEmbeddingComponentProvider(
         validateReflection {
             val getParentContainerInfoMethod = activityEmbeddingComponentClass.getMethod(
                 "getParentContainerInfo",
-                IBinder::class.java
+                ActivityStack.Token::class.java
             )
             getParentContainerInfoMethod.isPublic &&
                 getParentContainerInfoMethod.doesReturn(ParentContainerInfo::class.java)
@@ -325,7 +328,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 String::class.java
             )
             getActivityStackTokenMethod.isPublic &&
-                getActivityStackTokenMethod.doesReturn(IBinder::class.java)
+                getActivityStackTokenMethod.doesReturn(ActivityStack.Token::class.java)
         }
 
     private fun isMethodSetActivityStackAttributesCalculatorValid(): Boolean =
@@ -359,6 +362,17 @@ internal class SafeActivityEmbeddingComponentProvider(
                 .getMethod(
                     "unregisterActivityStackCallback",
                     Consumer::class.java
+                )
+            unregisterActivityStackCallbackMethod.isPublic
+        }
+
+    private fun isMethodUpdateSplitAttributesWithTokenValid(): Boolean =
+        validateReflection("updateSplitAttributes is not valid") {
+            val unregisterActivityStackCallbackMethod = activityEmbeddingComponentClass
+                .getMethod(
+                    "updateSplitAttributes",
+                    OEMSplitInfo.Token::class.java,
+                    SplitAttributes::class.java,
                 )
             unregisterActivityStackCallbackMethod.isPublic
         }

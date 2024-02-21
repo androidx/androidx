@@ -19,10 +19,13 @@ package androidx.window.embedding
 import android.app.Activity
 import android.os.IBinder
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.window.RequiresWindowSdkExtension
+import androidx.window.WindowSdkExtensions
+import androidx.window.extensions.embedding.SplitInfo.Token
 
 /** Describes a split pair of two containers with activities. */
-class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
+@Suppress("Deprecation") // To compat with device with version 3 and 4.
+class SplitInfo private constructor(
     /**
      * The [ActivityStack] representing the primary split container.
      */
@@ -33,11 +36,79 @@ class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
     val secondaryActivityStack: ActivityStack,
     /** The [SplitAttributes] of this split pair. */
     val splitAttributes: SplitAttributes,
+
+    @Deprecated(
+        message = "Use [token] instead",
+        replaceWith = ReplaceWith(
+            expression = "SplitInfo.token",
+            imports = arrayOf("androidx.window.embedding.SplitInfo"),
+        )
+    )
+    private val binder: IBinder?,
     /**
      * A token uniquely identifying this `SplitInfo`.
      */
-    internal val token: IBinder,
+    private val token: Token?,
 ) {
+    @RequiresWindowSdkExtension(5)
+    internal constructor(
+        primaryActivityStack: ActivityStack,
+        secondaryActivityStack: ActivityStack,
+        splitAttributes: SplitAttributes,
+        token: Token,
+    ) : this(primaryActivityStack, secondaryActivityStack, splitAttributes, binder = null, token)
+
+    /**
+     * Creates SplitInfo for [WindowSdkExtensions.extensionVersion] 3 and 4.
+     */
+    @RequiresWindowSdkExtension(3)
+    internal constructor(
+        primaryActivityStack: ActivityStack,
+        secondaryActivityStack: ActivityStack,
+        splitAttributes: SplitAttributes,
+        binder: IBinder,
+    ) : this(
+        primaryActivityStack,
+        secondaryActivityStack,
+        splitAttributes,
+        binder,
+        Token.createFromBinder(binder),
+    ) {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(3..4)
+    }
+
+    /**
+     * Creates SplitInfo ONLY for testing.
+     *
+     * @param primaryActivityStack the [ActivityStack] representing the primary split container.
+     * @param secondaryActivityStack the [ActivityStack] representing the secondary split container.
+     * @param splitAttributes the [SplitAttributes] of this split pair.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    constructor(
+        primaryActivityStack: ActivityStack,
+        secondaryActivityStack: ActivityStack,
+        splitAttributes: SplitAttributes,
+    ) : this(
+        primaryActivityStack,
+        secondaryActivityStack,
+        splitAttributes,
+        binder = null,
+        token = null,
+    )
+
+    @RequiresWindowSdkExtension(3)
+    internal fun getBinder(): IBinder = let {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(3..4)
+        requireNotNull(binder)
+    }
+
+    @RequiresWindowSdkExtension(5)
+    internal fun getToken(): Token = let {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        requireNotNull(token)
+    }
+
     /**
      * Whether the [primaryActivityStack] or the [secondaryActivityStack] in this [SplitInfo]
      * contains the [activity].
@@ -55,6 +126,7 @@ class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
         if (secondaryActivityStack != other.secondaryActivityStack) return false
         if (splitAttributes != other.splitAttributes) return false
         if (token != other.token) return false
+        if (binder != other.binder) return false
 
         return true
     }
@@ -64,6 +136,7 @@ class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
         result = 31 * result + secondaryActivityStack.hashCode()
         result = 31 * result + splitAttributes.hashCode()
         result = 31 * result + token.hashCode()
+        result = 31 * result + binder.hashCode()
         return result
     }
 
@@ -73,7 +146,12 @@ class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
             append("primaryActivityStack=$primaryActivityStack, ")
             append("secondaryActivityStack=$secondaryActivityStack, ")
             append("splitAttributes=$splitAttributes, ")
-            append("token=$token")
+            if (token != null) {
+                append("token=$token")
+            }
+            if (binder != null) {
+                append("binder=$binder")
+            }
             append("}")
         }
     }
