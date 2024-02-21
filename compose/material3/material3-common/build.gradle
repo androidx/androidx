@@ -45,7 +45,7 @@ androidXMultiplatform {
                 implementation(project(":compose:ui:ui-util"))
                 api("androidx.compose.foundation:foundation:1.6.0")
                 api("androidx.compose.foundation:foundation-layout:1.6.0")
-                api("androidx.compose.runtime:runtime:1.6.0")
+                api(project(":compose:runtime:runtime"))
                 api("androidx.compose.ui:ui-graphics:1.6.0")
                 api("androidx.compose.ui:ui-text:1.6.0")
             }

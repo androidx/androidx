@@ -44,7 +44,7 @@ androidXMultiplatform {
                 api(project(":compose:foundation:foundation"))
                 api(project(":compose:material:material-icons-core"))
                 api(project(":compose:material:material-ripple"))
-                api("androidx.compose.runtime:runtime:1.6.0")
+                api(project(":compose:runtime:runtime"))
                 api("androidx.compose.ui:ui:1.6.0")
                 api("androidx.compose.ui:ui-text:1.6.0")
 
