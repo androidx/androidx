@@ -108,6 +108,12 @@ internal class ComposeSceneMediator(
 
     val skikoView: SkikoView = DesktopSkikoView()
 
+    private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
+    var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
+    val accessible: Accessible = ComposeSceneAccessible {
+        semanticsOwnerListener.accessibilityControllers
+    }
+
     private val platformComponent = DesktopPlatformComponent()
     private val textInputService = DesktopTextInputService(platformComponent)
     private val _platformContext = DesktopPlatformContext()
@@ -224,17 +230,11 @@ internal class ComposeSceneMediator(
             }
         }
 
-    private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
-    var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
-
     private val scene by lazy { composeSceneFactory(this) }
     val focusManager get() = scene.focusManager
     var compositionLocalContext: CompositionLocalContext?
         get() = scene.compositionLocalContext
         set(value) { scene.compositionLocalContext = value }
-    val accessible: Accessible = ComposeSceneAccessible {
-        semanticsOwnerListener.accessibilityControllers
-    }
 
     /**
      * Provides the size of ComposeScene content inside infinity constraints
