@@ -17,11 +17,15 @@
 package androidx.compose.foundation.pager
 
 import android.view.accessibility.AccessibilityNodeProvider
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsMatcher
@@ -37,7 +41,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(Parameterized::class)
 class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = config) {
 
@@ -133,7 +136,7 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
     }
 
     @Test
-    fun focusScroll_forwardAndBackward_shouldGoToPage_pageShouldBeCorrectlyPlaced() {
+    fun focusScroll_forwardAndBackward_pageIsFocusable_fullPage_shouldScrollFullPage() {
         // Arrange
         createPager(pageCount = { DefaultPageCount })
         rule.runOnUiThread { initialFocusedItem.requestFocus() }
@@ -150,6 +153,128 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
 
         // Act: move backward
         rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(0)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+    }
+
+    @Test
+    fun focusScroll_forwardAndBackward_pageIsFocusable_fixedSizedPage_shouldScrollFullPage() {
+        // Arrange
+        createPager(
+            modifier = Modifier.size(210.dp), // make sure one page is halfway shown
+            pageCount = { DefaultPageCount },
+            pageSize = { PageSize.Fixed(50.dp) })
+        val lastVisibleItem = pagerState.layoutInfo.visiblePagesInfo.last().index
+        rule.runOnUiThread { focusRequesters[lastVisibleItem - 1]?.requestFocus() }
+        rule.waitForIdle()
+
+        // Act: move forward
+        rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Next) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(1) // current page moved by 1
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+
+        // move focus back to the first visible item
+        rule.runOnUiThread { focusRequesters[pagerState.firstVisiblePage]?.requestFocus() }
+        rule.waitForIdle()
+
+        // Act: move backward
+        rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(0)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+    }
+
+    @Test
+    fun focusScroll_forwardAndBackward_pageContentIsFocusable_fullPage_shouldScrollFullPage() {
+        // Arrange
+        createPager(pageCount = { DefaultPageCount }, pageContent = { page ->
+            val focusRequester = FocusRequester().also {
+                if (page == 0) initialFocusedItem = it
+            }
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .focusRequester(focusRequester)
+                        .focusable()
+                )
+            }
+        })
+        rule.runOnUiThread { initialFocusedItem.requestFocus() }
+        rule.waitForIdle()
+
+        // Act: move forward
+        rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Next) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(1)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+
+        // Act: move backward
+        rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(0)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+    }
+
+    @Test
+    fun focusScroll_forwardAndBackward_pageContentIsFocusable_fixedSizePage_shouldScrollFullPage() {
+        // Arrange
+        createPager(
+            modifier = Modifier.size(210.dp), // make sure one page is halfway shown
+            pageCount = { DefaultPageCount },
+            pageSize = { PageSize.Fixed(50.dp) },
+            pageContent = { page ->
+                val focusRequester = FocusRequester().also {
+                    focusRequesters[page] = it
+                }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    // focus bounds is smaller than page itself
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .focusRequester(focusRequester)
+                            .focusable()
+                    )
+                }
+            })
+        val lastVisibleItem = pagerState.layoutInfo.visiblePagesInfo.last().index
+        rule.runOnUiThread { focusRequesters[lastVisibleItem - 1]?.requestFocus() }
+
+        // Act: move forward
+        val resultForward = rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Next) }
+        assertThat(resultForward).isTrue() // focus moved
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(1) // current page moved by 1
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+
+        rule.runOnUiThread { focusManager.clearFocus(true) } // reset focus
+
+        // move focus back to the first visible item
+        rule.runOnUiThread { focusRequesters[pagerState.firstVisiblePage]?.requestFocus() }
+
+        // Act: move backward
+        val resultBackward = rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
+        assertThat(resultBackward).isTrue() // focus moved
 
         // Assert
         rule.runOnIdle {
