@@ -32,7 +32,8 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat
-import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.core.CameraXConfig
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.utils.SizeUtil
@@ -46,6 +47,7 @@ import androidx.camera.extensions.impl.advanced.OutputSurfaceConfigurationImpl
 import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl
 import androidx.camera.extensions.impl.advanced.SurfaceOutputConfigImpl
 import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.ExtensionsUtils
 import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.getImageCaptureSupportedResolutions
@@ -64,6 +66,7 @@ import org.junit.Assume.assumeTrue
 
 @RequiresApi(28)
 class AdvancedExtenderValidation(
+    private val cameraXConfig: CameraXConfig,
     private val cameraId: String,
     private val extensionMode: Int
 ) {
@@ -74,6 +77,7 @@ class AdvancedExtenderValidation(
     private lateinit var advancedImpl: AdvancedExtenderImpl
 
     fun setUp(): Unit = runBlocking {
+        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
@@ -90,7 +94,8 @@ class AdvancedExtenderValidation(
         val cameraInfo = withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector).cameraInfo
         }
-        cameraCharacteristicsMap = Camera2CameraInfo.from(cameraInfo).cameraCharacteristicsMap
+        cameraCharacteristicsMap =
+            ExtensionsUtils.getCameraCharacteristicsMap(cameraInfo as CameraInfoInternal)
         advancedImpl = CameraXExtensionsTestUtil
             .createAdvancedExtenderImpl(extensionMode, cameraId, cameraInfo)
     }
@@ -262,9 +267,11 @@ class AdvancedExtenderValidation(
                 SizeCategory.MAXIMUM -> {
                     sortedList[0]
                 }
+
                 SizeCategory.MEDIAN -> {
                     sortedList[sortedList.size / 2]
                 }
+
                 SizeCategory.MINIMUM -> {
                     sortedList[sortedList.size - 1]
                 }
@@ -526,10 +533,6 @@ class AdvancedExtenderValidation(
                     deferred.complete(cameraDevice)
                 }
 
-                override fun onClosed(camera: CameraDevice) {
-                    super.onClosed(camera)
-                }
-
                 override fun onDisconnected(cameraDevice: CameraDevice) {
                     deferred.completeExceptionally(RuntimeException("Camera Disconnected"))
                 }
@@ -575,14 +578,6 @@ class AdvancedExtenderValidation(
                 }
 
                 override fun onCaptureQueueEmpty(session: CameraCaptureSession) {
-                }
-
-                override fun onClosed(session: CameraCaptureSession) {
-                    super.onClosed(session)
-                }
-
-                override fun onSurfacePrepared(session: CameraCaptureSession, surface: Surface) {
-                    super.onSurfacePrepared(session, surface)
                 }
             }
         )

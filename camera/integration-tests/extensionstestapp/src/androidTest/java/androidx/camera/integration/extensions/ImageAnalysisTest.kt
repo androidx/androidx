@@ -17,7 +17,6 @@
 package androidx.camera.integration.extensions
 
 import android.content.Context
-import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
@@ -26,10 +25,12 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -67,17 +68,22 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class ImageAnalysisTest(private val config: CameraIdExtensionModePair) {
+class ImageAnalysisTest(private val config: CameraXExtensionTestParams) {
     companion object {
         @JvmStatic
         @get:Parameterized.Parameters(name = "config = {0}")
-        val parameters: Collection<CameraIdExtensionModePair>
+        val parameters: Collection<CameraXExtensionTestParams>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(config.cameraXConfig)
     )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -89,6 +95,7 @@ class ImageAnalysisTest(private val config: CameraIdExtensionModePair) {
 
     @Before
     fun setUp(): Unit = runBlocking(Dispatchers.Main) {
+        ProcessCameraProvider.configureInstance(config.cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, SECONDS]
         lifecycleOwner = FakeLifecycleOwner()
         lifecycleOwner.startAndResume()
