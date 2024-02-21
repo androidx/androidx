@@ -147,7 +147,6 @@ javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 jcodec = { module = "org.jcodec:jcodec", version.ref = "jcodec" }
 jcodecJavaSe = { module = "org.jcodec:jcodec-javase", version.ref = "jcodec" }
 json = { module = "org.json:json", version = "20180813" }
-jsonSimple = { module = "com.googlecode.json-simple:json-simple", version = "1.1" }
 jsoup = { module = "org.jsoup:jsoup", version = "1.16.2" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
 jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
