@@ -112,7 +112,7 @@ package androidx.window.extensions.embedding {
     field public static final androidx.window.extensions.embedding.ActivityStack.Token INVALID_ACTIVITY_STACK_TOKEN;
   }
 
-  public class ActivityStackAttributes {
+  public final class ActivityStackAttributes {
     method public android.graphics.Rect getRelativeBounds();
     method public androidx.window.extensions.embedding.WindowAttributes getWindowAttributes();
   }
@@ -157,7 +157,7 @@ package androidx.window.extensions.embedding {
     method public android.view.WindowMetrics getWindowMetrics();
   }
 
-  public class SplitAttributes {
+  public final class SplitAttributes {
     method public androidx.window.extensions.embedding.AnimationBackground getAnimationBackground();
     method public int getLayoutDirection();
     method public androidx.window.extensions.embedding.SplitAttributes.SplitType getSplitType();
