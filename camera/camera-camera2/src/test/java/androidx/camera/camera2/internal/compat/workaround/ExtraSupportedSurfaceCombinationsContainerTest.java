@@ -94,6 +94,19 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 createLevel3PrivPrivYuvRawConfiguration())});
 
+        // Tests for FULL Samsung devices
+        data.add(new Object[]{new Config("Samsung", null, "SM-S926B", "0",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Samsung", null, "SM-S926B", "1",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Samsung", null, "SM-S928U", "0",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
+        data.add(new Object[]{new Config("Samsung", null, "SM-S928U", "1",
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                createLevel3PrivPrivYuvRawConfiguration())});
 
         // Other cases
         data.add(new Object[]{new Config(null, null, null, "0",

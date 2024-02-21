@@ -217,9 +217,16 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
                     "PIXEL 7",
                     "PIXEL 7 PRO"));
 
+    private static final Set<String> SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS =
+            new HashSet<>(Arrays.asList(
+                    "SM-S926B", // Galaxy S24+
+                    "SM-S928U" // Galaxy S24 Ultra
+              ));
+
     static boolean load() {
         return isSamsungS7() || supportExtraFullConfigurationsSamsungDevice()
-                || supportExtraLevel3ConfigurationsGoogleDevice();
+                || supportExtraLevel3ConfigurationsGoogleDevice()
+                || supportExtraLevel3ConfigurationsSamsungDevice();
     }
 
     private static boolean isSamsungS7() {
@@ -247,6 +254,16 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_GOOGLE_MODELS.contains(capitalModelName);
     }
 
+    private static boolean supportExtraLevel3ConfigurationsSamsungDevice() {
+        if (!"samsung".equalsIgnoreCase(Build.BRAND)) {
+            return false;
+        }
+
+        String capitalModelName = Build.MODEL.toUpperCase(Locale.US);
+
+        return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS.contains(capitalModelName);
+    }
+
     /**
      * Returns the extra supported surface combinations for specific camera on the device.
      */
@@ -261,7 +278,8 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
             return getLimitedDeviceExtraSupportedFullConfigurations(hardwareLevel);
         }
 
-        if (supportExtraLevel3ConfigurationsGoogleDevice()) {
+        if (supportExtraLevel3ConfigurationsGoogleDevice()
+                || supportExtraLevel3ConfigurationsSamsungDevice()) {
             return Collections.singletonList(LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION);
         }
 
