@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+ChangedType: androidx.kruth.MultimapSubject#valuesForKey(K):
+    Method androidx.kruth.MultimapSubject.valuesForKey has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<V>
 ChangedType: androidx.kruth.ObjectArraySubject#asList():
     Method androidx.kruth.ObjectArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<?>
 ChangedType: androidx.kruth.PrimitiveBooleanArraySubject#asList():
@@ -67,10 +69,8 @@ RemovedClass: androidx.kruth.LongSubject:
     Removed class androidx.kruth.LongSubject
 RemovedClass: androidx.kruth.MapSubject.UsingCorrespondence:
     Removed class androidx.kruth.MapSubject.UsingCorrespondence
-RemovedClass: androidx.kruth.MultimapSubject:
-    Removed class androidx.kruth.MultimapSubject
-RemovedClass: androidx.kruth.MultisetSubject:
-    Removed class androidx.kruth.MultisetSubject
+RemovedClass: androidx.kruth.MultimapSubject.UsingCorrespondence:
+    Removed class androidx.kruth.MultimapSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable:
     Removed class androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable
 RemovedClass: androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable:
@@ -111,6 +111,14 @@ RemovedMethod: androidx.kruth.MapSubject#containsExactly(Object, Object, java.la
     Removed method androidx.kruth.MapSubject.containsExactly(Object,Object,java.lang.Object...)
 RemovedMethod: androidx.kruth.MapSubject#formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>):
     Removed method androidx.kruth.MapSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>)
+RemovedMethod: androidx.kruth.MultimapSubject#MultimapSubject(androidx.kruth.FailureMetadata, com.google.common.collect.Multimap<?,?>):
+    Removed constructor androidx.kruth.MultimapSubject(androidx.kruth.FailureMetadata,com.google.common.collect.Multimap<?,?>)
+RemovedMethod: androidx.kruth.MultimapSubject#comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>):
+    Removed method androidx.kruth.MultimapSubject.comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>)
+RemovedMethod: androidx.kruth.MultimapSubject#containsAtLeast(Object, Object, java.lang.Object...):
+    Removed method androidx.kruth.MultimapSubject.containsAtLeast(Object,Object,java.lang.Object...)
+RemovedMethod: androidx.kruth.MultimapSubject#containsExactly(Object, Object, java.lang.Object...):
+    Removed method androidx.kruth.MultimapSubject.containsExactly(Object,Object,java.lang.Object...)
 RemovedMethod: androidx.kruth.PrimitiveDoubleArraySubject#usingExactEquality():
     Removed method androidx.kruth.PrimitiveDoubleArraySubject.usingExactEquality()
 RemovedMethod: androidx.kruth.PrimitiveDoubleArraySubject#usingTolerance(double):
