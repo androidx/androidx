@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.app.Activity
 import android.app.ActivityOptions
 import android.os.Bundle
-import android.os.IBinder
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.core.ExperimentalWindowApi
@@ -60,7 +59,10 @@ internal interface EmbeddingInterfaceCompat {
     fun clearSplitAttributesCalculator()
 
     @RequiresWindowSdkExtension(5)
-    fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
+    fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        activityStack: ActivityStack
+    ): ActivityOptions
 
     @RequiresWindowSdkExtension(5)
     fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams): Bundle

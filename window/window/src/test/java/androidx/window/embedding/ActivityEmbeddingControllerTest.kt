@@ -18,7 +18,6 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.Context
-import android.os.Binder
 import androidx.window.core.ExperimentalWindowApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -64,7 +63,7 @@ class ActivityEmbeddingControllerTest {
     @Test
     @OptIn(ExperimentalWindowApi::class)
     fun testGetActivityStack() {
-        val activityStack = ActivityStack(listOf(), true, Binder())
+        val activityStack = ActivityStack(listOf(), true)
         whenever(mockEmbeddingBackend.getActivityStack(mockActivity)).thenReturn(activityStack)
 
         assertEquals(activityStack, activityEmbeddingController.getActivityStack(mockActivity))
