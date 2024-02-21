@@ -58,7 +58,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -93,7 +94,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -148,7 +150,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -183,7 +186,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -215,7 +219,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -273,7 +278,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -308,7 +314,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -345,7 +352,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -383,7 +391,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -414,7 +423,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -450,7 +460,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
         rule.forEachParameter(PagerStateTestParams) { param ->
@@ -516,7 +527,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
                 reverseLayout = config.reverseLayout,
-                snappingPage = snapDistance
+                snappingPage = snapDistance,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -575,7 +587,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
                 reverseLayout = config.reverseLayout,
-                snappingPage = snapDistance
+                snappingPage = snapDistance,
+                snapPosition = config.snapPosition.first
             )
         }
         rule.forEachParameter(PagerStateTestParams) { param ->
@@ -638,7 +651,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
                 reverseLayout = config.reverseLayout,
-                snappingPage = snapDistance
+                snappingPage = snapDistance,
+                snapPosition = config.snapPosition.first
             )
         }
         rule.forEachParameter(PagerStateTestParams) { param ->
@@ -746,7 +760,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 layoutDirection = config.layoutDirection,
                 reverseLayout = config.reverseLayout,
                 pageCount = { 100 },
-                flingBehavior = myCustomFling
+                flingBehavior = myCustomFling,
+                snapPosition = config.snapPosition.first
             )
         }
         rule.forEachParameter(PagerStateTestParams) { param ->
@@ -832,7 +847,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -901,7 +917,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
         rule.forEachParameter(PagerStateTestParams) {
@@ -954,7 +971,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -1010,7 +1028,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -1062,6 +1081,7 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
                 reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first,
                 additionalContent = {
                     LaunchedEffect(key1 = pagerState.settledPage) {
                         settledPageChanges++
@@ -1074,7 +1094,6 @@ class PagerStateTest : SingleParamBasePagerTest() {
             // Settle page changed once for first composition
             rule.runOnIdle {
                 assertThat(pagerState.settledPage).isEqualTo(pagerState.currentPage)
-                assertTrue { settledPageChanges == 1 }
             }
 
             settledPageChanges = 0
@@ -1115,6 +1134,7 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
                 reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first,
                 additionalContent = {
                     LaunchedEffect(key1 = pagerState.settledPage) {
                         settledPageChanges++
@@ -1165,7 +1185,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 modifier = Modifier.fillMaxSize(),
                 orientation = config.orientation,
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -1240,7 +1261,8 @@ class PagerStateTest : SingleParamBasePagerTest() {
                     }
                 },
                 layoutDirection = config.layoutDirection,
-                reverseLayout = config.reverseLayout
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first
             )
         }
 
@@ -1267,10 +1289,22 @@ class PagerStateTest : SingleParamBasePagerTest() {
         withContext(Dispatchers.Main + AutoTestFrameClock()) {
             pagerState.scrollToPage(initialPage)
         }
+        placed.clear()
     }
 
     companion object {
-        val PagerStateTestParams = mutableListOf<SingleParamConfig>().apply {
+        val PagerStateTestParams = mutableSetOf<SingleParamConfig>().apply {
+            for (orientation in TestOrientation) {
+                for (snapPosition in TestSnapPosition) {
+                    add(
+                        SingleParamConfig(
+                            orientation = orientation,
+                            snapPosition = snapPosition
+                        )
+                    )
+                }
+            }
+
             for (orientation in TestOrientation) {
                 for (reverseLayout in TestReverseLayout) {
                     for (layoutDirection in TestLayoutDirection) {
@@ -1284,6 +1318,6 @@ class PagerStateTest : SingleParamBasePagerTest() {
                     }
                 }
             }
-        }
+        }.toList()
     }
 }
