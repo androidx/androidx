@@ -36,7 +36,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.PathSensitive
@@ -383,7 +382,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun androidNativeX86(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X86)
-        return if (project.enableNative()) {
+        return if (project.enableAndroidNative()) {
             kotlinExtension.androidNativeX86().also { block?.execute(it) }
         } else {
             null
@@ -393,7 +392,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun androidNativeX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X64)
-        return if (project.enableNative()) {
+        return if (project.enableAndroidNative()) {
             kotlinExtension.androidNativeX64().also { block?.execute(it) }
         } else {
             null
@@ -403,7 +402,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun androidNativeArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM64)
-        return if (project.enableNative()) {
+        return if (project.enableAndroidNative()) {
             kotlinExtension.androidNativeArm64().also { block?.execute(it) }
         } else {
             null
@@ -413,7 +412,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun androidNativeArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM32)
-        return if (project.enableNative()) {
+        return if (project.enableAndroidNative()) {
             kotlinExtension.androidNativeArm32().also { block?.execute(it) }
         } else {
             null
@@ -535,15 +534,6 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         const val EXTENSION_NAME = "androidXMultiplatform"
     }
 }
-
-/**
- * Returns a provider that is set to true if and only if this project has at least 1 kotlin native
- * target (mac, linux, ios).
- */
-internal fun Project.hasKotlinNativeTarget(): Provider<Boolean> =
-    project.provider {
-        project.extensions.getByType(AndroidXMultiplatformExtension::class.java).hasNativeTarget()
-    }
 
 fun Project.validatePublishedMultiplatformHasDefault() {
     val extension = project.extensions.getByType(AndroidXMultiplatformExtension::class.java)

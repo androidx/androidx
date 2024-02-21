@@ -102,10 +102,10 @@ class AndroidXClangTest : BaseClangTest() {
             it.freeArgs.addAll("androidArg2")
         }
 
-        // configurations are done lazily when needed
-        assertThat(project.tasks.withType(
-            ClangCompileTask::class.java
-        ).toList()).isEmpty()
+        // Add this check if we can re-enable lazy evaluation b/325518502
+//        assertThat(project.tasks.withType(
+//            ClangCompileTask::class.java
+//        ).toList()).isEmpty()
 
         // trigger configuration of targets
         multiTargetNativeCompilation.targetProvider(KonanTarget.LINUX_X64).get()

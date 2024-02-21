@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
+
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import androidx.build.Publish
@@ -32,9 +32,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
-
-def macEnabled = KmpPlatformsKt.enableMac(project)
-def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
 androidXMultiplatform {
     jvm()
@@ -103,27 +100,22 @@ androidXMultiplatform {
             }
         }
 
-        if (macEnabled || linuxEnabled) {
-            nativeMain {
-                dependsOn(commonMain)
-                dependencies {
-                    implementation(libs.atomicFu)
-                }
-            }
-            nativeTest {
-                dependsOn(commonTest)
+        nativeMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.atomicFu)
             }
         }
-        if (macEnabled) {
-            darwinMain {
-                dependsOn(nativeMain)
-            }
+        nativeTest {
+            dependsOn(commonTest)
         }
 
-        if (linuxEnabled) {
-            linuxMain {
-                dependsOn(nativeMain)
-            }
+        darwinMain {
+            dependsOn(nativeMain)
+        }
+
+        linuxMain {
+            dependsOn(nativeMain)
         }
 
         targets.all { target ->

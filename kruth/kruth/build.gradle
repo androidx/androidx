@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -31,10 +30,6 @@ import androidx.build.RunApiTasks
 plugins {
     id("AndroidXPlugin")
 }
-
-def macEnabled = KmpPlatformsKt.enableMac(project)
-def linuxEnabled = KmpPlatformsKt.enableLinux(project)
-def nativeEnabled = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
     jvm {}
@@ -75,14 +70,12 @@ androidXMultiplatform {
             }
         }
 
-        if (macEnabled || linuxEnabled || nativeEnabled) {
-            nativeMain {
-                dependsOn(commonMain)
-            }
+        nativeMain {
+            dependsOn(commonMain)
+        }
 
-            nativeTest {
-                dependsOn(commonTest)
-            }
+        nativeTest {
+            dependsOn(commonTest)
         }
 
         targets.all { target ->
