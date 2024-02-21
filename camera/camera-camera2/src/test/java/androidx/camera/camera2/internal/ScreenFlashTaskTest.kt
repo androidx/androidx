@@ -23,6 +23,7 @@ import android.os.Looper.getMainLooper
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.camera2.internal.compat.quirk.TorchFlashRequiredFor3aUpdateQuirk
 import androidx.camera.camera2.internal.compat.workaround.UseFlashModeTorchFor3aUpdate
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
@@ -170,14 +171,29 @@ class ScreenFlashTaskTest {
     }
 
     @Test
-    fun aePrecaptureNotTriggered_whenScreenFlashApplyNotCompleted() {
+    fun aePrecaptureNotTriggeredUntilTimeout_whenScreenFlashApplyNotCompleted() {
         val screenFlashTask = createScreenFlashTask()
         screenFlash.setApplyCompletedInstantly(false)
 
         screenFlashTask.preCapture(null)
         shadowOf(getMainLooper()).idle() // ScreenFlash#apply is invoked in main thread
 
-        assertThat(cameraControl.focusMeteringControl.triggerAePrecaptureCount).isEqualTo(0)
+        cameraControl.focusMeteringControl.awaitTriggerAePrecapture(1000)
+    }
+
+    @Test
+    fun aePrecaptureTriggeredAfterTimeout_whenScreenFlashApplyNotCompleted() {
+        val screenFlashTask = createScreenFlashTask()
+        screenFlash.setApplyCompletedInstantly(false)
+
+        screenFlashTask.preCapture(null)
+        shadowOf(getMainLooper()).idle() // ScreenFlash#apply is invoked in main thread
+
+        cameraControl.focusMeteringControl.awaitTriggerAePrecapture(
+            TimeUnit.SECONDS.toMillis(
+                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS + 1
+            )
+        )
     }
 
     @Test
