@@ -427,7 +427,8 @@ object NavigationSuiteDefaults {
         navigationBarContentColor: Color = contentColorFor(navigationBarContainerColor),
         navigationRailContainerColor: Color = NavigationRailDefaults.ContainerColor,
         navigationRailContentColor: Color = contentColorFor(navigationRailContainerColor),
-        navigationDrawerContainerColor: Color = DrawerDefaults.containerColor,
+        navigationDrawerContainerColor: Color =
+            @Suppress("DEPRECATION") DrawerDefaults.containerColor,
         navigationDrawerContentColor: Color = contentColorFor(navigationDrawerContainerColor),
     ): NavigationSuiteColors =
         NavigationSuiteColors(

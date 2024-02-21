@@ -663,21 +663,25 @@ package androidx.compose.material3 {
   }
 
   public final class DrawerDefaults {
-    method @androidx.compose.runtime.Composable public long getContainerColor();
+    method @Deprecated @androidx.compose.runtime.Composable public long getContainerColor();
     method public float getDismissibleDrawerElevation();
     method public float getMaximumDrawerWidth();
+    method @androidx.compose.runtime.Composable public long getModalContainerColor();
     method public float getModalDrawerElevation();
     method public float getPermanentDrawerElevation();
     method @androidx.compose.runtime.Composable public long getScrimColor();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
+    method @androidx.compose.runtime.Composable public long getStandardContainerColor();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
     property public final float DismissibleDrawerElevation;
     property public final float MaximumDrawerWidth;
     property public final float ModalDrawerElevation;
     property public final float PermanentDrawerElevation;
-    property @androidx.compose.runtime.Composable public final long containerColor;
+    property @Deprecated @androidx.compose.runtime.Composable public final long containerColor;
+    property @androidx.compose.runtime.Composable public final long modalContainerColor;
     property @androidx.compose.runtime.Composable public final long scrimColor;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public final long standardContainerColor;
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material3.DrawerDefaults INSTANCE;
   }
