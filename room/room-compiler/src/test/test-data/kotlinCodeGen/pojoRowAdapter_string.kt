@@ -1,7 +1,8 @@
 import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.performReadBlocking
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -49,24 +50,29 @@ public class MyDao_Impl(
 
   public override fun getEntity(): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity"
-    return performReadBlocking(__db, _sql) { _stmt ->
-      val _cursorIndexOfString: Int = getColumnIndexOrThrow(_stmt, "string")
-      val _cursorIndexOfNullableString: Int = getColumnIndexOrThrow(_stmt, "nullableString")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpString: String
-        _tmpString = _stmt.getText(_cursorIndexOfString)
-        val _tmpNullableString: String?
-        if (_stmt.isNull(_cursorIndexOfNullableString)) {
-          _tmpNullableString = null
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfString: Int = getColumnIndexOrThrow(_stmt, "string")
+        val _cursorIndexOfNullableString: Int = getColumnIndexOrThrow(_stmt, "nullableString")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpString: String
+          _tmpString = _stmt.getText(_cursorIndexOfString)
+          val _tmpNullableString: String?
+          if (_stmt.isNull(_cursorIndexOfNullableString)) {
+            _tmpNullableString = null
+          } else {
+            _tmpNullableString = _stmt.getText(_cursorIndexOfNullableString)
+          }
+          _result = MyEntity(_tmpString,_tmpNullableString)
         } else {
-          _tmpNullableString = _stmt.getText(_cursorIndexOfNullableString)
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
         }
-        _result = MyEntity(_tmpString,_tmpNullableString)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        _result
+      } finally {
+        _stmt.close()
       }
-      _result
     }
   }
 

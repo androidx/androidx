@@ -278,11 +278,14 @@ private class ConnectionElement(
 private class PooledConnectionImpl(
     val delegate: ConnectionWithLock,
     val isReadOnly: Boolean,
-) : Transactor {
+) : Transactor, RawConnectionAccessor {
     private val transactionStack = ArrayDeque<TransactionItem>()
 
     private val _isRecycled = atomic(false)
     private val isRecycled by _isRecycled
+
+    override val rawConnection: SQLiteConnection
+        get() = delegate
 
     override suspend fun <R> usePrepared(
         sql: String,
@@ -398,7 +401,11 @@ private class PooledConnectionImpl(
 
     private class RollbackException(val result: Any?) : Throwable()
 
-    private inner class TransactionImpl<T> : TransactionScope<T> {
+    private inner class TransactionImpl<T> : TransactionScope<T>, RawConnectionAccessor {
+
+        override val rawConnection: SQLiteConnection
+            get() = this@PooledConnectionImpl.rawConnection
+
         override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R =
             this@PooledConnectionImpl.usePrepared(sql, block)
 

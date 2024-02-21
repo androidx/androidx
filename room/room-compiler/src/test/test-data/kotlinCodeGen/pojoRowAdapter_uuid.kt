@@ -3,7 +3,8 @@ import androidx.room.RoomDatabase
 import androidx.room.util.convertByteToUUID
 import androidx.room.util.convertUUIDToByte
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.performReadBlocking
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteStatement
 import java.util.UUID
 import javax.`annotation`.processing.Generated
@@ -53,27 +54,32 @@ public class MyDao_Impl(
 
   public override fun getEntity(): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity"
-    return performReadBlocking(__db, _sql) { _stmt ->
-      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-      val _cursorIndexOfUuid: Int = getColumnIndexOrThrow(_stmt, "uuid")
-      val _cursorIndexOfNullableUuid: Int = getColumnIndexOrThrow(_stmt, "nullableUuid")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpPk: Int
-        _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
-        val _tmpUuid: UUID
-        _tmpUuid = convertByteToUUID(_stmt.getBlob(_cursorIndexOfUuid))
-        val _tmpNullableUuid: UUID?
-        if (_stmt.isNull(_cursorIndexOfNullableUuid)) {
-          _tmpNullableUuid = null
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfUuid: Int = getColumnIndexOrThrow(_stmt, "uuid")
+        val _cursorIndexOfNullableUuid: Int = getColumnIndexOrThrow(_stmt, "nullableUuid")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpUuid: UUID
+          _tmpUuid = convertByteToUUID(_stmt.getBlob(_cursorIndexOfUuid))
+          val _tmpNullableUuid: UUID?
+          if (_stmt.isNull(_cursorIndexOfNullableUuid)) {
+            _tmpNullableUuid = null
+          } else {
+            _tmpNullableUuid = convertByteToUUID(_stmt.getBlob(_cursorIndexOfNullableUuid))
+          }
+          _result = MyEntity(_tmpPk,_tmpUuid,_tmpNullableUuid)
         } else {
-          _tmpNullableUuid = convertByteToUUID(_stmt.getBlob(_cursorIndexOfNullableUuid))
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
         }
-        _result = MyEntity(_tmpPk,_tmpUuid,_tmpNullableUuid)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        _result
+      } finally {
+        _stmt.close()
       }
-      _result
     }
   }
 

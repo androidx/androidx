@@ -1,7 +1,8 @@
 import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.performReadBlocking
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -56,51 +57,56 @@ public class MyDao_Impl(
 
   public override fun getEntity(): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity"
-    return performReadBlocking(__db, _sql) { _stmt ->
-      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-      val _cursorIndexOfFoo: Int = getColumnIndexOrThrow(_stmt, "foo")
-      val _cursorIndexOfBar: Int = getColumnIndexOrThrow(_stmt, "bar")
-      val _result: MyEntity
-      if (_stmt.step()) {
-        val _tmpPk: Int
-        _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
-        val _tmpFoo: Foo
-        val _tmp: String?
-        if (_stmt.isNull(_cursorIndexOfFoo)) {
-          _tmp = null
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfFoo: Int = getColumnIndexOrThrow(_stmt, "foo")
+        val _cursorIndexOfBar: Int = getColumnIndexOrThrow(_stmt, "bar")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpFoo: Foo
+          val _tmp: String?
+          if (_stmt.isNull(_cursorIndexOfFoo)) {
+            _tmp = null
+          } else {
+            _tmp = _stmt.getText(_cursorIndexOfFoo)
+          }
+          val _tmp_1: Foo? = FooBarConverter.fromString(_tmp)
+          if (_tmp_1 == null) {
+            error("Expected NON-NULL 'Foo', but it was NULL.")
+          } else {
+            _tmpFoo = _tmp_1
+          }
+          val _tmpBar: Bar
+          val _tmp_2: String?
+          if (_stmt.isNull(_cursorIndexOfBar)) {
+            _tmp_2 = null
+          } else {
+            _tmp_2 = _stmt.getText(_cursorIndexOfBar)
+          }
+          val _tmp_3: Foo? = FooBarConverter.fromString(_tmp_2)
+          val _tmp_4: Bar?
+          if (_tmp_3 == null) {
+            _tmp_4 = null
+          } else {
+            _tmp_4 = FooBarConverter.fromFoo(_tmp_3)
+          }
+          if (_tmp_4 == null) {
+            error("Expected NON-NULL 'Bar', but it was NULL.")
+          } else {
+            _tmpBar = _tmp_4
+          }
+          _result = MyEntity(_tmpPk,_tmpFoo,_tmpBar)
         } else {
-          _tmp = _stmt.getText(_cursorIndexOfFoo)
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
         }
-        val _tmp_1: Foo? = FooBarConverter.fromString(_tmp)
-        if (_tmp_1 == null) {
-          error("Expected NON-NULL 'Foo', but it was NULL.")
-        } else {
-          _tmpFoo = _tmp_1
-        }
-        val _tmpBar: Bar
-        val _tmp_2: String?
-        if (_stmt.isNull(_cursorIndexOfBar)) {
-          _tmp_2 = null
-        } else {
-          _tmp_2 = _stmt.getText(_cursorIndexOfBar)
-        }
-        val _tmp_3: Foo? = FooBarConverter.fromString(_tmp_2)
-        val _tmp_4: Bar?
-        if (_tmp_3 == null) {
-          _tmp_4 = null
-        } else {
-          _tmp_4 = FooBarConverter.fromFoo(_tmp_3)
-        }
-        if (_tmp_4 == null) {
-          error("Expected NON-NULL 'Bar', but it was NULL.")
-        } else {
-          _tmpBar = _tmp_4
-        }
-        _result = MyEntity(_tmpPk,_tmpFoo,_tmpBar)
-      } else {
-        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        _result
+      } finally {
+        _stmt.close()
       }
-      _result
     }
   }
 

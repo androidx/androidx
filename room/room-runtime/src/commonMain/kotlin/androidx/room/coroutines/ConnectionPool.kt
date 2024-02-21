@@ -96,3 +96,10 @@ internal fun newConnectionPool(
     maxNumOfReaders: Int,
     maxNumOfWriters: Int
 ): ConnectionPool = ConnectionPoolImpl(driver, maxNumOfReaders, maxNumOfWriters)
+
+/**
+ * Defines an object that provides 'raw' access to a connection.
+ */
+internal interface RawConnectionAccessor {
+    val rawConnection: SQLiteConnection
+}
