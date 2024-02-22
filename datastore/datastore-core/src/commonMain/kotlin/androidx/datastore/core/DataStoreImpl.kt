@@ -60,6 +60,11 @@ internal class DataStoreImpl<T>(
      * result in deadlock.
      */
     initTasksList: List<suspend (api: InitializerApi<T>) -> Unit> = emptyList(),
+    /**
+     * The handler of [CorruptionException]s when they are thrown during reads or writes. It
+     * produces the new data to replace the corrupted data on disk. By default it is a no-op which
+     * simply throws the exception and does not produce new data.
+     */
     private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler(),
     private val scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob())
 ) : DataStore<T> {
@@ -296,42 +301,28 @@ internal class DataStoreImpl<T>(
         }
         val (newState, acquiredLock) =
             if (requireLock) {
-                coordinator.lock { attemptRead(acquiredLock = true) to true }
+                coordinator.lock {
+                    try {
+                        readDataOrHandleCorruption(hasWriteFileLock = true)
+                    } catch (ex: Throwable) {
+                        ReadException<T>(ex, coordinator.getVersion())
+                    } to true
+                }
             } else {
                 coordinator.tryLock { locked ->
-                    attemptRead(locked) to locked
+                    try {
+                        readDataOrHandleCorruption(locked)
+                    } catch (ex: Throwable) {
+                        ReadException<T>(
+                            ex, if (locked) coordinator.getVersion() else cachedVersion
+                        )
+                    } to locked
                 }
             }
         if (acquiredLock) {
             inMemoryCache.tryUpdate(newState)
         }
         return newState
-    }
-
-    /**
-     * Caller is responsible to lock or tryLock, and pass the [acquiredLock] parameter to indicate
-     * if it has acquired lock.
-     */
-    private suspend fun attemptRead(acquiredLock: Boolean): State<T> {
-        // read version before file
-        val currentVersion = coordinator.getVersion()
-        // use current version if it has lock, otherwise use the older version between current and
-        // cached version, which guarantees correctness
-        val readVersion = if (acquiredLock) {
-            currentVersion
-        } else {
-            inMemoryCache.currentState.version
-        }
-        val readResult = runCatching { readDataFromFileOrDefault() }
-        return if (readResult.isSuccess) {
-            Data(
-                readResult.getOrThrow(),
-                readResult.getOrThrow().hashCode(),
-                readVersion
-            )
-        } else {
-            ReadException<T>(readResult.exceptionOrNull()!!, readVersion)
-        }
     }
 
     // Caller is responsible for (try to) getting file lock. It reads from the file directly without
@@ -344,12 +335,11 @@ internal class DataStoreImpl<T>(
         transform: suspend (t: T) -> T,
         callerContext: CoroutineContext
     ): T = coordinator.lock {
-        val curData = readDataFromFileOrDefault()
-        val curDataAndHash = Data(curData, curData.hashCode(), /* unused */ version = 0)
-        val newData = withContext(callerContext) { transform(curData) }
+        val curData = readDataOrHandleCorruption(hasWriteFileLock = true)
+        val newData = withContext(callerContext) { transform(curData.value) }
 
         // Check that curData has not changed...
-        curDataAndHash.checkHashCode()
+        curData.checkHashCode()
 
         if (curData != newData) {
             writeData(newData, updateCache = true)
@@ -375,6 +365,64 @@ internal class DataStoreImpl<T>(
         }
 
         return newVersion
+    }
+
+    private suspend fun readDataOrHandleCorruption(hasWriteFileLock: Boolean): Data<T> {
+        try {
+            return if (hasWriteFileLock) {
+                val data = readDataFromFileOrDefault()
+                Data(data, data.hashCode(), version = coordinator.getVersion())
+            } else {
+                val preLockVersion = coordinator.getVersion()
+                coordinator.tryLock { locked ->
+                    val data = readDataFromFileOrDefault()
+                    val version = if (locked) coordinator.getVersion() else preLockVersion
+                    Data(
+                        data,
+                        data.hashCode(),
+                        version
+                    )
+                }
+            }
+        } catch (ex: CorruptionException) {
+            var newData: T = corruptionHandler.handleCorruption(ex)
+            var version: Int // initialized inside the try block
+
+            try {
+                doWithWriteFileLock(hasWriteFileLock) {
+                    // Confirms the file is still corrupted before overriding
+                    try {
+                        newData = readDataFromFileOrDefault()
+                        version = coordinator.getVersion()
+                    } catch (ignoredEx: CorruptionException) {
+                        version = writeData(newData, updateCache = true)
+                    }
+                }
+            } catch (writeEx: Throwable) {
+                // If we fail to write the handled data, add the new exception as a suppressed
+                // exception.
+                ex.addSuppressed(writeEx)
+                throw ex
+            }
+
+            // If we reach this point, we've successfully replaced the data on disk with newData.
+            return Data(newData, newData.hashCode(), version)
+        }
+    }
+
+    @OptIn(ExperimentalContracts::class)
+    private suspend fun <R> doWithWriteFileLock(
+        hasWriteFileLock: Boolean,
+        block: suspend () -> R
+    ): R {
+        contract {
+            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+        }
+        return if (hasWriteFileLock) {
+            block()
+        } else {
+            coordinator.lock { block() }
+        }
     }
 
     private inner class InitDataStore(
@@ -430,65 +478,6 @@ internal class DataStoreImpl<T>(
                 }
             }
             inMemoryCache.tryUpdate(initData)
-        }
-
-        @OptIn(ExperimentalContracts::class)
-        private suspend fun <R> doWithWriteFileLock(
-            hasWriteFileLock: Boolean,
-            block: suspend () -> R
-        ): R {
-            contract {
-                callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-            }
-            return if (hasWriteFileLock) {
-                block()
-            } else {
-                coordinator.lock { block() }
-            }
-        }
-
-        // Only be called from `readAndInit`. State is UnInitialized or ReadException.
-        private suspend fun readDataOrHandleCorruption(hasWriteFileLock: Boolean): Data<T> {
-            try {
-                return if (hasWriteFileLock) {
-                    val data = readDataFromFileOrDefault()
-                    Data(data, data.hashCode(), version = coordinator.getVersion())
-                } else {
-                    val preLockVersion = coordinator.getVersion()
-                    coordinator.tryLock { locked ->
-                        val data = readDataFromFileOrDefault()
-                        val version = if (locked) coordinator.getVersion() else preLockVersion
-                        Data(
-                            data,
-                            data.hashCode(),
-                            version
-                        )
-                    }
-                }
-            } catch (ex: CorruptionException) {
-                var newData: T = corruptionHandler.handleCorruption(ex)
-                var version: Int // initialized inside the try block
-
-                try {
-                    doWithWriteFileLock(hasWriteFileLock) {
-                        // Confirms the file is still corrupted before overriding
-                        try {
-                            newData = readDataFromFileOrDefault()
-                            version = coordinator.getVersion()
-                        } catch (ignoredEx: CorruptionException) {
-                            version = writeData(newData, updateCache = true)
-                        }
-                    }
-                } catch (writeEx: Throwable) {
-                    // If we fail to write the handled data, add the new exception as a suppressed
-                    // exception.
-                    ex.addSuppressed(writeEx)
-                    throw ex
-                }
-
-                // If we reach this point, we've successfully replaced the data on disk with newData.
-                return Data(newData, newData.hashCode(), version)
-            }
         }
     }
 
