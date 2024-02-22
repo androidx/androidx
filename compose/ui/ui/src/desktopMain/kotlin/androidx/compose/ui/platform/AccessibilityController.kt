@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -26,12 +25,17 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.TextRange
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleComponent
-import javax.accessibility.AccessibleContext.*
+import javax.accessibility.AccessibleContext.ACCESSIBLE_CARET_PROPERTY
+import javax.accessibility.AccessibleContext.ACCESSIBLE_STATE_PROPERTY
+import javax.accessibility.AccessibleContext.ACCESSIBLE_TEXT_PROPERTY
+import javax.accessibility.AccessibleContext.ACCESSIBLE_VALUE_PROPERTY
 import javax.accessibility.AccessibleState
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
@@ -141,11 +145,11 @@ internal class AccessibilityController(
     }
 
     private object SyncLoopState {
-        val maxIdleTimeMillis = 1000 * 60 * 5 // Stop syncing after 5 minutes of inactivity
-        var lastAccessTimeMillis: Long = 0
+        val MaxIdleTimeMillis = 5.minutes.inWholeMilliseconds // Stop syncing after 5 minutes of inactivity
+        var lastUseTimeMillis: Long = 0
 
-        val shouldSync
-            get() = System.currentTimeMillis() - lastAccessTimeMillis < maxIdleTimeMillis
+        val accessibilityRecentlyInUse
+            get() = System.currentTimeMillis() - lastUseTimeMillis < MaxIdleTimeMillis
     }
 
     /**
@@ -153,11 +157,14 @@ internal class AccessibilityController(
      * some period of inactivity
      */
     fun notifyIsInUse() {
-        SyncLoopState.lastAccessTimeMillis = System.currentTimeMillis()
+        SyncLoopState.lastUseTimeMillis = System.currentTimeMillis()
+        syncNodesChannel.trySend(Unit)
     }
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(coroutineContext + job)
+    private val syncNodesChannel =
+        Channel<Unit>(capacity = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
 
     fun dispose() {
         job.cancel()
@@ -166,10 +173,10 @@ internal class AccessibilityController(
     fun syncLoop() {
         coroutineScope.launch {
             while (true) {
-                if (currentNodesInvalidated && SyncLoopState.shouldSync) {
+                syncNodesChannel.receive()
+                if (currentNodesInvalidated && SyncLoopState.accessibilityRecentlyInUse) {
                     syncNodes()
                 }
-                delay(100)
             }
         }
     }
@@ -212,6 +219,7 @@ internal class AccessibilityController(
 
     fun onSemanticsChange() {
         currentNodesInvalidated = true
+        syncNodesChannel.trySend(Unit)
     }
 
     val rootSemanticNode: SemanticsNode
