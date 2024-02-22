@@ -30,12 +30,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
+import android.hardware.biometrics.BiometricManager;
+import android.hardware.biometrics.BiometricPrompt;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.credentials.PublicKeyCredential;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
 import androidx.credentials.provider.BeginGetPublicKeyCredentialOption;
+import androidx.credentials.provider.BiometricPromptData;
 import androidx.credentials.provider.PublicKeyCredentialEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -46,8 +51,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.Instant;
+
+import javax.crypto.NullCipher;
+
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 28)
 @SmallTest
 public class PublicKeyCredentialEntryJavaTest {
     private static final CharSequence USERNAME = "title";
@@ -58,6 +66,11 @@ public class PublicKeyCredentialEntryJavaTest {
     private static final boolean SINGLE_PROVIDER_ICON_BIT = true;
     private static final Icon ICON = Icon.createWithBitmap(
             Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+    @RequiresApi(28) // CryptoObject necessitates a minimum API level of 28
+    private static final BiometricPromptData TEST_BIOMETRIC_DATA = new BiometricPromptData.Builder()
+            .setCryptoObject(new BiometricPrompt.CryptoObject(new NullCipher()))
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            .build();
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
     private final BeginGetPublicKeyCredentialOption mBeginOption =
             new BeginGetPublicKeyCredentialOption(new Bundle(), "id",
@@ -66,6 +79,7 @@ public class PublicKeyCredentialEntryJavaTest {
     private final Intent mIntent = new Intent();
     private final PendingIntent mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
             PendingIntent.FLAG_IMMUTABLE);
+
     @Test
     public void build_requiredParamsOnly_success() {
         PublicKeyCredentialEntry entry = constructWithRequiredParamsOnly();
@@ -222,10 +236,15 @@ public class PublicKeyCredentialEntryJavaTest {
                 mBeginOption).build();
     }
     private PublicKeyCredentialEntry constructWithAllParams() {
-        return new PublicKeyCredentialEntry.Builder(mContext, USERNAME, mPendingIntent,
+        PublicKeyCredentialEntry.Builder testBuilder = new PublicKeyCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent,
                 mBeginOption).setAutoSelectAllowed(IS_AUTO_SELECT_ALLOWED).setDisplayName(
                 DISPLAYNAME).setLastUsedTime(Instant.ofEpochMilli(LAST_USED_TIME)).setIcon(
-                ICON).setDefaultIconPreferredAsSingleProvider(SINGLE_PROVIDER_ICON_BIT).build();
+                ICON).setDefaultIconPreferredAsSingleProvider(SINGLE_PROVIDER_ICON_BIT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            testBuilder.setBiometricPromptData(TEST_BIOMETRIC_DATA);
+        }
+        return testBuilder.build();
     }
     private void assertEntryWithRequiredParams(PublicKeyCredentialEntry entry) {
         assertThat(USERNAME.equals(entry.getUsername()));
@@ -234,6 +253,7 @@ public class PublicKeyCredentialEntryJavaTest {
                 DEFAULT_SINGLE_PROVIDER_ICON_BIT);
         assertThat(entry.getAffiliatedDomain()).isNull();
         assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
+        assertThat(entry.getBiometricPromptData()).isNull();
     }
     private void assertEntryWithAllParams(PublicKeyCredentialEntry entry) {
         assertThat(USERNAME.equals(entry.getUsername()));
@@ -247,5 +267,12 @@ public class PublicKeyCredentialEntryJavaTest {
                 SINGLE_PROVIDER_ICON_BIT);
         assertThat(entry.getAffiliatedDomain()).isNull();
         assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                && entry.getBiometricPromptData() != null) {
+            assertThat(entry.getBiometricPromptData().getAllowedAuthenticators()).isEqualTo(
+                    TEST_BIOMETRIC_DATA.getAllowedAuthenticators());
+        } else {
+            assertThat(entry.getBiometricPromptData()).isNull();
+        }
     }
 }
