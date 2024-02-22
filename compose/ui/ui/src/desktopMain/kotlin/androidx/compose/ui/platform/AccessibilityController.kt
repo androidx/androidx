@@ -187,13 +187,13 @@ internal class AccessibilityController(
     }
 
     private fun syncNodes() {
-        if (!rootSemanticNode.layoutNode.isPlaced)
-            return
+        fun SemanticsNode.isValid() = layoutNode.let { it.isPlaced && it.isAttached }
 
         // Build new mapping of ComposeAccessible by node id
         val previous = accessibleByNodeId
         val updated = auxAccessibleByNodeId
-        bfsDeque.add(rootSemanticNode)
+        if (rootSemanticNode.isValid())
+            bfsDeque.add(rootSemanticNode)
         while (bfsDeque.isNotEmpty()) {
             val node = bfsDeque.removeFirst()
 
@@ -211,7 +211,7 @@ internal class AccessibilityController(
             }
 
             for (child in node.replacedChildren.asReversed()) {
-                if (child.layoutNode.let { it.isAttached && it.isPlaced }) {
+                if (child.isValid()) {
                     bfsDeque.add(child)
                 }
             }
