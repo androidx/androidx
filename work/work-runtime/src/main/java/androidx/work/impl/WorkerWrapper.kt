@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.annotation.WorkerThread
 import androidx.concurrent.futures.await
 import androidx.work.Clock
 import androidx.work.Configuration
@@ -29,7 +30,6 @@ import androidx.work.Logger
 import androidx.work.WorkInfo
 import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
-import androidx.work.impl.WorkerWrapper.Resolution.ResetWorkerStatus
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.model.DependencyDao
 import androidx.work.impl.model.WorkGenerationalId
@@ -38,10 +38,10 @@ import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.model.generationalId
 import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.safeAccept
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.workForeground
-import androidx.work.launchFuture
 import androidx.work.logd
 import androidx.work.loge
 import androidx.work.logi
@@ -49,9 +49,10 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
-import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -59,13 +60,13 @@ import kotlinx.coroutines.withContext
  * its Worker, and then calls it.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class WorkerWrapper internal constructor(builder: Builder) {
+class WorkerWrapper internal constructor(builder: Builder) : Runnable {
     val workSpec: WorkSpec = builder.workSpec
     private val appContext: Context = builder.appContext
     private val workSpecId: String = workSpec.id
     private val runtimeExtras: WorkerParameters.RuntimeExtras = builder.runtimeExtras
 
-    private val builderWorker: ListenableWorker? = builder.worker
+    private var worker: ListenableWorker? = builder.worker
     private val workTaskExecutor: TaskExecutor = builder.workTaskExecutor
 
     private val configuration: Configuration = builder.configuration
@@ -75,58 +76,38 @@ class WorkerWrapper internal constructor(builder: Builder) {
     private val workSpecDao: WorkSpecDao = workDatabase.workSpecDao()
     private val dependencyDao: DependencyDao = workDatabase.dependencyDao()
     private val tags: List<String> = builder.tags
-    private val workDescription: String = createWorkDescription(tags)
+    private var workDescription: String? = null
+
+    private val _future: SettableFuture<Boolean> = SettableFuture.create()
 
     private val workerJob = Job()
 
+    @Volatile
+    private var interrupted = WorkInfo.STOP_REASON_NOT_STOPPED
+
     val workGenerationalId: WorkGenerationalId
         get() = workSpec.generationalId()
+    val future: ListenableFuture<Boolean>
+        get() = _future
 
-    fun launch(): ListenableFuture<Boolean> = launchFuture(
-        workTaskExecutor.taskCoroutineDispatcher + Job()
-    ) {
-        val resolution: Resolution = try {
-            // we're wrapping runWorker in separate job, so we can always run post processing
-            // without a fear of being cancelled.
-            withContext(workerJob) {
-                runWorker()
-            }
-        } catch (workerStoppedException: WorkerStoppedException) {
-            ResetWorkerStatus(workerStoppedException.reason)
-        } catch (e: CancellationException) {
-            // means that worker was self-cancelled, which we treat as failure
-            Resolution.Failed()
-        } catch (throwable: Throwable) {
-            loge(TAG, throwable) { "Unexpected error in WorkerWrapper" }
-            Resolution.Failed()
+    @WorkerThread
+    override fun run() {
+        workDescription = createWorkDescription(tags)
+        runWorker()
+    }
+
+    private fun runWorker() {
+        if (isInterrupted()) {
+            return
         }
-        workDatabase.runInTransaction(Callable {
-            when (resolution) {
-                is Resolution.Finished -> onWorkFinished(resolution.result)
-                is Resolution.Failed -> {
-                    setFailed(resolution.result)
-                    false
-                }
-                is ResetWorkerStatus -> resetWorkerStatus(resolution.reason)
-            }
-        })
-    }
 
-    private sealed class Resolution {
-        class ResetWorkerStatus(val reason: Int = WorkInfo.STOP_REASON_NOT_STOPPED) : Resolution()
-        class Failed(val result: ListenableWorker.Result = Failure()) : Resolution()
-        class Finished(val result: ListenableWorker.Result) : Resolution()
-    }
-
-    private class WorkerStoppedException(val reason: Int) : CancellationException()
-
-    private suspend fun runWorker(): Resolution {
         // Needed for nested transactions, such as when we're in a dependent work request when
         // using a SynchronousExecutor.
         val shouldExit = workDatabase.runInTransaction(Callable {
             // Do a quick check to make sure we don't need to bail out in case this work is already
             // running, finished, or is blocked.
             if (workSpec.state !== WorkInfo.State.ENQUEUED) {
+                resetWorkerStatus()
                 logd(TAG) {
                     "${workSpec.workerClassName} is not in ENQUEUED state. Nothing more to do"
                 }
@@ -155,13 +136,14 @@ class WorkerWrapper internal constructor(builder: Builder) {
                     // For AlarmManager implementation we need to reschedule this kind  of Work.
                     // This is not a problem for JobScheduler because we will only reschedule
                     // work if JobScheduler is unaware of a jobId.
+                    resetWorkerStatus()
                     return@Callable true
                 }
             }
             return@Callable false
         })
 
-        if (shouldExit) return ResetWorkerStatus()
+        if (shouldExit) return
 
         // Merge inputs.  This can be potentially expensive code, so this should not be done inside
         // a database transaction.
@@ -174,7 +156,8 @@ class WorkerWrapper internal constructor(builder: Builder) {
                 inputMergerFactory.createInputMergerWithDefaultFallback(inputMergerClassName)
             if (inputMerger == null) {
                 loge(TAG) { "Could not create Input Merger ${workSpec.inputMergerClassName}" }
-                return Resolution.Failed()
+                setFailedAndResolve(Failure())
+                return
             }
             val inputs = listOf(workSpec.input) + workSpecDao.getInputsFromPrerequisites(workSpecId)
             inputMerger.merge(inputs)
@@ -196,7 +179,7 @@ class WorkerWrapper internal constructor(builder: Builder) {
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
-        val worker = builderWorker
+        val worker = worker
             ?: try {
                 configuration.workerFactory.createWorkerWithDefaultFallback(
                     appContext,
@@ -210,119 +193,144 @@ class WorkerWrapper internal constructor(builder: Builder) {
                     WorkerExceptionInfo(workSpec.workerClassName, params, e),
                     TAG
                 )
-                return Resolution.Failed()
+                setFailedAndResolve(Failure())
+                return
             }
         worker.setUsed()
-        // we specifically use coroutineContext[Job] instead of workerJob
-        // because it will be complete once withContext finishes.
-        // This way if worker has successfully finished and then
-        // interrupt() is called, then it is ignored, because
-        // job is already completed.
-        val job = coroutineContext[Job]!!
-        job.invokeOnCompletion {
-            if (it is WorkerStoppedException) {
-                worker.stop(it.reason)
-            }
-        }
+        this.worker = worker
 
         // Try to set the work to the running state.  Note that this may fail because another thread
         // may have modified the DB since we checked last at the top of this function.
         if (!trySetRunning()) {
-            return ResetWorkerStatus()
+            resetWorkerStatus()
+            return
         }
 
-        if (job.isCancelled) {
-            // doesn't matter job is cancelled anyway
-            return ResetWorkerStatus()
+        if (isInterrupted()) {
+            return
         }
 
         val foregroundUpdater = params.foregroundUpdater
         val mainDispatcher = workTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher()
-        try {
-            val result = withContext(mainDispatcher) {
-                workForeground(appContext, workSpec, worker, foregroundUpdater, workTaskExecutor)
-                logd(TAG) { "Starting work for ${workSpec.workerClassName}" }
-                worker.startWork()
-            }.await()
-            return Resolution.Finished(result)
-        } catch (cancellation: CancellationException) {
-            logi(TAG, cancellation) { "$workDescription was cancelled" }
-            throw cancellation
-        } catch (throwable: Throwable) {
-            loge(TAG, throwable) {
-                "$workDescription failed because it threw an exception/error"
+        CoroutineScope(workTaskExecutor.taskCoroutineDispatcher + workerJob).launch {
+            var result: ListenableWorker.Result = Failure()
+            val workDescription = workDescription
+            try {
+                result = withContext(mainDispatcher) {
+                    workForeground(appContext, workSpec, worker,
+                        foregroundUpdater, workTaskExecutor)
+                    logd(TAG) { "Starting work for ${workSpec.workerClassName}" }
+                    worker.startWork()
+                }.await()
+            } catch (cancellation: CancellationException) {
+                // Cancellations need to be treated with care here because innerFuture
+                // cancellations will bubble up, and we need to gracefully handle that.
+                logi(TAG, cancellation) { "$workDescription was cancelled" }
+                throw cancellation
+            } catch (throwable: Throwable) {
+                loge(TAG, throwable) {
+                    "$workDescription failed because it threw an exception/error"
+                }
+                configuration.workerExecutionExceptionHandler?.safeAccept(
+                    WorkerExceptionInfo(workSpec.workerClassName, params, throwable),
+                    TAG
+                )
+            } finally {
+                onWorkFinished(result)
+                workerJob.complete()
             }
-            configuration.workerExecutionExceptionHandler?.safeAccept(
-                WorkerExceptionInfo(workSpec.workerClassName, params, throwable),
-                TAG
-            )
-            return Resolution.Failed()
         }
     }
 
-    private fun onWorkFinished(result: ListenableWorker.Result): Boolean {
-        val state = workSpecDao.getState(workSpecId)
-        workDatabase.workProgressDao().delete(workSpecId)
-        return if (state == null) {
-            // state can be null here with a REPLACE on beginUniqueWork().
-            // Treat it as a failure, and rescheduleAndResolve() will
-            // turn into a no-op. We still need to notify potential observers
-            // holding on to wake locks on our behalf.
-            false
-        } else if (state === WorkInfo.State.RUNNING) {
-            handleResult(result)
-        } else if (!state.isFinished) {
-            // counting this is stopped with unknown reason
-            reschedule(WorkInfo.STOP_REASON_UNKNOWN)
-        } else {
-            false
+    private fun onWorkFinished(result: ListenableWorker.Result) {
+        if (!isInterrupted()) {
+            workDatabase.runInTransaction {
+                val state = workSpecDao.getState(workSpecId)
+                workDatabase.workProgressDao().delete(workSpecId)
+                if (state == null) {
+                    // state can be null here with a REPLACE on beginUniqueWork().
+                    // Treat it as a failure, and rescheduleAndResolve() will
+                    // turn into a no-op. We still need to notify potential observers
+                    // holding on to wake locks on our behalf.
+                    resolve(false)
+                } else if (state === WorkInfo.State.RUNNING) {
+                    handleResult(result)
+                } else if (!state.isFinished) {
+                    // counting this is stopped with unknown reason
+                    interrupted = WorkInfo.STOP_REASON_UNKNOWN
+                    rescheduleAndResolve()
+                }
+            }
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun interrupt(stopReason: Int) {
-        workerJob.cancel(WorkerStoppedException(stopReason))
+        interrupted = stopReason
+        // Resolve WorkerWrapper's future so we do the right thing and setup a reschedule
+        // if necessary. mInterrupted is always true here, we don't really care about the return
+        // value.
+        resetWorkerStatus()
+        workerJob.cancel()
+        // Worker can be null if run() hasn't been called yet
+        // only call stop if it wasn't completed normally.
+        val worker = worker
+        if (worker != null && workerJob.isCancelled) {
+            worker.stop(stopReason)
+        } else {
+            logd(TAG) { "WorkSpec $workSpec is already done. Not interrupting." }
+        }
     }
 
-    private fun resetWorkerStatus(stopReason: Int): Boolean {
+    private fun resetWorkerStatus() {
         val state = workSpecDao.getState(workSpecId)
-        return if (state != null && !state.isFinished) {
+        if (state != null && !state.isFinished) {
             logd(TAG) {
                 "Status for $workSpecId is $state; not doing any work and " +
                     "rescheduling for later execution"
             }
-            // Set state to ENQUEUED again.
-            // Reset scheduled state so it's picked up by background schedulers again.
-            // We want to preserve time when work was enqueued so just explicitly set enqueued
-            // instead using markEnqueuedState. Similarly, don't change any override time.
-            workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
-            workSpecDao.setStopReason(workSpecId, stopReason)
-            workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
-            true
+            resolve(true) {
+                // Set state to ENQUEUED again.
+                // Reset scheduled state so it's picked up by background schedulers again.
+                // We want to preserve time when work was enqueued so just explicitly set enqueued
+                // instead using markEnqueuedState. Similarly, don't change any override time.
+                workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
+                workSpecDao.setStopReason(workSpecId, interrupted)
+                workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
+            }
         } else {
             logd(TAG) { "Status for $workSpecId is $state ; not doing any work" }
-            false
+            resolve(false)
         }
     }
 
-    private fun handleResult(result: ListenableWorker.Result?): Boolean {
-        return if (result is ListenableWorker.Result.Success) {
+    private fun isInterrupted(): Boolean {
+        // Interruptions can happen when:
+        // An explicit cancel* signal
+        // A change in constraint, which causes WorkManager to stop the Worker.
+        // Worker exceeding a 10 min execution window.
+        // One scheduler completing a Worker, and telling other Schedulers to cleanup.
+        return interrupted != WorkInfo.STOP_REASON_NOT_STOPPED
+    }
+
+    private fun handleResult(result: ListenableWorker.Result?) {
+        if (result is ListenableWorker.Result.Success) {
             logi(TAG) { "Worker result SUCCESS for $workDescription" }
             if (workSpec.isPeriodic) {
-                resetPeriodic()
+                resetPeriodicAndResolve()
             } else {
-                setSucceeded(result)
+                setSucceededAndResolve(result)
             }
         } else if (result is ListenableWorker.Result.Retry) {
             logi(TAG) { "Worker result RETRY for $workDescription" }
-            reschedule(WorkInfo.STOP_REASON_NOT_STOPPED)
+            rescheduleAndResolve()
         } else {
             logi(TAG) { "Worker result FAILURE for $workDescription" }
             if (workSpec.isPeriodic) {
-                resetPeriodic()
+                resetPeriodicAndResolve()
             } else {
                 // we have here either failure or null
-                setFailed(result ?: Failure())
+                setFailedAndResolve(result ?: Failure())
             }
         }
     }
@@ -340,17 +348,18 @@ class WorkerWrapper internal constructor(builder: Builder) {
     )
 
     @VisibleForTesting
-    fun setFailed(result: ListenableWorker.Result): Boolean {
-        iterativelyFailWorkAndDependents(workSpecId)
-        val failure = result as Failure
-        // Update Data as necessary.
-        val output = failure.outputData
-        workSpecDao.resetWorkSpecNextScheduleTimeOverride(
-            workSpecId,
-            workSpec.nextScheduleTimeOverrideGeneration
-        )
-        workSpecDao.setOutput(workSpecId, output)
-        return false
+    fun setFailedAndResolve(result: ListenableWorker.Result) {
+        resolve(false) {
+            iterativelyFailWorkAndDependents(workSpecId)
+            val failure = result as Failure
+            // Update Data as necessary.
+            val output = failure.outputData
+            workSpecDao.resetWorkSpecNextScheduleTimeOverride(
+                workSpecId,
+                workSpec.nextScheduleTimeOverrideGeneration
+            )
+            workSpecDao.setOutput(workSpecId, output)
+        }
     }
 
     private fun iterativelyFailWorkAndDependents(workSpecId: String) {
@@ -365,55 +374,66 @@ class WorkerWrapper internal constructor(builder: Builder) {
         }
     }
 
-    private fun reschedule(stopReason: Int): Boolean {
-        workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
-        workSpecDao.setLastEnqueueTime(workSpecId, clock.currentTimeMillis())
-        workSpecDao.resetWorkSpecNextScheduleTimeOverride(
-            workSpecId,
-            workSpec.nextScheduleTimeOverrideGeneration
-        )
-        workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
-        workSpecDao.setStopReason(workSpecId, stopReason)
-        return true
+    private fun rescheduleAndResolve() {
+        resolve(true) {
+            workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
+            workSpecDao.setLastEnqueueTime(workSpecId, clock.currentTimeMillis())
+            workSpecDao.resetWorkSpecNextScheduleTimeOverride(
+                workSpecId,
+                workSpec.nextScheduleTimeOverrideGeneration
+            )
+            workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
+            workSpecDao.setStopReason(workSpecId, interrupted)
+        }
     }
 
-    private fun resetPeriodic(): Boolean {
-        // The system clock may have been changed such that the lastEnqueueTime was in the past.
-        // Therefore we always use the current time to determine the next run time of a Worker.
-        // This way, the Schedulers will correctly schedule the next instance of the
-        // PeriodicWork in the future. This happens in calculateNextRunTime() in WorkSpec.
-        workSpecDao.setLastEnqueueTime(workSpecId, clock.currentTimeMillis())
-        workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
-        workSpecDao.resetWorkSpecRunAttemptCount(workSpecId)
-        workSpecDao.resetWorkSpecNextScheduleTimeOverride(
-            workSpecId,
-            workSpec.nextScheduleTimeOverrideGeneration
-        )
-        workSpecDao.incrementPeriodCount(workSpecId)
-        workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
-        return false
+    private fun resetPeriodicAndResolve() {
+        resolve(false) {
+            // The system clock may have been changed such that the lastEnqueueTime was in the past.
+            // Therefore we always use the current time to determine the next run time of a Worker.
+            // This way, the Schedulers will correctly schedule the next instance of the
+            // PeriodicWork in the future. This happens in calculateNextRunTime() in WorkSpec.
+            workSpecDao.setLastEnqueueTime(workSpecId, clock.currentTimeMillis())
+            workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
+            workSpecDao.resetWorkSpecRunAttemptCount(workSpecId)
+            workSpecDao.resetWorkSpecNextScheduleTimeOverride(
+                workSpecId,
+                workSpec.nextScheduleTimeOverrideGeneration
+            )
+            workSpecDao.incrementPeriodCount(workSpecId)
+            workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
+        }
     }
 
-    private fun setSucceeded(result: ListenableWorker.Result): Boolean {
-        workSpecDao.setState(WorkInfo.State.SUCCEEDED, workSpecId)
-        val success = result as ListenableWorker.Result.Success
-        // Update Data as necessary.
-        val output = success.outputData
-        workSpecDao.setOutput(workSpecId, output)
+    private fun setSucceededAndResolve(result: ListenableWorker.Result) {
+        resolve(false) {
+            workSpecDao.setState(WorkInfo.State.SUCCEEDED, workSpecId)
+            val success = result as ListenableWorker.Result.Success
+            // Update Data as necessary.
+            val output = success.outputData
+            workSpecDao.setOutput(workSpecId, output)
 
-        // Unblock Dependencies and set Period Start Time
-        val currentTimeMillis = clock.currentTimeMillis()
-        val dependentWorkIds = dependencyDao.getDependentWorkIds(workSpecId)
-        for (dependentWorkId in dependentWorkIds) {
-            if (workSpecDao.getState(dependentWorkId) === WorkInfo.State.BLOCKED &&
-                dependencyDao.hasCompletedAllPrerequisites(dependentWorkId)
-            ) {
-                logi(TAG) { "Setting status to enqueued for $dependentWorkId" }
-                workSpecDao.setState(WorkInfo.State.ENQUEUED, dependentWorkId)
-                workSpecDao.setLastEnqueueTime(dependentWorkId, currentTimeMillis)
+            // Unblock Dependencies and set Period Start Time
+            val currentTimeMillis = clock.currentTimeMillis()
+            val dependentWorkIds = dependencyDao.getDependentWorkIds(workSpecId)
+            for (dependentWorkId in dependentWorkIds) {
+                if (workSpecDao.getState(dependentWorkId) === WorkInfo.State.BLOCKED &&
+                    dependencyDao.hasCompletedAllPrerequisites(dependentWorkId)
+                ) {
+                    logi(TAG) { "Setting status to enqueued for $dependentWorkId" }
+                    workSpecDao.setState(WorkInfo.State.ENQUEUED, dependentWorkId)
+                    workSpecDao.setLastEnqueueTime(dependentWorkId, currentTimeMillis)
+                }
             }
         }
-        return false
+    }
+
+    private fun resolve(reschedule: Boolean, block: (() -> Unit)? = null) {
+        try {
+            if (block != null) workDatabase.runInTransaction(block)
+        } finally {
+            _future.set(reschedule)
+        }
     }
 
     private fun createWorkDescription(tags: List<String>) =
