@@ -58,6 +58,8 @@ abstract class CredentialEntry internal constructor(
     val entryGroupId: CharSequence,
     val isDefaultIconPreferredAsSingleProvider: Boolean,
     val affiliatedDomain: CharSequence? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val biometricPromptData: BiometricPromptData? = null,
 ) {
 
     @RequiresApi(34)

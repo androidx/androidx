@@ -89,9 +89,9 @@ class PasswordCredentialEntry internal constructor(
     private var isCreatedFromSlice: Boolean = false,
     private var isDefaultIconFromSlice: Boolean = false
 ) : CredentialEntry(
-    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    beginGetPasswordOption,
-    entryGroupId ?: username,
+    type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    beginGetCredentialOption = beginGetPasswordOption,
+    entryGroupId = entryGroupId ?: username,
     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
     affiliatedDomain = affiliatedDomain,
 ) {
@@ -159,16 +159,16 @@ class PasswordCredentialEntry internal constructor(
         affiliatedDomain: CharSequence? = null,
         isDefaultIconPreferredAsSingleProvider: Boolean = false,
     ) : this(
-        username,
-        displayName,
+        username = username,
+        displayName = displayName,
         typeDisplayName = context.getString(
             R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
         ),
-        pendingIntent,
-        lastUsedTime,
-        icon,
-        isAutoSelectAllowed,
-        beginGetPasswordOption,
+        pendingIntent = pendingIntent,
+        lastUsedTime = lastUsedTime,
+        icon = icon,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        beginGetPasswordOption = beginGetPasswordOption,
         isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
         affiliatedDomain = affiliatedDomain,
     )
@@ -217,16 +217,16 @@ class PasswordCredentialEntry internal constructor(
         icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
         isAutoSelectAllowed: Boolean = false
     ) : this(
-        username,
-        displayName,
+        username = username,
+        displayName = displayName,
         typeDisplayName = context.getString(
             R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
         ),
-        pendingIntent,
-        lastUsedTime,
-        icon,
-        isAutoSelectAllowed,
-        beginGetPasswordOption,
+        pendingIntent = pendingIntent,
+        lastUsedTime = lastUsedTime,
+        icon = icon,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        beginGetPasswordOption = beginGetPasswordOption,
         isDefaultIconPreferredAsSingleProvider = false
     )
 
@@ -351,6 +351,7 @@ class PasswordCredentialEntry internal constructor(
                     .build(),
                 /*subType=*/null
             )
+            // TODO(b/326243730) : Extend this for API >=35
             return sliceBuilder.build()
         }
 
@@ -412,6 +413,7 @@ class PasswordCredentialEntry internal constructor(
                 } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
                     isDefaultIcon = true
                 }
+                // TODO(b/326243730) : Extend this for API >=35
             }
 
             return try {
@@ -632,14 +634,14 @@ class PasswordCredentialEntry internal constructor(
                 R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
             )
             return PasswordCredentialEntry(
-                username,
-                displayName,
-                typeDisplayName,
-                pendingIntent,
-                lastUsedTime,
-                icon!!,
-                autoSelectAllowed,
-                beginGetPasswordOption,
+                username = username,
+                displayName = displayName,
+                typeDisplayName = typeDisplayName,
+                pendingIntent = pendingIntent,
+                lastUsedTime = lastUsedTime,
+                icon = icon!!,
+                isAutoSelectAllowed = autoSelectAllowed,
+                beginGetPasswordOption = beginGetPasswordOption,
                 isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
                 affiliatedDomain = affiliatedDomain,
             )
