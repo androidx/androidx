@@ -215,8 +215,6 @@ package androidx.room {
   }
 
   public enum RoomDatabase.JournalMode {
-    method public static androidx.room.RoomDatabase.JournalMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.room.RoomDatabase.JournalMode[] values();
     enum_constant public static final androidx.room.RoomDatabase.JournalMode AUTOMATIC;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode TRUNCATE;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode WRITE_AHEAD_LOGGING;
@@ -332,8 +330,6 @@ package androidx.room {
   }
 
   public enum Transactor.SQLiteTransactionType {
-    method public static androidx.room.Transactor.SQLiteTransactionType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.room.Transactor.SQLiteTransactionType[] values();
     enum_constant public static final androidx.room.Transactor.SQLiteTransactionType DEFERRED;
     enum_constant public static final androidx.room.Transactor.SQLiteTransactionType EXCLUSIVE;
     enum_constant public static final androidx.room.Transactor.SQLiteTransactionType IMMEDIATE;

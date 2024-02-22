@@ -149,8 +149,6 @@ package androidx.paging {
   }
 
   public enum LoadType {
-    method public static androidx.paging.LoadType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.paging.LoadType[] values();
     enum_constant public static final androidx.paging.LoadType APPEND;
     enum_constant public static final androidx.paging.LoadType PREPEND;
     enum_constant public static final androidx.paging.LoadType REFRESH;
@@ -583,8 +581,6 @@ package androidx.paging {
   }
 
   public enum RemoteMediator.InitializeAction {
-    method public static androidx.paging.RemoteMediator.InitializeAction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.paging.RemoteMediator.InitializeAction[] values();
     enum_constant public static final androidx.paging.RemoteMediator.InitializeAction LAUNCH_INITIAL_REFRESH;
     enum_constant public static final androidx.paging.RemoteMediator.InitializeAction SKIP_INITIAL_REFRESH;
   }
@@ -605,8 +601,6 @@ package androidx.paging {
   }
 
   public enum TerminalSeparatorType {
-    method public static androidx.paging.TerminalSeparatorType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.paging.TerminalSeparatorType[] values();
     enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
     enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;
   }
