@@ -308,7 +308,7 @@ androidx {
     type = LibraryType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Room annotation processor"
-    license { // jarjared antlr library
+    extraLicense { // jarjared antlr library
         name = "BSD licence"
         url = "http://antlr.org/license.html"
     }
