@@ -169,6 +169,7 @@ internal class AccessibilityController(
         Channel<Unit>(capacity = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
     private val bfsDeque = ArrayDeque<SemanticsNode>()
     private var auxAccessibleByNodeId = mutableScatterMapOf<Int, ComposeAccessible>()
+    private val delayedNodeNotifications = mutableListOf<() -> Unit>()
 
     fun dispose() {
         job.cancel()
@@ -199,10 +200,14 @@ internal class AccessibilityController(
             updated[node.id] = previous[node.id]?.let {
                 val prevSemanticsNode = it.semanticsNode
                 it.semanticsNode = node
-                onNodeChanged(it, prevSemanticsNode, node)
+                delayedNodeNotifications.add {
+                    onNodeChanged(it, prevSemanticsNode, node)
+                }
                 it
             } ?: ComposeAccessible(node, this).also {
-                onNodeAdded(it)
+                delayedNodeNotifications.add {
+                    onNodeAdded(it)
+                }
             }
 
             for (child in node.replacedChildren.asReversed()) {
@@ -215,12 +220,20 @@ internal class AccessibilityController(
         // Call onNodeRemoved with nodes that no longer exist
         previous.forEach { id, node ->
             if (id !in updated) {
-                onNodeRemoved(node)
+                delayedNodeNotifications.add {
+                    onNodeRemoved(node)
+                }
             }
         }
-        auxAccessibleByNodeId = accessibleByNodeId.also { it.clear() }
+        auxAccessibleByNodeId = previous.also { it.clear() }
         accessibleByNodeId = updated
         nodeMappingIsValid = true
+
+        // Call the onNodeX functions
+        for (notification in delayedNodeNotifications) {
+            notification()
+        }
+        delayedNodeNotifications.clear()
     }
 
     fun onSemanticsChange() {
