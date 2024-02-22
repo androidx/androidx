@@ -7,8 +7,6 @@ package androidx.work {
   }
 
   public enum BackoffPolicy {
-    method public static androidx.work.BackoffPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.BackoffPolicy[] values();
     enum_constant public static final androidx.work.BackoffPolicy EXPONENTIAL;
     enum_constant public static final androidx.work.BackoffPolicy LINEAR;
   }
@@ -207,8 +205,6 @@ package androidx.work {
   }
 
   public enum ExistingPeriodicWorkPolicy {
-    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.ExistingPeriodicWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy CANCEL_AND_REENQUEUE;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
     enum_constant @Deprecated public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
@@ -216,8 +212,6 @@ package androidx.work {
   }
 
   public enum ExistingWorkPolicy {
-    method public static androidx.work.ExistingWorkPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.ExistingWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
     enum_constant public static final androidx.work.ExistingWorkPolicy KEEP;
@@ -275,8 +269,6 @@ package androidx.work {
   }
 
   public enum NetworkType {
-    method public static androidx.work.NetworkType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.NetworkType[] values();
     enum_constant public static final androidx.work.NetworkType CONNECTED;
     enum_constant public static final androidx.work.NetworkType METERED;
     enum_constant public static final androidx.work.NetworkType NOT_REQUIRED;
@@ -330,8 +322,6 @@ package androidx.work {
   }
 
   public enum OutOfQuotaPolicy {
-    method public static androidx.work.OutOfQuotaPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.OutOfQuotaPolicy[] values();
     enum_constant public static final androidx.work.OutOfQuotaPolicy DROP_WORK_REQUEST;
     enum_constant public static final androidx.work.OutOfQuotaPolicy RUN_AS_NON_EXPEDITED_WORK_REQUEST;
   }
@@ -452,9 +442,7 @@ package androidx.work {
   }
 
   public enum WorkInfo.State {
-    method public final boolean isFinished();
-    method public static androidx.work.WorkInfo.State valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.WorkInfo.State[] values();
+    method public boolean isFinished();
     property public final boolean isFinished;
     enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
     enum_constant public static final androidx.work.WorkInfo.State CANCELLED;

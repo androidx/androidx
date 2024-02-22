@@ -2,8 +2,6 @@
 package @RequiresApi(21) androidx.camera.viewfinder.surface {
 
   public enum ImplementationMode {
-    method public static androidx.camera.viewfinder.surface.ImplementationMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.camera.viewfinder.surface.ImplementationMode[] values();
     enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode COMPATIBLE;
     enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode PERFORMANCE;
     field public static final androidx.camera.viewfinder.surface.ImplementationMode.Companion Companion;

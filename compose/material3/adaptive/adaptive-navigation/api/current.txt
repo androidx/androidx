@@ -2,8 +2,6 @@
 package androidx.compose.material3.adaptive.navigation {
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public enum BackNavigationBehavior {
-    method public static androidx.compose.material3.adaptive.navigation.BackNavigationBehavior valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.material3.adaptive.navigation.BackNavigationBehavior[] values();
     enum_constant public static final androidx.compose.material3.adaptive.navigation.BackNavigationBehavior PopLatest;
     enum_constant public static final androidx.compose.material3.adaptive.navigation.BackNavigationBehavior PopUntilContentChange;
     enum_constant public static final androidx.compose.material3.adaptive.navigation.BackNavigationBehavior PopUntilCurrentDestinationChange;

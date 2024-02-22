@@ -703,15 +703,11 @@ package androidx.wear.compose.material {
   }
 
   public enum SwipeToDismissKeys {
-    method public static androidx.wear.compose.material.SwipeToDismissKeys valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.compose.material.SwipeToDismissKeys[] values();
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Background;
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Content;
   }
 
   @Deprecated public enum SwipeToDismissValue {
-    method @Deprecated public static androidx.wear.compose.material.SwipeToDismissValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method @Deprecated public static androidx.wear.compose.material.SwipeToDismissValue[] values();
     enum_constant @Deprecated public static final androidx.wear.compose.material.SwipeToDismissValue Default;
     enum_constant @Deprecated public static final androidx.wear.compose.material.SwipeToDismissValue Dismissed;
   }

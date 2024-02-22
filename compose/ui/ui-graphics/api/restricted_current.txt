@@ -760,8 +760,6 @@ package androidx.compose.ui.graphics {
   }
 
   public enum Path.Direction {
-    method public static androidx.compose.ui.graphics.Path.Direction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.graphics.Path.Direction[] values();
     enum_constant public static final androidx.compose.ui.graphics.Path.Direction Clockwise;
     enum_constant public static final androidx.compose.ui.graphics.Path.Direction CounterClockwise;
   }
@@ -817,8 +815,6 @@ package androidx.compose.ui.graphics {
   }
 
   public enum PathIterator.ConicEvaluation {
-    method public static androidx.compose.ui.graphics.PathIterator.ConicEvaluation valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.graphics.PathIterator.ConicEvaluation[] values();
     enum_constant public static final androidx.compose.ui.graphics.PathIterator.ConicEvaluation AsConic;
     enum_constant public static final androidx.compose.ui.graphics.PathIterator.ConicEvaluation AsQuadratics;
   }
@@ -871,8 +867,6 @@ package androidx.compose.ui.graphics {
   }
 
   public enum PathSegment.Type {
-    method public static androidx.compose.ui.graphics.PathSegment.Type valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.graphics.PathSegment.Type[] values();
     enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Close;
     enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Conic;
     enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Cubic;
