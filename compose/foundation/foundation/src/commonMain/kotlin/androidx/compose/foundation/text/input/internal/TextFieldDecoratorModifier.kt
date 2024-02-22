@@ -612,6 +612,7 @@ internal class TextFieldDecoratorModifierNode(
     override fun onObservedReadsChanged() {
         observeReads {
             windowInfo = currentValueOf(LocalWindowInfo)
+            textFieldSelectionState.isFocused = this.isFocused
             startOrDisposeInputSessionOnWindowFocusChange()
         }
     }
