@@ -50,9 +50,7 @@ import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.internal.compat.workaround.AvailableKeysRetriever;
-import androidx.camera.extensions.internal.compat.workaround.BasicExtenderSurfaceCombinationAvailability;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
-import androidx.camera.extensions.internal.compat.workaround.ImageAnalysisAvailability;
 import androidx.camera.extensions.internal.sessionprocessor.BasicExtenderSessionProcessor;
 import androidx.core.util.Preconditions;
 
@@ -77,8 +75,6 @@ public class BasicVendorExtender implements VendorExtender {
     private String mCameraId;
     private CameraCharacteristics mCameraCharacteristics;
     private AvailableKeysRetriever mAvailableKeysRetriever = new AvailableKeysRetriever();
-    @ExtensionMode.Mode
-    private int mMode = ExtensionMode.NONE;
 
     static final List<CaptureRequest.Key> sBaseSupportedKeys = new ArrayList<>(Arrays.asList(
             CaptureRequest.SCALER_CROP_REGION,
@@ -100,7 +96,6 @@ public class BasicVendorExtender implements VendorExtender {
 
     public BasicVendorExtender(@ExtensionMode.Mode int mode) {
         try {
-            mMode = mode;
             switch (mode) {
                 case ExtensionMode.BOKEH:
                     mPreviewExtenderImpl = new BokehPreviewExtenderImpl();
@@ -310,33 +305,8 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public Size[] getSupportedYuvAnalysisResolutions() {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
-
-        // check if the ImageAnalysis is available.
-        ImageAnalysisAvailability imageAnalysisAvailability = new ImageAnalysisAvailability();
-        if (!imageAnalysisAvailability.isAvailable(mCameraId, mMode)) {
-            return new Size[0];
-        }
-
-        // check if the surface combination supports the ImageAnalysis.
-        BasicExtenderSurfaceCombinationAvailability
-                surfaceCombinationAvailability = new BasicExtenderSurfaceCombinationAvailability();
-        boolean hasPreviewProcessor = mPreviewExtenderImpl.getProcessorType()
-                == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR;
-        boolean hasImageCaptureProcessor = mImageCaptureExtenderImpl.getCaptureProcessor() != null;
-        if (!surfaceCombinationAvailability.isImageAnalysisAvailable(
-                getHardwareLevel(), hasPreviewProcessor, hasImageCaptureProcessor)) {
-            return new Size[0];
-        }
-
-        return getOutputSizes(ImageFormat.YUV_420_888);
-    }
-
-    private int getHardwareLevel() {
-        Integer hardwareLevel =
-                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-
-        return hardwareLevel != null ? hardwareLevel :
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+        // Disable ImageAnalysis
+        return new Size[0];
     }
 
     @NonNull

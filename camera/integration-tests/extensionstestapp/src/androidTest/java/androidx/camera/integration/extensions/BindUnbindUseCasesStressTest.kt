@@ -23,16 +23,13 @@ import android.os.HandlerThread
 import android.util.Size
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VERIFICATION_TARGET_IMAGE_ANALYSIS
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VERIFICATION_TARGET_IMAGE_CAPTURE
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VERIFICATION_TARGET_PREVIEW
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
@@ -163,71 +160,14 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
             )
         }
 
-    @Test
-    fun bindUnbindUseCases_checkPreviewInEachTime_withPreviewImageCaptureImageAnalysis():
-        Unit = runBlocking {
-        assumeTrue(
-            extensionsManager.isImageAnalysisSupported(
-                baseCameraSelector, config.extensionMode
-            )
-        )
-        val imageAnalysis = createImageAnalysis()
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-        bindUseCases_checkOutput_thenUnbindAll_repeatedly(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            verificationTarget = VERIFICATION_TARGET_PREVIEW
-        )
-    }
-
-    @Test
-    fun bindUnbindUseCases_checkImageCaptureInEachTime_withPreviewImageCaptureImageAnalysis():
-        Unit = runBlocking {
-        assumeTrue(
-            extensionsManager.isImageAnalysisSupported(
-                baseCameraSelector, config.extensionMode
-            )
-        )
-        val imageAnalysis = createImageAnalysis()
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-        bindUseCases_checkOutput_thenUnbindAll_repeatedly(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            verificationTarget = VERIFICATION_TARGET_IMAGE_CAPTURE
-        )
-    }
-
-    @Test
-    fun bindUnbindUseCases_checkImageAnalysisInEachTime_withPreviewImageCaptureImageAnalysis():
-        Unit = runBlocking {
-        assumeTrue(
-            extensionsManager.isImageAnalysisSupported(
-                baseCameraSelector, config.extensionMode
-            )
-        )
-        val imageAnalysis = createImageAnalysis()
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-        bindUseCases_checkOutput_thenUnbindAll_repeatedly(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            verificationTarget = VERIFICATION_TARGET_IMAGE_ANALYSIS
-        )
-    }
-
     /**
      * Repeatedly binds use cases, checks the input use cases' capture functions can work well, and
      * unbind all use cases.
      *
-     * <p>This function checks the nullability of the input ImageAnalysis to determine whether it
-     * will be bound together to run the test.
      */
     private fun bindUseCases_checkOutput_thenUnbindAll_repeatedly(
         preview: Preview,
         imageCapture: ImageCapture,
-        imageAnalysis: ImageAnalysis? = null,
         verificationTarget: Int,
         repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
     ): Unit = runBlocking {
@@ -247,7 +187,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     extensionCameraSelector,
-                    *listOfNotNull(preview, imageCapture, imageAnalysis).toTypedArray()
+                    *listOfNotNull(preview, imageCapture).toTypedArray()
                 )
             }
 
@@ -266,17 +206,6 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
 
                 // Assert: checks that the captured image of ImageCapture can be received
                 imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
-            }
-
-            // Assert: checks that images can be received by the ImageAnalysis.Analyzer
-            if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_ANALYSIS) != 0) {
-                imageAnalysis!!.let {
-                    val analyzerFrameAvailableMonitor = ImageAnalysisImageAvailableMonitor()
-                    it.setAnalyzer(
-                        Executors.newSingleThreadExecutor(),
-                        analyzerFrameAvailableMonitor.createAnalyzer()
-                    )
-                }
             }
 
             // Clean it up.
@@ -306,71 +235,14 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
             )
         }
 
-    @Test
-    fun checkPreview_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
-        Unit = runBlocking {
-        assumeTrue(
-            extensionsManager.isImageAnalysisSupported(
-                baseCameraSelector, config.extensionMode
-            )
-        )
-        val imageAnalysis = createImageAnalysis()
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-        bindUseCases_unbindAll_repeatedly_thenCheckOutput(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            verificationTarget = VERIFICATION_TARGET_PREVIEW
-        )
-    }
-
-    @Test
-    fun checkImageCapture_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
-        Unit = runBlocking {
-        assumeTrue(
-            extensionsManager.isImageAnalysisSupported(
-                baseCameraSelector, config.extensionMode
-            )
-        )
-        val imageAnalysis = createImageAnalysis()
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-        bindUseCases_unbindAll_repeatedly_thenCheckOutput(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            verificationTarget = VERIFICATION_TARGET_IMAGE_CAPTURE
-        )
-    }
-
-    @Test
-    fun checkImageAnalysis_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
-        Unit = runBlocking {
-        assumeTrue(
-            extensionsManager.isImageAnalysisSupported(
-                baseCameraSelector, config.extensionMode
-            )
-        )
-        val imageAnalysis = createImageAnalysis()
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-        bindUseCases_unbindAll_repeatedly_thenCheckOutput(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            verificationTarget = VERIFICATION_TARGET_IMAGE_ANALYSIS
-        )
-    }
-
     /**
      * Repeatedly binds use cases and unbind all, then checks the input use cases' capture
      * functions can work well.
      *
-     * <p>This function checks the nullability of the input ImageAnalysis to determine whether it
-     * will be bound together to run the test.
      */
     private fun bindUseCases_unbindAll_repeatedly_thenCheckOutput(
         preview: Preview,
         imageCapture: ImageCapture,
-        imageAnalysis: ImageAnalysis? = null,
         verificationTarget: Int,
         repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
     ): Unit = runBlocking {
@@ -392,7 +264,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     extensionCameraSelector,
-                    *listOfNotNull(preview, imageCapture, imageAnalysis).toTypedArray()
+                    *listOfNotNull(preview, imageCapture).toTypedArray()
                 )
 
                 // Clean it up: do not unbind at the last time
@@ -418,25 +290,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
             // Assert: checks that the captured image of ImageCapture can be received
             imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
         }
-
-        if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_ANALYSIS) != 0) {
-            imageAnalysis!!.let {
-                val analyzerFrameAvailableMonitor = ImageAnalysisImageAvailableMonitor()
-                it.setAnalyzer(
-                    Executors.newSingleThreadExecutor(),
-                    analyzerFrameAvailableMonitor.createAnalyzer()
-                )
-
-                // Assert: checks that images can be received by the ImageAnalysis.Analyzer
-                analyzerFrameAvailableMonitor.awaitAvailableFramesAndAssert()
-            }
-        }
     }
-
-    private fun createImageAnalysis() =
-        ImageAnalysis.Builder().build().also {
-            it.setAnalyzer(CameraXExecutors.directExecutor()) { image -> image.close() }
-        }
 
     private class PreviewFrameAvailableMonitor {
         private var isSurfaceTextureReleased = false
@@ -533,25 +387,6 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
         fun awaitCaptureSuccessAndAssert(timeoutDurationMs: Long = 10000) {
             assertThat(
                 captureSuccessCountDownLatch.await(
-                    timeoutDurationMs,
-                    TimeUnit.MILLISECONDS
-                )
-            ).isTrue()
-        }
-    }
-
-    private class ImageAnalysisImageAvailableMonitor {
-        private var analyzerFrameCountDownLatch: CountDownLatch? = null
-
-        fun createAnalyzer() = ImageAnalysis.Analyzer { image ->
-            image.close()
-            analyzerFrameCountDownLatch?.countDown()
-        }
-
-        fun awaitAvailableFramesAndAssert(count: Int = 10, timeoutDurationMs: Long = 3000) {
-            analyzerFrameCountDownLatch = CountDownLatch(count)
-            assertThat(
-                analyzerFrameCountDownLatch!!.await(
                     timeoutDurationMs,
                     TimeUnit.MILLISECONDS
                 )

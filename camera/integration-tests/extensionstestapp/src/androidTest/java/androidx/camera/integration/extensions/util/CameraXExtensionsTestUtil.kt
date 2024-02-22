@@ -26,7 +26,6 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraInfoInternal
@@ -372,11 +371,6 @@ object CameraXExtensionsTestUtil {
      * Constant to specify that the verification target is [ImageCapture].
      */
     const val VERIFICATION_TARGET_IMAGE_CAPTURE = 0x2
-
-    /**
-     * Constant to specify that the verification target is [ImageAnalysis].
-     */
-    const val VERIFICATION_TARGET_IMAGE_ANALYSIS = 0x4
 
     /**
      * A list of supported implementation options and their respective [CameraXConfig].
