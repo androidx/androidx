@@ -85,14 +85,14 @@ private suspend inline fun <R> RoomDatabase.internalPerform(
             Transactor.SQLiteTransactionType.IMMEDIATE
         }
         // TODO(b/309990302): Commonize Invalidation Tracker
-        if (!isReadOnly) {
+        if (inCompatibilityMode() && !isReadOnly) {
             invalidationTracker.syncTriggers(openHelper.writableDatabase)
         }
         val result = transactor.withTransaction(type) {
             val rawConnection = (this as RawConnectionAccessor).rawConnection
             block.invoke(rawConnection)
         }
-        if (!isReadOnly && !transactor.inTransaction()) {
+        if (inCompatibilityMode() && !isReadOnly && !transactor.inTransaction()) {
             invalidationTracker.refreshVersionsAsync()
         }
         result

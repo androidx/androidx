@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
-import androidx.room.SharedSQLiteStatement;
+import androidx.room.util.DBUtil;
+import androidx.sqlite.SQLiteConnection;
+import androidx.sqlite.SQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -20,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -33,10 +36,6 @@ public final class UpdateDao_Impl implements UpdateDao {
     private final EntityDeletionOrUpdateAdapter<MultiPKeyEntity> __updateAdapterOfMultiPKeyEntity;
 
     private final EntityDeletionOrUpdateAdapter<Book> __updateAdapterOfBook;
-
-    private final SharedSQLiteStatement __preparedStmtOfAgeUserByUid;
-
-    private final SharedSQLiteStatement __preparedStmtOfAgeUserAll;
 
     public UpdateDao_Impl(@NonNull final RoomDatabase __db) {
         this.__db = __db;
@@ -103,22 +102,6 @@ public final class UpdateDao_Impl implements UpdateDao {
                 statement.bindLong(1, entity.bookId);
                 statement.bindLong(2, entity.uid);
                 statement.bindLong(3, entity.bookId);
-            }
-        };
-        this.__preparedStmtOfAgeUserByUid = new SharedSQLiteStatement(__db) {
-            @Override
-            @NonNull
-            public String createQuery() {
-                final String _query = "UPDATE User SET ageColumn = ageColumn + 1 WHERE uid = ?";
-                return _query;
-            }
-        };
-        this.__preparedStmtOfAgeUserAll = new SharedSQLiteStatement(__db) {
-            @Override
-            @NonNull
-            public String createQuery() {
-                final String _query = "UPDATE User SET ageColumn = ageColumn + 1";
-                return _query;
             }
         };
     }
@@ -326,38 +309,40 @@ public final class UpdateDao_Impl implements UpdateDao {
 
     @Override
     public void ageUserByUid(final String uid) {
-        __db.assertNotSuspendingTransaction();
-        final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserByUid.acquire();
-        int _argIndex = 1;
-        _stmt.bindString(_argIndex, uid);
-        try {
-            __db.beginTransaction();
-            try {
-                _stmt.executeUpdateDelete();
-                __db.setTransactionSuccessful();
-            } finally {
-                __db.endTransaction();
+        final String _sql = "UPDATE User SET ageColumn = ageColumn + 1 WHERE uid = ?";
+        DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+            @Override
+            @NonNull
+            public Void invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    int _argIndex = 1;
+                    _stmt.bindText(_argIndex, uid);
+                    _stmt.step();
+                    return null;
+                } finally {
+                    _stmt.close();
+                }
             }
-        } finally {
-            __preparedStmtOfAgeUserByUid.release(_stmt);
-        }
+        });
     }
 
     @Override
     public void ageUserAll() {
-        __db.assertNotSuspendingTransaction();
-        final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
-        try {
-            __db.beginTransaction();
-            try {
-                _stmt.executeUpdateDelete();
-                __db.setTransactionSuccessful();
-            } finally {
-                __db.endTransaction();
+        final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
+        DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+            @Override
+            @NonNull
+            public Void invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    _stmt.step();
+                    return null;
+                } finally {
+                    _stmt.close();
+                }
             }
-        } finally {
-            __preparedStmtOfAgeUserAll.release(_stmt);
-        }
+        });
     }
 
     @Override
@@ -366,18 +351,15 @@ public final class UpdateDao_Impl implements UpdateDao {
             @Override
             @Nullable
             public Void call() throws Exception {
-                final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+                final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
+                final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
+                __db.beginTransaction();
                 try {
-                    __db.beginTransaction();
-                    try {
-                        _stmt.executeUpdateDelete();
-                        __db.setTransactionSuccessful();
-                        return null;
-                    } finally {
-                        __db.endTransaction();
-                    }
+                    _stmt.executeUpdateDelete();
+                    __db.setTransactionSuccessful();
+                    return null;
                 } finally {
-                    __preparedStmtOfAgeUserAll.release(_stmt);
+                    __db.endTransaction();
                 }
             }
         });
@@ -389,18 +371,15 @@ public final class UpdateDao_Impl implements UpdateDao {
             @Override
             @Nullable
             public Integer call() throws Exception {
-                final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+                final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
+                final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
+                __db.beginTransaction();
                 try {
-                    __db.beginTransaction();
-                    try {
-                        final Integer _result = _stmt.executeUpdateDelete();
-                        __db.setTransactionSuccessful();
-                        return _result;
-                    } finally {
-                        __db.endTransaction();
-                    }
+                    final Integer _result = _stmt.executeUpdateDelete();
+                    __db.setTransactionSuccessful();
+                    return _result;
                 } finally {
-                    __preparedStmtOfAgeUserAll.release(_stmt);
+                    __db.endTransaction();
                 }
             }
         });
@@ -412,18 +391,15 @@ public final class UpdateDao_Impl implements UpdateDao {
             @Override
             @Nullable
             public Integer call() throws Exception {
-                final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+                final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
+                final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
+                __db.beginTransaction();
                 try {
-                    __db.beginTransaction();
-                    try {
-                        final Integer _result = _stmt.executeUpdateDelete();
-                        __db.setTransactionSuccessful();
-                        return _result;
-                    } finally {
-                        __db.endTransaction();
-                    }
+                    final Integer _result = _stmt.executeUpdateDelete();
+                    __db.setTransactionSuccessful();
+                    return _result;
                 } finally {
-                    __preparedStmtOfAgeUserAll.release(_stmt);
+                    __db.endTransaction();
                 }
             }
         });

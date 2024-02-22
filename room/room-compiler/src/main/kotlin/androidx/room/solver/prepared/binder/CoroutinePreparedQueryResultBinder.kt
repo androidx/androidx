@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,11 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 
 /**
- * Default binder for prepared queries.
+ * Binder of prepared queries of a Kotlin coroutine suspend function.
  */
-class InstantPreparedQueryResultBinder(
-    adapter: PreparedQueryResultAdapter?
+class CoroutinePreparedQueryResultBinder(
+    adapter: PreparedQueryResultAdapter?,
+    private val continuationParamName: String,
 ) : PreparedQueryResultBinder(adapter) {
 
     override fun executeAndReturn(
@@ -41,15 +42,7 @@ class InstantPreparedQueryResultBinder(
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        scope.builder.apply {
-            addStatement("%N.assertNotSuspendingTransaction()", dbProperty)
-        }
-        adapter?.executeAndReturn(
-            stmtQueryVal = scope.prepareQueryStmtBlock(),
-            preparedStmtProperty = preparedStmtProperty,
-            dbProperty = dbProperty,
-            scope = scope
-        )
+        error("Wrong executeAndReturn invoked")
     }
 
     override fun isMigratedToDriver(): Boolean = true
@@ -80,10 +73,9 @@ class InstantPreparedQueryResultBinder(
     ) {
         val connectionVar = scope.getTmpVar("_connection")
         val statementVar = scope.getTmpVar("_stmt")
-        val returnPrefix = if (returnTypeName == XTypeName.UNIT_VOID) "" else "return "
         scope.builder.addStatement(
-            "$returnPrefix%M(%N, %L, %L, %L)",
-            RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+            "return %M(%N, %L, %L, %L, %L)",
+            RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
             dbProperty,
             false, // isReadOnly
             true, // inTransaction
@@ -111,7 +103,8 @@ class InstantPreparedQueryResultBinder(
                     endControlFlow()
                 }.build()
                 this.addCode(functionCode)
-            }
+            },
+            continuationParamName
         )
     }
 
@@ -126,7 +119,7 @@ class InstantPreparedQueryResultBinder(
         scope.builder.apply {
             beginControlFlow(
                 "return %M(%N, %L, %L) { %L ->",
-                RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
                 dbProperty,
                 false, // isReadOnly
                 true, // inTransaction

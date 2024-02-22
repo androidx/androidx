@@ -908,6 +908,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
               @Query("DELETE FROM MyEntity")
               fun deleteEntityReturnInt(): Int
+
+              @Query("DELETE FROM MyEntity WHERE id IN (:ids)")
+              fun deleteEntitiesIn(ids: List<Long>)
             }
 
             @Entity
@@ -2044,6 +2047,27 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
                 suspend fun getSuspendList(vararg arg: String?): List<MyEntity>
+
+                @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                suspend fun insertEntity(pk: Long)
+
+                @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                suspend fun insertEntityReturnLong(pk: Long): Long
+
+                @Query("UPDATE MyEntity SET other = :text")
+                suspend fun updateEntity(text: String)
+
+                @Query("UPDATE MyEntity SET other = :text WHERE pk = :pk")
+                suspend fun updateEntityReturnInt(pk: Long, text: String): Int
+
+                @Query("DELETE FROM MyEntity")
+                suspend fun deleteEntity()
+
+                @Query("DELETE FROM MyEntity")
+                suspend fun deleteEntityReturnInt(): Int
+
+                @Query("DELETE FROM MyEntity WHERE pk IN (:pks)")
+                suspend fun deleteEntitiesIn(pks: List<Long>)
             }
 
             @Entity
