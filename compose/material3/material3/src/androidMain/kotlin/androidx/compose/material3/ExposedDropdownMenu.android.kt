@@ -127,7 +127,7 @@ fun ExposedDropdownMenuBox(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable ExposedDropdownMenuBoxScope.() -> Unit
+    content: @Composable ExposedDropdownMenuBoxScope.() -> Unit,
 ) {
     val config = LocalConfiguration.current
     val view = LocalView.current
@@ -250,8 +250,8 @@ private fun SoftKeyboardListener(
 abstract class ExposedDropdownMenuBoxScope {
     /**
      * Modifier which should be applied to a [TextField] (or [OutlinedTextField]) placed inside the
-     * scope. It's responsible for properly anchoring the [ExposedDropdownMenu], handling semantics
-     * of the component, and requesting focus.
+     * scope. It's responsible for handling menu expansion state on click, applying semantics to
+     * the component, and requesting focus.
      */
     abstract fun Modifier.menuAnchor(): Modifier
 
@@ -307,7 +307,7 @@ abstract class ExposedDropdownMenuBoxScope {
         tonalElevation: Dp = MenuDefaults.TonalElevation,
         shadowElevation: Dp = MenuDefaults.ShadowElevation,
         border: BorderStroke? = null,
-        content: @Composable ColumnScope.() -> Unit
+        content: @Composable ColumnScope.() -> Unit,
     ) {
         // Workaround for b/326394521. We create a state that's read in `calculatePosition`.
         // Then trigger a state change in `SoftKeyboardListener` to force recalculation.
@@ -395,16 +395,19 @@ object ExposedDropdownMenuDefaults {
     /**
      * Default trailing icon for Exposed Dropdown Menu.
      *
-     * @param expanded whether [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] is expanded or not.
-     * Affects the appearance of the icon.
+     * @param expanded whether the menu is expanded or not. Affects the appearance of the icon.
+     * @param modifier the [Modifier] to be applied to this icon
      */
     @ExperimentalMaterial3Api
     @Composable
-    fun TrailingIcon(expanded: Boolean) {
+    fun TrailingIcon(
+        expanded: Boolean,
+        modifier: Modifier = Modifier,
+    ) {
         Icon(
             Icons.Filled.ArrowDropDown,
             null,
-            Modifier.rotate(if (expanded) 180f else 0f)
+            modifier.rotate(if (expanded) 180f else 0f)
         )
     }
 
@@ -755,6 +758,11 @@ object ExposedDropdownMenuDefaults {
 
         return PopupProperties(flags = flags)
     }
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    @ExperimentalMaterial3Api
+    @Composable
+    fun TrailingIcon(expanded: Boolean) = TrailingIcon(expanded, Modifier)
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable
