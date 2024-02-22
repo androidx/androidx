@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.lerp
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
@@ -163,7 +164,7 @@ internal class Strategy(
         roundToNearestStep: Boolean = false
     ): KeylineList {
         val startShiftOffset = startShiftDistance
-        val endShiftOffset = maxScrollOffset - endShiftDistance
+        val endShiftOffset = max(0f, maxScrollOffset - endShiftDistance)
 
         // If we're not within either shift range, return the default keylines
         if (scrollOffset in startShiftOffset..endShiftOffset) {
