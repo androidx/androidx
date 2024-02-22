@@ -110,24 +110,6 @@ class CaptureNodeTest {
             .isEqualTo(captureNode.mSafeCloseImageReaderProxy!!.surface)
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun receiveRequestWhenThePreviousOneUnfinished_throwException() {
-        // Arrange: create 2 requests: A and B.
-        val requestA = FakeProcessingRequest(
-            createCaptureBundle(intArrayOf(1)),
-            FakeTakePictureCallback(),
-            Futures.immediateFuture(null)
-        )
-        val requestB = FakeProcessingRequest(
-            createCaptureBundle(intArrayOf(1)),
-            FakeTakePictureCallback(),
-            Futures.immediateFuture(null)
-        )
-        // Act: Send B without A being finished.
-        captureNode.onRequestAvailable(requestA)
-        captureNode.onRequestAvailable(requestB)
-    }
-
     @Test
     fun requestAborted_imageArrivesBeforeNextRequestAvailable() {
         // Arrange: Configure the CaptureNode with isVirtualCamera = true and FakeImageReaderProxy

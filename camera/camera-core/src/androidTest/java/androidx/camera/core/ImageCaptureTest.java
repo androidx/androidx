@@ -289,6 +289,69 @@ public class ImageCaptureTest {
         assertThat(hasJpegQuality(captureConfigs, jpegQuality)).isTrue();
     }
 
+    private ImageCapture setupCaptureFailedScenario() {
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCameraUseCaseAdapter.addUseCases(Collections.singleton(imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException ignore) {
+            }
+        });
+
+        FakeCameraControl fakeCameraControl =
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
+
+        // Simulates the case that the capture request failed after running in 300 ms.
+        fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
+            CameraXExecutors.mainThreadExecutor().schedule(() -> {
+                fakeCameraControl.notifyAllRequestsOnCaptureFailed();
+            }, 300, TimeUnit.MILLISECONDS);
+        });
+
+        return imageCapture;
+    }
+
+    /**
+     * To ensure when the current capture failed, the next request in queued can be executed
+     * correctly.
+     */
+    @Test
+    public void canExecuteQueuedCaptureWhenCaptureFailed() {
+        ImageCapture imageCapture = setupCaptureFailedScenario();
+        ImageCapture.OnImageCapturedCallback callback1 = mock(
+                ImageCapture.OnImageCapturedCallback.class);
+        ImageCapture.OnImageCapturedCallback callback2 = mock(
+                ImageCapture.OnImageCapturedCallback.class);
+        mInstrumentation.runOnMainSync(
+                () -> imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(), callback1));
+        // Queue another takePicture request before 1st request is done.
+        mInstrumentation.runOnMainSync(
+                () -> imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(), callback2));
+
+        final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
+                ImageCaptureException.class);
+        verify(callback1, timeout(1000).times(1)).onError(exceptionCaptor.capture());
+        verify(callback2, timeout(1000).times(1)).onError(exceptionCaptor.capture());
+    }
+
+    @Test
+    public void canExecuteNextCaptureWhenCaptureFailed() {
+        ImageCapture imageCapture = setupCaptureFailedScenario();
+        ImageCapture.OnImageCapturedCallback callback1 = mock(
+                ImageCapture.OnImageCapturedCallback.class);
+        ImageCapture.OnImageCapturedCallback callback2 = mock(
+                ImageCapture.OnImageCapturedCallback.class);
+        mInstrumentation.runOnMainSync(
+                () -> imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(), callback1));
+        final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
+                ImageCaptureException.class);
+        verify(callback1, timeout(1000).times(1)).onError(exceptionCaptor.capture());
+
+        mInstrumentation.runOnMainSync(
+                () -> imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(), callback2));
+        verify(callback2, timeout(1000).times(1)).onError(exceptionCaptor.capture());
+    }
+
     private FakeCameraControl getCameraControlImplementation(CameraControl cameraControl) {
         CameraControlInternal impl = ((CameraControlInternal) cameraControl).getImplementation();
         return (FakeCameraControl) impl;

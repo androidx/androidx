@@ -91,7 +91,6 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
     private In mInputEdge;
     @Nullable
     private NoMetadataImageReader mNoMetadataImageReader = null;
-
     @NonNull
     @Override
     public ProcessingNode.In transform(@NonNull In inputEdge) {
@@ -158,12 +157,21 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
                 if (image != null) {
                     onImageProxyAvailable(image);
                 } else {
-                    sendCaptureError(new ImageCaptureException(ERROR_CAPTURE_FAILED, "Failed to "
-                            + "acquire latest image", null));
+                    if (mCurrentRequest != null) {
+                        sendCaptureError(
+                                TakePictureManager.CaptureError.of(mCurrentRequest.getRequestId(),
+                                        new ImageCaptureException(ERROR_CAPTURE_FAILED,
+                                                "Failed to acquire latest image", null)));
+                    }
                 }
             } catch (IllegalStateException e) {
-                sendCaptureError(new ImageCaptureException(ERROR_CAPTURE_FAILED, "Failed to "
-                        + "acquire latest image", e));
+                if (mCurrentRequest != null) {
+                    sendCaptureError(
+                            TakePictureManager.CaptureError.of(mCurrentRequest.getRequestId(),
+                                    new ImageCaptureException(
+                                            ERROR_CAPTURE_FAILED, "Failed to acquire latest image",
+                                            e)));
+                }
             }
         }, mainThreadExecutor());
 
@@ -233,7 +241,9 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         }
     }
 
+    @MainThread
     private void matchAndPropagateImage(@NonNull ImageProxy imageProxy) {
+        checkMainThread();
         // Send the image downstream.
         requireNonNull(mOutputEdge).getEdge().accept(
                 ProcessingNode.InputPacket.of(mCurrentRequest, imageProxy));
@@ -262,9 +272,6 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         // Unable to issue request if the queue has no capacity.
         checkState(getCapacity() > 0,
                 "Too many acquire images. Close image to be able to process next.");
-        // Check if there is already a current request. Only one concurrent request is allowed.
-        checkState(mCurrentRequest == null,
-                "The previous request is not complete");
 
         // Track the request and its stage IDs.
         mCurrentRequest = request;
@@ -279,7 +286,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
             public void onFailure(@NonNull Throwable t) {
                 checkMainThread();
                 if (request == mCurrentRequest) {
-                    Logger.w(TAG, "request aborted:" + mCurrentRequest);
+                    Logger.w(TAG, "request aborted, id=" + mCurrentRequest.getRequestId());
                     if (mNoMetadataImageReader != null) {
                         mNoMetadataImageReader.clearProcessingRequest();
                     }
@@ -290,10 +297,11 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
     }
 
     @MainThread
-    void sendCaptureError(@NonNull ImageCaptureException e) {
+    void sendCaptureError(@NonNull TakePictureManager.CaptureError error) {
         checkMainThread();
-        if (mCurrentRequest != null) {
-            mCurrentRequest.onCaptureFailure(e);
+        if (mCurrentRequest != null
+                && mCurrentRequest.getRequestId() == error.getRequestId()) {
+            mCurrentRequest.onCaptureFailure(error.getImageCaptureException());
         }
     }
 
@@ -417,7 +425,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
          * Edge that accepts {@link ImageCaptureException}.
          */
         @NonNull
-        abstract Edge<ImageCaptureException> getErrorEdge();
+        abstract Edge<TakePictureManager.CaptureError> getErrorEdge();
 
         /**
          * Edge that accepts the image frames.

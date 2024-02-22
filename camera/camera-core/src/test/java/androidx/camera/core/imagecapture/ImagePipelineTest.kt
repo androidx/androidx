@@ -33,6 +33,7 @@ import androidx.camera.core.SafeCloseImageReaderProxy
 import androidx.camera.core.imagecapture.CaptureNode.MAX_IMAGES
 import androidx.camera.core.imagecapture.ImagePipeline.JPEG_QUALITY_MAX_QUALITY
 import androidx.camera.core.imagecapture.ImagePipeline.JPEG_QUALITY_MIN_LATENCY
+import androidx.camera.core.imagecapture.TakePictureManager.CaptureError
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.FULL_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
@@ -449,7 +450,8 @@ class ImagePipelineTest {
 
         // Act: send processing request and the image.
         imagePipeline.submitProcessingRequest(processingRequest)
-        imagePipeline.notifyCaptureError(FAILURE)
+        imagePipeline.notifyCaptureError(
+            CaptureError.of(processingRequest.requestId, FAILURE))
 
         shadowOf(getMainLooper()).idle()
         // Assert: The failure is propagated.

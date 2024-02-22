@@ -36,7 +36,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MetadataImageReader;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
@@ -230,9 +229,9 @@ public class ImagePipeline {
     }
 
     @MainThread
-    void notifyCaptureError(@NonNull ImageCaptureException e) {
+    void notifyCaptureError(@NonNull TakePictureManager.CaptureError error) {
         checkMainThread();
-        mPipelineIn.getErrorEdge().accept(e);
+        mPipelineIn.getErrorEdge().accept(error);
     }
 
     // ===== private methods =====
