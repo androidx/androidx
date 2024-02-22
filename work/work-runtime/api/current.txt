@@ -452,7 +452,7 @@ package androidx.work {
   }
 
   public enum WorkInfo.State {
-    method public final boolean isFinished();
+    method public boolean isFinished();
     method public static androidx.work.WorkInfo.State valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.WorkInfo.State[] values();
     property public final boolean isFinished;

@@ -28,11 +28,11 @@ package androidx.lifecycle {
   }
 
   public enum Lifecycle.Event {
-    method public static final androidx.lifecycle.Lifecycle.Event? downFrom(androidx.lifecycle.Lifecycle.State state);
-    method public static final androidx.lifecycle.Lifecycle.Event? downTo(androidx.lifecycle.Lifecycle.State state);
-    method public final androidx.lifecycle.Lifecycle.State getTargetState();
-    method public static final androidx.lifecycle.Lifecycle.Event? upFrom(androidx.lifecycle.Lifecycle.State state);
-    method public static final androidx.lifecycle.Lifecycle.Event? upTo(androidx.lifecycle.Lifecycle.State state);
+    method public static androidx.lifecycle.Lifecycle.Event? downFrom(androidx.lifecycle.Lifecycle.State state);
+    method public static androidx.lifecycle.Lifecycle.Event? downTo(androidx.lifecycle.Lifecycle.State state);
+    method public androidx.lifecycle.Lifecycle.State getTargetState();
+    method public static androidx.lifecycle.Lifecycle.Event? upFrom(androidx.lifecycle.Lifecycle.State state);
+    method public static androidx.lifecycle.Lifecycle.Event? upTo(androidx.lifecycle.Lifecycle.State state);
     method public static androidx.lifecycle.Lifecycle.Event valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.lifecycle.Lifecycle.Event[] values();
     property public final androidx.lifecycle.Lifecycle.State targetState;
@@ -54,7 +54,7 @@ package androidx.lifecycle {
   }
 
   public enum Lifecycle.State {
-    method public final boolean isAtLeast(androidx.lifecycle.Lifecycle.State state);
+    method public boolean isAtLeast(androidx.lifecycle.Lifecycle.State state);
     method public static androidx.lifecycle.Lifecycle.State valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.lifecycle.Lifecycle.State[] values();
     enum_constant public static final androidx.lifecycle.Lifecycle.State CREATED;
