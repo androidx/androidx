@@ -193,9 +193,8 @@ private constructor(
 
     private fun deleteSharedPreferences(context: Context, name: String) {
         if (Build.VERSION.SDK_INT >= 24) {
-            if (!Api24Impl.deleteSharedPreferences(context, name)) {
-                throw IOException("Unable to delete SharedPreferences: $name")
-            }
+            // Silently continue if we aren't able to delete the Shared Preferences. See b/195553816
+            Api24Impl.deleteSharedPreferences(context, name)
         } else {
             // Context.deleteSharedPreferences is SDK 24+, so we have to reproduce the definition
             val prefsFile = getSharedPrefsFile(context, name)
