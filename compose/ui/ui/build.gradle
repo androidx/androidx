@@ -302,9 +302,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(skikoTest)
             }
             jsTest {
+                kotlin.srcDir("src/webTest/kotlin")
                 dependsOn(skikoTest)
             }
             wasmJsTest {
+                kotlin.srcDir("src/webTest/kotlin")
                 dependsOn(skikoTest)
             }
 

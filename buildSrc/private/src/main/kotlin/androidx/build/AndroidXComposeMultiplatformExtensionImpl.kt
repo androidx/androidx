@@ -94,7 +94,8 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
             browser {
                 testTask(Action<KotlinJsTest> {
                     it.useKarma {
-                        useChromeHeadless()
+                        //useChromeHeadless() // can't use headless for some integration tests
+                        useChrome()
                         useConfigDirectory(
                             project.rootProject.projectDir.resolve("mpp/karma.config.d/wasm")
                         )
