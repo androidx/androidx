@@ -34,6 +34,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -699,13 +701,18 @@ object DatePickerDefaults {
         lazyListState: LazyListState,
         decayAnimationSpec: DecayAnimationSpec<Float> = exponentialDecay()
     ): FlingBehavior {
-        val density = LocalDensity.current
-        return remember(density) {
+        return remember(decayAnimationSpec, lazyListState) {
+            val original = SnapLayoutInfoProvider(lazyListState)
+            val snapLayoutInfoProvider = object : SnapLayoutInfoProvider by original {
+                override fun calculateApproachOffset(initialVelocity: Float): Float {
+                    return 0.0f
+                }
+            }
+
             SnapFlingBehavior(
-                lazyListState = lazyListState,
+                snapLayoutInfoProvider = snapLayoutInfoProvider,
                 decayAnimationSpec = decayAnimationSpec,
-                snapAnimationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                density = density
+                snapAnimationSpec = spring(stiffness = Spring.StiffnessMediumLow)
             )
         }
     }
@@ -1611,7 +1618,8 @@ internal fun DatePickerHeader(
                 )
             ProvideContentColorTextStyle(
                 contentColor = titleContentColor,
-                textStyle = textStyle) {
+                textStyle = textStyle
+            ) {
                 Box(contentAlignment = Alignment.BottomStart) {
                     title()
                 }
@@ -1657,8 +1665,6 @@ private fun HorizontalMonthsList(
                 horizontalScrollAxisRange = ScrollAxisRange(value = { 0f }, maxValue = { 0f })
             },
             state = lazyListState,
-            // TODO(b/264687693): replace with the framework's rememberSnapFlingBehavior
-            //  (lazyListState) when promoted to stable
             flingBehavior = DatePickerDefaults.rememberSnapFlingBehavior(lazyListState)
         ) {
             items(numberOfMonthsInRange(yearRange)) {
