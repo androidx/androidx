@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+    id 'com.gradle.enterprise' version "3.16.2"
+}
+
 include ":jetpad-integration"
 include ":plugins"
 include ":private"
@@ -41,4 +45,22 @@ dependencyResolutionManagement {
             }
         }
     }
+}
+def isCI = System.getenv("CI") == "true"
+
+gradleEnterprise {
+    server = "https://ge.androidx.dev"
+}
+
+buildCache {
+    local {
+        // Aggressively clean up stale build cache entries on CI
+        if (isCI) {
+            removeUnusedEntriesAfterDays = 1
+        }
+    }
+     remote(gradleEnterprise.buildCache) {
+         def accessKey = System.getenv("GRADLE_ENTERPRISE_ACCESS_KEY")
+         push = isCI && accessKey
+     }
 }
