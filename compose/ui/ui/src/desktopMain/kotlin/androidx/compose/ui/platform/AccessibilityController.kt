@@ -55,14 +55,15 @@ internal class AccessibilityController(
     private val onFocusReceived: (ComposeAccessible) -> Unit
 ) {
     private var currentNodesInvalidated = true
-    var _currentNodes: Map<Int, ComposeAccessible> = emptyMap()
-    val currentNodes: Map<Int, ComposeAccessible>
-        get() {
-            if (currentNodesInvalidated) {
-                syncNodes()
-            }
-            return _currentNodes
+    private var accessibleByNodeId: Map<Int, ComposeAccessible> = emptyMap()
+
+    fun accessibleByNodeId(nodeId: Int): ComposeAccessible? {
+        if (currentNodesInvalidated) {
+            syncNodes()
         }
+
+        return accessibleByNodeId[nodeId]
+    }
 
     @Suppress("UNUSED_PARAMETER")
     private fun onNodeAdded(accessible: ComposeAccessible) {}
@@ -187,7 +188,7 @@ internal class AccessibilityController(
             return
 
         // Build new mapping of ComposeAccessible by node id
-        val previous = _currentNodes
+        val previous = accessibleByNodeId
         val nodes = mutableMapOf<Int, ComposeAccessible>()
         bfsDeque.add(rootSemanticNode)
         while (bfsDeque.isNotEmpty()) {
@@ -215,7 +216,7 @@ internal class AccessibilityController(
                 onNodeRemoved(prevNode)
             }
         }
-        _currentNodes = nodes
+        accessibleByNodeId = nodes
         currentNodesInvalidated = false
     }
 
@@ -228,7 +229,7 @@ internal class AccessibilityController(
         get() = owner.rootSemanticsNode
 
     val rootAccessible: ComposeAccessible
-        get() = currentNodes[rootSemanticNode.id]!!
+        get() = accessibleByNodeId(rootSemanticNode.id)!!
 }
 
 internal fun Accessible.print(level: Int = 0) {

@@ -238,7 +238,7 @@ internal class ComposeAccessible(
 
         override fun getAccessibleParent(): Accessible? {
             return semanticsNode.parent?.id?.let { id ->
-                controller?.let { it.currentNodes[id]!! }
+                controller?.let { it.accessibleByNodeId(id)!! }
             } ?: accessibleParent
         }
 
@@ -308,7 +308,7 @@ internal class ComposeAccessible(
 
         override fun getAccessibleChild(i: Int): Accessible? {
             return semanticsNode.replacedChildren.getOrNull(i)?.id?.let { id ->
-                controller?.let { it.currentNodes[id] }
+                controller?.accessibleByNodeId(id)
             } ?: auxiliaryChildren[i - semanticsNode.replacedChildren.size]
         }
 
