@@ -27,6 +27,6 @@ actual fun rememberDefaultPrefetchExecutor(): PrefetchExecutor {
 
 @ExperimentalFoundationApi
 private object NoOpPrefetchExecutor : PrefetchExecutor {
-    override fun requestPrefetch(request: PrefetchExecutor.Request) {
+    override fun requestPrefetch(prefetchRequest: PrefetchRequest) {
     }
 }
