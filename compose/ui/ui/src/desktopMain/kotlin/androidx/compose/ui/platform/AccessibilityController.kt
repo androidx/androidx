@@ -54,11 +54,11 @@ internal class AccessibilityController(
     coroutineContext: CoroutineContext,
     private val onFocusReceived: (ComposeAccessible) -> Unit
 ) {
-    private var currentNodesInvalidated = true
+    private var nodeMappingIsValid = false
     private var accessibleByNodeId: Map<Int, ComposeAccessible> = emptyMap()
 
     fun accessibleByNodeId(nodeId: Int): ComposeAccessible? {
-        if (currentNodesInvalidated) {
+        if (!nodeMappingIsValid) {
             syncNodes()
         }
 
@@ -176,7 +176,7 @@ internal class AccessibilityController(
         coroutineScope.launch {
             while (true) {
                 syncNodesChannel.receive()
-                if (currentNodesInvalidated && SyncLoopState.accessibilityRecentlyInUse) {
+                if (SyncLoopState.accessibilityRecentlyInUse && !nodeMappingIsValid) {
                     syncNodes()
                 }
             }
@@ -217,11 +217,11 @@ internal class AccessibilityController(
             }
         }
         accessibleByNodeId = nodes
-        currentNodesInvalidated = false
+        nodeMappingIsValid = true
     }
 
     fun onSemanticsChange() {
-        currentNodesInvalidated = true
+        nodeMappingIsValid = false
         syncNodesChannel.trySend(Unit)
     }
 
