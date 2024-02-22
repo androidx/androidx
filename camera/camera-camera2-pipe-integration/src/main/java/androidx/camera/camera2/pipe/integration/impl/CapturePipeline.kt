@@ -62,6 +62,7 @@ import androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
+import androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN
 import androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH
 import androidx.camera.core.ImageCapture.FlashMode
 import androidx.camera.core.ImageCapture.FlashType
@@ -433,7 +434,8 @@ class CapturePipelineImpl @Inject constructor(
                         )
                     )
                     for (captureCallback in it.cameraCaptureCallbacks) {
-                        captureCallback.onCaptureFailed(it.id,
+                        captureCallback.onCaptureFailed(
+                            it.id,
                             CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR)
                         )
                     }
@@ -442,7 +444,8 @@ class CapturePipelineImpl @Inject constructor(
                 override fun onCaptureSequenceCompleted(captureSequenceId: Int) {
                     completeSignal.complete(null)
                     for (captureCallback in it.cameraCaptureCallbacks) {
-                        captureCallback.onCaptureCompleted(it.id,
+                        captureCallback.onCaptureCompleted(
+                            it.id,
                             CameraCaptureResult.EmptyCameraCaptureResult()
                         )
                     }
@@ -479,6 +482,9 @@ class CapturePipelineImpl @Inject constructor(
             }
 
             FLASH_MODE_OFF -> false
+
+            // TODO: b/325899701 - Turn it on once screen flash is supported.
+            FLASH_MODE_SCREEN -> false
             else -> throw AssertionError(flashMode)
         }
 

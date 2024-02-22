@@ -295,6 +295,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canCaptureImageWithFlashModeScreen_frontCamera() {
+        assumeTrue(
+            "TODO: b/325899701 -  Enable when camera-pipe has extensions support",
+            implName != CameraPipeConfig::class.simpleName
+        )
         // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
         // Otherwise, physical flash will be used. But capture should be successful either way.
         canTakeImages(
@@ -308,6 +312,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canCaptureImageWithFlashModeScreenAndUseTorch_frontCamera() {
+        assumeTrue(
+            "TODO: b/325899701 -  Enable when camera-pipe has extensions support",
+            implName != CameraPipeConfig::class.simpleName
+        )
         // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
         // Otherwise, physical flash will be used as torch. Either way, capture should be successful
         canTakeImages(
@@ -821,7 +829,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             val cameraSelector =
                 getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
             cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner, cameraSelector, imageCapture, preview)
+                fakeLifecycleOwner, cameraSelector, imageCapture, preview
+            )
         }
     }
 
@@ -1462,7 +1471,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val callback = FakeImageSavedCallback(capturesCount = 1)
         useCase.takePicture(
             ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
-            mainExecutor, callback)
+            mainExecutor, callback
+        )
 
         // Wait for the signal that the image has been captured and saved.
         callback.awaitCapturesAndAssert(savedImagesCount = 1)
@@ -1470,7 +1480,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         // For YUV to JPEG case, the rotation will only be in Exif.
         val exif = Exif.createFromFile(saveLocation)
         assertThat(exif.rotation).isEqualTo(
-            camera.cameraInfo.getSensorRotationDegrees(useCase.targetRotation))
+            camera.cameraInfo.getSensorRotationDegrees(useCase.targetRotation)
+        )
     }
 
     @Test
@@ -1666,7 +1677,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
                 override fun getSessionProcessor(
                     valueIfMissing: SessionProcessor?
-                ): SessionProcessor? {
+                ): SessionProcessor {
                     return sessionProcessor
                 }
 
