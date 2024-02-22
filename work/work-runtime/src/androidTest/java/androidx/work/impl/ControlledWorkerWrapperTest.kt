@@ -60,7 +60,7 @@ class ControlledWorkerWrapperTest {
         workDatabase.workSpecDao().insertWorkSpec(work.workSpec)
         lateinit var worker: TestWrapperWorker
         val workerWrapper = workerWrapper(work.stringId) { worker = it }
-        val future = workerWrapper.launch()
+        workerWrapper.run()
 
         while (taskExecutor.serialTaskExecutor.hasPendingTask() ||
             backgroundExecutor.hasPendingTask()
@@ -70,7 +70,7 @@ class ControlledWorkerWrapperTest {
         }
         workerWrapper.interrupt(0)
         drainAll()
-        assertThat(future.isDone).isTrue()
+        assertThat(workerWrapper.future.isDone).isTrue()
         assertThat(worker.startWorkWasCalled).isFalse()
     }
 
@@ -83,7 +83,7 @@ class ControlledWorkerWrapperTest {
         workDatabase.workSpecDao().insertWorkSpec(work.workSpec)
         lateinit var worker: TestWrapperWorker
         val workerWrapper = workerWrapper(work.stringId) { worker = it }
-        val future = workerWrapper.launch()
+        workerWrapper.run()
         drainAll()
         assertThat(worker.getForegroundInfoAsyncWasCalled).isTrue()
         assertThat(worker.startWorkWasCalled).isFalse()
@@ -96,7 +96,7 @@ class ControlledWorkerWrapperTest {
         workerWrapper.interrupt(0)
         drainAll()
         assertThat(worker.startWorkWasCalled).isFalse()
-        assertThat(future.isDone).isTrue()
+        assertThat(workerWrapper.future.isDone).isTrue()
     }
 
     private fun drainAll() {
