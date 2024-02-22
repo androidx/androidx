@@ -42,6 +42,7 @@ import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.safeAccept
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.workForeground
+import androidx.work.launchFuture
 import androidx.work.logd
 import androidx.work.loge
 import androidx.work.logi
@@ -49,11 +50,9 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
-import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.ExecutionException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * A runnable that looks up the [WorkSpec] from the database for a given id, instantiates
@@ -80,7 +79,8 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
 
     private val _future: SettableFuture<Boolean> = SettableFuture.create()
 
-    private val workerJob = Job()
+    private val workerResultFuture: SettableFuture<ListenableWorker.Result> =
+        SettableFuture.create()
 
     @Volatile
     private var interrupted = WorkInfo.STOP_REASON_NOT_STOPPED
@@ -201,44 +201,58 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
 
         // Try to set the work to the running state.  Note that this may fail because another thread
         // may have modified the DB since we checked last at the top of this function.
-        if (!trySetRunning()) {
-            resetWorkerStatus()
-            return
-        }
-
-        if (isInterrupted()) {
-            return
-        }
-
-        val foregroundUpdater = params.foregroundUpdater
-        val mainDispatcher = workTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher()
-        CoroutineScope(workTaskExecutor.taskCoroutineDispatcher + workerJob).launch {
-            var result: ListenableWorker.Result = Failure()
-            val workDescription = workDescription
-            try {
-                result = withContext(mainDispatcher) {
-                    workForeground(appContext, workSpec, worker,
-                        foregroundUpdater, workTaskExecutor)
-                    logd(TAG) { "Starting work for ${workSpec.workerClassName}" }
-                    worker.startWork()
-                }.await()
-            } catch (cancellation: CancellationException) {
-                // Cancellations need to be treated with care here because innerFuture
-                // cancellations will bubble up, and we need to gracefully handle that.
-                logi(TAG, cancellation) { "$workDescription was cancelled" }
-                throw cancellation
-            } catch (throwable: Throwable) {
-                loge(TAG, throwable) {
-                    "$workDescription failed because it threw an exception/error"
-                }
-                configuration.workerExecutionExceptionHandler?.safeAccept(
-                    WorkerExceptionInfo(workSpec.workerClassName, params, throwable),
-                    TAG
-                )
-            } finally {
-                onWorkFinished(result)
-                workerJob.complete()
+        if (trySetRunning()) {
+            if (isInterrupted()) {
+                return
             }
+            val foregroundUpdater = params.foregroundUpdater
+            val mainDispatcher = workTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher()
+            val future = launchFuture(mainDispatcher + Job()) {
+                workForeground(appContext, workSpec, worker, foregroundUpdater, workTaskExecutor)
+                logd(TAG) { "Starting work for ${workSpec.workerClassName}" }
+                worker.startWork().await()
+            }
+            workerResultFuture.setFuture(future)
+            // Avoid synthetic accessors.
+            val workDescription = workDescription
+            workerResultFuture.addListener({
+                var result: ListenableWorker.Result = Failure()
+                try {
+                    // If the ListenableWorker returns a null result treat it as a failure.
+                    val futureResult = workerResultFuture.get()
+                    result = if (futureResult == null) {
+                        loge(TAG) {
+                            workSpec.workerClassName +
+                                " returned a null result. Treating it as a failure."
+                        }
+                        Failure()
+                    } else {
+                        logd(TAG) { "${workSpec.workerClassName} returned a $futureResult." }
+                        futureResult
+                    }
+                } catch (exception: CancellationException) {
+                    // Cancellations need to be treated with care here because innerFuture
+                    // cancellations will bubble up, and we need to gracefully handle that.
+                    logi(TAG, exception) { "$workDescription was cancelled" }
+                } catch (exception: Exception) {
+                    val exceptionToReport = if (exception is ExecutionException) {
+                        exception.cause ?: exception
+                    } else {
+                        exception
+                    }
+                    loge(TAG, exceptionToReport) {
+                        "$workDescription failed because it threw an exception/error"
+                    }
+                    configuration.workerExecutionExceptionHandler?.safeAccept(
+                        WorkerExceptionInfo(workSpec.workerClassName, params, exceptionToReport),
+                        TAG
+                    )
+                } finally {
+                    onWorkFinished(result)
+                }
+            }, workTaskExecutor.getSerialTaskExecutor())
+        } else {
+            resetWorkerStatus()
         }
     }
 
@@ -271,11 +285,12 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         // if necessary. mInterrupted is always true here, we don't really care about the return
         // value.
         resetWorkerStatus()
-        workerJob.cancel()
+        // Propagate the cancellations to the inner future.
+        workerResultFuture.cancel(true)
         // Worker can be null if run() hasn't been called yet
         // only call stop if it wasn't completed normally.
         val worker = worker
-        if (worker != null && workerJob.isCancelled) {
+        if (worker != null && workerResultFuture.isCancelled()) {
             worker.stop(stopReason)
         } else {
             logd(TAG) { "WorkSpec $workSpec is already done. Not interrupting." }
