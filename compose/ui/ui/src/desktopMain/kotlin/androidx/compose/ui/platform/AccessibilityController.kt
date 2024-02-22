@@ -202,7 +202,11 @@ internal class AccessibilityController(
                 onNodeAdded(it)
             }
 
-            bfsDeque.addAll(node.replacedChildren.asReversed())
+            for (child in node.replacedChildren.asReversed()) {
+                if (child.layoutNode.let { it.isAttached && it.isPlaced }) {
+                    bfsDeque.add(child)
+                }
+            }
         }
 
         // Call onNodeRemoved with nodes that no longer exist
