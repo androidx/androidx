@@ -7,11 +7,16 @@ import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
+import androidx.room.util.getLastInsertedRowId
+import androidx.room.util.getTotalChangedRows
+import androidx.room.util.performSuspending
 import androidx.room.util.query
+import androidx.sqlite.SQLiteStatement
 import java.util.ArrayList
 import java.util.concurrent.Callable
 import javax.`annotation`.processing.Generated
 import kotlin.Int
+import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
@@ -165,6 +170,113 @@ public class MyDao_Impl(
         }
       }
     })
+  }
+
+  public override suspend fun insertEntity(pk: Long) {
+    val _sql: String = "INSERT INTO MyEntity (pk) VALUES (?)"
+    return performSuspending(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindLong(_argIndex, pk)
+        _stmt.step()
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override suspend fun insertEntityReturnLong(pk: Long): Long {
+    val _sql: String = "INSERT INTO MyEntity (pk) VALUES (?)"
+    return performSuspending(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindLong(_argIndex, pk)
+        _stmt.step()
+        getLastInsertedRowId(_connection)
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override suspend fun updateEntity(text: String) {
+    val _sql: String = "UPDATE MyEntity SET other = ?"
+    return performSuspending(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, text)
+        _stmt.step()
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override suspend fun updateEntityReturnInt(pk: Long, text: String): Int {
+    val _sql: String = "UPDATE MyEntity SET other = ? WHERE pk = ?"
+    return performSuspending(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, text)
+        _argIndex = 2
+        _stmt.bindLong(_argIndex, pk)
+        _stmt.step()
+        getTotalChangedRows(_connection)
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override suspend fun deleteEntity() {
+    val _sql: String = "DELETE FROM MyEntity"
+    return performSuspending(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        _stmt.step()
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override suspend fun deleteEntityReturnInt(): Int {
+    val _sql: String = "DELETE FROM MyEntity"
+    return performSuspending(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        _stmt.step()
+        getTotalChangedRows(_connection)
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override suspend fun deleteEntitiesIn(pks: List<Long>) {
+    val _stringBuilder: StringBuilder = StringBuilder()
+    _stringBuilder.append("DELETE FROM MyEntity WHERE pk IN (")
+    val _inputSize: Int = pks.size
+    appendPlaceholders(_stringBuilder, _inputSize)
+    _stringBuilder.append(")")
+    val _sql: String = _stringBuilder.toString()
+    return performSuspending(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: Long in pks) {
+          _stmt.bindLong(_argIndex, _item)
+          _argIndex++
+        }
+        _stmt.step()
+      } finally {
+        _stmt.close()
+      }
+    }
   }
 
   public companion object {

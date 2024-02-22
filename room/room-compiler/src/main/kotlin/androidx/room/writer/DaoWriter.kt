@@ -36,10 +36,8 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
 import androidx.room.ext.RoomTypeNames.INSERTION_ADAPTER
 import androidx.room.ext.RoomTypeNames.ROOM_DB
-import androidx.room.ext.RoomTypeNames.SHARED_SQLITE_STMT
 import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.capitalize
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinBoxedPrimitiveMethodDelegateBinder
@@ -50,7 +48,6 @@ import androidx.room.vo.DeleteOrUpdateShortcutMethod
 import androidx.room.vo.InsertionMethod
 import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
-import androidx.room.vo.QueryMethod
 import androidx.room.vo.RawQueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.ShortcutEntity
@@ -58,7 +55,6 @@ import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.WriteQueryMethod
-import java.util.Locale
 
 /**
  * Creates the implementation for a class annotated with Dao.
@@ -100,25 +96,13 @@ class DaoWriter(
     override fun createTypeSpecBuilder(): XTypeSpec.Builder {
         val builder = XTypeSpec.classBuilder(codeLanguage, dao.implTypeName)
 
-        /**
-         * For prepared statements that perform insert/update/delete/upsert,
-         * we check if there are any arguments of variable length (e.g. "IN (:var)").
-         * If not, we should re-use the statement.
-         * This requires more work but creates good performance.
-         */
-        val groupedPreparedQueries = dao.queryMethods
-            .filterIsInstance<WriteQueryMethod>()
-            .groupBy { it.parameters.any { it.queryParamAdapter?.isMultiple ?: true } }
-        // queries that can be prepared ahead of time
-        val preparedQueries = groupedPreparedQueries[false] ?: emptyList()
-        // queries that must be rebuilt every single time
-        val oneOffPreparedQueries = groupedPreparedQueries[true] ?: emptyList()
+        val preparedQueries = dao.queryMethods.filterIsInstance<WriteQueryMethod>()
+
         val shortcutMethods = buildList {
             addAll(createInsertionMethods())
             addAll(createDeletionMethods())
             addAll(createUpdateMethods())
             addAll(createTransactionMethods())
-            addAll(createPreparedQueries(preparedQueries))
             addAll(createUpsertMethods())
         }
 
@@ -148,11 +132,10 @@ class DaoWriter(
             shortcutMethods.forEach {
                 addFunction(it.functionImpl)
             }
-
             dao.queryMethods.filterIsInstance<ReadQueryMethod>().forEach { method ->
                 addFunction(createSelectMethod(method))
             }
-            oneOffPreparedQueries.forEach {
+            preparedQueries.forEach {
                 addFunction(createPreparedQueryMethod(it))
             }
             dao.rawQueryMethods.forEach {
@@ -241,50 +224,6 @@ class DaoWriter(
             )
             addCode(body)
         }.build()
-    }
-
-    private fun createPreparedQueries(
-        preparedQueries: List<WriteQueryMethod>
-    ): List<PreparedStmtQuery> {
-        return preparedQueries.map { method ->
-            val fieldSpec = getOrCreateProperty(PreparedStatementProperty(method))
-            val queryWriter = QueryWriter(method)
-            val fieldImpl = PreparedStatementWriter(queryWriter)
-                .createAnonymous(this@DaoWriter, dbProperty)
-            val methodBody =
-                createPreparedQueryMethodBody(method, fieldSpec, queryWriter)
-            PreparedStmtQuery(
-                mapOf(PreparedStmtQuery.NO_PARAM_FIELD to (fieldSpec to fieldImpl)),
-                methodBody
-            )
-        }
-    }
-
-    private fun createPreparedQueryMethodBody(
-        method: WriteQueryMethod,
-        preparedStmtField: XPropertySpec,
-        queryWriter: QueryWriter
-    ): XFunSpec {
-        val scope = CodeGenScope(this)
-        method.preparedQueryResultBinder.executeAndReturn(
-            prepareQueryStmtBlock = {
-                val stmtName = getTmpVar("_stmt")
-                builder.addLocalVal(
-                    stmtName,
-                    SupportDbTypeNames.SQLITE_STMT,
-                    "%N.acquire()",
-                    preparedStmtField
-                )
-                queryWriter.bindArgs(stmtName, emptyList(), this)
-                stmtName
-            },
-            preparedStmtProperty = preparedStmtField,
-            dbProperty = dbProperty,
-            scope = scope
-        )
-        return overrideWithoutAnnotations(method.element, declaredDao)
-            .addCode(scope.generate())
-            .build()
     }
 
     private fun createTransactionMethods(): List<PreparedStmtQuery> {
@@ -560,6 +499,25 @@ class DaoWriter(
     }
 
     private fun createPreparedQueryMethodBody(method: WriteQueryMethod): XCodeBlock {
+        if (!method.preparedQueryResultBinder.isMigratedToDriver()) {
+            return compatCreatePreparedQueryMethodBody(method)
+        }
+
+        val scope = CodeGenScope(this, useDriverApi = true)
+        val queryWriter = QueryWriter(method)
+        val sqlVar = scope.getTmpVar("_sql")
+        val listSizeArgs = queryWriter.prepareQuery(sqlVar, scope)
+        method.preparedQueryResultBinder.executeAndReturn(
+            sqlQueryVar = sqlVar,
+            dbProperty = dbProperty,
+            bindStatement = { stmtVar -> queryWriter.bindArgs(stmtVar, listSizeArgs, this) },
+            returnTypeName = method.returnType.asTypeName(),
+            scope = scope
+        )
+        return scope.generate()
+    }
+
+    private fun compatCreatePreparedQueryMethodBody(method: WriteQueryMethod): XCodeBlock {
         val scope = CodeGenScope(this)
         method.preparedQueryResultBinder.executeAndReturn(
             prepareQueryStmtBlock = {
@@ -724,18 +682,6 @@ class DaoWriter(
         }
 
         override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
-        }
-    }
-
-    class PreparedStatementProperty(val method: QueryMethod) : SharedPropertySpec(
-        baseName = "preparedStmtOf${method.element.name.capitalize(Locale.US)}",
-        type = SHARED_SQLITE_STMT
-    ) {
-        override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
-        }
-
-        override fun getUniqueKey(): String {
-            return method.query.original
         }
     }
 }

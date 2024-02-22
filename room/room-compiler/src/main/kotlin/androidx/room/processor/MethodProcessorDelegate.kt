@@ -32,7 +32,7 @@ import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomCoroutinesTypeNames.COROUTINES_ROOM
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.TypeAdapterExtras
-import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
+import androidx.room.solver.prepared.binder.CoroutinePreparedQueryResultBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
@@ -233,12 +233,10 @@ class SuspendMethodProcessorDelegate(
     override fun findPreparedResultBinder(
         returnType: XType,
         query: ParsedQuery
-    ) = createPreparedBinder(
-        returnType = returnType,
-        adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(returnType, query)
-    ) { callableImpl, dbProperty ->
-        addCoroutineExecuteStatement(callableImpl, dbProperty)
-    }
+    ) = CoroutinePreparedQueryResultBinder(
+        adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(returnType, query),
+        continuationParamName = continuationParam.name
+    )
 
     override fun findInsertMethodBinder(
         returnType: XType,

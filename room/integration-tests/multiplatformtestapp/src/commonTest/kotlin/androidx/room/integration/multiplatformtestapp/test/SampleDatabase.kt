@@ -31,6 +31,13 @@ data class SampleEntity(
 
 @Dao
 interface SampleDao {
+
+    @Query("INSERT INTO SampleEntity (pk) VALUES (:pk)")
+    suspend fun insertItem(pk: Long): Long
+
+    @Query("DELETE FROM SampleEntity WHERE pk = :pk")
+    suspend fun deleteItem(pk: Long): Int
+
     @Query("SELECT * FROM SampleEntity")
     suspend fun getSingleItem(): SampleEntity
 }
