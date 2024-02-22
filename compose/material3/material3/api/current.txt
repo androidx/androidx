@@ -724,7 +724,8 @@ package androidx.compose.material3 {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public abstract class ExposedDropdownMenuBoxScope {
     ctor public ExposedDropdownMenuBoxScope();
-    method @androidx.compose.runtime.Composable public final void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public final void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, optional boolean focusable, optional boolean matchTextFieldWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float tonalElevation, optional float shadowElevation, optional androidx.compose.foundation.BorderStroke? border, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @Deprecated @androidx.compose.runtime.Composable public void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method public abstract androidx.compose.ui.Modifier exposedDropdownSize(androidx.compose.ui.Modifier, optional boolean matchTextFieldWidth);
     method public abstract androidx.compose.ui.Modifier menuAnchor(androidx.compose.ui.Modifier);
   }

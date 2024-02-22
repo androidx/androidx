@@ -16,13 +16,13 @@
 
 package androidx.compose.material3
 
-import android.content.Context
 import android.graphics.Rect as ViewRect
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import android.view.accessibility.AccessibilityManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -56,6 +56,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -65,7 +66,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
@@ -74,6 +74,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -195,6 +196,12 @@ fun ExposedDropdownMenuBox(
     SideEffect {
         if (expanded) focusRequester.requestFocus()
     }
+
+    // Back events are handled in the Popup layer if the menu is focusable.
+    // If it's not focusable, we handle them here.
+    BackHandler(enabled = expanded) {
+        onExpandedChange(false)
+    }
 }
 
 @Composable
@@ -249,14 +256,15 @@ abstract class ExposedDropdownMenuBoxScope {
     abstract fun Modifier.menuAnchor(): Modifier
 
     /**
-     * Modifier which should be applied to an [ExposedDropdownMenu] placed inside the scope. It's
-     * responsible for setting the width of the [ExposedDropdownMenu], which will match the width of
-     * the [TextField] (if [matchTextFieldWidth] is set to true). It will also change the height of
-     * [ExposedDropdownMenu], so it'll take the largest possible height to not overlap the
-     * [TextField] and the software keyboard.
+     * Modifier which should be applied to a menu placed inside the [ExposedDropdownMenuBoxScope].
+     * It will set constraints on the width and height of the menu so it will not overlap the
+     * text field or software keyboard.
      *
-     * @param matchTextFieldWidth whether the menu should match the width of the text field to which
-     * it's attached. If set to `true`, the width will match the width of the text field.
+     * [ExposedDropdownMenu] applies this modifier automatically, so this is only needed when
+     * using custom menu components.
+     *
+     * @param matchTextFieldWidth whether the menu's width should be forcefully constrained to
+     * match the width of the text field to which it's attached.
      */
     abstract fun Modifier.exposedDropdownSize(
         matchTextFieldWidth: Boolean = true
@@ -270,7 +278,20 @@ abstract class ExposedDropdownMenuBoxScope {
      * @param onDismissRequest called when the user requests to dismiss the menu, such as by
      * tapping outside the menu's bounds
      * @param modifier the [Modifier] to be applied to this menu
-     * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
+     * @param scrollState a [ScrollState] used by the menu's content for items vertical scrolling
+     * @param focusable whether the menu is focusable. If the text field is editable, this should
+     * be set to `false` so the menu doesn't steal focus from the input method. In the presence of
+     * certain accessibility services, this value will be overwritten to `true` to preserve
+     * accessibility.
+     * @param matchTextFieldWidth whether the menu's width should be forcefully constrained to
+     * match the width of the text field to which it's attached.
+     * @param shape the shape of the menu
+     * @param containerColor the container color of the menu
+     * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary
+     * color overlay is applied on top of the container. A higher tonal elevation value will result
+     * in a darker color in light theme and lighter color in dark theme. See also: [Surface].
+     * @param shadowElevation the elevation for the shadow below the menu
+     * @param border the border to draw around the container of the menu. Pass `null` for no border.
      * @param content the content of the menu
      */
     @Composable
@@ -279,6 +300,13 @@ abstract class ExposedDropdownMenuBoxScope {
         onDismissRequest: () -> Unit,
         modifier: Modifier = Modifier,
         scrollState: ScrollState = rememberScrollState(),
+        focusable: Boolean = true,
+        matchTextFieldWidth: Boolean = true,
+        shape: Shape = MenuDefaults.shape,
+        containerColor: Color = MenuDefaults.containerColor,
+        tonalElevation: Dp = MenuDefaults.TonalElevation,
+        shadowElevation: Dp = MenuDefaults.ShadowElevation,
+        border: BorderStroke? = null,
         content: @Composable ColumnScope.() -> Unit
     ) {
         // Workaround for b/326394521. We create a state that's read in `calculatePosition`.
@@ -313,23 +341,50 @@ abstract class ExposedDropdownMenuBoxScope {
             Popup(
                 onDismissRequest = onDismissRequest,
                 popupPositionProvider = popupPositionProvider,
-                properties = ExposedDropdownMenuDefaults.popupProperties(),
+                properties = ExposedDropdownMenuDefaults.popupProperties(focusable = focusable),
             ) {
                 DropdownMenuContent(
                     expandedState = expandedState,
                     transformOriginState = transformOriginState,
                     scrollState = scrollState,
-                    shape = MenuDefaults.shape,
-                    containerColor = MenuDefaults.containerColor,
-                    tonalElevation = MenuDefaults.TonalElevation,
-                    shadowElevation = MenuDefaults.ShadowElevation,
-                    border = null,
-                    modifier = modifier.exposedDropdownSize(),
+                    shape = shape,
+                    containerColor = containerColor,
+                    tonalElevation = tonalElevation,
+                    shadowElevation = shadowElevation,
+                    border = border,
+                    modifier = modifier.exposedDropdownSize(matchTextFieldWidth),
                     content = content,
                 )
             }
         }
     }
+
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "Maintained for binary compatibility. " +
+            "Use overload with `focusable` and customization options parameters."
+    )
+    @Composable
+    fun ExposedDropdownMenu(
+        expanded: Boolean,
+        onDismissRequest: () -> Unit,
+        modifier: Modifier = Modifier,
+        scrollState: ScrollState = rememberScrollState(),
+        content: @Composable ColumnScope.() -> Unit,
+    ) = ExposedDropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        focusable = true,
+        matchTextFieldWidth = true,
+        scrollState = scrollState,
+        shape = MenuDefaults.shape,
+        containerColor = MenuDefaults.containerColor,
+        tonalElevation = MenuDefaults.TonalElevation,
+        shadowElevation = MenuDefaults.ShadowElevation,
+        border = null,
+        content = content,
+    )
 }
 
 /**
@@ -669,24 +724,35 @@ object ExposedDropdownMenuDefaults {
         vertical = 0.dp
     )
 
+    /**
+     * Creates a [PopupProperties] used for [ExposedDropdownMenuBoxScope.ExposedDropdownMenu].
+     *
+     * @param focusable whether the menu is focusable. If the text field is editable, this should
+     * be set to `false` so the menu doesn't steal focus from the input method. In the presence of
+     * certain accessibility services, this value will be overwritten to `true` to preserve
+     * accessibility.
+     */
     @Composable
-    internal fun popupProperties(): PopupProperties {
-        val context = LocalContext.current
-        val a11yManager =
-            context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
-        val flags = remember(a11yManager) {
-            // In all cases, focusable = true (NOT_FOCUSABLE is *not* set).
-            // In order for TalkBack focus to jump to the menu when opened,
-            // it needs to be touch modal as well (NOT_TOUCH_MODAL is *not* set).
-            if (a11yManager?.isTouchExplorationEnabled == true) {
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+    internal fun popupProperties(
+        focusable: Boolean = true,
+    ): PopupProperties {
+        val touchExplorationServicesEnabled by touchExplorationState()
+        val flags = if (touchExplorationServicesEnabled) {
+            // In order for TalkBack focus to jump to the menu when opened, it needs to be
+            // focusable and touch modal (NOT_FOCUSABLE and NOT_TOUCH_MODAL are *not* set)
+            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+        } else {
+            val baseFlags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+            if (!focusable) {
+                baseFlags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
             } else {
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                baseFlags
             }
         }
+
         return PopupProperties(flags = flags)
     }
 

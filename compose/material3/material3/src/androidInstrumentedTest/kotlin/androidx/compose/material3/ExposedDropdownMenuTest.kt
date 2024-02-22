@@ -17,6 +17,8 @@
 package androidx.compose.material3
 
 import android.widget.FrameLayout
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
@@ -148,12 +150,59 @@ class ExposedDropdownMenuTest {
     }
 
     @Test
+    fun edm_notEditable_collapsesOnBackPress() {
+        lateinit var backDispatcher: OnBackPressedDispatcher
+        rule.setMaterialContent(lightColorScheme()) {
+            backDispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            var expanded by remember { mutableStateOf(true) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                editable = false,
+            )
+        }
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(EDMTag).assertIsDisplayed()
+        rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
+
+        rule.runOnIdle { backDispatcher.onBackPressed() }
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun edm_editable_collapsesOnBackPress() {
+        lateinit var backDispatcher: OnBackPressedDispatcher
+        rule.setMaterialContent(lightColorScheme()) {
+            backDispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            var expanded by remember { mutableStateOf(true) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                editable = true,
+            )
+        }
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(EDMTag).assertIsDisplayed()
+        rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
+
+        rule.runOnIdle { backDispatcher.onBackPressed() }
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
+    }
+
+    @Test
     fun edm_doesNotCollapse_whenTypingOnSoftKeyboard() {
         rule.setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
-                onExpandChange = { expanded = it }
+                onExpandChange = { expanded = it },
+                editable = true,
             )
         }
 
@@ -646,6 +695,7 @@ class ExposedDropdownMenuTest {
     fun ExposedDropdownMenuForTest(
         expanded: Boolean,
         onExpandChange: (Boolean) -> Unit,
+        editable: Boolean = false,
         textFieldModifier: Modifier = Modifier,
         menuModifier: Modifier = Modifier,
     ) {
@@ -662,6 +712,7 @@ class ExposedDropdownMenuTest {
                         .testTag(TFTag),
                     value = selectedOptionText,
                     onValueChange = { selectedOptionText = it },
+                    readOnly = !editable,
                     label = { Text("Label") },
                     trailingIcon = {
                         Box(Modifier.testTag(TrailingIconTag)) {
@@ -673,7 +724,8 @@ class ExposedDropdownMenuTest {
                 ExposedDropdownMenu(
                     modifier = menuModifier.testTag(EDMTag),
                     expanded = expanded,
-                    onDismissRequest = { onExpandChange(false) }
+                    onDismissRequest = { onExpandChange(false) },
+                    focusable = !editable,
                 ) {
                     DropdownMenuItem(
                         text = { Text(OptionName) },

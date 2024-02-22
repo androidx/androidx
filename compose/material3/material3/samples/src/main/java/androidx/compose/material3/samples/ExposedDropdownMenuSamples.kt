@@ -99,6 +99,9 @@ fun EditableExposedDropdownMenuSample() {
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
+                // If the text field is editable, the menu should not be focusable
+                // in order to prevent stealing focus from the input method.
+                focusable = false,
             ) {
                 filteringOptions.forEach { selectionOption ->
                     DropdownMenuItem(
