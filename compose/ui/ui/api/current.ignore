@@ -1,8 +1,6 @@
 // Baseline format: 1.0
 RemovedClass: androidx.compose.ui.draganddrop.DragAndDropKt:
     Removed class androidx.compose.ui.draganddrop.DragAndDropKt
-RemovedClass: androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat_androidKt:
-    Removed class androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat_androidKt
 
 
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEventKt#indexOfFirstPressed(int):

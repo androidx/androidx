@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.graphics.CanvasBufferedRenderer#releaseBuffer(android.hardware.HardwareBuffer):
-    Added method androidx.graphics.CanvasBufferedRenderer.releaseBuffer(android.hardware.HardwareBuffer)
