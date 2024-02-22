@@ -307,7 +307,8 @@ final class Camera2CameraImpl implements CameraInternal {
     private CaptureSessionInterface newCaptureSession() {
         synchronized (mLock) {
             if (mSessionProcessor == null) {
-                return new CaptureSession(mDynamicRangesCompat);
+                return new CaptureSession(mDynamicRangesCompat,
+                        mCameraInfoInternal.getCameraQuirks());
             } else {
                 return new ProcessingCaptureSession(mSessionProcessor,
                         mCameraInfoInternal, mDynamicRangesCompat, mExecutor,
