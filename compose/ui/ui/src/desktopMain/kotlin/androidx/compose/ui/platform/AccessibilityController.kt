@@ -225,7 +225,7 @@ internal class AccessibilityController(
         syncNodesChannel.trySend(Unit)
     }
 
-    val rootSemanticNode: SemanticsNode
+    private val rootSemanticNode: SemanticsNode
         get() = owner.rootSemanticsNode
 
     val rootAccessible: ComposeAccessible
