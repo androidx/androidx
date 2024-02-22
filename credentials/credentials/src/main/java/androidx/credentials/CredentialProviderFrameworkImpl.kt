@@ -345,7 +345,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     }
 
     override fun isAvailableOnDevice(): Boolean {
-        return Build.VERSION.SDK_INT >= 34
+        return Build.VERSION.SDK_INT >= 34 && credentialManager != null
     }
 
     override fun onClearCredential(
