@@ -1,0 +1,3 @@
+com.google.common.truth
+com.google.common.truth.extensions.proto
+com.google.common.truth.extensions.re2j
