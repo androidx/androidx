@@ -233,26 +233,25 @@ internal class AccessibilityController(
 }
 
 internal fun Accessible.print(level: Int = 0) {
-    val context = accessibleContext
     val id = if (this is ComposeAccessible) {
         this.semanticsNode.id.toString()
     } else {
         "unknown"
     }
-    val str = buildString {
-        (1..level).forEach {
-            append('\t')
-        }
-        append(
-            "ID: $id Name: ${context.accessibleName} " +
-                "Description: ${context.accessibleDescription} " +
-                "Role: ${context.accessibleRole} " +
-                "Bounds: ${(context as? AccessibleComponent)?.bounds}"
+    with(accessibleContext) {
+        println(
+            buildString {
+                append("\t".repeat(level))
+                append("ID: ").append(id)
+                append(" Name: ").append(accessibleName)
+                append(" Description: ").append(accessibleDescription)
+                append(" Role: ").append(accessibleRole)
+                append(" Bounds: ").append((this@with as? AccessibleComponent)?.bounds)
+            }
         )
-    }
-    println(str)
 
-    (0 until context.accessibleChildrenCount).forEach { child ->
-        context.getAccessibleChild(child).print(level + 1)
+        for (childIndex in 0  until accessibleChildrenCount) {
+            getAccessibleChild(childIndex).print(level + 1)
+        }
     }
 }
