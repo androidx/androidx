@@ -2420,6 +2420,36 @@ class LookaheadScopeTest {
     }
 
     @Test
+    fun deactivedNodesInMeasureOnly() {
+        val root = node()
+        val delegate = createDelegate(root)
+        val toBeDeactivated = node()
+        root.add(
+            node {
+                add(
+                    // This is the LookaheadScope equivalent
+                    LayoutNode(isVirtual = true).apply {
+                        isVirtualLookaheadRoot = true
+                        add(node())
+                        add(toBeDeactivated)
+                        add(node())
+                    }
+                )
+            }
+        )
+        rule.runOnIdle {
+            assertEquals(3, root.children[0].children.size)
+            assertEquals(toBeDeactivated, root.children[0].children[1])
+            delegate.measureAndLayout()
+        }
+        rule.runOnIdle {
+            toBeDeactivated.requestLookaheadRemeasure()
+            toBeDeactivated.onDeactivate()
+            delegate.measureOnly()
+        }
+    }
+
+    @Test
     fun multiMeasureLayoutInLookahead() {
         var horizontal by mutableStateOf(true)
         rule.setContent {
