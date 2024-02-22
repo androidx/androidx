@@ -324,7 +324,7 @@ package androidx.privacysandbox.ads.adservices.topics {
   public final class GetTopicsRequest {
     ctor public GetTopicsRequest(optional String adsSdkName, optional boolean shouldRecordObservation);
     method public String getAdsSdkName();
-    method public boolean getShouldRecordObservation();
+    method public boolean shouldRecordObservation();
     property public final String adsSdkName;
     property public final boolean shouldRecordObservation;
   }
