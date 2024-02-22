@@ -31,7 +31,7 @@ import java.util.concurrent.Executor
  */
 internal class LocalController(
     private val sdkPackageName: String,
-    private val locallyLoadedSdks: LocallyLoadedSdks,
+    private val localSdkRegistry: SdkRegistry,
     private val appOwnedSdkRegistry: AppOwnedSdkRegistry
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
@@ -41,18 +41,20 @@ internal class LocalController(
         executor: Executor,
         callback: SdkSandboxControllerCompat.LoadSdkCallback
     ) {
-        executor.execute {
-            callback.onError(
-                LoadSdkCompatException(
-                    LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
-                    "Shouldn't be called"
-                )
-            )
+        try {
+            val result = localSdkRegistry.loadSdk(sdkName, params)
+            executor.execute {
+                callback.onResult(result)
+            }
+        } catch (ex: LoadSdkCompatException) {
+            executor.execute {
+                callback.onError(ex)
+            }
         }
     }
 
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
-        return locallyLoadedSdks.getLoadedSdks()
+        return localSdkRegistry.getLoadedSdks()
     }
 
     override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =

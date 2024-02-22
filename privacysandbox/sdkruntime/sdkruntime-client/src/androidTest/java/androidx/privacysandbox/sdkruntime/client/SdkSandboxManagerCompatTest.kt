@@ -19,13 +19,10 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Binder
 import android.os.Bundle
-import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.client.activity.SdkActivity
 import androidx.privacysandbox.sdkruntime.client.loader.CatchingSdkActivityHandler
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
-import androidx.privacysandbox.sdkruntime.client.loader.extractSdkProviderFieldValue
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
-import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
 import androidx.test.core.app.ActivityScenario
@@ -133,47 +130,6 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
-    fun loadSdk_whenLocalSdkFailedToLoad_throwsInternalErrorException() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val managerCompat = SdkSandboxManagerCompat.from(context)
-
-        val result = assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                managerCompat.loadSdk(
-                    TestSdkConfigs.forSdkName("invalidEntryPoint").packageName,
-                    Bundle()
-                )
-            }
-        }
-
-        assertThat(result.loadSdkErrorCode).isEqualTo(LOAD_SDK_INTERNAL_ERROR)
-        assertThat(result.message).isEqualTo("Failed to instantiate local SDK")
-    }
-
-    @Test
-    fun loadSdk_afterUnloading_loadSdkAgain() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val managerCompat = SdkSandboxManagerCompat.from(context)
-
-        val sdkName = TestSdkConfigs.CURRENT.packageName
-
-        val sdkToUnload = runBlocking {
-            managerCompat.loadSdk(sdkName, Bundle())
-        }
-
-        managerCompat.unloadSdk(sdkName)
-
-        val reloadedSdk = runBlocking {
-            managerCompat.loadSdk(sdkName, Bundle())
-        }
-
-        assertThat(managerCompat.getSandboxedSdks())
-            .containsExactly(reloadedSdk)
-        assertThat(reloadedSdk.getInterface())
-            .isNotEqualTo(sdkToUnload.getInterface())
-    }
-
-    @Test
     @SdkSuppress(maxSdkVersion = 33)
     fun unloadSdk_whenNoLocalSdkLoadedAndApiBelow34_doesntThrow() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -191,44 +147,10 @@ class SdkSandboxManagerCompatTest {
         runBlocking {
             managerCompat.loadSdk(sdkName, Bundle())
         }
-        val sdkProvider = managerCompat.getLocallyLoadedSdk(sdkName)!!.sdkProvider
-
         managerCompat.unloadSdk(sdkName)
-
-        val isBeforeUnloadSdkCalled = sdkProvider.extractSdkProviderFieldValue<Boolean>(
-            fieldName = "isBeforeUnloadSdkCalled"
-        )
-
-        assertThat(isBeforeUnloadSdkCalled)
-            .isTrue()
 
         assertThat(managerCompat.getSandboxedSdks())
             .isEmpty()
-    }
-
-    @Test
-    fun unloadSdk_unregisterActivityHandlers() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val managerCompat = SdkSandboxManagerCompat.from(context)
-
-        val packageName = TestSdkConfigs.forSdkName("v4").packageName
-        val localSdk = runBlocking {
-            managerCompat.loadSdk(
-                packageName,
-                Bundle()
-            )
-        }
-
-        val testSdk = localSdk.asTestSdk()
-        val token = testSdk.registerSdkSandboxActivityHandler(CatchingSdkActivityHandler())
-
-        val registeredBefore = LocalSdkActivityHandlerRegistry.isRegistered(token)
-        assertThat(registeredBefore).isTrue()
-
-        managerCompat.unloadSdk(packageName)
-
-        val registeredAfter = LocalSdkActivityHandlerRegistry.isRegistered(token)
-        assertThat(registeredAfter).isFalse()
     }
 
     @Test
