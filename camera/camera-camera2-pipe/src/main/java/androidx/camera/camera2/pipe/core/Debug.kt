@@ -174,6 +174,16 @@ object Debug {
                         append("\n")
                     }
                 }
+                if (cameraGraph.streams.inputs.isNotEmpty()) {
+                    append("Inputs:\n")
+                    for (stream in cameraGraph.streams.inputs) {
+                        append(" ")
+                        append(stream.id.toString().padEnd(12, ' '))
+                        append(stream.format.toString().padEnd(12, ' '))
+                        append(stream.maxImages.toString().padEnd(12, ' '))
+                        append("\n")
+                    }
+                }
 
                 append("Session Template: ${graphConfig.sessionTemplate.name}\n")
                 appendParameters(this, "Session Parameters", graphConfig.sessionParameters)
