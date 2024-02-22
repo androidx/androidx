@@ -165,6 +165,7 @@ internal class AccessibilityController(
     private val coroutineScope = CoroutineScope(coroutineContext + job)
     private val syncNodesChannel =
         Channel<Unit>(capacity = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    private val bfsDeque = ArrayDeque<SemanticsNode>()
 
     fun dispose() {
         job.cancel()
@@ -182,34 +183,31 @@ internal class AccessibilityController(
     }
 
     private fun syncNodes() {
-        if (!rootSemanticNode.layoutNode.isPlaced) {
+        if (!rootSemanticNode.layoutNode.isPlaced)
             return
-        }
 
+        // Build new mapping of ComposeAccessible by node id
         val previous = _currentNodes
         val nodes = mutableMapOf<Int, ComposeAccessible>()
-        fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
-            nodes[currentNode.id] = previous[currentNode.id]?.let {
+        bfsDeque.add(rootSemanticNode)
+        while (bfsDeque.isNotEmpty()) {
+            val node = bfsDeque.removeFirst()
+
+            nodes[node.id] = previous[node.id]?.let {
                 val prevSemanticsNode = it.semanticsNode
-                it.semanticsNode = currentNode
-                onNodeChanged(it, prevSemanticsNode, currentNode)
+                it.semanticsNode = node
+                onNodeChanged(it, prevSemanticsNode, node)
                 it
-            } ?: ComposeAccessible(currentNode, this).also {
+            } ?: ComposeAccessible(node, this).also {
                 onNodeAdded(it)
             }
 
-            // TODO fake nodes?
-            // TODO find only visible nodes?
-
-            val children = currentNode.replacedChildren
-            for (i in children.size - 1 downTo 0) {
-                findAllSemanticNodesRecursive(children[i])
-            }
+            bfsDeque.addAll(node.replacedChildren.asReversed())
         }
 
-        findAllSemanticNodesRecursive(rootSemanticNode)
+        // Call onNodeRemoved with nodes that no longer exist
         for ((id, prevNode) in previous.entries) {
-            if (nodes[id] == null) {
+            if (id !in nodes) {
                 onNodeRemoved(prevNode)
             }
         }
