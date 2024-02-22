@@ -143,6 +143,14 @@ class PopupSecureFlagTest(private val setSecureFlagOnActivity: Boolean) {
             inheritSecurePolicy = true,
         )
         assertThat(isSecureFlagEnabledForPopup()).isEqualTo(setSecureFlagOnActivity)
+
+        // Check that inherited value overrides `flags` value
+        properties = PopupProperties(
+            flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                WindowManager.LayoutParams.FLAG_SECURE,
+            inheritSecurePolicy = true,
+        )
+        assertThat(isSecureFlagEnabledForPopup()).isEqualTo(setSecureFlagOnActivity)
     }
 
     @Composable

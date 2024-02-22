@@ -951,10 +951,12 @@ internal fun View.isFlagSecureEnabled(): Boolean {
 
 private fun PopupProperties.flagsWithSecureFlagInherited(
     isParentFlagSecureEnabled: Boolean,
-): Int = if (this.inheritSecurePolicy && isParentFlagSecureEnabled) {
-    this.flags or WindowManager.LayoutParams.FLAG_SECURE
-} else {
-    this.flags
+): Int = when {
+    this.inheritSecurePolicy && isParentFlagSecureEnabled ->
+        this.flags or WindowManager.LayoutParams.FLAG_SECURE
+    this.inheritSecurePolicy && !isParentFlagSecureEnabled ->
+        this.flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
+    else -> this.flags
 }
 
 private fun Rect.toIntBounds() = IntRect(
