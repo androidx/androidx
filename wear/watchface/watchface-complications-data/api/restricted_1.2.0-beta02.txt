@@ -4,7 +4,7 @@ package androidx.wear.watchface.complications.data {
   public final class ColorRamp {
     ctor public ColorRamp(@ColorInt int[] colors, boolean interpolated);
     method public int[] getColors();
-    method public boolean getInterpolated();
+    method public boolean isInterpolated();
     property public final int[] colors;
     property public final boolean interpolated;
   }

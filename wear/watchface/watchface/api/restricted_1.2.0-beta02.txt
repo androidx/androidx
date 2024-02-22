@@ -55,9 +55,7 @@ package androidx.wear.watchface {
     method public android.os.Bundle getConfigExtras();
     method @UiThread public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy getDefaultDataSourcePolicy();
     method @Deprecated @UiThread public androidx.wear.watchface.complications.data.ComplicationType getDefaultDataSourceType();
-    method public boolean getFixedComplicationDataSource();
     method public int getId();
-    method public boolean getInitiallyEnabled();
     method @UiThread public Integer? getNameResourceId();
     method public androidx.wear.watchface.CanvasComplication getRenderer();
     method @UiThread public Integer? getScreenReaderNameResourceId();
@@ -65,6 +63,8 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ComplicationTapFilter getTapFilter();
     method public boolean isActiveAt(java.time.Instant instant);
     method @UiThread public boolean isEnabled();
+    method public boolean isFixedComplicationDataSource();
+    method public boolean isInitiallyEnabled();
     method @UiThread public void render(android.graphics.Canvas canvas, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
     method @UiThread public void renderHighlightLayer(android.graphics.Canvas canvas, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
     method public void setConfigExtras(android.os.Bundle);
@@ -360,8 +360,8 @@ package androidx.wear.watchface {
     ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted, optional @ColorInt int accentColor);
     method public int getAccentColor();
     method public int getStatusBarGravity();
-    method public boolean getTapEventsAccepted();
     method public int getViewProtectionMode();
+    method public boolean isTapEventsAccepted();
     property public final int accentColor;
     property public final int statusBarGravity;
     property public final boolean tapEventsAccepted;
@@ -436,10 +436,10 @@ package androidx.wear.watchface {
     method public long getAnalogPreviewReferenceTimeMillis();
     method @Px public int getChinHeight();
     method public long getDigitalPreviewReferenceTimeMillis();
-    method public boolean getHasBurnInProtection();
-    method public boolean getHasLowBitAmbient();
     method public kotlinx.coroutines.flow.StateFlow<java.lang.Integer> getInterruptionFilter();
     method public kotlinx.coroutines.flow.StateFlow<java.lang.String> getWatchFaceInstanceId();
+    method public boolean hasBurnInProtection();
+    method public boolean hasLowBitAmbient();
     method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isAmbient();
     method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isBatteryLowAndNotCharging();
     method public boolean isHeadless();

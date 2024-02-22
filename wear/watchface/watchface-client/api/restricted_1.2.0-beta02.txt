@@ -64,8 +64,8 @@ package androidx.wear.watchface.client {
     ctor public DeviceConfig(boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
     method public long getAnalogPreviewReferenceTimeMillis();
     method public long getDigitalPreviewReferenceTimeMillis();
-    method public boolean getHasBurnInProtection();
-    method public boolean getHasLowBitAmbient();
+    method public boolean hasBurnInProtection();
+    method public boolean hasLowBitAmbient();
     property public final long analogPreviewReferenceTimeMillis;
     property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
@@ -91,9 +91,9 @@ package androidx.wear.watchface.client {
   public final class EditorState {
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.data.ComplicationData> getPreviewComplicationsData();
     method public android.graphics.Bitmap? getPreviewImage();
-    method public boolean getShouldCommitChanges();
     method public androidx.wear.watchface.style.UserStyleData getUserStyle();
     method public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
+    method public boolean shouldCommitChanges();
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.data.ComplicationData> previewComplicationsData;
     property public final android.graphics.Bitmap? previewImage;
     property public final boolean shouldCommitChanges;
@@ -259,8 +259,8 @@ package androidx.wear.watchface.client {
 
   public final class WatchUiState {
     ctor public WatchUiState(boolean inAmbientMode, int interruptionFilter);
-    method public boolean getInAmbientMode();
     method public int getInterruptionFilter();
+    method public boolean inAmbientMode();
     property public final boolean inAmbientMode;
     property public final int interruptionFilter;
   }

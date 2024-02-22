@@ -22,8 +22,6 @@ plugins {
 
 android {
     namespace 'androidx.privacysandbox.ui.integration.testaidl'
-    compileSdk 33
-    compileSdkExtension = 5
 
     defaultConfig {
         minSdk 33
