@@ -53,7 +53,7 @@ internal class ComposeLayer(
     // Should be set to an actual value by ComposeWindow implementation
     private var density = Density(1f)
 
-    private inner class ComponentImpl : SkikoView {
+    private inner class ComponentImpl : SkikoViewExtended {
         override val input = this@ComposeLayer.input
 
         override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
@@ -61,8 +61,12 @@ internal class ComposeLayer(
         }
 
         override fun onKeyboardEvent(event: SkikoKeyboardEvent) {
-            if (isDisposed) return
-            scene.sendKeyEvent(KeyEvent(event))
+            onKeyboardEventWithResult(event)
+        }
+
+        override fun onKeyboardEventWithResult(event: SkikoKeyboardEvent): Boolean {
+            if (isDisposed) return false
+            return scene.sendKeyEvent(KeyEvent(event))
         }
 
         override fun onPointerEvent(event: SkikoPointerEvent) {
@@ -116,7 +120,7 @@ internal class ComposeLayer(
         }
     }
 
-    private val view = ComponentImpl()
+    internal val view: SkikoViewExtended = ComponentImpl()
 
     init {
         layer.skikoView = view
@@ -183,4 +187,8 @@ internal fun SkikoPointerEvent.getScrollDelta(): Offset {
     }?.let {
         Offset(it.deltaX.toFloat(), it.deltaY.toFloat())
     } ?: Offset.Zero
+}
+
+internal interface SkikoViewExtended : SkikoView {
+    fun onKeyboardEventWithResult(event: SkikoKeyboardEvent): Boolean
 }

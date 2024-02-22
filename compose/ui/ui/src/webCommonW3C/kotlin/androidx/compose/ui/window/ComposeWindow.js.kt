@@ -28,6 +28,7 @@ import androidx.compose.ui.events.toSkikoScrollEvent
 import androidx.compose.ui.input.pointer.BrowserCursor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.native.ComposeLayer
+import androidx.compose.ui.native.SkikoViewExtended
 import androidx.compose.ui.platform.JSTextInputService
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.ViewConfiguration
@@ -44,7 +45,6 @@ import kotlinx.coroutines.isActive
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoKeyboardEventKind
 import org.jetbrains.skiko.SkikoPointerEventKind
-import org.jetbrains.skiko.SkikoView
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.HTMLTitleElement
@@ -95,10 +95,11 @@ private class ComposeWindow(
 
     val canvas = document.getElementById(canvasId) as HTMLCanvasElement
 
-    private fun <T : Event> HTMLCanvasElement.addTypedEvent(type: String, handler: (event: T, skikoView: SkikoView) -> Unit) {
-        addEventListener(type, { event ->
-            layer.layer?.skikoView?.let { skikoView -> handler(event as T, skikoView) }
-        })
+    private fun <T : Event> HTMLCanvasElement.addTypedEvent(
+        type: String,
+        handler: (event: T, skikoView: SkikoViewExtended) -> Unit
+    ) {
+        this.addEventListener(type, { event -> handler(event as T, layer.view) })
     }
 
     private fun initEvents(canvas: HTMLCanvasElement) {
@@ -159,13 +160,13 @@ private class ComposeWindow(
         })
 
         canvas.addTypedEvent<KeyboardEvent>("keydown") { event, skikoView ->
-            event.preventDefault()
-            skikoView.onKeyboardEvent(event.toSkikoEvent(SkikoKeyboardEventKind.DOWN))
+            val processed = skikoView.onKeyboardEventWithResult(event.toSkikoEvent(SkikoKeyboardEventKind.DOWN))
+            if (processed) event.preventDefault()
         }
 
         canvas.addTypedEvent<KeyboardEvent>("keyup") { event, skikoView ->
-            event.preventDefault()
-            skikoView.onKeyboardEvent(event.toSkikoEvent(SkikoKeyboardEventKind.UP))
+            val processed = skikoView.onKeyboardEventWithResult(event.toSkikoEvent(SkikoKeyboardEventKind.UP))
+            if (processed) event.preventDefault()
         }
     }
 
