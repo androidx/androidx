@@ -177,6 +177,8 @@ public class FakeCamera implements CameraInternal {
         checkNotReleased();
         switch (mState) {
             case OPEN:
+                // fall through
+            case CONFIGURED:
                 mSessionConfig = null;
                 reconfigure();
                 // fall through

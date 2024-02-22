@@ -21,16 +21,22 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static java.util.Collections.singletonList;
 
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraDevice;
 import android.os.Build;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.Identifier;
+import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.Observable;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.impl.fakes.FakeUseCase;
 
@@ -80,6 +86,33 @@ public final class FakeCameraTest {
         mCamera.open();
         ShadowLooper.runUiThreadTasks();
         assertThat(mLatestState).isEqualTo(CameraInternal.State.OPEN);
+    }
+
+    @Test
+    public void closeCameraInReconfiguredState_deferrableSurfaceTerminated() {
+        // Arrange: create UseCase with ImmediateSurface
+        SurfaceTexture surfaceTexture = new SurfaceTexture(1);
+        Surface surface = new Surface(surfaceTexture);
+        DeferrableSurface immediateSurface = new ImmediateSurface(surface);
+        FakeUseCase fakeUseCase = new FakeUseCase();
+        SessionConfig sessionConfig = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .addSurface(immediateSurface)
+                .build();
+        fakeUseCase.updateSessionConfigForTesting(sessionConfig);
+
+        // Act: attach/detach UseCase
+        mCamera.attachUseCases(singletonList(fakeUseCase));
+        mCamera.onUseCaseActive(fakeUseCase);
+        mCamera.detachUseCases(singletonList(fakeUseCase));
+
+        // Assert: immediateSurface is terminated
+        immediateSurface.close();
+        assertThat(immediateSurface.getTerminationFuture().isDone()).isTrue();
+
+        // Cleanup surface
+        surface.release();
+        surfaceTexture.release();
     }
 
     @Test
