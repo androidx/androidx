@@ -97,7 +97,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
     }
 
     private fun runWorker() {
-        if (isInterrupted()) {
+        if (tryCheckForInterruptionAndResolve()) {
             return
         }
 
@@ -202,7 +202,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         // Try to set the work to the running state.  Note that this may fail because another thread
         // may have modified the DB since we checked last at the top of this function.
         if (trySetRunning()) {
-            if (isInterrupted()) {
+            if (tryCheckForInterruptionAndResolve()) {
                 return
             }
             val foregroundUpdater = params.foregroundUpdater
@@ -257,7 +257,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
     }
 
     private fun onWorkFinished(result: ListenableWorker.Result) {
-        if (!isInterrupted()) {
+        if (!tryCheckForInterruptionAndResolve()) {
             workDatabase.runInTransaction {
                 val state = workSpecDao.getState(workSpecId)
                 workDatabase.workProgressDao().delete(workSpecId)
@@ -284,7 +284,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         // Resolve WorkerWrapper's future so we do the right thing and setup a reschedule
         // if necessary. mInterrupted is always true here, we don't really care about the return
         // value.
-        resetWorkerStatus()
+        tryCheckForInterruptionAndResolve()
         // Propagate the cancellations to the inner future.
         workerResultFuture.cancel(true)
         // Worker can be null if run() hasn't been called yet
@@ -319,13 +319,17 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
     }
 
-    private fun isInterrupted(): Boolean {
+    private fun tryCheckForInterruptionAndResolve(): Boolean {
         // Interruptions can happen when:
         // An explicit cancel* signal
         // A change in constraint, which causes WorkManager to stop the Worker.
         // Worker exceeding a 10 min execution window.
         // One scheduler completing a Worker, and telling other Schedulers to cleanup.
-        return interrupted != WorkInfo.STOP_REASON_NOT_STOPPED
+        if (interrupted != WorkInfo.STOP_REASON_NOT_STOPPED) {
+            resetWorkerStatus()
+            return true
+        }
+        return false
     }
 
     private fun handleResult(result: ListenableWorker.Result?) {
