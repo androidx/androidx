@@ -55,11 +55,11 @@ class WorkerWrapperTestKt {
         val workRequest = OneTimeWorkRequest.from(CompletableWorker::class.java)
         testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
         val workerWrapper = WorkerWrapper(workRequest.workSpec)
-        testEnv.taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        val future = workerWrapper.launch()
         val completableWorker = factory.await(workRequest.id) as CompletableWorker
         testEnv.db.workSpecDao().delete(workRequest.stringId)
         completableWorker.result.complete(Success())
-        assertThat(workerWrapper.future.await()).isFalse()
+        assertThat(future.await()).isFalse()
         assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isNull()
     }
 
@@ -68,12 +68,12 @@ class WorkerWrapperTestKt {
         val workRequest = OneTimeWorkRequest.from(DoWorkAwareWorker::class.java)
         testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
         val workerWrapper = WorkerWrapper(workRequest.workSpec)
-        testEnv.taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        val future = workerWrapper.launch()
         val worker = factory.await(workRequest.id) as DoWorkAwareWorker
         worker.doWorkEvent.await()
         assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(RUNNING)
         worker.resultCompleter.set(Success())
-        assertThat(workerWrapper.future.await()).isFalse()
+        assertThat(future.await()).isFalse()
     }
 
     @Test
@@ -81,11 +81,11 @@ class WorkerWrapperTestKt {
         val workRequest = OneTimeWorkRequest.from(DoWorkAwareWorker::class.java)
         testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
         val workerWrapper = WorkerWrapper(workRequest.workSpec)
-        testEnv.taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        val future = workerWrapper.launch()
         val worker = factory.await(workRequest.id) as DoWorkAwareWorker
         worker.doWorkEvent.await()
         workerWrapper.interrupt(0)
-        assertThat(workerWrapper.future.await()).isTrue()
+        assertThat(future.await()).isTrue()
         assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(ENQUEUED)
     }
 
@@ -100,12 +100,12 @@ class WorkerWrapperTestKt {
             mainThreadBlocker.await()
             workerWrapper.interrupt(0)
         }
-        testEnv.taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        val future = workerWrapper.launch()
         factory.await(workRequest.id)
         // worker is created, but can't start work because main thread is blocked
         // this call will unblock main thread, but interrupt worker
         mainThreadBlocker.countDown()
-        assertThat(workerWrapper.future.await()).isTrue()
+        assertThat(future.await()).isTrue()
         // tricky moment, currently due to the race Worker can go through
         // running state. Exact order would be:
         // - WorkerWrapper reaches trySetRunning, but doesn't enter it
@@ -125,7 +125,7 @@ class WorkerWrapperTestKt {
 
         testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
         val workerWrapper = WorkerWrapper(workRequest.workSpec)
-        testEnv.taskExecutor.serialTaskExecutor.execute(workerWrapper)
+        workerWrapper.launch()
         val worker = factory.await(workRequest.id) as CompletableWorker
         assertThat(worker.runAttemptCount).isEqualTo(10)
         worker.result.complete(Success())
