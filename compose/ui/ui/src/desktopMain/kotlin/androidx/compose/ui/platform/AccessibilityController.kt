@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -55,7 +56,7 @@ internal class AccessibilityController(
     private val onFocusReceived: (ComposeAccessible) -> Unit
 ) {
     private var nodeMappingIsValid = false
-    private var accessibleByNodeId: Map<Int, ComposeAccessible> = emptyMap()
+    private var accessibleByNodeId = mutableScatterMapOf<Int, ComposeAccessible>()
 
     fun accessibleByNodeId(nodeId: Int): ComposeAccessible? {
         if (!nodeMappingIsValid) {
@@ -167,6 +168,7 @@ internal class AccessibilityController(
     private val syncNodesChannel =
         Channel<Unit>(capacity = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
     private val bfsDeque = ArrayDeque<SemanticsNode>()
+    private var auxAccessibleByNodeId = mutableScatterMapOf<Int, ComposeAccessible>()
 
     fun dispose() {
         job.cancel()
@@ -189,12 +191,12 @@ internal class AccessibilityController(
 
         // Build new mapping of ComposeAccessible by node id
         val previous = accessibleByNodeId
-        val nodes = mutableMapOf<Int, ComposeAccessible>()
+        val updated = auxAccessibleByNodeId
         bfsDeque.add(rootSemanticNode)
         while (bfsDeque.isNotEmpty()) {
             val node = bfsDeque.removeFirst()
 
-            nodes[node.id] = previous[node.id]?.let {
+            updated[node.id] = previous[node.id]?.let {
                 val prevSemanticsNode = it.semanticsNode
                 it.semanticsNode = node
                 onNodeChanged(it, prevSemanticsNode, node)
@@ -211,12 +213,13 @@ internal class AccessibilityController(
         }
 
         // Call onNodeRemoved with nodes that no longer exist
-        for ((id, prevNode) in previous.entries) {
-            if (id !in nodes) {
-                onNodeRemoved(prevNode)
+        previous.forEach { id, node ->
+            if (id !in updated) {
+                onNodeRemoved(node)
             }
         }
-        accessibleByNodeId = nodes
+        auxAccessibleByNodeId = accessibleByNodeId.also { it.clear() }
+        accessibleByNodeId = updated
         nodeMappingIsValid = true
     }
 
