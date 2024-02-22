@@ -260,8 +260,6 @@ package androidx.tv.foundation.text {
 
   @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public enum TvKeyboardAlignment {
     method public String? getOption();
-    method public static androidx.tv.foundation.text.TvKeyboardAlignment valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.tv.foundation.text.TvKeyboardAlignment[] values();
     property public final String? option;
     enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Center;
     enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Fullscreen;

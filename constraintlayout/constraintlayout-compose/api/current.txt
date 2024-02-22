@@ -606,8 +606,6 @@ package androidx.constraintlayout.compose {
   }
 
   public enum LayoutInfoFlags {
-    method public static androidx.constraintlayout.compose.LayoutInfoFlags valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.constraintlayout.compose.LayoutInfoFlags[] values();
     enum_constant public static final androidx.constraintlayout.compose.LayoutInfoFlags BOUNDS;
     enum_constant public static final androidx.constraintlayout.compose.LayoutInfoFlags NONE;
   }
@@ -647,16 +645,12 @@ package androidx.constraintlayout.compose {
   }
 
   public enum MotionLayoutDebugFlags {
-    method public static androidx.constraintlayout.compose.MotionLayoutDebugFlags valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.constraintlayout.compose.MotionLayoutDebugFlags[] values();
     enum_constant public static final androidx.constraintlayout.compose.MotionLayoutDebugFlags NONE;
     enum_constant public static final androidx.constraintlayout.compose.MotionLayoutDebugFlags SHOW_ALL;
     enum_constant public static final androidx.constraintlayout.compose.MotionLayoutDebugFlags UNKNOWN;
   }
 
   @Deprecated public enum MotionLayoutFlag {
-    method @Deprecated public static androidx.constraintlayout.compose.MotionLayoutFlag valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method @Deprecated public static androidx.constraintlayout.compose.MotionLayoutFlag[] values();
     enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag Default;
     enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag FullMeasure;
   }
