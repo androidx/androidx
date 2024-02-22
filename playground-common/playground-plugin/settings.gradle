@@ -20,8 +20,14 @@ pluginManagement {
         google()
         gradlePluginPortal().content {
             it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
+            it.includeModule("com.gradle.enterprise", "com.gradle.enterprise.gradle.plugin")
+            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
         }
     }
+}
+
+plugins { 
+    id("com.gradle.enterprise") version "3.16.2"
 }
 
 dependencyResolutionManagement {
@@ -59,6 +65,10 @@ include(":shared")
 // so that when building the `playground-plugin` included build the same build cache settings will be used.
 // Without this, Gradle Enterprise erroneously reports a problem with 'buildSrc' build cache configuration.
 def isCI = System.getenv("CI") == "true"
+
+gradleEnterprise {
+    server = "https://ge.solutions-team.gradle.com"
+}
 buildCache {
     local {
         // Aggressively clean up stale build cache entries on CI
@@ -66,17 +76,8 @@ buildCache {
             removeUnusedEntriesAfterDays = 1
         }
     }
-    remote(HttpBuildCache) {
-        url = "https://ge.androidx.dev/cache/"
-        var buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")
-        if (isCI && buildCachePassword != null && !buildCachePassword.empty) {
-            push = true
-            credentials {
-                username = "ci"
-                password = buildCachePassword
-            }
-        } else {
-            push = false
-        }
-    }
+     remote(gradleEnterprise.buildCache) {
+         def accessKey = System.getenv("GRADLE_ENTERPRISE_ACCESS_KEY")
+         push = isCI && accessKey
+     }
 }

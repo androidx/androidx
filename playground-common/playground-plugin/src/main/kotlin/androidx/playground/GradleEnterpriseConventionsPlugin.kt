@@ -19,7 +19,6 @@ package androidx.playground
 import com.gradle.enterprise.gradleplugin.internal.extension.BuildScanExtensionWithHiddenFeatures
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
-import org.gradle.caching.http.HttpBuildCache
 import org.gradle.kotlin.dsl.gradleEnterprise
 import java.net.InetAddress
 import java.net.URI
@@ -34,7 +33,7 @@ class GradleEnterpriseConventionsPlugin : Plugin<Settings> {
         val isCI = System.getenv("CI") != null
 
         settings.gradleEnterprise {
-            server = "https://ge.androidx.dev"
+            server = "https://ge.solutions-team.gradle.com"
 
             buildScan.apply {
                 publishAlways()
@@ -54,18 +53,10 @@ class GradleEnterpriseConventionsPlugin : Plugin<Settings> {
             }
         }
 
-        settings.buildCache.remote(HttpBuildCache::class.java) { remote ->
-            remote.url = URI("https://ge.androidx.dev/cache/")
-            val buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")
-            if (isCI && !buildCachePassword.isNullOrEmpty()) {
-                remote.isPush = true
-                remote.credentials { credentials ->
-                    credentials.username = "ci"
-                    credentials.password = buildCachePassword
-                }
-            } else {
-                remote.isPush = false
-            }
+        settings.buildCache.remote(settings.gradleEnterprise.buildCache) { remote ->
+            val develocityAccessKey = System.getenv("GRADLE_ENTERPRISE_ACCESS_KEY")
+            remote.setEnabled(true)
+            remote.isPush = isCI && !develocityAccessKey.isNullOrEmpty()
         }
     }
 
