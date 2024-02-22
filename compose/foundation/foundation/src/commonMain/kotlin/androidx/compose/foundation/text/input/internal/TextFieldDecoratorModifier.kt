@@ -613,7 +613,7 @@ internal class TextFieldDecoratorModifierNode(
         observeReads {
             windowInfo = currentValueOf(LocalWindowInfo)
             textFieldSelectionState.isFocused = this.isFocused
-            startOrDisposeInputSessionOnWindowFocusChange()
+            startInputSessionOnWindowFocusChange()
         }
     }
 
@@ -647,12 +647,12 @@ internal class TextFieldDecoratorModifierNode(
         inputSessionJob = null
     }
 
-    private fun startOrDisposeInputSessionOnWindowFocusChange() {
+    private fun startInputSessionOnWindowFocusChange() {
         if (windowInfo == null) return
+        // b/326323000: We do not dispose input session on just window focus change until another
+        // item requests focus and we lose element focus status which is handled by onFocusEvent.
         if (windowInfo?.isWindowFocused == true && isElementFocused) {
             startInputSession(fromTap = false)
-        } else {
-            disposeInputSession()
         }
     }
 
