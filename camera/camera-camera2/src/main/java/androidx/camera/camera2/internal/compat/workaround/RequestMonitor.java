@@ -20,10 +20,12 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.Camera2CaptureCallbacks;
+import androidx.camera.camera2.internal.compat.quirk.CaptureNoResponseQuirk;
 import androidx.camera.camera2.internal.compat.quirk.CaptureSessionStuckQuirk;
 import androidx.camera.camera2.internal.compat.quirk.IncorrectCaptureStateQuirk;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -46,15 +48,22 @@ import java.util.Objects;
  * <p>Some devices may fail to configure new CameraCaptureSessions
  * if existing in-flight capture sequences haven't completed. This class helps you work around
  * these issues.
+ * <p>Single capture requests may not receive a response if they are submitted
+ * simultaneously with repeating capture requests. Single capture requests fail to receive a
+ * response approximately 10% of the time when submitted within milliseconds of a repeating
+ * capture request.
  *
  * <p>How it works: Use `RequestMonitor#getRequestsProcessedFuture()` to get a ListenableFuture.
  * This future signals when all in-flight capture sequences have been processed.
  *
+ * @see CaptureNoResponseQuirk
  * @see CaptureSessionStuckQuirk
  * @see IncorrectCaptureStateQuirk
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class RequestMonitor {
+
+    private static final String TAG = "RequestMonitor";
     private final boolean mQuirkEnabled;
     private final List<ListenableFuture<Void>> mRequestTasks =
             Collections.synchronizedList(new ArrayList<>());
@@ -124,7 +133,11 @@ public class RequestMonitor {
         ListenableFuture<Void> future = completeListener.mStartRequestFuture;
 
         mRequestTasks.add(future);
-        future.addListener(() -> mRequestTasks.remove(future), CameraXExecutors.directExecutor());
+        Log.d(TAG, "RequestListener " + completeListener + " monitoring " + this);
+        future.addListener(() -> {
+            Log.d(TAG, "RequestListener " + completeListener + " done " + this);
+            mRequestTasks.remove(future);
+        }, CameraXExecutors.directExecutor());
         return completeListener;
     }
 
