@@ -78,6 +78,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
             .extensions
             .getByType(KotlinMultiplatformAndroidTarget::class.java)
     }
+
     val agpKmpExtension: KotlinMultiplatformAndroidTarget by agpKmpExtensionDelegate
 
     /**
@@ -166,7 +167,15 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     fun sourceSets(closure: Closure<*>) {
         if (kotlinExtensionDelegate.isInitialized()) {
-            kotlinExtension.sourceSets.configure(closure)
+            kotlinExtension.sourceSets.configure(closure).also {
+                if (!project.enableMac()) {
+                    for (sourceSetName in macOnlySourceSetNames) {
+                        kotlinExtension.sourceSets.findByName(sourceSetName)?.let {
+                            kotlinExtension.sourceSets.remove(it)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -532,6 +541,14 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     companion object {
         const val EXTENSION_NAME = "androidXMultiplatform"
+        private val macOnlySourceSetNames = setOf(
+            "darwinMain",
+            "darwinTest",
+            "iosMain",
+            "iosSimulatorArm64Main",
+            "iosX64Main",
+            "iosArm64Main"
+        )
     }
 }
 

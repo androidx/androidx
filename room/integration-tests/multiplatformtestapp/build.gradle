@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -73,11 +74,13 @@ dependencies {
     def roomCompilerDependency = project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     add("kspAndroidAndroidTest", roomCompilerDependency)
     add("kspJvmTest", roomCompilerDependency)
-    add("kspIosSimulatorArm64Test", roomCompilerDependency)
-    add("kspIosX64Test", roomCompilerDependency)
     add("kspLinuxX64Test", roomCompilerDependency)
-    add("kspMacosX64Test", roomCompilerDependency)
-    add("kspMacosArm64Test", roomCompilerDependency)
+    if (KmpPlatformsKt.enableMac(project)) {
+        add("kspIosSimulatorArm64Test", roomCompilerDependency)
+        add("kspIosX64Test", roomCompilerDependency)
+        add("kspMacosX64Test", roomCompilerDependency)
+        add("kspMacosArm64Test", roomCompilerDependency)
+    }
 }
 
 ksp {
