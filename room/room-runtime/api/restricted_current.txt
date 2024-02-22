@@ -50,12 +50,31 @@ package androidx.room {
     field public final java.util.List<java.lang.Object> typeConverters;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityDeleteOrUpdateAdapter<T> {
+    ctor public EntityDeleteOrUpdateAdapter();
+    method protected abstract void bind(androidx.sqlite.SQLiteStatement statement, T entity);
+    method protected abstract String createQuery();
+    method public final int handle(androidx.sqlite.SQLiteConnection connection, T entity);
+    method public final int handleMultiple(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T> entities);
+    method public final int handleMultiple(androidx.sqlite.SQLiteConnection connection, T[] entities);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityDeletionOrUpdateAdapter<T> extends androidx.room.SharedSQLiteStatement {
     ctor public EntityDeletionOrUpdateAdapter(androidx.room.RoomDatabase database);
     method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
     method public final int handle(T entity);
     method public final int handleMultiple(Iterable<? extends T> entities);
     method public final int handleMultiple(T[] entities);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertAdapter<T> {
+    ctor public EntityInsertAdapter();
+    method protected abstract void bind(androidx.sqlite.SQLiteStatement statement, T entity);
+    method protected abstract String createQuery();
+    method public final void insert(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T> entities);
+    method public final void insert(androidx.sqlite.SQLiteConnection connection, T entity);
+    method public final void insert(androidx.sqlite.SQLiteConnection connection, T[] entities);
+    method public final long insertAndReturnId(androidx.sqlite.SQLiteConnection connection, T entity);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
@@ -71,6 +90,24 @@ package androidx.room {
     method public final Long[] insertAndReturnIdsArrayBox(T[] entities);
     method public final java.util.List<java.lang.Long> insertAndReturnIdsList(java.util.Collection<? extends T> entities);
     method public final java.util.List<java.lang.Long> insertAndReturnIdsList(T[] entities);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertAdapter<T> {
+    ctor public EntityUpsertAdapter(androidx.room.EntityInsertAdapter<T> entityInsertAdapter, androidx.room.EntityDeleteOrUpdateAdapter<T> updateAdapter);
+    method public void upsert(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T> entities);
+    method public void upsert(androidx.sqlite.SQLiteConnection connection, T entity);
+    method public void upsert(androidx.sqlite.SQLiteConnection connection, T[] entities);
+    method public long upsertAndReturnId(androidx.sqlite.SQLiteConnection connection, T entity);
+    method public long[] upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T> entities);
+    method public long[] upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, T[] entities);
+    method public Long[] upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T> entities);
+    method public Long[] upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, T[] entities);
+    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T> entities);
+    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, T[] entities);
+    field public static final androidx.room.EntityUpsertAdapter.Companion Companion;
+  }
+
+  public static final class EntityUpsertAdapter.Companion {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertionAdapter<T> {
