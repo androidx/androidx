@@ -119,7 +119,7 @@ class CreateCredentialRequestDisplayInfoTest {
             )
         )
 
-        assertThat(displayInfo!!.userId).isEqualTo(expectedUserId)
+        assertThat(displayInfo.userId).isEqualTo(expectedUserId)
         assertThat(displayInfo.userDisplayName).isNull()
         assertThat(displayInfo.credentialTypeIcon?.resId).isEqualTo(
             R.drawable.ic_password
