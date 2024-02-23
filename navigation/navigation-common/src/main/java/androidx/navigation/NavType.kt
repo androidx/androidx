@@ -184,40 +184,46 @@ public abstract class NavType<T>(
                         } else {
                             type
                         }
-                        if (type.endsWith("[]")) {
-                            className = className.substring(0, className.length - 2)
-                            val clazz = Class.forName(className)
-                            when {
-                                Parcelable::class.java.isAssignableFrom(clazz) -> {
-                                    return ParcelableArrayType(clazz as Class<Parcelable>)
-                                }
-                                Serializable::class.java.isAssignableFrom(clazz) -> {
-                                    return SerializableArrayType(clazz as Class<Serializable>)
-                                }
-                            }
-                        } else {
-                            val clazz = Class.forName(className)
-                            when {
-                                Parcelable::class.java.isAssignableFrom(clazz) -> {
-                                    return ParcelableType(clazz as Class<Any?>)
-                                }
-                                Enum::class.java.isAssignableFrom(clazz) -> {
-                                    return EnumType(clazz as Class<Enum<*>>)
-                                }
-                                Serializable::class.java.isAssignableFrom(clazz) -> {
-                                    return SerializableType(clazz as Class<Serializable>)
-                                }
-                            }
-                        }
-                        throw IllegalArgumentException(
+                        val isArray = type.endsWith("[]")
+                        if (isArray) className = className.substring(0, className.length - 2)
+                        return requireNotNull(
+                            parseSerializableOrParcelableType(className, isArray)
+                        ) {
                             "$className is not Serializable or Parcelable."
-                        )
+                        }
                     } catch (e: ClassNotFoundException) {
                         throw RuntimeException(e)
                     }
                 }
             }
             return StringType
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        internal fun parseSerializableOrParcelableType(
+            className: String,
+            isArray: Boolean
+        ): NavType<*>? {
+            val clazz = Class.forName(className)
+            return when {
+                Parcelable::class.java.isAssignableFrom(clazz) -> {
+                    if (isArray) {
+                        ParcelableArrayType(clazz as Class<Parcelable>)
+                    } else {
+                        ParcelableType(clazz as Class<Any?>)
+                    }
+                }
+                Enum::class.java.isAssignableFrom(clazz) && !isArray ->
+                    EnumType(clazz as Class<Enum<*>>)
+                Serializable::class.java.isAssignableFrom(clazz) -> {
+                    if (isArray) {
+                        SerializableArrayType(clazz as Class<Serializable>)
+                    } else {
+                        return SerializableType(clazz as Class<Serializable>)
+                    }
+                }
+                else -> null
+            }
         }
 
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
