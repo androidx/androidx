@@ -19,24 +19,24 @@ import androidx.room.Delete
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_DELETE_RESULT_ADAPTER
-import androidx.room.processor.ProcessorErrors.DELETION_MISSING_PARAMS
-import androidx.room.vo.DeletionMethod
+import androidx.room.processor.ProcessorErrors.DELETE_MISSING_PARAMS
+import androidx.room.vo.DeleteMethod
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
-class DeletionMethodProcessorTest :
-    DeleteOrUpdateShortcutMethodProcessorTest<DeletionMethod>(Delete::class) {
+class DeleteMethodProcessorTest :
+    DeleteOrUpdateShortcutMethodProcessorTest<DeleteMethod>(Delete::class) {
     override fun invalidReturnTypeError(): String = CANNOT_FIND_DELETE_RESULT_ADAPTER
 
-    override fun noParamsError(): String = DELETION_MISSING_PARAMS
+    override fun noParamsError(): String = DELETE_MISSING_PARAMS
 
     override fun process(
         baseContext: Context,
         containing: XType,
         executableElement: XMethodElement
-    ): DeletionMethod {
-        return DeletionMethodProcessor(baseContext, containing, executableElement).process()
+    ): DeleteMethod {
+        return DeleteMethodProcessor(baseContext, containing, executableElement).process()
     }
 }

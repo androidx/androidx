@@ -32,14 +32,14 @@ import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.columnNames
 
-class EntityInsertionAdapterWriter private constructor(
+class EntityInsertAdapterWriter private constructor(
     val tableName: String,
     val pojo: Pojo,
     val primitiveAutoGenerateColumn: String?,
     val onConflict: String
 ) {
     companion object {
-        fun create(entity: ShortcutEntity, onConflict: String): EntityInsertionAdapterWriter {
+        fun create(entity: ShortcutEntity, onConflict: String): EntityInsertAdapterWriter {
             // If there is an auto-increment primary key with primitive type, we consider 0 as
             // not set. For such fields, we must generate a slightly different insertion SQL.
             val primitiveAutoGenerateField = if (entity.primaryKey.autoGenerateId) {
@@ -55,7 +55,7 @@ class EntityInsertionAdapterWriter private constructor(
             } else {
                 null
             }
-            return EntityInsertionAdapterWriter(
+            return EntityInsertAdapterWriter(
                 tableName = entity.tableName,
                 pojo = entity.pojo,
                 primitiveAutoGenerateColumn = primitiveAutoGenerateField?.columnName,
@@ -69,7 +69,7 @@ class EntityInsertionAdapterWriter private constructor(
             typeWriter.codeLanguage, "%N", dbProperty
         ).apply {
             superclass(
-                RoomTypeNames.INSERTION_ADAPTER.parametrizedBy(pojo.typeName)
+                RoomTypeNames.INSERT_ADAPTER.parametrizedBy(pojo.typeName)
             )
             addFunction(
                 XFunSpec.builder(

@@ -19,10 +19,10 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+  private val __insertAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+    this.__insertAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `MyEntity` (`mValue`,`mNullableValue`) VALUES (?,?)"
 
@@ -42,7 +42,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      __insertionAdapterOfMyEntity.insert(item)
+      __insertAdapterOfMyEntity.insert(item)
       __db.setTransactionSuccessful()
     } finally {
       __db.endTransaction()

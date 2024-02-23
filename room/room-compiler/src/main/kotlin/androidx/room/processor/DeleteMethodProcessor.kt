@@ -18,16 +18,16 @@ package androidx.room.processor
 import androidx.room.Delete
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import androidx.room.vo.DeletionMethod
+import androidx.room.vo.DeleteMethod
 
-class DeletionMethodProcessor(
+class DeleteMethodProcessor(
     baseContext: Context,
     val containing: XType,
     val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
 
-    fun process(): DeletionMethod {
+    fun process(): DeleteMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
         val annotation = delegate
             .extractAnnotation(Delete::class, ProcessorErrors.MISSING_DELETE_ANNOTATION)
@@ -44,11 +44,11 @@ class DeletionMethodProcessor(
 
         val (entities, params) = delegate.extractParams(
             targetEntityType = annotation?.getAsType("entity"),
-            missingParamError = ProcessorErrors.DELETION_MISSING_PARAMS,
+            missingParamError = ProcessorErrors.DELETE_MISSING_PARAMS,
             onValidatePartialEntity = { _, _ -> }
         )
 
-        return DeletionMethod(
+        return DeleteMethod(
             element = delegate.executableElement,
             entities = entities,
             parameters = params,

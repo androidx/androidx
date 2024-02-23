@@ -39,10 +39,10 @@ object ProcessorErrors {
     val ISSUE_TRACKER_LINK = "https://issuetracker.google.com/issues/new?component=413107"
 
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
-    val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
-    val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
+    val MISSING_INSERT_ANNOTATION = "Insert methods must be annotated with ${Insert::class.java}"
+    val MISSING_DELETE_ANNOTATION = "Delete methods must be annotated with ${Delete::class.java}"
     val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
-    val MISSING_UPSERT_ANNOTATION = "Upsertion methods must be annotated with ${Upsert::class.java}"
+    val MISSING_UPSERT_ANNOTATION = "Upsert methods must be annotated with ${Upsert::class.java}"
     val MISSING_RAWQUERY_ANNOTATION = "RawQuery methods must be annotated with" +
         " ${RawQuery::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
@@ -56,10 +56,10 @@ object ProcessorErrors {
     val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
     val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS = "Cannot use unbound generics in query" +
         " methods. It must be bound to a type through base Dao class."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS = "Cannot use unbound generics in" +
-        " insertion methods. It must be bound to a type through base Dao class."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERTION_METHODS = "Cannot use unbound generics in" +
-        " upsertion methods. It must be bound to a type through base Dao class."
+    val CANNOT_USE_UNBOUND_GENERICS_IN_INSERT_METHODS = "Cannot use unbound generics in" +
+        " insert methods. It must be bound to a type through base Dao class."
+    val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERT_METHODS = "Cannot use unbound generics in" +
+        " upsert methods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
     val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES = "Cannot use unbound generics in Dao classes." +
         " If you are trying to create a base DAO, create a normal class, extend it with type" +
@@ -145,13 +145,13 @@ object ProcessorErrors {
         " of the provided method's multimap return type must implement equals() and " +
         "hashCode(). Key type is: $keyType."
 
-    val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
+    val INSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
         " @Insert but does not have any parameters to insert."
 
-    val UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT = "Method annotated with" +
+    val UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT = "Method annotated with" +
         " @Upsert but does not have any parameters to insert or update."
 
-    val DELETION_MISSING_PARAMS = "Method annotated with" +
+    val DELETE_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
 
     fun cannotMapSpecifiedColumn(column: String, columnsInQuery: List<String>, annotation: String) =

@@ -19,13 +19,13 @@ import javax.annotation.processing.Generated;
 public final class UpsertDao_Impl implements UpsertDao {
     private final RoomDatabase __db;
 
-    private final EntityUpsertionAdapter<User> __upsertionAdapterOfUser;
+    private final EntityUpsertionAdapter<User> __upsertAdapterOfUser;
 
-    private final EntityUpsertionAdapter<Book> __upsertionAdapterOfBook;
+    private final EntityUpsertionAdapter<Book> __upsertAdapterOfBook;
 
     public UpsertDao_Impl(@NonNull final RoomDatabase __db) {
         this.__db = __db;
-        this.__upsertionAdapterOfUser = new EntityUpsertionAdapter<User>(new EntityInsertionAdapter<User>(__db) {
+        this.__upsertAdapterOfUser = new EntityUpsertionAdapter<User>(new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -71,7 +71,7 @@ public final class UpsertDao_Impl implements UpsertDao {
                 statement.bindLong(5, entity.uid);
             }
         });
-        this.__upsertionAdapterOfBook = new EntityUpsertionAdapter<Book>(new EntityInsertionAdapter<Book>(__db) {
+        this.__upsertAdapterOfBook = new EntityUpsertionAdapter<Book>(new EntityInsertionAdapter<Book>(__db) {
             @Override
             @NonNull
             protected String createQuery() {
@@ -104,7 +104,7 @@ public final class UpsertDao_Impl implements UpsertDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __upsertionAdapterOfUser.upsert(user);
+            __upsertAdapterOfUser.upsert(user);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -116,8 +116,8 @@ public final class UpsertDao_Impl implements UpsertDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __upsertionAdapterOfUser.upsert(user1);
-            __upsertionAdapterOfUser.upsert(others);
+            __upsertAdapterOfUser.upsert(user1);
+            __upsertAdapterOfUser.upsert(others);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -129,7 +129,7 @@ public final class UpsertDao_Impl implements UpsertDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __upsertionAdapterOfUser.upsert(users);
+            __upsertAdapterOfUser.upsert(users);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -141,8 +141,8 @@ public final class UpsertDao_Impl implements UpsertDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __upsertionAdapterOfUser.upsert(userOne);
-            __upsertionAdapterOfUser.upsert(userTwo);
+            __upsertAdapterOfUser.upsert(userOne);
+            __upsertAdapterOfUser.upsert(userTwo);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -154,8 +154,8 @@ public final class UpsertDao_Impl implements UpsertDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            __upsertionAdapterOfUser.upsert(user);
-            __upsertionAdapterOfBook.upsert(book);
+            __upsertAdapterOfUser.upsert(user);
+            __upsertAdapterOfBook.upsert(book);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
@@ -167,7 +167,7 @@ public final class UpsertDao_Impl implements UpsertDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            final long _result = __upsertionAdapterOfUser.upsertAndReturnId(user);
+            final long _result = __upsertAdapterOfUser.upsertAndReturnId(user);
             __db.setTransactionSuccessful();
             return _result;
         } finally {
@@ -180,7 +180,7 @@ public final class UpsertDao_Impl implements UpsertDao {
         __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-            final long[] _result = __upsertionAdapterOfUser.upsertAndReturnIdsArray(users);
+            final long[] _result = __upsertAdapterOfUser.upsertAndReturnIdsArray(users);
             __db.setTransactionSuccessful();
             return _result;
         } finally {

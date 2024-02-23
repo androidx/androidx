@@ -20,18 +20,18 @@ import androidx.room.Upsert
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_UPSERT_RESULT_ADAPTER
-import androidx.room.processor.ProcessorErrors.UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT
+import androidx.room.processor.ProcessorErrors.UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT
 import androidx.room.processor.ProcessorErrors.UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH
 import androidx.room.processor.ProcessorErrors.UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
-import androidx.room.vo.UpsertionMethod
+import androidx.room.vo.UpsertMethod
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
-class UpsertionMethodProcessorTest :
-    InsertOrUpsertShortcutMethodProcessorTest<UpsertionMethod>(Upsert::class) {
-    override fun noParamsError(): String = UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT
+class UpsertMethodProcessorTest :
+    InsertOrUpsertShortcutMethodProcessorTest<UpsertMethod>(Upsert::class) {
+    override fun noParamsError(): String = UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT
 
     override fun missingPrimaryKey(partialEntityName: String, primaryKeyName: List<String>):
         String {
@@ -53,7 +53,7 @@ class UpsertionMethodProcessorTest :
         baseContext: Context,
         containing: XType,
         executableElement: XMethodElement
-    ): UpsertionMethod {
-        return UpsertionMethodProcessor(baseContext, containing, executableElement).process()
+    ): UpsertMethod {
+        return UpsertMethodProcessor(baseContext, containing, executableElement).process()
     }
 }

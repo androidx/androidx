@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,38 @@
  * limitations under the License.
  */
 
-@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-
 package androidx.room.processor
 
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
+import androidx.room.Upsert
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import androidx.room.vo.InsertionMethod
+import androidx.room.vo.UpsertMethod
 import androidx.room.vo.findFieldByColumnName
 
-class InsertionMethodProcessor(
+class UpsertMethodProcessor(
     baseContext: Context,
     val containing: XType,
     val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
 
-    fun process(): InsertionMethod {
+    fun process(): UpsertMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
-        val annotation = delegate.extractAnnotation(
-            Insert::class,
-            ProcessorErrors.MISSING_INSERT_ANNOTATION
-        )
 
-        val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
-        context.checker.check(
-            onConflict in OnConflictStrategy.NONE..OnConflictStrategy.IGNORE,
-            executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE
+        val annotation = delegate.extractAnnotation(
+            Upsert::class,
+            ProcessorErrors.MISSING_UPSERT_ANNOTATION
         )
 
         val returnType = delegate.extractReturnType()
         context.checker.notUnbound(
             returnType, executableElement,
-            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_UPSERT_METHODS
         )
 
         val (entities, params) = delegate.extractParams(
             targetEntityType = annotation?.getAsType("entity"),
-            missingParamError = ProcessorErrors.INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT,
+            missingParamError = ProcessorErrors.UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT,
             onValidatePartialEntity = { entity, pojo ->
                 val missingPrimaryKeys = entity.primaryKey.fields.any {
                     pojo.findFieldByColumnName(it.columnName) == null
@@ -61,14 +53,14 @@ class InsertionMethodProcessor(
                 context.checker.check(
                     entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
                     executableElement,
-                    ProcessorErrors.missingPrimaryKeysInPartialEntityForInsert(
+                    ProcessorErrors.missingPrimaryKeysInPartialEntityForUpsert(
                         partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         primaryKeyNames = entity.primaryKey.fields.columnNames
                     )
                 )
 
                 // Verify all non null columns without a default value are in the POJO otherwise
-                // the INSERT will fail with a NOT NULL constraint.
+                // the UPSERT will fail with a NOT NULL constraint.
                 val missingRequiredFields = (entity.fields - entity.primaryKey.fields).filter {
                     it.nonNull && it.defaultValue == null &&
                         pojo.findFieldByColumnName(it.columnName) == null
@@ -84,20 +76,19 @@ class InsertionMethodProcessor(
             }
         )
 
-        val methodBinder = delegate.findInsertMethodBinder(returnType, params)
+        val methodBinder = delegate.findUpsertMethodBinder(returnType, params)
 
         context.checker.check(
             methodBinder.adapter != null,
             executableElement,
-            ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
+            ProcessorErrors.CANNOT_FIND_UPSERT_RESULT_ADAPTER
         )
 
-        return InsertionMethod(
+        return UpsertMethod(
             element = executableElement,
             returnType = returnType,
             entities = entities,
             parameters = params,
-            onConflict = onConflict,
             methodBinder = methodBinder
         )
     }
