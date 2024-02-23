@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer as JetpackConsumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
@@ -46,19 +47,14 @@ internal class EmbeddingCompat(
     private val embeddingExtension: ActivityEmbeddingComponent,
     private val adapter: EmbeddingAdapter,
     private val consumerAdapter: ConsumerAdapter,
-    private val applicationContext: Context
+    private val applicationContext: Context,
+    @get:VisibleForTesting
+    internal val overlayController: OverlayControllerImpl?,
 ) : EmbeddingInterfaceCompat {
 
     private val windowSdkExtensions = WindowSdkExtensions.getInstance()
 
     private var isCustomSplitAttributeCalculatorSet: Boolean = false
-
-    private var overlayController: OverlayControllerImpl? =
-        if (windowSdkExtensions.extensionVersion >= 5) {
-            OverlayControllerImpl(embeddingExtension, adapter)
-        } else {
-            null
-        }
 
     override fun setRules(rules: Set<EmbeddingRule>) {
         var hasSplitRule = false

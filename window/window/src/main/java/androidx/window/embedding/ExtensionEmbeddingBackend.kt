@@ -30,6 +30,7 @@ import androidx.collection.ArraySet
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowProperties
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
@@ -95,11 +96,18 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                     EmbeddingCompat.isEmbeddingAvailable()
                 ) {
                     impl = EmbeddingBackend::class.java.classLoader?.let { loader ->
+                        val embeddingExtension = EmbeddingCompat.embeddingComponent()
+                        val adapter = EmbeddingAdapter(PredicateAdapter(loader))
                         EmbeddingCompat(
-                            EmbeddingCompat.embeddingComponent(),
-                            EmbeddingAdapter(PredicateAdapter(loader)),
+                            embeddingExtension,
+                            adapter,
                             ConsumerAdapter(loader),
-                            applicationContext
+                            applicationContext,
+                            if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+                                OverlayControllerImpl(embeddingExtension, adapter)
+                            } else {
+                                null
+                            },
                         )
                     }
                     // TODO(b/190433400): Check API conformance

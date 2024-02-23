@@ -39,7 +39,8 @@ class EmbeddingCompatTest {
         component,
         EMBEDDING_ADAPTER,
         CONSUMER_ADAPTER,
-        mock()
+        mock(),
+        mock(),
     )
 
     @Suppress("Deprecation")
