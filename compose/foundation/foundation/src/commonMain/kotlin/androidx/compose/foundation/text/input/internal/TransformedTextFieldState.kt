@@ -286,13 +286,9 @@ internal class TransformedTextFieldState(
      * @see mapToTransformed
      * @see mapFromTransformed
      */
-    inline fun editUntransformedTextAsUser(
-        notifyImeOfChanges: Boolean = true,
-        block: EditingBuffer.() -> Unit
-    ) {
+    inline fun editUntransformedTextAsUser(block: EditingBuffer.() -> Unit) {
         textFieldState.editAsUser(
             inputTransformation = inputTransformation,
-            notifyImeOfChanges = notifyImeOfChanges,
             block = block
         )
     }

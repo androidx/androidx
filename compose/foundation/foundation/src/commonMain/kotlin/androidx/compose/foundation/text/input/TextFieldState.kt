@@ -179,13 +179,14 @@ class TextFieldState internal constructor(
      * in the Undo stack. This can be controlled by [undoBehavior].
      *
      * @param inputTransformation [InputTransformation] to run after [block] is applied
-     * @param notifyImeOfChanges Whether IME should be notified of these changes. Only pass false to
-     * this argument if the source of the changes is IME itself.
+     * @param restartImeIfContentChanges Whether IME should be restarted if the proposed changes
+     * end up editing the text content. Only pass false to this argument if the source of the
+     * changes is IME itself.
      * @param block The function that updates the current editing buffer.
      */
     internal inline fun editAsUser(
         inputTransformation: InputTransformation?,
-        notifyImeOfChanges: Boolean = true,
+        restartImeIfContentChanges: Boolean = true,
         undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
         block: EditingBuffer.() -> Unit
     ) {
@@ -201,7 +202,12 @@ class TextFieldState internal constructor(
             return
         }
 
-        commitEditAsUser(previousValue, inputTransformation, notifyImeOfChanges, undoBehavior)
+        commitEditAsUser(
+            previousValue = previousValue,
+            inputTransformation = inputTransformation,
+            restartImeIfContentChanges = restartImeIfContentChanges,
+            undoBehavior = undoBehavior
+        )
     }
 
     /**
@@ -227,13 +233,17 @@ class TextFieldState internal constructor(
         )
 
         text = afterEditValue
-        notifyIme(previousValue, afterEditValue)
+        sendChangesToIme(
+            oldValue = previousValue,
+            newValue = afterEditValue,
+            restartImeIfContentChanges = true
+        )
     }
 
     private fun commitEditAsUser(
         previousValue: TextFieldCharSequence,
         inputTransformation: InputTransformation?,
-        notifyImeOfChanges: Boolean,
+        restartImeIfContentChanges: Boolean,
         undoBehavior: TextFieldEditUndoBehavior
     ) {
         val afterEditValue = TextFieldCharSequence(
@@ -245,9 +255,11 @@ class TextFieldState internal constructor(
         if (inputTransformation == null) {
             val oldValue = text
             text = afterEditValue
-            if (notifyImeOfChanges) {
-                notifyIme(oldValue, afterEditValue)
-            }
+            sendChangesToIme(
+                oldValue = oldValue,
+                newValue = afterEditValue,
+                restartImeIfContentChanges = restartImeIfContentChanges
+            )
             recordEditForUndo(previousValue, text, mainBuffer.changeTracker, undoBehavior)
             return
         }
@@ -259,9 +271,11 @@ class TextFieldState internal constructor(
             afterEditValue.selectionInChars == oldValue.selectionInChars
         ) {
             text = afterEditValue
-            if (notifyImeOfChanges) {
-                notifyIme(oldValue, afterEditValue)
-            }
+            sendChangesToIme(
+                oldValue = oldValue,
+                newValue = afterEditValue,
+                restartImeIfContentChanges = restartImeIfContentChanges
+            )
             return
         }
 
@@ -281,9 +295,11 @@ class TextFieldState internal constructor(
         )
         if (afterFilterValue == afterEditValue) {
             text = afterFilterValue
-            if (notifyImeOfChanges) {
-                notifyIme(oldValue, afterEditValue)
-            }
+            sendChangesToIme(
+                oldValue = oldValue,
+                newValue = afterEditValue,
+                restartImeIfContentChanges = restartImeIfContentChanges
+            )
         } else {
             resetStateAndNotifyIme(afterFilterValue)
         }
@@ -338,13 +354,24 @@ class TextFieldState internal constructor(
      *
      * State in [TextFieldState] can change through various means but categorically there are two
      * sources; Developer([TextFieldState.edit]) and User([TextFieldState.editAsUser]). Only
-     * non-filtered IME sourced changes can skip updating the IME. Otherwise, all changes must be
-     * contacted to IME to let it synchronize its state with the [TextFieldState]. Such
-     * communication is built by IME registering a [NotifyImeListener] on a [TextFieldState].
+     * non-InputTransformed IME sourced changes can skip updating the IME. Otherwise, all changes
+     * must be sent to the IME to let it synchronize its state with the [TextFieldState]. Such
+     * a communication channel is established by the IME registering a [NotifyImeListener] on a
+     * [TextFieldState].
      */
     internal fun interface NotifyImeListener {
 
-        fun onChange(oldValue: TextFieldCharSequence, newValue: TextFieldCharSequence)
+        /**
+         * Called when the value in [TextFieldState] changes via any source. The
+         * [restartImeIfContentChanges] flag determines whether a text change between [oldValue]
+         * and [newValue] should restart the ongoing input connection. Selection changes never
+         * require a restart.
+         */
+        fun onChange(
+            oldValue: TextFieldCharSequence,
+            newValue: TextFieldCharSequence,
+            restartImeIfContentChanges: Boolean
+        )
     }
 
     /**
@@ -400,16 +427,26 @@ class TextFieldState internal constructor(
         // restartInput call is handled before notifyImeListeners return.
         text = finalValue
 
-        notifyIme(bufferState, finalValue)
+        sendChangesToIme(
+            oldValue = bufferState,
+            newValue = finalValue,
+            restartImeIfContentChanges = true
+        )
     }
 
     private val notifyImeListeners = mutableVectorOf<NotifyImeListener>()
 
-    private fun notifyIme(
+    /**
+     * Sends an update to the IME depending on .
+     */
+    private fun sendChangesToIme(
         oldValue: TextFieldCharSequence,
-        newValue: TextFieldCharSequence
+        newValue: TextFieldCharSequence,
+        restartImeIfContentChanges: Boolean
     ) {
-        notifyImeListeners.forEach { it.onChange(oldValue, newValue) }
+        notifyImeListeners.forEach {
+            it.onChange(oldValue, newValue, restartImeIfContentChanges)
+        }
     }
 
     /**
