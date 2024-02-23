@@ -211,6 +211,7 @@ public class ViewStyle extends BundledStyle {
     /**
      * Builder for the {@link ViewStyle}.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder extends BaseBuilder<ViewStyle, Builder> {
 
         public Builder() {

@@ -231,6 +231,7 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link DpProp}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder
                 implements ContainerDimension.Builder,
                         ImageDimension.Builder,
@@ -375,6 +376,7 @@ public final class DimensionBuilders {
      * bindable layout element.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
+    @SuppressWarnings("PrivateSuperclass")
     public static final class HorizontalLayoutConstraint extends DpPropLayoutConstraint {
         HorizontalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
             super(impl, fingerprint);
@@ -433,6 +435,7 @@ public final class DimensionBuilders {
      * bindable layout element.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
+    @SuppressWarnings("PrivateSuperclass")
     public static final class VerticalLayoutConstraint extends DpPropLayoutConstraint {
         VerticalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
             super(impl, fingerprint);
@@ -961,6 +964,7 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link ExpandedDimensionProp}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder
                 implements ContainerDimension.Builder,
                         ImageDimension.Builder,
@@ -1074,6 +1078,7 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link WrappedDimensionProp}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ContainerDimension.Builder {
             private final DimensionProto.WrappedDimensionProp.Builder mImpl =
                     DimensionProto.WrappedDimensionProp.newBuilder();
@@ -1192,6 +1197,7 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link ProportionalDimensionProp}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ImageDimension.Builder {
             private final DimensionProto.ProportionalDimensionProp.Builder mImpl =
                     DimensionProto.ProportionalDimensionProp.newBuilder();
@@ -1472,6 +1478,7 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link BoundingBoxRatio}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements PivotDimension.Builder {
             private final DimensionProto.BoundingBoxRatio.Builder mImpl =
                     DimensionProto.BoundingBoxRatio.newBuilder();

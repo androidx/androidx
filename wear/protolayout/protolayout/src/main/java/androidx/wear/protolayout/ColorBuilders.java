@@ -449,6 +449,7 @@ public final class ColorBuilders {
         }
 
         /** Builder for {@link SweepGradient}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements Brush.Builder {
             private final ColorProto.SweepGradient.Builder mImpl =
                     ColorProto.SweepGradient.newBuilder();
