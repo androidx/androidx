@@ -156,6 +156,7 @@ public final class ActionBuilders {
         }
 
         /** Builder for {@link AndroidStringExtra}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements AndroidExtra.Builder {
             private final ActionProto.AndroidStringExtra.Builder mImpl =
                     ActionProto.AndroidStringExtra.newBuilder();
@@ -239,6 +240,7 @@ public final class ActionBuilders {
         }
 
         /** Builder for {@link AndroidIntExtra}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements AndroidExtra.Builder {
             private final ActionProto.AndroidIntExtra.Builder mImpl =
                     ActionProto.AndroidIntExtra.newBuilder();
@@ -322,6 +324,7 @@ public final class ActionBuilders {
         }
 
         /** Builder for {@link AndroidLongExtra}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements AndroidExtra.Builder {
             private final ActionProto.AndroidLongExtra.Builder mImpl =
                     ActionProto.AndroidLongExtra.newBuilder();
@@ -405,6 +408,7 @@ public final class ActionBuilders {
         }
 
         /** Builder for {@link AndroidDoubleExtra}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements AndroidExtra.Builder {
             private final ActionProto.AndroidDoubleExtra.Builder mImpl =
                     ActionProto.AndroidDoubleExtra.newBuilder();
@@ -489,6 +493,7 @@ public final class ActionBuilders {
         }
 
         /** Builder for {@link AndroidBooleanExtra}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements AndroidExtra.Builder {
             private final ActionProto.AndroidBooleanExtra.Builder mImpl =
                     ActionProto.AndroidBooleanExtra.newBuilder();
@@ -762,6 +767,7 @@ public final class ActionBuilders {
         }
 
         /** Builder for {@link LaunchAction}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements Action.Builder {
             private final ActionProto.LaunchAction.Builder mImpl =
                     ActionProto.LaunchAction.newBuilder();
@@ -855,6 +861,7 @@ public final class ActionBuilders {
         }
 
         /** Builder for {@link LoadAction}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements Action.Builder {
             private final ActionProto.LoadAction.Builder mImpl =
                     ActionProto.LoadAction.newBuilder();

@@ -533,6 +533,7 @@ internal constructor(
      *   do not have textual representation this attribute can be used for providing such. Please do
      *   not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val text: ComplicationText,
         private val contentDescription: ComplicationText
@@ -717,6 +718,7 @@ internal constructor(
      *   do not have textual representation this attribute can be used for providing such. Please do
      *   not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val text: ComplicationText,
         private val contentDescription: ComplicationText
@@ -1002,6 +1004,7 @@ internal constructor(
      * [value] or [dynamicValue], and at least one of [monochromaticImage], [smallImage], [text] or
      * [title].
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
@@ -1385,6 +1388,7 @@ internal constructor(
      * or [dynamicValue], and at least one of [monochromaticImage], [smallImage], [text] or [title].
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
@@ -1747,6 +1751,7 @@ internal constructor(
      *   not include the word 'complication' in the description.
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         elements: List<Element>,
         private val contentDescription: ComplicationText
@@ -1963,6 +1968,7 @@ internal constructor(
      *   content description is provided, a generic content description will be used instead. Please
      *   do not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val monochromaticImage: MonochromaticImage,
         private val contentDescription: ComplicationText
@@ -2080,6 +2086,7 @@ internal constructor(
      *   content description is provided, a generic content description will be used instead. Please
      *   do not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val smallImage: SmallImage,
         private val contentDescription: ComplicationText
@@ -2202,6 +2209,7 @@ internal constructor(
      *   content description is provided, a generic content description will be used instead. Please
      *   do not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val photoImage: Icon,
         private val contentDescription: ComplicationText
@@ -2327,6 +2335,7 @@ internal constructor(
         dynamicValueInvalidationFallback = null,
     ) {
     /** Builder for [NoPermissionComplicationData]. */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder : BaseBuilder<Builder, NoPermissionComplicationData>() {
         private var text: ComplicationText? = null
         private var title: ComplicationText? = null

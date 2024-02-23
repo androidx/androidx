@@ -221,6 +221,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
     /**
      * This Builder class simplifies the creation of a {@link WatchNextProgram} object.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder extends BasePreviewProgram.Builder<Builder> {
 
         /**

@@ -1000,7 +1000,7 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /** Builder for a {@link ImageAnalysis}. */
-    @SuppressWarnings("ObjectToString")
+    @SuppressWarnings({"ObjectToString", "HiddenSuperclass"})
     public static final class Builder
             implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,
