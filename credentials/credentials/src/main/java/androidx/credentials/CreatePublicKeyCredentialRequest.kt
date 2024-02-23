@@ -211,8 +211,11 @@ class CreatePublicKeyCredentialRequest private constructor(
                 val clientDataHash = data.getByteArray(BUNDLE_KEY_CLIENT_DATA_HASH)
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
-                val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)
-                    ?: getRequestDisplayInfo(requestJson)
+                val displayInfo = try {
+                    DisplayInfo.parseFromCredentialDataBundle(data)
+                } catch (e: IllegalArgumentException) {
+                    getRequestDisplayInfo(requestJson)
+                }
                 val isAutoSelectAllowed =
                     data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
                 return CreatePublicKeyCredentialRequest(
