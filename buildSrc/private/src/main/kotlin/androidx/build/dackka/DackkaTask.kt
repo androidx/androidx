@@ -308,7 +308,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                     "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
                 "auto-value" to
                     "https://www.javadoc.io/doc/com.google.auto.value/auto-value/latest/",
-                "robolectric" to "https://robolectric.org/javadoc/4.10/",
+                "robolectric" to "https://robolectric.org/javadoc/4.11/",
                 "interactive-media" to
                     "https://developers.google.com/interactive-media-ads/docs/sdks/android/" +
                     "client-side/api/reference/com/google/ads/interactivemedia/v3",
