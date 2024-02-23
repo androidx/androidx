@@ -113,6 +113,18 @@ class ProgressIndicatorScreenshotTest {
     }
 
     @Test
+    fun linearProgressIndicator_lightTheme_indeterminate_start() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                LinearProgressIndicator()
+            }
+        }
+        rule.mainClock.advanceTimeBy(0)
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_indeterminate_start")
+    }
+
+    @Test
     fun linearProgressIndicator_lightTheme_indeterminate_no_gap() {
         rule.mainClock.autoAdvance = false
         rule.setMaterialContent(lightColorScheme()) {
@@ -179,6 +191,18 @@ class ProgressIndicatorScreenshotTest {
         }
         rule.mainClock.advanceTimeBy(500)
         assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_indeterminate")
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_indeterminate_start() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator()
+            }
+        }
+        rule.mainClock.advanceTimeBy(0)
+        assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_indeterminate_start")
     }
 
     @Test
