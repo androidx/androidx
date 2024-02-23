@@ -21,6 +21,7 @@ import androidx.concurrent.futures.await
 import androidx.work.ForegroundUpdater
 import androidx.work.ListenableWorker
 import androidx.work.Logger
+import androidx.work.impl.awaitWithin
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.logd
@@ -38,7 +39,7 @@ suspend fun workForeground(
 
     val dispatcher = taskExecutor.mainThreadExecutor.asCoroutineDispatcher()
     withContext(dispatcher) {
-        val foregroundInfo = worker.getForegroundInfoAsync().await()
+        val foregroundInfo = worker.getForegroundInfoAsync().awaitWithin(worker)
         if (foregroundInfo == null) {
             val message =
                 "Worker was marked important (${spec.workerClassName}) " +
