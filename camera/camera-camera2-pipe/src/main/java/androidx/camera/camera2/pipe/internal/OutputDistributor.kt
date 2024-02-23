@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputStatus
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.Finalizer
 import kotlinx.atomicfu.atomic
 
@@ -123,6 +124,28 @@ internal class OutputDistributor<T>(
 
         val outputSequence: Long
         synchronized(lock) {
+            // onOutputStarted should only be invoked once per frame per camera CTS requirements.
+            // Check to see that there are no duplicate events. Note that on some platforms,
+            // non-compliant camera HALs may return frames with identical frame numbers or
+            // timestamps (output numbers):
+            //
+            // - When we receive frames with identical timestamps (output numbers), the frames are
+            //   still accepted, and the outputs could still be completed (provided there were no
+            //   errors during the capture).
+            // - When we receive frames with identical frame numbers, that onOutputStarted event
+            //   is ignored, and nothing will be done for it.
+            //
+            // Please see b/324320062 and b/324940238 for context.
+            // TODO: b/327289130 - Make sure we finalize all OutputResults if multiple are returned.
+            startedOutputs.firstOrNull { it.cameraFrameNumber == cameraFrameNumber }?.let {
+                Log.warn {
+                    "onOutputStarted was invoked multiple times with a previously started output!" +
+                        "onOutputStarted with $cameraFrameNumber, $cameraTimestamp, $outputNumber" +
+                        ". Previously started output: $it. Ignoring."
+                }
+                return
+            }
+
             isClosed = closed
             outputSequence = outputSequenceNumbers++
             if (closed ||
@@ -146,15 +169,6 @@ internal class OutputDistributor<T>(
                 newestOutputNumber = outputNumber
             }
             val isOutOfOrder = isFrameNumberOutOfOrder || isOutputNumberOutOfOrder
-
-            // onOutputStarted should only be invoked once. Check to see that there are no other
-            // duplicate events. Note that on some platforms, non-compliant camera HALs may return
-            // frames with identical frame numbers and output numbers. See b/324320062 for context.
-            check(!startedOutputs.any { it.cameraFrameNumber == cameraFrameNumber }) {
-                "onOutputStarted was invoked multiple times with a previously started output!" +
-                    "onOutputStarted with $cameraFrameNumber, $cameraTimestamp, $outputNumber. " +
-                    "Previously started outputs: $startedOutputs"
-            }
 
             // Check for matching outputs
             if (availableOutputs.containsKey(outputNumber)) {

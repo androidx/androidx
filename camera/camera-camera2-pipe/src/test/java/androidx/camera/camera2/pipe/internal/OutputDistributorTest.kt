@@ -22,7 +22,6 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.internal.OutputDistributor.OutputListener
 import androidx.camera.camera2.pipe.media.Finalizer
-import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
@@ -451,16 +450,84 @@ class OutputDistributorTest {
     }
 
     @Test
-    fun outputDistributorThrowsOnIdenticalFrameNumber() {
+    fun outputDistributorIgnoresIdenticalFrameNumbersButDifferentOutputNumbers() {
         val pendingOutput1 =
             PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
         val pendingOutput2 =
             PendingOutput(FrameNumber(1), CameraTimestamp(12), outputNumber = 102)
         outputDistributor.startWith(pendingOutput1)
+        // We shouldn't throw when OutputDistributor is started with identical frame numbers.
+        outputDistributor.startWith(pendingOutput2)
 
-        assertThrows<IllegalStateException> {
-            outputDistributor.startWith(pendingOutput2)
-        }
+        // OutputDistributor receives the capture result for output 1, and should complete it.
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        assertTrue(pendingOutput1.isComplete)
+        assertFalse(pendingOutput2.isComplete)
+
+        // OutputDistributor receives the capture result for output 2, but since the onOutputStarted
+        // call for output 2 is ignored, pendingOutput2 should not be completed.
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        assertTrue(pendingOutput1.isComplete)
+        assertFalse(pendingOutput2.isComplete)
+    }
+
+    @Test
+    fun outputDistributorIgnoresIdenticalFrameNumbersAndIdenticalOutputNumbers() {
+        val pendingOutput1 =
+            PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(FrameNumber(1), CameraTimestamp(12), outputNumber = 101)
+        outputDistributor.startWith(pendingOutput1)
+        // We shouldn't throw when OutputDistributor is started with identical frame numbers.
+        outputDistributor.startWith(pendingOutput2)
+
+        // OutputDistributor receives the capture result for output 1, and should complete it.
+        val fakeOutput1 = FakeOutput(101)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        assertTrue(pendingOutput1.isComplete)
+        assertFalse(pendingOutput2.isComplete)
+
+        // OutputDistributor receives the capture result for output 2. Even though the output number
+        // is the same should normally result in a match, the onOutputStarted call for output 2 is
+        // ignored due to their identical frame numbers, and thus pendingOutput2 should not be
+        // completed.
+        val fakeOutput2 = FakeOutput(101)
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        assertTrue(pendingOutput1.isComplete)
+        assertFalse(pendingOutput2.isComplete)
+    }
+
+    @Test
+    fun outputDistributorFinalizesDuplicateResultsEventually() {
+        val pendingOutput1 =
+            PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(FrameNumber(1), CameraTimestamp(12), outputNumber = 101)
+        outputDistributor.startWith(pendingOutput1)
+        outputDistributor.startWith(pendingOutput2)
+
+        val fakeOutput1 = FakeOutput(101)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        assertTrue(pendingOutput1.isComplete)
+        assertFalse(pendingOutput2.isComplete)
+
+        // Simulate OutputDistributor getting a duplicated OutputResult. In this case, the
+        // OutputResult will be cached, since its corresponding onOutputStarted event is ignored.
+        val fakeOutput2 = FakeOutput(101)
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        assertTrue(pendingOutput1.isComplete)
+        assertFalse(pendingOutput2.isComplete)
+
+        // Simulate getting 3 more OutputResults, which in this case, should cause the
+        // OutputDistributor to exceed its maximum number of cached OutputResults (by default), and
+        // |fakeOutput2|, being the oldest OutputResult, should be finalized.
+        val fakeOutput3 = FakeOutput(103)
+        val fakeOutput4 = FakeOutput(104)
+        val fakeOutput5 = FakeOutput(105)
+        outputDistributor.onOutputResult(fakeOutput3.outputNumber, OutputResult.from(fakeOutput3))
+        outputDistributor.onOutputResult(fakeOutput4.outputNumber, OutputResult.from(fakeOutput4))
+        outputDistributor.onOutputResult(fakeOutput5.outputNumber, OutputResult.from(fakeOutput5))
+        assertTrue(fakeOutput2.finalized)
     }
 
     @Test
