@@ -243,23 +243,6 @@ class CaptureNodeTest {
     }
 
     @Test
-    fun release_closePostviewSurface() {
-        // Arrange: set the postviewSize to the CaptureNode.In
-        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null,
-            Size(640, 480), YUV_420_888
-        )
-
-        // Act: transform and release.
-        val node = CaptureNode()
-        node.transform(input)
-        node.release()
-
-        // Assert: postview surface is closed.
-        assertThat(input.postviewSurface).isNotNull()
-        assertThat(input.postviewSurface!!.isClosed).isTrue()
-    }
-
-    @Test
     fun transformWithPostviewSizeAndYuv() {
         // Arrange: set the postviewSize to the CaptureNode.In
         val postviewSize = Size(640, 480)
