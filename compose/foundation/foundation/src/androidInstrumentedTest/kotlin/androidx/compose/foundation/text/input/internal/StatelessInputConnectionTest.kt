@@ -62,11 +62,8 @@ class StatelessInputConnectionTest {
             this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
         }
 
-        override fun requestEdit(
-            notifyImeOfChanges: Boolean,
-            block: EditingBuffer.() -> Unit
-        ) {
-            onRequestEdit?.invoke(notifyImeOfChanges, block)
+        override fun requestEdit(block: EditingBuffer.() -> Unit) {
+            onRequestEdit?.invoke(block)
         }
 
         override fun sendKeyEvent(keyEvent: KeyEvent) {
@@ -88,7 +85,7 @@ class StatelessInputConnectionTest {
             field = value
             state = TextFieldState(value.toString(), value.selectionInChars)
         }
-    private var onRequestEdit: ((Boolean, EditingBuffer.() -> Unit) -> Unit)? = null
+    private var onRequestEdit: ((EditingBuffer.() -> Unit) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
     private var onImeAction: ((ImeAction) -> Unit)? = null
     private var onCommitContent: ((TransferableContent) -> Boolean)? = null
@@ -191,7 +188,7 @@ class StatelessInputConnectionTest {
     @Test
     fun commitTextTest_batchSession() {
         var requestEditsCalled = 0
-        onRequestEdit = { _, block ->
+        onRequestEdit = { block ->
             requestEditsCalled++
             state.mainBuffer.block()
         }
@@ -325,7 +322,7 @@ class StatelessInputConnectionTest {
     @Test
     fun mixedAPICalls_batchSession() {
         var requestEditsCalled = 0
-        onRequestEdit = { _, block ->
+        onRequestEdit = { block ->
             requestEditsCalled++
             state.mainBuffer.block()
         }
@@ -366,7 +363,7 @@ class StatelessInputConnectionTest {
     @Test
     fun do_not_callback_if_only_readonly_ops() {
         var requestEditsCalled = 0
-        onRequestEdit = { _, _ -> requestEditsCalled++ }
+        onRequestEdit = { _ -> requestEditsCalled++ }
         ic.beginBatchEdit()
         ic.getSelectedText(1)
         ic.endBatchEdit()
@@ -419,12 +416,10 @@ class StatelessInputConnectionTest {
     }
 
     @Test
-    fun selectAll_contextMenuAction_triggersSelectionAndImeNotification() {
+    fun selectAll_contextMenuAction_triggersSelection() {
         value = TextFieldCharSequence("Hello")
         var callCount = 0
-        var isNotifyIme = false
-        onRequestEdit = { notify, block ->
-            isNotifyIme = notify
+        onRequestEdit = { block ->
             callCount++
             state.mainBuffer.block()
         }
@@ -432,7 +427,6 @@ class StatelessInputConnectionTest {
         ic.performContextMenuAction(android.R.id.selectAll)
 
         Truth.assertThat(callCount).isEqualTo(1)
-        Truth.assertThat(isNotifyIme).isTrue()
         Truth.assertThat(state.mainBuffer.selection).isEqualTo(TextRange(0, 5))
     }
 

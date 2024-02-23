@@ -66,22 +66,27 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
 ): Nothing {
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) {
-            state.collectImeNotifications { old, new ->
-                val needUpdateSelection =
-                    (old.selectionInChars != new.selectionInChars) ||
-                        old.compositionInChars != new.compositionInChars
-                if (needUpdateSelection) {
+            state.collectImeNotifications { oldValue, newValue, restartImeIfContentChanges ->
+                val oldSelection = oldValue.selectionInChars
+                val newSelection = newValue.selectionInChars
+                val oldComposition = oldValue.compositionInChars
+                val newComposition = newValue.compositionInChars
+
+                if ((oldSelection != newSelection) || oldComposition != newComposition) {
                     composeImm.updateSelection(
-                        selectionStart = new.selectionInChars.min,
-                        selectionEnd = new.selectionInChars.max,
-                        compositionStart = new.compositionInChars?.min ?: -1,
-                        compositionEnd = new.compositionInChars?.max ?: -1
+                        selectionStart = newSelection.min,
+                        selectionEnd = newSelection.max,
+                        compositionStart = oldComposition?.min ?: -1,
+                        compositionEnd = oldComposition?.max ?: -1
                     )
                 }
 
                 // No need to restart the IME if keyboard type is configured as Password. IME
                 // should not keep an internal input state if the content needs to be secured.
-                if (!old.contentEquals(new) && imeOptions.keyboardType != KeyboardType.Password) {
+                if (restartImeIfContentChanges &&
+                    !oldValue.contentEquals(newValue) &&
+                    imeOptions.keyboardType != KeyboardType.Password
+                ) {
                     composeImm.restartInput()
                 }
             }
@@ -101,14 +106,8 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 override val text: TextFieldCharSequence
                     get() = state.visualText
 
-                override fun requestEdit(
-                    notifyImeOfChanges: Boolean,
-                    block: EditingBuffer.() -> Unit
-                ) {
-                    state.editUntransformedTextAsUser(
-                        notifyImeOfChanges = notifyImeOfChanges,
-                        block = block
-                    )
+                override fun requestEdit(block: EditingBuffer.() -> Unit) {
+                    state.editUntransformedTextAsUser(block)
                 }
 
                 override fun sendKeyEvent(keyEvent: KeyEvent) {
