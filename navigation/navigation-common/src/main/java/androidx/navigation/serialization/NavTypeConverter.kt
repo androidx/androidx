@@ -18,6 +18,8 @@
 
 package androidx.navigation.serialization
 
+import androidx.navigation.NavType
+import androidx.navigation.NavType.Companion.parseSerializableOrParcelableType
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -51,6 +53,66 @@ private enum class Native : InternalCommonType {
  * included in [Native]
  */
 private data class Custom(val className: String) : InternalCommonType
+
+/**
+ * Converts an argument type to a native NavType.
+ *
+ * Native NavTypes includes NavType objects declared within [NavType.Companion], or types that are
+ * either java Serializable, Parcelable, or Enum.
+ *
+ * Throws IllegalArgumentException if the argument does not belong to any of the above
+ */
+internal fun SerialDescriptor.getNavType(): NavType<*> {
+    return when (val internalType = this.toInternalType()) {
+        Native.INT -> NavType.IntType
+        Native.BOOL -> NavType.BoolType
+        Native.FLOAT -> NavType.FloatType
+        Native.LONG -> NavType.LongType
+        Native.STRING -> NavType.StringType
+        Native.INT_ARRAY -> NavType.IntArrayType
+        Native.BOOL_ARRAY -> NavType.BoolArrayType
+        Native.FLOAT_ARRAY -> NavType.FloatArrayType
+        Native.LONG_ARRAY -> NavType.LongArrayType
+        Native.ARRAY -> {
+            val typeParameter = getElementDescriptor(0).toInternalType()
+            if (typeParameter == Native.STRING) return NavType.StringArrayType
+            if (typeParameter is Custom) {
+                return requireNotNull(
+                    convertCustomToNavType(typeParameter.className, true)
+                )
+            }
+            throw IllegalArgumentException()
+        }
+        is Custom -> {
+            return requireNotNull(
+                convertCustomToNavType(internalType.className, false)
+            )
+        }
+        else -> throw IllegalArgumentException()
+    }
+}
+
+private fun convertCustomToNavType(className: String, isArray: Boolean): NavType<*>? {
+    // To convert name to a Class<*>, subclasses need to be delimited with `$`. So we need to
+    // replace the `.` delimiters in serial names to `$` for subclasses.
+    val sequence = className.splitToSequence(".")
+    var finalClassName = ""
+    sequence.fold(false) { isSubclass, current ->
+        if (isSubclass) {
+            finalClassName += "$"
+        } else {
+            if (finalClassName.isNotEmpty()) finalClassName += "."
+        }
+        finalClassName += current
+        if (isSubclass) true else current.toCharArray().first().isUpperCase()
+    }
+    // then try to parse it to a Serializable or Parcelable
+    return try {
+        parseSerializableOrParcelableType(finalClassName, isArray)
+    } catch (e: ClassNotFoundException) {
+        null
+    }
+}
 
 /**
  * Convert KType to an [InternalCommonType].
