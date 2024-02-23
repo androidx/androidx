@@ -64,4 +64,15 @@ class NavArgumentTest {
         assertThat(intArrArgument.verify("intArrayArg", bundle)).isTrue()
         assertThat(intArrNonNullArgument.verify("intArrayArg", bundle)).isFalse()
     }
+
+    @Test
+    fun setDefaultValuePresent() {
+        val argument = NavArgument.Builder()
+            .setType(NavType.IntType)
+            .setIsNullable(false)
+            .setUnknownDefaultValuePresent(true)
+            .build()
+
+        assertThat(argument.isDefaultValuePresent).isTrue()
+    }
 }

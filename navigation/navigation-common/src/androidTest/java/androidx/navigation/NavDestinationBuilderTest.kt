@@ -140,6 +140,25 @@ class NavDestinationTest {
             }
         }
     }
+
+    @Test
+    fun navDestinationDefaultValuePresent() {
+        val destination = provider.navDestination(DESTINATION_ID) {
+            argument("arg1") {
+                type = NavType.StringType
+                unknownDefaultValuePresent = true
+            }
+            argument("arg2") {
+                type = NavType.StringType
+                unknownDefaultValuePresent = false
+            }
+        }
+        val arg1 = destination.arguments["arg1"]
+        assertThat(arg1?.isDefaultValuePresent).isTrue()
+
+        val arg2 = destination.arguments["arg2"]
+        assertThat(arg2?.isDefaultValuePresent).isFalse()
+    }
 }
 
 private const val DESTINATION_ID = 1
