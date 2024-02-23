@@ -2127,7 +2127,7 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Builder for an {@link ImageCapture}. */
-    @SuppressWarnings({"ObjectToString", "unused"})
+    @SuppressWarnings({"ObjectToString", "unused", "HiddenSuperclass"})
     public static final class Builder implements
             UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,

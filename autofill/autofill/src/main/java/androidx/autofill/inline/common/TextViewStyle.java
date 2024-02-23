@@ -94,6 +94,7 @@ public final class TextViewStyle extends ViewStyle {
     /**
      * Builder for the {@link TextViewStyle}.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder extends BaseBuilder<TextViewStyle, Builder> {
         public Builder() {
             super(KEY_TEXT_VIEW_STYLE);

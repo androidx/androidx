@@ -265,6 +265,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     /**
      * This Builder class simplifies the creation of a {@link Program} object.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public static class Builder extends BaseProgram.Builder<Builder> {
 
         /**

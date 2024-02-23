@@ -2903,6 +2903,7 @@ public final class ModifiersBuilders {
         }
 
         /** Builder for {@link SlideParentBound}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements SlideBound.Builder {
             private final ModifiersProto.SlideParentBound.Builder mImpl =
                     ModifiersProto.SlideParentBound.newBuilder();
