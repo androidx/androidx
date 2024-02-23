@@ -322,12 +322,18 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         inputEdge.getSurface().close();
         // Wait for the termination to close the ImageReader or the Surface may be released
         // prematurely before it can be used by camera2.
-        inputEdge.getSurface().getTerminationFuture().addListener(() -> {
-            imageReader.safeClose();
-            if (imageReaderForPostview != null) {
-                imageReaderForPostview.safeClose();
-            }
-        }, mainThreadExecutor());
+        inputEdge.getSurface().getTerminationFuture().addListener(
+                imageReader::safeClose, mainThreadExecutor());
+
+        DeferrableSurface postViewSurface = inputEdge.getPostviewSurface();
+        if (postViewSurface != null) {
+            postViewSurface.close();
+            postViewSurface.getTerminationFuture().addListener(() -> {
+                if (imageReaderForPostview != null) {
+                    imageReaderForPostview.safeClose();
+                }
+            }, mainThreadExecutor());
+        }
     }
 
     @VisibleForTesting
