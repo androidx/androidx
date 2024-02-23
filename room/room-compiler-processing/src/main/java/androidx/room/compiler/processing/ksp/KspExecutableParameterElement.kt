@@ -73,12 +73,15 @@ internal class KspExecutableParameterElement(
 
     private fun createAsMemberOf(container: XType?): KspType {
         check(container is KspType?)
+        val resolvedType = parameter.type.resolve()
         return env.wrap(
-            originatingReference = parameter.type,
+            originalAnnotations = parameter.type.annotations,
             ksType = parameter.typeAsMemberOf(
                 functionDeclaration = enclosingElement.declaration,
-                ksType = container?.ksType
-            )
+                ksType = container?.ksType,
+                resolved = resolvedType
+            ),
+            allowPrimitives = !resolvedType.isTypeParameter()
         ).copyWithScope(
             KSTypeVarianceResolverScope.MethodParameter(
                 kspExecutableElement = enclosingElement,
