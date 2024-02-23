@@ -17,7 +17,6 @@ android {
 
     defaultConfig {
         multiDexEnabled = true
-        targetSdkVersion 33  // This should be the latest SDK version at all times.
     }
     flavorDimensions = ["targetSdk"]
 

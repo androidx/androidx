@@ -53,6 +53,5 @@ android {
     namespace "androidx.bluetooth.testing"
     defaultConfig {
         minSdkVersion 33
-        targetSdkVersion 33
     }
 }
