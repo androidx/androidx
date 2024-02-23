@@ -197,19 +197,25 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                                 }
                             }
 
+                            DeferrableSurface postviewDeferrableSurface;
                             if (sessionConfig.getPostviewOutputConfig() != null) {
-                                DeferrableSurface postviewDeferrableSurface =
+                                postviewDeferrableSurface =
                                         sessionConfig.getPostviewOutputConfig().getSurface();
                                 postviewOutputSurface = OutputSurface.create(
                                         postviewDeferrableSurface.getSurface().get(),
                                         postviewDeferrableSurface.getPrescribedSize(),
                                         postviewDeferrableSurface.getPrescribedStreamFormat()
                                 );
+                            } else {
+                                postviewDeferrableSurface = null;
                             }
 
                             mProcessorState = ProcessorState.SESSION_INITIALIZED;
                             try {
                                 DeferrableSurfaces.incrementAll(mOutputSurfaces);
+                                if (postviewDeferrableSurface != null) {
+                                    postviewDeferrableSurface.incrementUseCount();
+                                }
                             } catch (DeferrableSurface.SurfaceClosedException e) {
                                 return Futures.immediateFailedFuture(e);
                             }
@@ -228,6 +234,9 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                                 Logger.e(TAG, "initSession failed", e);
                                 // Ensure we decrement the output surfaces if initSession failed.
                                 DeferrableSurfaces.decrementAll(mOutputSurfaces);
+                                if (postviewDeferrableSurface != null) {
+                                    postviewDeferrableSurface.decrementUseCount();
+                                }
                                 throw e;
                             }
 
@@ -236,6 +245,9 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                             mProcessorSessionConfig.getSurfaces().get(0).getTerminationFuture()
                                     .addListener(() -> {
                                         DeferrableSurfaces.decrementAll(mOutputSurfaces);
+                                        if (postviewDeferrableSurface != null) {
+                                            postviewDeferrableSurface.decrementUseCount();
+                                        }
                                     }, CameraXExecutors.directExecutor());
 
                             // Holding the Processor surfaces in case they are GCed

@@ -130,8 +130,9 @@ class SessionProcessorManager(
         }
         val postviewOutputConfig =
             sessionConfigAdapter.getValidSessionConfigOrNull()?.postviewOutputConfig
+        var postviewDeferrableSurface: DeferrableSurface? = null
         if (postviewOutputConfig != null) {
-            val postviewDeferrableSurface = postviewOutputConfig.surface
+            postviewDeferrableSurface = postviewOutputConfig.surface
             postviewOutputSurface = createOutputSurface(
                 postviewDeferrableSurface,
                 postviewDeferrableSurface.surface.get()!!
@@ -147,6 +148,7 @@ class SessionProcessorManager(
 
         try {
             DeferrableSurfaces.incrementAll(deferrableSurfaces)
+            postviewDeferrableSurface?.incrementUseCount()
         } catch (exception: DeferrableSurface.SurfaceClosedException) {
             sessionConfigAdapter.reportSurfaceInvalid(exception.deferrableSurface)
             return@launch
@@ -164,12 +166,14 @@ class SessionProcessorManager(
         } catch (throwable: Throwable) {
             Log.error(throwable) { "initSession() failed" }
             DeferrableSurfaces.decrementAll(deferrableSurfaces)
+            postviewDeferrableSurface?.decrementUseCount()
             throw throwable
         }
 
         // DecrementAll the output surfaces when ProcessorSurface terminates.
         processorSessionConfig.surfaces.first().terminationFuture.addListener({
             DeferrableSurfaces.decrementAll(deferrableSurfaces)
+            postviewDeferrableSurface?.decrementUseCount()
         }, CameraXExecutors.directExecutor())
 
         val processorSessionConfigAdapter =
