@@ -18,12 +18,12 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+  private val __insertAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
 
-  private val __upsertionAdapterOfMyEntity: EntityUpsertionAdapter<MyEntity>
+  private val __upsertAdapterOfMyEntity: EntityUpsertionAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+    this.__insertAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `MyEntity` (`pk`,`data`) VALUES (?,?)"
 
@@ -32,7 +32,7 @@ public class MyDao_Impl(
         statement.bindString(2, entity.data)
       }
     }
-    this.__upsertionAdapterOfMyEntity = EntityUpsertionAdapter<MyEntity>(object :
+    this.__upsertAdapterOfMyEntity = EntityUpsertionAdapter<MyEntity>(object :
         EntityInsertionAdapter<MyEntity>(__db) {
       protected override fun createQuery(): String =
           "INSERT INTO `MyEntity` (`pk`,`data`) VALUES (?,?)"
@@ -57,7 +57,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      __insertionAdapterOfMyEntity.insert(item)
+      __insertAdapterOfMyEntity.insert(item)
       __db.setTransactionSuccessful()
     } finally {
       __db.endTransaction()
@@ -68,7 +68,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      val _result: Long = __insertionAdapterOfMyEntity.insertAndReturnId(item)
+      val _result: Long = __insertAdapterOfMyEntity.insertAndReturnId(item)
       __db.setTransactionSuccessful()
       return _result
     } finally {
@@ -80,7 +80,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      val _result: List<Long> = __insertionAdapterOfMyEntity.insertAndReturnIdsList(items)
+      val _result: List<Long> = __insertAdapterOfMyEntity.insertAndReturnIdsList(items)
       __db.setTransactionSuccessful()
       return _result
     } finally {
@@ -92,7 +92,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      __upsertionAdapterOfMyEntity.upsert(item)
+      __upsertAdapterOfMyEntity.upsert(item)
       __db.setTransactionSuccessful()
     } finally {
       __db.endTransaction()
@@ -103,7 +103,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      val _result: Long = __upsertionAdapterOfMyEntity.upsertAndReturnId(item)
+      val _result: Long = __upsertAdapterOfMyEntity.upsertAndReturnId(item)
       __db.setTransactionSuccessful()
       return _result
     } finally {
@@ -115,7 +115,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      val _result: List<Long> = __upsertionAdapterOfMyEntity.upsertAndReturnIdsList(items)
+      val _result: List<Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(items)
       __db.setTransactionSuccessful()
       return _result
     } finally {
@@ -127,7 +127,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      val _result: Array<Long> = (__upsertionAdapterOfMyEntity.upsertAndReturnIdsArrayBox(items)) as
+      val _result: Array<Long> = (__upsertAdapterOfMyEntity.upsertAndReturnIdsArrayBox(items)) as
           Array<Long>
       __db.setTransactionSuccessful()
       return _result
@@ -141,7 +141,7 @@ public class MyDao_Impl(
     __db.assertNotSuspendingTransaction()
     __db.beginTransaction()
     try {
-      val _result: Array<out Long> = __upsertionAdapterOfMyEntity.upsertAndReturnIdsArrayBox(items)
+      val _result: Array<out Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsArrayBox(items)
       __db.setTransactionSuccessful()
       return _result
     } finally {

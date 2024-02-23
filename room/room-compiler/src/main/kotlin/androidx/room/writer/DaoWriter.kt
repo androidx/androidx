@@ -34,9 +34,9 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
-import androidx.room.ext.RoomTypeNames.INSERTION_ADAPTER
+import androidx.room.ext.RoomTypeNames.INSERT_ADAPTER
 import androidx.room.ext.RoomTypeNames.ROOM_DB
-import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
+import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
@@ -45,7 +45,7 @@ import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.solver.types.getRequiredTypeConverters
 import androidx.room.vo.Dao
 import androidx.room.vo.DeleteOrUpdateShortcutMethod
-import androidx.room.vo.InsertionMethod
+import androidx.room.vo.InsertMethod
 import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
 import androidx.room.vo.RawQueryMethod
@@ -53,7 +53,7 @@ import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
-import androidx.room.vo.UpsertionMethod
+import androidx.room.vo.UpsertMethod
 import androidx.room.vo.WriteQueryMethod
 
 /**
@@ -99,8 +99,8 @@ class DaoWriter(
         val preparedQueries = dao.queryMethods.filterIsInstance<WriteQueryMethod>()
 
         val shortcutMethods = buildList {
-            addAll(createInsertionMethods())
-            addAll(createDeletionMethods())
+            addAll(createInsertMethods())
+            addAll(createDeleteMethods())
             addAll(createUpdateMethods())
             addAll(createTransactionMethods())
             addAll(createUpsertMethods())
@@ -345,42 +345,42 @@ class DaoWriter(
     }
 
     /**
-     * Groups all insertion methods based on the insert statement they will use then creates all
-     * field specs, EntityInsertionAdapterWriter and actual insert methods.
+     * Groups all insert methods based on the insert statement they will use then creates all
+     * field specs, EntityInsertAdapterWriter and actual insert methods.
      */
-    private fun createInsertionMethods(): List<PreparedStmtQuery> {
-        return dao.insertionMethods
-            .map { insertionMethod ->
-                val onConflict = OnConflictProcessor.onConflictText(insertionMethod.onConflict)
-                val entities = insertionMethod.entities
+    private fun createInsertMethods(): List<PreparedStmtQuery> {
+        return dao.insertMethods
+            .map { insertMethod ->
+                val onConflict = OnConflictProcessor.onConflictText(insertMethod.onConflict)
+                val entities = insertMethod.entities
 
                 val fields = entities.mapValues {
-                    val spec = getOrCreateProperty(InsertionMethodProperty(it.value, onConflict))
-                    val impl = EntityInsertionAdapterWriter.create(it.value, onConflict)
+                    val spec = getOrCreateProperty(InsertMethodProperty(it.value, onConflict))
+                    val impl = EntityInsertAdapterWriter.create(it.value, onConflict)
                         .createAnonymous(this@DaoWriter, dbProperty)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
-                    insertionMethod.element,
+                    insertMethod.element,
                     declaredDao
                 ).apply {
-                    addCode(createInsertionMethodBody(insertionMethod, fields))
+                    addCode(createInsertMethodBody(insertMethod, fields))
                 }.build()
                 PreparedStmtQuery(fields, methodImpl)
             }
     }
 
-    private fun createInsertionMethodBody(
-        method: InsertionMethod,
-        insertionAdapters: Map<String, Pair<XPropertySpec, XTypeSpec>>
+    private fun createInsertMethodBody(
+        method: InsertMethod,
+        insertAdapters: Map<String, Pair<XPropertySpec, XTypeSpec>>
     ): XCodeBlock {
-        if (insertionAdapters.isEmpty() || method.methodBinder == null) {
+        if (insertAdapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
         }
         val scope = CodeGenScope(this)
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
-            adapters = insertionAdapters,
+            adapters = insertAdapters,
             dbProperty = dbProperty,
             scope = scope
         )
@@ -388,11 +388,11 @@ class DaoWriter(
     }
 
     /**
-     * Creates EntityUpdateAdapter for each deletion method.
+     * Creates EntityUpdateAdapter for each delete method.
      */
-    private fun createDeletionMethods(): List<PreparedStmtQuery> {
-        return createShortcutMethods(dao.deletionMethods, "deletion") { _, entity ->
-            EntityDeletionAdapterWriter.create(entity)
+    private fun createDeleteMethods(): List<PreparedStmtQuery> {
+        return createShortcutMethods(dao.deleteMethods, "delete") { _, entity ->
+            EntityDeleteAdapterWriter.create(entity)
                 .createAnonymous(this@DaoWriter, dbProperty.name)
         }
     }
@@ -457,41 +457,41 @@ class DaoWriter(
     }
 
     /**
-     * Groups all upsertion methods based on the upsert statement they will use then creates all
-     * field specs, EntityIUpsertionAdapterWriter and actual upsert methods.
+     * Groups all upsert methods based on the upsert statement they will use then creates all
+     * field specs, EntityUpsertAdapterWriter and actual upsert methods.
      */
     private fun createUpsertMethods(): List<PreparedStmtQuery> {
-        return dao.upsertionMethods
-            .map { upsertionMethod ->
-                val entities = upsertionMethod.entities
+        return dao.upsertMethods
+            .map { upsertMethod ->
+                val entities = upsertMethod.entities
                 val fields = entities.mapValues {
-                    val spec = getOrCreateProperty(UpsertionAdapterProperty(it.value))
-                    val impl = EntityUpsertionAdapterWriter.create(it.value)
+                    val spec = getOrCreateProperty(UpsertAdapterProperty(it.value))
+                    val impl = EntityUpsertAdapterWriter.create(it.value)
                         .createConcrete(it.value, this@DaoWriter, dbProperty)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
-                    upsertionMethod.element,
+                    upsertMethod.element,
                     declaredDao
                 ).apply {
-                    addCode(createUpsertionMethodBody(upsertionMethod, fields))
+                    addCode(createUpsertMethodBody(upsertMethod, fields))
                 }.build()
                 PreparedStmtQuery(fields, methodImpl)
             }
     }
 
-    private fun createUpsertionMethodBody(
-        method: UpsertionMethod,
-        upsertionAdapters: Map<String, Pair<XPropertySpec, XCodeBlock>>
+    private fun createUpsertMethodBody(
+        method: UpsertMethod,
+        upsertAdapters: Map<String, Pair<XPropertySpec, XCodeBlock>>
     ): XCodeBlock {
-        if (upsertionAdapters.isEmpty() || method.methodBinder == null) {
+        if (upsertAdapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
         }
         val scope = CodeGenScope(this)
 
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
-            adapters = upsertionAdapters,
+            adapters = upsertAdapters,
             dbProperty = dbProperty,
             scope = scope
         )
@@ -639,12 +639,12 @@ class DaoWriter(
         }
     }
 
-    private class InsertionMethodProperty(
+    private class InsertMethodProperty(
         val shortcutEntity: ShortcutEntity,
         val onConflictText: String
     ) : SharedPropertySpec(
-        baseName = "insertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = INSERTION_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
+        baseName = "insertAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
+        type = INSERT_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
         override fun getUniqueKey(): String {
             return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$onConflictText"
@@ -671,11 +671,11 @@ class DaoWriter(
         }
     }
 
-    class UpsertionAdapterProperty(
+    class UpsertAdapterProperty(
         val shortcutEntity: ShortcutEntity
     ) : SharedPropertySpec(
-        baseName = "upsertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = UPSERTION_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
+        baseName = "upsertAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
+        type = UPSERT_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
         override fun getUniqueKey(): String {
             return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}"

@@ -880,7 +880,7 @@ class DatabaseProcessorTest {
             USER, USER_DAO
         ) { db, _ ->
             val userDao = db.daoMethods.first().dao
-            val insertionMethod = userDao.insertionMethods.find { it.element.jvmName == "insert" }
+            val insertionMethod = userDao.insertMethods.find { it.element.jvmName == "insert" }
             assertThat(insertionMethod, notNullValue())
             val loadOne = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
