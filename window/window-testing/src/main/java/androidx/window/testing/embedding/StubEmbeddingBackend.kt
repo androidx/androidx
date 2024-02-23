@@ -17,7 +17,6 @@
 package androidx.window.testing.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.os.Bundle
 import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
@@ -180,9 +179,9 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     }
 
     override fun setLaunchingActivityStack(
-        options: ActivityOptions,
+        options: Bundle,
         activityStack: ActivityStack,
-    ): ActivityOptions {
+    ): Bundle {
         TODO("Not yet implemented")
     }
 

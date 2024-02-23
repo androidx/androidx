@@ -16,6 +16,10 @@
 
 package androidx.window.extensions.embedding;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.IBinder;
+
 /**
  * A class that contains activity embedding properties that puts to or retrieves from
  * {@link android.app.ActivityOptions}.
@@ -34,4 +38,19 @@ public class ActivityEmbeddingOptionsProperties {
      */
     public static final String KEY_OVERLAY_TAG =
             "androidx.window.extensions.embedding.OverlayTag";
+
+    /**
+     * The key of {@link ActivityStack.Token#toBundle()} that put into
+     * {@link android.app.ActivityOptions}.
+     * <p>
+     * Type: {@link Bundle#putBundle}
+     * <p>
+     * Apps can launch an activity into the {@link ActivityStack} that associated with
+     * {@code token} by {@link android.app.Activity#startActivity(Intent, Bundle)}.
+     *
+     * @see androidx.window.extensions.embedding.ActivityStack.Token#toBundle()
+     * @see androidx.window.extensions.embedding.ActivityStack.Token#createFromBinder(IBinder)
+     */
+    public static final String KEY_ACTIVITY_STACK_TOKEN =
+            "androidx.window.extensions.embedding.ActivityStackToken";
 }

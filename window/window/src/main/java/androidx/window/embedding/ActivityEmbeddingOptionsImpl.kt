@@ -22,7 +22,9 @@ import androidx.window.WindowSdkExtensions
 import androidx.window.embedding.EmbeddingBounds.Dimension
 import androidx.window.embedding.EmbeddingBounds.Dimension.Companion.DIMENSION_EXPANDED
 import androidx.window.embedding.EmbeddingBounds.Dimension.Companion.DIMENSION_HINGE
+import androidx.window.extensions.embedding.ActivityEmbeddingOptionsProperties.KEY_ACTIVITY_STACK_TOKEN
 import androidx.window.extensions.embedding.ActivityEmbeddingOptionsProperties.KEY_OVERLAY_TAG
+import androidx.window.extensions.embedding.ActivityStack.Token
 
 /**
  * The implementation of ActivityEmbeddingOptions in WM Jetpack which uses constants defined in
@@ -241,5 +243,10 @@ internal object ActivityEmbeddingOptionsImpl {
                 }
             }
         )
+    }
+
+    @RequiresWindowSdkExtension(5)
+    internal fun setActivityStackToken(options: Bundle, activityStackToken: Token) {
+        options.putBundle(KEY_ACTIVITY_STACK_TOKEN, activityStackToken.toBundle())
     }
 }

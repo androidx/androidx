@@ -194,6 +194,8 @@ public class ActivityStack {
 
         /**
          * Converts the token to {@link Bundle}.
+         * <p>
+         * See {@link ActivityEmbeddingOptionsProperties#KEY_ACTIVITY_STACK_TOKEN} for sample usage.
          */
         @RequiresVendorApiLevel(level = 5)
         @NonNull

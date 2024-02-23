@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
 import android.os.Bundle
 import androidx.annotation.RestrictTo
@@ -70,10 +69,7 @@ interface EmbeddingBackend {
     fun getActivityStack(activity: Activity): ActivityStack?
 
     @RequiresWindowSdkExtension(5)
-    fun setLaunchingActivityStack(
-        options: ActivityOptions,
-        activityStack: ActivityStack
-    ): ActivityOptions
+    fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle
 
     @RequiresWindowSdkExtension(5)
     fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams): Bundle

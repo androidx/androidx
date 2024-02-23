@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -236,12 +235,13 @@ internal class EmbeddingCompat(
 
     @RequiresWindowSdkExtension(5)
     override fun setLaunchingActivityStack(
-        options: ActivityOptions,
-        activityStack: ActivityStack,
-    ): ActivityOptions {
+        options: Bundle,
+        activityStack: ActivityStack
+    ): Bundle {
         windowSdkExtensions.requireExtensionVersion(5)
 
-        return embeddingExtension.setLaunchingActivityStack(options, activityStack.token)
+        ActivityEmbeddingOptionsImpl.setActivityStackToken(options, activityStack.token)
+        return options
     }
 
     @RequiresWindowSdkExtension(5)
