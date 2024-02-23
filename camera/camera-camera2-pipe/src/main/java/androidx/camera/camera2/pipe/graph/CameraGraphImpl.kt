@@ -81,24 +81,19 @@ constructor(
                 "Cannot create a HIGH_SPEED CameraGraph with more than two outputs. " +
                     "Configured outputs are ${streamGraph.outputs}"
             }
-            val containsPreviewStream =
-                this.streamGraph.outputs.any {
-                    it.streamUseCase == OutputStream.StreamUseCase.PREVIEW
-                }
-            val containsVideoStream =
-                this.streamGraph.outputs.any {
-                    it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD
-                }
-            if (streamGraph.outputs.size == 2) {
-                require(containsPreviewStream) {
-                    "Cannot create a HIGH_SPEED CameraGraph without setting the Preview " +
-                        "Video stream. Configured outputs are ${streamGraph.outputs}"
-                }
-            } else {
-                require(containsPreviewStream || containsVideoStream) {
-                    "Cannot create a HIGH_SPEED CameraGraph without having a Preview or Video " +
-                        "stream. Configured outputs are ${streamGraph.outputs}"
-                }
+
+            // Streams must be preview and/or video for high speed sessions
+            val containsInvalidHighSpeedStream = this.streamGraph.outputs.any {
+                it.streamUseCase != OutputStream.StreamUseCase.VIDEO_RECORD &&
+                    it.streamUseCase != OutputStream.StreamUseCase.PREVIEW &&
+                    it.streamUseHint != OutputStream.StreamUseHint.VIDEO_RECORD &&
+                    it.streamUseHint != OutputStream.StreamUseHint.DEFAULT &&
+                    it.streamUseHint != null
+            }
+
+            require(containsInvalidHighSpeedStream) {
+                "HIGH_SPEED CameraGraph must only contain Preview and/or Video " +
+                    "streams. Configured outputs are ${streamGraph.outputs}"
             }
         }
 
