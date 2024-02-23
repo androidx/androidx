@@ -748,6 +748,33 @@ private class ScrollingLogic(
         y = if (orientation == Orientation.Vertical) this else 0f,
     )
 
+    private var latestScrollScope: ScrollScope = NoOpScrollScope
+    private var latestScrollSource: NestedScrollSource = NestedScrollSource.Drag
+
+    private val performScroll: (delta: Offset) -> Offset = { delta ->
+        val consumedByPreScroll =
+            nestedScrollDispatcher.dispatchPreScroll(delta, latestScrollSource)
+
+        val scrollAvailableAfterPreScroll = delta - consumedByPreScroll
+
+        val singleAxisDeltaForSelfScroll =
+            scrollAvailableAfterPreScroll.singleAxisOffset().reverseIfNeeded().toFloat()
+
+        // Consume on a single axis.
+        val consumedBySelfScroll =
+            with(latestScrollScope) {
+                scrollBy(singleAxisDeltaForSelfScroll).toOffset().reverseIfNeeded()
+            }
+
+        val deltaAvailableAfterScroll = scrollAvailableAfterPreScroll - consumedBySelfScroll
+        val consumedByPostScroll = nestedScrollDispatcher.dispatchPostScroll(
+            consumedBySelfScroll,
+            deltaAvailableAfterScroll,
+            latestScrollSource
+        )
+        consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
+    }
+
     /**
      * @return the amount of scroll that was consumed
      */
@@ -755,29 +782,9 @@ private class ScrollingLogic(
         initialAvailableDelta: Offset,
         source: NestedScrollSource
     ): Offset {
-        val performScroll: (Offset) -> Offset = { delta ->
-            val consumedByPreScroll = nestedScrollDispatcher.dispatchPreScroll(delta, source)
-
-            val scrollAvailableAfterPreScroll = delta - consumedByPreScroll
-
-            val singleAxisDeltaForSelfScroll =
-                scrollAvailableAfterPreScroll.singleAxisOffset().reverseIfNeeded().toFloat()
-
-            // Consume on a single axis
-            val consumedBySelfScroll =
-                scrollBy(singleAxisDeltaForSelfScroll).toOffset().reverseIfNeeded()
-
-            val deltaAvailableAfterScroll = scrollAvailableAfterPreScroll - consumedBySelfScroll
-            val consumedByPostScroll = nestedScrollDispatcher.dispatchPostScroll(
-                consumedBySelfScroll,
-                deltaAvailableAfterScroll,
-                source
-            )
-            consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
-        }
-
+        latestScrollSource = source
+        latestScrollScope = this
         val overscroll = overscrollEffect
-
         return if (source == Wheel) {
             performScroll(initialAvailableDelta)
         } else if (overscroll != null && shouldDispatchOverscroll) {
