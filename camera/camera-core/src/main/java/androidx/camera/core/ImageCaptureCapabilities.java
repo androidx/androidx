@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.util.Set;
 
@@ -50,11 +49,14 @@ public interface ImageCaptureCapabilities {
     /**
      * Gets the supported {@link ImageCapture.OutputFormat} set.
      *
+     * <p>The set returned will always contain {@link ImageCapture.OutputFormat#OUTPUT_FORMAT_JPEG}
+     * format, support for other formats will vary by camera.
+     *
      * @return a set of supported output formats.
      *
      * @see ImageCapture.Builder#setOutputFormat(int)
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalImageCaptureOutputFormat
     @NonNull
-    Set<Integer> getSupportedOutputFormats();
+    Set<@ImageCapture.OutputFormat Integer> getSupportedOutputFormats();
 }
