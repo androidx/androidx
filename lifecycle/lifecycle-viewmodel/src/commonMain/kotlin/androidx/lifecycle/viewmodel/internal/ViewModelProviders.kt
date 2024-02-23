@@ -39,7 +39,7 @@ internal object ViewModelProviders {
         "androidx.lifecycle.ViewModelProvider.DefaultKey"
 
     internal fun <T : ViewModel> getDefaultKey(modelClass: KClass<T>): String {
-        val canonicalName = requireNotNull(modelClass.qualifiedName) {
+        val canonicalName = requireNotNull(modelClass.canonicalName) {
             "Local and anonymous classes can not be ViewModels"
         }
         return "$VIEW_MODEL_PROVIDER_DEFAULT_KEY:$canonicalName"
@@ -86,7 +86,13 @@ internal object ViewModelProviders {
             ?.initializer
             ?.invoke(extras) as VM?
         return requireNotNull(viewModel) {
-            "No initializer set for given class ${modelClass.qualifiedName}"
+            "No initializer set for given class ${modelClass.canonicalName}"
         }
     }
 }
+
+/**
+ * Multiplatform replacement for [KClass.qualifiedName] reflection API.
+ * It's required because it's not supported for all platforms.
+ */
+internal expect val <T : Any> KClass<T>.canonicalName: String?
