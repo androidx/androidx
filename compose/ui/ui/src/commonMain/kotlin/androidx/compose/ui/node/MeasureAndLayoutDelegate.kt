@@ -565,6 +565,9 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * [LayoutNode.lookaheadMeasurePending].
      */
     private fun remeasureOnly(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        if (layoutNode.isDeactivated) {
+            return
+        }
         val constraints = if (layoutNode === root) rootConstraints!! else null
         if (affectsLookahead) {
             doLookaheadRemeasure(layoutNode, constraints)

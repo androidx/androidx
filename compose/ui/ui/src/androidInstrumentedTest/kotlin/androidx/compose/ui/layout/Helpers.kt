@@ -222,7 +222,7 @@ private class FakeOwner(
     override fun calculatePositionInWindow(localPosition: Offset) = TODO("Not yet implemented")
     override fun calculateLocalPosition(positionInWindow: Offset) = TODO("Not yet implemented")
     override fun requestFocus() = TODO("Not yet implemented")
-    override fun onSemanticsChange() = TODO("Not yet implemented")
+    override fun onSemanticsChange() {}
     override fun getFocusDirection(keyEvent: KeyEvent) = TODO("Not yet implemented")
 }
 
