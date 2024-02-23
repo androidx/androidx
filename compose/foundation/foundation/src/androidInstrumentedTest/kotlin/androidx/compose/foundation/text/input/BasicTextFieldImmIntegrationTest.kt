@@ -108,6 +108,24 @@ internal class BasicTextFieldImmIntegrationTest {
     }
 
     @Test
+    fun doesNotStopBeingTextEditor_whenWindowFocusLost() {
+        val state = TextFieldState()
+        var windowFocus by mutableStateOf(true)
+        inputMethodInterceptor.setContent {
+            CompositionLocalProvider(LocalWindowInfo provides object : WindowInfo {
+                override val isWindowFocused: Boolean get() = windowFocus
+            }) {
+                BasicTextField(state, Modifier.testTag(Tag))
+            }
+        }
+        requestFocus(Tag)
+        rule.runOnIdle {
+            windowFocus = false
+        }
+        inputMethodInterceptor.assertSessionActive()
+    }
+
+    @Test
     fun stopsBeingTextEditor_whenChangedToReadOnly() {
         val state = TextFieldState()
         var readOnly by mutableStateOf(false)
@@ -412,7 +430,10 @@ internal fun InputMethodInterceptor.setTextFieldTestContent(
         CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
             Row {
                 // Extra focusable that takes initial focus when focus is cleared.
-                Box(Modifier.size(10.dp).focusable())
+                Box(
+                    Modifier
+                        .size(10.dp)
+                        .focusable())
                 Box { content() }
             }
         }
