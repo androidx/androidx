@@ -23,6 +23,8 @@ interface SdkCallback {
     fun onCompleteInterface(myInterface: MyInterface)
 
     fun onSdkActivityLauncherReceived(myLauncher: SdkActivityLauncher)
+
+    suspend fun testing(): Response
 }
 
 @PrivacySandboxValue
