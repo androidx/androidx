@@ -37,7 +37,7 @@ class AllCapsTransformationTest {
 
     @Test
     fun allNewTypedCharacters_convertedToUppercase() {
-        val transformation = InputTransformation.allCaps(Locale("en_US"))
+        val transformation = InputTransformation.allCaps(Locale("en-US"))
 
         val originalValue = TextFieldCharSequence("")
         val buffer = TextFieldBuffer(originalValue).apply {
@@ -51,7 +51,7 @@ class AllCapsTransformationTest {
 
     @Test
     fun oldCharacters_areNotConverted() {
-        val transformation = InputTransformation.allCaps(Locale("en_US"))
+        val transformation = InputTransformation.allCaps(Locale("en-US"))
 
         val originalValue = TextFieldCharSequence("hello")
         val buffer = TextFieldBuffer(originalValue).apply {
@@ -79,7 +79,7 @@ class AllCapsTransformationTest {
 
     @Test
     fun multipleEdits() {
-        val transformation = InputTransformation.allCaps(Locale("en_US"))
+        val transformation = InputTransformation.allCaps(Locale("en-US"))
 
         var originalValue = TextFieldCharSequence("hello")
         var buffer = TextFieldBuffer(originalValue)
