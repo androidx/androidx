@@ -96,6 +96,15 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         throw NotImplementedError("Not used in testing")
     }
 
+    override suspend fun lock3AForCapture(
+        triggerAf: Boolean,
+        waitForAwb: Boolean,
+        frameLimit: Int,
+        timeLimitNs: Long
+    ): Deferred<Result3A> {
+        throw NotImplementedError("Not used in testing")
+    }
+
     override fun setTorch(torchState: TorchState): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
@@ -159,7 +168,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         throw NotImplementedError("Not used in testing")
     }
 
-    override suspend fun unlock3APostCapture(): Deferred<Result3A> {
+    override suspend fun unlock3APostCapture(cancelAf: Boolean): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
 

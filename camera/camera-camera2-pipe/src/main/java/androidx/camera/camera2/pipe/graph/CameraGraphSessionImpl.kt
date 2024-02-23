@@ -182,12 +182,31 @@ internal class CameraGraphSessionImpl(
         timeLimitNs: Long
     ): Deferred<Result3A> {
         check(!closed.value) { "Cannot call lock3AForCapture on $this after close." }
-        return controller3A.lock3AForCapture(lockedCondition, frameLimit, timeLimitNs)
+        return controller3A.lock3AForCapture(
+            lockedCondition,
+            frameLimit,
+            timeLimitNs
+        )
     }
 
-    override suspend fun unlock3APostCapture(): Deferred<Result3A> {
+    override suspend fun lock3AForCapture(
+        triggerAf: Boolean,
+        waitForAwb: Boolean,
+        frameLimit: Int,
+        timeLimitNs: Long
+    ): Deferred<Result3A> {
+        check(!closed.value) { "Cannot call lock3AForCapture on $this after close." }
+        return controller3A.lock3AForCapture(
+            triggerAf,
+            waitForAwb,
+            frameLimit,
+            timeLimitNs
+        )
+    }
+
+    override suspend fun unlock3APostCapture(cancelAf: Boolean): Deferred<Result3A> {
         check(!closed.value) { "Cannot call unlock3APostCapture on $this after close." }
-        return controller3A.unlock3APostCapture()
+        return controller3A.unlock3APostCapture(cancelAf)
     }
 
     override fun toString(): String = "CameraGraph.Session-$debugId"
