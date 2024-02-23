@@ -61,6 +61,13 @@ internal class Arrangement(
         return abs(targetLargeSize - largeSize) * priority
     }
 
+    /**
+     * Returns number of items (keylines) in the arrangement
+     */
+    fun itemCount(): Int {
+        return largeCount + mediumCount + smallCount
+    }
+
     companion object {
         // Specifies a percentage of a medium item's size by which it can be increased or decreased
         // to help fit an arrangement into the carousel's available space.
