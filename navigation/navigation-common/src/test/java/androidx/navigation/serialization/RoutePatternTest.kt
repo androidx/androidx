@@ -431,7 +431,7 @@ internal object TestObjectWithArg {
 }
 
 @Serializable
-private sealed class SealedClass {
+internal sealed class SealedClass {
     abstract val arg: Int
 
     @Serializable
