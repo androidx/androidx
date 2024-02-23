@@ -22,6 +22,7 @@ import androidx.lifecycle.LegacySavedStateHandleController.attachHandleIfNeeded
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
+import kotlin.reflect.KClass
 
 /**
  * Skeleton of androidx.lifecycle.ViewModelProvider.KeyedFactory
@@ -29,7 +30,7 @@ import androidx.savedstate.SavedStateRegistryOwner
  * The subclasses implement [create] to actually instantiate
  * `androidx.lifecycle.ViewModel`s.
  */
-public abstract class AbstractSavedStateViewModelFactory :
+public actual abstract class AbstractSavedStateViewModelFactory :
     ViewModelProvider.OnRequeryFactory,
     ViewModelProvider.Factory {
 
@@ -45,7 +46,7 @@ public abstract class AbstractSavedStateViewModelFactory :
      * See [CreationExtras.createSavedStateHandle] docs for more
      * details.
      */
-    constructor() {}
+    actual constructor() {}
 
     /**
      * Constructs this factory.
@@ -56,7 +57,7 @@ public abstract class AbstractSavedStateViewModelFactory :
      * [SavedStateHandle] passed in [ViewModels][ViewModel] if there is no
      * previously saved state or previously saved state misses a value by such key
      */
-    constructor(
+    actual constructor(
         owner: SavedStateRegistryOwner,
         defaultArgs: Bundle?
     ) {
@@ -79,7 +80,7 @@ public abstract class AbstractSavedStateViewModelFactory :
         modelClass: Class<T>,
         extras: CreationExtras
     ): T {
-        val key = extras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY]
+        val key = extras[ViewModelProvider.VIEW_MODEL_KEY]
             ?: throw IllegalStateException(
                 "VIEW_MODEL_KEY must always be provided by ViewModelProvider"
             )
@@ -135,11 +136,17 @@ public abstract class AbstractSavedStateViewModelFactory :
      *
      * @return the newly created ViewModel
     </T> */
-    protected abstract fun <T : ViewModel> create(
+    protected open fun <T : ViewModel> create(
         key: String,
         modelClass: Class<T>,
         handle: SavedStateHandle
-    ): T
+    ): T = unsupportedCreateViewModel()
+
+    protected actual open fun <T : ViewModel> create(
+        key: String,
+        modelClass: KClass<T>,
+        handle: SavedStateHandle
+    ): T = create(key, modelClass.java, handle)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun onRequery(viewModel: ViewModel) {
@@ -149,3 +156,9 @@ public abstract class AbstractSavedStateViewModelFactory :
         }
     }
 }
+
+private fun <VM : ViewModel> unsupportedCreateViewModel(): VM =
+    throw UnsupportedOperationException(
+        "`Factory.create(String, Class, SavedStateHandle)` is not implemented. You may need to " +
+            "override the method and provide a custom implementation."
+    )

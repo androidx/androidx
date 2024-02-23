@@ -18,12 +18,15 @@
 
 package androidx.lifecycle
 
-import android.os.Bundle
 import androidx.annotation.MainThread
-import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
+import androidx.core.bundle.Bundle
+import androidx.lifecycle.ViewModelProvider.Companion.VIEW_MODEL_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmName
+import kotlin.reflect.KClass
 
 private const val VIEWMODEL_KEY = "androidx.lifecycle.internal.SavedStateHandlesVM"
 private const val SAVED_STATE_KEY = "androidx.lifecycle.internal.SavedStateHandlesProvider"
@@ -104,12 +107,12 @@ public fun CreationExtras.createSavedStateHandle(): SavedStateHandle {
 }
 
 internal val ViewModelStoreOwner.savedStateHandlesVM: SavedStateHandlesVM
-    get() = ViewModelProvider(this, object : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+    get() = ViewModelProvider.create(this, object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
             @Suppress("UNCHECKED_CAST")
             return SavedStateHandlesVM() as T
         }
-    })[VIEWMODEL_KEY, SavedStateHandlesVM::class.java]
+    })[VIEWMODEL_KEY, SavedStateHandlesVM::class]
 
 internal val SavedStateRegistryOwner.savedStateHandlesProvider: SavedStateHandlesProvider
     get() = savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY) as? SavedStateHandlesProvider
@@ -139,14 +142,12 @@ internal class SavedStateHandlesProvider(
         return Bundle().apply {
             // Ensure that even if ViewModels aren't recreated after process death and recreation
             // that we keep their state until they are recreated
-            if (restoredState != null) {
-                putAll(restoredState)
-            }
+            restoredState?.let { putAll(it) }
             // But if we do have ViewModels, prefer their state over what we may
             // have restored
             viewModel.handles.forEach { (key, handle) ->
                 val savedState = handle.savedStateProvider().saveState()
-                if (savedState != Bundle.EMPTY) {
+                if (!savedState.isEmpty()) {
                     putBundle(key, savedState)
                 }
             }
@@ -181,7 +182,7 @@ internal class SavedStateHandlesProvider(
         performRestore()
         return restoredState?.getBundle(key).also {
             restoredState?.remove(key)
-            if (restoredState?.isEmpty == true) {
+            if (restoredState?.isEmpty() == true) {
                 restoredState = null
             }
         }

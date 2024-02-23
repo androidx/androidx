@@ -26,7 +26,9 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.core.os.bundleOf
 import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import java.io.Serializable
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,13 +48,13 @@ import kotlinx.coroutines.flow.asStateFlow
  * You can write a value to it via [set] or setting a value to
  * [androidx.lifecycle.MutableLiveData] returned by [getLiveData].
  */
-class SavedStateHandle {
+actual class SavedStateHandle {
     private val regular = mutableMapOf<String, Any?>()
-    private val savedStateProviders = mutableMapOf<String, SavedStateRegistry.SavedStateProvider>()
+    private val savedStateProviders = mutableMapOf<String, SavedStateProvider>()
     private val liveDatas = mutableMapOf<String, SavingStateLiveData<*>>()
     private val flows = mutableMapOf<String, MutableStateFlow<Any?>>()
     private val savedStateProvider =
-        SavedStateRegistry.SavedStateProvider {
+        SavedStateProvider {
             // Get the saved state from each SavedStateProvider registered with this
             // SavedStateHandle, iterating through a copy to avoid re-entrance
             val map = savedStateProviders.toMap()
@@ -76,17 +78,17 @@ class SavedStateHandle {
      *
      * @param initialState initial arguments for the SavedStateHandle
      */
-    constructor(initialState: Map<String, Any?>) {
+    actual constructor(initialState: Map<String, Any?>) {
         regular.putAll(initialState)
     }
 
     /**
      * Creates a handle with the empty state.
      */
-    constructor()
+    actual constructor()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun savedStateProvider(): SavedStateRegistry.SavedStateProvider {
+    actual fun savedStateProvider(): SavedStateProvider {
         return savedStateProvider
     }
 
@@ -96,7 +98,7 @@ class SavedStateHandle {
      * @return true if there is value associated with the given key.
      */
     @MainThread
-    operator fun contains(key: String): Boolean {
+    actual operator fun contains(key: String): Boolean {
         return regular.containsKey(key)
     }
 
@@ -220,7 +222,7 @@ class SavedStateHandle {
      * with the given `initialValue`.
      */
     @MainThread
-    fun <T> getStateFlow(key: String, initialValue: T): StateFlow<T> {
+    actual fun <T> getStateFlow(key: String, initialValue: T): StateFlow<T> {
         @Suppress("UNCHECKED_CAST")
         // If a flow exists we should just return it, and since it is a StateFlow and a value must
         // always be set, we know a value must already be available
@@ -241,7 +243,7 @@ class SavedStateHandle {
      * keys used in regular [set].
      */
     @MainThread
-    fun keys(): Set<String> = regular.keys + savedStateProviders.keys + liveDatas.keys
+    actual fun keys(): Set<String> = regular.keys + savedStateProviders.keys + liveDatas.keys
 
     /**
      * Returns a value associated with the given key.
@@ -261,7 +263,7 @@ class SavedStateHandle {
      * @param key a key used to retrieve a value.
      */
     @MainThread
-    operator fun <T> get(key: String): T? {
+    actual operator fun <T> get(key: String): T? {
         return try {
             @Suppress("UNCHECKED_CAST")
             regular[key] as T?
@@ -285,7 +287,7 @@ class SavedStateHandle {
      * @throws IllegalArgumentException value cannot be saved in saved state
      */
     @MainThread
-    operator fun <T> set(key: String, value: T?) {
+    actual operator fun <T> set(key: String, value: T?) {
         if (!validateValue(value)) {
             throw IllegalArgumentException(
                 "Can't put value with type ${value!!::class.java} into saved state"
@@ -315,7 +317,7 @@ class SavedStateHandle {
      * @return a value that was previously associated with the given key.
      */
     @MainThread
-    fun <T> remove(key: String): T? {
+    actual fun <T> remove(key: String): T? {
         @Suppress("UNCHECKED_CAST")
         val latestValue = regular.remove(key) as T?
         val liveData = liveDatas.remove(key)
@@ -351,7 +353,7 @@ class SavedStateHandle {
      * [SavedStateProvider.saveState] when the state should be saved
      */
     @MainThread
-    fun setSavedStateProvider(key: String, provider: SavedStateRegistry.SavedStateProvider) {
+    actual fun setSavedStateProvider(key: String, provider: SavedStateProvider) {
         savedStateProviders[key] = provider
     }
 
@@ -365,7 +367,7 @@ class SavedStateHandle {
      * @param key a key previously used with [setSavedStateProvider]
      */
     @MainThread
-    fun clearSavedStateProvider(key: String) {
+    actual fun clearSavedStateProvider(key: String) {
         savedStateProviders.remove(key)
     }
 
@@ -396,13 +398,13 @@ class SavedStateHandle {
         }
     }
 
-    companion object {
+    actual companion object {
         private const val VALUES = "values"
         private const val KEYS = "keys"
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         @Suppress("DEPRECATION")
-        fun createHandle(restoredState: Bundle?, defaultState: Bundle?): SavedStateHandle {
+        actual fun createHandle(restoredState: Bundle?, defaultState: Bundle?): SavedStateHandle {
             if (restoredState == null) {
                 return if (defaultState == null) {
                     // No restored state and no default state -> empty SavedStateHandle
@@ -433,7 +435,7 @@ class SavedStateHandle {
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun validateValue(value: Any?): Boolean {
+        actual fun validateValue(value: Any?): Boolean {
             if (value == null) {
                 return true
             }

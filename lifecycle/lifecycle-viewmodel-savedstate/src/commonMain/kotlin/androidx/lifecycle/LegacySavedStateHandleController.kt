@@ -15,10 +15,10 @@
  */
 package androidx.lifecycle
 
-import android.os.Bundle
+import androidx.core.bundle.Bundle
 import androidx.lifecycle.SavedStateHandle.Companion.createHandle
 import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistryOwner
+import kotlin.jvm.JvmStatic
 
 internal object LegacySavedStateHandleController {
     const val TAG_SAVED_STATE_HANDLE_CONTROLLER = "androidx.lifecycle.savedstate.vm.tag"
@@ -52,42 +52,7 @@ internal object LegacySavedStateHandleController {
             tryToAddRecreator(registry, lifecycle)
         }
     }
-
-    private fun tryToAddRecreator(registry: SavedStateRegistry, lifecycle: Lifecycle) {
-        val currentState = lifecycle.currentState
-        if (currentState === Lifecycle.State.INITIALIZED ||
-            currentState.isAtLeast(Lifecycle.State.STARTED)) {
-            registry.runOnNextRecreation(OnRecreation::class.java)
-        } else {
-            lifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(
-                    source: LifecycleOwner,
-                    event: Lifecycle.Event
-                ) {
-                    if (event === Lifecycle.Event.ON_START) {
-                        lifecycle.removeObserver(this)
-                        registry.runOnNextRecreation(OnRecreation::class.java)
-                    }
-                }
-            })
-        }
-    }
-
-    internal class OnRecreation : SavedStateRegistry.AutoRecreated {
-        override fun onRecreated(owner: SavedStateRegistryOwner) {
-            check(owner is ViewModelStoreOwner) {
-                ("Internal error: OnRecreation should be registered only on components " +
-                    "that implement ViewModelStoreOwner")
-            }
-            val viewModelStore = (owner as ViewModelStoreOwner).viewModelStore
-            val savedStateRegistry = owner.savedStateRegistry
-            for (key in viewModelStore.keys()) {
-                val viewModel = viewModelStore[key]
-                attachHandleIfNeeded(viewModel!!, savedStateRegistry, owner.lifecycle)
-            }
-            if (viewModelStore.keys().isNotEmpty()) {
-                savedStateRegistry.runOnNextRecreation(OnRecreation::class.java)
-            }
-        }
-    }
 }
+
+internal expect fun tryToAddRecreator(registry: SavedStateRegistry, lifecycle: Lifecycle)
+
