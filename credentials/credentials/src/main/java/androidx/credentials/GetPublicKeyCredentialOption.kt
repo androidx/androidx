@@ -29,6 +29,10 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property clientDataHash a clientDataHash value to sign over in place of assembling and hashing
  * clientDataJSON during the signature request; meaningful only if you have set the
  * [GetCredentialRequest.origin]
+ * @property typePriorityHint always sets the priority of this entry to
+ * [PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR], which defines how it appears in the credential
+ * selector, with less precedence than account ordering but more precedence than last used time;
+ * see [PriorityHints] and [CredentialOption] for more information
  */
 class GetPublicKeyCredentialOption private constructor(
     val requestJson: String,
@@ -36,13 +40,16 @@ class GetPublicKeyCredentialOption private constructor(
     allowedProviders: Set<ComponentName>,
     requestData: Bundle,
     candidateQueryData: Bundle,
+    typePriorityCategory: @PriorityHints Int =
+        PUBLIC_KEY_CREDENTIAL_OPTION_PRIORITY_CATEGORY,
 ) : CredentialOption(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     requestData = requestData,
     candidateQueryData = candidateQueryData,
     isSystemProviderRequired = false,
     isAutoSelectAllowed = true,
-    allowedProviders,
+    allowedProviders = allowedProviders,
+    typePriorityHint = typePriorityCategory,
 ) {
 
     /**
@@ -85,6 +92,8 @@ class GetPublicKeyCredentialOption private constructor(
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
         internal const val BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION =
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION"
+        internal const val PUBLIC_KEY_CREDENTIAL_OPTION_PRIORITY_CATEGORY =
+            PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR
 
         @JvmStatic
         internal fun toRequestDataBundle(
@@ -118,6 +127,8 @@ class GetPublicKeyCredentialOption private constructor(
                     allowedProviders,
                     requestData = data,
                     candidateQueryData = candidateQueryData,
+                    typePriorityCategory = data.getInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE,
+                        PUBLIC_KEY_CREDENTIAL_OPTION_PRIORITY_CATEGORY),
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
