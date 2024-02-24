@@ -115,10 +115,11 @@ class SwipeToDismissBoxState(
      * side.
      */
     val dismissDirection: SwipeToDismissBoxValue
-        get() = if (offset == 0f || offset.isNaN())
-            SwipeToDismissBoxValue.Settled
-        else if (offset > 0f)
-            SwipeToDismissBoxValue.StartToEnd else SwipeToDismissBoxValue.EndToStart
+        get() = when {
+            offset == 0f || offset.isNaN() -> SwipeToDismissBoxValue.Settled
+            offset > 0f -> SwipeToDismissBoxValue.StartToEnd
+            else -> SwipeToDismissBoxValue.EndToStart
+        }
 
     /**
      * Whether the component has been dismissed in the given [direction].
@@ -291,7 +292,6 @@ fun SwipeToDismissBox(
                 state = state.anchoredDraggableState,
                 orientation = Orientation.Horizontal,
                 enabled = state.currentValue == SwipeToDismissBoxValue.Settled,
-                reverseDirection = isRtl,
             ),
         propagateMinConstraints = true
     ) {
@@ -309,10 +309,10 @@ fun SwipeToDismissBox(
                 return@draggableAnchors DraggableAnchors {
                     SwipeToDismissBoxValue.Settled at 0f
                     if (enableDismissFromStartToEnd) {
-                        SwipeToDismissBoxValue.StartToEnd at width
+                        SwipeToDismissBoxValue.StartToEnd at (if (isRtl) -width else width)
                     }
                     if (enableDismissFromEndToStart) {
-                        SwipeToDismissBoxValue.EndToStart at -width
+                        SwipeToDismissBoxValue.EndToStart at (if (isRtl) width else -width)
                     }
                 } to state.targetValue
             }
