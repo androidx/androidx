@@ -36,6 +36,7 @@ class GetPasswordOptionTest {
         assertThat(option.isAutoSelectAllowed).isFalse()
         assertThat(option.allowedProviders).isEmpty()
         assertThat(option.allowedUserIds).isEmpty()
+        assertThat(option.typePriorityHint).isEqualTo(EXPECTED_PASSWORD_PRIORITY)
     }
 
     @Test
@@ -61,6 +62,13 @@ class GetPasswordOptionTest {
     }
 
     @Test
+    fun getter_defaultPriorityHint_success() {
+        val option = GetPasswordOption()
+
+        assertThat(option.typePriorityHint).isEqualTo(EXPECTED_PASSWORD_PRIORITY)
+    }
+
+    @Test
     fun getter_frameworkProperties() {
         val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
         val expectedAllowedProviders: Set<ComponentName> = setOf(
@@ -68,6 +76,7 @@ class GetPasswordOptionTest {
             ComponentName("pkg2", "cls2")
         )
         val expectedIsAutoSelectAllowed = true
+        val expectedCategoryValue = EXPECTED_PASSWORD_PRIORITY
 
         val option = GetPasswordOption(
             allowedUserIds = expectedAllowedUserIds,
@@ -84,9 +93,17 @@ class GetPasswordOptionTest {
             CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)).isTrue()
         assertThat(option.candidateQueryData.getStringArrayList(
             BUNDLE_KEY_ALLOWED_USER_IDS)).containsExactlyElementsIn(expectedAllowedUserIds)
+        assertThat(option.requestData.getInt(CredentialOption.BUNDLE_KEY_TYPE_PRIORITY_VALUE))
+            .isEqualTo(
+                expectedCategoryValue)
+        assertThat(option.candidateQueryData.getInt(CredentialOption
+            .BUNDLE_KEY_TYPE_PRIORITY_VALUE))
+            .isEqualTo(
+                expectedCategoryValue)
         assertThat(option.isSystemProviderRequired).isFalse()
         assertThat(option.allowedProviders)
             .containsExactlyElementsIn(expectedAllowedProviders)
+        assertThat(option.typePriorityHint).isEqualTo(EXPECTED_PASSWORD_PRIORITY)
     }
 
     @Test
@@ -130,5 +147,11 @@ class GetPasswordOptionTest {
             .isEqualTo(customRequestDataValue)
         assertThat(convertedOption.candidateQueryData.getBoolean(customCandidateQueryDataKey))
             .isEqualTo(customCandidateQueryDataValue)
+        assertThat(option.typePriorityHint).isEqualTo(EXPECTED_PASSWORD_PRIORITY)
+    }
+
+    private companion object {
+        const val EXPECTED_PASSWORD_PRIORITY: @PriorityHints Int = PriorityHints
+            .PRIORITY_PASSWORD_OR_SIMILAR
     }
 }

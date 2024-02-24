@@ -81,8 +81,8 @@ class PasswordCredentialEntry internal constructor(
     val icon: Icon,
     val isAutoSelectAllowed: Boolean,
     beginGetPasswordOption: BeginGetPasswordOption,
-    entryGroupId: CharSequence? = username,
     isDefaultIconPreferredAsSingleProvider: Boolean,
+    entryGroupId: CharSequence? = username,
     affiliatedDomain: CharSequence? = null,
     autoSelectAllowedFromOption: Boolean = CredentialOption.extractAutoSelectValue(
         beginGetPasswordOption.candidateQueryData),
@@ -92,8 +92,8 @@ class PasswordCredentialEntry internal constructor(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     beginGetPasswordOption,
     entryGroupId ?: username,
-    affiliatedDomain,
-    isDefaultIconPreferredAsSingleProvider
+    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+    affiliatedDomain = affiliatedDomain,
 ) {
 
     val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
@@ -169,8 +169,8 @@ class PasswordCredentialEntry internal constructor(
         icon,
         isAutoSelectAllowed,
         beginGetPasswordOption,
-        affiliatedDomain = affiliatedDomain,
         isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+        affiliatedDomain = affiliatedDomain,
     )
 
     /**
@@ -640,8 +640,8 @@ class PasswordCredentialEntry internal constructor(
                 icon!!,
                 autoSelectAllowed,
                 beginGetPasswordOption,
-                affiliatedDomain = affiliatedDomain,
                 isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+                affiliatedDomain = affiliatedDomain,
             )
         }
     }
