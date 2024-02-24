@@ -26,7 +26,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.impl.utils.executor.CameraExecutors;
+import androidx.camera.impl.utils.executor.ViewfinderExecutors;
 import androidx.camera.impl.utils.futures.FutureCallback;
 import androidx.camera.impl.utils.futures.Futures;
 import androidx.camera.viewfinder.internal.utils.Logger;
@@ -224,7 +224,7 @@ final class TextureViewImplementation extends ViewfinderImplementation {
                 completer -> {
                     Logger.d(TAG, "Surface set on viewfinder.");
                     mSurfaceRequest.provideSurface(surface,
-                            CameraExecutors.directExecutor(), new Consumer<Result>() {
+                            ViewfinderExecutors.directExecutor(), new Consumer<Result>() {
                                 @Override
                                 public void accept(Result result) {
                                     Logger.d(TAG, "provide surface result = "

@@ -20,6 +20,9 @@ import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
 import static android.hardware.camera2.CameraMetadata.LENS_FACING_EXTERNAL;
 import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
 
+import static androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.MIRROR_MODE_HORIZONTAL;
+import static androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.MIRROR_MODE_NONE;
+
 import android.annotation.SuppressLint;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
@@ -109,7 +112,7 @@ public class ViewfinderSurfaceRequest {
      */
     @SensorOrientationDegreesValue
     public int getSensorOrientation() {
-        return mViewfinderSurfaceRequest.getSensorOrientation();
+        return mViewfinderSurfaceRequest.getSourceOrientation();
     }
 
     /**
@@ -122,7 +125,8 @@ public class ViewfinderSurfaceRequest {
      */
     @LensFacingValue
     public int getLensFacing() {
-        return mViewfinderSurfaceRequest.getLensFacing();
+        return mViewfinderSurfaceRequest.getOutputMirrorMode() == MIRROR_MODE_HORIZONTAL
+                ? LENS_FACING_FRONT : LENS_FACING_BACK;
     }
 
     /**
@@ -211,8 +215,9 @@ public class ViewfinderSurfaceRequest {
         public Builder(@NonNull ViewfinderSurfaceRequest surfaceRequest) {
             mBuilder = new androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder(
                     surfaceRequest.getResolution());
-            mBuilder.setSensorOrientation(surfaceRequest.getSensorOrientation());
-            mBuilder.setLensFacing(surfaceRequest.getLensFacing());
+            mBuilder.setSourceOrientation(surfaceRequest.getSensorOrientation());
+            mBuilder.setOutputMirrorMode(surfaceRequest.getLensFacing() == LENS_FACING_FRONT
+                    ? MIRROR_MODE_HORIZONTAL : MIRROR_MODE_NONE);
             mBuilder.setImplementationMode(
                     androidx.camera.viewfinder.surface.ImplementationMode.fromId(
                             surfaceRequest.getImplementationMode().getId()));
@@ -271,7 +276,8 @@ public class ViewfinderSurfaceRequest {
          */
         @NonNull
         public Builder setLensFacing(@LensFacingValue int lensFacing) {
-            mBuilder.setLensFacing(lensFacing);
+            mBuilder.setOutputMirrorMode(lensFacing == LENS_FACING_FRONT ? MIRROR_MODE_HORIZONTAL :
+                    MIRROR_MODE_NONE);
             return this;
         }
 
@@ -285,12 +291,12 @@ public class ViewfinderSurfaceRequest {
          * {@link CameraCharacteristics#SENSOR_ORIENTATION}. If it is not
          * set, 0 will be used by default.
          *
-         * @param sensorOrientation
+         * @param sensorOrientation The camera sensor orientation.
          * @return this builder.
          */
         @NonNull
         public Builder setSensorOrientation(@SensorOrientationDegreesValue int sensorOrientation) {
-            mBuilder.setSensorOrientation(sensorOrientation);
+            mBuilder.setSourceOrientation(sensorOrientation);
             return this;
         }
 
