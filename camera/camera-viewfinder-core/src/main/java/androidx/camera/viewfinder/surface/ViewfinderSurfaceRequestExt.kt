@@ -21,6 +21,8 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import androidx.annotation.RequiresApi
+import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion.MIRROR_MODE_HORIZONTAL
+import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion.MIRROR_MODE_NONE
 
 /**
  * Populates [ViewfinderSurfaceRequest.Builder] from [CameraCharacteristics].
@@ -35,8 +37,11 @@ import androidx.annotation.RequiresApi
 fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(
     cameraCharacteristics: CameraCharacteristics
 ): ViewfinderSurfaceRequest.Builder {
-    setLensFacing(cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)!!)
-    setSensorOrientation(
+    val lensFacing = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)!!
+    val mirrorMode = if (lensFacing == CameraMetadata.LENS_FACING_FRONT)
+        MIRROR_MODE_HORIZONTAL else MIRROR_MODE_NONE
+    setOutputMirrorMode(mirrorMode)
+    setSourceOrientation(
         cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!)
     if (cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
         == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {

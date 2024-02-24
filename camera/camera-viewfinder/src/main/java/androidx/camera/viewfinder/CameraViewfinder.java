@@ -17,6 +17,7 @@
 package androidx.camera.viewfinder;
 
 import static androidx.camera.viewfinder.internal.utils.TransformUtils.createTransformInfo;
+import static androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.MIRROR_MODE_HORIZONTAL;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -137,12 +138,12 @@ public final class CameraViewfinder extends FrameLayout {
                 mViewfinderTransformation.setTransformationInfo(
                         createTransformInfo(surfaceRequest.getResolution(),
                                 display,
-                                surfaceRequest.getLensFacing()
-                                        == CameraCharacteristics.LENS_FACING_FRONT,
-                                surfaceRequest.getSensorOrientation()),
+                                surfaceRequest.getOutputMirrorMode()
+                                        == MIRROR_MODE_HORIZONTAL,
+                                surfaceRequest.getSourceOrientation()),
                         surfaceRequest.getResolution(),
-                        surfaceRequest.getLensFacing()
-                                == CameraCharacteristics.LENS_FACING_FRONT);
+                        surfaceRequest.getOutputMirrorMode()
+                                == MIRROR_MODE_HORIZONTAL);
                 redrawViewfinder();
             }
         }
@@ -699,9 +700,9 @@ public final class CameraViewfinder extends FrameLayout {
                     mViewfinderTransformation.updateTransformInfo(
                             createTransformInfo(surfaceRequest.getResolution(),
                                     display,
-                                    surfaceRequest.getLensFacing()
-                                            == CameraCharacteristics.LENS_FACING_FRONT,
-                                    surfaceRequest.getSensorOrientation()));
+                                    surfaceRequest.getOutputMirrorMode()
+                                            == MIRROR_MODE_HORIZONTAL,
+                                    surfaceRequest.getSourceOrientation()));
                     redrawViewfinder();
                 }
             }
