@@ -6,13 +6,13 @@ import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.paging.LimitOffsetPagingSource
 import androidx.room.paging.guava.LimitOffsetListenableFuturePagingSource
-import java.util.ArrayList
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.MutableList
+import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 import androidx.paging.rxjava2.RxPagingSource as Rxjava2RxPagingSource
 import androidx.paging.rxjava3.RxPagingSource as Rxjava3RxPagingSource
@@ -35,7 +35,7 @@ public class MyDao_Impl(
     return object : LimitOffsetPagingSource<MyEntity>(_statement, __db, "MyEntity") {
       protected override fun convertRows(cursor: Cursor): List<MyEntity> {
         val _cursorIndexOfPk: Int = 0
-        val _result: MutableList<MyEntity> = ArrayList<MyEntity>(cursor.getCount())
+        val _result: MutableList<MyEntity> = mutableListOf()
         while (cursor.moveToNext()) {
           val _item: MyEntity
           val _tmpPk: Int
@@ -54,7 +54,7 @@ public class MyDao_Impl(
     return object : Rxjava2LimitOffsetRxPagingSource<MyEntity>(_statement, __db, "MyEntity") {
       protected override fun convertRows(cursor: Cursor): List<MyEntity> {
         val _cursorIndexOfPk: Int = 0
-        val _result: MutableList<MyEntity> = ArrayList<MyEntity>(cursor.getCount())
+        val _result: MutableList<MyEntity> = mutableListOf()
         while (cursor.moveToNext()) {
           val _item: MyEntity
           val _tmpPk: Int
@@ -73,7 +73,7 @@ public class MyDao_Impl(
     return object : Rxjava3LimitOffsetRxPagingSource<MyEntity>(_statement, __db, "MyEntity") {
       protected override fun convertRows(cursor: Cursor): List<MyEntity> {
         val _cursorIndexOfPk: Int = 0
-        val _result: MutableList<MyEntity> = ArrayList<MyEntity>(cursor.getCount())
+        val _result: MutableList<MyEntity> = mutableListOf()
         while (cursor.moveToNext()) {
           val _item: MyEntity
           val _tmpPk: Int
@@ -93,7 +93,7 @@ public class MyDao_Impl(
         {
       protected override fun convertRows(cursor: Cursor): List<MyEntity> {
         val _cursorIndexOfPk: Int = 0
-        val _result: MutableList<MyEntity> = ArrayList<MyEntity>(cursor.getCount())
+        val _result: MutableList<MyEntity> = mutableListOf()
         while (cursor.moveToNext()) {
           val _item: MyEntity
           val _tmpPk: Int

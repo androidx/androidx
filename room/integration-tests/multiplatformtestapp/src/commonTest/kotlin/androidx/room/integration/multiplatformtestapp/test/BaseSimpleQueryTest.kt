@@ -44,4 +44,14 @@ abstract class BaseSimpleQueryTest {
             db.dao().getSingleItem()
         }.hasMessageThat().contains("The query result was empty")
     }
+
+    @Test
+    fun queryList() = runTest {
+        val dao = getRoomDatabase().dao()
+        dao.insertItem(1)
+        dao.insertItem(2)
+        dao.insertItem(3)
+        val result = dao.getItemList()
+        assertThat(result.map { it.pk }).containsExactly(1L, 2L, 3L)
+    }
 }
