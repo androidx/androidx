@@ -131,6 +131,14 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface ContextualFlowColumnScope extends androidx.compose.foundation.layout.FlowColumnScope {
+    method public int getIndexInLine();
+    method public int getLineIndex();
+    method public float getMaxHeightInLine();
+    method public float getMaxWidth();
+    property public abstract int indexInLine;
+    property public abstract int lineIndex;
+    property public abstract float maxHeightInLine;
+    property public abstract float maxWidth;
   }
 
   public final class ContextualFlowLayoutKt {
@@ -155,6 +163,14 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface ContextualFlowRowScope extends androidx.compose.foundation.layout.FlowRowScope {
+    method public int getIndexInLine();
+    method public int getLineIndex();
+    method public float getMaxHeight();
+    method public float getMaxWidthInLine();
+    property public abstract int indexInLine;
+    property public abstract int lineIndex;
+    property public abstract float maxHeight;
+    property public abstract float maxWidthInLine;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="The API of this layout is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalLayoutApi {

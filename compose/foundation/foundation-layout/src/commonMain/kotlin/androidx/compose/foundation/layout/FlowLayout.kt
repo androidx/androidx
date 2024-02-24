@@ -1071,11 +1071,26 @@ internal fun MeasureScope.breakDownItems(
         0,
         crossAxisMax
     )
-    // nextSize of the list, pre-calculated
+
     var index = 0
     var measurable: Measurable?
+
+    var lineIndex = 0
+    var leftOver = mainAxisMax
+    var leftOverCrossAxis = crossAxisMax
+    val lineInfo = if (measurablesIterator is ContextualFlowItemIterator) {
+        FlowLineInfo(
+            lineIndex = lineIndex,
+            positionInLine = 0,
+            maxMainAxisSize = leftOver.toDp(),
+            maxCrossAxisSize = leftOverCrossAxis.toDp()
+        )
+    } else {
+        null
+    }
+
     var nextSize = measurablesIterator.hasNext().run {
-        measurable = if (!this) null else measurablesIterator.safeNext()
+        measurable = if (!this) null else measurablesIterator.safeNext(lineInfo)
         measurable?.measureAndCache(subsetConstraints, orientation) { placeable ->
             placeables[0] = placeable
         }
@@ -1086,10 +1101,7 @@ internal fun MeasureScope.breakDownItems(
     var startBreakLineIndex = 0
     val endBreakLineList = mutableIntListOf()
     val crossAxisSizes = mutableIntListOf()
-    var lineIndex = 0
 
-    var leftOver = mainAxisMax
-    var leftOverCrossAxis = crossAxisMax
     val buildingBlocks = FlowLayoutBuildingBlocks(
         maxItemsInMainAxis = maxItemsInMainAxis,
         mainAxisSpacing = spacing,
@@ -1135,8 +1147,28 @@ internal fun MeasureScope.breakDownItems(
         leftOver -= itemMainAxisSize
         overflow.itemShown = index + 1
         measurables.add(measurable!!)
+
+        val nextIndexInLine = (index + 1) - startBreakLineIndex
+        val willFitLine = nextIndexInLine < maxItemsInMainAxis
+
+        lineInfo?.update(
+            lineIndex = if (willFitLine) lineIndex else lineIndex + 1,
+            positionInLine = if (willFitLine) nextIndexInLine else 0,
+            maxMainAxisSize = if (willFitLine) {
+                (leftOver - spacing).coerceAtLeast(0)
+            } else {
+                mainAxisMax
+            }.toDp(),
+            maxCrossAxisSize = if (willFitLine) {
+                leftOverCrossAxis
+            } else {
+                (leftOverCrossAxis - currentLineCrossAxisSize -
+                    crossAxisSpacing).coerceAtLeast(0)
+            }.toDp()
+        )
+
         nextSize = measurablesIterator.hasNext().run {
-            measurable = if (!this) null else measurablesIterator.safeNext()
+            measurable = if (!this) null else measurablesIterator.safeNext(lineInfo)
             measurable?.measureAndCache(subsetConstraints, orientation) { placeable ->
                 placeables[index + 1] = placeable
             }
@@ -1151,7 +1183,7 @@ internal fun MeasureScope.breakDownItems(
             nextSize = if (nextSize == null) null else
                 IntIntPair(nextMainAxisSize!!, nextCrossAxisSize!!),
             currentLineCrossAxisSize = currentLineCrossAxisSize,
-            nextIndexInLine = (index + 1) - startBreakLineIndex,
+            nextIndexInLine = nextIndexInLine,
             isWrappingRound = false,
             isEllipsisWrap = false,
             lineIndex = lineIndex
@@ -1248,9 +1280,13 @@ internal fun MeasureScope.breakDownItems(
     return handleFlowResult(flowResult, constraints, measureHelper)
 }
 
-private fun Iterator<Measurable>.safeNext(): Measurable? {
+private fun Iterator<Measurable>.safeNext(info: FlowLineInfo?): Measurable? {
     return try {
-        next()
+        if (this is ContextualFlowItemIterator) {
+            this.getNext(info!!)
+        } else {
+            next()
+        }
     } catch (e: ArrayIndexOutOfBoundsException) {
         null
     }

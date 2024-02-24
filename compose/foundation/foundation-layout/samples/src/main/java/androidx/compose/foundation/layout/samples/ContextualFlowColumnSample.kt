@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.ContextualFlowColumn
 import androidx.compose.foundation.layout.ContextualFlowColumnOverflow
 import androidx.compose.foundation.layout.ContextualFlowColumnOverflowScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.random.Random
 
 @OptIn(ExperimentalLayoutApi::class)
 @Sampled
@@ -103,6 +105,39 @@ fun ContextualFlowColMaxLineDynamicSeeMore() {
             Modifier
                 .padding(3.dp)
                 .align(Alignment.Center))
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Sampled
+@Composable
+fun ContextualFlowColumn_ItemPosition() {
+    Text("Ln: Line No\nPs: Position No. in Line", modifier = Modifier.padding(20.dp))
+    ContextualFlowColumn(
+        modifier = Modifier
+            .fillMaxHeight(1f)
+            .width(210.dp)
+            .padding(20.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        maxItemsInEachColumn = 4,
+        itemCount = 12
+    ) {
+        val width = 50.dp.coerceAtMost(maxWidth)
+        val height = Random.nextInt(80, 100).dp.coerceAtMost(maxHeightInLine)
+        Box(
+            Modifier
+                .width(width)
+                .height(height)
+                .background(MatchingColors.getByIndex(indexInLine)!!.color)
+        ) {
+            Text(
+                text = "Ln: ${this@ContextualFlowColumn.lineIndex}" +
+                    "\nPs: ${this@ContextualFlowColumn.indexInLine}",
+                fontSize = 18.sp,
+                modifier = Modifier.padding(3.dp)
+            )
         }
     }
 }
