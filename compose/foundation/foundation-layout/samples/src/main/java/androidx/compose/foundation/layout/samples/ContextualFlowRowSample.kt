@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.random.Random
 
 @OptIn(ExperimentalLayoutApi::class)
 @Sampled
@@ -100,6 +101,52 @@ fun ContextualFlowRowMaxLineDynamicSeeMore() {
             Modifier
                 .padding(3.dp)
                 .align(Alignment.Center))
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Sampled
+@Composable
+fun ContextualFlowRow_ItemPosition() {
+    Text("Ln: Line No\nPs: Position No. in Line", modifier = Modifier.padding(20.dp))
+    ContextualFlowRow(
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .height(210.dp)
+            .padding(20.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        maxItemsInEachRow = 4,
+        itemCount = 12
+    ) {
+        val width = Random.nextInt(80, 100).dp.coerceAtMost(maxWidthInLine)
+        val height = 50.dp.coerceAtMost(maxHeight)
+        Box(
+            Modifier
+                .width(width)
+                .height(height)
+                .background(MatchingColors.getByIndex(indexInLine)!!.color)
+        ) {
+            Text(
+                text = "Ln: ${this@ContextualFlowRow.lineIndex}" +
+                    "\nPs: ${this@ContextualFlowRow.indexInLine}",
+                fontSize = 18.sp,
+                modifier = Modifier.padding(3.dp)
+            )
+        }
+    }
+}
+
+enum class MatchingColors(val index: Int, val color: Color) {
+    ZERO(0, Color.Green),
+    ONE(1, Color.Yellow),
+    TWO(2, Color.Blue),
+    THREE(3, Color.Cyan);
+
+    companion object {
+        fun getByIndex(index: Int): MatchingColors? {
+            return values().firstOrNull { it.index == index }
         }
     }
 }

@@ -19,6 +19,7 @@ package androidx.compose.foundation.layout
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +38,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -3928,5 +3930,317 @@ class ContextualFlowRowColumnTest {
         rule.waitForIdle()
         Truth.assertThat(height).isEqualTo(200)
         Truth.assertThat(noOfItemsPlaced).isEqualTo(0)
+    }
+
+    @Test
+    fun testContextualFlowRow_LayoutInfo() {
+        val list: MutableList<FlowLineInfo> = mutableListOf()
+        val mainAxisSize = mutableStateOf(300.dp)
+        val crossAxisSize = mutableStateOf(Dp.Infinity)
+        val lineOneItemSizePx = 50
+        val lineOneItemSize = lineOneItemSizePx.dp
+        val itemSize = 100.dp
+        val spacing = 10.dp
+        val crossAxisSpacing = 20.dp
+        val maxItemsInMainAxis = mutableIntStateOf(4)
+        val itemCount = 12
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalDensity provides NoOpDensity
+            ) {
+                val heightState = remember { crossAxisSize }
+                val widthState by remember { mainAxisSize }
+                val maxItemsInMainAxisState by remember { maxItemsInMainAxis }
+                ContextualFlowRow(
+                    modifier = Modifier
+                        .width(widthState)
+                        .run {
+                            val heightValue = heightState.value
+                            if (heightValue == Dp.Infinity) {
+                                this.wrapContentHeight()
+                            } else {
+                                this.height(heightValue)
+                            }
+                        },
+                    horizontalArrangement = Arrangement.spacedBy(spacing),
+                    verticalArrangement = Arrangement.spacedBy(crossAxisSpacing),
+                    maxItemsInEachRow = maxItemsInMainAxisState,
+                    itemCount = itemCount,
+                    overflow = ContextualFlowRowOverflow.Clip
+                ) {
+                    Box(
+                        Modifier
+                            .width(if (lineIndex == 0) lineOneItemSize else itemSize)
+                            .height(
+                                if (lineIndex == 0) {
+                                    // choose varying heights, to
+                                    // ensure the calculation considers the actual
+                                    // cross axis size of the row.
+                                    if (indexInLine == 0) {
+                                        lineOneItemSize
+                                    } else {
+                                        Random.nextInt(10, (lineOneItemSizePx - 10)).dp
+                                    }
+                                } else {
+                                    itemSize
+                                }
+                            ).onGloballyPositioned {
+                                list.add(
+                                    FlowLineInfo(
+                                        lineIndex,
+                                        indexInLine,
+                                        maxWidthInLine,
+                                        maxHeight
+                                    )
+                                )
+                            }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            Truth.assertThat(list.size).isEqualTo(itemCount)
+            val maxCrossAxis = list[0].maxCrossAxisSize
+            verifyFlowLineInfo(
+                list,
+                mainAxisSize.value,
+                maxCrossAxis,
+                lineOneItemSize,
+                itemSize,
+                spacing,
+                maxItemsInMainAxis.value,
+                crossAxisSpacing
+            )
+        }
+
+        rule.runOnIdle {
+            crossAxisSize.value = 210.dp
+            list.clear()
+        }
+
+        advanceClock()
+
+        rule.runOnIdle {
+            Truth.assertThat(list.size).isEqualTo(6)
+            verifyFlowLineInfo(
+                list,
+                mainAxisSize.value,
+                crossAxisSize.value,
+                lineOneItemSize,
+                itemSize,
+                spacing,
+                maxItemsInMainAxis.value,
+                crossAxisSpacing
+            )
+        }
+
+        rule.runOnIdle {
+            mainAxisSize.value = 150.dp
+            maxItemsInMainAxis.value = 2
+            list.clear()
+        }
+
+        advanceClock()
+
+        rule.runOnIdle {
+            Truth.assertThat(list.size).isEqualTo(3)
+            verifyFlowLineInfo(
+                list,
+                mainAxisSize.value,
+                crossAxisSize.value,
+                lineOneItemSize,
+                itemSize,
+                spacing,
+                maxItemsInMainAxis.value,
+                crossAxisSpacing
+            )
+        }
+    }
+
+    @Test
+    fun testContextualFlowColumn_LayoutInfo() {
+        val list: MutableList<FlowLineInfo> = mutableListOf()
+        val mainAxisSize = mutableStateOf(300.dp)
+        val crossAxisSize = mutableStateOf(Dp.Infinity)
+        val lineOneItemSizePx = 50
+        val lineOneItemSize = lineOneItemSizePx.dp
+        val itemSize = 100.dp
+        val spacing = 10.dp
+        val crossAxisSpacing = 20.dp
+        val itemCount = 12
+        val maxItemsInMainAxis = mutableIntStateOf(4)
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalDensity provides NoOpDensity
+            ) {
+                val widthState = remember { crossAxisSize }
+                val heightState by remember { mainAxisSize }
+                val maxItemsInMainAxisState by remember { maxItemsInMainAxis }
+                ContextualFlowColumn(
+                    modifier = Modifier
+                        .height(heightState)
+                        .run {
+                            val widthValue = widthState.value
+                            if (widthValue == Dp.Infinity) {
+                                this.wrapContentWidth()
+                            } else {
+                                this.width(widthValue)
+                            }
+                        },
+                    verticalArrangement = Arrangement.spacedBy(spacing),
+                    horizontalArrangement = Arrangement.spacedBy(crossAxisSpacing),
+                    maxItemsInEachColumn = maxItemsInMainAxisState,
+                    itemCount = itemCount,
+                    overflow = ContextualFlowColumnOverflow.Clip
+                ) {
+                    Box(
+                        Modifier
+                            .height(if (lineIndex == 0) lineOneItemSize else itemSize)
+                            .width(
+                                if (lineIndex == 0) {
+                                    // choose varying heights, to
+                                    // ensure the calculation considers the actual
+                                    // cross axis size of the row.
+                                    if (indexInLine == 0) {
+                                        lineOneItemSize
+                                    } else {
+                                        Random.nextInt(10, (lineOneItemSizePx - 10)).dp
+                                    }
+                                } else {
+                                    itemSize
+                                }
+                            ).onGloballyPositioned {
+                                list.add(
+                                    FlowLineInfo(
+                                        lineIndex,
+                                        indexInLine,
+                                        maxMainAxisSize = maxHeightInLine,
+                                        maxCrossAxisSize = maxWidth,
+                                    )
+                                )
+                            }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            Truth.assertThat(list.size).isEqualTo(itemCount)
+            val maxCrossAxis = list[0].maxCrossAxisSize
+            verifyFlowLineInfo(
+                list,
+                mainAxisSize.value,
+                maxCrossAxis,
+                lineOneItemSize,
+                itemSize,
+                spacing,
+                maxItemsInMainAxis.value,
+                crossAxisSpacing
+            )
+        }
+        rule.runOnIdle {
+            crossAxisSize.value = 210.dp
+            list.clear()
+        }
+
+        advanceClock()
+
+        rule.runOnIdle {
+            Truth.assertThat(list.size).isEqualTo(6)
+            verifyFlowLineInfo(
+                list,
+                mainAxisSize.value,
+                crossAxisSize.value,
+                lineOneItemSize,
+                itemSize,
+                spacing,
+                maxItemsInMainAxis.value,
+                crossAxisSpacing
+            )
+        }
+
+        rule.runOnIdle {
+            list.clear()
+            mainAxisSize.value = 150.dp
+            maxItemsInMainAxis.value = 2
+        }
+
+        advanceClock()
+
+        rule.runOnIdle {
+            Truth.assertThat(list.size).isEqualTo(3)
+            verifyFlowLineInfo(
+                list,
+                mainAxisSize.value,
+                crossAxisSize.value,
+                lineOneItemSize,
+                itemSize,
+                spacing,
+                maxItemsInMainAxis.value,
+                crossAxisSpacing
+            )
+        }
+    }
+
+    private fun verifyFlowLineInfo(
+        list: MutableList<FlowLineInfo>,
+        mainAxisSize: Dp,
+        maxCrossAxis: Dp,
+        lineOneItemSize: Dp,
+        itemSize: Dp,
+        spacing: Dp,
+        maxItemsInMainAxis: Int,
+        crossAxisSpacing: Dp
+    ) {
+        var leftOver = mainAxisSize
+        val lineInfo = FlowLineInfo(
+            0,
+            0,
+            leftOver,
+            maxCrossAxis
+        )
+        var leftOverCrossAxis = maxCrossAxis
+        list.forEach { info ->
+            val lineItemSize = if (info.lineIndex == 0) {
+                lineOneItemSize
+            } else {
+                itemSize
+            }
+            Truth.assertThat(info.positionInLine).isEqualTo(lineInfo.positionInLine)
+            Truth.assertThat(info.maxMainAxisSize).isEqualTo(lineInfo.maxMainAxisSize)
+            Truth.assertThat(info.maxCrossAxisSize).isEqualTo(lineInfo.maxCrossAxisSize)
+            Truth.assertThat(info.lineIndex).isEqualTo(lineInfo.lineIndex)
+            leftOver = leftOver - lineItemSize - spacing
+            val pastMaxItems = lineInfo.positionInLine + 1 >= maxItemsInMainAxis
+            if (pastMaxItems) {
+                leftOver = mainAxisSize
+                leftOverCrossAxis = leftOverCrossAxis - lineItemSize - crossAxisSpacing
+                lineInfo.update(
+                    positionInLine = 0,
+                    maxMainAxisSize = leftOver,
+                    maxCrossAxisSize = leftOverCrossAxis,
+                    lineIndex = lineInfo.lineIndex + 1
+                )
+            } else if (leftOver < 0.dp) {
+                leftOver = mainAxisSize - lineItemSize - spacing
+                // when the left over is less than 0, the FlowRow will automatically wrap it.
+                // the next item index position will be the second item in the row
+                leftOverCrossAxis = leftOverCrossAxis - lineItemSize - crossAxisSpacing
+                lineInfo.update(
+                    positionInLine = 1,
+                    maxMainAxisSize = leftOver,
+                    maxCrossAxisSize = leftOverCrossAxis,
+                    lineIndex = lineInfo.lineIndex + 1
+                )
+            } else {
+                lineInfo.update(
+                    positionInLine = info.positionInLine + 1,
+                    maxMainAxisSize = leftOver,
+                    maxCrossAxisSize = leftOverCrossAxis,
+                    lineIndex = lineInfo.lineIndex
+                )
+            }
+        }
     }
 }
