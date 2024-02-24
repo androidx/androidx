@@ -20,15 +20,18 @@ import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -49,7 +52,7 @@ class SliderScreenshotTest {
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     val wrap = Modifier
-        .requiredWidth(70.dp)
+        .requiredWidth(200.dp)
         .wrapContentSize(Alignment.TopStart)
 
     private val wrapperTestTag = "sliderWrapper"
@@ -65,6 +68,21 @@ class SliderScreenshotTest {
             }
         }
         assertSliderAgainstGolden("slider_origin")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sliderTest_origin_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    Slider(
+                        remember { SliderState(0f) }
+                    )
+                }
+            }
+        }
+        assertSliderAgainstGolden("slider_origin_rtl")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -189,6 +207,21 @@ class SliderScreenshotTest {
             }
         }
         assertSliderAgainstGolden("slider_end")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sliderTest_end_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    Slider(
+                        remember { SliderState(1f) }
+                    )
+                }
+            }
+        }
+        assertSliderAgainstGolden("slider_end_rtl")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -349,6 +382,32 @@ class SliderScreenshotTest {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
+    fun rangeSliderTest_middle_no_stop_indicator_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    RangeSlider(
+                        state = remember {
+                            RangeSliderState(
+                                0.5f,
+                                1f
+                            )
+                        },
+                        track = {
+                            SliderDefaults.Track(
+                                rangeSliderState = it,
+                                drawStopIndicator = null
+                            )
+                        }
+                    )
+                }
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_middle_no_stop_indicator_rtl")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
     fun rangeSliderTest_middle_steps_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -445,6 +504,38 @@ class SliderScreenshotTest {
             }
         }
         assertSliderAgainstGolden("rangeSlider_fullRange")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSliderTest_asymmetric_startEnd() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                RangeSlider(
+                    remember {
+                        RangeSliderState(0.25f, 0.6f)
+                    }
+                )
+            }
+        }
+        assertSliderAgainstGolden("rangeSliderTest_asymmetric_startEnd")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSliderTest_asymmetric_startEnd_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    RangeSlider(
+                        remember {
+                            RangeSliderState(0.25f, 0.6f)
+                        }
+                    )
+                }
+            }
+        }
+        assertSliderAgainstGolden("rangeSliderTest_asymmetric_startEnd_rtl")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

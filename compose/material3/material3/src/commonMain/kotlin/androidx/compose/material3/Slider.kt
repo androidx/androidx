@@ -55,6 +55,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -1177,6 +1178,7 @@ object SliderDefaults {
             modifier
                 .fillMaxWidth()
                 .height(TrackHeight)
+                .rotate(if (LocalLayoutDirection.current == LayoutDirection.Rtl) 180f else 0f)
         ) {
             drawTrack(
                 sliderState.tickFractions,
@@ -1275,6 +1277,7 @@ object SliderDefaults {
             modifier
                 .fillMaxWidth()
                 .height(TrackHeight)
+                .rotate(if (LocalLayoutDirection.current == LayoutDirection.Rtl) 180f else 0f)
         ) {
             drawTrack(
                 rangeSliderState.tickFractions,
@@ -1309,11 +1312,8 @@ object SliderDefaults {
         drawStopIndicator: (DrawScope.(Offset) -> Unit)?,
         isRangeSlider: Boolean
     ) {
-        val isRtl = layoutDirection == LayoutDirection.Rtl
-        val sliderLeft = Offset(0f, center.y)
-        val sliderRight = Offset(size.width, center.y)
-        val sliderStart = if (isRtl) sliderRight else sliderLeft
-        val sliderEnd = if (isRtl) sliderLeft else sliderRight
+        val sliderStart = Offset(0f, center.y)
+        val sliderEnd = Offset(size.width, center.y)
         val tickSize = TickSize.toPx()
         val trackStrokeWidth = height.toPx()
 
