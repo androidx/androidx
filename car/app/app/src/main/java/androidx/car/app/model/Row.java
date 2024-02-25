@@ -101,7 +101,7 @@ public final class Row implements Item {
      * Represents an extra small image to be displayed in the row.
      *
      * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
-     * images targeting a 88 x 88 dp bounding box. If necessary, the image will be scaled down while
+     * images targeting a 48 x 48 dp bounding box. If necessary, the image will be scaled down while
      * preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_EXTRA_SMALL = (1 << 3);
