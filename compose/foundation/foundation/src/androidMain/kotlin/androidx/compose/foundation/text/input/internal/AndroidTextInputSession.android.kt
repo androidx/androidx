@@ -107,7 +107,10 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                     get() = state.visualText
 
                 override fun requestEdit(block: EditingBuffer.() -> Unit) {
-                    state.editUntransformedTextAsUser(block)
+                    state.editUntransformedTextAsUser(
+                        restartImeIfContentChanges = false,
+                        block = block
+                    )
                 }
 
                 override fun sendKeyEvent(keyEvent: KeyEvent) {
