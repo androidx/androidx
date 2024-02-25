@@ -619,12 +619,11 @@ internal class ComposeSceneMediator(
             _accessibilityControllers[semanticsOwner] = AccessibilityController(
                 owner = semanticsOwner,
                 desktopComponent = platformComponent,
-                coroutineContext = coroutineContext,
                 onFocusReceived = {
                     skiaLayerComponent.requestNativeFocusOnAccessible(it)
                 }
             ).also {
-                it.syncLoop()
+                it.launchSyncLoop(coroutineContext)
             }
         }
 

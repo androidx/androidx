@@ -36,7 +36,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -54,7 +53,6 @@ import kotlinx.coroutines.launch
 internal class AccessibilityController(
     val owner: SemanticsOwner,
     val desktopComponent: PlatformComponent,
-    coroutineContext: CoroutineContext,
     private val onFocusReceived: (ComposeAccessible) -> Unit
 ) {
 
@@ -181,12 +179,6 @@ internal class AccessibilityController(
     }
 
     /**
-     * The coroutine scope in which [ComposeAccessible]s are continuously synced with the semantics
-     * node tree.
-     */
-    private val coroutineScope = CoroutineScope(coroutineContext + Job())
-
-    /**
      * A channel that triggers the syncing of [ComposeAccessible]s with the semantics node tree.
      */
     private val syncNodesChannel =
@@ -230,17 +222,25 @@ internal class AccessibilityController(
         get() = System.nanoTime() - lastUseTimeNanos < MaxIdleTimeNanos
 
     /**
+     * The coroutine syncing the [ComposeAccessible]s with the semantics node tree.
+     */
+    private var syncingJob: Job? = null
+
+    /**
      * Disposes of this [AccessibilityController], releasing any resources associated with it.
      */
     fun dispose() {
-        coroutineScope.cancel()
+        syncingJob?.cancel()
     }
 
     /**
-     * Launches the continuous syncing of [ComposeAccessible]s with the semantics node tree.
+     * Launches a coroutine to continuously sync [ComposeAccessible]s with the semantics node tree.
      */
-    fun syncLoop() {
-        coroutineScope.launch {
+    fun launchSyncLoop(context: CoroutineContext) {
+        if (syncingJob != null)
+            throw IllegalStateException("Sync loop already running")
+
+        syncingJob = CoroutineScope(context).launch {
             while (true) {
                 syncNodesChannel.receive()
                 if (accessibilityRecentlyUsed && !nodeMappingIsValid) {
