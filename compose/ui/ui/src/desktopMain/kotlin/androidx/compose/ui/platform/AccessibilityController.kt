@@ -35,6 +35,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -55,9 +56,21 @@ internal class AccessibilityController(
     coroutineContext: CoroutineContext,
     private val onFocusReceived: (ComposeAccessible) -> Unit
 ) {
-    private var nodeMappingIsValid = false
+
+    /**
+     * Maps the [ComposeAccessible]s we have created by the [SemanticsNode.id] for which they were
+     * created.
+     */
     private var accessibleByNodeId = mutableScatterMapOf<Int, ComposeAccessible>()
 
+    /**
+     * Whether [accessibleByNodeId] is up-to-date.
+     */
+    private var nodeMappingIsValid = false
+
+    /**
+     * Returns the [ComposeAccessible] associated with the given semantics node id.
+     */
     fun accessibleByNodeId(nodeId: Int): ComposeAccessible? {
         if (!nodeMappingIsValid) {
             syncNodes()
@@ -66,13 +79,22 @@ internal class AccessibilityController(
         return accessibleByNodeId[nodeId]
     }
 
+    /**
+     * Invoked when a new [ComposeAccessible] is created.
+     */
     @Suppress("UNUSED_PARAMETER")
     private fun onNodeAdded(accessible: ComposeAccessible) {}
 
+    /**
+     * Invoked when a [ComposeAccessible] is removed.
+     */
     private fun onNodeRemoved(accessible: ComposeAccessible) {
         accessible.removed = true
     }
 
+    /**
+     * Invoked when the [SemanticsNode] a [ComposeAccessible] represents changes.
+     */
     private fun onNodeChanged(
         component: ComposeAccessible,
         previousSemanticsNode: SemanticsNode,
@@ -146,46 +168,89 @@ internal class AccessibilityController(
         }
     }
 
-    private object SyncLoopState {
-        val MaxIdleTimeMillis = 5.minutes.inWholeMilliseconds // Stop syncing after 5 minutes of inactivity
-        var lastUseTimeMillis: Long = 0
-
-        val accessibilityRecentlyInUse
-            get() = System.currentTimeMillis() - lastUseTimeMillis < MaxIdleTimeMillis
-    }
-
     /**
-     * When called wakes up the sync loop, which may be stopped after
-     * some period of inactivity
+     * Called to notify us when an accessibility call is received from the system.
+     *
+     * This starts a process that actively synchronized the [ComposeAccessible]s with the semantics
+     * node tree.
      */
     fun notifyIsInUse() {
-        SyncLoopState.lastUseTimeMillis = System.currentTimeMillis()
+        lastUseTimeMillis = System.currentTimeMillis()
         syncNodesChannel.trySend(Unit)
     }
 
-    private val job = Job()
-    private val coroutineScope = CoroutineScope(coroutineContext + job)
+    /**
+     * The coroutine scope in which [ComposeAccessible]s are continuously synced with the semantics
+     * node tree.
+     */
+    private val coroutineScope = CoroutineScope(coroutineContext + Job())
+
+    /**
+     * A channel that triggers the syncing of [ComposeAccessible]s with the semantics node tree.
+     */
     private val syncNodesChannel =
         Channel<Unit>(capacity = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
+
+    /**
+     * An [ArrayDeque] used in the BFS algorithm that syncs [ComposeAccessible]s with the semantics
+     * tree node.
+     *
+     * This is kept just to avoid allocating a new one each time.
+     */
     private val bfsDeque = ArrayDeque<SemanticsNode>()
+
+    /**
+     * An auxiliary mapping of semantics node ids to [ComposeAccessible]s that is swapped with
+     * [accessibleByNodeId] on each sync, to avoid allocating memory on each sync.
+     */
     private var auxAccessibleByNodeId = mutableScatterMapOf<Int, ComposeAccessible>()
+
+    /**
+     * A list of callbacks ([onNodeAdded], [onNodeRemoved], [onNodeChanged]) to be made after
+     * syncing the semantics node tree is completed.
+     *
+     * This is kept just to avoid allocating a new one each time.
+     */
     private val delayedNodeNotifications = mutableListOf<() -> Unit>()
 
+    /**
+     * The time of the latest accessibility call from the system.
+     */
+    private var lastUseTimeMillis: Long = 0
+
+    /**
+     * Whether an accessibility call from the system has been received "recently".
+     *
+     * When this returns `false` the active syncing of [ComposeAccessible]s with the semantics node
+     * tree is paused.
+     */
+    private val accessibilityRecentlyUsed
+        get() = System.currentTimeMillis() - lastUseTimeMillis < MaxIdleTimeMillis
+
+    /**
+     * Disposes of this [AccessibilityController], releasing any resources associated with it.
+     */
     fun dispose() {
-        job.cancel()
+        coroutineScope.cancel()
     }
 
+    /**
+     * Launches the continuous syncing of [ComposeAccessible]s with the semantics node tree.
+     */
     fun syncLoop() {
         coroutineScope.launch {
             while (true) {
                 syncNodesChannel.receive()
-                if (SyncLoopState.accessibilityRecentlyInUse && !nodeMappingIsValid) {
+                if (accessibilityRecentlyUsed && !nodeMappingIsValid) {
                     syncNodes()
                 }
             }
         }
     }
 
+    /**
+     * Syncs [accessibleByNodeId] with the semantics node tree.
+     */
     private fun syncNodes() {
         fun SemanticsNode.isValid() = layoutNode.let { it.isPlaced && it.isAttached }
 
@@ -240,18 +305,30 @@ internal class AccessibilityController(
         delayedNodeNotifications.clear()
     }
 
+    /**
+     * Invoked when the semantics node tree changes.
+     */
     fun onSemanticsChange() {
         nodeMappingIsValid = false
         syncNodesChannel.trySend(Unit)
     }
 
+    /**
+     * The [SemanticsNode] that is the root of the semantics node tree.
+     */
     private val rootSemanticNode: SemanticsNode
         get() = owner.rootSemanticsNode
 
+    /**
+     * The [ComposeAccessible] associated with the root of the semantics node tree.
+     */
     val rootAccessible: ComposeAccessible
         get() = accessibleByNodeId(rootSemanticNode.id)!!
 }
 
+/**
+ * Prints debugging info of the given [Accessible].
+ */
 internal fun Accessible.print(level: Int = 0) {
     val id = if (this is ComposeAccessible) {
         this.semanticsNode.id.toString()
@@ -275,3 +352,9 @@ internal fun Accessible.print(level: Int = 0) {
         }
     }
 }
+
+/**
+ * The time before we stop actively syncing [ComposeAccessible]s with the semantics node tree if we
+ * don't receive any accessibility calls from the system.
+ */
+private val MaxIdleTimeMillis = 5.minutes.inWholeMilliseconds
