@@ -101,7 +101,7 @@ internal class ComposeAccessible(
         }
 
         // see doc for [nativeInitializeAccessible] for details, why this initialization is needed
-        if (isNativelyInitialized.compareAndSet(false, true)) {
+        if (isNativelyInitialized.compareAndSet(expect = false, update = true)) {
             nativeInitializeAccessible(this)
         }
         return composeAccessibleContext
@@ -248,7 +248,7 @@ internal class ComposeAccessible(
 
         // we have to store a reference to AccessibleAction, because AWT itself uses weak
         // references and GC could delete an object which is, in fact, in use
-        var _accessibleAction: AccessibleAction? = null
+        private var accessibleAction: AccessibleAction? = null
 
         override fun getAccessibleAction(): AccessibleAction? {
             val actions = mutableListOf<Pair<String?, ActionKey>>()
@@ -271,7 +271,7 @@ internal class ComposeAccessible(
             if (actions.isEmpty()) {
                 return null
             }
-            _accessibleAction = object : AccessibleAction {
+            accessibleAction = object : AccessibleAction {
                 override fun getAccessibleActionCount(): Int = actions.size
 
                 override fun getAccessibleActionDescription(i: Int): String? {
@@ -286,7 +286,7 @@ internal class ComposeAccessible(
                     } ?: false
                 }
             }
-            return _accessibleAction
+            return accessibleAction
         }
 
         override fun getAccessibleValue(): AccessibleValue? {
@@ -635,7 +635,7 @@ internal class ComposeAccessible(
             override fun getAccessibleContext(): AccessibleContext = context
         }
 
-        val accessibleText by lazy {
+        private val accessibleText by lazy {
             when {
                 setText != null -> {
                     ComposeAccessibleEditableText()
