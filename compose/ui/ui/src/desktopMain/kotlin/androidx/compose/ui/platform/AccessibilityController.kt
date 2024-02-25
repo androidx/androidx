@@ -197,17 +197,21 @@ internal class AccessibilityController(
         while (bfsDeque.isNotEmpty()) {
             val node = bfsDeque.removeFirst()
 
-            updated[node.id] = previous[node.id]?.let {
-                val prevSemanticsNode = it.semanticsNode
-                it.semanticsNode = node
+            val existingAccessible = previous[node.id]
+            updated[node.id] = if (existingAccessible != null) {
+                val prevSemanticsNode = existingAccessible.semanticsNode
+                existingAccessible.semanticsNode = node
                 delayedNodeNotifications.add {
-                    onNodeChanged(it, prevSemanticsNode, node)
+                    onNodeChanged(existingAccessible, prevSemanticsNode, node)
                 }
-                it
-            } ?: ComposeAccessible(node, this).also {
+                existingAccessible
+            }
+            else {
+                val newAccessible = ComposeAccessible(node, this)
                 delayedNodeNotifications.add {
-                    onNodeAdded(it)
+                    onNodeAdded(newAccessible)
                 }
+                newAccessible
             }
 
             for (child in node.replacedChildren.asReversed()) {
