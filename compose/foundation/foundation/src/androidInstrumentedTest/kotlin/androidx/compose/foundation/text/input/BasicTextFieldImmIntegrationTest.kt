@@ -358,6 +358,41 @@ internal class BasicTextFieldImmIntegrationTest {
     }
 
     @Test
+    fun immNotRestarted_whenEditsComeFromIME() {
+        // We are not expecting the IME to restart itself when changes are coming from the IME.
+        // Following edits are simulated as if they are coming from IME through InputConnection.
+        // We expect calls to `updateSelection` but never `restartInput`
+        val state = TextFieldState("Hello")
+        inputMethodInterceptor.setContent {
+            BasicTextField(state, Modifier.testTag(Tag))
+        }
+        requestFocus(Tag)
+        inputMethodInterceptor.withInputConnection {
+            beginBatchEdit()
+            commitText(" World", 1)
+            endBatchEdit()
+        }
+
+        rule.runOnIdle {
+            imm.expectCall("updateSelection(11, 11, -1, -1)")
+            imm.expectNoMoreCalls()
+            assertThat(state.text.toString()).isEqualTo("Hello World")
+        }
+
+        inputMethodInterceptor.withInputConnection {
+            beginBatchEdit()
+            // Remove the " World" that we added in the previous edit.
+            deleteSurroundingText(6, 0)
+            endBatchEdit()
+        }
+
+        rule.runOnIdle {
+            imm.expectCall("updateSelection(5, 5, -1, -1)")
+            imm.expectNoMoreCalls()
+        }
+    }
+
+    @Test
     fun immNotRestarted_whenKeyboardIsConfiguredAsPassword() {
         val state = TextFieldState()
         inputMethodInterceptor.setContent {
