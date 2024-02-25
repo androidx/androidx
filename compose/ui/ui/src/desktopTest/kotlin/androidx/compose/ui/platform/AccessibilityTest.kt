@@ -25,6 +25,7 @@ import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.assertThat
 import androidx.compose.ui.isEqualTo
+import androidx.compose.ui.platform.a11y.ComposeAccessible
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.isContainer
 import androidx.compose.ui.semantics.isTraversalGroup

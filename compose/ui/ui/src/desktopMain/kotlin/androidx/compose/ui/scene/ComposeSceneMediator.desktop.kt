@@ -33,8 +33,8 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.platform.AccessibilityController
-import androidx.compose.ui.platform.ComposeSceneAccessible
+import androidx.compose.ui.platform.a11y.AccessibilityController
+import androidx.compose.ui.platform.a11y.ComposeSceneAccessible
 import androidx.compose.ui.platform.DelegateRootForTestListener
 import androidx.compose.ui.platform.DesktopTextInputService
 import androidx.compose.ui.platform.EmptyViewConfiguration
