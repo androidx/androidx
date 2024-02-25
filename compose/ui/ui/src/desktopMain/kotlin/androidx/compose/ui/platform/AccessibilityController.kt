@@ -175,7 +175,7 @@ internal class AccessibilityController(
      * node tree.
      */
     fun notifyIsInUse() {
-        lastUseTimeMillis = System.currentTimeMillis()
+        lastUseTimeNanos = System.nanoTime()
         syncNodesChannel.trySend(Unit)
     }
 
@@ -216,7 +216,8 @@ internal class AccessibilityController(
     /**
      * The time of the latest accessibility call from the system.
      */
-    private var lastUseTimeMillis: Long = 0
+    // Set initial value such that accessibilityRecentlyUsed is initially `false`
+    private var lastUseTimeNanos: Long = System.nanoTime() - (MaxIdleTimeNanos + 1)
 
     /**
      * Whether an accessibility call from the system has been received "recently".
@@ -225,7 +226,7 @@ internal class AccessibilityController(
      * tree is paused.
      */
     private val accessibilityRecentlyUsed
-        get() = System.currentTimeMillis() - lastUseTimeMillis < MaxIdleTimeMillis
+        get() = System.nanoTime() - lastUseTimeNanos < MaxIdleTimeNanos
 
     /**
      * Disposes of this [AccessibilityController], releasing any resources associated with it.
@@ -357,4 +358,4 @@ internal fun Accessible.print(level: Int = 0) {
  * The time before we stop actively syncing [ComposeAccessible]s with the semantics node tree if we
  * don't receive any accessibility calls from the system.
  */
-private val MaxIdleTimeMillis = 5.minutes.inWholeMilliseconds
+private val MaxIdleTimeNanos = 5.minutes.inWholeNanoseconds
