@@ -42,6 +42,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraConfig
+import androidx.camera.core.impl.CameraConfigs
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Identifier
@@ -119,6 +120,7 @@ class CameraUseCaseAdapterTest {
     private val image = ImageCapture.Builder().build()
     private val analysis = ImageAnalysis.Builder().build()
     private lateinit var adapter: CameraUseCaseAdapter
+    private val adaptersToDetach = mutableListOf<CameraUseCaseAdapter>()
 
     @Before
     fun setUp() {
@@ -143,7 +145,7 @@ class CameraUseCaseAdapterTest {
             surfaceProcessorInternal
         )
         effects = listOf(previewEffect, imageEffect, videoEffect)
-        adapter = CameraUseCaseAdapter(
+        adapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -156,6 +158,9 @@ class CameraUseCaseAdapterTest {
     fun tearDown() {
         surfaceProcessorInternal.cleanUp()
         executor.shutdown()
+        for (adapter in adaptersToDetach) {
+            adapter.updateUseCases(emptySet())
+        }
     }
 
     @Test(expected = CameraException::class)
@@ -203,7 +208,7 @@ class CameraUseCaseAdapterTest {
     fun addUseCases_cameraConfigIsConfigured() {
         // Arrange: Prepare two sets of CameraConfig and CameraUseCaseAdapter.
         val cameraConfig = FakeCameraConfig()
-        val adapter = CameraUseCaseAdapter(
+        val adapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -222,7 +227,7 @@ class CameraUseCaseAdapterTest {
     fun attachUseCases_cameraConfigIsConfigured() {
         // Arrange: Prepare two sets of CameraConfig and CameraUseCaseAdapter.
         val cameraConfig1 = FakeCameraConfig()
-        val adapter1 = CameraUseCaseAdapter(
+        val adapter1 = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -230,7 +235,7 @@ class CameraUseCaseAdapterTest {
             cameraConfig1
         )
         val cameraConfig2 = FakeCameraConfig()
-        val adapter2 = CameraUseCaseAdapter(
+        val adapter2 = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -277,7 +282,7 @@ class CameraUseCaseAdapterTest {
         // Arrange: enable extensions.
         val extensionsConfig = createCoexistingRequiredRuleCameraConfig(FakeSessionProcessor())
 
-        val adapter = CameraUseCaseAdapter(
+        val adapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -437,7 +442,7 @@ class CameraUseCaseAdapterTest {
     fun extensionEnabledAndVideoCaptureExisted_streamSharingOn() {
         // Arrange: enable extensions.
         val extensionsConfig = createCoexistingRequiredRuleCameraConfig(FakeSessionProcessor())
-        val adapter = CameraUseCaseAdapter(
+        val adapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -460,7 +465,7 @@ class CameraUseCaseAdapterTest {
     fun extensionEnabledAndOnlyVideoCaptureAttached_streamSharingOn() {
         // Arrange: enable extensions.
         val extensionsConfig = createCoexistingRequiredRuleCameraConfig(FakeSessionProcessor())
-        val adapter = CameraUseCaseAdapter(
+        val adapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -512,7 +517,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun detachUseCases() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -535,13 +540,13 @@ class CameraUseCaseAdapterTest {
         val originalConfig = MutableOptionsBundle.create()
         originalConfig.insertOption(option, value)
         fakeCamera.cameraControlInternal.addInteropConfig(originalConfig)
-        val cameraUseCaseAdapter1 = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter1 = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
-        val cameraUseCaseAdapter2 = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter2 = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -580,7 +585,7 @@ class CameraUseCaseAdapterTest {
         // Set an config to CameraControl.
         val config: Config = MutableOptionsBundle.create()
         fakeCamera.cameraControlInternal.addInteropConfig(config)
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -596,7 +601,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun closeCameraUseCaseAdapter() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -611,7 +616,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun cameraIdEquals() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -622,13 +627,13 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun cameraEquivalent() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
-        val otherCameraUseCaseAdapter = CameraUseCaseAdapter(
+        val otherCameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -639,7 +644,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun useCase_onAttach() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -656,7 +661,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun useCase_onDetach() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -670,7 +675,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun eventCallbackOnBind() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -684,7 +689,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun eventCallbackOnUnbind() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -703,7 +708,7 @@ class CameraUseCaseAdapterTest {
         val aspectRatio2 = Rational(2, 1)
 
         // Arrange: set up adapter with aspect ratio 1.
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -758,7 +763,7 @@ class CameraUseCaseAdapterTest {
          *   3023 |-----------------|       3022 |-----------------|
          *   3024 |-----------------|
          */
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -781,7 +786,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun noExtraUseCase_whenBindEmptyUseCaseList() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -795,7 +800,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun addExtraImageCapture_whenOnlyBindPreview() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -813,7 +818,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun removeExtraImageCapture_afterBindImageCapture() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -838,7 +843,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun addExtraImageCapture_whenUnbindImageCapture() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -866,7 +871,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun addExtraPreview_whenOnlyBindImageCapture() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -884,7 +889,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun removeExtraPreview_afterBindPreview() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -908,7 +913,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun addExtraPreview_whenUnbindPreview() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -936,7 +941,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun noExtraUseCase_whenUnbindBothPreviewAndImageCapture() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -964,7 +969,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun noExtraImageCapture_whenOnlyBindPreviewWithoutRule() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -981,7 +986,7 @@ class CameraUseCaseAdapterTest {
 
     @Test
     fun noExtraPreview_whenOnlyBindImageCaptureWithoutRule() {
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -1065,7 +1070,7 @@ class CameraUseCaseAdapterTest {
         fakeSessionProcessor.restrictedCameraOperations = supportedOps
         val cameraConfig: CameraConfig = FakeCameraConfig(fakeSessionProcessor)
 
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -1386,7 +1391,7 @@ class CameraUseCaseAdapterTest {
     fun cameraInfo_postviewSupported(): Unit = runBlocking {
         // 1. Arrange
         val cameraConfig: CameraConfig = FakeCameraConfig(postviewSupported = true)
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -1402,7 +1407,7 @@ class CameraUseCaseAdapterTest {
     fun cameraInfo_captureProcessProgressSupported(): Unit = runBlocking {
         // 1. Arrange
         val cameraConfig: CameraConfig = FakeCameraConfig(captureProcessProgressSupported = true)
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -1421,7 +1426,7 @@ class CameraUseCaseAdapterTest {
         val fakeSessionProcessor = FakeSessionProcessor()
         val cameraConfig: CameraConfig = FakeCameraConfig(fakeSessionProcessor)
 
-        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+        val cameraUseCaseAdapter = createCameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
@@ -1493,5 +1498,27 @@ class CameraUseCaseAdapterTest {
             }
         }
         return false
+    }
+
+    /**
+     * Creates a [CameraUseCaseAdapter] with the given parameters and adds it to the list of
+     * adapters to detach.
+     */
+    private fun createCameraUseCaseAdapter(
+        fakeCamera: FakeCamera,
+        cameraCoordinator: CameraCoordinator,
+        fakeCameraDeviceSurfaceManager: FakeCameraDeviceSurfaceManager,
+        useCaseConfigFactory: UseCaseConfigFactory,
+        cameraConfig1: CameraConfig = CameraConfigs.defaultConfig()
+    ): CameraUseCaseAdapter {
+        val adapter = CameraUseCaseAdapter(
+            fakeCamera,
+            cameraCoordinator,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory,
+            cameraConfig1
+        )
+        adaptersToDetach.add(adapter)
+        return adapter
     }
 }
