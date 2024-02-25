@@ -79,7 +79,7 @@ private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boo
  */
 internal class ComposeAccessible(
     var semanticsNode: SemanticsNode,
-    val controller: AccessibilityController? = null
+    private val controller: AccessibilityController
 ) : Accessible,
     // Must be a subclass of java.awt.Component because CAccessible only registers property
     // listeners with the accessible context if the Accessible is an instance of java.awt.Component
@@ -141,7 +141,7 @@ internal class ComposeAccessible(
             get() = semanticsNode.config.getOrNull(SemanticsProperties.Selected)
 
         private val density: Density
-            get() = controller?.desktopComponent?.density ?: Density(1f)
+            get() = controller.desktopComponent.density
 
         val horizontalScroll
             get() = semanticsNode.config.getOrNull(SemanticsProperties.HorizontalScrollAxisRange)
@@ -238,7 +238,7 @@ internal class ComposeAccessible(
 
         override fun getAccessibleParent(): Accessible? {
             return semanticsNode.parent?.id?.let { id ->
-                controller?.let { it.accessibleByNodeId(id)!! }
+                controller.accessibleByNodeId(id)!!
             } ?: accessibleParent
         }
 
@@ -308,14 +308,14 @@ internal class ComposeAccessible(
 
         override fun getAccessibleChild(i: Int): Accessible? {
             return semanticsNode.replacedChildren.getOrNull(i)?.id?.let { id ->
-                controller?.accessibleByNodeId(id)
+                controller.accessibleByNodeId(id)
             } ?: auxiliaryChildren[i - semanticsNode.replacedChildren.size]
         }
 
         override fun getLocale(): Locale = Locale.getDefault()
 
         override fun getLocationOnScreen(): Point {
-            val rootLocation = controller?.desktopComponent?.locationOnScreen ?: Point(0, 0)
+            val rootLocation = controller.desktopComponent.locationOnScreen
             val position = semanticsNode.positionInRoot
             return Point(
                 (rootLocation.x + position.x / density.density).toInt(),
@@ -389,7 +389,7 @@ internal class ComposeAccessible(
         // -----------------------------------
 
         override fun getAccessibleRole(): AccessibleRole {
-            controller?.notifyIsInUse()
+            controller.notifyIsInUse()
             val fromSemanticRole = when (semanticsNode.config.getOrNull(SemanticsProperties.Role)) {
                 Role.Button -> AccessibleRole.PUSH_BUTTON
                 Role.Checkbox -> AccessibleRole.CHECK_BOX

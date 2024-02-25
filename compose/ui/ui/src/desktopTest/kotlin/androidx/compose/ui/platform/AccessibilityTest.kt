@@ -25,6 +25,7 @@ import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.assertThat
 import androidx.compose.ui.isEqualTo
+import androidx.compose.ui.platform.a11y.AccessibilityController
 import androidx.compose.ui.platform.a11y.ComposeAccessible
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.isContainer
@@ -34,11 +35,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import java.awt.Point
+import javax.accessibility.AccessibleContext
 import javax.accessibility.AccessibleRole
 import javax.accessibility.AccessibleText
 import kotlin.test.fail
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,14 +54,34 @@ class AccessibilityTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private lateinit var testAccessibleController: AccessibilityController
+
+    @Before
+    fun initTestController() {
+        testAccessibleController = AccessibilityController(
+            owner = rule.onRoot().fetchSemanticsNode().root!!.semanticsOwner,
+            desktopComponent = PlatformComponent.Empty,
+            onFocusReceived = { }
+        )
+    }
+
+    private fun SemanticsNodeInteraction.accessibleContext(): AccessibleContext =
+        ComposeAccessible(
+            semanticsNode = fetchSemanticsNode(),
+            controller = testAccessibleController
+        ).accessibleContext!!
+
+    private fun SemanticsNodeInteraction.assertHasAccessibleRole(role: AccessibleRole) {
+        assertThat(accessibleContext().accessibleRole).isEqualTo(role)
+    }
+
     @Test
     fun accessibleText() {
         rule.setContent {
             Text("Hello world. Hi world.", modifier = Modifier.testTag("text"))
         }
 
-        val node = rule.onNodeWithTag("text").fetchSemanticsNode()
-        val accessibleContext = ComposeAccessible(node).accessibleContext!!
+        val accessibleContext = rule.onNodeWithTag("text").accessibleContext()
         val accessibleText = accessibleContext.accessibleText!!
         assertEquals(22, accessibleText.charCount)
 
@@ -119,7 +143,7 @@ class AccessibilityTest {
         }
 
         rule.onNodeWithTag("progressbar").apply {
-            val context = ComposeAccessible(fetchSemanticsNode()).accessibleContext!!
+            val context = accessibleContext()
             val value = context.accessibleValue
                 ?: fail("No accessibleValue on LinearProgressIndicator")
 
@@ -136,10 +160,7 @@ class AccessibilityTest {
             Box(Modifier.testTag("box"))
         }
 
-        rule.onNodeWithTag("box").apply {
-            val context = ComposeAccessible(fetchSemanticsNode()).accessibleContext!!
-            assertThat(context.accessibleRole).isEqualTo(AccessibleRole.UNKNOWN)
-        }
+        rule.onNodeWithTag("box").assertHasAccessibleRole(AccessibleRole.UNKNOWN)
     }
 
     @Suppress("DEPRECATION")
@@ -151,10 +172,7 @@ class AccessibilityTest {
             })
         }
 
-        rule.onNodeWithTag("box").apply {
-            val context = ComposeAccessible(fetchSemanticsNode()).accessibleContext!!
-            assertThat(context.accessibleRole).isEqualTo(AccessibleRole.GROUP_BOX)
-        }
+        rule.onNodeWithTag("box").assertHasAccessibleRole(AccessibleRole.GROUP_BOX)
     }
 
     @Test
@@ -165,14 +183,6 @@ class AccessibilityTest {
             })
         }
 
-        rule.onNodeWithTag("box").apply {
-            val context = ComposeAccessible(fetchSemanticsNode()).accessibleContext!!
-            assertThat(context.accessibleRole).isEqualTo(AccessibleRole.GROUP_BOX)
-        }
-    }
-
-    private fun SemanticsNodeInteraction.assertHasAccessibleRole(role: AccessibleRole) {
-        val accessibleContext = ComposeAccessible(fetchSemanticsNode()).accessibleContext!!
-        assertThat(accessibleContext.accessibleRole).isEqualTo(role)
+        rule.onNodeWithTag("box").assertHasAccessibleRole(AccessibleRole.GROUP_BOX)
     }
 }
