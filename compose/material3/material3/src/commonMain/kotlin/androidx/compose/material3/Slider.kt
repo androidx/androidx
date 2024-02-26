@@ -265,8 +265,7 @@ fun Slider(
 ) {
     val state = remember(
         steps,
-        valueRange,
-        onValueChangeFinished
+        valueRange
     ) {
         SliderState(
             value,
@@ -277,6 +276,7 @@ fun Slider(
         )
     }
 
+    state.onValueChangeFinished = onValueChangeFinished
     state.onValueChange = onValueChange
     state.value = value
 
@@ -543,8 +543,7 @@ fun RangeSlider(
 ) {
     val state = remember(
         steps,
-        valueRange,
-        onValueChangeFinished
+        valueRange
     ) {
         RangeSliderState(
             value.start,
@@ -555,6 +554,7 @@ fun RangeSlider(
         )
     }
 
+    state.onValueChangeFinished = onValueChangeFinished
     state.onValueChange = { onValueChange(it.start..it.endInclusive) }
     state.activeRangeStart = value.start
     state.activeRangeEnd = value.endInclusive
@@ -1782,13 +1782,12 @@ class SliderPositions(
  * @param valueRange range of values that Slider values can take. [value] will be
  * coerced to this range.
  */
-@Stable
 @ExperimentalMaterial3Api
 class SliderState(
     value: Float = 0f,
     @IntRange(from = 0)
     val steps: Int = 0,
-    val onValueChangeFinished: (() -> Unit)? = null,
+    var onValueChangeFinished: (() -> Unit)? = null,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f
 ) : DraggableState {
 
@@ -1909,14 +1908,13 @@ class SliderState(
  * @param valueRange range of values that Range Slider values can take. [activeRangeStart]
  * and [activeRangeEnd] will be coerced to this range.
  */
-@Stable
 @ExperimentalMaterial3Api
 class RangeSliderState(
     activeRangeStart: Float = 0f,
     activeRangeEnd: Float = 1f,
     @IntRange(from = 0)
     val steps: Int = 0,
-    val onValueChangeFinished: (() -> Unit)? = null,
+    var onValueChangeFinished: (() -> Unit)? = null,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f
 ) {
     private var activeRangeStartState by mutableFloatStateOf(activeRangeStart)
