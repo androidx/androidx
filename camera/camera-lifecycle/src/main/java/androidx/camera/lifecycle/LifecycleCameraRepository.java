@@ -24,9 +24,8 @@ import androidx.camera.core.CameraEffect;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.concurrent.CameraCoordinator;
-import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.Identifier;
+import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
@@ -105,10 +104,7 @@ final class LifecycleCameraRepository {
             @NonNull CameraUseCaseAdapter cameraUseCaseAdaptor) {
         LifecycleCamera lifecycleCamera;
         synchronized (mLock) {
-            Key key = Key.create(lifecycleOwner,
-                    cameraUseCaseAdaptor.getCameraId(),
-                    cameraUseCaseAdaptor.getExtendedConfig().getCompatibilityId()
-                    );
+            Key key = Key.create(lifecycleOwner, cameraUseCaseAdaptor.getCameraId());
             Preconditions.checkArgument(mCameraMap.get(key) == null, "LifecycleCamera already "
                     + "exists for the given LifecycleOwner and set of cameras");
 
@@ -137,11 +133,10 @@ final class LifecycleCameraRepository {
      */
     @Nullable
     LifecycleCamera getLifecycleCamera(LifecycleOwner lifecycleOwner,
-            @NonNull String cameraId,
-            @NonNull CameraConfig cameraConfig) {
+            @NonNull CameraUseCaseAdapter.CameraId cameraId
+    ) {
         synchronized (mLock) {
-            return mCameraMap.get(Key.create(lifecycleOwner, cameraId,
-                    cameraConfig.getCompatibilityId()));
+            return mCameraMap.get(Key.create(lifecycleOwner, cameraId));
         }
     }
 
@@ -181,9 +176,8 @@ final class LifecycleCameraRepository {
         synchronized (mLock) {
             LifecycleOwner lifecycleOwner = lifecycleCamera.getLifecycleOwner();
             Key key = Key.create(lifecycleOwner,
-                    lifecycleCamera.getCameraUseCaseAdapter().getCameraId(),
-                    lifecycleCamera.getCameraUseCaseAdapter()
-                            .getExtendedConfig().getCompatibilityId());
+                    CameraUseCaseAdapter.generateCameraId(
+                            (RestrictedCameraInfo) lifecycleCamera.getCameraInfo()));
 
             LifecycleCameraRepositoryObserver observer =
                     getLifecycleCameraRepositoryObserver(lifecycleOwner);
@@ -505,26 +499,22 @@ final class LifecycleCameraRepository {
     }
 
     /**
-     * A key for mapping a {@link LifecycleOwner} and set of {@link CameraInternal} to a
+     * A key for mapping a {@link LifecycleOwner} and a {@link CameraUseCaseAdapter.CameraId} to a
      * {@link LifecycleCamera}.
      */
     @AutoValue
     abstract static class Key {
         static Key create(@NonNull LifecycleOwner lifecycleOwner,
-                @NonNull String cameraId,
-                @NonNull Identifier cameraConfigId) {
+                @NonNull CameraUseCaseAdapter.CameraId cameraId) {
             return new AutoValue_LifecycleCameraRepository_Key(
-                    lifecycleOwner, cameraId, cameraConfigId);
+                    lifecycleOwner, cameraId);
         }
 
         @NonNull
         public abstract LifecycleOwner getLifecycleOwner();
 
         @NonNull
-        public abstract String getCameraId();
-
-        @NonNull
-        public abstract Identifier getCameraConfigId();
+        public abstract CameraUseCaseAdapter.CameraId getCameraId();
     }
 
     private static class LifecycleCameraRepositoryObserver implements LifecycleObserver {

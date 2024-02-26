@@ -34,8 +34,8 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.OutputSurfaceConfiguration;
-import androidx.camera.core.impl.RestrictedCameraControl;
-import androidx.camera.core.impl.RestrictedCameraControl.CameraOperation;
+import androidx.camera.core.impl.RestrictedCameraInfo;
+import androidx.camera.core.impl.RestrictedCameraInfo.CameraOperation;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.SessionProcessorSurface;
@@ -94,53 +94,53 @@ abstract class SessionProcessorBase implements SessionProcessor, CameraExtension
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (supportedParameterKeys.contains(CaptureRequest.CONTROL_ZOOM_RATIO)
                     || supportedParameterKeys.contains(CaptureRequest.SCALER_CROP_REGION)) {
-                operations.add(RestrictedCameraControl.ZOOM);
+                operations.add(RestrictedCameraInfo.CAMERA_OPERATION_ZOOM);
             }
         } else {
             if (supportedParameterKeys.contains(CaptureRequest.SCALER_CROP_REGION)) {
-                operations.add(RestrictedCameraControl.ZOOM);
+                operations.add(RestrictedCameraInfo.CAMERA_OPERATION_ZOOM);
             }
         }
 
         if (supportedParameterKeys.containsAll(
                 Arrays.asList(
                         CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_MODE))) {
-            operations.add(RestrictedCameraControl.AUTO_FOCUS);
+            operations.add(RestrictedCameraInfo.CAMERA_OPERATION_AUTO_FOCUS);
         }
 
         if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AF_REGIONS)) {
-            operations.add(RestrictedCameraControl.AF_REGION);
+            operations.add(RestrictedCameraInfo.CAMERA_OPERATION_AF_REGION);
         }
 
         if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AE_REGIONS)) {
-            operations.add(RestrictedCameraControl.AE_REGION);
+            operations.add(RestrictedCameraInfo.CAMERA_OPERATION_AE_REGION);
         }
 
         if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AWB_REGIONS)) {
-            operations.add(RestrictedCameraControl.AWB_REGION);
+            operations.add(RestrictedCameraInfo.CAMERA_OPERATION_AWB_REGION);
         }
 
         if (supportedParameterKeys.containsAll(
                 Arrays.asList(
                         CaptureRequest.CONTROL_AE_MODE,
                         CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER))) {
-            operations.add(RestrictedCameraControl.FLASH);
+            operations.add(RestrictedCameraInfo.CAMERA_OPERATION_FLASH);
         }
 
         if (supportedParameterKeys.containsAll(
                 Arrays.asList(
                         CaptureRequest.CONTROL_AE_MODE,
                         CaptureRequest.FLASH_MODE))) {
-            operations.add(RestrictedCameraControl.TORCH);
+            operations.add(RestrictedCameraInfo.CAMERA_OPERATION_TORCH);
         }
 
         if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)) {
-            operations.add(RestrictedCameraControl.EXPOSURE_COMPENSATION);
+            operations.add(RestrictedCameraInfo.CAMERA_OPERATION_EXPOSURE_COMPENSATION);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
                 && supportedParameterKeys.contains(CaptureRequest.EXTENSION_STRENGTH)) {
-            operations.add(RestrictedCameraControl.EXTENSION_STRENGTH);
+            operations.add(RestrictedCameraInfo.CAMERA_OPERATION_EXTENSION_STRENGTH);
         }
 
         return operations;
