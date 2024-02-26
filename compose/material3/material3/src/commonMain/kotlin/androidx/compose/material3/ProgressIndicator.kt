@@ -341,7 +341,7 @@ fun LinearProgressIndicator(
         }
         val gapSizeFraction = adjustedGapSize / size.width.toDp()
 
-        if (firstLineHead.value - firstLineTail.value > 0) {
+        if (firstLineHead.value - firstLineTail.value >= 0) {
             if (firstLineTail.value > gapSizeFraction) {
                 val start = if (secondLineHead.value > gapSizeFraction) {
                     secondLineHead.value + gapSizeFraction
@@ -365,7 +365,7 @@ fun LinearProgressIndicator(
                 )
             }
         }
-        if (secondLineHead.value - secondLineTail.value > 0) {
+        if (secondLineHead.value - secondLineTail.value >= 0) {
             if (secondLineTail.value > gapSizeFraction) {
                 drawLinearIndicator(
                     0f, secondLineTail.value - gapSizeFraction, trackColor, strokeWidth, strokeCap
