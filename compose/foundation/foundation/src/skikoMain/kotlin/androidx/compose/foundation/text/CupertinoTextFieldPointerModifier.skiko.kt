@@ -124,7 +124,10 @@ private fun getTapHandlerModifier(
                                     textLayoutResult = layoutResult,
                                     editProcessor = currentState.processor,
                                     offsetMapping = currentOffsetMapping,
-                                    showContextMenu = {},
+                                    showContextMenu = {
+                                        // it shouldn't be selection, but this is a way to call context menu in BasicTextField
+                                        manager.enterSelectionMode(true)
+                                    },
                                     onValueChange = currentState.onValueChange
                                 )
                             }
