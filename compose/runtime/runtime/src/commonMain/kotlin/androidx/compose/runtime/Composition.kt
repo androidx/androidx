@@ -900,13 +900,15 @@ internal class CompositionImpl(
 
                     // Record derived state dependency mapping
                     if (value is DerivedState<*>) {
+                        val record = value.currentRecord
                         derivedStates.removeScope(value)
-                        value.currentRecord.dependencies.forEachKey { dependency ->
+                        record.dependencies.forEachKey { dependency ->
                             if (dependency is StateObjectImpl) {
                                 dependency.recordReadIn(ReaderKind.Composition)
                             }
                             derivedStates.add(dependency, value)
                         }
+                        it.recordDerivedStateValue(value, record.currentValue)
                     }
                 }
             }
