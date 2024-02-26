@@ -251,6 +251,22 @@ public class NavArgumentBuilder {
         }
 
     /**
+     * Set whether there is an unknown default value present.
+     *
+     * Use with caution!! In general you should let [defaultValue] to automatically set this state.
+     * This state should be set to true only if all these conditions are met:
+     *
+     * 1. There is default value present
+     * 2. You do not have access to actual default value (thus you can't use [defaultValue])
+     * 3. You know the default value will never ever be null if [nullable] is true.
+     */
+    internal var unknownDefaultValuePresent: Boolean = false
+        set(value) {
+            field = value
+            builder.setUnknownDefaultValuePresent(value)
+        }
+
+    /**
      * Builds the NavArgument by calling [NavArgument.Builder.build].
      */
     public fun build(): NavArgument {
