@@ -267,18 +267,17 @@ fun Slider(
     val state = remember(
         steps,
         valueRange,
-        onValueChangeFinished
     ) {
         SliderState(
             value,
             steps,
             onValueChangeFinished,
             valueRange
-
         )
     }
 
     state.onValueChange = onValueChange
+    state.onValueChangeFinished = onValueChangeFinished
     state.value = value
 
     Slider(
@@ -1789,7 +1788,7 @@ class SliderState(
     value: Float = 0f,
     @IntRange(from = 0)
     val steps: Int = 0,
-    val onValueChangeFinished: (() -> Unit)? = null,
+    onValueChangeFinished: (() -> Unit)? = null,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f
 ) : DraggableState {
 
@@ -1842,6 +1841,9 @@ class SliderState(
      */
     internal var onValueChange: ((Float) -> Unit)? = null
 
+    var onValueChangeFinished: (() -> Unit)? = onValueChangeFinished
+        internal set
+
     internal val tickFractions = stepsToTickFractions(steps)
     private var totalWidth by mutableIntStateOf(0)
     internal var isRtl = false
@@ -1868,7 +1870,7 @@ class SliderState(
     internal val gestureEndAction = {
         if (!isDragging) {
             // check isDragging in case the change is still in progress (touch -> drag case)
-            onValueChangeFinished?.invoke()
+            this.onValueChangeFinished?.invoke()
         }
     }
 
