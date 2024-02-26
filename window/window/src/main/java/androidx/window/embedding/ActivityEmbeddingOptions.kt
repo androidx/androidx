@@ -99,7 +99,7 @@ fun Bundle.setLaunchingActivityStack(
  * @param overlayCreateParams The parameter container to create an overlay [ActivityStack]
  * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
  */
-@RequiresWindowSdkExtension(5)
+@RequiresWindowSdkExtension(6)
 fun Bundle.setOverlayCreateParams(
     activity: Activity,
     overlayCreateParams: OverlayCreateParams

@@ -240,7 +240,7 @@ internal class EmbeddingCompat(
         return options
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams
@@ -248,30 +248,30 @@ internal class EmbeddingCompat(
         ActivityEmbeddingOptionsImpl.setOverlayCreateParams(options, overlayCreateParams)
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     ) {
-        windowSdkExtensions.requireExtensionVersion(5)
+        windowSdkExtensions.requireExtensionVersion(6)
 
         overlayController!!.overlayAttributesCalculator = calculator
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun clearOverlayAttributesCalculator() {
-        windowSdkExtensions.requireExtensionVersion(5)
+        windowSdkExtensions.requireExtensionVersion(6)
 
         overlayController!!.overlayAttributesCalculator = null
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
-        windowSdkExtensions.requireExtensionVersion(5)
+        windowSdkExtensions.requireExtensionVersion(6)
 
         overlayController!!.updateOverlayAttributes(overlayTag, overlayAttributes)
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
@@ -294,7 +294,7 @@ internal class EmbeddingCompat(
         }
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
         overlayController?.removeOverlayInfoCallback(overlayInfoCallback)
     }

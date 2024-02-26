@@ -42,7 +42,7 @@ import kotlin.concurrent.withLock
  * operations in WM Extensions.
  */
 @Suppress("NewApi") // Suppress #translateWindowMetrics, which requires R.
-@RequiresWindowSdkExtension(5)
+@RequiresWindowSdkExtension(6)
 internal open class OverlayControllerImpl(
     private val embeddingExtension: ActivityEmbeddingComponent,
     private val adapter: EmbeddingAdapter,
@@ -81,7 +81,7 @@ internal open class OverlayControllerImpl(
         ArrayMap<JetpackConsumer<OverlayInfo>, Consumer<List<ActivityStack>>>()
 
     init {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        WindowSdkExtensions.getInstance().requireExtensionVersion(6)
 
         embeddingExtension.setActivityStackAttributesCalculator { params ->
             globalLock.withLock {

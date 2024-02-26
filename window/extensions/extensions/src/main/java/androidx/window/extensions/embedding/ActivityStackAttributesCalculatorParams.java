@@ -61,7 +61,7 @@ public class ActivityStackAttributesCalculatorParams {
     /**
      * Returns {@link ParentContainerInfo} of the standalone {@link ActivityStack} to calculate.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public ParentContainerInfo getParentContainerInfo() {
         return mParentContainerInfo;
@@ -70,7 +70,7 @@ public class ActivityStackAttributesCalculatorParams {
     /**
      * Returns unique identifier of the standalone {@link ActivityStack} to calculate.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public String getActivityStackTag() {
         return mActivityStackTag;
@@ -89,7 +89,7 @@ public class ActivityStackAttributesCalculatorParams {
      * from the {@link android.app.ActivityOptions}, WM Extensions library must not touch the
      * options.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public Bundle getLaunchOptions() {
         return mLaunchOptions;
