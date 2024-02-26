@@ -33,8 +33,9 @@ class DefaultViewModelProviderFactoryTest {
         } catch (e: UnsupportedOperationException) {
             assertThat(e).hasCauseThat().isNull()
             assertThat(e).hasMessageThat().contains(
-                "Factory.create(String) is unsupported. This " +
-                    "Factory requires `CreationExtras` to be passed into `create` method."
+                "`Factory.create(String, CreationExtras)` is not implemented. You may need to " +
+                    "override the method and provide a custom implementation. Note that using " +
+                    "`Factory.create(String)` is not supported and considered an error."
             )
         }
     }
