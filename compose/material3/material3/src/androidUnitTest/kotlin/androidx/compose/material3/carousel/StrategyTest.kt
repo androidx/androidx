@@ -348,6 +348,19 @@ class StrategyTest {
         assertThat(strategy1.hashCode()).isNotEqualTo(strategy2.hashCode())
     }
 
+    @Test
+    fun testStrategy_startAlignedStrategyWithNegativeMaxScroll() {
+        val itemCount = 1
+        val carouselMainAxisSize = large + medium + small
+        val maxScrollOffset = (itemCount * large) - carouselMainAxisSize
+        val defaultKeylineList = createStartAlignedKeylineList()
+
+        val strategy = Strategy { defaultKeylineList }.apply(carouselMainAxisSize)
+
+        assertThat(strategy.getKeylineListForScrollOffset(0f, maxScrollOffset))
+            .isEqualTo(defaultKeylineList)
+    }
+
     private fun assertEqualWithFloatTolerance(
         tolerance: Float,
         actual: Keyline,

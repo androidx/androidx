@@ -61,7 +61,7 @@ internal fun calculateSnapPositions(strategy: Strategy?, itemCount: Int): IntInt
             map[itemIndex] = (startKeylines.firstFocal.offset -
                 startKeylines.firstFocal.size / 2f).roundToInt()
         }
-        if (itemIndex >= itemCount - endStepsSize) {
+        if (itemCount > numOfFocalKeylines + 1 && itemIndex >= itemCount - endStepsSize) {
             var endIndex = max(0, itemIndex - itemCount + endStepsSize)
             endIndex = min(endKeylineSteps.size - 1, endIndex)
             val endKeylines = endKeylineSteps[endIndex]
