@@ -1209,7 +1209,7 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.RadioButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class RangeSliderState {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class RangeSliderState {
     ctor public RangeSliderState(optional float activeRangeStart, optional float activeRangeEnd, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange);
     method public float getActiveRangeEnd();
     method public float getActiveRangeStart();
@@ -1218,6 +1218,7 @@ package androidx.compose.material3 {
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getValueRange();
     method public void setActiveRangeEnd(float);
     method public void setActiveRangeStart(float);
+    method public void setOnValueChangeFinished(kotlin.jvm.functions.Function0<kotlin.Unit>?);
     property public final float activeRangeEnd;
     property public final float activeRangeStart;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished;
@@ -1509,7 +1510,7 @@ package androidx.compose.material3 {
     property @Deprecated public final float[] tickFractions;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SliderState implements androidx.compose.foundation.gestures.DraggableState {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class SliderState implements androidx.compose.foundation.gestures.DraggableState {
     ctor public SliderState(optional float value, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange);
     method public void dispatchRawDelta(float delta);
     method public suspend Object? drag(androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -1517,6 +1518,7 @@ package androidx.compose.material3 {
     method public int getSteps();
     method public float getValue();
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getValueRange();
+    method public void setOnValueChangeFinished(kotlin.jvm.functions.Function0<kotlin.Unit>?);
     method public void setValue(float);
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished;
     property public final int steps;

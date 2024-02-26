@@ -753,6 +753,55 @@ class SliderTest {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
+    fun slider_onValueChangeFinishedWithSnackbar() {
+        lateinit var state: SliderState
+        var slop = 0f
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val snackbarHostState = remember { SnackbarHostState() }
+            val scope = rememberCoroutineScope()
+            Scaffold(
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+                content = { _ ->
+                    state = remember {
+                        SliderState(
+                            value = 0f,
+                            onValueChangeFinished = {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Snackbar Description")
+                                }
+                            }
+                        )
+                    }
+                    slop = LocalViewConfiguration.current.touchSlop
+                    Slider(
+                        state = state,
+                        modifier = Modifier.testTag(tag)
+                    )
+                }
+            )
+        }
+
+        rule.runOnUiThread {
+            Truth.assertThat(state.value).isEqualTo(0f)
+        }
+
+        var expected = 0f
+
+        rule.onNodeWithTag(tag)
+            .performTouchInput {
+                down(center)
+                moveBy(Offset(100f, 0f))
+                up()
+                expected = calculateFraction(left, right, centerX + 100 - slop)
+            }
+        rule.runOnIdle {
+            Truth.assertThat(state.value).isWithin(SliderTolerance).of(expected)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
     fun rangeSlider_dragThumb() {
         val state = RangeSliderState(0f, 1f)
         var slop = 0f
@@ -1353,6 +1402,59 @@ class SliderTest {
                     )
                 }
             }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSlider_onValueChangeFinishedWithSnackbar() {
+        lateinit var state: RangeSliderState
+        var slop = 0f
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val snackbarHostState = remember { SnackbarHostState() }
+            val scope = rememberCoroutineScope()
+            Scaffold(
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+                content = { _ ->
+                    state = remember {
+                        RangeSliderState(
+                            activeRangeStart = 0f,
+                            activeRangeEnd = 1f,
+                            onValueChangeFinished = {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Snackbar Description")
+                                }
+                            }
+                        )
+                    }
+                    slop = LocalViewConfiguration.current.touchSlop
+                    RangeSlider(
+                        state = state,
+                        modifier = Modifier.testTag(tag)
+                    )
+                }
+            )
+        }
+
+        rule.runOnUiThread {
+            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
+            Truth.assertThat(state.activeRangeEnd).isEqualTo(1f)
+        }
+
+        var expected = 0f
+
+        rule.onNodeWithTag(tag)
+            .performTouchInput {
+                down(center)
+                moveBy(Offset(slop, 0f))
+                moveBy(Offset(100f, 0f))
+                up()
+                expected = calculateFraction(left, right, centerX + 100)
+            }
+        rule.runOnIdle {
+            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
+            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
         }
     }
 }
