@@ -12,4 +12,6 @@ public interface SdkCallback {
     public fun onSdkActivityLauncherReceived(myLauncher: SdkActivityLauncher)
 
     public fun onValueReceived(response: Response)
+
+    public suspend fun testing(): Response
 }

@@ -1,4 +1,4 @@
-package com.mysdk
+package com.sdkwithcallbacks
 
 import java.lang.StackTraceElement
 import kotlin.coroutines.cancellation.CancellationException

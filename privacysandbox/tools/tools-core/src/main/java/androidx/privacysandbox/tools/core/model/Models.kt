@@ -24,7 +24,7 @@ fun ParsedApi.getOnlyService(): AnnotatedInterface {
 }
 
 fun ParsedApi.hasSuspendFunctions(): Boolean {
-    val annotatedInterfaces = services + interfaces
+    val annotatedInterfaces = services + interfaces + callbacks
     return annotatedInterfaces
         .flatMap(AnnotatedInterface::methods)
         .any(Method::isSuspend)

@@ -22,6 +22,8 @@ import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.CoreLibInfoAndBinderWrapperConverterGenerator
 import androidx.privacysandbox.tools.core.generator.GenerationTarget
+import androidx.privacysandbox.tools.core.generator.PrivacySandboxCancellationExceptionFileGenerator
+import androidx.privacysandbox.tools.core.generator.PrivacySandboxExceptionFileGenerator
 import androidx.privacysandbox.tools.core.generator.SdkActivityLauncherWrapperGenerator
 import androidx.privacysandbox.tools.core.generator.ServerBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
@@ -154,8 +156,10 @@ internal class SdkCodeGenerator(
     private fun generateSuspendFunctionUtilities() {
         if (!api.hasSuspendFunctions()) return
         TransportCancellationGenerator(basePackageName()).generate().also(::write)
-        ThrowableParcelConverterFileGenerator(basePackageName(), target).generate()
+        ThrowableParcelConverterFileGenerator(basePackageName()).generate()
             .also(::write)
+        PrivacySandboxExceptionFileGenerator(basePackageName()).generate().also(::write)
+        PrivacySandboxCancellationExceptionFileGenerator(basePackageName()).generate().also(::write)
     }
 
     private fun generateSdkActivityLauncherUtilities() {
