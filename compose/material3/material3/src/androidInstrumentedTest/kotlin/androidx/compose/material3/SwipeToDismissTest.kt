@@ -90,16 +90,39 @@ class SwipeToDismissTest {
                 state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.StartToEnd),
                 backgroundContent = { }
             ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag(dismissContentTag)
-                    ) }
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag(dismissContentTag)
+                )
+            }
         }
 
         val width = rule.rootWidth()
         rule.onNodeWithTag(dismissContentTag)
             .assertLeftPositionInRootIsEqualTo(width)
+    }
+
+    @Test
+    fun swipeDismiss_testOffset_whenDismissedToEnd_rtl() {
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                SwipeToDismissBox(
+                    state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.StartToEnd),
+                    backgroundContent = { }
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(dismissContentTag)
+                    )
+                }
+            }
+        }
+
+        val width = rule.rootWidth()
+        rule.onNodeWithTag(dismissContentTag)
+            .assertLeftPositionInRootIsEqualTo(-width)
     }
 
     @Test
@@ -109,16 +132,39 @@ class SwipeToDismissTest {
                 state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.EndToStart),
                 backgroundContent = { },
             ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag(dismissContentTag)
-                    ) }
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag(dismissContentTag)
+                )
+            }
         }
 
         val width = rule.rootWidth()
         rule.onNodeWithTag(dismissContentTag)
             .assertLeftPositionInRootIsEqualTo(-width)
+    }
+
+    @Test
+    fun swipeDismiss_testOffset_whenDismissedToStart_rtl() {
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                SwipeToDismissBox(
+                    state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.EndToStart),
+                    backgroundContent = { },
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(dismissContentTag)
+                    )
+                }
+            }
+        }
+
+        val width = rule.rootWidth()
+        rule.onNodeWithTag(dismissContentTag)
+            .assertLeftPositionInRootIsEqualTo(width)
     }
 
     @Test
