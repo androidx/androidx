@@ -64,5 +64,9 @@ public actual class ViewModelProvider private constructor(
             factory: Factory,
             extras: CreationExtras
         ): ViewModelProvider = ViewModelProvider(ViewModelProviderImpl(store, factory, extras))
+
+        @JvmField
+        public actual val VIEW_MODEL_KEY: CreationExtras.Key<String> =
+            ViewModelProviders.ViewModelKey
     }
 }

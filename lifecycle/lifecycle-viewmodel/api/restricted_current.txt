@@ -48,6 +48,7 @@ package androidx.lifecycle {
     method @MainThread public final operator <T extends androidx.lifecycle.ViewModel> T get(String key, kotlin.reflect.KClass<T> modelClass);
     method @MainThread public final operator <T extends androidx.lifecycle.ViewModel> T get(kotlin.reflect.KClass<T> modelClass);
     field public static final androidx.lifecycle.ViewModelProvider.Companion Companion;
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<java.lang.String> VIEW_MODEL_KEY;
   }
 
   public static class ViewModelProvider.AndroidViewModelFactory extends androidx.lifecycle.ViewModelProvider.NewInstanceFactory {
