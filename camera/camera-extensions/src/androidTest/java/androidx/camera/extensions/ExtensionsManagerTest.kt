@@ -30,7 +30,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.MutableStateObservable
-import androidx.camera.core.impl.RestrictedCameraControl
+import androidx.camera.core.impl.RestrictedCameraInfo
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
@@ -701,7 +701,7 @@ class ExtensionsManagerTest(
 
         assertThat(cameraExtensionsInfo.isExtensionStrengthAvailable).isEqualTo(
             camera.extendedConfig.sessionProcessor.supportedCameraOperations.contains(
-                RestrictedCameraControl.EXTENSION_STRENGTH
+                RestrictedCameraInfo.CAMERA_OPERATION_EXTENSION_STRENGTH
             )
         )
     }
