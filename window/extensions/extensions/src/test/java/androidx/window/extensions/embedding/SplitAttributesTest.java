@@ -79,6 +79,17 @@ public class SplitAttributesTest {
     }
 
     @Test
+    public void testSplitAttributesEqualsUsingBuilderFromExistingInstance() {
+        final SplitAttributes attrs1 = new SplitAttributes.Builder()
+                .setSplitType(splitEqually())
+                .setLayoutDirection(LayoutDirection.LOCALE)
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+                .build();
+        final SplitAttributes attrs2 = new SplitAttributes.Builder(attrs1).build();
+        assertEquals(attrs1, attrs2);
+    }
+
+    @Test
     public void testSplitTypeEquals() {
         final SplitAttributes.SplitType[] splitTypes = new SplitAttributes.SplitType[]{
                 new SplitAttributes.SplitType.ExpandContainersSplitType(),
