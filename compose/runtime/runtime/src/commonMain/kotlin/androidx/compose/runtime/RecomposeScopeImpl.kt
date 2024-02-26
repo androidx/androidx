@@ -322,14 +322,14 @@ internal class RecomposeScopeImpl(
             return true
         }
 
-        if (instance is DerivedState<*>) {
-            val trackedDependencies = trackedDependencies
-                ?: MutableScatterMap<DerivedState<*>, Any?>().also { trackedDependencies = it }
-
-            trackedDependencies[instance] = instance.currentRecord.currentValue
-        }
-
         return false
+    }
+
+    fun recordDerivedStateValue(instance: DerivedState<*>, value: Any?) {
+        val trackedDependencies = trackedDependencies
+            ?: MutableScatterMap<DerivedState<*>, Any?>().also { trackedDependencies = it }
+
+        trackedDependencies[instance] = value
     }
 
     /**
