@@ -93,7 +93,11 @@ internal data class RowColumnMeasurePolicy(
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int
-    ) = MinIntrinsicWidthMeasureBlock(orientation)(
+    ) = if (orientation == Horizontal) IntrinsicMeasureBlocks.HorizontalMinWidth(
+        measurables,
+        height,
+        arrangementSpacing.roundToPx()
+    ) else IntrinsicMeasureBlocks.VerticalMinWidth(
         measurables,
         height,
         arrangementSpacing.roundToPx()
@@ -102,7 +106,11 @@ internal data class RowColumnMeasurePolicy(
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int
-    ) = MinIntrinsicHeightMeasureBlock(orientation)(
+    ) = if (orientation == Horizontal) IntrinsicMeasureBlocks.HorizontalMinHeight(
+        measurables,
+        width,
+        arrangementSpacing.roundToPx()
+    ) else IntrinsicMeasureBlocks.VerticalMinHeight(
         measurables,
         width,
         arrangementSpacing.roundToPx()
@@ -111,7 +119,11 @@ internal data class RowColumnMeasurePolicy(
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int
-    ) = MaxIntrinsicWidthMeasureBlock(orientation)(
+    ) = if (orientation == Horizontal) IntrinsicMeasureBlocks.HorizontalMaxWidth(
+        measurables,
+        height,
+        arrangementSpacing.roundToPx()
+    ) else IntrinsicMeasureBlocks.VerticalMaxWidth(
         measurables,
         height,
         arrangementSpacing.roundToPx()
@@ -120,7 +132,11 @@ internal data class RowColumnMeasurePolicy(
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int
-    ) = MaxIntrinsicHeightMeasureBlock(orientation)(
+    ) = if (orientation == Horizontal) IntrinsicMeasureBlocks.HorizontalMaxHeight(
+        measurables,
+        width,
+        arrangementSpacing.roundToPx()
+    ) else IntrinsicMeasureBlocks.VerticalMaxHeight(
         measurables,
         width,
         arrangementSpacing.roundToPx()
@@ -405,154 +421,110 @@ internal val RowColumnParentData?.crossAxisAlignment: CrossAxisAlignment?
 internal val RowColumnParentData?.isRelative: Boolean
     get() = this.crossAxisAlignment?.isRelative ?: false
 
-private fun MinIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) {
-        IntrinsicMeasureBlocks.HorizontalMinWidth
-    } else {
-        IntrinsicMeasureBlocks.VerticalMinWidth
-    }
-
-private fun MinIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) {
-        IntrinsicMeasureBlocks.HorizontalMinHeight
-    } else {
-        IntrinsicMeasureBlocks.VerticalMinHeight
-    }
-
-private fun MaxIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) {
-        IntrinsicMeasureBlocks.HorizontalMaxWidth
-    } else {
-        IntrinsicMeasureBlocks.VerticalMaxWidth
-    }
-
-private fun MaxIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) {
-        IntrinsicMeasureBlocks.HorizontalMaxHeight
-    } else {
-        IntrinsicMeasureBlocks.VerticalMaxHeight
-    }
-
 private object IntrinsicMeasureBlocks {
-    val HorizontalMinWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableHeight, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { h -> minIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                mainAxisSpacing,
-                LayoutOrientation.Horizontal,
-                LayoutOrientation.Horizontal
-            )
-        }
-    val VerticalMinWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableHeight, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { h -> minIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                mainAxisSpacing,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Horizontal
-            )
-        }
-    val HorizontalMinHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableWidth, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { w -> minIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                mainAxisSpacing,
-                LayoutOrientation.Horizontal,
-                LayoutOrientation.Vertical
-            )
-        }
-    val VerticalMinHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableWidth, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { w -> minIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                mainAxisSpacing,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Vertical
-            )
-        }
-    val HorizontalMaxWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableHeight, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { h -> maxIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                mainAxisSpacing,
-                LayoutOrientation.Horizontal,
-                LayoutOrientation.Horizontal
-            )
-        }
-    val VerticalMaxWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableHeight, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { h -> maxIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                mainAxisSpacing,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Horizontal
-            )
-        }
-    val HorizontalMaxHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableWidth, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { w -> maxIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                mainAxisSpacing,
-                LayoutOrientation.Horizontal,
-                LayoutOrientation.Vertical
-            )
-        }
-    val VerticalMaxHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableWidth, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { w -> maxIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                mainAxisSpacing,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Vertical
-            )
-        }
+    fun HorizontalMinWidth(
+        measurables: List<IntrinsicMeasurable>,
+        availableHeight: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicMainAxisSize(
+            measurables,
+            { h -> minIntrinsicWidth(h) },
+            availableHeight,
+            mainAxisSpacing,
+        )
+    }
+    fun VerticalMinWidth(
+        measurables: List<IntrinsicMeasurable>,
+        availableHeight: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicCrossAxisSize(
+            measurables,
+            { w -> maxIntrinsicHeight(w) },
+            { h -> minIntrinsicWidth(h) },
+            availableHeight,
+            mainAxisSpacing,
+        )
+    }
+    fun HorizontalMinHeight(
+        measurables: List<IntrinsicMeasurable>,
+        availableWidth: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicCrossAxisSize(
+            measurables,
+            { h -> maxIntrinsicWidth(h) },
+            { w -> minIntrinsicHeight(w) },
+            availableWidth,
+            mainAxisSpacing,
+        )
+    }
+    fun VerticalMinHeight(
+        measurables: List<IntrinsicMeasurable>,
+        availableWidth: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicMainAxisSize(
+            measurables,
+            { w -> minIntrinsicHeight(w) },
+            availableWidth,
+            mainAxisSpacing,
+        )
+    }
+    fun HorizontalMaxWidth(
+        measurables: List<IntrinsicMeasurable>,
+        availableHeight: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicMainAxisSize(
+            measurables,
+            { h -> maxIntrinsicWidth(h) },
+            availableHeight,
+            mainAxisSpacing,
+        )
+    }
+    fun VerticalMaxWidth(
+        measurables: List<IntrinsicMeasurable>,
+        availableHeight: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicCrossAxisSize(
+            measurables,
+            { w -> maxIntrinsicHeight(w) },
+            { h -> maxIntrinsicWidth(h) },
+            availableHeight,
+            mainAxisSpacing,
+        )
+    }
+    fun HorizontalMaxHeight(
+        measurables: List<IntrinsicMeasurable>,
+        availableWidth: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicCrossAxisSize(
+            measurables,
+            { h -> maxIntrinsicWidth(h) },
+            { w -> maxIntrinsicHeight(w) },
+            availableWidth,
+            mainAxisSpacing,
+        )
+    }
+    fun VerticalMaxHeight(
+        measurables: List<IntrinsicMeasurable>,
+        availableWidth: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicMainAxisSize(
+            measurables,
+            { w -> maxIntrinsicHeight(w) },
+            availableWidth,
+            mainAxisSpacing,
+        )
+    }
 }
 
-private fun intrinsicSize(
-    children: List<IntrinsicMeasurable>,
-    intrinsicMainSize: IntrinsicMeasurable.(Int) -> Int,
-    intrinsicCrossSize: IntrinsicMeasurable.(Int) -> Int,
-    crossAxisAvailable: Int,
-    mainAxisSpacing: Int,
-    layoutOrientation: LayoutOrientation,
-    intrinsicOrientation: LayoutOrientation
-) = if (layoutOrientation == intrinsicOrientation) {
-    intrinsicMainAxisSize(children, intrinsicMainSize, crossAxisAvailable, mainAxisSpacing)
-} else {
-    intrinsicCrossAxisSize(
-        children,
-        intrinsicCrossSize,
-        intrinsicMainSize,
-        crossAxisAvailable,
-        mainAxisSpacing
-    )
-}
-
-private fun intrinsicMainAxisSize(
+private inline fun intrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
     mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
     crossAxisAvailable: Int,
@@ -576,7 +548,7 @@ private fun intrinsicMainAxisSize(
         (children.size - 1) * mainAxisSpacing
 }
 
-private fun intrinsicCrossAxisSize(
+private inline fun intrinsicCrossAxisSize(
     children: List<IntrinsicMeasurable>,
     mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
     crossAxisSize: IntrinsicMeasurable.(Int) -> Int,
