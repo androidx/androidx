@@ -112,4 +112,6 @@ interface MyCallback {
     fun onCompleteInterface(myInterface: MyInterface)
 
     fun onCompleteUiInterface(myUiInterface: MyUiInterface)
+
+    suspend fun returnAValueFromCallback(): Response
 }

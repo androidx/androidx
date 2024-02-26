@@ -73,7 +73,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun validateNonSuspendFunctionsReturnUnit() {
-        val annotatedInterfaces = api.services + api.interfaces
+        val annotatedInterfaces = api.services + api.interfaces + api.callbacks
         for (annotatedInterface in annotatedInterfaces) {
             for (method in annotatedInterface.methods) {
                 if (!method.isSuspend && method.returnType != Types.unit) {
@@ -87,7 +87,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun validateServiceAndInterfaceMethods() {
-        val annotatedInterfaces = api.services + api.interfaces
+        val annotatedInterfaces = api.services + api.interfaces + api.callbacks
         for (annotatedInterface in annotatedInterfaces) {
             for (method in annotatedInterface.methods) {
                 if (method.parameters.any { !(isValidInterfaceParameterType(it.type)) }) {
@@ -139,12 +139,6 @@ class ModelValidator private constructor(val api: ParsedApi) {
                             "@PrivacySandboxValue, interfaces annotated with " +
                             "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
                             "callback parameter types."
-                    )
-                }
-                if (method.returnType != Types.unit || method.isSuspend) {
-                    errors.add(
-                        "Error in ${callback.type.qualifiedName}.${method.name}: callback " +
-                            "methods should be non-suspending and have no return values."
                     )
                 }
             }

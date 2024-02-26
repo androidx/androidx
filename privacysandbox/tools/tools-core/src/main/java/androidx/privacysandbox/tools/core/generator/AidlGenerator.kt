@@ -155,7 +155,7 @@ class AidlGenerator private constructor(
     }
 
     private fun generateTransactionCallbacks(): List<AidlFileSpec> {
-        val annotatedInterfaces = api.services + api.interfaces
+        val annotatedInterfaces = api.services + api.interfaces + api.callbacks
         return annotatedInterfaces
             .flatMap(AnnotatedInterface::methods)
             .filter(Method::isSuspend)

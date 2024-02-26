@@ -220,6 +220,32 @@ class ModelValidatorTest {
                         ),
                     ),
                 ),
+            ),
+            interfaces = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdkInterface"),
+                    methods = listOf(
+                        Method(
+                            name = "returnSomethingInInterface",
+                            parameters = listOf(),
+                            returnType = Types.string,
+                            isSuspend = false,
+                        )
+                    )
+                )
+            ),
+            callbacks = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdkCallback"),
+                    methods = listOf(
+                        Method(
+                            name = "returnSomethingInCallback",
+                            parameters = listOf(),
+                            returnType = Types.string,
+                            isSuspend = false,
+                        )
+                    )
+                )
             )
         )
         val validationResult = ModelValidator.validate(api)
@@ -228,7 +254,11 @@ class ModelValidatorTest {
             "Error in com.mysdk.MySdk.returnSomethingNow: functions with return values " +
                 "should be suspending functions.",
             "Error in com.mysdk.MySdk.returnSomethingElseNow: functions with return values " +
-                "should be suspending functions."
+                "should be suspending functions.",
+            "Error in com.mysdk.MySdkInterface.returnSomethingInInterface: " +
+                "functions with return values should be suspending functions.",
+            "Error in com.mysdk.MySdkCallback.returnSomethingInCallback: " +
+                "functions with return values should be suspending functions."
         )
     }
 
@@ -326,42 +356,6 @@ class ModelValidatorTest {
             "Error in com.mysdk.Foo.bar: only primitives, lists, data classes annotated with " +
                 "@PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, and " +
                 "SdkActivityLaunchers are supported as properties."
-        )
-    }
-
-    @Test
-    fun callbackWithNonFireAndForgetMethod_throws() {
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
-            ),
-            callbacks = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdkCallback"),
-                    methods = listOf(
-                        Method(
-                            name = "suspendMethod",
-                            parameters = listOf(),
-                            returnType = Types.unit,
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "methodWithReturnValue",
-                            parameters = listOf(),
-                            returnType = Types.int,
-                            isSuspend = false,
-                        ),
-                    )
-                )
-            )
-        )
-        val validationResult = ModelValidator.validate(api)
-        assertThat(validationResult.isFailure).isTrue()
-        assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdkCallback.suspendMethod: callback methods should be " +
-                "non-suspending and have no return values.",
-            "Error in com.mysdk.MySdkCallback.methodWithReturnValue: callback methods should be " +
-                "non-suspending and have no return values.",
         )
     }
 
