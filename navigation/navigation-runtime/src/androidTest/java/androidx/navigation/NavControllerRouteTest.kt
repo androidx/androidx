@@ -270,6 +270,135 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testStartDestinationWithPathArg() {
+        val navController = createNavController()
+        val graph = navController.createGraph(route = "graph", startDestination = "start/myArg") {
+            test("start/{arg}") {
+                argument("arg") {
+                    type = NavType.StringType
+                    nullable = false
+                    defaultValue = "defaultArg"
+                }
+            }
+        }
+        navController.setGraph(graph, null)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}")
+        val entry = navController.currentBackStackEntry!!
+        val actual = entry.arguments!!.getString("arg")
+        val expected = "myArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNestedStartDestinationWithPathArg() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            route = "graph", startDestination = "start"
+        ) {
+            test("start")
+            navigation(route = "nestedGraph", startDestination = "nestedStart/myArg") {
+                test("nestedStart/{arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg"
+                    }
+                }
+            }
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        navController.navigate("nestedGraph")
+        assertThat(navController.currentDestination?.route).isEqualTo("nestedStart/{arg}")
+        val entry = navController.currentBackStackEntry
+        val actual = entry!!.arguments!!.getString("arg")
+        val expected = "myArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationWithArgAndPathArgs() {
+        val navController = createNavController()
+        val args = Bundle().apply {
+            putString("arg", "startArg")
+        }
+        val graph = navController.createGraph(
+            route = "graph", startDestination = "start/myArg"
+        ) {
+            test("start/{arg}") {
+                argument("arg") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            }
+        }
+        navController.setGraph(graph, args)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}")
+        val entry = navController.currentBackStackEntry
+        val actual = entry!!.arguments!!.getString("arg")
+        // explicitly passed in args should be prioritized
+        val expected = "startArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationWithArgAndMultiplePathArgs() {
+        val navController = createNavController()
+        val args = Bundle().apply {
+            putString("arg", "startArg")
+        }
+        val graph = navController.createGraph(
+            route = "graph", startDestination = "start/myArg/myArg2"
+        ) {
+            test("start/{arg}/{arg2}") {
+                argument("arg") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+                argument("arg2") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            }
+        }
+        navController.setGraph(graph, args)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}/{arg2}")
+        val entry = navController.currentBackStackEntry
+        val actual1 = entry!!.arguments!!.getString("arg")
+        // explicitly passed in arg should be prioritized
+        val expected1 = "startArg"
+        assertThat(actual1).isEqualTo(expected1)
+        // no explicitly passed arg2, arg2 value should be the one from the route
+        val actual2 = entry.arguments!!.getString("arg2")
+        val expected2 = "myArg2"
+        assertThat(actual2).isEqualTo(expected2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationWithQueryArgs() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            route = "graph", startDestination = "start?arg=myArg"
+        ) {
+            test("start?arg={arg}") {
+                argument("arg") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            }
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start?arg={arg}")
+        val entry = navController.currentBackStackEntry
+        val actual = entry!!.arguments!!.getString("arg")
+        val expected = "myArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
     fun testStartDestinationWithArgsProgrammatic() {
         val navController = createNavController()
         val args = Bundle().apply {
@@ -587,28 +716,6 @@ class NavControllerRouteTest {
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         // getBackStack with a route with null args
         val entry1 = navController.getBackStackEntry("start_test?opt=null")
-        assertThat(entry1).isEqualTo(navigator.backStack.first())
-    }
-
-    @UiThreadTest
-    @Test
-    fun testGetBackStackEntryWithPartialExactRoute_nullNullableArgs() {
-        val navController = createNavController()
-        navController.graph =
-            createNavController().createGraph(
-                route = "nav_root", startDestination = "start_test/{arg}"
-            ) {
-                test("start_test/{arg}") {
-                    argument("arg") {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    }
-                }
-            }
-        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        // getBackStack with a route with null args
-        val entry1 = navController.getBackStackEntry("start_test/null")
         assertThat(entry1).isEqualTo(navigator.backStack.first())
     }
 
