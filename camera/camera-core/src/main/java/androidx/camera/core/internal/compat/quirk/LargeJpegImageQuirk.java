@@ -34,9 +34,9 @@ import java.util.Set;
  *                  0's padding data. For example, Samsung A5 (2017) series devices have the
  *                  problem and result in the output JPEG image to be extremely large (about 32 MB).
  *     Device(s): Samsung Galaxy A5 (2017), A52, A70, A71, A72, M51, S7, S22, S22+ series devices
- *                and Vivo S16 device. This issue might also happen on some other Samsung devices
- *                . Therefore, a generic rule is added to force check the invalid JPEG data if
- *                the captured image size is larger than 10 MB.
+ *                and Vivo S16, X60, X60 Pro devices. This issue might also happen on some other
+ *                Samsung devices. Therefore, a generic rule is added to force check the invalid
+ *                JPEG data if the captured image size is larger than 10 MB.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class LargeJpegImageQuirk implements Quirk {
@@ -88,7 +88,11 @@ public final class LargeJpegImageQuirk implements Quirk {
 
     private static final Set<String> VIVO_DEVICE_MODELS = new HashSet<>(Arrays.asList(
             // Vivo S16
-            "V2244A"
+            "V2244A",
+            // Vivo X60
+            "V2045",
+            // Vivo X60 Pro
+            "V2046"
     ));
 
     static boolean load() {
