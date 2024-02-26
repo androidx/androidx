@@ -4,8 +4,8 @@ import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteStatement
-import java.lang.IllegalArgumentException
 import javax.`annotation`.processing.Generated
+import kotlin.IllegalArgumentException
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
