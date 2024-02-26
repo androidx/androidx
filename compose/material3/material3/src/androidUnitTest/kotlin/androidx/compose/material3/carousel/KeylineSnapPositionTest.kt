@@ -58,6 +58,16 @@ class KeylineSnapPositionTest {
         repeat(itemCount) { i -> assertThat(map[i]).isEqualTo(expectedSnapPositions[i]) }
     }
 
+    @Test
+    fun testSnapPosition_forStartAlignedStrategyWithLessItemsThanFocal() {
+        val strategy = testStartAlignedStrategyWithMultipleFocal()
+        // item count is the number of focal keylines minus one
+        val itemCount = strategy.defaultKeylines.lastFocalIndex -
+            strategy.defaultKeylines.firstFocalIndex
+        val map = calculateSnapPositions(strategy, itemCount)
+        repeat(itemCount) { i -> assertThat(map[i]).isEqualTo(0) }
+    }
+
     // Test strategy that is center aligned and has a complex keyline state, ie:
     // [xsmall - small - medium - large - medium - small - xsmall]
     // In this case, we expect this:
