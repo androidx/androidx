@@ -79,8 +79,6 @@ public class ImagePipeline {
     @NonNull
     private final CaptureNode mCaptureNode;
     @NonNull
-    private final SingleBundlingNode mBundlingNode;
-    @NonNull
     private final ProcessingNode mProcessingNode;
     @NonNull
     private final CaptureNode.In mPipelineIn;
@@ -120,7 +118,6 @@ public class ImagePipeline {
 
         // Create nodes
         mCaptureNode = new CaptureNode();
-        mBundlingNode = new SingleBundlingNode();
         mProcessingNode = new ProcessingNode(
                 requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())),
                 cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
@@ -134,8 +131,7 @@ public class ImagePipeline {
                 mUseCaseConfig.getImageReaderProxyProvider(),
                 postviewSize,
                 postviewImageFormat);
-        CaptureNode.Out captureOut = mCaptureNode.transform(mPipelineIn);
-        ProcessingNode.In processingIn = mBundlingNode.transform(captureOut);
+        ProcessingNode.In processingIn = mCaptureNode.transform(mPipelineIn);
         mProcessingNode.transform(processingIn);
     }
 
@@ -165,7 +161,6 @@ public class ImagePipeline {
     public void close() {
         checkMainThread();
         mCaptureNode.release();
-        mBundlingNode.release();
         mProcessingNode.release();
     }
 
