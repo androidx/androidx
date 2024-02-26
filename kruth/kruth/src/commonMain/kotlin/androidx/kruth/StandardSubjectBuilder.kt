@@ -65,10 +65,21 @@ open class StandardSubjectBuilder internal constructor(
     fun that(actual: Boolean?): BooleanSubject =
         BooleanSubject(actual = actual, metadata = metadata)
 
+    fun that(actual: Long): LongSubject =
+        LongSubject(actual = actual, metadata = metadata)
+
+    // Workaround for https://youtrack.jetbrains.com/issue/KT-645
+    fun <T : Long?> that(actual: T): LongSubject =
+        LongSubject(actual = actual, metadata = metadata)
+
     fun that(actual: Double?): DoubleSubject =
         DoubleSubject(actual = actual, metadata = metadata)
 
-    fun that(actual: Int?): IntegerSubject =
+    fun that(actual: Int): IntegerSubject =
+        IntegerSubject(actual = actual, metadata = metadata)
+
+    // Workaround for https://youtrack.jetbrains.com/issue/KT-645
+    fun <T : Int?> that(actual: T): IntegerSubject =
         IntegerSubject(actual = actual, metadata = metadata)
 
     fun that(actual: String?): StringSubject =
