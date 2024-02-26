@@ -39,7 +39,6 @@ import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
@@ -84,6 +83,7 @@ import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQ
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.camera.view.transform.CoordinateTransform;
 import androidx.camera.view.transform.OutputTransform;
+import androidx.camera.viewfinder.core.ZoomGestureDetector;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -174,7 +174,7 @@ public final class PreviewView extends FrameLayout {
 
     // Detector for zoom-to-scale.
     @NonNull
-    private final ScaleGestureDetector mScaleGestureDetector;
+    private final ZoomGestureDetector mZoomGestureDetector;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -323,8 +323,14 @@ public final class PreviewView extends FrameLayout {
             attributes.recycle();
         }
 
-        mScaleGestureDetector = new ScaleGestureDetector(
-                context, new PinchToZoomOnScaleGestureListener());
+        mZoomGestureDetector = new ZoomGestureDetector(context,
+                (type, detector) -> {
+                    if (type == ZoomGestureDetector.ZOOM_GESTURE_MOVE
+                            && mCameraController != null) {
+                        mCameraController.onPinchToZoom(detector.getScaleFactor());
+                    }
+                    return true;
+                });
 
         // Set background only if it wasn't already set. A default background prevents the content
         // behind the PreviewView from being visible before the preview starts streaming.
@@ -381,7 +387,7 @@ public final class PreviewView extends FrameLayout {
             // invoked twice.
             return true;
         }
-        return mScaleGestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
+        return mZoomGestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
     @Override
@@ -928,20 +934,6 @@ public final class PreviewView extends FrameLayout {
          * {@link ImplementationMode#COMPATIBLE} mode via {@link #setImplementationMode}.
          */
         STREAMING
-    }
-
-    /**
-     * GestureListener that speeds up scale factor and sends it to controller.
-     */
-    class PinchToZoomOnScaleGestureListener extends
-            ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            if (mCameraController != null) {
-                mCameraController.onPinchToZoom(detector.getScaleFactor());
-            }
-            return true;
-        }
     }
 
     /**
