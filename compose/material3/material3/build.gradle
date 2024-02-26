@@ -175,6 +175,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             skikoTest.dependencies {
                 implementation(libs.kotlinTest)
+                implementation(project(":compose:ui:ui-test"))
             }
 
             desktopTest {
