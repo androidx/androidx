@@ -22,6 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
@@ -218,8 +219,10 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
 }
 
-tasks.findByName("desktopTest").configure {
-    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+if (KmpPlatformsKt.enableDesktop(project)) {
+    tasks.findByName("desktopTest").configure {
+        systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+    }
 }
 
 android {
