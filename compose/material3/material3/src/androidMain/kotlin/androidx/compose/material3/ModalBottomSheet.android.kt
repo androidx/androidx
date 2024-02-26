@@ -58,7 +58,6 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,7 +77,6 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
@@ -158,11 +156,6 @@ fun ModalBottomSheet(
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    // b/291735717 Remove this once deprecated methods without density are removed
-    val density = LocalDensity.current
-    SideEffect {
-        sheetState.density = density
-    }
     val scope = rememberCoroutineScope()
     val animateToDismiss: () -> Unit = {
         if (sheetState.anchoredDraggableState.confirmValueChange(Hidden)) {
@@ -470,7 +463,11 @@ object ModalBottomSheetDefaults {
 fun rememberModalBottomSheetState(
     skipPartiallyExpanded: Boolean = false,
     confirmValueChange: (SheetValue) -> Boolean = { true },
-) = rememberSheetState(skipPartiallyExpanded, confirmValueChange, Hidden)
+) = rememberSheetState(
+    skipPartiallyExpanded = skipPartiallyExpanded,
+    confirmValueChange = confirmValueChange,
+    initialValue = Hidden,
+)
 
 @Composable
 private fun Scrim(
