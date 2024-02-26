@@ -199,6 +199,14 @@ expect abstract class RoomDatabase {
         fun setDriver(driver: SQLiteDriver): Builder<T>
 
         /**
+         * Adds a [Callback] to this database.
+         *
+         * @param callback The callback.
+         * @return This builder instance.
+         */
+        fun addCallback(callback: Callback): Builder<T>
+
+        /**
          * Creates the database and initializes it.
          *
          * @return A new database instance.
@@ -243,6 +251,34 @@ expect abstract class RoomDatabase {
         internal fun getSortedDescendingNodes(
             migrationStart: Int
         ): Pair<Map<Int, Migration>, Iterable<Int>>?
+    }
+
+    /**
+     * Callback for [RoomDatabase]
+     */
+    abstract class Callback() {
+        /**
+         * Called when the database is created for the first time.
+         *
+         * This function called after all the tables are created.
+         *
+         * @param connection The database connection.
+         */
+        open fun onCreate(connection: SQLiteConnection)
+
+        /**
+         * Called after the database was destructively migrated.
+         *
+         * @param connection The database connection.
+         */
+        open fun onDestructiveMigration(connection: SQLiteConnection)
+
+        /**
+         * Called when the database has been opened.
+         *
+         * @param connection The database connection.
+         */
+        open fun onOpen(connection: SQLiteConnection)
     }
 }
 

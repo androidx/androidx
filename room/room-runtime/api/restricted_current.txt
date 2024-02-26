@@ -244,8 +244,11 @@ package androidx.room {
   public abstract static class RoomDatabase.Callback {
     ctor public RoomDatabase.Callback();
     method public void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onCreate(androidx.sqlite.SQLiteConnection connection);
     method public void onDestructiveMigration(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onDestructiveMigration(androidx.sqlite.SQLiteConnection connection);
     method public void onOpen(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onOpen(androidx.sqlite.SQLiteConnection connection);
   }
 
   public static final class RoomDatabase.Companion {
