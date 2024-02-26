@@ -78,7 +78,7 @@ private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boo
  * An adapter for SemanticNode for AWT accessibility
  */
 internal class ComposeAccessible(
-    var semanticsNode: SemanticsNode,
+    semanticsNode: SemanticsNode,
     private val controller: AccessibilityController
 ) : Accessible,
     // Must be a subclass of java.awt.Component because CAccessible only registers property
@@ -87,6 +87,31 @@ internal class ComposeAccessible(
     // The property change listener is what allows us to update CAccessible when some value changes.
     java.awt.Component()
 {
+
+    /**
+     * The semantics node this [ComposeAccessible] represents.
+     */
+    var semanticsNode: SemanticsNode = semanticsNode
+        set(value) {
+            field = value
+            cachedSemanticsConfig = null  // Clear the cache
+        }
+
+    /**
+     * The cached [SemanticsNode.config] of [semanticsNode]; `null` if it hasn't been retrieved yet.
+     */
+    private var cachedSemanticsConfig: SemanticsConfiguration? = null
+
+    /**
+     * The [SemanticsNode.config] of [semanticsNode].
+     */
+    private val semanticsConfig: SemanticsConfiguration
+        get() {
+            return cachedSemanticsConfig ?: semanticsNode.config.also {
+                cachedSemanticsConfig = it
+            }
+        }
+
     private val isNativelyInitialized = atomic(false)
 
     val composeAccessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
@@ -109,22 +134,22 @@ internal class ComposeAccessible(
 
     open inner class ComposeAccessibleComponent : AccessibleContext(), AccessibleComponent, AccessibleAction {
         val textSelectionRange
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.TextSelectionRange)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.TextSelectionRange)
         val setText
-            get() = semanticsNode.config.getOrNull(SemanticsActions.SetText)
+            get() = semanticsConfig.getOrNull(SemanticsActions.SetText)
         val setSelection
-            get() = semanticsNode.config.getOrNull(SemanticsActions.SetSelection)
+            get() = semanticsConfig.getOrNull(SemanticsActions.SetSelection)
         val text
             // TODO should we concatenate the texts instead of getting only the first one
             // Concatenation seems to be reasonable eg, for button with two text nodes inside
             // but conflicts with setText action
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.EditableText)
-                ?: semanticsNode.config.getFirstOrNull(SemanticsProperties.Text)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.EditableText)
+                ?: semanticsConfig.getFirstOrNull(SemanticsProperties.Text)
 
         val textLayoutResult: TextLayoutResult?
             get() {
                 val textLayoutResults = mutableListOf<TextLayoutResult>()
-                val getLayoutResult = semanticsNode.config
+                val getLayoutResult = semanticsConfig
                     .getOrNull(SemanticsActions.GetTextLayoutResult)
                     ?.action?.invoke(textLayoutResults)
                 return if (getLayoutResult == true) {
@@ -135,28 +160,28 @@ internal class ComposeAccessible(
             }
 
         val focused
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.Focused)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.Focused)
 
         val selected
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.Selected)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.Selected)
 
         private val density: Density
             get() = controller.desktopComponent.density
 
         val horizontalScroll
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.HorizontalScrollAxisRange)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.HorizontalScrollAxisRange)
 
         val verticalScroll
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.VerticalScrollAxisRange)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.VerticalScrollAxisRange)
 
         val scrollBy
-            get() = semanticsNode.config.getOrNull(SemanticsActions.ScrollBy)
+            get() = semanticsConfig.getOrNull(SemanticsActions.ScrollBy)
 
         val isPassword
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.Password) != null
+            get() = semanticsConfig.getOrNull(SemanticsProperties.Password) != null
 
         val toggleableState
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.ToggleableState)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.ToggleableState)
 
         val auxiliaryChildren
             get() = buildList {
@@ -169,14 +194,14 @@ internal class ComposeAccessible(
             }
 
         val progressBarRangeInfo
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.ProgressBarRangeInfo)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.ProgressBarRangeInfo)
 
         val isContainer
             @Suppress("DEPRECATION")
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.IsContainer)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.IsContainer)
 
         val isTraversalGroup
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.IsTraversalGroup)
+            get() = semanticsConfig.getOrNull(SemanticsProperties.IsTraversalGroup)
 
         private fun makeScrollbarChild(
             vertical: Boolean
@@ -232,7 +257,7 @@ internal class ComposeAccessible(
 
         override fun getAccessibleDescription(): String? {
             // TODO concatenate values?
-            return semanticsNode.config
+            return semanticsConfig
                 .getFirstOrNull(SemanticsProperties.ContentDescription)
         }
 
@@ -254,11 +279,11 @@ internal class ComposeAccessible(
             val actions = mutableListOf<Pair<String?, ActionKey>>()
 
             fun addActionIfExist(key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>) {
-                semanticsNode.config.getOrNull(key)?.let {
+                semanticsConfig.getOrNull(key)?.let {
                     actions.add(Pair(it.label, key))
                 }
             }
-            semanticsNode.config.getOrNull(SemanticsActions.OnClick)?.let {
+            semanticsConfig.getOrNull(SemanticsActions.OnClick)?.let {
                 // AWT expects "click" label for click actions, at least on macOS...
                 actions.add(Pair("click", SemanticsActions.OnClick))
             }
@@ -281,7 +306,7 @@ internal class ComposeAccessible(
 
                 override fun doAccessibleAction(i: Int): Boolean {
                     val (_, actionKey) = actions[i]
-                    return semanticsNode.config.getOrNull(actionKey)?.let {
+                    return semanticsConfig.getOrNull(actionKey)?.let {
                         it.action?.invoke()
                     } ?: false
                 }
@@ -336,13 +361,12 @@ internal class ComposeAccessible(
         }
 
         @OptIn(ExperimentalComposeUiApi::class)
-        override fun isVisible(): Boolean = with(semanticsNode) {
-            !config.contains(SemanticsProperties.InvisibleToUser) &&
-            !outerSemanticsNode.requireCoordinator(Nodes.Semantics).isTransparent()
-        }
+        override fun isVisible(): Boolean =
+            !semanticsConfig.contains(SemanticsProperties.InvisibleToUser) &&
+            !semanticsNode.outerSemanticsNode.requireCoordinator(Nodes.Semantics).isTransparent()
 
         override fun isEnabled(): Boolean =
-            semanticsNode.config.getOrNull(SemanticsProperties.Disabled) == null
+            semanticsConfig.getOrNull(SemanticsProperties.Disabled) == null
 
         // TODO check actual visibility
         override fun isShowing(): Boolean = true
@@ -390,7 +414,7 @@ internal class ComposeAccessible(
 
         override fun getAccessibleRole(): AccessibleRole {
             controller.notifyIsInUse()
-            val fromSemanticRole = when (semanticsNode.config.getOrNull(SemanticsProperties.Role)) {
+            val fromSemanticRole = when (semanticsConfig.getOrNull(SemanticsProperties.Role)) {
                 Role.Button -> AccessibleRole.PUSH_BUTTON
                 Role.Checkbox -> AccessibleRole.CHECK_BOX
                 Role.RadioButton -> AccessibleRole.RADIO_BUTTON
@@ -441,8 +465,8 @@ internal class ComposeAccessible(
                     }
                 }
 
-                val canExpand = semanticsNode.config.getOrNull(SemanticsActions.Expand) != null
-                val canCollapse = semanticsNode.config.getOrNull(SemanticsActions.Collapse) != null
+                val canExpand = semanticsConfig.getOrNull(SemanticsActions.Expand) != null
+                val canCollapse = semanticsConfig.getOrNull(SemanticsActions.Collapse) != null
 
                 if (canExpand || canCollapse)
                     add(AccessibleState.EXPANDABLE)
