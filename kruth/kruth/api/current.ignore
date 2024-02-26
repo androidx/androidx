@@ -65,8 +65,6 @@ RemovedClass: androidx.kruth.FloatSubject:
     Removed class androidx.kruth.FloatSubject
 RemovedClass: androidx.kruth.IterableSubject.UsingCorrespondence:
     Removed class androidx.kruth.IterableSubject.UsingCorrespondence
-RemovedClass: androidx.kruth.LongSubject:
-    Removed class androidx.kruth.LongSubject
 RemovedClass: androidx.kruth.MapSubject.UsingCorrespondence:
     Removed class androidx.kruth.MapSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.MultimapSubject.UsingCorrespondence:
@@ -99,6 +97,16 @@ RemovedMethod: androidx.kruth.IterableSubject#comparingElementsUsing(androidx.kr
     Removed method androidx.kruth.IterableSubject.comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>)
 RemovedMethod: androidx.kruth.IterableSubject#formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super T,? super T>):
     Removed method androidx.kruth.IterableSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super T,? super T>)
+RemovedMethod: androidx.kruth.LongSubject#LongSubject(androidx.kruth.FailureMetadata, Long):
+    Removed constructor androidx.kruth.LongSubject(androidx.kruth.FailureMetadata,Long)
+RemovedMethod: androidx.kruth.LongSubject#isAtLeast(int):
+    Removed method androidx.kruth.LongSubject.isAtLeast(int)
+RemovedMethod: androidx.kruth.LongSubject#isAtMost(int):
+    Removed method androidx.kruth.LongSubject.isAtMost(int)
+RemovedMethod: androidx.kruth.LongSubject#isGreaterThan(int):
+    Removed method androidx.kruth.LongSubject.isGreaterThan(int)
+RemovedMethod: androidx.kruth.LongSubject#isLessThan(int):
+    Removed method androidx.kruth.LongSubject.isLessThan(int)
 RemovedMethod: androidx.kruth.MapSubject#MapSubject(androidx.kruth.FailureMetadata, java.util.Map<?,?>):
     Removed constructor androidx.kruth.MapSubject(androidx.kruth.FailureMetadata,java.util.Map<?,?>)
 RemovedMethod: androidx.kruth.MapSubject#comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>):
@@ -133,8 +141,6 @@ RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Class<?>):
     Removed method androidx.kruth.StandardSubjectBuilder.that(Class<?>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Float):
     Removed method androidx.kruth.StandardSubjectBuilder.that(Float)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Long):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(Long)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.base.Optional<?>):
     Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.base.Optional<?>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multimap<?,?>):
