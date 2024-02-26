@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -260,6 +261,77 @@ class NavigationBarTest {
                 assertThat(coord.size.height.toFloat()).isWithin(1f).of(expectedItemHeight)
                 assertThat(coord.positionInWindow().x).isWithin(1f)
                     .of((expectedItemWidth + NavigationBarItemHorizontalPadding.toPx()) * index)
+            }
+        }
+    }
+
+    @Test
+    fun navigationBarItem_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            NavigationBar {
+                NavigationBarItem(
+                    icon = {
+                        assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationBarTokens.ActiveIconColor.value)
+                    },
+                    label = {
+                        assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationBarTokens.ActiveLabelTextColor.value)
+                    },
+                    selected = true,
+                    onClick = {}
+                )
+                NavigationBarItem(
+                    icon = {
+                        assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationBarTokens.InactiveIconColor.value)
+                    },
+                    label = {
+                        assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationBarTokens.InactiveLabelTextColor.value)
+                    },
+                    selected = false,
+                    onClick = {}
+                )
+            }
+        }
+    }
+
+    @Test
+    fun navigationBarItem_customColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val customNavigationBarItemColors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.Red,
+                unselectedTextColor = Color.Green,
+            )
+
+            NavigationBar {
+                NavigationBarItem(
+                    colors = customNavigationBarItemColors,
+                    icon = {
+                        assertThat(LocalContentColor.current)
+                            .isEqualTo(Color.Red)
+                    },
+                    label = {
+                        assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationBarTokens.ActiveLabelTextColor.value)
+                    },
+                    selected = true,
+                    onClick = {}
+                )
+                NavigationBarItem(
+                    colors = customNavigationBarItemColors,
+                    icon = {
+                        assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationBarTokens.InactiveIconColor.value)
+                    },
+                    label = {
+                        assertThat(LocalContentColor.current)
+                            .isEqualTo(Color.Green)
+                    },
+                    selected = false,
+                    onClick = {}
+                )
             }
         }
     }
