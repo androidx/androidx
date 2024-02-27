@@ -5,13 +5,13 @@ import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.paging.LimitOffsetDataSource
 import androidx.room.util.getColumnIndexOrThrow
-import java.util.ArrayList
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.MutableList
+import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -33,7 +33,7 @@ public class MyDao_Impl(
         protected override fun convertRows(cursor: Cursor): List<MyEntity> {
           val _cursorIndexOfPk: Int = getColumnIndexOrThrow(cursor, "pk")
           val _cursorIndexOfOther: Int = getColumnIndexOrThrow(cursor, "other")
-          val _res: MutableList<MyEntity> = ArrayList<MyEntity>(cursor.getCount())
+          val _res: MutableList<MyEntity> = mutableListOf()
           while (cursor.moveToNext()) {
             val _item: MyEntity
             val _tmpPk: Int
