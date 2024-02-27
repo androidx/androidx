@@ -37,6 +37,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.tokens.ElevationTokens
+import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.material3.tokens.MenuTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -63,7 +65,7 @@ import kotlin.math.min
  */
 object MenuDefaults {
     /** The default tonal elevation for a menu. */
-    val TonalElevation = MenuTokens.ContainerElevation
+    val TonalElevation = ElevationTokens.Level0
 
     /** The default shadow elevation for a menu. */
     val ShadowElevation = MenuTokens.ContainerElevation
@@ -115,15 +117,15 @@ object MenuDefaults {
     internal val ColorScheme.defaultMenuItemColors: MenuItemColors
         get() {
             return defaultMenuItemColorsCached ?: MenuItemColors(
-                textColor = fromToken(MenuTokens.ListItemLabelTextColor),
-                leadingIconColor = fromToken(MenuTokens.ListItemLeadingIconColor),
-                trailingIconColor = fromToken(MenuTokens.ListItemTrailingIconColor),
-                disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor)
-                    .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
-                disabledLeadingIconColor = fromToken(MenuTokens.ListItemDisabledLeadingIconColor)
-                    .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
-                disabledTrailingIconColor = fromToken(MenuTokens.ListItemDisabledTrailingIconColor)
-                    .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
+                textColor = fromToken(ListTokens.ListItemLabelTextColor),
+                leadingIconColor = fromToken(ListTokens.ListItemLeadingIconColor),
+                trailingIconColor = fromToken(ListTokens.ListItemTrailingIconColor),
+                disabledTextColor = fromToken(ListTokens.ListItemDisabledLabelTextColor)
+                    .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
+                disabledLeadingIconColor = fromToken(ListTokens.ListItemDisabledLeadingIconColor)
+                    .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
+                disabledTrailingIconColor = fromToken(ListTokens.ListItemDisabledTrailingIconColor)
+                    .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity),
             ).also {
                 defaultMenuItemColorsCached = it
             }
@@ -336,17 +338,18 @@ internal fun DropdownMenuItemContent(
             .sizeIn(
                 minWidth = DropdownMenuItemDefaultMinWidth,
                 maxWidth = DropdownMenuItemDefaultMaxWidth,
-                minHeight = MenuTokens.ListItemContainerHeight
+                minHeight = MenuListItemContainerHeight
             )
             .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProvideTextStyle(MaterialTheme.typography.fromToken(MenuTokens.ListItemLabelTextFont)) {
+        // TODO(b/271818892): Align menu list item style with general list item style.
+        ProvideTextStyle(MaterialTheme.typography.labelLarge) {
             if (leadingIcon != null) {
                 CompositionLocalProvider(
                     LocalContentColor provides colors.leadingIconColor(enabled),
                 ) {
-                    Box(Modifier.defaultMinSize(minWidth = MenuTokens.ListItemLeadingIconSize)) {
+                    Box(Modifier.defaultMinSize(minWidth = ListTokens.ListItemLeadingIconSize)) {
                         leadingIcon()
                     }
                 }
@@ -375,7 +378,7 @@ internal fun DropdownMenuItemContent(
                 CompositionLocalProvider(
                     LocalContentColor provides colors.trailingIconColor(enabled)
                 ) {
-                    Box(Modifier.defaultMinSize(minWidth = MenuTokens.ListItemTrailingIconSize)) {
+                    Box(Modifier.defaultMinSize(minWidth = ListTokens.ListItemTrailingIconSize)) {
                         trailingIcon()
                     }
                 }
@@ -415,6 +418,7 @@ internal fun calculateTransformOrigin(
 
 // Size defaults.
 internal val MenuVerticalMargin = 48.dp
+private val MenuListItemContainerHeight = 48.dp
 private val DropdownMenuItemHorizontalPadding = 12.dp
 internal val DropdownMenuVerticalPadding = 8.dp
 private val DropdownMenuItemDefaultMinWidth = 112.dp
