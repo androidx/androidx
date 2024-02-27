@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A class that can perform work asynchronously in {@link WorkManager}.  For most cases, we
@@ -65,7 +66,7 @@ public abstract class ListenableWorker {
     private @NonNull Context mAppContext;
     private @NonNull WorkerParameters mWorkerParams;
 
-    private volatile int mStopReason = STOP_REASON_NOT_STOPPED;
+    private final AtomicInteger mStopReason = new AtomicInteger(STOP_REASON_NOT_STOPPED);
 
     private boolean mUsed;
 
@@ -269,7 +270,7 @@ public abstract class ListenableWorker {
      * @return {@code true} if the work operation has been interrupted
      */
     public final boolean isStopped() {
-        return mStopReason != STOP_REASON_NOT_STOPPED;
+        return mStopReason.get() != STOP_REASON_NOT_STOPPED;
     }
 
     /**
@@ -283,15 +284,16 @@ public abstract class ListenableWorker {
     @StopReason
     @RequiresApi(31)
     public final int getStopReason() {
-        return mStopReason;
+        return mStopReason.get();
     }
 
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final void stop(int reason) {
-        mStopReason = reason;
-        onStopped();
+        if (mStopReason.compareAndSet(STOP_REASON_NOT_STOPPED, reason)) {
+            onStopped();
+        }
     }
 
     /**

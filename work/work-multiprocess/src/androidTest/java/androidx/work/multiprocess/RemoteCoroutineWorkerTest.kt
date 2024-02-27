@@ -71,9 +71,10 @@ public class RemoteCoroutineWorkerTest {
             .setExecutor(mExecutor)
             .setTaskExecutor(mExecutor)
             .build()
-        mTaskExecutor = mock(TaskExecutor::class.java)
-        `when`(mTaskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
-        `when`(mTaskExecutor.mainThreadExecutor).thenReturn(mExecutor)
+        mTaskExecutor = object : TaskExecutor {
+            override fun getMainThreadExecutor() = mExecutor
+            override fun getSerialTaskExecutor() = SerialExecutorImpl(mExecutor)
+        }
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
@@ -101,8 +102,7 @@ public class RemoteCoroutineWorkerTest {
 
         val request = buildRequest<RemoteSuccessWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.SUCCEEDED)
     }
@@ -117,8 +117,7 @@ public class RemoteCoroutineWorkerTest {
 
         val request = buildRequest<RemoteFailureWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.FAILED)
     }
@@ -133,8 +132,7 @@ public class RemoteCoroutineWorkerTest {
 
         val request = buildRequest<RemoteRetryWorker>()
         val wrapper = buildWrapper(request)
-        wrapper.run()
-        wrapper.future.get()
+        wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
     }
