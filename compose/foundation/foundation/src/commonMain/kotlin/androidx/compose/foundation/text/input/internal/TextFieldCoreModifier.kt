@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
@@ -223,15 +224,27 @@ internal class TextFieldCoreModifierNode(
             // this node is writeable, focused and gained that focus just now.
             // start the state value observation
             changeObserverJob = coroutineScope.launch {
+                // A flag to oscillate the reported isWindowFocused value in snapshotFlow.
+                // Repeatedly returning true/false everytime snapshotFlow is re-evaluated breaks
+                // the assumption that each re-evaluation would also trigger the collector. However,
+                // snapshotFlow carries an implicit `distinctUntilChanged` logic that prevents
+                // the propagation of update events. Instead we introduce a sign that changes each
+                // time snapshotFlow is re-entered. true/false becomes 1/2 or -1/-2.
+                // true = 1 = -1
+                // false = 2 = -2
+                // sign is either 1 or -1
+                var sign = 1
                 snapshotFlow {
                     // Read the text state, so the animation restarts when the text or cursor
                     // position change.
                     textFieldState.visualText
                     // Only animate the cursor when its window is actually focused. This also
                     // disables the cursor animation when the screen is off.
-                    currentValueOf(LocalWindowInfo).isWindowFocused
+                    val isWindowFocused = currentValueOf(LocalWindowInfo).isWindowFocused
+
+                    ((if (isWindowFocused) 1 else 2) * sign).also { sign *= -1 }
                 }.collectLatest { isWindowFocused ->
-                    if (isWindowFocused) {
+                    if (isWindowFocused.absoluteValue == 1) {
                         cursorAnimation.snapToVisibleAndAnimate()
                     }
                 }
