@@ -1058,17 +1058,21 @@ package androidx.compose.ui.text.input {
 
   @androidx.compose.runtime.Immutable public final class ImeOptions {
     ctor @Deprecated public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
-    ctor public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
+    ctor @Deprecated public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
+    ctor public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional androidx.compose.ui.text.intl.LocaleList? hintLocales);
     method @Deprecated public androidx.compose.ui.text.input.ImeOptions copy(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
-    method public androidx.compose.ui.text.input.ImeOptions copy(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
+    method @Deprecated public androidx.compose.ui.text.input.ImeOptions copy(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
+    method public androidx.compose.ui.text.input.ImeOptions copy(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional androidx.compose.ui.text.intl.LocaleList? hintLocales);
     method public boolean getAutoCorrect();
     method public int getCapitalization();
+    method public androidx.compose.ui.text.intl.LocaleList? getHintLocales();
     method public int getImeAction();
     method public int getKeyboardType();
     method public androidx.compose.ui.text.input.PlatformImeOptions? getPlatformImeOptions();
     method public boolean getSingleLine();
     property public final boolean autoCorrect;
     property public final int capitalization;
+    property public final androidx.compose.ui.text.intl.LocaleList? hintLocales;
     property public final int imeAction;
     property public final int keyboardType;
     property public final androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions;
@@ -1270,10 +1274,12 @@ package androidx.compose.ui.text.intl {
   @androidx.compose.runtime.Immutable public final class Locale {
     ctor public Locale(String languageTag);
     method public String getLanguage();
+    method public java.util.Locale getPlatformLocale();
     method public String getRegion();
     method public String getScript();
     method public String toLanguageTag();
     property public final String language;
+    property public final java.util.Locale platformLocale;
     property public final String region;
     property public final String script;
     field public static final androidx.compose.ui.text.intl.Locale.Companion Companion;

@@ -43,9 +43,11 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -447,6 +449,24 @@ internal class BasicTextFieldImmIntegrationTest {
             imm.expectCall("updateSelection(2, 2, -1, -1)")
             imm.expectCall("updateSelection(2, 2, -1, -1)")
             imm.expectNoMoreCalls()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun setHintLocales() {
+        val state = TextFieldState()
+        inputMethodInterceptor.setContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                keyboardOptions = KeyboardOptions(hintLocales = LocaleList("tr"))
+            )
+        }
+        requestFocus(Tag)
+
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(hintLocales?.toLanguageTags()).isEqualTo("tr")
         }
     }
 

@@ -28,7 +28,7 @@ import androidx.compose.ui.util.fastMap
  * @see SpanStyle
  */
 @Immutable
-class LocaleList constructor(val localeList: List<Locale>) : Collection<Locale> {
+class LocaleList(val localeList: List<Locale>) : Collection<Locale> {
     companion object {
 
         /**

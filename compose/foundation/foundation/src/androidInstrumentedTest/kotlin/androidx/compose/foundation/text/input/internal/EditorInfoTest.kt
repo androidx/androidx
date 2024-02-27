@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -567,6 +568,27 @@ class EditorInfoTest {
         info.update(ImeOptions.Default, contentMimeTypes)
 
         assertThat(info.extras.keySet().any { it.contains("CONTENT_MIME_TYPES") }).isTrue()
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun hintLocales_areApplied() {
+        val hintLocales = LocaleList("tr")
+        val info = EditorInfo()
+        info.update(ImeOptions(hintLocales = hintLocales))
+
+        assertThat(info.hintLocales?.toLanguageTags()).isEqualTo("tr")
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun hintLocales_areNullified() {
+        val hintLocales = LocaleList("tr")
+        val info = EditorInfo()
+        info.update(ImeOptions(hintLocales = hintLocales))
+        info.update(ImeOptions.Default)
+
+        assertThat(info.hintLocales).isNull()
     }
 
     private fun EditorInfo.update(
