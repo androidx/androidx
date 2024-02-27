@@ -1110,12 +1110,12 @@ object SliderDefaults {
      * accessibility services.
      */
     @Deprecated(
-        message = "Use the overload that takes `thumbTrackGapSize`, `trackInsideCornerSize` and " +
-            "`drawStopIndicator`, see `LegacySliderSample` on how to restore the previous " +
+        message = "Use the overload that takes `drawStopIndicator`, `thumbTrackGapSize` and " +
+            "`trackInsideCornerSize`, see `LegacySliderSample` on how to restore the previous " +
             "behavior",
         replaceWith = ReplaceWith(
-            "Track(sliderState, modifier, colors, enabled, thumbTrackGapSize, " +
-                "trackInsideCornerSize, drawStopIndicator)"
+            "Track(sliderState, modifier, enabled, colors, drawStopIndicator, " +
+                "thumbTrackGapSize, trackInsideCornerSize)"
         ),
         level = DeprecationLevel.HIDDEN
     )
@@ -1130,8 +1130,8 @@ object SliderDefaults {
         Track(
             sliderState,
             modifier,
-            colors,
             enabled,
+            colors,
             thumbTrackGapSize = ThumbTrackGapSize,
             trackInsideCornerSize = TrackInsideCornerSize
         )
@@ -1142,32 +1142,32 @@ object SliderDefaults {
      *
      * @param sliderState [SliderState] which is used to obtain the current active track.
      * @param modifier the [Modifier] to be applied to the track.
-     * @param colors [SliderColors] that will be used to resolve the colors used for this track in
-     * different states. See [SliderDefaults.colors].
      * @param enabled controls the enabled state of this slider. When `false`, this component will
      * not respond to user input, and it will appear visually disabled and disabled to
      * accessibility services.
-     * @param thumbTrackGapSize size of the gap between the thumb and the track.
-     * @param trackInsideCornerSize size of the corners towards the thumb when a gap is set.
+     * @param colors [SliderColors] that will be used to resolve the colors used for this track in
+     * different states. See [SliderDefaults.colors].
      * @param drawStopIndicator lambda that will be called to draw the stop indicator at the end of
      * the track.
+     * @param thumbTrackGapSize size of the gap between the thumb and the track.
+     * @param trackInsideCornerSize size of the corners towards the thumb when a gap is set.
      */
     @ExperimentalMaterial3Api
     @Composable
     fun Track(
         sliderState: SliderState,
         modifier: Modifier = Modifier,
-        colors: SliderColors = colors(),
         enabled: Boolean = true,
-        thumbTrackGapSize: Dp = ThumbTrackGapSize,
-        trackInsideCornerSize: Dp = TrackInsideCornerSize,
+        colors: SliderColors = colors(),
         drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {
             drawStopIndicator(
                 offset = it,
                 color = colors.activeTrackColor,
                 size = TrackStopIndicatorSize
             )
-        }
+        },
+        thumbTrackGapSize: Dp = ThumbTrackGapSize,
+        trackInsideCornerSize: Dp = TrackInsideCornerSize
     ) {
         val inactiveTrackColor = colors.trackColor(enabled, active = false)
         val activeTrackColor = colors.trackColor(enabled, active = true)
@@ -1209,12 +1209,12 @@ object SliderDefaults {
      * accessibility services.
      */
     @Deprecated(
-        message = "Use the overload that takes `thumbTrackGapSize`, `trackInsideCornerSize` and " +
-            "`drawStopIndicator`, see `LegacyRangeSliderSample` on how to restore the " +
+        message = "Use the overload that takes `drawStopIndicator`, `thumbTrackGapSize` and " +
+            "`trackInsideCornerSize`, see `LegacyRangeSliderSample` on how to restore the " +
             "previous behavior",
         replaceWith = ReplaceWith(
-            "Track(rangeSliderState, modifier, colors, enabled, thumbTrackGapSize, " +
-                "trackInsideCornerSize, drawStopIndicator)"
+            "Track(rangeSliderState, modifier, colors, enabled, drawStopIndicator, " +
+                "thumbTrackGapSize, trackInsideCornerSize)"
         ),
         level = DeprecationLevel.HIDDEN
     )
@@ -1229,8 +1229,8 @@ object SliderDefaults {
         Track(
             rangeSliderState,
             modifier,
-            colors,
             enabled,
+            colors,
             thumbTrackGapSize = ThumbTrackGapSize,
             trackInsideCornerSize = TrackInsideCornerSize
         )
@@ -1241,32 +1241,32 @@ object SliderDefaults {
      *
      * @param rangeSliderState [RangeSliderState] which is used to obtain the current active track.
      * @param modifier the [Modifier] to be applied to the track.
-     * @param colors [SliderColors] that will be used to resolve the colors used for this track in
-     * different states. See [SliderDefaults.colors].
      * @param enabled controls the enabled state of this slider. When `false`, this component will
      * not respond to user input, and it will appear visually disabled and disabled to
      * accessibility services.
-     * @param thumbTrackGapSize size of the gap between the thumbs and the track.
-     * @param trackInsideCornerSize size of the corners towards the thumbs when a gap is set.
+     * @param colors [SliderColors] that will be used to resolve the colors used for this track in
+     * different states. See [SliderDefaults.colors].
      * @param drawStopIndicator lambda that will be called to draw the stop indicator at the
      * start/end of the track.
+     * @param thumbTrackGapSize size of the gap between the thumbs and the track.
+     * @param trackInsideCornerSize size of the corners towards the thumbs when a gap is set.
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Track(
         rangeSliderState: RangeSliderState,
         modifier: Modifier = Modifier,
-        colors: SliderColors = colors(),
         enabled: Boolean = true,
-        thumbTrackGapSize: Dp = ThumbTrackGapSize,
-        trackInsideCornerSize: Dp = TrackInsideCornerSize,
+        colors: SliderColors = colors(),
         drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {
             drawStopIndicator(
                 offset = it,
                 color = colors.activeTrackColor,
                 size = TrackStopIndicatorSize
             )
-        }
+        },
+        thumbTrackGapSize: Dp = ThumbTrackGapSize,
+        trackInsideCornerSize: Dp = TrackInsideCornerSize
     ) {
         val inactiveTrackColor = colors.trackColor(enabled, active = false)
         val activeTrackColor = colors.trackColor(enabled, active = true)
