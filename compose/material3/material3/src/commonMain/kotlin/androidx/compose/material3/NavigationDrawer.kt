@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.NavigationDrawerTokens
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.runtime.Composable
@@ -527,7 +528,7 @@ fun PermanentNavigationDrawer(
 fun ModalDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = DrawerDefaults.shape,
-    drawerContainerColor: Color = DrawerDefaults.containerColor,
+    drawerContainerColor: Color = DrawerDefaults.modalContainerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.ModalDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -564,7 +565,7 @@ fun ModalDrawerSheet(
 fun DismissibleDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = DrawerDefaults.containerColor,
+    drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.DismissibleDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -601,7 +602,7 @@ fun DismissibleDrawerSheet(
 fun PermanentDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = DrawerDefaults.containerColor,
+    drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -626,7 +627,7 @@ private fun DrawerSheet(
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = DrawerDefaults.containerColor,
+    drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     content: @Composable ColumnScope.() -> Unit
@@ -660,20 +661,17 @@ private fun DrawerSheet(
  */
 object DrawerDefaults {
     /**
-     * Default Elevation for drawer container in the [ModalNavigationDrawer] as specified in the
-     * Material specification.
+     * Default Elevation for drawer container in the [ModalNavigationDrawer].
      */
-    val ModalDrawerElevation = NavigationDrawerTokens.ModalContainerElevation
+    val ModalDrawerElevation = ElevationTokens.Level0
 
     /**
-     * Default Elevation for drawer container in the [PermanentNavigationDrawer] as specified in the
-     * Material specification.
+     * Default Elevation for drawer container in the [PermanentNavigationDrawer].
      */
     val PermanentDrawerElevation = NavigationDrawerTokens.StandardContainerElevation
 
     /**
-     * Default Elevation for drawer container in the [DismissibleNavigationDrawer] as specified in
-     * the Material specification.
+     * Default Elevation for drawer container in the [DismissibleNavigationDrawer].
      */
     val DismissibleDrawerElevation = NavigationDrawerTokens.StandardContainerElevation
 
@@ -685,7 +683,23 @@ object DrawerDefaults {
         @Composable get() = ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
 
     /** Default container color for a navigation drawer */
-    val containerColor: Color @Composable get() = NavigationDrawerTokens.ContainerColor.value
+    @Deprecated(
+        message = "Please use standardContainerColor or modalContainerColor instead.",
+        replaceWith = ReplaceWith("standardContainerColor"),
+        level = DeprecationLevel.WARNING,
+    )
+    val containerColor: Color @Composable get() =
+        NavigationDrawerTokens.StandardContainerColor.value
+
+    /**
+     * Default container color for a [DismissibleNavigationDrawer] and [PermanentNavigationDrawer]
+     */
+    val standardContainerColor: Color @Composable get() =
+        NavigationDrawerTokens.StandardContainerColor.value
+
+    /** Default container color for a [ModalNavigationDrawer] */
+    val modalContainerColor: Color @Composable get() =
+        NavigationDrawerTokens.ModalContainerColor.value
 
     /** Default and maximum width of a navigation drawer */
     val MaximumDrawerWidth = NavigationDrawerTokens.ContainerWidth
@@ -822,7 +836,7 @@ object NavigationDrawerItemDefaults {
     @Composable
     fun colors(
         selectedContainerColor: Color = NavigationDrawerTokens.ActiveIndicatorColor.value,
-        unselectedContainerColor: Color = NavigationDrawerTokens.ContainerColor.value,
+        unselectedContainerColor: Color = Color.Transparent,
         selectedIconColor: Color = NavigationDrawerTokens.ActiveIconColor.value,
         unselectedIconColor: Color = NavigationDrawerTokens.InactiveIconColor.value,
         selectedTextColor: Color = NavigationDrawerTokens.ActiveLabelTextColor.value,
