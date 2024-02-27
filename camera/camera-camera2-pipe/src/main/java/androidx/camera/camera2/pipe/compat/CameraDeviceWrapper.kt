@@ -107,6 +107,14 @@ internal interface CameraDeviceWrapper : UnsafeWrapper {
 
     /** Invoked when the [CameraDevice] has been closed */
     fun onDeviceClosed()
+
+    /** @see CameraDevice.getCameraAudioRestriction */
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun getCameraAudioRestriction(): AudioRestrictionMode
+
+    /** @see CameraDevice.setCameraAudioRestriction */
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun setCameraAudioRestriction(mode: AudioRestrictionMode)
 }
 
 internal fun CameraDevice?.closeWithTrace() {
@@ -450,6 +458,18 @@ internal class AndroidCameraDevice(
         Api23Compat.createReprocessCaptureRequest(cameraDevice, inputResult)
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun getCameraAudioRestriction(): AudioRestrictionMode {
+        return AudioRestrictionMode(
+            Api30Compat.getCameraAudioRestriction(cameraDevice)
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun setCameraAudioRestriction(mode: AudioRestrictionMode) {
+        Api30Compat.setCameraAudioRestriction(cameraDevice, mode.value)
+    }
+
     override fun onDeviceClosed() {
         val lastStateCallback = _lastStateCallback.getAndSet(null)
         lastStateCallback?.onSessionFinalized()
@@ -619,5 +639,24 @@ internal class VirtualAndroidCameraDevice(
 
     internal fun disconnect() = synchronized(lock) {
         disconnected = true
+    }
+
+    @RequiresApi(30)
+    override fun getCameraAudioRestriction(): AudioRestrictionMode {
+        return androidCameraDevice.getCameraAudioRestriction()
+    }
+
+    @RequiresApi(30)
+    override fun setCameraAudioRestriction(mode: AudioRestrictionMode) {
+        androidCameraDevice.setCameraAudioRestriction(mode)
+    }
+}
+
+@JvmInline
+value class AudioRestrictionMode(val value: Int) {
+    companion object {
+        val AUDIO_RESTRICTION_NONE = AudioRestrictionMode(0)
+        val AUDIO_RESTRICTION_VIBRATION = AudioRestrictionMode(1)
+        val AUDIO_RESTRICTION_VIBRATION_SOUND = AudioRestrictionMode(3)
     }
 }

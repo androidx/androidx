@@ -334,6 +334,18 @@ internal object Api30Compat {
     fun getConcurrentCameraIds(cameraManager: CameraManager): Set<Set<String>> {
         return cameraManager.concurrentCameraIds
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun getCameraAudioRestriction(cameraDevice: CameraDevice): Int {
+        return cameraDevice.cameraAudioRestriction
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setCameraAudioRestriction(cameraDevice: CameraDevice, mode: Int) {
+        cameraDevice.cameraAudioRestriction = mode
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.S)

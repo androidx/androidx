@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.compat.Api23Compat
+import androidx.camera.camera2.pipe.compat.AudioRestrictionMode
 import androidx.camera.camera2.pipe.compat.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.compat.CameraExtensionSessionWrapper
@@ -111,6 +112,16 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
     override fun createExtensionSession(config: ExtensionSessionConfigData): Boolean {
         createFakeExtensionSession(config.extensionStateCallback)
         return true
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun getCameraAudioRestriction(): AudioRestrictionMode {
+        return AudioRestrictionMode(fakeCamera.cameraDevice.cameraAudioRestriction)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun setCameraAudioRestriction(mode: AudioRestrictionMode) {
+        fakeCamera.cameraDevice.cameraAudioRestriction = mode.value
     }
 
     override fun onDeviceClosed() {
