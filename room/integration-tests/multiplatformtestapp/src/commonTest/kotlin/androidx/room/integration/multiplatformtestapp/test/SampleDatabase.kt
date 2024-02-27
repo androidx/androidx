@@ -40,6 +40,9 @@ interface SampleDao {
 
     @Query("SELECT * FROM SampleEntity")
     suspend fun getSingleItem(): SampleEntity
+
+    @Query("SELECT * FROM SampleEntity")
+    suspend fun getItemList(): List<SampleEntity>
 }
 
 @Database(

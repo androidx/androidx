@@ -56,27 +56,30 @@ public final class ComplexDao_Impl extends ComplexDao {
     @Override
     public List<ComplexDao.FullName> fullNames(final int id) {
         final String _sql = "SELECT name || lastName as fullName, uid as id FROM user where uid = ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-        int _argIndex = 1;
-        _statement.bindLong(_argIndex, id);
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int _cursorIndexOfFullName = 0;
-            final int _cursorIndexOfId = 1;
-            final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
-            while (_cursor.moveToNext()) {
-                final ComplexDao.FullName _item;
-                _item = new ComplexDao.FullName();
-                _item.fullName = _cursor.getString(_cursorIndexOfFullName);
-                _item.id = _cursor.getInt(_cursorIndexOfId);
-                _result.add(_item);
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, List<ComplexDao.FullName>>() {
+            @Override
+            @NonNull
+            public List<ComplexDao.FullName> invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    int _argIndex = 1;
+                    _stmt.bindLong(_argIndex, id);
+                    final int _cursorIndexOfFullName = 0;
+                    final int _cursorIndexOfId = 1;
+                    final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>();
+                    while (_stmt.step()) {
+                        final ComplexDao.FullName _item;
+                        _item = new ComplexDao.FullName();
+                        _item.fullName = _stmt.getText(_cursorIndexOfFullName);
+                        _item.id = (int) (_stmt.getLong(_cursorIndexOfId));
+                        _result.add(_item);
+                    }
+                    return _result;
+                } finally {
+                    _stmt.close();
+                }
             }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
@@ -159,41 +162,43 @@ public final class ComplexDao_Impl extends ComplexDao {
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
         _stringBuilder.append(")");
         final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        if (ids == null) {
-            _statement.bindNull(_argIndex);
-        } else {
-            for (int _item : ids) {
-                _statement.bindLong(_argIndex, _item);
-                _argIndex++;
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, List<User>>() {
+            @Override
+            @NonNull
+            public List<User> invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    int _argIndex = 1;
+                    if (ids == null) {
+                        _stmt.bindNull(_argIndex);
+                    } else {
+                        for (int _item : ids) {
+                            _stmt.bindLong(_argIndex, _item);
+                            _argIndex++;
+                        }
+                    }
+                    final int _cursorIndexOfUid = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "uid");
+                    final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+                    final int _cursorIndexOfLastName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastName");
+                    final int _cursorIndexOfAge = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "ageColumn");
+                    final List<User> _result = new ArrayList<User>();
+                    while (_stmt.step()) {
+                        final User _item_1;
+                        _item_1 = new User();
+                        _item_1.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
+                        _item_1.name = _stmt.getText(_cursorIndexOfName);
+                        final String _tmpLastName;
+                        _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+                        _item_1.setLastName(_tmpLastName);
+                        _item_1.age = (int) (_stmt.getLong(_cursorIndexOfAge));
+                        _result.add(_item_1);
+                    }
+                    return _result;
+                } finally {
+                    _stmt.close();
+                }
             }
-        }
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
-            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-            final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
-            final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
-            final List<User> _result = new ArrayList<User>(_cursor.getCount());
-            while (_cursor.moveToNext()) {
-                final User _item_1;
-                _item_1 = new User();
-                _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
-                _item_1.name = _cursor.getString(_cursorIndexOfName);
-                final String _tmpLastName;
-                _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
-                _item_1.setLastName(_tmpLastName);
-                _item_1.age = _cursor.getInt(_cursorIndexOfAge);
-                _result.add(_item_1);
-            }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
@@ -282,7 +287,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-            final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
+            final List<Integer> _result = new ArrayList<Integer>();
             while (_cursor.moveToNext()) {
                 final Integer _item_1;
                 if (_cursor.isNull(0)) {
@@ -350,7 +355,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-            final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
+            final List<Integer> _result = new ArrayList<Integer>();
             while (_cursor.moveToNext()) {
                 final Integer _item_3;
                 if (_cursor.isNull(0)) {
@@ -437,7 +442,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
                     final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
                     final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
-                    final List<User> _result = new ArrayList<User>(_cursor.getCount());
+                    final List<User> _result = new ArrayList<User>();
                     while (_cursor.moveToNext()) {
                         final User _item_1;
                         _item_1 = new User();
@@ -465,73 +470,79 @@ public final class ComplexDao_Impl extends ComplexDao {
     @Override
     public List<Child1> getChild1List() {
         final String _sql = "SELECT * FROM Child1";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-            final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
-            final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
-            final List<Child1> _result = new ArrayList<Child1>(_cursor.getCount());
-            while (_cursor.moveToNext()) {
-                final Child1 _item;
-                final int _tmpId;
-                _tmpId = _cursor.getInt(_cursorIndexOfId);
-                final String _tmpName;
-                _tmpName = _cursor.getString(_cursorIndexOfName);
-                final Info _tmpInfo;
-                if (!(_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
-                    _tmpInfo = new Info();
-                    _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
-                    _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
-                } else {
-                    _tmpInfo = null;
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, List<Child1>>() {
+            @Override
+            @NonNull
+            public List<Child1> invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    final int _cursorIndexOfId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "id");
+                    final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+                    final int _cursorIndexOfSerial = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "serial");
+                    final int _cursorIndexOfCode = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "code");
+                    final List<Child1> _result = new ArrayList<Child1>();
+                    while (_stmt.step()) {
+                        final Child1 _item;
+                        final int _tmpId;
+                        _tmpId = (int) (_stmt.getLong(_cursorIndexOfId));
+                        final String _tmpName;
+                        _tmpName = _stmt.getText(_cursorIndexOfName);
+                        final Info _tmpInfo;
+                        if (!(_stmt.isNull(_cursorIndexOfSerial) && _stmt.isNull(_cursorIndexOfCode))) {
+                            _tmpInfo = new Info();
+                            _tmpInfo.serial = (int) (_stmt.getLong(_cursorIndexOfSerial));
+                            _tmpInfo.code = _stmt.getText(_cursorIndexOfCode);
+                        } else {
+                            _tmpInfo = null;
+                        }
+                        _item = new Child1(_tmpId,_tmpName,_tmpInfo);
+                        _result.add(_item);
+                    }
+                    return _result;
+                } finally {
+                    _stmt.close();
                 }
-                _item = new Child1(_tmpId,_tmpName,_tmpInfo);
-                _result.add(_item);
             }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
     public List<Child2> getChild2List() {
         final String _sql = "SELECT * FROM Child2";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-            final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
-            final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
-            final List<Child2> _result = new ArrayList<Child2>(_cursor.getCount());
-            while (_cursor.moveToNext()) {
-                final Child2 _item;
-                final int _tmpId;
-                _tmpId = _cursor.getInt(_cursorIndexOfId);
-                final String _tmpName;
-                _tmpName = _cursor.getString(_cursorIndexOfName);
-                final Info _tmpInfo;
-                if (!(_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
-                    _tmpInfo = new Info();
-                    _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
-                    _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
-                } else {
-                    _tmpInfo = null;
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, List<Child2>>() {
+            @Override
+            @NonNull
+            public List<Child2> invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    final int _cursorIndexOfId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "id");
+                    final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+                    final int _cursorIndexOfSerial = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "serial");
+                    final int _cursorIndexOfCode = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "code");
+                    final List<Child2> _result = new ArrayList<Child2>();
+                    while (_stmt.step()) {
+                        final Child2 _item;
+                        final int _tmpId;
+                        _tmpId = (int) (_stmt.getLong(_cursorIndexOfId));
+                        final String _tmpName;
+                        _tmpName = _stmt.getText(_cursorIndexOfName);
+                        final Info _tmpInfo;
+                        if (!(_stmt.isNull(_cursorIndexOfSerial) && _stmt.isNull(_cursorIndexOfCode))) {
+                            _tmpInfo = new Info();
+                            _tmpInfo.serial = (int) (_stmt.getLong(_cursorIndexOfSerial));
+                            _tmpInfo.code = _stmt.getText(_cursorIndexOfCode);
+                        } else {
+                            _tmpInfo = null;
+                        }
+                        _item = new Child2(_tmpId,_tmpName,_tmpInfo);
+                        _result.add(_item);
+                    }
+                    return _result;
+                } finally {
+                    _stmt.close();
                 }
-                _item = new Child2(_tmpId,_tmpName,_tmpInfo);
-                _result.add(_item);
             }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
@@ -548,7 +559,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
                     final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
                     final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
-                    final List<Child1> _result = new ArrayList<Child1>(_cursor.getCount());
+                    final List<Child1> _result = new ArrayList<Child1>();
                     while (_cursor.moveToNext()) {
                         final Child1 _item;
                         final int _tmpId;
@@ -577,25 +588,28 @@ public final class ComplexDao_Impl extends ComplexDao {
     @Override
     public List<UserSummary> getUserNames() {
         final String _sql = "SELECT `uid`, `name` FROM (SELECT * FROM User)";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int _cursorIndexOfUid = 0;
-            final int _cursorIndexOfName = 1;
-            final List<UserSummary> _result = new ArrayList<UserSummary>(_cursor.getCount());
-            while (_cursor.moveToNext()) {
-                final UserSummary _item;
-                _item = new UserSummary();
-                _item.uid = _cursor.getInt(_cursorIndexOfUid);
-                _item.name = _cursor.getString(_cursorIndexOfName);
-                _result.add(_item);
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, List<UserSummary>>() {
+            @Override
+            @NonNull
+            public List<UserSummary> invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    final int _cursorIndexOfUid = 0;
+                    final int _cursorIndexOfName = 1;
+                    final List<UserSummary> _result = new ArrayList<UserSummary>();
+                    while (_stmt.step()) {
+                        final UserSummary _item;
+                        _item = new UserSummary();
+                        _item.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
+                        _item.name = _stmt.getText(_cursorIndexOfName);
+                        _result.add(_item);
+                    }
+                    return _result;
+                } finally {
+                    _stmt.close();
+                }
             }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
