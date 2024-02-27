@@ -103,7 +103,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                             adapter,
                             ConsumerAdapter(loader),
                             applicationContext,
-                            if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+                            if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
                                 OverlayControllerImpl(embeddingExtension, adapter)
                             } else {
                                 null
