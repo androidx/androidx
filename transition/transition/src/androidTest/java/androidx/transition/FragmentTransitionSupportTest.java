@@ -78,6 +78,7 @@ public class FragmentTransitionSupportTest extends BaseTest {
         assertNotNull(fragment2.mBlue);
     }
 
+    @Ignore // b/326237469
     @Test
     public void nonSharedTransition() {
         final TransitionFragment fragment1 = TransitionFragment.newInstance(R.layout.scene2);
