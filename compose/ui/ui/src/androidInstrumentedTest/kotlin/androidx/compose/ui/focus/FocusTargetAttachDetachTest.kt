@@ -1295,6 +1295,113 @@ class FocusTargetAttachDetachTest {
         assertThat(focusTargetAndRotaryNode.events[0].verticalScrollPixels).isEqualTo(100f)
     }
 
+    /**
+     * Tests that when a node is both a NodeKind.FocusEvent and NodeKind.FocusTarget, the node
+     * receives events on detach.
+     */
+    @Test
+    fun focusEventNodeDelegatingToFocusTarget_invalidatedOnRemoval() {
+        var composeFocusableBox by mutableStateOf(true)
+        val focusTargetNode = FocusTargetNode()
+
+        class FocusEventAndFocusTargetNode : DelegatingNode(), FocusEventModifierNode {
+            val focusStates = mutableListOf<FocusState>()
+            override fun onFocusEvent(focusState: FocusState) {
+                focusStates.add(focusState)
+            }
+            init {
+                delegate(focusTargetNode)
+            }
+        }
+
+        val focusEventAndFocusTargetNode = FocusEventAndFocusTargetNode()
+        val focusEventAndFocusTargetModifier = elementFor(key1 = null, focusEventAndFocusTargetNode)
+
+        val focusRequester = FocusRequester()
+
+        rule.setFocusableContent(extraItemForInitialFocus = false) {
+            if (composeFocusableBox) {
+                Box(
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .then(focusEventAndFocusTargetModifier)
+                )
+            }
+        }
+
+        assertThat(focusEventAndFocusTargetNode.focusStates).hasSize(1)
+        assertThat(focusEventAndFocusTargetNode.focusStates[0].isFocused).isFalse()
+
+        rule.runOnUiThread { focusRequester.requestFocus() }
+        rule.waitForIdle()
+
+        assertThat(focusEventAndFocusTargetNode.focusStates).hasSize(2)
+        assertThat(focusEventAndFocusTargetNode.focusStates[0].isFocused).isFalse()
+        assertThat(focusEventAndFocusTargetNode.focusStates[1].isFocused).isTrue()
+
+        composeFocusableBox = false
+        rule.waitForIdle()
+
+        assertThat(focusEventAndFocusTargetNode.focusStates).hasSize(3)
+        assertThat(focusEventAndFocusTargetNode.focusStates[0].isFocused).isFalse()
+        assertThat(focusEventAndFocusTargetNode.focusStates[1].isFocused).isTrue()
+        assertThat(focusEventAndFocusTargetNode.focusStates[2].isFocused).isFalse()
+    }
+
+    @Test
+    fun modifierDelegatingToFocusEventAndFocusTarget_invalidatedOnRemoval() {
+        var composeFocusableBox by mutableStateOf(true)
+
+        class MyFocusEventNode : Modifier.Node(), FocusEventModifierNode {
+            val focusStates = mutableListOf<FocusState>()
+            override fun onFocusEvent(focusState: FocusState) {
+                focusStates.add(focusState)
+            }
+        }
+
+        val eventNode = MyFocusEventNode()
+        val focusTargetNode = FocusTargetNode()
+
+        class FocusEventAndFocusTargetNode : DelegatingNode() {
+            init {
+                delegate(focusTargetNode)
+                delegate(eventNode)
+            }
+        }
+
+        val focusEventAndFocusTargetNode = FocusEventAndFocusTargetNode()
+        val focusEventAndFocusTargetModifier = elementFor(key1 = null, focusEventAndFocusTargetNode)
+
+        val focusRequester = FocusRequester()
+
+        rule.setFocusableContent(extraItemForInitialFocus = false) {
+            if (composeFocusableBox) {
+                Box(modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .then(focusEventAndFocusTargetModifier)
+                )
+            }
+        }
+
+        assertThat(eventNode.focusStates).hasSize(1)
+        assertThat(eventNode.focusStates[0].isFocused).isFalse()
+
+        rule.runOnUiThread { focusRequester.requestFocus() }
+        rule.waitForIdle()
+
+        assertThat(eventNode.focusStates).hasSize(2)
+        assertThat(eventNode.focusStates[0].isFocused).isFalse()
+        assertThat(eventNode.focusStates[1].isFocused).isTrue()
+
+        composeFocusableBox = false
+        rule.waitForIdle()
+
+        assertThat(eventNode.focusStates).hasSize(3)
+        assertThat(eventNode.focusStates[0].isFocused).isFalse()
+        assertThat(eventNode.focusStates[1].isFocused).isTrue()
+        assertThat(eventNode.focusStates[2].isFocused).isFalse()
+    }
+
     private inline fun Modifier.thenIf(condition: Boolean, block: () -> Modifier): Modifier {
         return if (condition) then(block()) else this
     }

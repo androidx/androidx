@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -180,7 +179,6 @@ fun Modifier.clickable(
     role: Role? = null,
     onClick: () -> Unit
 ) = clickableWithIndicationIfNeeded(
-    enabled = enabled,
     interactionSource = interactionSource,
     indication = indication
 ) { intSource, indicationNodeFactory ->
@@ -335,7 +333,6 @@ fun Modifier.combinedClickable(
     onDoubleClick: (() -> Unit)? = null,
     onClick: () -> Unit
 ) = clickableWithIndicationIfNeeded(
-    enabled = enabled,
     interactionSource = interactionSource,
     indication = indication
 ) { intSource, indicationNodeFactory ->
@@ -357,11 +354,10 @@ fun Modifier.combinedClickable(
  * [createClickable] is the lambda that creates the actual clickable element, which will be chained
  * with [Modifier.indication] if needed.
  */
-internal fun Modifier.clickableWithIndicationIfNeeded(
-    enabled: Boolean,
+internal inline fun Modifier.clickableWithIndicationIfNeeded(
     interactionSource: MutableInteractionSource?,
     indication: Indication?,
-    createClickable: (MutableInteractionSource?, IndicationNodeFactory?) -> Modifier
+    crossinline createClickable: (MutableInteractionSource?, IndicationNodeFactory?) -> Modifier
 ): Modifier {
     return this.then(when {
         // Fast path - indication is managed internally
@@ -381,7 +377,7 @@ internal fun Modifier.clickableWithIndicationIfNeeded(
                 .indication(newInteractionSource, indication)
                 .then(createClickable(newInteractionSource, null))
         }
-    }).then(if (enabled) Modifier.focusTarget() else Modifier)
+    })
 }
 
 /**

@@ -140,7 +140,6 @@ fun Modifier.selectable(
     role: Role? = null,
     onClick: () -> Unit
 ) = clickableWithIndicationIfNeeded(
-    enabled = enabled,
     interactionSource = interactionSource,
     indication = indication
 ) { intSource, indicationNodeFactory ->
