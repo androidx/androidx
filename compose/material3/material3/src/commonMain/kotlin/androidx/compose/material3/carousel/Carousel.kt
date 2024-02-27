@@ -279,7 +279,6 @@ internal value class CarouselAlignment private constructor(internal val value: I
  * @param state the carousel state
  * @param strategy the strategy used to mask and translate items in the carousel
  */
-@Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 internal fun Modifier.carouselItem(
     index: Int,

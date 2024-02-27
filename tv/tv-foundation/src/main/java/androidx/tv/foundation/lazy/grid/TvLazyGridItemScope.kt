@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.IntOffset
 /**
  * Receiver scope being used by the item content parameter of [TvLazyVerticalGrid].
  */
-@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @Stable
 @TvLazyGridScopeMarker
 sealed interface TvLazyGridItemScope {

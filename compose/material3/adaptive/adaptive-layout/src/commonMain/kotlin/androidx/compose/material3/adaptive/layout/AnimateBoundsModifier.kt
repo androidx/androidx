@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.round
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Suppress("IllegalExperimentalApiUsage") // TODO: address before moving to beta
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun Modifier.animateBounds(
     modifier: Modifier = Modifier,
@@ -138,7 +137,6 @@ internal fun Modifier.animateBounds(
 }
 
 context(LookaheadScope, Placeable.PlacementScope, CoroutineScope)
-@Suppress("IllegalExperimentalApiUsage") // TODO: address before moving to beta
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun DeferredAnimation<IntOffset, AnimationVector2D>.updateTargetBasedOnCoordinates(
     animationSpec: FiniteAnimationSpec<IntOffset>,

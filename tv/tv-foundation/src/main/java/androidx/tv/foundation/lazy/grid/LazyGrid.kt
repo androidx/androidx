@@ -50,7 +50,6 @@ import androidx.tv.foundation.lazy.list.LazyLayoutBeyondBoundsState
 import androidx.tv.foundation.lazy.list.calculateLazyLayoutPinnedIndices
 import androidx.tv.foundation.scrollableWithPivot
 
-@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class, ExperimentalTvFoundationApi::class)
 @Composable
 internal fun LazyGrid(
