@@ -129,6 +129,7 @@ dependencies {
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v2"))
     // V3 was released as V4 (original release postponed)
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v4"))
+    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v5"))
 }
 
 android {
