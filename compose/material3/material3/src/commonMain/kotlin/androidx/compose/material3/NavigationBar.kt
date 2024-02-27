@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.NavigationBarTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -272,7 +273,7 @@ fun RowScope.NavigationBarItem(
 /** Defaults used in [NavigationBar]. */
 object NavigationBarDefaults {
     /** Default elevation for a navigation bar. */
-    val Elevation: Dp = NavigationBarTokens.ContainerElevation
+    val Elevation: Dp = ElevationTokens.Level0
 
     /** Default color for a navigation bar. */
     val containerColor: Color @Composable get() = NavigationBarTokens.ContainerColor.value
