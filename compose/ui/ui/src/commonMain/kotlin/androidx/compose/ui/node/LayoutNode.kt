@@ -640,7 +640,7 @@ internal class LayoutNode(
         set(value) {
             if (field != value) {
                 field = value
-                intrinsicsPolicy.updateFrom(measurePolicy)
+                intrinsicsPolicy?.updateFrom(measurePolicy)
                 invalidateMeasurements()
             }
         }
@@ -650,7 +650,37 @@ internal class LayoutNode(
      * correct remeasurement for layouts using the intrinsics of this layout
      * when the [measurePolicy] is changing.
      */
-    internal val intrinsicsPolicy = IntrinsicsPolicy(this)
+    private var intrinsicsPolicy: IntrinsicsPolicy? = null
+
+    private fun getOrCreateIntrinsicsPolicy(): IntrinsicsPolicy {
+        return intrinsicsPolicy ?: IntrinsicsPolicy(this, measurePolicy).also {
+            intrinsicsPolicy = it
+        }
+    }
+
+    fun minLookaheadIntrinsicWidth(height: Int) =
+        getOrCreateIntrinsicsPolicy().minLookaheadIntrinsicWidth(height)
+
+    fun minLookaheadIntrinsicHeight(width: Int) =
+        getOrCreateIntrinsicsPolicy().minLookaheadIntrinsicHeight(width)
+
+    fun maxLookaheadIntrinsicWidth(height: Int) =
+        getOrCreateIntrinsicsPolicy().maxLookaheadIntrinsicWidth(height)
+
+    fun maxLookaheadIntrinsicHeight(width: Int) =
+        getOrCreateIntrinsicsPolicy().maxLookaheadIntrinsicHeight(width)
+
+    fun minIntrinsicWidth(height: Int) =
+        getOrCreateIntrinsicsPolicy().minIntrinsicWidth(height)
+
+    fun minIntrinsicHeight(width: Int) =
+        getOrCreateIntrinsicsPolicy().minIntrinsicHeight(width)
+
+    fun maxIntrinsicWidth(height: Int) =
+        getOrCreateIntrinsicsPolicy().maxIntrinsicWidth(height)
+
+    fun maxIntrinsicHeight(width: Int) =
+        getOrCreateIntrinsicsPolicy().maxIntrinsicHeight(width)
 
     /**
      * The screen density to be used by this layout.
