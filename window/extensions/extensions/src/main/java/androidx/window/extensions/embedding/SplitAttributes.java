@@ -383,11 +383,11 @@ public final class SplitAttributes {
     /**
      * Creates an instance of this {@code SplitAttributes}.
      *
-     * @param splitType                The type of split. See
-     *                                 {@link SplitAttributes.SplitType}.
-     * @param layoutDirection          The layout direction of the split, such as left to
-     *                                 right or top to bottom. See
-     *                                 {@link SplitAttributes.LayoutDirection}.
+     * @param splitType           The type of split. See
+     *                            {@link SplitAttributes.SplitType}.
+     * @param layoutDirection     The layout direction of the split, such as left to
+     *                            right or top to bottom. See
+     *                            {@link SplitAttributes.LayoutDirection}.
      * @param animationBackground The {@link AnimationBackground} to use for the during animation
      *                            of the split involving this {@code SplitAttributes} object if the
      *                            animation requires a background.
@@ -465,6 +465,23 @@ public final class SplitAttributes {
 
         private WindowAttributes mWindowAttributes =
                 new WindowAttributes(DIM_AREA_ON_ACTIVITY_STACK);
+
+        /** Creates a new {@link Builder} to create {@link SplitAttributes}. */
+        public Builder() {
+        }
+
+        /**
+         * Creates a {@link Builder} with values cloned from the original {@link SplitAttributes}.
+         *
+         * @param original the original {@link SplitAttributes} to initialize the {@link Builder}.
+         */
+        @RequiresVendorApiLevel(level = 6)
+        public Builder(@NonNull SplitAttributes original) {
+            mSplitType = original.mSplitType;
+            mLayoutDirection = original.mLayoutDirection;
+            mAnimationBackground = original.mAnimationBackground;
+            mWindowAttributes = original.mWindowAttributes;
+        }
 
         /**
          * Sets the split type attribute.

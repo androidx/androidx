@@ -166,6 +166,7 @@ package androidx.window.extensions.embedding {
 
   public static final class SplitAttributes.Builder {
     ctor public SplitAttributes.Builder();
+    ctor public SplitAttributes.Builder(androidx.window.extensions.embedding.SplitAttributes);
     method public androidx.window.extensions.embedding.SplitAttributes build();
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.extensions.embedding.AnimationBackground);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setLayoutDirection(int);
