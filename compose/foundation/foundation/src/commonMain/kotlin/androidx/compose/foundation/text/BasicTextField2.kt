@@ -45,7 +45,6 @@ import androidx.compose.foundation.text.input.internal.TextFieldTextLayoutModifi
 import androidx.compose.foundation.text.input.internal.TextLayoutState
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
-import androidx.compose.foundation.text.input.internal.syncTextFieldState
 import androidx.compose.foundation.text.selection.SelectionHandle
 import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
@@ -55,9 +54,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
@@ -73,173 +70,12 @@ import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-
-/**
- * Basic text composable that provides an interactive box that accepts text input through software
- * or hardware keyboard, but provides no decorations like hint or placeholder.
- *
- * Whenever the user edits the text, [onValueChange] is called with the most up to date state
- * represented by [String] with which developer is expected to update their state.
- *
- * While focused and being edited, the caller temporarily loses _direct_ control of the contents of
- * the field through the [value] parameter. If an unexpected [value] is passed in during this time,
- * the contents of the field will _not_ be updated to reflect the value until editing is done. When
- * editing is done (i.e. focus is lost), the field will be updated to the last [value] received. Use
- * a [inputTransformation] to accept or reject changes during editing. For more direct control of
- * the field contents use the [BasicTextField] overload that accepts a [TextFieldState].
- *
- * Unlike [TextFieldState] overload, this composable does not let the developer control selection,
- * cursor, and observe text composition information. Please check [TextFieldState] and corresponding
- * [BasicTextField] overload for more information.
- *
- * If you want to add decorations to your text field, such as icon or similar, and increase the
- * hit target area, use the decorator:
- * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
- *
- * In order to filter (e.g. only allow digits, limit the number of characters), or change (e.g.
- * convert every character to uppercase) the input received from the user, use an
- * [InputTransformation].
- * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
- *
- * Limiting the height of the [BasicTextField] in terms of line count and choosing a scroll
- * direction can be achieved by using [TextFieldLineLimits].
- *
- * Scroll state of the composable is also hoisted to enable observation and manipulation of the
- * scroll behavior by the developer, e.g. bringing a searched keyword into view by scrolling to its
- * position without focusing, or changing selection.
- *
- * @param value The input [String] text to be shown in the text field.
- * @param onValueChange The callback that is triggered when the user or the system updates the
- * text. The updated text is passed as a parameter of the callback. The value passed to the callback
- * will already have had the [inputTransformation] applied.
- * @param modifier optional [Modifier] for this text field.
- * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text
- * field will be neither editable nor focusable, the input of the text field will not be selectable.
- * @param readOnly controls the editable state of the [BasicTextField]. When `true`, the text
- * field can not be modified, however, a user can focus it and copy text from it. Read-only text
- * fields are usually used to display pre-filled forms that user can not edit.
- * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
- * to the [TextFieldState] made by the user. The transformation will be applied to changes made by
- * hardware and software keyboard events, pasting or dropping text, accessibility services, and
- * tests. The transformation will _not_ be applied when a new [value] is passed in, or when the
- * transformation is changed. If the transformation is changed on an existing text field, it will be
- * applied to the next user edit, it will not immediately affect the current [value].
- * @param textStyle Typographic and graphic style configuration for text content that's displayed
- * in the editor.
- * @param keyboardOptions Software keyboard options that contain configurations such as
- * [KeyboardType] and [ImeAction].
- * @param keyboardActions When the input service emits an IME action, the corresponding callback
- * is called. Note that this IME action may be different from what you specified in
- * [KeyboardOptions.imeAction].
- * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
- * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed, all
- * newline characters ('\n') within the text will be replaced with regular whitespace (' '),
- * ensuring that the contents of the text field are presented in a single line.
- * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
- * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
- * or null if it cannot. The function reads the layout result from a snapshot state object, and will
- * invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
- * paragraph information, size of the text, baselines and other details. The callback can be used to
- * add additional decoration or functionality to the text. For example, to draw a cursor or
- * selection around the text. [Density] scope is the one that was used while creating the given text
- * layout.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
- * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
- * for different [Interaction]s.
- * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
- * provided, then no cursor will be drawn.
- * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
- * text field are presented.
- * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
- * messages or similar, and automatically increase the hit target area of the text field.
- * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
- * If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
- * scroll behavior. In other cases the text field becomes vertically scrollable.
- * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
- * text field are presented.
- */
-@ExperimentalFoundationApi
-// This takes a composable lambda, but it is not primarily a container.
-@Suppress("ComposableLambdaParameterPosition")
-@Composable
-fun BasicTextField2(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    readOnly: Boolean = false,
-    inputTransformation: InputTransformation? = null,
-    textStyle: TextStyle = TextStyle.Default,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
-    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
-    interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(Color.Black),
-    outputTransformation: OutputTransformation? = null,
-    decorator: TextFieldDecorator? = null,
-    scrollState: ScrollState = rememberScrollState(),
-    // Last parameter must not be a function unless it's intended to be commonly used as a trailing
-    // lambda.
-) {
-    val state = remember {
-        TextFieldState(
-            initialText = value,
-            // Initialize the cursor to be at the end of the field.
-            initialSelectionInChars = TextRange(value.length)
-        )
-    }
-
-    // This is effectively a rememberUpdatedState, but it combines the updated state (text) with
-    // some state that is preserved across updates (selection).
-    var valueWithSelection by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = value,
-                selection = TextRange(value.length)
-            )
-        )
-    }
-    valueWithSelection = valueWithSelection.copy(text = value)
-
-    BasicTextField(
-        state = state,
-        modifier = modifier.syncTextFieldState(
-            state = state,
-            value = valueWithSelection,
-            onValueChanged = {
-                // Don't fire the callback if only the selection/cursor changed.
-                if (it.text != valueWithSelection.text) {
-                    onValueChange(it.text)
-                }
-                valueWithSelection = it
-            },
-            writeSelectionFromTextFieldValue = false
-        ),
-        enabled = enabled,
-        readOnly = readOnly,
-        inputTransformation = inputTransformation,
-        textStyle = textStyle,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        lineLimits = lineLimits,
-        onTextLayout = onTextLayout,
-        interactionSource = interactionSource,
-        cursorBrush = cursorBrush,
-        scrollState = scrollState,
-        outputTransformation = outputTransformation,
-        decorator = decorator,
-    )
-}
 
 /**
  * Basic text composable that provides an interactive box that accepts text input through software
@@ -264,6 +100,11 @@ fun BasicTextField2(
  * Scroll state of the composable is also hoisted to enable observation and manipulation of the
  * scroll behavior by the developer, e.g. bringing a searched keyword into view by scrolling to its
  * position without focusing, or changing selection.
+ *
+ * It's also possible to internally wrap around an existing TextFieldState and expose a more
+ * lightweight state hoisting mechanism through a value that dictates the content of the TextField
+ * and an onValueChange callback that communicates the changes to this value.
+ * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
  *
  * @param state [TextFieldState] object that holds the internal editing state of [BasicTextField].
  * @param modifier optional [Modifier] for this text field.
