@@ -19,6 +19,7 @@ package androidx.lifecycle
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewmodel.internal.ViewModelImpl
+import kotlinx.coroutines.CoroutineScope
 
 public actual abstract class ViewModel {
 
@@ -28,8 +29,16 @@ public actual abstract class ViewModel {
         impl = ViewModelImpl()
     }
 
+    public actual constructor(viewModelScope: CoroutineScope) {
+        impl = ViewModelImpl(viewModelScope)
+    }
+
     public actual constructor(vararg closeables: AutoCloseable) {
         impl = ViewModelImpl(*closeables)
+    }
+
+    public actual constructor(viewModelScope: CoroutineScope, vararg closeables: AutoCloseable) {
+        impl = ViewModelImpl(viewModelScope, *closeables)
     }
 
     protected actual open fun onCleared() {}

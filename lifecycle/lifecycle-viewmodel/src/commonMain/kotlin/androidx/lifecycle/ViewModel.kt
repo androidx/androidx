@@ -18,11 +18,14 @@
 package androidx.lifecycle
 
 import androidx.annotation.MainThread
-import kotlin.coroutines.CoroutineContext
+import androidx.lifecycle.viewmodel.internal.CloseableCoroutineScope
+import androidx.lifecycle.viewmodel.internal.VIEW_MODEL_SCOPE_KEY
+import androidx.lifecycle.viewmodel.internal.createViewModelScope
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 
 /**
  * ViewModel is a class that is responsible for preparing and managing the data for
@@ -96,21 +99,43 @@ import kotlinx.coroutines.cancel
 public expect abstract class ViewModel {
 
     /**
-     * Construct a new ViewModel instance.
+     * Creates a new [ViewModel].
      *
-     * You should **never** manually construct a ViewModel outside of a
+     * You should **never** manually create a [ViewModel] outside of a
      * [ViewModelProvider.Factory].
      */
     public constructor()
 
     /**
-     * Construct a new ViewModel instance. Any [AutoCloseable] objects provided here
-     * will be closed directly before [ViewModel.onCleared] is called.
+     * Creates a new [ViewModel].
      *
-     * You should **never** manually construct a ViewModel outside of a
+     * You should **never** manually create a [ViewModel] outside of a
      * [ViewModelProvider.Factory].
+     *
+     * @param viewModelScope a [CoroutineScope] to be cancelled when the [ViewModel] is cleared.
+     */
+    public constructor(viewModelScope: CoroutineScope)
+
+    /**
+     * Creates a new [ViewModel].
+     *
+     * You should **never** manually create a [ViewModel] outside of a
+     * [ViewModelProvider.Factory].
+     *
+     * @param closeables the resources to be closed when the [ViewModel] is cleared.
      */
     public constructor(vararg closeables: AutoCloseable)
+
+    /**
+     * Creates a new [ViewModel].
+     *
+     * You should **never** manually create a [ViewModel] outside of a
+     * [ViewModelProvider.Factory].
+     *
+     * @param viewModelScope a [CoroutineScope] to be cancelled when the [ViewModel] is cleared.
+     * @param closeables the resources to be closed when the [ViewModel] is cleared.
+     */
+    public constructor(viewModelScope: CoroutineScope, vararg closeables: AutoCloseable)
 
     /**
      * This method will be called when this ViewModel is no longer used and will be destroyed.
@@ -157,28 +182,28 @@ public expect abstract class ViewModel {
     public fun <T : AutoCloseable> getCloseable(key: String): T?
 }
 
-private const val JOB_KEY = "androidx.lifecycle.ViewModelCoroutineScope.JOB_KEY"
+internal const val VIEW_MODEL_SCOPE_KEY =
+    "androidx.lifecycle.viewmodel.internal.ViewModelCoroutineScope.JOB_KEY"
 
 /**
- * [CoroutineScope] tied to this [ViewModel].
- * This scope will be canceled when ViewModel will be cleared, i.e. [ViewModel.onCleared] is called
+ * The [CoroutineScope] associated with this [ViewModel].
  *
- * This scope is bound to
- * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
+ * The [CoroutineScope.coroutineContext] is configured with:
+ * - [SupervisorJob]: ensures children jobs can fail independently of each other.
+ * - [MainCoroutineDispatcher.immediate]: executes jobs immediately on the main (UI) thread. If
+ *  the [Dispatchers.Main] is not available on the current platform (e.g., Linux), we fallback
+ *  to an [EmptyCoroutineContext].
+ *
+ * This scope is automatically cancelled when the [ViewModel] is cleared, and can be replaced by
+ * using the [ViewModel] constructor overload that takes in a `viewModelScope: CoroutineScope`.
+ *
+ * For background execution, use [kotlinx.coroutines.withContext] to switch to appropriate
+ * dispatchers (e.g., [kotlinx.coroutines.IO]).
+ *
+ * @see ViewModel.onCleared
  */
 public val ViewModel.viewModelScope: CoroutineScope
     get() {
-        return getCloseable<CloseableCoroutineScope>(JOB_KEY) ?: CloseableCoroutineScope(
-            SupervisorJob() + Dispatchers.Main.immediate
-        ).also { newClosableScope ->
-            addCloseable(JOB_KEY, newClosableScope)
-        }
+        return getCloseable<CloseableCoroutineScope>(VIEW_MODEL_SCOPE_KEY)
+            ?: createViewModelScope().also { scope -> addCloseable(VIEW_MODEL_SCOPE_KEY, scope) }
     }
-
-private class CloseableCoroutineScope(context: CoroutineContext) : AutoCloseable, CoroutineScope {
-    override val coroutineContext: CoroutineContext = context
-
-    override fun close() {
-        coroutineContext.cancel()
-    }
-}
