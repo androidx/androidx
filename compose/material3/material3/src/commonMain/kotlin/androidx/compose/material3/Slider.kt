@@ -1910,6 +1910,7 @@ private val TickSize = SliderTokens.TickMarksContainerSize
 private val ThumbTrackGapSize: Dp = 6.dp
 private val TrackInsideCornerSize: Dp = 2.dp
 private val TrackStopIndicatorSize: Dp = 4.dp
+private const val SliderRangeTolerance = 0.0001
 
 private enum class SliderComponents {
     THUMB,
@@ -2317,7 +2318,8 @@ internal value class SliderRange(
 @Stable
 internal fun SliderRange(start: Float, endInclusive: Float): SliderRange {
     val isUnspecified = start.isNaN() && endInclusive.isNaN()
-    require(isUnspecified || start <= endInclusive) {
+
+    require(isUnspecified || start <= endInclusive + SliderRangeTolerance) {
         "start($start) must be <= endInclusive($endInclusive)"
     }
     return SliderRange(packFloats(start, endInclusive))
@@ -2334,7 +2336,7 @@ internal fun SliderRange(range: ClosedFloatingPointRange<Float>): SliderRange {
     val start = range.start
     val endInclusive = range.endInclusive
     val isUnspecified = start.isNaN() && endInclusive.isNaN()
-    require(isUnspecified || start <= endInclusive) {
+    require(isUnspecified || start <= endInclusive + SliderRangeTolerance) {
         "ClosedFloatingPointRange<Float>.start($start) must be <= " +
             "ClosedFloatingPoint.endInclusive($endInclusive)"
     }
