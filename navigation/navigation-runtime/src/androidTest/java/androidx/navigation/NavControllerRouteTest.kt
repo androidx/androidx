@@ -743,6 +743,8 @@ class NavControllerRouteTest {
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertThat(navigator.backStack.size).isEqualTo(2)
 
+        // fails because this is a StringType arg and `null` is considered a string
+        // with the word "null" rather than a null value
         val route = "second_test?opt=null"
         val exception = assertFailsWith<IllegalArgumentException> {
             navController.getBackStackEntry(route)
@@ -928,6 +930,85 @@ class NavControllerRouteTest {
             "No destination with route $route is on the NavController's " +
                 "back stack. The current destination is ${navController.currentDestination}"
         )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithArrayArg() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start"
+            ) {
+                test("start")
+                test("second?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.IntArrayType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        navController.navigate("second?arg=15&arg=24")
+        val currentEntry = navController.currentBackStackEntry
+        assertThat(currentEntry?.destination?.route).isEqualTo("second?arg={arg}")
+        val expected = navController.getBackStackEntry("second?arg=15&arg=24")
+        assertThat(expected).isEqualTo(currentEntry)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithDifferingArrayArg() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start"
+            ) {
+                test("start")
+                test("second?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.IntArrayType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        navController.navigate("second?arg=15&arg=24")
+        val currentEntry = navController.currentBackStackEntry
+        assertThat(currentEntry?.destination?.route).isEqualTo("second?arg={arg}")
+        val route = "second?arg=15"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${currentEntry?.destination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithMissingArrayArg() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start"
+            ) {
+                test("start")
+                test("second?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.IntArrayType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        navController.navigate("second?arg=15&arg=24")
+        val currentEntry = navController.currentBackStackEntry
+        assertThat(currentEntry?.destination?.route).isEqualTo("second?arg={arg}")
+        // would still match if missing some of the original args
+        val expected = navController.getBackStackEntry("second?")
+        assertThat(expected).isEqualTo(currentEntry)
     }
 
     @UiThreadTest
