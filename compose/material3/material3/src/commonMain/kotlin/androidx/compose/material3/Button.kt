@@ -90,9 +90,8 @@ import androidx.compose.ui.unit.dp
  * @param colors [ButtonColors] that will be used to resolve the colors for this button in different
  * states. See [ButtonDefaults.buttonColors].
  * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
- * states. This controls the size of the shadow below the button. Additionally, when the container
- * color is [ColorScheme.surface], this controls the amount of primary color applied as an overlay.
- * See [ButtonElevation.shadowElevation] and [ButtonElevation.tonalElevation].
+ * states. This controls the size of the shadow below the button. See
+ * [ButtonElevation.shadowElevation].
  * @param border the border to draw around the container of this button
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
@@ -119,7 +118,6 @@ fun Button(
     val containerColor = colors.containerColor(enabled)
     val contentColor = colors.contentColor(enabled)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
-    val tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp
     Surface(
         onClick = onClick,
         modifier = modifier.semantics { role = Role.Button },
@@ -127,7 +125,6 @@ fun Button(
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         border = border,
         interactionSource = interactionSource
@@ -865,27 +862,10 @@ class ButtonElevation internal constructor(
     private val disabledElevation: Dp,
 ) {
     /**
-     * Represents the tonal elevation used in a button, depending on its [enabled] state.
-     *
-     * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
-     * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
-     * color in light theme and lighter color in dark theme.
-     *
-     * See [shadowElevation] which controls the elevation of the shadow drawn around the button.
-     *
-     * @param enabled whether the button is enabled
-     */
-    internal fun tonalElevation(enabled: Boolean): Dp {
-        return if (enabled) defaultElevation else disabledElevation
-    }
-
-    /**
      * Represents the shadow elevation used in a button, depending on its [enabled] state and
      * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the button to give it higher emphasis.
-     *
-     * See [tonalElevation] which controls the elevation with a color shift to the surface.
      *
      * @param enabled whether the button is enabled
      * @param interactionSource the [InteractionSource] for this button
