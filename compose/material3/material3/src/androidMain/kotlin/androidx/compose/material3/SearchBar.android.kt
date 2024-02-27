@@ -705,7 +705,7 @@ private fun SearchBarInputField(
 @ExperimentalMaterial3Api
 object SearchBarDefaults {
     /** Default tonal elevation for a search bar. */
-    val TonalElevation: Dp = SearchBarTokens.ContainerElevation
+    val TonalElevation: Dp = ElevationTokens.Level0
 
     /** Default shadow elevation for a search bar. */
     val ShadowElevation: Dp = ElevationTokens.Level0

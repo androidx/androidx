@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: v0_126
+// VERSION: v0_210
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -22,9 +21,8 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SearchViewTokens {
-    val ContainerColor = ColorSchemeKeyTokens.Surface
+    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
     val ContainerElevation = ElevationTokens.Level3
-    val ContainerSurfaceTintLayerColor = ColorSchemeKeyTokens.SurfaceTint
     val DividerColor = ColorSchemeKeyTokens.Outline
     val DockedContainerShape = ShapeKeyTokens.CornerExtraLarge
     val DockedHeaderContainerHeight = 56.0.dp
