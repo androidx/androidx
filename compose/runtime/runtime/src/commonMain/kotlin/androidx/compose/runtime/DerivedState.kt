@@ -265,17 +265,19 @@ private class DerivedSnapshotState<T>(
             // value is used instead which doesn't notify. This allow the read observer to read the
             // value and only update the cache once.
             Snapshot.current.readObserver?.invoke(this)
-            return first.withCurrent {
-                @Suppress("UNCHECKED_CAST")
-                currentRecord(it, Snapshot.current, true, calculation).result as T
-            }
+            // Read observer could advance the snapshot, so get current snapshot again
+            val snapshot = Snapshot.current
+            val record = current(first, snapshot)
+            @Suppress("UNCHECKED_CAST")
+            return currentRecord(record, snapshot, true, calculation).result as T
         }
 
-    override val currentRecord: DerivedState.Record<T> get() {
-        return first.withCurrent {
-            currentRecord(it, Snapshot.current, false, calculation)
+    override val currentRecord: DerivedState.Record<T>
+        get() {
+            val snapshot = Snapshot.current
+            val record = current(first, snapshot)
+            return currentRecord(record, snapshot, false, calculation)
         }
-    }
 
     override fun toString(): String = first.withCurrent {
         "DerivedState(value=${displayValue()})@${hashCode()}"
