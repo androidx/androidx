@@ -44,9 +44,9 @@ compiling against an API. It is a *source-breaking change* and not recommended.
 Soft removals **must** do the following:
 
 *   Mark the API as deprecated for at least one stable release prior to removal.
-*   In Java sources, mark the API with a `@RestrictTo(LIBRARY)` Java annotation
-    as well as a `@removed <reason>` docs annotation explaining why the API was
-    removed.
+*   In Java sources, mark the API with a `@RestrictTo(LIBRARY_GROUP_PREFIX)`
+    Java annotation as well as a `@removed <reason>` docs annotation explaining
+    why the API was removed.
 *   In Kotlin sources, mark the API with `@Deprecated(message = <reason>,
     level = DeprecationLevel.HIDDEN)` explaining why the API was removed.
 *   Maintain binary compatibility, as the API may still be called by existing
