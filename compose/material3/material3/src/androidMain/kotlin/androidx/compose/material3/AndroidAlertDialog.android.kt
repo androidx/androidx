@@ -229,7 +229,7 @@ object AlertDialogDefaults {
     val textContentColor: Color @Composable get() = DialogTokens.SupportingTextColor.value
 
     /** The default tonal elevation for alert dialogs */
-    val TonalElevation: Dp = DialogTokens.ContainerElevation
+    val TonalElevation: Dp = 0.dp
 }
 
 private val ButtonsMainAxisSpacing = 8.dp
