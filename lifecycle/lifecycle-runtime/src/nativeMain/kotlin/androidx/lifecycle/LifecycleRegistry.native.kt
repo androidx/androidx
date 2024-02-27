@@ -309,7 +309,7 @@ actual open class LifecycleRegistry private constructor(
 
     private fun enforceMainThreadIfNeeded(methodName: String) {
         if (enforceMainThread) {
-            check(true /* TODO Add main thread checking. */) {
+            check(isMainThread()) {
                 ("Method $methodName must be called on the main thread")
             }
         }
@@ -351,3 +351,6 @@ actual open class LifecycleRegistry private constructor(
         }
     }
 }
+
+private fun isMainThread(): Boolean =
+    MainDispatcherChecker.isMainDispatcherThread()
