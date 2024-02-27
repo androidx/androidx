@@ -16,7 +16,5 @@
 
 package androidx.lifecycle
 
-import javax.swing.SwingUtilities
-
 internal actual fun isMainThread(): Boolean =
-    SwingUtilities.isEventDispatchThread()
+    MainDispatcherChecker.isMainDispatcherThread()
