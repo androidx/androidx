@@ -243,7 +243,7 @@ private fun shouldVerifyDependency(dependency: Dependency): Boolean {
     // we have AndroidXExtension applied.
     if (dependency is ProjectDependency &&
         dependency.dependencyProject.extensions.findByType<AndroidXExtension>()
-            ?.shouldPublish() != true
+            ?.shouldRelease() != true
     ) {
         return false
     }
