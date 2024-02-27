@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.savedstate
+package androidx.core.bundle
 
-actual typealias Bundle = android.os.Bundle
+import kotlin.reflect.KClass
+
+internal actual val <T : Any> KClass<T>.canonicalName: String?
+    get() = qualifiedName
+

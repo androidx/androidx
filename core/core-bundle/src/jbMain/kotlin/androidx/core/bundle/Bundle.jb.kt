@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.savedstate
+package androidx.core.bundle
 
 import kotlin.reflect.KClass
 
@@ -45,7 +45,16 @@ actual class Bundle {
     actual fun putCharSequence(key: String?, value: CharSequence?) { setObject(key, value) }
     actual fun putIntegerArrayList(key: String?, value: ArrayList<Int>?) { setObject(key, value) }
     actual fun putStringArrayList(key: String?, value: ArrayList<String>?) { setObject(key, value) }
+    actual fun putBooleanArray(key: String?, value: BooleanArray?) { setObject(key, value) }
     actual fun putByteArray(key: String?, value: ByteArray?) { setObject(key, value) }
+    actual fun putShortArray(key: String?, value: ShortArray?) { setObject(key, value) }
+    actual fun putCharArray(key: String?, value: CharArray?) { setObject(key, value) }
+    actual fun putIntArray(key: String?, value: IntArray?) { setObject(key, value) }
+    actual fun putLongArray(key: String?, value: LongArray?) { setObject(key, value) }
+    actual fun putFloatArray(key: String?, value: FloatArray?) { setObject(key, value) }
+    actual fun putDoubleArray(key: String?, value: DoubleArray?) { setObject(key, value) }
+    actual fun putStringArray(key: String?, value: Array<String>?) { setObject(key, value) }
+    actual fun putCharSequenceArray(key: String?, value: Array<CharSequence>?) { setObject(key, value) }
     actual fun putBundle(key: String?, value: Bundle?) { setObject(key, value) }
 
     private inline fun setObject(key: String?, value: Any?) {
@@ -77,10 +86,20 @@ actual class Bundle {
         getCharSequence(key) ?: defaultValue
     actual fun getIntegerArrayList(key: String?): ArrayList<Int>? = getArrayList(key)
     actual fun getStringArrayList(key: String?): ArrayList<String>? = getArrayList(key)
+    actual fun getBooleanArray(key: String?): BooleanArray? = getObject(key)
     actual fun getByteArray(key: String?): ByteArray? = getObject(key)
+    actual fun getShortArray(key: String?): ShortArray? = getObject(key)
+    actual fun getCharArray(key: String?): CharArray? = getObject(key)
+    actual fun getIntArray(key: String?): IntArray? = getObject(key)
+    actual fun getLongArray(key: String?): LongArray? = getObject(key)
+    actual fun getFloatArray(key: String?): FloatArray? = getObject(key)
+    actual fun getDoubleArray(key: String?): DoubleArray? = getObject(key)
+    actual fun getStringArray(key: String?): Array<String>? = getArray(key)
+    actual fun getCharSequenceArray(key: String?): Array<CharSequence>? = getArray(key)
     actual fun getBundle(key: String?): Bundle? = getObject(key)
 
-    fun getUnsafe(key: String?): Any? = mMap.get(key)
+    @Deprecated("Use the type-safe specific APIs depending on the type of the item to be retrieved")
+    actual operator fun get(key: String?): Any? = mMap.get(key)
 
     private inline fun <reified T: Any> getObject(key: String?): T? {
         val o = mMap.get(key) ?: return null
@@ -109,6 +128,17 @@ actual class Bundle {
             o as ArrayList<T>?
         } catch (e: ClassCastException) {
             typeWarning(key, o, "ArrayList<" + T::class.canonicalName!! + ">", e)
+            null
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private inline fun <reified T: Any> getArray(key: String?): Array<T>? {
+        val o = mMap.get(key) ?: return null
+        return try {
+            o as Array<T>?
+        } catch (e: ClassCastException) {
+            typeWarning(key, o, "Array<" + T::class.canonicalName!! + ">", e)
             null
         }
     }
@@ -144,10 +174,7 @@ actual class Bundle {
     }
 }
 
-/**
- * Returns a new [Bundle] with the given key/value pairs as elements.
- */
-fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle = Bundle(pairs.size).apply {
+actual fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle = Bundle(pairs.size).apply {
     for ((key, value) in pairs) {
         when (value) {
             null -> putString(key, null) // Any nullable type will suffice.

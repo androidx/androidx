@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.savedstate
+package androidx.core.bundle
 
 import kotlin.reflect.KClass
 
