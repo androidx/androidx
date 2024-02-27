@@ -95,7 +95,7 @@ internal class EmbeddingCompat(
             in 2..4 -> {
                 registerSplitInfoCallback(embeddingCallback)
             }
-            5 -> {
+            in 5..Int.MAX_VALUE -> {
                 registerSplitInfoCallback(embeddingCallback)
 
                 // Register ActivityStack callback
