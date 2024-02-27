@@ -336,7 +336,6 @@ public fun NavHost(
     var progress by remember { mutableFloatStateOf(0f) }
     var inPredictiveBack by remember { mutableStateOf(false) }
     PredictiveBackHandler(currentBackStack.size > 1) { backEvent ->
-        inPredictiveBack = true
         progress = 0f
         val currentBackStackEntry = currentBackStack.lastOrNull()
         composeNavigator.prepareForTransition(currentBackStackEntry!!)
@@ -344,6 +343,7 @@ public fun NavHost(
         composeNavigator.prepareForTransition(previousEntry)
         try {
             backEvent.collect {
+                inPredictiveBack = true
                 progress = it.progress
             }
             inPredictiveBack = false
