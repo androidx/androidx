@@ -480,7 +480,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
             val isAndroidProject =
                 project.plugins.hasPlugin(LibraryPlugin::class.java) ||
-                    project.plugins.hasPlugin(AppPlugin::class.java)
+                    project.plugins.hasPlugin(AppPlugin::class.java) ||
+                    project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
             // Explicit API mode is broken for Android projects
             // https://youtrack.jetbrains.com/issue/KT-37652
             if (androidXExtension.shouldEnforceKotlinStrictApiMode() && !isAndroidProject) {
