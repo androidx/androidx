@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.PlainTooltipTokens
 import androidx.compose.material3.tokens.RichTooltipTokens
 import androidx.compose.runtime.Composable
@@ -229,7 +230,7 @@ expect fun CaretScope.RichTooltip(
     caretProperties: CaretProperties? = null,
     shape: Shape = TooltipDefaults.richTooltipContainerShape,
     colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
-    tonalElevation: Dp = RichTooltipTokens.ContainerElevation,
+    tonalElevation: Dp = ElevationTokens.Level0,
     shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
     text: @Composable () -> Unit
 )
