@@ -18,10 +18,10 @@ package androidx.lifecycle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.kruth.assertWithMessage
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 

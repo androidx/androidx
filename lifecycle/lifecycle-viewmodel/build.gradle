@@ -60,12 +60,21 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-                // TODO(b/214568825): migrate from `androidUnitTest` to here.
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
             }
         }
 
         jvmMain {
             dependsOn(commonMain)
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+            }
         }
 
         androidMain {
@@ -76,12 +85,9 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(commonTest)
+            dependsOn(jvmTest)
             dependencies {
-                implementation(libs.junit)
                 implementation(libs.mockitoCore4)
-                implementation(libs.kotlinTest)
-                implementation(libs.truth)
             }
         }
 
@@ -89,9 +95,6 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation("androidx.core:core-ktx:1.2.0")
-                implementation(libs.truth)
-                implementation(libs.kotlinStdlib)
-                implementation(libs.junit)
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
                 implementation(libs.testRunner)
