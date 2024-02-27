@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,24 @@
 
 package androidx.lifecycle
 
-import org.junit.Assert.assertNotNull
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import androidx.lifecycle.viewmodel.CreationExtras
+import kotlin.reflect.KClass
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
-class ViewModelProviderReifiedTest {
-    class TestViewModel : ViewModel()
-
+class ViewModelProviderGetTest {
     @Test
-    fun providerReifiedGet() {
+    fun get_withReifiedType() {
         val factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>) = modelClass
-                .getDeclaredConstructor().newInstance()
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T =
+                TestViewModel() as T
         }
-        val provider = ViewModelProvider(ViewModelStore(), factory)
+        val provider = ViewModelProvider.create(ViewModelStore(), factory)
 
         val viewModel = provider.get<TestViewModel>()
-        assertNotNull(viewModel)
+        assertThat(viewModel).isNotNull()
     }
+
+    private class TestViewModel : ViewModel()
 }

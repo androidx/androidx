@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
 
 package androidx.lifecycle.viewmodel
 
+import androidx.kruth.assertThat
 import androidx.lifecycle.ViewModel
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class ViewModelInitializerTest {
     @Test
     fun testInitializerFactory() {
@@ -35,8 +32,8 @@ class ViewModelInitializerTest {
             initializer { TestViewModel1(extras1[key]) }
             initializer { TestViewModel2(extras2[key]) }
         }
-        val viewModel1: TestViewModel1 = factory.create(TestViewModel1::class.java, extras1)
-        val viewModel2: TestViewModel2 = factory.create(TestViewModel2::class.java, extras2)
+        val viewModel1: TestViewModel1 = factory.create(TestViewModel1::class, extras1)
+        val viewModel2: TestViewModel2 = factory.create(TestViewModel2::class, extras2)
         assertThat(viewModel1.value).isEqualTo(value1)
         assertThat(viewModel2.value).isEqualTo(value2)
     }
@@ -48,10 +45,10 @@ class ViewModelInitializerTest {
         val extras = MutableCreationExtras().apply { set(key, value) }
         val factory = viewModelFactory { }
         try {
-            factory.create(TestViewModel1::class.java, extras)
+            factory.create(TestViewModel1::class, extras)
         } catch (e: IllegalArgumentException) {
             assertThat(e).hasMessageThat().isEqualTo(
-                "No initializer set for given class ${TestViewModel1::class.java.name}"
+                "No initializer set for given class ${TestViewModel1::class.qualifiedName}"
             )
         }
     }

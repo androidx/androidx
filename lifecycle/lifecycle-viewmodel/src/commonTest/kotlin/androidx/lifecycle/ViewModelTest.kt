@@ -13,87 +13,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalStdlibApi::class)
+
 package androidx.lifecycle
 
-import java.io.Closeable
-import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import org.mockito.Mockito
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class ViewModelTest {
 
-    internal class CloseableImpl : Closeable {
+    private class CloseableImpl : AutoCloseable {
         var wasClosed = false
         override fun close() {
             wasClosed = true
         }
     }
 
-    internal open class ViewModel : androidx.lifecycle.ViewModel()
-    internal class ConstructorArgViewModel(closeable: Closeable) :
-        androidx.lifecycle.ViewModel(closeable)
+    private class TestViewModel : ViewModel()
+    private class CloseableTestViewModel(closeable: AutoCloseable) : ViewModel(closeable)
 
     @Test
     fun testCloseableWithKey() {
-        val vm = ViewModel()
+        val vm = TestViewModel()
         val impl = CloseableImpl()
         vm.addCloseable("totally_not_coroutine_context", impl)
         vm.clear()
-        assertTrue(impl.wasClosed)
+        assertThat(impl.wasClosed).isTrue()
     }
 
     @Test
     fun testCloseableWithKeyAlreadyClearedVM() {
-        val vm = ViewModel()
+        val vm = TestViewModel()
         vm.clear()
         val impl = CloseableImpl()
         vm.addCloseable("key", impl)
-        assertTrue(impl.wasClosed)
-    }
-
-    @Test
-    fun testMockedGetCloseable() {
-        val vm = Mockito.mock(ViewModel::class.java)
-        assertThat(vm.getCloseable("Careless mocks =|"), nullValue())
+        assertThat(impl.wasClosed).isTrue()
     }
 
     @Test
     fun testAddCloseable() {
-        val vm = ViewModel()
+        val vm = TestViewModel()
         val impl = CloseableImpl()
         vm.addCloseable(impl)
         vm.clear()
-        assertTrue(impl.wasClosed)
+        assertThat(impl.wasClosed).isTrue()
     }
 
     @Test
     fun testAddCloseableAlreadyClearedVM() {
-        val vm = ViewModel()
+        val vm = TestViewModel()
         vm.clear()
         val impl = CloseableImpl()
         // This shouldn't crash, even though vm already cleared
         vm.addCloseable(impl)
-        assertTrue(impl.wasClosed)
+        assertThat(impl.wasClosed).isTrue()
     }
 
     @Test
     fun testConstructorCloseable() {
         val impl = CloseableImpl()
-        val vm = ConstructorArgViewModel(impl)
+        val vm = CloseableTestViewModel(impl)
         vm.clear()
-        assertTrue(impl.wasClosed)
-    }
-
-    @Test
-    fun testMockedAddCloseable() {
-        val vm = Mockito.mock(ViewModel::class.java)
-        val impl = CloseableImpl()
-        // This shouldn't crash, even on a mocked object
-        vm.addCloseable(impl)
+        assertThat(impl.wasClosed).isTrue()
     }
 }
