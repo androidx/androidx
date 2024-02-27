@@ -81,13 +81,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toOffset
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.floor
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -473,7 +471,6 @@ class TextFieldCursorTest : FocusedWindowTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @FlakyTest(bugId = 303503435)
     fun cursorNotBlinking_whileTyping() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(4))
         rule.setTestContent {
@@ -490,8 +487,6 @@ class TextFieldCursorTest : FocusedWindowTest {
 
         // cursor visible first 500 ms
         rule.mainClock.advanceTimeBy(500)
-        // TODO(b/170298051) check here that cursor is visible when we have a way to control
-        //  cursor position when sending a text
 
         // change text field value
         rule.onNode(hasSetTextAction())
@@ -507,7 +502,6 @@ class TextFieldCursorTest : FocusedWindowTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @FlakyTest(bugId = 303903824)
     fun selectionChanges_cursorNotBlinking() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(2))
         rule.setTestContent {
@@ -525,9 +519,6 @@ class TextFieldCursorTest : FocusedWindowTest {
         // hide the cursor
         rule.mainClock.advanceTimeBy(500)
         rule.mainClock.advanceTimeByFrame()
-
-        // TODO(b/170298051) check here that cursor is visible when we have a way to control
-        //  cursor position when sending a text
 
         rule.onNode(hasSetTextAction())
             .performTextInputSelection(TextRange(0))
@@ -844,7 +835,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertContainsColor(selectionColor)
     }
 
-    @Ignore("b/305799612")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_textDragging_cursorRendered() {
@@ -883,7 +873,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertCursor(cursorTopCenterInLtr)
     }
 
-    @Ignore("b/305799612")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_textDragging_cursorDisappearsAfterTimeout() {
@@ -928,7 +917,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             )
     }
 
-    @Ignore("b/305799612")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_textDragging_cursorDoesNotDisappearWhileMoving() {
@@ -978,7 +966,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertCursor(cursorTopCenterInLtr)
     }
 
-    @Ignore("b/305799612")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_textDragging_noWindowFocus_cursorRendered() {
