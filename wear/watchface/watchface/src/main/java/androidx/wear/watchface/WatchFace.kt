@@ -783,14 +783,18 @@ constructor(
         // To save power we request a lower hardware display frame rate when the battery is low
         // and not charging.
         if (renderer.surfaceHolder.surface.isValid) {
-            SetFrameRateHelper.setFrameRate(
-                renderer.surfaceHolder.surface,
-                if (it) {
+            if (it) {
+                SetFrameRateHelper.setFrameRate(
+                    renderer.surfaceHolder.surface,
                     1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
+                )
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    ClearFrameRateHelperU.clearFrameRate(renderer.surfaceHolder.surface)
                 } else {
-                    SYSTEM_DECIDES_FRAME_RATE
+                    ClearFrameRateHelperR.clearFrameRate(renderer.surfaceHolder.surface)
                 }
-            )
+            }
         }
     }
 
@@ -1386,12 +1390,24 @@ internal object CreateRemoteWatchFaceViewHelper {
     }
 }
 
-internal class SetFrameRateHelper {
-    @RequiresApi(Build.VERSION_CODES.R)
-    companion object {
-        fun setFrameRate(surface: Surface, frameRate: Float) {
-            surface.setFrameRate(frameRate, FRAME_RATE_COMPATIBILITY_DEFAULT)
-        }
+@RequiresApi(Build.VERSION_CODES.R)
+internal object SetFrameRateHelper {
+    fun setFrameRate(surface: Surface, frameRate: Float) {
+        surface.setFrameRate(frameRate, FRAME_RATE_COMPATIBILITY_DEFAULT)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+internal object ClearFrameRateHelperR {
+    fun clearFrameRate(surface: Surface) {
+        surface.setFrameRate(SYSTEM_DECIDES_FRAME_RATE, FRAME_RATE_COMPATIBILITY_DEFAULT)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+internal object ClearFrameRateHelperU {
+    fun clearFrameRate(surface: Surface) {
+        surface.clearFrameRate()
     }
 }
 
