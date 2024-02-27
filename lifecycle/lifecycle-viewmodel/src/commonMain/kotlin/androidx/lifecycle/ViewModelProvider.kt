@@ -78,7 +78,7 @@ public expect class ViewModelProvider {
          */
         public open fun <T : ViewModel> create(
             modelClass: KClass<T>,
-            extras: CreationExtras = CreationExtras.Empty,
+            extras: CreationExtras,
         ): T
     }
 

@@ -66,7 +66,7 @@ internal class ViewModelProviderImpl(
         return try {
             factory.create(modelClass, extras)
         } catch (e: Error) { // There is no `AbstractMethodError` on KMP, using common ancestor.
-            factory.create(modelClass)
+            factory.create(modelClass, CreationExtras.Empty)
         }.also { newViewModel -> store.put(key, newViewModel) }
     }
 }
