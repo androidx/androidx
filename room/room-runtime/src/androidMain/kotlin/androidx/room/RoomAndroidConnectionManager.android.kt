@@ -37,8 +37,7 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
     override val configuration: DatabaseConfiguration
     override val connectionPool: ConnectionPool
     override val openDelegate: RoomOpenDelegate
-
-    private val callbacks: List<RoomDatabase.Callback>
+    override val callbacks: List<RoomDatabase.Callback>
 
     internal val supportOpenHelper: SupportSQLiteOpenHelper?
         get() = (connectionPool as? SupportConnectionPool)?.supportDriver?.openHelper
@@ -125,33 +124,6 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
 
     fun close() {
         connectionPool.close()
-    }
-
-    override fun invokeCreateCallback(connection: SQLiteConnection) {
-        // TODO(b/316944352): Add callback mirror of SQLiteConnection
-        callbacks.forEach {
-            if (connection is SupportSQLiteConnection) {
-                it.onCreate(connection.db)
-            }
-        }
-    }
-
-    override fun invokeDestructiveMigrationCallback(connection: SQLiteConnection) {
-        // TODO(b/316944352): Add callback mirror of SQLiteConnection
-        callbacks.forEach {
-            if (connection is SupportSQLiteConnection) {
-                it.onDestructiveMigration(connection.db)
-            }
-        }
-    }
-
-    override fun invokeOpenCallback(connection: SQLiteConnection) {
-        // TODO(b/316944352): Add callback mirror of SQLiteConnection
-        callbacks.forEach {
-            if (connection is SupportSQLiteConnection) {
-                it.onOpen(connection.db)
-            }
-        }
     }
 
     // TODO(b/316944352): Figure out auto-close with driver APIs

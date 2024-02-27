@@ -72,7 +72,8 @@ actual abstract class RoomDatabase {
     ): RoomConnectionManager = RoomNativeConnectionManager(
         configuration = configuration,
         sqliteDriver = checkNotNull(configuration.sqliteDriver),
-        openDelegate = createOpenDelegate() as RoomOpenDelegate
+        openDelegate = createOpenDelegate() as RoomOpenDelegate,
+        callbacks = configuration.callbacks ?: emptyList()
     )
 
     /**
@@ -240,6 +241,7 @@ actual abstract class RoomDatabase {
     ) {
 
         private var driver: SQLiteDriver? = null
+        private val callbacks = mutableListOf<Callback>()
 
         /**
          * Sets the [SQLiteDriver] implementation to be used by Room to open database connections.
@@ -251,6 +253,16 @@ actual abstract class RoomDatabase {
          */
         actual fun setDriver(driver: SQLiteDriver): Builder<T> = apply {
             this.driver = driver
+        }
+
+        /**
+         * Adds a [Callback] to this database.
+         *
+         * @param callback The callback.
+         * @return This builder instance.
+         */
+        actual fun addCallback(callback: Callback) = apply {
+            this.callbacks.add(callback)
         }
 
         /**
@@ -266,6 +278,7 @@ actual abstract class RoomDatabase {
             val configuration = DatabaseConfiguration(
                 name = name,
                 migrationContainer = MigrationContainer(),
+                callbacks = callbacks,
                 journalMode = JournalMode.WRITE_AHEAD_LOGGING,
                 requireMigration = false,
                 allowDestructiveMigrationOnDowngrade = false,
@@ -331,5 +344,33 @@ actual abstract class RoomDatabase {
             val targetNodes = migrations[migrationStart] ?: return null
             return targetNodes to targetNodes.keys.sortedDescending()
         }
+    }
+
+    /**
+     * Callback for [RoomDatabase]
+     */
+    actual abstract class Callback {
+        /**
+         * Called when the database is created for the first time.
+         *
+         * This function called after all the tables are created.
+         *
+         * @param connection The database connection.
+         */
+        actual open fun onCreate(connection: SQLiteConnection) {}
+
+        /**
+         * Called after the database was destructively migrated.
+         *
+         * @param connection The database connection.
+         */
+        actual open fun onDestructiveMigration(connection: SQLiteConnection) {}
+
+        /**
+         * Called when the database has been opened.
+         *
+         * @param connection The database connection.
+         */
+        actual open fun onOpen(connection: SQLiteConnection) {}
     }
 }

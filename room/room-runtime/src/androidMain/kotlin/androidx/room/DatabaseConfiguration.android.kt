@@ -61,7 +61,7 @@ constructor(
     actual val migrationContainer: RoomDatabase.MigrationContainer,
 
     @JvmField
-    val callbacks: List<RoomDatabase.Callback>?,
+    actual val callbacks: List<RoomDatabase.Callback>?,
 
     /**
      * Whether Room should throw an exception for queries run on the main thread.
