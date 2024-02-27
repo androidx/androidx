@@ -76,11 +76,11 @@ internal class LayoutIntrinsics(
         get() = if (!_maxIntrinsicWidth.isNaN()) {
             _maxIntrinsicWidth
         } else {
-            var desiredWidth = boringMetrics?.width?.toFloat()
+            var desiredWidth = (boringMetrics?.width ?: -1).toFloat()
 
             // boring metrics doesn't cover RTL text so we fallback to different calculation when boring
             // metrics can't be calculated
-            if (desiredWidth == null) {
+            if (desiredWidth < 0) {
                 // b/233856978, apply `ceil` function here to be consistent with the boring metrics
                 // width calculation that does it under the hood, too
                 desiredWidth = ceil(
