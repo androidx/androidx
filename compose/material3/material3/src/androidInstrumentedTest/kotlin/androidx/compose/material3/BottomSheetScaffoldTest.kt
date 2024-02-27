@@ -94,7 +94,6 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase
-import kotlin.IllegalStateException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -864,7 +863,6 @@ class BottomSheetScaffoldTest {
         rule.setContent {
             dragHandleContentDescription = getString(Strings.BottomSheetDragHandleDescription)
             dragHandleColor = SheetBottomTokens.DockedDragHandleColor.value
-                .copy(SheetBottomTokens.DockedDragHandleOpacity)
             surface = MaterialTheme.colorScheme.surface
             density = LocalDensity.current
             BottomSheetScaffold(
