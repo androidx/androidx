@@ -18,6 +18,10 @@
 
 package androidx.navigation.serialization
 
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import kotlin.reflect.KType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.descriptors.capturedKClass
@@ -30,8 +34,7 @@ import kotlinx.serialization.descriptors.capturedKClass
  * are appended as path args, while nullable arg types are appended as query args.
  */
 internal fun <T> KSerializer<T>.generateRoutePattern(): String {
-    // abstract class
-    if (this is PolymorphicSerializer) {
+    assertNotAbstractClass {
         throw IllegalArgumentException(
             "Cannot generate route pattern from polymorphic class " +
                 "${descriptor.capturedKClass?.simpleName}. Routes can only be generated from " +
@@ -59,4 +62,72 @@ internal fun <T> KSerializer<T>.generateRoutePattern(): String {
     }
 
     return path + pathArg + queryArg
+}
+
+/**
+ * Returns a list of [NamedNavArgument].
+ *
+ * By default this method only supports conversion to NavTypes that are declared in
+ * [NavType.Companion] class. To convert non-natively supported types, the custom NavType must be
+ * provided via [typeMap].
+ *
+ * Short summary of NavArgument generation principles:
+ * 1. NavArguments will only be generated on variables with kotlin backing fields
+ * 2. Arg Name is based on variable name
+ * 3. Nullability is based on variable Type's nullability
+ * 4. defaultValuePresent is based on whether variable has default value
+ *
+ * This generator does not check for validity as a NavType.
+ * This means if a NavType is not nullable (i.e. Int), and the KType was Int?, it relies on the
+ * navArgument builder to throw exception.
+ *
+ * @param [typeMap] A mapping of KType to the custom NavType<*>. For example given
+ * an argument of "val userId: UserId", the map should
+ * contain [typeOf<UserId>() to MyNavType]. Custom NavTypes take priority over native
+ * NavTypes. This means you can override native NavTypes such as [NavType.IntType] with your own
+ * implementation of NavType<Int>.
+ */
+internal fun <T> KSerializer<T>.generateNavArguments(
+    typeMap: Map<KType, NavType<*>>? = null
+): List<NamedNavArgument> {
+    assertNotAbstractClass {
+        throw IllegalArgumentException(
+            "Cannot generate NavArguments for polymorphic serializer $this. Arguments " +
+                "can only be generated from concrete classes or objects."
+        )
+    }
+
+    return List(descriptor.elementsCount) { index ->
+        val name = descriptor.getElementName(index)
+        navArgument(name) {
+            val element = descriptor.getElementDescriptor(index)
+            val isNullable = element.isNullable
+            val customType = typeMap?.keys
+                ?.find { kType -> element.matchKType(kType) }
+                ?.let { typeMap[it] }
+            type = customType ?: try {
+                element.getNavType()
+            } catch (e: IllegalArgumentException) {
+                throw IllegalArgumentException(
+                    "Cannot cast $name of type ${element.serialName} to a NavType. Make sure " +
+                        "to provide custom NavType for this argument."
+                )
+            }
+            nullable = isNullable
+            if (descriptor.isElementOptional(index)) {
+                // Navigation mostly just cares about defaultValuePresent state for
+                // non-nullable args to verify DeepLinks at a later stage.
+                // We know that non-nullable types cannot have null values, so it is
+                // safe to mark this as true without knowing actual value.
+                unknownDefaultValuePresent = true
+            }
+        }
+    }
+}
+
+private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
+    // abstract class
+    if (this is PolymorphicSerializer) {
+        handler()
+    }
 }
