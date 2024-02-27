@@ -22,10 +22,13 @@ import androidx.activity.BackEventCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.waitForExecution
+import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -446,5 +449,64 @@ class FragmentTransitionSeekingTest {
 
         // Make sure the original fragment was correctly readded to the container
         assertThat(fragment1.requireView().parent).isNotNull()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun replaceOperationWithAnimatorsInterruptCommit() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+
+            val fragment1 = TransitionFragment(R.layout.scene1)
+            fragment1.exitTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment1.reenterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            withActivity {
+                fm1.beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment1, "1")
+                    .addToBackStack(null)
+                    .commit()
+                fm1.executePendingTransactions()
+            }
+
+            val fragment2 = TransitionFragment()
+            fragment2.enterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment2.returnTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+
+            var resumedBeforeOnBackStarted = false
+            var resumedAfterOnBackStarted = false
+
+            withActivity {
+                fm1.beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment2, "2")
+                    .addToBackStack(null)
+                    .commit()
+                fm1.executePendingTransactions()
+
+                resumedBeforeOnBackStarted = fragment2.isResumed
+
+                val dispatcher = onBackPressedDispatcher
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+                resumedAfterOnBackStarted = fragment2.isResumed
+
+                dispatcher.onBackPressed()
+            }
+
+            assertThat(resumedBeforeOnBackStarted).isFalse()
+            assertThat(resumedAfterOnBackStarted).isTrue()
+        }
     }
 }
