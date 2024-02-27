@@ -188,7 +188,13 @@ class DefaultMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.name, executableElement.jvmName, callType)
+            returnType = executableElement.returnType,
+            adapter = TransactionMethodAdapter(
+                methodName = executableElement.name,
+                jvmMethodName = executableElement.jvmName,
+                callType = callType
+            ),
+            javaLambdaSyntaxAvailable = context.processingEnv.jvmVersion >= 8
         )
 }
 
@@ -268,10 +274,11 @@ class SuspendMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
+            returnType = executableElement.returnType,
             adapter = TransactionMethodAdapter(
-                executableElement.name,
-                executableElement.jvmName,
-                callType
+                methodName = executableElement.name,
+                jvmMethodName = executableElement.jvmName,
+                callType = callType
             ),
             continuationParamName = continuationParam.name,
             javaLambdaSyntaxAvailable = context.processingEnv.jvmVersion >= 8

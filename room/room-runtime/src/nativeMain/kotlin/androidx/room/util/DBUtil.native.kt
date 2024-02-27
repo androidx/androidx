@@ -20,6 +20,7 @@
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
+import androidx.room.PooledConnection
 import androidx.room.RoomDatabase
 import androidx.room.Transactor
 import androidx.room.coroutines.RawConnectionAccessor
@@ -36,7 +37,30 @@ actual suspend fun <R> performSuspending(
     isReadOnly: Boolean,
     inTransaction: Boolean,
     block: (SQLiteConnection) -> R
-): R = db.useConnection(isReadOnly) { transactor ->
+): R = db.internalPerform(isReadOnly, inTransaction) { connection ->
+    val rawConnection = (connection as RawConnectionAccessor).rawConnection
+    block.invoke(rawConnection)
+}
+
+/**
+ * Utility function to wrap a suspend block in Room's transaction coroutine.
+ *
+ * This function should only be invoked from generated code and is needed to support `@Transaction`
+ * delegates in Java and Kotlin. It is preferred to use the other 'perform' functions.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+actual suspend fun <R> performInTransactionSuspending(
+    db: RoomDatabase,
+    block: suspend () -> R
+): R = db.internalPerform(isReadOnly = false, inTransaction = true) {
+    block.invoke()
+}
+
+private suspend inline fun <R> RoomDatabase.internalPerform(
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    crossinline block: suspend (PooledConnection) -> R
+): R = useConnection(isReadOnly) { transactor ->
     if (inTransaction) {
         val type = if (isReadOnly) {
             Transactor.SQLiteTransactionType.DEFERRED
@@ -44,12 +68,8 @@ actual suspend fun <R> performSuspending(
             Transactor.SQLiteTransactionType.IMMEDIATE
         }
         // TODO(b/309990302): Notify Invalidation Tracker before and after transaction block.
-        transactor.withTransaction(type) {
-            val rawConnection = (this as RawConnectionAccessor).rawConnection
-            block.invoke(rawConnection)
-        }
+        transactor.withTransaction(type) { block.invoke(this) }
     } else {
-        val rawConnection = (transactor as RawConnectionAccessor).rawConnection
-        block.invoke(rawConnection)
+        block.invoke(transactor)
     }
 }
