@@ -341,8 +341,7 @@ object BottomSheetDefaults {
         width: Dp = SheetBottomTokens.DockedDragHandleWidth,
         height: Dp = SheetBottomTokens.DockedDragHandleHeight,
         shape: Shape = MaterialTheme.shapes.extraLarge,
-        color: Color = SheetBottomTokens.DockedDragHandleColor.value
-            .copy(SheetBottomTokens.DockedDragHandleOpacity),
+        color: Color = SheetBottomTokens.DockedDragHandleColor.value,
     ) {
         val dragHandleDescription = getString(Strings.BottomSheetDragHandleDescription)
         Surface(
