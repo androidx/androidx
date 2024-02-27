@@ -60,26 +60,78 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun loadSdk_withoutLocalImpl_throwsLoadSdkCompatException() {
+    fun loadSdk_withoutLocalImpl_throwsLoadSdkNotFoundException() {
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
-        Assert.assertThrows(LoadSdkCompatException::class.java) {
+        val exception = Assert.assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
                 controllerCompat.loadSdk("SDK", Bundle())
             }
         }
+
+        assertThat(exception.loadSdkErrorCode).isEqualTo(LoadSdkCompatException.LOAD_SDK_NOT_FOUND)
     }
 
     @Test
-    fun loadSdk_withLocalImpl_throwsLoadSdkCompatException() {
+    fun loadSdk_clientApiBelow5_throwsLoadSdkNotFoundException() {
+        // Emulate loading via client lib with version below 5
+        Versions.handShake(4)
+
         SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
-        Assert.assertThrows(LoadSdkCompatException::class.java) {
+        val exception = Assert.assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
                 controllerCompat.loadSdk("SDK", Bundle())
             }
         }
+
+        assertThat(exception.loadSdkErrorCode).isEqualTo(LoadSdkCompatException.LOAD_SDK_NOT_FOUND)
+    }
+
+    @Test
+    fun loadSdk_withLocalImpl_returnsLoadedSdkFromLocalImpl() {
+        // Emulate loading via client lib with version 5
+        Versions.handShake(5)
+
+        val expectedResult = SandboxedSdkCompat(Binder())
+        val stubLocalImpl = TestStubImpl(
+            loadSdkResult = expectedResult
+        )
+        SdkSandboxControllerCompat.injectLocalImpl(stubLocalImpl)
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+
+        val sdkName = "SDK"
+        val sdkParams = Bundle()
+        val result = runBlocking {
+            controllerCompat.loadSdk(sdkName, sdkParams)
+        }
+
+        assertThat(result).isSameInstanceAs(expectedResult)
+        assertThat(stubLocalImpl.lastLoadSdkName).isEqualTo(sdkName)
+        assertThat(stubLocalImpl.lastLoadSdkParams).isEqualTo(sdkParams)
+    }
+
+    @Test
+    fun loadSdk_withLocalImpl_rethrowsExceptionFromLocalImpl() {
+        // Emulate loading via client lib with version 5
+        Versions.handShake(5)
+
+        val expectedError = LoadSdkCompatException(RuntimeException(), Bundle())
+        SdkSandboxControllerCompat.injectLocalImpl(
+            TestStubImpl(
+                loadSdkError = expectedError
+            )
+        )
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+
+        val exception = Assert.assertThrows(LoadSdkCompatException::class.java) {
+            runBlocking {
+                controllerCompat.loadSdk("SDK", Bundle())
+            }
+        }
+
+        assertThat(exception).isSameInstanceAs(expectedError)
     }
 
     @Test
@@ -217,9 +269,14 @@ class SdkSandboxControllerCompatLocalTest {
 
     internal class TestStubImpl(
         private val sandboxedSdks: List<SandboxedSdkCompat> = emptyList(),
-        private val appOwnedSdks: List<AppOwnedSdkSandboxInterfaceCompat> = emptyList()
+        private val appOwnedSdks: List<AppOwnedSdkSandboxInterfaceCompat> = emptyList(),
+        private val loadSdkResult: SandboxedSdkCompat? = null,
+        private val loadSdkError: LoadSdkCompatException? = null,
     ) : SdkSandboxControllerCompat.SandboxControllerImpl {
         var token: IBinder? = null
+
+        var lastLoadSdkName: String? = null
+        var lastLoadSdkParams: Bundle? = null
 
         override fun loadSdk(
             sdkName: String,
@@ -227,13 +284,23 @@ class SdkSandboxControllerCompatLocalTest {
             executor: Executor,
             callback: SdkSandboxControllerCompat.LoadSdkCallback
         ) {
-            executor.execute {
-                callback.onError(
-                    LoadSdkCompatException(
-                        LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
-                        "Shouldn't be called"
+            lastLoadSdkName = sdkName
+            lastLoadSdkParams = params
+
+            if (loadSdkResult != null) {
+                executor.execute {
+                    callback.onResult(loadSdkResult)
+                }
+            } else {
+                executor.execute {
+                    callback.onError(
+                        loadSdkError
+                            ?: LoadSdkCompatException(
+                                LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
+                                "Shouldn't be called without setting result or error"
+                            )
                     )
-                )
+                }
             }
         }
 

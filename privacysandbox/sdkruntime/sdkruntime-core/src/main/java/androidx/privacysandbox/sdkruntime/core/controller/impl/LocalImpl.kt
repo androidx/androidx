@@ -41,13 +41,17 @@ internal class LocalImpl(
         executor: Executor,
         callback: SdkSandboxControllerCompat.LoadSdkCallback
     ) {
-        executor.execute {
-            callback.onError(
-                LoadSdkCompatException(
-                    LOAD_SDK_NOT_FOUND,
-                    "Not supported for locally loaded SDKs yet"
+        if (clientVersion >= 5) {
+            implFromClient.loadSdk(sdkName, params, executor, callback)
+        } else {
+            executor.execute {
+                callback.onError(
+                    LoadSdkCompatException(
+                        LOAD_SDK_NOT_FOUND,
+                        "Client library version doesn't support locally loaded SDKs"
+                    )
                 )
-            )
+            }
         }
     }
 
