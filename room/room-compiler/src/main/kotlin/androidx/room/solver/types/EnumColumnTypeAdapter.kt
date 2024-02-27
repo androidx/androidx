@@ -121,7 +121,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "default: throw new %T(%S + %L)",
-                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.JAVA_ILLEGAL_ARG_EXCEPTION,
                                 ENUM_TO_STRING_ERROR_MSG,
                                 paramName
                             )
@@ -186,7 +186,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "default: throw new %T(%S + %L)",
-                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.JAVA_ILLEGAL_ARG_EXCEPTION,
                                 STRING_TO_ENUM_ERROR_MSG,
                                 paramName
                             )
@@ -205,7 +205,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "else -> throw %T(%S + %L)",
-                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.KOTLIN_ILLEGAL_ARG_EXCEPTION,
                                 STRING_TO_ENUM_ERROR_MSG,
                                 paramName
                             )

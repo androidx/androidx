@@ -162,8 +162,10 @@ object CommonTypeNames {
 }
 
 object ExceptionTypeNames {
-    val ILLEGAL_STATE_EXCEPTION = IllegalStateException::class.asClassName()
-    val ILLEGAL_ARG_EXCEPTION = IllegalArgumentException::class.asClassName()
+    val JAVA_ILLEGAL_STATE_EXCEPTION = XClassName.get("java.lang", "IllegalStateException")
+    val JAVA_ILLEGAL_ARG_EXCEPTION = XClassName.get("java.lang", "IllegalArgumentException")
+    val KOTLIN_ILLEGAL_STATE_EXCEPTION = XClassName.get("kotlin", "IllegalStateException")
+    val KOTLIN_ILLEGAL_ARG_EXCEPTION = XClassName.get("kotlin", "IllegalArgumentException")
 }
 
 object GuavaTypeNames {
