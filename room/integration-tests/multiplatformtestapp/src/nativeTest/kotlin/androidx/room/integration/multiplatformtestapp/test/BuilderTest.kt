@@ -19,13 +19,14 @@ package androidx.room.integration.multiplatformtestapp.test
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import platform.posix.remove
 
 class BuilderTest : BaseBuilderTest() {
 
-    private val filename = "/tmp/test.db"
+    private val filename = "/tmp/test-${Random.nextInt()}.db"
 
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
         return Room.databaseBuilder(filename) { SampleDatabase::class.instantiateImpl() }
