@@ -431,7 +431,7 @@ class BottomSheetScaffoldTest {
             val offsetBeforeScroll = bottomSheetState.requireOffset()
             scrollDispatcher.dispatchPreScroll(
                 Offset(x = 0f, y = -sheetHeightPx),
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             rule.waitForIdle()
             Truth.assertWithMessage("Offset after scroll is equal to offset before scroll")

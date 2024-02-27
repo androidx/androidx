@@ -614,6 +614,6 @@ private fun Int.toComposeOffset() = toFloat() * -1
 private fun Float.toComposeVelocity(): Float = this * -1f
 
 private fun toNestedScrollSource(type: Int): NestedScrollSource = when (type) {
-    ViewCompat.TYPE_TOUCH -> NestedScrollSource.Drag
-    else -> NestedScrollSource.Fling
+    ViewCompat.TYPE_TOUCH -> NestedScrollSource.UserInput
+    else -> NestedScrollSource.SideEffect
 }

@@ -1262,7 +1262,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         nestedScrollDispatcher.dispatchPostScroll(
             consumed = Offset.Zero,
             available = Offset(x = 0f, y = scrollableContentHeight / 2f),
-            source = NestedScrollSource.Drag
+            source = NestedScrollSource.UserInput
         )
         scope.launch {
             nestedScrollDispatcher.dispatchPostFling(

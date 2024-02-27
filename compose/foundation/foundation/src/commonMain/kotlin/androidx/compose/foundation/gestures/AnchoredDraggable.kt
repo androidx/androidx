@@ -205,7 +205,7 @@ private class AnchoredDraggableOverscrollNode<T>(
             } else {
                 overscrollEffect!!.applyToScroll(
                     delta = dragDelta.delta.reverseIfNeeded(),
-                    source = NestedScrollSource.Drag
+                    source = NestedScrollSource.UserInput
                 ) { deltaForDrag ->
                     val dragOffset = state.newOffsetForDelta(deltaForDrag.toFloat())
                     val consumedDelta = (dragOffset - state.requireOffset()).toOffset()
