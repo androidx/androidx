@@ -210,11 +210,16 @@ internal class PerfettoHttpServer {
     /**
      * Computes the given metrics on a previously parsed trace.
      */
-    fun computeMetric(metrics: List<String>): ComputeMetricResult =
+    fun computeMetric(
+        metrics: List<String>,
+        resultFormat: ComputeMetricArgs.ResultFormat
+    ): ComputeMetricResult =
         httpRequest(
             method = METHOD_POST,
             url = PATH_COMPUTE_METRIC,
-            encodeBlock = { ComputeMetricArgs.ADAPTER.encode(it, ComputeMetricArgs(metrics)) },
+            encodeBlock = {
+                ComputeMetricArgs.ADAPTER.encode(it, ComputeMetricArgs(metrics, resultFormat))
+            },
             decodeBlock = { ComputeMetricResult.ADAPTER.decode(it) }
         )
 
