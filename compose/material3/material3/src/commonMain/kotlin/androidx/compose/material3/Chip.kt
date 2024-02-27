@@ -1256,23 +1256,24 @@ object FilterChipDefaults {
         get() {
             return defaultFilterChipColorsCached ?: SelectableChipColors(
                 containerColor = Color.Transparent,
-            labelColor = fromToken(FilterChipTokens.UnselectedLabelTextColor),
-            leadingIconColor = fromToken(FilterChipTokens.UnselectedLeadingIconColor),
-                trailingIconColor = fromToken(FilterChipTokens.UnselectedTrailingIconColor),
-            disabledContainerColor = Color.Transparent,
-            disabledLabelColor = fromToken(FilterChipTokens.DisabledLabelTextColor)
-                .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
-            disabledLeadingIconColor = fromToken(FilterChipTokens.DisabledLeadingIconColor)
-            .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
-            disabledTrailingIconColor = fromToken(FilterChipTokens.DisabledTrailingIconColor)
-                .copy(alpha = FilterChipTokens.DisabledTrailingIconOpacity),
-            selectedContainerColor = fromToken(FilterChipTokens.FlatSelectedContainerColor),
-            disabledSelectedContainerColor = fromToken(
-            FilterChipTokens.FlatDisabledSelectedContainerColor)
-                .copy(alpha = FilterChipTokens.FlatDisabledSelectedContainerOpacity),
-            selectedLabelColor = fromToken(FilterChipTokens.SelectedLabelTextColor),
-            selectedLeadingIconColor = fromToken(FilterChipTokens.SelectedLeadingIconColor),
-            selectedTrailingIconColor = fromToken(FilterChipTokens.SelectedTrailingIconColor)
+                labelColor = fromToken(FilterChipTokens.UnselectedLabelTextColor),
+                leadingIconColor = fromToken(FilterChipTokens.UnselectedLeadingIconColor),
+                trailingIconColor = fromToken(FilterChipTokens.UnselectedLeadingIconColor),
+                disabledContainerColor = Color.Transparent,
+                disabledLabelColor = fromToken(FilterChipTokens.DisabledLabelTextColor)
+                    .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
+                disabledLeadingIconColor = fromToken(FilterChipTokens.DisabledLeadingIconColor)
+                    .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
+                disabledTrailingIconColor = fromToken(FilterChipTokens.DisabledLeadingIconColor)
+                    .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
+                selectedContainerColor = fromToken(FilterChipTokens.FlatSelectedContainerColor),
+                disabledSelectedContainerColor = fromToken(
+                    FilterChipTokens.FlatDisabledSelectedContainerColor
+                )
+                    .copy(alpha = FilterChipTokens.FlatDisabledSelectedContainerOpacity),
+                selectedLabelColor = fromToken(FilterChipTokens.SelectedLabelTextColor),
+                selectedLeadingIconColor = fromToken(FilterChipTokens.SelectedLeadingIconColor),
+                selectedTrailingIconColor = fromToken(FilterChipTokens.SelectedLeadingIconColor)
             ).also {
                 defaultFilterChipColorsCached = it
             }
@@ -1405,21 +1406,22 @@ object FilterChipDefaults {
                 containerColor = fromToken(FilterChipTokens.ElevatedUnselectedContainerColor),
                 labelColor = fromToken(FilterChipTokens.UnselectedLabelTextColor),
                 leadingIconColor = fromToken(FilterChipTokens.UnselectedLeadingIconColor),
-                trailingIconColor = fromToken(FilterChipTokens.UnselectedTrailingIconColor),
-                disabledContainerColor = fromToken(FilterChipTokens.ElevatedDisabledContainerColor),
+                trailingIconColor = fromToken(FilterChipTokens.UnselectedLeadingIconColor),
+                disabledContainerColor = fromToken(FilterChipTokens.ElevatedDisabledContainerColor)
+                    .copy(alpha = FilterChipTokens.ElevatedDisabledContainerOpacity),
                 disabledLabelColor = fromToken(FilterChipTokens.DisabledLabelTextColor)
                     .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
                 disabledLeadingIconColor = fromToken(FilterChipTokens.DisabledLeadingIconColor)
                     .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
-                disabledTrailingIconColor = fromToken(FilterChipTokens.DisabledTrailingIconColor)
-                    .copy(alpha = FilterChipTokens.DisabledTrailingIconOpacity),
+                disabledTrailingIconColor = fromToken(FilterChipTokens.DisabledLeadingIconColor)
+                    .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
                 selectedContainerColor = fromToken(FilterChipTokens.ElevatedSelectedContainerColor),
                 disabledSelectedContainerColor = fromToken(
                     FilterChipTokens.ElevatedDisabledContainerColor)
                     .copy(alpha = FilterChipTokens.ElevatedDisabledContainerOpacity),
                 selectedLabelColor = fromToken(FilterChipTokens.SelectedLabelTextColor),
                 selectedLeadingIconColor = fromToken(FilterChipTokens.SelectedLeadingIconColor),
-                selectedTrailingIconColor = fromToken(FilterChipTokens.SelectedTrailingIconColor)
+                selectedTrailingIconColor = fromToken(FilterChipTokens.SelectedLeadingIconColor)
             ).also {
                 defaultElevatedFilterChipColorsCached = it
             }
