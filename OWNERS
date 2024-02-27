@@ -26,7 +26,8 @@ yboyar@google.com
 
 per-file *settings.gradle = set noparent
 per-file *settings.gradle = alanv@google.com, aurimas@google.com
-per-file *libraryversions.toml = jnichol@google.com
+# Wear
+per-file *libraryversions.toml = jnichol@google.com, flerda@google.com, ashleyingram@google.com
 per-file *libraryversions.toml = diegovela@google.com, akulian@google.com, kchyn@google.com
 # WebKit
 per-file *libraryversions.toml = pbirk@google.com, elabadysayed@google.com
