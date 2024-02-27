@@ -45,7 +45,7 @@ class OverlayControllerImplTest {
 
     @Before
     fun setUp() {
-        testRule.overrideExtensionVersion(6)
+        testRule.overrideExtensionVersion(5)
 
         overlayController = TestableOverlayControllerImpl()
     }

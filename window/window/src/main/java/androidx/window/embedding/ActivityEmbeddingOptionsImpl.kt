@@ -148,12 +148,12 @@ internal object ActivityEmbeddingOptionsImpl {
      *
      * @param overlayCreateParams The [OverlayCreateParams] to launch the overlay container
      */
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(5)
     internal fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
     ) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(6)
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
 
         options.putString(KEY_OVERLAY_TAG, overlayCreateParams.tag)
         options.putEmbeddingBounds(overlayCreateParams.overlayAttributes.bounds)

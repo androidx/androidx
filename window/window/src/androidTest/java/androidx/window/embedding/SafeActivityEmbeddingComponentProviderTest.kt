@@ -72,7 +72,6 @@ class SafeActivityEmbeddingComponentProviderTest {
                     2 -> assertTrue(safeProvider.hasValidVendorApiLevel2())
                     in 3..4 -> assertTrue(safeProvider.hasValidVendorApiLevel3())
                     5 -> assertTrue(safeProvider.hasValidVendorApiLevel5())
-                    6 -> assertTrue(safeProvider.hasValidVendorApiLevel6())
                 }
             }
         } catch (e: UnsupportedOperationException) {
