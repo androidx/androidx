@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package androidx.credentials.provider
-
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.slice.Slice
@@ -29,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 import androidx.credentials.R
+import androidx.credentials.provider.BiometricPromptData.Companion.BUNDLE_HINT_ALLOWED_AUTHENTICATORS
 import java.time.Instant
 import java.util.Collections
 
@@ -89,6 +89,7 @@ class CustomCredentialEntry internal constructor(
     isDefaultIconPreferredAsSingleProvider: Boolean,
     entryGroupId: CharSequence? = title,
     affiliatedDomain: CharSequence? = null,
+    biometricPromptData: BiometricPromptData? = null,
     autoSelectAllowedFromOption: Boolean = CredentialOption.extractAutoSelectValue(
         beginGetCredentialOption.candidateQueryData),
     private var isCreatedFromSlice: Boolean = false,
@@ -99,6 +100,7 @@ class CustomCredentialEntry internal constructor(
     entryGroupId = entryGroupId ?: title,
     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
     affiliatedDomain = affiliatedDomain,
+    biometricPromptData = biometricPromptData
 ) {
     val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
 
@@ -213,7 +215,7 @@ class CustomCredentialEntry internal constructor(
         @Suppress("AutoBoxing")
         isAutoSelectAllowed: Boolean = false,
         entryGroupId: CharSequence = title,
-        isDefaultIconPreferredAsSingleProvider: Boolean = false
+        isDefaultIconPreferredAsSingleProvider: Boolean = false,
     ) : this(
         type = beginGetCredentialOption.type,
         title = title,
@@ -226,6 +228,65 @@ class CustomCredentialEntry internal constructor(
         beginGetCredentialOption = beginGetCredentialOption,
         isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
         entryGroupId = entryGroupId.ifEmpty { title },
+    )
+
+    /**
+     * @constructor constructs an instance of [CustomCredentialEntry]
+     *
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param title the title shown with this entry on the selector UI
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
+     * @param beginGetCredentialOption the option from the original [BeginGetCredentialRequest],
+     * for which this credential entry is being added
+     * @param subtitle the subTitle shown with this entry on the selector UI
+     * @param lastUsedTime the last used time the credential underlying this entry was
+     * used by the user, distinguishable up to the milli second mark only such that if two
+     * entries have the same millisecond precision, they will be considered to have been used at
+     * the same time
+     * @param typeDisplayName the friendly name to be displayed on the UI for
+     * the type of the credential
+     * @param icon the icon to be displayed with this entry on the selector UI, if not set a
+     * default icon representing a custom credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto
+     * selected if it is the only one on the UI, only takes effect if the app requesting for
+     * credentials also opts for auto select
+     * @param entryGroupId an ID to uniquely mark this entry for deduplication or to group entries
+     * during display, set to [title] by default
+     * @param isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
+     * default credential type icon (see the default value of [icon]) when you are
+     * the only available provider; false by default
+     *
+     * @throws IllegalArgumentException If [type] or [title] are empty
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
+        context: Context,
+        title: CharSequence,
+        pendingIntent: PendingIntent,
+        beginGetCredentialOption: BeginGetCredentialOption,
+        subtitle: CharSequence? = null,
+        typeDisplayName: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
+        @Suppress("AutoBoxing")
+        isAutoSelectAllowed: Boolean = false,
+        entryGroupId: CharSequence = title,
+        isDefaultIconPreferredAsSingleProvider: Boolean = false,
+        biometricPromptData: BiometricPromptData? = null,
+    ) : this(
+        beginGetCredentialOption.type,
+        title,
+        pendingIntent,
+        isAutoSelectAllowed,
+        subtitle,
+        typeDisplayName,
+        icon,
+        lastUsedTime,
+        beginGetCredentialOption,
+        isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+        entryGroupId = entryGroupId.ifEmpty { title },
+        biometricPromptData = biometricPromptData,
     )
 
     @RequiresApi(34)
@@ -267,18 +328,19 @@ class CustomCredentialEntry internal constructor(
             val affiliatedDomain = entry.affiliatedDomain
             val isDefaultIconPreferredAsSingleProvider =
                 entry.isDefaultIconPreferredAsSingleProvider
-
+            val biometricPromptData = entry.biometricPromptData
             val autoSelectAllowed = if (isAutoSelectAllowed) {
                 TRUE_STRING
             } else {
                 FALSE_STRING
             }
-
             val isUsingDefaultIconPreferred = if (isDefaultIconPreferredAsSingleProvider) {
                 TRUE_STRING
             } else {
                 FALSE_STRING
             }
+            val allowedAuthenticators = biometricPromptData?.allowedAuthenticators
+            val cryptoObject = biometricPromptData?.cryptoObject
             val sliceBuilder = Slice.Builder(
                 Uri.EMPTY, SliceSpec(
                     type, REVISION_ID
@@ -321,7 +383,6 @@ class CustomCredentialEntry internal constructor(
                     isUsingDefaultIconPreferred, /*subType=*/null,
                     listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
                 )
-
             try {
                 if (entry.hasDefaultIcon) {
                     sliceBuilder.addInt(
@@ -332,7 +393,6 @@ class CustomCredentialEntry internal constructor(
                 }
             } catch (_: IllegalStateException) {
             }
-
             if (entry.isAutoSelectAllowedFromOption) {
                 sliceBuilder.addInt(
                     /*true=*/1,
@@ -354,7 +414,24 @@ class CustomCredentialEntry internal constructor(
                     .build(),
                 /*subType=*/null
             )
-            // TODO(b/326243730) : Extend this for API >=35
+
+            if (biometricPromptData != null) {
+                // TODO(b/326243730) : Await biometric team dependency for opId, then add
+                val cryptoObjectOpId = cryptoObject?.hashCode()
+
+                if (allowedAuthenticators != null) {
+                    sliceBuilder.addInt(
+                        allowedAuthenticators, /*subType=*/null,
+                        listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
+                    )
+                }
+                if (cryptoObjectOpId != null) {
+                    sliceBuilder.addInt(
+                        cryptoObjectOpId, /*subType=*/null,
+                        listOf(SLICE_HINT_CRYPTO_OP_ID)
+                    )
+                }
+            }
             return sliceBuilder.build()
         }
 
@@ -382,7 +459,7 @@ class CustomCredentialEntry internal constructor(
             var isDefaultIconPreferredAsSingleProvider = false
             var isDefaultIcon = false
             var affiliatedDomain: CharSequence? = null
-
+            var allowedAuth: Int? = null
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
                     typeDisplayName = it.text
@@ -416,9 +493,18 @@ class CustomCredentialEntry internal constructor(
                     isDefaultIcon = true
                 } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
                     affiliatedDomain = it.text
+                } else if (it.hasHint(SLICE_HINT_ALLOWED_AUTHENTICATORS)) {
+                    allowedAuth = it.int
                 }
             }
-            // TODO(b/326243730) : Extend this for API >=35
+
+            // TODO(b/326243730) : Await biometric team dependency for opId, then add - also decide
+            // if we want toBundle to be passed into the framework.
+            var biometricPromptDataBundle: Bundle? = null
+            if (allowedAuth != null) {
+                biometricPromptDataBundle = Bundle()
+                biometricPromptDataBundle.putInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS, allowedAuth!!)
+            }
 
             return try {
                 CustomCredentialEntry(
@@ -441,6 +527,8 @@ class CustomCredentialEntry internal constructor(
                     autoSelectAllowedFromOption = autoSelectAllowedFromOption,
                     isCreatedFromSlice = true,
                     isDefaultIconFromSlice = isDefaultIcon,
+                    biometricPromptData = if (biometricPromptDataBundle != null)
+                        BiometricPromptData.fromBundle(biometricPromptDataBundle) else null
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -520,7 +608,6 @@ class CustomCredentialEntry internal constructor(
             }
             return null
         }
-
         /**
          * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
          *
@@ -536,7 +623,6 @@ class CustomCredentialEntry internal constructor(
             }
             return null
         }
-
         /**
          * Converts a framework [android.service.credentials.CredentialEntry] class to a Jetpack
          * [CustomCredentialEntry] class
@@ -552,7 +638,6 @@ class CustomCredentialEntry internal constructor(
             return null
         }
     }
-
     /**
      * Builder for [CustomCredentialEntry]
      *
@@ -584,6 +669,7 @@ class CustomCredentialEntry internal constructor(
         private var autoSelectAllowed = false
         private var entryGroupId: CharSequence = title
         private var isDefaultIconPreferredAsSingleProvider = false
+        private var biometricPromptData: BiometricPromptData? = null
 
         /** Sets a displayName to be shown on the UI with this entry. */
         fun setSubtitle(subtitle: CharSequence?): Builder {
@@ -603,6 +689,17 @@ class CustomCredentialEntry internal constructor(
          */
         fun setIcon(icon: Icon): Builder {
             this.icon = icon
+            return this
+        }
+
+        /**
+         * Sets the biometric prompt data to optionally utilize a credential
+         * manager flow that directly handles the biometric verification for you and gives you the
+         * response; set to null by default.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun setBiometricPromptData(biometricPromptData: BiometricPromptData): Builder {
+            this.biometricPromptData = biometricPromptData
             return this
         }
 
@@ -665,6 +762,7 @@ class CustomCredentialEntry internal constructor(
                 beginGetCredentialOption = beginGetCredentialOption,
                 isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
                 entryGroupId = entryGroupId,
+                biometricPromptData = biometricPromptData,
             )
         }
     }
