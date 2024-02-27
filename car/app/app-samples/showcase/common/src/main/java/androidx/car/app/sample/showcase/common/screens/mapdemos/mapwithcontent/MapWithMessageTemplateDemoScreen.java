@@ -34,7 +34,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.MapController;
 import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModels;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModelFactory;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** Simple demo of how to present a map template with a list. */
@@ -45,8 +45,10 @@ public class MapWithMessageTemplateDemoScreen extends Screen {
             CarColor.createCustom(
                     mTypedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColor, -1),
                     mTypedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColorDark, -1));
+    private final RoutingDemoModelFactory mRoutingDemoModelFactory;
     public MapWithMessageTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
+        mRoutingDemoModelFactory = new RoutingDemoModelFactory(carContext);
     }
 
     @ExperimentalCarApi
@@ -90,7 +92,7 @@ public class MapWithMessageTemplateDemoScreen extends Screen {
 
 
         MapController mapController = new MapController.Builder()
-                .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
+                .setMapActionStrip(mRoutingDemoModelFactory.getMapActionStrip())
                 .build();
         MapWithContentTemplate.Builder builder = new MapWithContentTemplate.Builder()
                 .setContentTemplate(messageTemplate)
