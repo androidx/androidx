@@ -179,6 +179,28 @@ class RoutePatternTest {
     }
 
     @Test
+    fun arrayType() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val array: IntArray)
+
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
+            "$PATH_SERIAL_NAME?array={array}"
+        )
+    }
+
+    @Test
+    fun optionalArrayType() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val array: IntArray?)
+
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
+            "$PATH_SERIAL_NAME?array={array}"
+        )
+    }
+
+    @Test
     fun withSecondaryConstructor() {
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
@@ -229,7 +251,7 @@ class RoutePatternTest {
         class TestClass(val custom: CustomType)
 
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{custom}"
+            "$PATH_SERIAL_NAME?custom={custom}"
         )
     }
 
@@ -246,7 +268,7 @@ class RoutePatternTest {
         class TestClass(val custom: CustomType)
 
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{custom}"
+            "$PATH_SERIAL_NAME?custom={custom}"
         )
     }
 
@@ -262,7 +284,7 @@ class RoutePatternTest {
 
         // args will be duplicated
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}/{arg2}"
+            "$PATH_SERIAL_NAME/{arg}?arg2={arg2}"
         )
     }
 
@@ -305,7 +327,7 @@ class RoutePatternTest {
         }
 
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
+            "$PATH_SERIAL_NAME?arg={arg}"
         )
     }
 
