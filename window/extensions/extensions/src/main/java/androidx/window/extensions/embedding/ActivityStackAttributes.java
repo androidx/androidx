@@ -48,7 +48,7 @@ public final class ActivityStackAttributes {
      * {@link Rect#isEmpty() Empty} bounds mean that this {@link ActivityStack} should fill its
      * parent container bounds.
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = 5)
     @NonNull
     public Rect getRelativeBounds() {
         return mRelativeBounds;
@@ -58,7 +58,7 @@ public final class ActivityStackAttributes {
      * Returns the {@link WindowAttributes} which contains the configurations of the embedded
      * Activity windows with this attributes.
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = 5)
     @NonNull
     public WindowAttributes getWindowAttributes() {
         return mWindowAttributes;
@@ -91,7 +91,7 @@ public final class ActivityStackAttributes {
     public static final class Builder {
 
         /** The {@link ActivityStackAttributes} builder constructor. */
-        @RequiresVendorApiLevel(level = 6)
+        @RequiresVendorApiLevel(level = 5)
         public Builder() {}
 
         @NonNull
@@ -109,7 +109,7 @@ public final class ActivityStackAttributes {
          * @param relativeBounds The requested relative bounds.
          * @return This {@code Builder}.
          */
-        @RequiresVendorApiLevel(level = 6)
+        @RequiresVendorApiLevel(level = 5)
         @NonNull
         public Builder setRelativeBounds(@NonNull Rect relativeBounds) {
             mRelativeBounds.set(relativeBounds);
@@ -125,7 +125,7 @@ public final class ActivityStackAttributes {
          * @return This {@code Builder}.
          */
         @NonNull
-        @RequiresVendorApiLevel(level = 6)
+        @RequiresVendorApiLevel(level = 5)
         public Builder setWindowAttributes(@NonNull WindowAttributes attributes) {
             mWindowAttributes = attributes;
             return this;
@@ -134,7 +134,7 @@ public final class ActivityStackAttributes {
         /**
          * Builds an {@link ActivityStackAttributes} instance.
          */
-        @RequiresVendorApiLevel(level = 6)
+        @RequiresVendorApiLevel(level = 5)
         @NonNull
         public ActivityStackAttributes build() {
             return new ActivityStackAttributes(mRelativeBounds, mWindowAttributes);
