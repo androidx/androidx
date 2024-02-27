@@ -319,7 +319,7 @@ object NavigationBarItemDefaults {
         unselectedTextColor: Color = Color.Unspecified,
         disabledIconColor: Color = Color.Unspecified,
         disabledTextColor: Color = Color.Unspecified,
-    ): NavigationBarItemColors = NavigationBarItemColors(
+    ): NavigationBarItemColors = MaterialTheme.colorScheme.defaultNavigationBarItemColors.copy(
         selectedIconColor = selectedIconColor,
         selectedTextColor = selectedTextColor,
         selectedIndicatorColor = indicatorColor,
@@ -341,8 +341,7 @@ object NavigationBarItemDefaults {
                 fromToken(NavigationBarTokens.InactiveIconColor).copy(alpha = DisabledAlpha),
                 disabledTextColor =
                 fromToken(NavigationBarTokens.InactiveLabelTextColor).copy(alpha = DisabledAlpha),
-
-                ).also {
+            ).also {
                 defaultNavigationBarItemColorsCached = it
             }
         }
