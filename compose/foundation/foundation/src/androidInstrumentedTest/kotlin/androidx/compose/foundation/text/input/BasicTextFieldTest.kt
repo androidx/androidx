@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.BasicTextField2
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -180,26 +179,6 @@ internal class BasicTextFieldTest {
 
         rule.onNodeWithTag(Tag).assertTextEquals("Hello World!")
         assertTextSelection(TextRange("Hello World!".length))
-    }
-
-    @Test
-    fun stringValue_textChange_updatesState() {
-        var state by mutableStateOf("Hello ")
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField2(
-                value = state,
-                onValueChange = { state = it },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag)
-            )
-        }
-
-        rule.onNodeWithTag(Tag).performTextInput("World!")
-
-        rule.runOnIdle {
-            assertThat(state).isEqualTo("Hello World!")
-        }
     }
 
     /**
@@ -1115,169 +1094,6 @@ internal class BasicTextFieldTest {
 
         assertThat(secondSize.width).isEqualTo(firstSize.width * 2)
         assertThat(secondSize.height).isEqualTo(firstSize.height * 2)
-    }
-
-    @Test
-    fun stringValue_updatesFieldText_whenTextChangedFromCode_whileUnfocused() {
-        var text by mutableStateOf("hello")
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        rule.runOnIdle {
-            text = "world"
-        }
-
-        rule.onNodeWithTag(Tag).assertTextEquals("world")
-    }
-
-    @Test
-    fun stringValue_doesNotUpdateField_whenTextChangedFromCode_whileFocused() {
-        var text by mutableStateOf("hello")
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        requestFocus(Tag)
-
-        rule.runOnIdle {
-            text = "world"
-        }
-
-        rule.onNodeWithTag(Tag).assertTextEquals("hello")
-    }
-
-    @Test
-    fun stringValue_doesNotInvokeCallback_onFocus() {
-        var text by mutableStateOf("")
-        var onValueChangedCount = 0
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = {
-                    text = it
-                    onValueChangedCount++
-                },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        assertThat(onValueChangedCount).isEqualTo(0)
-
-        requestFocus(Tag)
-
-        rule.runOnIdle {
-            assertThat(onValueChangedCount).isEqualTo(0)
-        }
-    }
-
-    @Test
-    fun stringValue_doesNotInvokeCallback_whenOnlySelectionChanged() {
-        var text by mutableStateOf("")
-        var onValueChangedCount = 0
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = {
-                    text = it
-                    onValueChangedCount++
-                },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        requestFocus(Tag)
-        assertThat(onValueChangedCount).isEqualTo(0)
-
-        // Act: wiggle the cursor around a bit.
-        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(0))
-        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(5))
-
-        rule.runOnIdle {
-            assertThat(onValueChangedCount).isEqualTo(0)
-        }
-    }
-
-    @Test
-    fun stringValue_doesNotInvokeCallback_whenOnlyCompositionChanged() {
-        var text by mutableStateOf("")
-        var onValueChangedCount = 0
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = {
-                    text = it
-                    onValueChangedCount++
-                },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        requestFocus(Tag)
-        assertThat(onValueChangedCount).isEqualTo(0)
-
-        // Act: wiggle the composition around a bit
-        inputMethodInterceptor.withInputConnection { setComposingRegion(0, 0) }
-        inputMethodInterceptor.withInputConnection { setComposingRegion(3, 5) }
-
-        rule.runOnIdle {
-            assertThat(onValueChangedCount).isEqualTo(0)
-        }
-    }
-
-    @Test
-    fun stringValue_doesNotInvokeCallback_whenTextChangedFromCode_whileUnfocused() {
-        var text by mutableStateOf("")
-        var onValueChangedCount = 0
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = {
-                    text = it
-                    onValueChangedCount++
-                },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        assertThat(onValueChangedCount).isEqualTo(0)
-
-        rule.runOnIdle {
-            text = "hello"
-        }
-
-        rule.runOnIdle {
-            assertThat(onValueChangedCount).isEqualTo(0)
-        }
-    }
-
-    @Test
-    fun stringValue_doesNotInvokeCallback_whenTextChangedFromCode_whileFocused() {
-        var text by mutableStateOf("")
-        var onValueChangedCount = 0
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = {
-                    text = it
-                    onValueChangedCount++
-                },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        assertThat(onValueChangedCount).isEqualTo(0)
-        requestFocus(Tag)
-
-        rule.runOnIdle {
-            text = "hello"
-        }
-
-        rule.runOnIdle {
-            assertThat(onValueChangedCount).isEqualTo(0)
-        }
     }
 
     // Regression test for b/311834126

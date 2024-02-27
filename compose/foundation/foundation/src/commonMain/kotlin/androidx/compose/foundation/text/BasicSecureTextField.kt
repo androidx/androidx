@@ -32,13 +32,11 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.internal.CodepointTransformation
 import androidx.compose.foundation.text.input.internal.mask
-import androidx.compose.foundation.text.input.internal.syncTextFieldState
 import androidx.compose.foundation.text.input.then
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -56,11 +54,9 @@ import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -68,139 +64,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
-
-/**
- * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
- * alternative to [BasicTextField]. It only supports a single line of content and comes with
- * default settings for [KeyboardOptions], [InputTransformation], and [CodepointTransformation] that
- * are appropriate for entering secure content. Additionally, some context menu actions like cut,
- * copy, and drag are disabled for added security.
- *
- * Whenever the user edits the text, [onValueChange] is called with the most up to date state
- * represented by [String] with which developer is expected to update their state.
- *
- * While focused and being edited, the caller temporarily loses _direct_ control of the contents of
- * the field through the [value] parameter. If an unexpected [value] is passed in during this time,
- * the contents of the field will _not_ be updated to reflect the value until editing is done. When
- * editing is done (i.e. focus is lost), the field will be updated to the last [value] received. Use
- * an [inputTransformation] to accept or reject changes during editing. For more direct control of
- * the field contents use the [BasicSecureTextField] overload that accepts a [TextFieldState].
- *
- * @param value The input [String] text to be shown in the text field.
- * @param onValueChange The callback that is triggered when the user or the system updates the
- * text. The updated text is passed as a parameter of the callback. The value passed to the callback
- * will already have had the [inputTransformation] applied.
- * @param modifier optional [Modifier] for this text field.
- * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text
- * field will be neither editable nor focusable, the input of the text field will not be selectable.
- * @param onSubmit Called when the user submits a form either by pressing the action button in the
- * input method editor (IME), or by pressing the enter key on a hardware keyboard. If the user
- * submits the form by pressing the action button in the IME, the provided IME action is passed to
- * the function. If the user submits the form by pressing the enter key on a hardware keyboard,
- * the defined [imeAction] parameter is passed to the function. Return true to indicate that the
- * action has been handled completely, which will skip the default behavior, such as hiding the
- * keyboard for the [ImeAction.Done] action.
- * @param imeAction The IME action. This IME action is honored by keyboard and may show specific
- * icons on the keyboard.
- * @param textObfuscationMode Determines the method used to obscure the input text.
- * @param keyboardType The keyboard type to be used in this text field. It is set to
- * [KeyboardType.Password] by default. Use [KeyboardType.NumberPassword] for numerical password
- * fields.
- * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
- * to the [TextFieldState] made by the user. The transformation will be applied to changes made by
- * hardware and software keyboard events, pasting or dropping text, accessibility services, and
- * tests. The transformation will _not_ be applied when changing the [value] programmatically, or
- * when the transformation is changed. If the transformation is changed on an existing text field,
- * it will be applied to the next user edit. The transformation will not immediately affect the
- * current [value].
- * @param textStyle Style configuration for text content that's displayed in the editor.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
- * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
- * for different [Interaction]s.
- * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
- * provided, there will be no cursor drawn.
- * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
- * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
- * or null if it cannot. The function reads the layout result from a snapshot state object, and will
- * invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
- * paragraph information, size of the text, baselines and other details. The callback can be used to
- * add additional decoration or functionality to the text. For example, to draw a cursor or
- * selection around the text. [Density] scope is the one that was used while creating the given text
- * layout.
- * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
- * messages or similar, and automatically increase the hit target area of the text field.
- * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
- * bounds of the text field. It controls the state of the scroll for the text field.
- */
-@ExperimentalFoundationApi
-@Composable
-fun BasicSecureTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    // TODO(b/297425359) Investigate cleaning up the IME action handling APIs.
-    onSubmit: ImeActionHandler? = null,
-    imeAction: ImeAction = ImeAction.Default,
-    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
-    keyboardType: KeyboardType = KeyboardType.Password,
-    enabled: Boolean = true,
-    inputTransformation: InputTransformation? = null,
-    textStyle: TextStyle = TextStyle.Default,
-    interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(Color.Black),
-    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
-    decorator: TextFieldDecorator? = null,
-    scrollState: ScrollState = rememberScrollState(),
-) {
-    val state = remember {
-        TextFieldState(
-            initialText = value,
-            // Initialize the cursor to be at the end of the field.
-            initialSelectionInChars = TextRange(value.length)
-        )
-    }
-
-    // This is effectively a rememberUpdatedState, but it combines the updated state (text) with
-    // some state that is preserved across updates (selection).
-    var valueWithSelection by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = value,
-                selection = TextRange(value.length)
-            )
-        )
-    }
-    valueWithSelection = valueWithSelection.copy(text = value)
-
-    BasicSecureTextField(
-        state = state,
-        modifier = modifier.syncTextFieldState(
-            state = state,
-            value = valueWithSelection,
-            onValueChanged = {
-                // Don't fire the callback if only the selection/cursor changed.
-                if (it.text != valueWithSelection.text) {
-                    onValueChange(it.text)
-                }
-                valueWithSelection = it
-            },
-            writeSelectionFromTextFieldValue = false
-        ),
-        onSubmit = onSubmit,
-        imeAction = imeAction,
-        textObfuscationMode = textObfuscationMode,
-        keyboardType = keyboardType,
-        enabled = enabled,
-        inputTransformation = inputTransformation,
-        textStyle = textStyle,
-        interactionSource = interactionSource,
-        cursorBrush = cursorBrush,
-        scrollState = scrollState,
-        onTextLayout = onTextLayout,
-        decorator = decorator,
-    )
-}
 
 /**
  * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
