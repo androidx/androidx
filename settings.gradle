@@ -174,6 +174,7 @@ enum BuildType {
     CAMERA,
     NATIVE,
     WINDOW,
+    XR,
 }
 
 private String getRequestedProjectSubsetName() {
@@ -242,6 +243,9 @@ private Set<BuildType> createRequestedFilter() {
             case "WINDOW":
                 filter.add(BuildType.WINDOW)
                 break
+            case "XR":
+                filter.add(BuildType.XR)
+                break
             case "ALL":
                 // Return null so that no filtering is done
                 return null
@@ -258,7 +262,8 @@ private Set<BuildType> createRequestedFilter() {
                         "WEAR    - Wear OS projects\n" +
                         "NATIVE  - native projects\n" +
                         "WINDOW  - window projects\n" +
-                        "GLANCE  - glance projects")
+                        "GLANCE  - glance projects\n" +
+                        "XR      - XR projects")
         }
     }
     return filter
@@ -319,6 +324,13 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
         file = new File(rootDir, name.substring(1).replace(":", "/"))
     }
     projectDependencyGraph.addToAllProjects(name, file)
+}
+
+def includeOptionalProject(String name, File filePath, List<BuildType> filter = []) {
+    if (providers.gradleProperty("androidx.includeOptionalProjects")
+            .getOrElse("false").toBoolean()) {
+        includeProject(name, filePath, filter)
+    }
 }
 
 /////////////////////////////
@@ -1068,6 +1080,16 @@ includeProject(":work:work-runtime-lint", "work/work-lint", [BuildType.MAIN])
 includeProject(":work:work-rxjava2", [BuildType.MAIN])
 includeProject(":work:work-rxjava3", [BuildType.MAIN])
 includeProject(":work:work-testing", [BuildType.MAIN])
+
+/////////////////////////////
+//
+// Optional projects
+//
+/////////////////////////////
+
+File repoRoot = new File(rootDir, "../..")
+
+includeOptionalProject(":xr:xr", new File(repoRoot, "xr"), [BuildType.XR])
 
 /////////////////////////////
 //

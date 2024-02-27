@@ -3,11 +3,17 @@ plugins {
     id("AndroidXDocsPlugin")
 }
 
+def docsForOptionalProject(path) {
+    Project project = findProject(path)
+    if (project != null) docs(project)
+}
+
 android {
     namespace "androidx.docs.tipoftree"
 }
 
 dependencies {
+    docsForOptionalProject(":xr:xr")
     docs(project(":activity:activity"))
     docs(project(":activity:activity-compose"))
     samples(project(":activity:activity-compose:activity-compose-samples"))

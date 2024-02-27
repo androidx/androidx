@@ -172,6 +172,7 @@ WINDOW_EXTENSIONS = "1.5.0-alpha01"
 WINDOW_EXTENSIONS_CORE = "1.1.0-alpha01"
 WINDOW_SIDECAR = "1.0.0-rc01"
 WORK = "2.10.0-alpha01"
+XR = "1.0.0-alpha01"
 
 [groups]
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
@@ -304,3 +305,4 @@ WINDOW_EXTENSIONS = { group = "androidx.window.extensions", atomicGroupVersion =
 WINDOW_EXTENSIONS_CORE = { group = "androidx.window.extensions.core", atomicGroupVersion = "versions.WINDOW_EXTENSIONS_CORE" }
 WINDOW_SIDECAR = { group = "androidx.window.sidecar", atomicGroupVersion = "versions.WINDOW_SIDECAR" }
 WORK = { group = "androidx.work", atomicGroupVersion = "versions.WORK" }
+XR = { group = "androidx.xr", atomicGroupVersion = "versions.XR" }
