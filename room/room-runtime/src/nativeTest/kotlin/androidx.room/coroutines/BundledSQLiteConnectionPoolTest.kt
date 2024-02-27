@@ -18,13 +18,14 @@ package androidx.room.coroutines
 
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import platform.posix.remove
 
 class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
 
-    private val filename = "/tmp/test.db"
+    private val filename = "/tmp/test-${Random.nextInt()}.db"
 
     override fun getDriver(): SQLiteDriver {
         return BundledSQLiteDriver(filename)
