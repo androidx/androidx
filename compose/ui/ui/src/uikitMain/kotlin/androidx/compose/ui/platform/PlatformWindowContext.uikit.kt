@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.asCGPoint
 import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toOffset
-import kotlinx.cinterop.cValue
 import kotlinx.cinterop.useContents
 import platform.UIKit.UIView
 
@@ -70,7 +69,7 @@ internal class PlatformWindowContext {
         return if (fromView != toView) {
             val density = fromView.systemDensity
             fromView.convertPoint(
-                point = cValue { point.toDpOffset(density).asCGPoint() },
+                point = point.toDpOffset(density).asCGPoint(),
                 toView = toView,
             ).useContents {
                 asDpOffset().toOffset(density)
