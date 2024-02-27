@@ -100,6 +100,19 @@ import kotlinx.coroutines.launch
 }
 
 /**
+ * Defaults for rotary modifiers
+ */
+@ExperimentalWearFoundationApi
+// TODO(b/278705775): make it public once haptics and other code is merged.
+/* public */ internal object RotaryDefaults {
+
+    // These values represent the timeframe for a fling event. A bigger value is assigned
+    // to low-res input due to the lower frequency of low-res rotary events.
+    internal const val lowResFlingTimeframe: Long = 100L
+    internal const val highResFlingTimeframe: Long = 30L
+}
+
+/**
  * An implementation of rotary scroll adapter for ScalingLazyColumn
  */
 @OptIn(ExperimentalWearFoundationApi::class)
@@ -129,6 +142,103 @@ internal class ScalingLazyColumnRotaryScrollAdapter(
      * The total count of items in ScalingLazyColumn
      */
     override fun totalItemsCount(): Int = scrollableState.layoutInfo.totalItemsCount
+}
+
+/**
+ * Handles scroll with fling.
+ *
+ * @return An scroll with fling implementation of [RotaryHandler] which is suitable
+ * for both low-res and high-res inputs.
+ *
+ * @param scrollableState Scrollable state which will be scrolled while receiving rotary events
+ * @param flingBehavior Logic describing Fling behavior. If null - fling will not happen
+ * @param isLowRes Whether the input is Low-res (a bezel) or high-res(a crown/rsb)
+ * @param viewConfiguration [ViewConfiguration] for accessing default fling values
+ */
+private fun flingHandler(
+    scrollableState: ScrollableState,
+    rotaryHaptics: RotaryHapticHandler,
+    flingBehavior: FlingBehavior? = null,
+    isLowRes: Boolean,
+    viewConfiguration: ViewConfiguration
+): RotaryHandler {
+
+    fun rotaryFlingBehavior() = flingBehavior?.run {
+        RotaryFlingBehavior(
+            scrollableState,
+            flingBehavior,
+            viewConfiguration,
+            flingTimeframe = if (isLowRes) RotaryDefaults.lowResFlingTimeframe
+            else RotaryDefaults.highResFlingTimeframe
+        )
+    }
+
+    fun scrollBehavior() = RotaryScrollBehavior(scrollableState)
+
+    return RotaryScrollHandler(
+        isLowRes,
+        rotaryHaptics,
+        rotaryFlingBehaviorFactory = { rotaryFlingBehavior() },
+        scrollBehaviorFactory = { scrollBehavior() }
+    )
+}
+
+/**
+ * Handles scroll with snap.
+ *
+ * @return A snap implementation of [RotaryHandler] which is either suitable for low-res or
+ * high-res input.
+ *
+ * @param rotaryScrollAdapter Implementation of [RotaryScrollAdapter], which connects
+ * scrollableState to a rotary input for snapping scroll actions.
+ * @param rotaryHaptics Implementation of [RotaryHapticHandler] which handles haptics
+ * for rotary usage
+ * @param snapOffset An offset to be applied when snapping the item. After the snap the
+ * snapped items offset will be [snapOffset].
+ * @param maxThresholdDivider Factor to divide item size when calculating threshold.
+ * @param scrollDistanceDivider A value which is used to slow down or
+ * speed up the scroll before snap happens. The higher the value the slower the scroll.
+ * @param isLowRes Whether the input is Low-res (a bezel) or high-res(a crown/rsb)
+ */
+private fun snapHandler(
+    rotaryScrollAdapter: RotaryScrollAdapter,
+    rotaryHaptics: RotaryHapticHandler,
+    snapOffset: Int,
+    maxThresholdDivider: Float,
+    scrollDistanceDivider: Float,
+    isLowRes: Boolean
+): RotaryHandler {
+    return if (isLowRes) {
+        LowResRotarySnapHandler(
+            rotaryHaptics = rotaryHaptics,
+            snapBehaviourFactory = {
+                RotarySnapHelper(
+                    rotaryScrollAdapter,
+                    snapOffset,
+                )
+            }
+        )
+    } else {
+        HighResRotarySnapHandler(
+            rotaryHaptics = rotaryHaptics,
+            scrollDistanceDivider = scrollDistanceDivider,
+            thresholdBehaviorFactory = {
+                ThresholdBehavior(
+                    maxThresholdDivider,
+                    averageItemSize = { rotaryScrollAdapter.averageItemSize() }
+                )
+            },
+            snapBehaviorFactory = {
+                RotarySnapHelper(
+                    rotaryScrollAdapter,
+                    snapOffset,
+                )
+            },
+            scrollBehaviorFactory = {
+                RotaryScrollBehavior(rotaryScrollAdapter.scrollableState)
+            }
+        )
+    }
 }
 
 /**
@@ -609,7 +719,7 @@ internal class RotaryScrollHandler(
  */
 internal class HighResRotarySnapHandler(
     private val rotaryHaptics: RotaryHapticHandler,
-    private val resistanceFactor: Float,
+    private val scrollDistanceDivider: Float,
     private val thresholdBehaviorFactory: () -> ThresholdBehavior,
     private val snapBehaviorFactory: () -> RotarySnapHelper,
     private val scrollBehaviorFactory: () -> RotaryScrollBehavior
@@ -628,7 +738,7 @@ internal class HighResRotarySnapHandler(
     private var scrollBehavior = scrollBehaviorFactory()
     private var thresholdBehavior = thresholdBehaviorFactory()
 
-    private val scrollEasing: Easing = CubicBezierEasing(0.0f, 0.0f, 0.5f, 1.0f)
+    private val scrollProximityEasing: Easing = CubicBezierEasing(0.0f, 0.0f, 0.5f, 1.0f)
 
     override suspend fun handleScrollEvent(
         coroutineScope: CoroutineScope,
@@ -651,18 +761,17 @@ internal class HighResRotarySnapHandler(
         }
 
         val snapThreshold = thresholdBehavior.calculateSnapThreshold()
+        debugLog { "snapThreshold: $snapThreshold" }
 
-        accumulatedSnapDelta += event.deltaInPixels
         if (!snapJob.isActive) {
-            val resistance = 1 - scrollEasing
-                .transform(rotaryScrollDistance.absoluteValue / snapThreshold)
-            rotaryScrollDistance += event.deltaInPixels * resistance
+            val proximityFactor = calculateProximityFactor(snapThreshold)
+            rotaryScrollDistance += event.deltaInPixels * proximityFactor
         }
-
-        debugLog { "Accumulated snap delta: $accumulatedSnapDelta" }
         debugLog { "Rotary scroll distance: $rotaryScrollDistance" }
 
-        debugLog { "snapThreshold: $snapThreshold" }
+        accumulatedSnapDelta += event.deltaInPixels
+        debugLog { "Accumulated snap delta: $accumulatedSnapDelta" }
+
         previousScrollEventTime = time
 
         if (abs(accumulatedSnapDelta) > snapThreshold) {
@@ -700,10 +809,10 @@ internal class HighResRotarySnapHandler(
             rotaryScrollDistance = 0f
         } else {
             if (!snapJob.isActive) {
-                val distanceWithResistance = rotaryScrollDistance / resistanceFactor
-                debugLog { "Scrolling for $distanceWithResistance px" }
+                val distanceWithDivider = rotaryScrollDistance / scrollDistanceDivider
+                debugLog { "Scrolling for $distanceWithDivider px" }
 
-                scrollBehavior.scrollToTarget(coroutineScope, distanceWithResistance)
+                scrollBehavior.scrollToTarget(coroutineScope, distanceWithDivider)
                 delay(snapDelay)
 
                 resetScrolling()
@@ -717,6 +826,14 @@ internal class HighResRotarySnapHandler(
             }
         }
     }
+
+    /**
+     * Calculates a value based on the rotaryScrollDistance and size of snapThreshold.
+     * The closer rotaryScrollDistance to snapThreshold, the lower the value.
+     */
+    private fun calculateProximityFactor(snapThreshold: Float): Float =
+        1 - scrollProximityEasing
+            .transform(rotaryScrollDistance.absoluteValue / snapThreshold)
 
     private fun edgeNotReached(snapDistanceInItems: Int): Boolean =
         (!snapBehaviour.topEdgeReached() && snapDistanceInItems < 0) ||
@@ -822,8 +939,9 @@ internal class LowResRotarySnapHandler(
  *  and provide more consistent threshold calculations.
  */
 internal class ThresholdBehavior(
-    // Factor to divide item size when calculating threshold
-    private val thresholdDivider: Float,
+    // Factor to divide item size when calculating threshold.
+    // Depending on the speed, it dynamically varies in range 1..maxThresholdDivider
+    private val maxThresholdDivider: Float,
     // Min velocity for threshold calculation
     private val minVelocity: Float = 300f,
     // Max velocity for threshold calculation
@@ -874,7 +992,7 @@ internal class ThresholdBehavior(
         // adjusted threshold divider.
         return averageItemSize() / lerp(
             1f,
-            thresholdDivider,
+            maxThresholdDivider,
             thresholdDividerFraction
         )
     }
