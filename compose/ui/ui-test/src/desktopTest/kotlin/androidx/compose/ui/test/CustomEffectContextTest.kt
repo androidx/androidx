@@ -25,9 +25,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+/**
+ * Tests for passing a custom CoroutineContext when [running a ComposeUiTest][runComposeUiTest].
+ * Similar tests are available for ComposeTestRule in compose:ui:ui-test-junit4
+ */
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalTestApi::class)
-class ComposeUiTestTest {
+class CustomEffectContextTest {
 
     @Test
     fun effectContextPropagatedToComposition_runComposeUiTest() {
