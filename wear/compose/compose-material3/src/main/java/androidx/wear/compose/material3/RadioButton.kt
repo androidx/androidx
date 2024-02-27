@@ -503,6 +503,9 @@ object RadioButtonDefaults {
     private val HorizontalPadding = 14.dp
     private val VerticalPadding = 6.dp
 
+    /**
+     * The default content padding used by [RadioButton]
+     */
     val ContentPadding: PaddingValues = PaddingValues(
         start = HorizontalPadding,
         top = VerticalPadding,

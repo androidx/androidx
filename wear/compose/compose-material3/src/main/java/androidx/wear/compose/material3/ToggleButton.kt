@@ -428,6 +428,9 @@ object ToggleButtonDefaults {
     private val ChipHorizontalPadding = 14.dp
     private val ChipVerticalPadding = 6.dp
 
+    /**
+     * The default content padding used by [ToggleButton]
+     */
     val ContentPadding: PaddingValues = PaddingValues(
         start = ChipHorizontalPadding,
         top = ChipVerticalPadding,
