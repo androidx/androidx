@@ -18,6 +18,7 @@
 
 package androidx.navigation.serialization
 
+import android.os.Bundle
 import androidx.navigation.NavType
 import androidx.navigation.NavType.Companion.parseSerializableOrParcelableType
 import kotlin.reflect.KType
@@ -60,7 +61,7 @@ private data class Custom(val className: String) : InternalCommonType
  * Native NavTypes includes NavType objects declared within [NavType.Companion], or types that are
  * either java Serializable, Parcelable, or Enum.
  *
- * Throws IllegalArgumentException if the argument does not belong to any of the above
+ * Returns [UNKNOWN] type if the argument does not belong to any of the above.
  */
 internal fun SerialDescriptor.getNavType(): NavType<*> {
     return when (val internalType = this.toInternalType()) {
@@ -77,18 +78,14 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
             val typeParameter = getElementDescriptor(0).toInternalType()
             if (typeParameter == Native.STRING) return NavType.StringArrayType
             if (typeParameter is Custom) {
-                return requireNotNull(
-                    convertCustomToNavType(typeParameter.className, true)
-                )
+                return convertCustomToNavType(typeParameter.className, true) ?: UNKNOWN
             }
-            throw IllegalArgumentException()
+            return UNKNOWN
         }
         is Custom -> {
-            return requireNotNull(
-                convertCustomToNavType(internalType.className, false)
-            )
+            return convertCustomToNavType(internalType.className, false) ?: UNKNOWN
         }
-        else -> throw IllegalArgumentException()
+        else -> UNKNOWN
     }
 }
 
@@ -228,4 +225,12 @@ internal fun SerialDescriptor.matchKType(kType: KType): Boolean {
         index++
     }
     return true
+}
+
+internal object UNKNOWN : NavType<String>(false) {
+    override val name: String
+        get() = "unknown"
+    override fun put(bundle: Bundle, key: String, value: String) {}
+    override fun get(bundle: Bundle, key: String): String? = null
+    override fun parseValue(value: String): String = "null"
 }
