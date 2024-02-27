@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test
+package androidx.compose.ui.test.junit4
 
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
@@ -29,15 +30,19 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit.runners.model.Statement
 
+/**
+ * Tests for passing a custom CoroutineContext to one of [ComposeTestRule]s.
+ * Similar tests are available for [runComposeUiTest] in compose:ui:ui-test
+ */
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalTestApi::class)
-class DesktopComposeUiTestTest {
+class CustomEffectContextRuleTest {
 
     private lateinit var testDescription: Description
 
     /**
-     * Records the current [testDescription] for tests that need to invoke the compose test rule
-     * directly.
+     * Records the current [testDescription] so it can be used when manually applying the
+     * [ComposeTestRule].
      */
     @get:Rule
     val testWatcher = object : TestWatcher() {
