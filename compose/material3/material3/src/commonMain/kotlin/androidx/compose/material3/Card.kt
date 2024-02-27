@@ -87,7 +87,6 @@ fun Card(
         shape = shape,
         color = colors.containerColor(enabled = true),
         contentColor = colors.contentColor(enabled = true),
-        tonalElevation = elevation.tonalElevation(enabled = true),
         shadowElevation = elevation.shadowElevation(enabled = true, interactionSource = null).value,
         border = border,
     ) {
@@ -149,7 +148,6 @@ fun Card(
         shape = shape,
         color = colors.containerColor(enabled),
         contentColor = colors.contentColor(enabled),
-        tonalElevation = elevation.tonalElevation(enabled),
         shadowElevation = elevation.shadowElevation(enabled, interactionSource).value,
         border = border,
         interactionSource = interactionSource,
@@ -479,15 +477,9 @@ object CardDefaults {
             return defaultCardColorsCached ?: CardColors(
                 containerColor = fromToken(FilledCardTokens.ContainerColor),
                 contentColor = contentColorFor(fromToken(FilledCardTokens.ContainerColor)),
-                disabledContainerColor = fromToken(
-                    FilledCardTokens.DisabledContainerColor
-                )
+                disabledContainerColor = fromToken(FilledCardTokens.DisabledContainerColor)
                     .copy(alpha = FilledCardTokens.DisabledContainerOpacity)
-                    .compositeOver(
-                        surfaceColorAtElevation(
-                            FilledCardTokens.DisabledContainerElevation
-                        )
-                    ),
+                    .compositeOver(fromToken(FilledCardTokens.ContainerColor)),
                 disabledContentColor =
                 contentColorFor(fromToken(FilledCardTokens.ContainerColor)).copy(DisabledAlpha),
             ).also {
@@ -532,11 +524,7 @@ object CardDefaults {
                 disabledContainerColor =
                 fromToken(ElevatedCardTokens.DisabledContainerColor)
                     .copy(alpha = ElevatedCardTokens.DisabledContainerOpacity)
-                    .compositeOver(
-                        surfaceColorAtElevation(
-                            ElevatedCardTokens.DisabledContainerElevation
-                        )
-                    ),
+                    .compositeOver(fromToken(ElevatedCardTokens.DisabledContainerColor)),
                 disabledContentColor =
                 contentColorFor(fromToken(ElevatedCardTokens.ContainerColor)).copy(DisabledAlpha),
             ).also {
@@ -598,11 +586,7 @@ object CardDefaults {
         } else {
             OutlinedCardTokens.DisabledOutlineColor.value
                 .copy(alpha = OutlinedCardTokens.DisabledOutlineOpacity)
-                .compositeOver(
-                    MaterialTheme.colorScheme.surfaceColorAtElevation(
-                        OutlinedCardTokens.DisabledContainerElevation
-                    )
-                )
+                .compositeOver(ElevatedCardTokens.ContainerColor.value)
         }
         return remember(color) { BorderStroke(OutlinedCardTokens.OutlineWidth, color) }
     }
@@ -625,26 +609,10 @@ class CardElevation internal constructor(
     private val disabledElevation: Dp
 ) {
     /**
-     * Represents the tonal elevation used in a card, depending on its [enabled].
-     *
-     * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
-     * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
-     * color in light theme and lighter color in dark theme.
-     *
-     * See [shadowElevation] which controls the elevation of the shadow drawn around the card.
-     *
-     * @param enabled whether the card is enabled
-     */
-    internal fun tonalElevation(enabled: Boolean): Dp =
-        if (enabled) defaultElevation else disabledElevation
-
-    /**
      * Represents the shadow elevation used in a card, depending on its [enabled] state and
      * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the card to give it higher emphasis.
-     *
-     * See [tonalElevation] which controls the elevation with a color shift to the surface.
      *
      * @param enabled whether the card is enabled
      * @param interactionSource the [InteractionSource] for this card
