@@ -523,8 +523,10 @@ class VideoCaptureDeviceTest(
     }
 
     private fun initialLifecycleOwner() {
-        lifecycleOwner = FakeLifecycleOwner()
-        lifecycleOwner.startAndResume()
+        instrumentation.runOnMainSync {
+            lifecycleOwner = FakeLifecycleOwner()
+            lifecycleOwner.startAndResume()
+        }
     }
 
     private fun initialPreviewView() {
