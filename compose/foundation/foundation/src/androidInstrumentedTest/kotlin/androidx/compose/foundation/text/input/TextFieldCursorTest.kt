@@ -24,6 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
@@ -529,6 +530,74 @@ class TextFieldCursorTest : FocusedWindowTest {
         rule.onNode(hasSetTextAction())
             .captureToImage()
             .assertCursor(cursorTopCenterInLtr)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun togglingInnerTextField_whileFocused_cursorContinuesToDraw() {
+        state = TextFieldState("test", initialSelectionInChars = TextRange(2))
+        var toggle by mutableStateOf(true)
+        rule.setTestContent {
+            BasicTextField(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout,
+                decorator = {
+                    if (toggle) {
+                        Row {
+                            it()
+                        }
+                    } else {
+                        Column {
+                            it()
+                        }
+                    }
+                }
+            )
+        }
+
+        focusAndWait()
+
+        // hide the cursor
+        rule.mainClock.advanceTimeBy(600)
+        rule.mainClock.advanceTimeByFrame()
+
+        // assert no cursor visible
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = RectangleShape,
+                shapeColor = contentColor,
+                backgroundColor = contentColor,
+                shapeOverlapPixelCount = 0.0f
+            )
+
+        toggle = !toggle
+        // necessary for animation to start (shows cursor again)
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
+
+        toggle = !toggle
+
+        rule.mainClock.advanceTimeBy(500)
+        rule.mainClock.advanceTimeByFrame()
+
+        // assert no cursor visible
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = RectangleShape,
+                shapeColor = contentColor,
+                backgroundColor = contentColor,
+                shapeOverlapPixelCount = 0.0f
+            )
     }
 
     @Test
