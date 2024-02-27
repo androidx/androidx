@@ -27,7 +27,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.debugInspectorInfo
 
-@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.bringIntoViewIfChildrenAreFocused(): Modifier = composed(
     inspectorInfo = debugInspectorInfo { name = "bringIntoViewIfChildrenAreFocused" },

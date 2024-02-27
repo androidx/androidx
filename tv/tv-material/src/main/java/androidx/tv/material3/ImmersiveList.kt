@@ -56,7 +56,6 @@ import androidx.compose.ui.platform.LocalFocusManager
  * @param listAlignment Alignment of the List with respect to the Immersive List.
  * @param list composable defining the list of items that has to be rendered.
  */
-@Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable

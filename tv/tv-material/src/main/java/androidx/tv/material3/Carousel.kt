@@ -102,7 +102,6 @@ import kotlinx.coroutines.yield
  * @param carouselIndicator indicator showing the position of the current item among all items.
  * @param content defines the items for a given index.
  */
-@Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
@@ -210,7 +209,6 @@ private fun shouldPerformAutoScroll(
     return !accessibilityManager.isEnabled && !(carouselIsFocused || carouselHasFocus)
 }
 
-@Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalAnimationApi::class)
 private suspend fun AnimatedVisibilityScope.onAnimationCompletion(action: suspend () -> Unit) {
     snapshotFlow { transition.currentState == transition.targetState }.first { it }
@@ -248,7 +246,6 @@ private fun AutoScrollSideEffect(
     onAutoScrollChange(doAutoScroll)
 }
 
-@Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 private fun Modifier.handleKeyEvents(
     carouselState: CarouselState,

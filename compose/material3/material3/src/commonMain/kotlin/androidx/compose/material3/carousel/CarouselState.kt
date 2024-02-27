@@ -35,9 +35,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
  * @param currentItemOffsetFraction the current item offset as a fraction of the item size.
  * @param itemCount the number of items this Carousel will have.
  */
-// TODO: b/321997456 - Remove lint suppression once version checks are added in lint or library
-// moves to beta
-@Suppress("IllegalExperimentalApiUsage")
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
 internal class CarouselState(

@@ -28,7 +28,6 @@ import dalvik.annotation.optimization.FastNative
  * is implemented in the subclasses except for [next], which relies on shared native code
  * to perform conic conversion.
  */
-@Suppress("IllegalExperimentalApiUsage")
 internal abstract class PathIteratorImpl(
     val path: Path,
     val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
