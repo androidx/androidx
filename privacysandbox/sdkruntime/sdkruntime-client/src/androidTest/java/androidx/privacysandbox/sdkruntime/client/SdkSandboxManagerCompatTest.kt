@@ -238,6 +238,65 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
+    fun sdkController_loadSdk_loadsAnotherLocalSdk() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val localSdk = runBlocking {
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
+        }
+
+        val anotherLocalSdkName = TestSdkConfigs.forSdkName("v5").packageName
+        val anotherLocalSdk = localSdk.asTestSdk().loadSdk(
+            anotherLocalSdkName,
+            Bundle()
+        )
+        assertThat(anotherLocalSdk.getSdkName()).isEqualTo(anotherLocalSdkName)
+
+        val interfaces = managerCompat.getSandboxedSdks().map { it.getInterface() }
+        assertThat(interfaces).containsExactly(
+            localSdk.getInterface(),
+            anotherLocalSdk.getInterface(),
+        )
+    }
+
+    @Test
+    fun sdkController_loadSdk_rethrowsError() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val localSdk = runBlocking {
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
+        }
+
+        val params = Bundle()
+        params.putBoolean("needFail", true)
+
+        val result = assertThrows(LoadSdkCompatException::class.java) {
+            runBlocking {
+                localSdk.asTestSdk().loadSdk(
+                    TestSdkConfigs.forSdkName("v5").packageName,
+                    params
+                )
+            }
+        }
+
+        assertThat(result.loadSdkErrorCode).isEqualTo(LOAD_SDK_SDK_DEFINED_ERROR)
+        assertThat(result.extraInformation).isEqualTo(params)
+
+        val interfaces = managerCompat.getSandboxedSdks().map { it.getInterface() }
+        assertThat(interfaces).containsExactly(
+            localSdk.getInterface(),
+        )
+    }
+
+    @Test
     fun sdkController_getSandboxedSdks_returnsLocallyLoadedSdks() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)

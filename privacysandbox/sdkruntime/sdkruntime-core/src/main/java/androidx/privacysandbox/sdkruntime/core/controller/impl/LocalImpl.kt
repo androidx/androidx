@@ -23,6 +23,7 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import java.util.concurrent.Executor
 
@@ -39,7 +40,7 @@ internal class LocalImpl(
         sdkName: String,
         params: Bundle,
         executor: Executor,
-        callback: SdkSandboxControllerCompat.LoadSdkCallback
+        callback: LoadSdkCallback
     ) {
         if (clientVersion >= 5) {
             implFromClient.loadSdk(sdkName, params, executor, callback)

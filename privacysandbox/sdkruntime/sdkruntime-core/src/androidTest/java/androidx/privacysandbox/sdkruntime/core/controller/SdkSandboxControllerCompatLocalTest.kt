@@ -282,7 +282,7 @@ class SdkSandboxControllerCompatLocalTest {
             sdkName: String,
             params: Bundle,
             executor: Executor,
-            callback: SdkSandboxControllerCompat.LoadSdkCallback
+            callback: LoadSdkCallback
         ) {
             lastLoadSdkName = sdkName
             lastLoadSdkParams = params
