@@ -107,7 +107,7 @@ public class ActivityStack {
     /**
      * Returns the associated tag if specified. Otherwise, returns {@code null}.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @Nullable
     public String getTag() {
         return mTag;

@@ -44,7 +44,7 @@ class OverlayController @VisibleForTesting internal constructor(
     private val backend: EmbeddingBackend
 ) {
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     internal fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
@@ -74,7 +74,7 @@ class OverlayController @VisibleForTesting internal constructor(
      *   is less than 5.
      * @sample androidx.window.samples.embedding.overlayAttributesCalculatorSample
      */
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     ) {
@@ -87,7 +87,7 @@ class OverlayController @VisibleForTesting internal constructor(
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
      *                                       is less than 5.
      */
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun clearOverlayAttributesCalculator() {
         backend.clearOverlayAttributesCalculator()
     }
@@ -109,7 +109,7 @@ class OverlayController @VisibleForTesting internal constructor(
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
      *                                       is less than 5.
      */
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
         backend.updateOverlayAttributes(overlayTag, overlayAttributes)
     }
@@ -129,7 +129,7 @@ class OverlayController @VisibleForTesting internal constructor(
      * [OverlayCreateParams]
      * @return a [Flow] of [OverlayInfo] this [overlayTag] is associated with
      */
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun overlayInfo(overlayTag: String): Flow<OverlayInfo> = callbackFlow {
         val listener = Consumer { info: OverlayInfo -> trySend(info) }
         backend.addOverlayInfoCallback(overlayTag, Runnable::run, listener)

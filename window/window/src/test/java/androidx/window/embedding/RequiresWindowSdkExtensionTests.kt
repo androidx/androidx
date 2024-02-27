@@ -298,7 +298,7 @@ class RequiresWindowSdkExtensionTests {
     }
 
     private fun verifyOverlayFeatureApis() {
-        if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
             embeddingCompat.setOverlayCreateParams(options, OverlayCreateParams())
             // Verify if the overlay tag is put to the activityOptions bundle
             verify(options).putString(any(), any())
@@ -350,7 +350,7 @@ class RequiresWindowSdkExtensionTests {
     }
 
     private fun createTestEmbeddingCompat() {
-        val overlayController = if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+        val overlayController = if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
             spy(
                 OverlayControllerImpl(
                     embeddingExtension,

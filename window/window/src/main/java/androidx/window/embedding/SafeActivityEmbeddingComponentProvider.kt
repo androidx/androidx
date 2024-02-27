@@ -29,6 +29,7 @@ import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.ActivityStack
+import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.AnimationBackground
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
@@ -77,7 +78,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             1 -> hasValidVendorApiLevel1()
             2 -> hasValidVendorApiLevel2()
             in 3..4 -> hasValidVendorApiLevel3() // No additional API in 4.
-            in 5..Int.MAX_VALUE -> hasValidVendorApiLevel5()
+            5 -> hasValidVendorApiLevel5()
+            in 6..Int.MAX_VALUE -> hasValidVendorApiLevel6()
             else -> false
         }
     }
@@ -135,17 +137,11 @@ internal class SafeActivityEmbeddingComponentProvider(
 
     /**
      * Vendor API level 5 includes the following methods:
-     * - [ActivityEmbeddingComponent.clearActivityStackAttributesCalculator]
-     * - [ActivityEmbeddingComponent.getActivityStackToken]
-     * - [ActivityEmbeddingComponent.getParentContainerInfo]
-     * - [ActivityEmbeddingComponent.setActivityStackAttributesCalculator]
      * - [ActivityEmbeddingComponent.registerActivityStackCallback]
      * - [ActivityEmbeddingComponent.unregisterActivityStackCallback]
-     * - [ActivityStack.getTag]
      * - [ActivityStack.getToken]
      * - [AnimationBackground.createColorBackground]
      * - [AnimationBackground.ANIMATION_BACKGROUND_DEFAULT]
-     * - [ParentContainerInfo]
      * - [WindowAttributes.getDimAreaBehavior]
      * - [SplitAttributes.getWindowAttributes]
      * - [SplitAttributes.Builder.setWindowAttributes]
@@ -153,24 +149,40 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [ActivityEmbeddingComponent.pinTopActivityStack]
      * - [ActivityEmbeddingComponent.unpinTopActivityStack]
      * - [ActivityEmbeddingComponent.updateSplitAttributes] with [OEMSplitInfo.Token]
-     * // TODO(b/316493273): Guard other AEComponentMethods
      */
+    // TODO(b/316493273): Guard other AEComponentMethods
     @VisibleForTesting
     internal fun hasValidVendorApiLevel5(): Boolean =
         hasValidVendorApiLevel3() &&
             isClassAnimationBackgroundValid() &&
-            isClassParentContainerInfoValid() &&
-            isActivityStackGetTagValid() &&
             isActivityStackGetTokenValid() &&
-            isMethodGetActivityStackTokenValid() &&
-            isMethodGetParentContainerInfoValid() &&
-            isMethodSetActivityStackAttributesCalculatorValid() &&
-            isMethodClearActivityStackAttributesCalculatorValid() &&
             isMethodRegisterActivityStackCallbackValid() &&
             isMethodUnregisterActivityStackCallbackValid() &&
             isClassWindowAttributesValid() &&
             isMethodPinUnpinTopActivityStackValid() &&
             isMethodUpdateSplitAttributesWithTokenValid()
+
+    /**
+     * Vendor API level 6 includes the following methods:
+     * - [ActivityEmbeddingComponent.clearActivityStackAttributesCalculator]
+     * - [ActivityEmbeddingComponent.getActivityStackToken]
+     * - [ActivityEmbeddingComponent.getParentContainerInfo]
+     * - [ActivityEmbeddingComponent.setActivityStackAttributesCalculator]
+     * - [ActivityEmbeddingComponent.updateActivityStackAttributes]
+     * - [ActivityStack.getTag]
+     * - [ParentContainerInfo]
+     */
+    // TODO(b/316493273): Guard other AEComponentMethods
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel6(): Boolean =
+        hasValidVendorApiLevel5() &&
+            isClassParentContainerInfoValid() &&
+            isActivityStackGetTagValid() &&
+            isMethodGetActivityStackTokenValid() &&
+            isMethodGetParentContainerInfoValid() &&
+            isMethodSetActivityStackAttributesCalculatorValid() &&
+            isMethodClearActivityStackAttributesCalculatorValid() &&
+            isMethodUpdateActivityStackAttributesValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -343,6 +355,14 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setActivityStackAttributesCalculatorMethod = activityEmbeddingComponentClass
                 .getMethod("clearActivityStackAttributesCalculator")
             setActivityStackAttributesCalculatorMethod.isPublic
+        }
+
+    private fun isMethodUpdateActivityStackAttributesValid(): Boolean =
+        validateReflection("updateActivityStackAttributes is not valid") {
+            val updateActivityStackAttributesMethod = activityEmbeddingComponentClass
+                .getMethod("updateActivityStackAttributes", ActivityStack.Token::class.java,
+                    ActivityStackAttributes::class.java)
+            updateActivityStackAttributesMethod.isPublic
         }
 
     private fun isMethodRegisterActivityStackCallbackValid(): Boolean =
