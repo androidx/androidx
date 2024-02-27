@@ -88,14 +88,23 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
         jsMain.dependsOn(commonMain)
     }
 
+    internal val Project.isInIdea: Boolean
+        get() {
+            return System.getProperty("idea.active")?.toBoolean() == true
+        }
+
     @OptIn(ExperimentalWasmDsl::class)
     override fun wasm(): Unit = multiplatformExtension.run {
         wasmJs {
             browser {
                 testTask(Action<KotlinJsTest> {
                     it.useKarma {
-                        //useChromeHeadless() // can't use headless for some integration tests
-                        useChrome()
+                        if (project.isInIdea || project.properties["jetbrains.cfw.tests.useChrome"] == "true") {
+                            useChrome()
+                        } else {
+                            // we can't use headless for some integration tests, so they're skipped for now
+                            useChromeHeadless()
+                        }
                         useConfigDirectory(
                             project.rootProject.projectDir.resolve("mpp/karma.config.d/wasm")
                         )
