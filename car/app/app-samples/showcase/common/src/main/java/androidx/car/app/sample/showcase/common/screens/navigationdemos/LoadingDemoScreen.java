@@ -27,8 +27,10 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 
 /** A screen that shows the navigation template in loading state. */
 public final class LoadingDemoScreen extends Screen implements DefaultLifecycleObserver {
+    private final RoutingDemoModelFactory mRoutingDemoModelFactory;
     public LoadingDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
+        mRoutingDemoModelFactory = new RoutingDemoModelFactory(carContext);
     }
 
     @NonNull
@@ -36,7 +38,7 @@ public final class LoadingDemoScreen extends Screen implements DefaultLifecycleO
     public Template onGetTemplate() {
         return new NavigationTemplate.Builder()
                 .setNavigationInfo(new RoutingInfo.Builder().setLoading(true).build())
-                .setActionStrip(RoutingDemoModels.getActionStrip(getCarContext(), this::finish))
+                .setActionStrip(mRoutingDemoModelFactory.getActionStrip(this::finish))
                 .setBackgroundColor(CarColor.SECONDARY)
                 .build();
     }

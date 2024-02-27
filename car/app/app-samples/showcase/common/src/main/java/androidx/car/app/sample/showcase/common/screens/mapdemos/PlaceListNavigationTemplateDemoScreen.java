@@ -34,7 +34,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.PlaceListNavigationTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.SamplePlaces;
-import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModels;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModelFactory;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** Creates a screen using the {@link PlaceListNavigationTemplate} */
@@ -44,6 +44,7 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
     private final SamplePlaces mPlaces = SamplePlaces.create(this);
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final RoutingDemoModelFactory mRoutingDemoModelFactory;
 
     private boolean mIsAppRefresh = false;
 
@@ -51,6 +52,7 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
 
     public PlaceListNavigationTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
+        mRoutingDemoModelFactory = new RoutingDemoModelFactory(carContext);
     }
 
     @NonNull
@@ -108,7 +110,7 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                         .setItemList(
                                 mPlaces.getPlaceList(/* randomOrder= */ true))
                         .setHeader(header)
-                        .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
+                        .setMapActionStrip(mRoutingDemoModelFactory.getMapActionStrip())
                         .setActionStrip(
                                 new ActionStrip.Builder()
                                         .addAction(
