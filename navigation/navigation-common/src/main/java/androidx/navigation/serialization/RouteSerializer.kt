@@ -21,6 +21,7 @@ package androidx.navigation.serialization
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.serialization.UNKNOWN.isPrimitive
 import kotlin.reflect.KType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
@@ -51,13 +52,19 @@ internal fun <T> KSerializer<T>.generateRoutePattern(): String {
     // same logic for both route generation
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
-        // If it has default value, from the perspective of DeepLinks this arg is not
-        // a core arg and so we append it as a query
-        if (descriptor.isElementOptional(i)) {
+        val type = descriptor.getElementDescriptor(i).getNavType()
+        /**
+         * Path args if all conditions met:
+         * 1. is primitive - arrays need repeated arg names & custom classes need to be parsed to
+         * json string
+         * 2. not optional (has no default value) - from perspective of DeepLinking, args with
+         * default values are not a core arg
+         */
+        if (type.isPrimitive() && !descriptor.isElementOptional(i)) {
+            pathArg += "/{$argName}"
+        } else {
             val symbol = if (queryArg.isEmpty()) "?" else "&"
             queryArg += "$symbol$argName={$argName}"
-        } else {
-            pathArg += "/{$argName}"
         }
     }
 
@@ -105,9 +112,8 @@ internal fun <T> KSerializer<T>.generateNavArguments(
             val customType = typeMap?.keys
                 ?.find { kType -> element.matchKType(kType) }
                 ?.let { typeMap[it] }
-            type = customType ?: try {
-                element.getNavType()
-            } catch (e: IllegalArgumentException) {
+            type = customType ?: element.getNavType()
+            if (type == UNKNOWN) {
                 throw IllegalArgumentException(
                     "Cannot cast $name of type ${element.serialName} to a NavType. Make sure " +
                         "to provide custom NavType for this argument."

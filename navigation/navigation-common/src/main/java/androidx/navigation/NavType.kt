@@ -148,6 +148,9 @@ public abstract class NavType<T>(
         return name
     }
 
+    internal fun isPrimitive() = this == IntType || this == BoolType ||
+        this == FloatType || this == LongType || this == StringType
+
     public companion object {
         /**
          * Parse an argType string into a NavType.

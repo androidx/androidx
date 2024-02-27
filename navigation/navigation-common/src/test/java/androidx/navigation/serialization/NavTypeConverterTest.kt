@@ -23,7 +23,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.typeOf
 import kotlin.test.Test
 import kotlin.test.assertFails
-import kotlin.test.assertFailsWith
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import org.junit.runner.RunWith
@@ -619,18 +618,13 @@ class NavTypeConverterTest {
 
     @Test
     fun getNavTypeUnsupportedArray() {
-        assertFailsWith<IllegalArgumentException> {
-            serializer<Array<Double>>().descriptor.getNavType()
-        }
+        assertThat(serializer<Array<Double>>().descriptor.getNavType()).isEqualTo(UNKNOWN)
 
+        @Serializable
         class TestClass
-        assertFailsWith<IllegalArgumentException> {
-            serializer<Array<TestClass>>().descriptor.getNavType()
-        }
+        assertThat(serializer<Array<TestClass>>().descriptor.getNavType()).isEqualTo(UNKNOWN)
 
-        assertFailsWith<IllegalArgumentException> {
-            serializer<Array<List<Double>>>().descriptor.getNavType()
-        }
+        assertThat(serializer<Array<List<Double>>>().descriptor.getNavType()).isEqualTo(UNKNOWN)
     }
 
     @Serializable
