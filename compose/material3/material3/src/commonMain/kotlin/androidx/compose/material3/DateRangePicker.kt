@@ -125,7 +125,7 @@ fun DateRangePicker(
         ),
         headerMinHeight = DatePickerModalTokens.RangeSelectionHeaderContainerHeight -
             HeaderHeightOffset,
-        colors = colors
+        colors = colors,
     ) {
         SwitchableDateEntryContent(
             selectedStartDateMillis = state.selectedStartDateMillis,
