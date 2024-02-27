@@ -453,14 +453,15 @@ internal class ComposeSceneMediator(
 
     @OptIn(ExperimentalSkikoApi::class)
     private fun JLayeredPane.addToLayer(component: Component, layer: Int) {
+        val index = 0 // AWT renders it in the reverse order, so insert it to beginning
         if (renderApi == GraphicsApi.METAL && contentComponent !is SkiaSwingLayer) {
             // Applying layer on macOS makes our bridge non-transparent
             // But it draws always on top, so we can just add it as-is
             // TODO: Figure out why it makes difference in transparency
-            add(component, 0)
+            add(component, index)
         } else {
             setLayer(component, layer)
-            add(component, null, -1)
+            add(component, null, index)
         }
     }
 
