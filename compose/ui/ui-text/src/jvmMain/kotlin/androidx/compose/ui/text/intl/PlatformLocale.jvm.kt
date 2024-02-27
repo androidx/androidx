@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
+@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+
 package androidx.compose.ui.text.intl
 
-import java.util.Locale
+actual typealias PlatformLocale = java.util.Locale
 
-internal actual fun createPlatformLocaleDelegate() = object : PlatformLocaleDelegate {
-    override val current: LocaleList
-        get() = LocaleList(listOf(Locale(Locale.getDefault())))
+internal actual val PlatformLocale.language: String
+    get() = language
 
-    override fun parseLanguageTag(languageTag: String): PlatformLocale =
-        Locale.forLanguageTag(languageTag)
-}
+internal actual val PlatformLocale.script: String
+    get() = script
+
+internal actual val PlatformLocale.region: String
+    get() = country
+
+internal actual fun PlatformLocale.getLanguageTag(): String = toLanguageTag()

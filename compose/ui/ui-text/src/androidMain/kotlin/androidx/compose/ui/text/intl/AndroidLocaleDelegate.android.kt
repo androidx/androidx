@@ -22,31 +22,15 @@ import androidx.compose.ui.text.platform.createSynchronizedObject
 import java.util.Locale as JavaLocale
 
 /**
- * An Android implementation of Locale object
- */
-internal class AndroidLocale(val javaLocale: JavaLocale) : PlatformLocale {
-    override val language: String
-        get() = javaLocale.language
-
-    override val script: String
-        get() = javaLocale.script
-
-    override val region: String
-        get() = javaLocale.country
-
-    override fun toLanguageTag(): String = javaLocale.toLanguageTag()
-}
-
-/**
  * An Android implementation of LocaleDelegate object for API 23
  */
 internal class AndroidLocaleDelegateAPI23 : PlatformLocaleDelegate {
 
     override val current: LocaleList
-        get() = LocaleList(listOf(Locale(AndroidLocale(JavaLocale.getDefault()))))
+        get() = LocaleList(listOf(Locale(JavaLocale.getDefault())))
 
     override fun parseLanguageTag(languageTag: String): PlatformLocale =
-        AndroidLocale(JavaLocale.forLanguageTag(languageTag))
+        JavaLocale.forLanguageTag(languageTag)
 }
 
 /**
@@ -69,7 +53,7 @@ internal class AndroidLocaleDelegateAPI24 : PlatformLocaleDelegate {
                 // this is faster than adding to an empty mutableList
                 val localeList = LocaleList(
                     List(platformLocaleList.size()) { position ->
-                        Locale(AndroidLocale(platformLocaleList[position]))
+                        Locale(platformLocaleList[position])
                     }
                 )
                 // cache the platform result and compose result
@@ -80,5 +64,5 @@ internal class AndroidLocaleDelegateAPI24 : PlatformLocaleDelegate {
         }
 
     override fun parseLanguageTag(languageTag: String): PlatformLocale =
-        AndroidLocale(JavaLocale.forLanguageTag(languageTag))
+        JavaLocale.forLanguageTag(languageTag)
 }

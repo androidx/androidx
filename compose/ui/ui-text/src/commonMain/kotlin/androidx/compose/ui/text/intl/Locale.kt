@@ -27,11 +27,13 @@ import androidx.compose.ui.text.TextStyle
  * locale-sensitive operation— the number should be formatted according to the customs and
  * conventions of the user's native country, region, or culture.
  *
+ * @param platformLocale Platform specific Locale object that provides basic functionality.
+ *
  * @see TextStyle
  * @see SpanStyle
  */
 @Immutable
-class Locale internal constructor(internal val platformLocale: PlatformLocale) {
+class Locale internal constructor(val platformLocale: PlatformLocale) {
     companion object {
         /**
          * Returns a [Locale] object which represents current locale
@@ -68,7 +70,7 @@ class Locale internal constructor(internal val platformLocale: PlatformLocale) {
      *
      * @return A IETF BCP47 compliant language tag.
      */
-    fun toLanguageTag(): String = platformLocale.toLanguageTag()
+    fun toLanguageTag(): String = platformLocale.getLanguageTag()
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
