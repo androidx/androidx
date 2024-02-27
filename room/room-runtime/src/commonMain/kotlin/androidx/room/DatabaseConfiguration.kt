@@ -27,6 +27,7 @@ expect class DatabaseConfiguration {
     val name: String?
     /* Collection of available migrations. */
     val migrationContainer: RoomDatabase.MigrationContainer
+    val callbacks: List<RoomDatabase.Callback>?
     val journalMode: RoomDatabase.JournalMode
     val requireMigration: Boolean
     val allowDestructiveMigrationOnDowngrade: Boolean

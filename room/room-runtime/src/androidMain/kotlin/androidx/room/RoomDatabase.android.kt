@@ -1432,7 +1432,7 @@ actual abstract class RoomDatabase {
          * @param callback The callback.
          * @return This builder instance.
          */
-        open fun addCallback(callback: Callback) = apply {
+        actual open fun addCallback(callback: Callback) = apply {
             this.callbacks.add(callback)
         }
 
@@ -1754,7 +1754,7 @@ actual abstract class RoomDatabase {
     /**
      * Callback for [RoomDatabase].
      */
-    abstract class Callback {
+    actual abstract class Callback {
         /**
          * Called when the database is created for the first time. This is called after all the
          * tables are created.
@@ -1764,11 +1764,17 @@ actual abstract class RoomDatabase {
         open fun onCreate(db: SupportSQLiteDatabase) {}
 
         /**
-         * Called when the database has been opened.
+         * Called when the database is created for the first time.
          *
-         * @param db The database.
+         * This function called after all the tables are created.
+         *
+         * @param connection The database connection.
          */
-        open fun onOpen(db: SupportSQLiteDatabase) {}
+        actual open fun onCreate(connection: SQLiteConnection) {
+            if (connection is SupportSQLiteConnection) {
+                onCreate(connection.db)
+            }
+        }
 
         /**
          * Called after the database was destructively migrated
@@ -1776,6 +1782,35 @@ actual abstract class RoomDatabase {
          * @param db The database.
          */
         open fun onDestructiveMigration(db: SupportSQLiteDatabase) {}
+
+        /**
+         * Called after the database was destructively migrated.
+         *
+         * @param connection The database connection.
+         */
+        actual open fun onDestructiveMigration(connection: SQLiteConnection) {
+            if (connection is SupportSQLiteConnection) {
+                onDestructiveMigration(connection.db)
+            }
+        }
+
+        /**
+         * Called when the database has been opened.
+         *
+         * @param db The database.
+         */
+        open fun onOpen(db: SupportSQLiteDatabase) {}
+
+        /**
+         * Called when the database has been opened.
+         *
+         * @param connection The database connection.
+         */
+        actual open fun onOpen(connection: SQLiteConnection) {
+            if (connection is SupportSQLiteConnection) {
+                onOpen(connection.db)
+            }
+        }
     }
 
     /**

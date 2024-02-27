@@ -19,13 +19,13 @@ package androidx.room
 import androidx.room.coroutines.ConnectionPool
 import androidx.room.coroutines.newConnectionPool
 import androidx.room.coroutines.newSingleConnectionPool
-import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 
 internal class RoomNativeConnectionManager(
     override val configuration: DatabaseConfiguration,
     sqliteDriver: SQLiteDriver,
     override val openDelegate: RoomOpenDelegate,
+    override val callbacks: List<RoomDatabase.Callback>,
 ) : RoomConnectionManager() {
 
     override val connectionPool: ConnectionPool =
@@ -49,17 +49,5 @@ internal class RoomNativeConnectionManager(
 
     fun close() {
         connectionPool.close()
-    }
-
-    override fun invokeCreateCallback(connection: SQLiteConnection) {
-        // TODO(b/316944352): Add mirror to RoomDatabase.Callback
-    }
-
-    override fun invokeDestructiveMigrationCallback(connection: SQLiteConnection) {
-        // TODO(b/316944352): Add mirror to RoomDatabase.Callback
-    }
-
-    override fun invokeOpenCallback(connection: SQLiteConnection) {
-        // TODO(b/316944352): Add mirror to RoomDatabase.Callback
     }
 }

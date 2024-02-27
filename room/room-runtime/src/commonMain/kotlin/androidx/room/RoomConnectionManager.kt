@@ -35,6 +35,7 @@ internal abstract class RoomConnectionManager {
     protected abstract val configuration: DatabaseConfiguration
     protected abstract val connectionPool: ConnectionPool
     protected abstract val openDelegate: RoomOpenDelegate
+    protected abstract val callbacks: List<RoomDatabase.Callback>
 
     abstract suspend fun <R> useConnection(
         isReadOnly: Boolean,
@@ -233,7 +234,15 @@ internal abstract class RoomConnectionManager {
         else -> error("Can't get max number of writers for journal mode '$this'")
     }
 
-    protected abstract fun invokeCreateCallback(connection: SQLiteConnection)
-    protected abstract fun invokeDestructiveMigrationCallback(connection: SQLiteConnection)
-    protected abstract fun invokeOpenCallback(connection: SQLiteConnection)
+    private fun invokeCreateCallback(connection: SQLiteConnection) {
+        callbacks.forEach { it.onCreate(connection) }
+    }
+
+    private fun invokeDestructiveMigrationCallback(connection: SQLiteConnection) {
+        callbacks.forEach { it.onDestructiveMigration(connection) }
+    }
+
+    private fun invokeOpenCallback(connection: SQLiteConnection) {
+        callbacks.forEach { it.onOpen(connection) }
+    }
 }
