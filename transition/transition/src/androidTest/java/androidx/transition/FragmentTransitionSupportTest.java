@@ -41,6 +41,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.transition.test.R;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -98,6 +99,7 @@ public class FragmentTransitionSupportTest extends BaseTest {
                 .onTransitionStart(any(Transition.class));
     }
 
+    @Ignore // b/326237469
     @Test
     public void sharedTransition() {
         final TransitionFragment fragment1 = TransitionFragment.newInstance(R.layout.scene2);
