@@ -209,7 +209,7 @@ internal class TextLayout constructor(
      */
     private val lastLineExtra: Int
 
-    private val lineHeightSpans: Array<LineHeightStyleSpan>
+    private val lineHeightSpans: Array<LineHeightStyleSpan>?
 
     private val rect: Rect = Rect()
 
@@ -319,7 +319,7 @@ internal class TextLayout constructor(
         val verticalPaddings = getVerticalPaddings()
 
         lineHeightSpans = getLineHeightSpans()
-        val lineHeightPaddings = getLineHeightPaddings(lineHeightSpans)
+        val lineHeightPaddings = lineHeightSpans?.getLineHeightPaddings() ?: ZeroVerticalPadding
         topPadding = max(verticalPaddings.topPadding, lineHeightPaddings.topPadding)
         bottomPadding = max(verticalPaddings.bottomPadding, lineHeightPaddings.bottomPadding)
 
@@ -337,7 +337,14 @@ internal class TextLayout constructor(
         rightPadding = layout.getEllipsizedRightPadding(lastLine)
     }
 
-    private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
+    private var backingLayoutHelper: LayoutHelper? = null
+    private val layoutHelper: LayoutHelper
+        get() {
+            if (backingLayoutHelper == null) {
+                return LayoutHelper(layout).also { backingLayoutHelper = it }
+            }
+            return backingLayoutHelper!!
+        }
 
     val text: CharSequence
         get() = layout.text
@@ -942,13 +949,11 @@ private fun TextLayout.getVerticalPaddings(): VerticalPaddings {
 private val ZeroVerticalPadding = VerticalPaddings(0, 0)
 
 @OptIn(InternalPlatformTextApi::class)
-private fun TextLayout.getLineHeightPaddings(
-    lineHeightSpans: Array<LineHeightStyleSpan>
-): VerticalPaddings {
+private fun Array<LineHeightStyleSpan>.getLineHeightPaddings(): VerticalPaddings {
     var firstAscentDiff = 0
     var lastDescentDiff = 0
 
-    for (span in lineHeightSpans) {
+    for (span in this) {
         if (span.firstAscentDiff < 0) {
             firstAscentDiff = max(firstAscentDiff, abs(span.firstAscentDiff))
         }
@@ -968,12 +973,12 @@ private fun TextLayout.getLineHeightPaddings(
 private fun TextLayout.getLastLineMetrics(
     textPaint: TextPaint,
     frameworkTextDir: TextDirectionHeuristic,
-    lineHeightSpans: Array<LineHeightStyleSpan>
+    lineHeightSpans: Array<LineHeightStyleSpan>?
 ): FontMetricsInt? {
     val lastLine = lineCount - 1
     // did not check for "\n" since the last line might include zero width characters
     if (layout.getLineStart(lastLine) == layout.getLineEnd(lastLine) &&
-        lineHeightSpans.isNotEmpty()
+        !lineHeightSpans.isNullOrEmpty()
     ) {
         val emptyText = SpannableString("\u200B")
         val lineHeightSpan = lineHeightSpans.first()
@@ -1018,12 +1023,16 @@ private fun TextLayout.getLastLineMetrics(
 }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan> {
-    if (text !is Spanned) return emptyArray()
+private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan>? {
+    if (text !is Spanned) return null
+    // text can be empty but still include a LineHeightStyleSpan. In that case hasSpan returns false
+    // because nextSpanTransition ends up being 0 == text.length
+    if (!(text as Spanned).hasSpan(LineHeightStyleSpan::class.java) && text.isNotEmpty()) {
+        return null
+    }
     val lineHeightStyleSpans = (text as Spanned).getSpans(
         0, text.length, LineHeightStyleSpan::class.java
     )
-    if (lineHeightStyleSpans.isEmpty()) return emptyArray()
     return lineHeightStyleSpans
 }
 
