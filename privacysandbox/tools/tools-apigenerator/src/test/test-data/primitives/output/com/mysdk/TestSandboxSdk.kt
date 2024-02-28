@@ -1,11 +1,15 @@
 package com.mysdk
 
+import android.os.Bundle
+
 public interface TestSandboxSdk {
     public suspend fun doSomethingAsync(
         first: Int,
         second: String,
         third: Long,
     ): Boolean
+
+    public suspend fun doSomethingWithBundlesAsync(first: Int, second: Bundle): Bundle
 
     public fun echoBoolean(input: Boolean)
 
@@ -22,6 +26,8 @@ public interface TestSandboxSdk {
     public fun echoString(input: String)
 
     public suspend fun processBooleanList(x: List<Boolean>): List<Boolean>
+
+    public suspend fun processBundleList(x: List<Bundle>): List<Bundle>
 
     public suspend fun processCharList(x: List<Char>): List<Char>
 

@@ -286,6 +286,7 @@ class AidlGenerator private constructor(
             Short::class.qualifiedName -> primitive("int")
             Unit::class.qualifiedName -> primitive("void")
             List::class.qualifiedName -> getAidlTypeDeclaration(type.typeParameters[0]).listSpec()
+            Types.bundle.qualifiedName -> bundleAidlType
             Types.sdkActivityLauncher.qualifiedName -> bundleAidlType
             else -> throw IllegalArgumentException(
                 "Unsupported type conversion ${type.qualifiedName}"

@@ -48,7 +48,9 @@ class AidlValueGeneratorTest {
                 ValueProperty("booleanProperty", Types.boolean),
                 ValueProperty("longProperty", Types.long),
                 ValueProperty("maybeFloatProperty", Types.float.asNullable()),
-                ValueProperty("enumProperty", innerEnum.type)
+                ValueProperty("enumProperty", innerEnum.type),
+                ValueProperty("bundleProperty", Types.bundle),
+                ValueProperty("maybeBundleProperty", Types.bundle.asNullable())
             )
         )
         val outerValue = AnnotatedDataClass(
