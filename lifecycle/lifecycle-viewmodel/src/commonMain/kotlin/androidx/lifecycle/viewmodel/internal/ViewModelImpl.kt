@@ -21,8 +21,6 @@ package androidx.lifecycle.viewmodel.internal
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import kotlin.jvm.Volatile
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.synchronized
 
 /**
  * Internal implementation of the multiplatform [ViewModel].
@@ -34,7 +32,7 @@ import kotlinx.atomicfu.locks.synchronized
  */
 internal class ViewModelImpl {
 
-    private val lock = SynchronizedObject()
+    private val lock = Lock()
 
     /**
      * Holds a mapping between [String] keys and [AutoCloseable] resources that have been associated
@@ -48,7 +46,7 @@ internal class ViewModelImpl {
      * 2. [closeables][AutoCloseable.close]
      * 3. [ViewModel.onCleared]
      *
-     * **Note:** Manually [synchronized] is necessary to prevent issues on Android API 21 and 22.
+     * **Note:** Manually [Lock] is necessary to prevent issues on Android API 21 and 22.
      * This avoids potential problems found in older versions of `ConcurrentHashMap`.
      *
      * @see <a href="https://issuetracker.google.com/37042460">b/37042460</a>
@@ -85,7 +83,7 @@ internal class ViewModelImpl {
     @MainThread
     fun clear() {
         isCleared = true
-        synchronized(lock) {
+        lock.withLock {
             for (value in bagOfTags.values) {
                 // see comment for the similar call in `setTagIfAbsent`
                 closeWithRuntimeException(value)
@@ -118,7 +116,7 @@ internal class ViewModelImpl {
             return
         }
 
-        synchronized(lock) { bagOfTags.put(key, closeable) }
+        lock.withLock { bagOfTags.put(key, closeable) }
     }
 
     /**
@@ -140,9 +138,7 @@ internal class ViewModelImpl {
             return
         }
 
-        synchronized(lock) {
-            this.closeables += closeable
-        }
+        lock.withLock { this.closeables += closeable }
     }
 
     /**
@@ -150,12 +146,9 @@ internal class ViewModelImpl {
      *
      * @param key The key that was used to add the Closeable.
      */
-    fun <T : AutoCloseable> getCloseable(key: String): T? {
-        synchronized(lock) {
-            @Suppress("UNCHECKED_CAST")
-            return bagOfTags[key] as T?
-        }
-    }
+    fun <T : AutoCloseable> getCloseable(key: String): T? =
+        @Suppress("UNCHECKED_CAST")
+        lock.withLock { bagOfTags[key] as T? }
 
     private fun closeWithRuntimeException(instance: Any) {
         if (instance is AutoCloseable) {
