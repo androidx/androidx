@@ -145,12 +145,6 @@ class SdkSandboxControllerCompat internal constructor(
         )
     }
 
-    @RestrictTo(LIBRARY_GROUP)
-    interface LoadSdkCallback {
-        fun onResult(result: SandboxedSdkCompat)
-        fun onError(error: LoadSdkCompatException)
-    }
-
     companion object {
 
         private var localImpl: SandboxControllerImpl? = null

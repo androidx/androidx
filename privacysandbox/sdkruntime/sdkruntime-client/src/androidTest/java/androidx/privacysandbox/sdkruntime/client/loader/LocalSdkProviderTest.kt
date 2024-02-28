@@ -33,10 +33,11 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import dalvik.system.BaseDexClassLoader
@@ -49,7 +50,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@SmallTest
+@LargeTest
 @RunWith(Parameterized::class)
 internal class LocalSdkProviderTest(
     private val sdkName: String,
@@ -239,6 +240,54 @@ internal class LocalSdkProviderTest(
         assertThat(controller.sdkActivityHandlers[token]).isNull()
     }
 
+    @Test
+    fun loadSdk_returnsResultFromSdkController() {
+        assumeTrue(
+            "Requires Versions.API_VERSION >= 5",
+            sdkVersion >= 5
+        )
+
+        val sdkName = "SDK"
+        val sdkParams = Bundle()
+        val expectedSdkInfo = SandboxedSdkInfo(sdkName, 42)
+        val expectedResult = SandboxedSdkCompat(Binder(), expectedSdkInfo)
+        controller.loadSdkResult = expectedResult
+
+        val result = loadedSdk.loadTestSdk().loadSdk(sdkName, sdkParams)
+
+        assertThat(result.getInterface()).isEqualTo(expectedResult.getInterface())
+        assertThat(result.getSdkName()).isEqualTo(expectedSdkInfo.name)
+        assertThat(result.getSdkVersion()).isEqualTo(expectedSdkInfo.version)
+
+        assertThat(controller.lastLoadSdkName).isEqualTo(sdkName)
+        assertThat(controller.lastLoadSdkParams).isSameInstanceAs(sdkParams)
+    }
+
+    @Test
+    fun loadSdk_rethrowsExceptionFromSdkController() {
+        assumeTrue(
+            "Requires Versions.API_VERSION >= 5",
+            sdkVersion >= 5
+        )
+
+        val expectedError = LoadSdkCompatException(
+            LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
+            "message",
+            RuntimeException(),
+            Bundle()
+        )
+        controller.loadSdkError = expectedError
+
+        val result = assertThrows(LoadSdkCompatException::class.java) {
+            loadedSdk.loadTestSdk().loadSdk("SDK", Bundle())
+        }
+
+        assertThat(result.loadSdkErrorCode).isEqualTo(expectedError.loadSdkErrorCode)
+        assertThat(result.message).isEqualTo(expectedError.message)
+        assertThat(result.cause).isSameInstanceAs(expectedError.cause)
+        assertThat(result.extraInformation).isSameInstanceAs(expectedError.extraInformation)
+    }
+
     internal class TestClassLoaderFactory(
         private val testStorage: TestLocalSdkStorage
     ) : SdkLoader.ClassLoaderFactory {
@@ -320,19 +369,34 @@ internal class LocalSdkProviderTest(
         var sdkActivityHandlers: MutableMap<IBinder, SdkSandboxActivityHandlerCompat> =
             mutableMapOf()
 
+        var lastLoadSdkName: String? = null
+        var lastLoadSdkParams: Bundle? = null
+        var loadSdkResult: SandboxedSdkCompat? = null
+        var loadSdkError: LoadSdkCompatException? = null
+
         override fun loadSdk(
             sdkName: String,
             params: Bundle,
             executor: Executor,
-            callback: SdkSandboxControllerCompat.LoadSdkCallback
+            callback: LoadSdkCallback
         ) {
-            executor.execute {
-                callback.onError(
-                    LoadSdkCompatException(
-                        LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
-                        "Shouldn't be called"
+            lastLoadSdkName = sdkName
+            lastLoadSdkParams = params
+
+            if (loadSdkResult != null) {
+                executor.execute {
+                    callback.onResult(loadSdkResult!!)
+                }
+            } else {
+                executor.execute {
+                    callback.onError(
+                        loadSdkError
+                            ?: LoadSdkCompatException(
+                                LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
+                                "Shouldn't be called without setting result or error"
+                            )
                     )
-                )
+                }
             }
         }
 
