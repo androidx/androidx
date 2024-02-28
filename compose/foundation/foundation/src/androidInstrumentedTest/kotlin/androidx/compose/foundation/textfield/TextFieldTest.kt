@@ -777,6 +777,50 @@ class TextFieldTest : FocusedWindowTest {
     }
 
     @Test
+    fun semantics_setTextSetSelection_transformed_invalidIndex() {
+        rule.setContent {
+            var value by remember { mutableStateOf("Hello") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it }
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performSemanticsAction(SemanticsActions.SetSelection) { it(0, Int.MAX_VALUE, false) }
+            .assert(
+                // invalid selection should be ignored.
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.TextSelectionRange,
+                    TextRange(0, 0)
+                )
+            )
+    }
+
+    @Test
+    fun semantics_setTextSetSelection_original_invalidIndex() {
+        rule.setContent {
+            var value by remember { mutableStateOf("Hello") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it }
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performSemanticsAction(SemanticsActions.SetSelection) { it(0, Int.MAX_VALUE, true) }
+            .assert(
+                // invalid selection should be ignored.
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.TextSelectionRange,
+                    TextRange(0, 0)
+                )
+            )
+    }
+
+    @Test
     fun setImeAction_isReflectedInSemantics() {
         rule.setContent {
             BasicTextField(
