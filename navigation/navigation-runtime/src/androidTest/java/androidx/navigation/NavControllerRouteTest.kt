@@ -707,7 +707,7 @@ class NavControllerRouteTest {
             ) {
                 test("start_test?opt={arg}") {
                     argument("arg") {
-                        type = NavType.StringType
+                        type = NavType.IntArrayType
                         nullable = true
                         defaultValue = null
                     }
@@ -1134,7 +1134,7 @@ class NavControllerRouteTest {
                 test("start_test")
                 test("second_test?opt={arg}") {
                     argument("arg") {
-                        type = NavType.StringType
+                        type = NavType.IntArrayType
                         nullable = true
                         defaultValue = null
                     }
@@ -1460,7 +1460,7 @@ class NavControllerRouteTest {
                 test("start_test")
                 test("second_test?opt={arg}") {
                     argument("arg") {
-                        type = NavType.StringType
+                        type = NavType.IntArrayType
                         nullable = true
                         defaultValue = null
                     }
