@@ -1651,40 +1651,6 @@ package androidx.core.hardware.display {
 
 }
 
-package androidx.core.hardware.fingerprint {
-
-  @Deprecated public class FingerprintManagerCompat {
-    method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public void authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject?, int, android.os.CancellationSignal?, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler?);
-    method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public void authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject?, int, androidx.core.os.CancellationSignal?, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler?);
-    method @Deprecated public static androidx.core.hardware.fingerprint.FingerprintManagerCompat from(android.content.Context);
-    method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public boolean hasEnrolledFingerprints();
-    method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public boolean isHardwareDetected();
-  }
-
-  @Deprecated public abstract static class FingerprintManagerCompat.AuthenticationCallback {
-    ctor @Deprecated public FingerprintManagerCompat.AuthenticationCallback();
-    method @Deprecated public void onAuthenticationError(int, CharSequence!);
-    method @Deprecated public void onAuthenticationFailed();
-    method @Deprecated public void onAuthenticationHelp(int, CharSequence!);
-    method @Deprecated public void onAuthenticationSucceeded(androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationResult!);
-  }
-
-  @Deprecated public static final class FingerprintManagerCompat.AuthenticationResult {
-    ctor @Deprecated public FingerprintManagerCompat.AuthenticationResult(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject!);
-    method @Deprecated public androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject! getCryptoObject();
-  }
-
-  @Deprecated public static class FingerprintManagerCompat.CryptoObject {
-    ctor @Deprecated public FingerprintManagerCompat.CryptoObject(java.security.Signature);
-    ctor @Deprecated public FingerprintManagerCompat.CryptoObject(javax.crypto.Cipher);
-    ctor @Deprecated public FingerprintManagerCompat.CryptoObject(javax.crypto.Mac);
-    method @Deprecated public javax.crypto.Cipher? getCipher();
-    method @Deprecated public javax.crypto.Mac? getMac();
-    method @Deprecated public java.security.Signature? getSignature();
-  }
-
-}
-
 package androidx.core.location {
 
   public abstract class GnssStatusCompat {
