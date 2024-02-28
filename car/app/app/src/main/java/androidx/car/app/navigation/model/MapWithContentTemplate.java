@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
@@ -38,12 +37,10 @@ import java.util.Objects;
  * list). The content is usually rendered as an overlay on top of the map tiles, with the map
  * visible and stable areas adjusting to the content.
  *
- * See {@link ContentTemplateConstraints#MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS}
- * for the list of supported content templates.
+ * See {@link Builder#setContentTemplate(Template)} for the list of supported content templates.
  */
 @CarProtocol
 @KeepFields
-@ExperimentalCarApi
 @RequiresCarApi(7)
 public final class MapWithContentTemplate implements Template {
     @Nullable
@@ -166,6 +163,17 @@ public final class MapWithContentTemplate implements Template {
 
         /**
          * Sets the content to be displayed on top of the map tiles.
+         *
+         * <p>From Car API 7 onward, the following template types are supported as content:
+         * <ul>
+         *     <li>{@code ListTemplate}
+         *     <li>{@code PaneTemplate}
+         *     <li>{@code GridTemplate}
+         *     <li>{@code MessageTemplate}
+         * </ul>
+         *
+         *  @throws NullPointerException     if {@code template} is null
+         *  @throws IllegalArgumentException if {@code template} does not meet the requirements
          */
         @NonNull
         public Builder setContentTemplate(@NonNull Template template) {
@@ -188,8 +196,8 @@ public final class MapWithContentTemplate implements Template {
          * <h4>Requirements</h4>
          * <p>
          * @throws IllegalArgumentException if the template is not one of the allowed Content types
-         * see {@link ContentTemplateConstraints#MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS}
-         * for the list of supported content templates.
+         * See {@link Builder#setContentTemplate(Template)} for the list of supported content
+         * templates.
          */
         @NonNull
         public MapWithContentTemplate build() {
