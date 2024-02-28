@@ -33,6 +33,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.concurrent.TimeUnit;
+
 @RunWith(JUnit4.class)
 @SdkSuppress(minSdkVersion = 28) // API 28 required for device_config used by this test
 // TODO: Consider refactoring so that we're not duplicating code.
@@ -45,10 +47,11 @@ public class AppSetIdManagerTest {
         mTestUtil.overrideAppSetIdKillSwitch(true);
         mTestUtil.overrideKillSwitches(true);
         mTestUtil.overrideAllowlists(true);
+        mTestUtil.enableVerboseLogging();
 
         // Put in a short sleep to make sure the updated config propagates
         // before starting the tests
-        Thread.sleep(100);
+        TimeUnit.SECONDS.sleep(1000);
     }
 
     @After
