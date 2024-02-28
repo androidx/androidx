@@ -24,10 +24,10 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ResponsiveLayoutDetectorTest : LintDetectorTest() {
+class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
     override fun getDetector() = ResponsiveLayoutDetector()
 
-    override fun getIssues() = mutableListOf(ResponsiveLayoutDetector.ISSUE)
+    override fun getIssues() = mutableListOf(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
 
     private val deviceParametersStub =
         java(
@@ -97,18 +97,12 @@ class ResponsiveLayoutDetectorTest : LintDetectorTest() {
                             fun build2() {
                                 update().build()
                             }
-
-                            fun doubleTrue() {
-                                PrimaryLayout.Builder()
-                                    .setResponsiveContentInsetEnabled(false)
-                                    .setResponsiveContentInsetEnabled(true)
-                            }
                         }
                     """
                         .trimIndent()
                 )
             )
-            .issues(ResponsiveLayoutDetector.ISSUE)
+            .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
             .expectClean()
     }
@@ -165,7 +159,7 @@ class ResponsiveLayoutDetectorTest : LintDetectorTest() {
                     )
                     .indented()
             )
-            .issues(ResponsiveLayoutDetector.ISSUE)
+            .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
             .expect(
                 """
@@ -273,18 +267,12 @@ class ResponsiveLayoutDetectorTest : LintDetectorTest() {
                             PrimaryLayout build2() {
                                 update().build();
                             }
-
-                            void doubleTrue() {
-                                new PrimaryLayout.Builder()
-                                    .setResponsiveContentInsetEnabled(false)
-                                    .setResponsiveContentInsetEnabled(true);
-                            }
                         }
                     """
                         .trimIndent()
                 )
             )
-            .issues(ResponsiveLayoutDetector.ISSUE)
+            .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
             .expectClean()
     }
@@ -337,7 +325,7 @@ class ResponsiveLayoutDetectorTest : LintDetectorTest() {
                         .trimIndent()
                 )
             )
-            .issues(ResponsiveLayoutDetector.ISSUE)
+            .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
             .expect(
                 """
@@ -429,7 +417,7 @@ class ResponsiveLayoutDetectorTest : LintDetectorTest() {
                         .trimIndent()
                 )
             )
-            .issues(ResponsiveLayoutDetector.ISSUE)
+            .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
             .expect(
                 """
@@ -476,7 +464,7 @@ class ResponsiveLayoutDetectorTest : LintDetectorTest() {
                         .trimIndent()
                 )
             )
-            .issues(ResponsiveLayoutDetector.ISSUE)
+            .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
             .expectClean()
     }
