@@ -454,6 +454,24 @@ interface OutputStream {
             val MAXIMUM_RESOLUTION = SensorPixelMode(1)
         }
     }
+
+    /**
+     * If this OutputStream is a valid stream for HIGH_SPEED recording. The requirement is
+     * that the surface must be either video encoder surface or preview surface. The checks below
+     * can be used to ensure that the we are passing along the right intention for any further
+     * checks when actually configuring and using this stream.
+     *
+     * [Camera2 reference] [https://developer.android.com/reference/android/hardware/camera2/CameraDevice#constrained-high-speed-recording]
+     */
+    fun isValidForHighSpeedOperatingMode(): Boolean {
+        return this.streamUseCase == null ||
+            this.streamUseCase == OutputStream.StreamUseCase.DEFAULT ||
+            this.streamUseCase == OutputStream.StreamUseCase.PREVIEW ||
+            this.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD ||
+            this.streamUseHint == null ||
+            this.streamUseHint == OutputStream.StreamUseHint.DEFAULT ||
+            this.streamUseHint == OutputStream.StreamUseHint.VIDEO_RECORD
+    }
 }
 
 /**
