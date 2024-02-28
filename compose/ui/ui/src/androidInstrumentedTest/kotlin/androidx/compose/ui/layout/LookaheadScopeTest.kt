@@ -19,6 +19,7 @@
 package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
@@ -53,6 +54,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +65,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -104,6 +107,7 @@ import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
@@ -1621,6 +1625,133 @@ class LookaheadScopeTest {
     }
 
     @Test
+    fun testPlacementAfterLookaheadPlacement() {
+        // This test creates a scenario where the L1 node gets lookahead measure, measure, lookahead
+        // placement, then placement, all after L3 node (i.e. L1's child's child) gets a
+        // new child attached. The entire tree except root is also marked layout pending, so that
+        // placement pass will be propagated to the leaf yet lookahead placement will skip L2.
+        // The test verifies that the placement pass initiated from L1 will not reach L3 until
+        // L3's lookahead pass.
+
+        val root = node()
+        val delegate = createDelegate(root)
+        val lookaheadRoot = virtualNode { isVirtualLookaheadRoot = true }
+        root.add(lookaheadRoot)
+        val l1Node = node()
+        val l2Node = node()
+        val l3Node = node()
+        lookaheadRoot.add(l1Node)
+        l1Node.add(l2Node)
+        l2Node.add(l3Node)
+
+        rule.runOnIdle {
+            delegate.measureAndLayout()
+        }
+        rule.runOnIdle {
+            assertFalse(l1Node.measurePending)
+            assertFalse(l1Node.lookaheadMeasurePending)
+            assertFalse(l1Node.layoutPending)
+            assertFalse(l1Node.lookaheadLayoutPending)
+
+            assertFalse(l3Node.measurePending)
+            assertFalse(l3Node.lookaheadMeasurePending)
+            assertFalse(l3Node.layoutPending)
+            assertFalse(l3Node.lookaheadLayoutPending)
+
+            assertFalse(l2Node.measurePending)
+            assertFalse(l2Node.lookaheadMeasurePending)
+            assertFalse(l2Node.layoutPending)
+            assertFalse(l2Node.lookaheadLayoutPending)
+        }
+        l3Node.add(node())
+        rule.runOnIdle {
+            assertTrue(l3Node.lookaheadMeasurePending)
+            assertTrue(l3Node.children[0].lookaheadMeasurePending)
+        }
+        l1Node.requestLookaheadRemeasure()
+        l1Node.markLayoutPending()
+        l2Node.markLayoutPending()
+        l3Node.markLayoutPending()
+        rule.runOnIdle {
+            assertTrue(l1Node.lookaheadMeasurePending)
+            assertTrue(l1Node.layoutPending)
+            assertTrue(l2Node.layoutPending)
+            assertTrue(l3Node.layoutPending)
+        }
+        delegate.measureAndLayout()
+        rule.runOnIdle {
+            assertFalse(l1Node.lookaheadMeasurePending)
+            assertFalse(l1Node.layoutPending)
+            assertFalse(l2Node.layoutPending)
+            assertFalse(l3Node.layoutPending)
+        }
+    }
+
+    @Test
+    fun testPerNodeMeasureAndLayout() {
+
+        // This test creates a scenario where the L1 node gets lookahead measure, measure, lookahead
+        // placement, then placement, all after L3 node (i.e. L1's child's child) gets a
+        // new child attached. The entire tree except root is also marked layout pending, so that
+        // placement pass will be propagated to the leaf yet lookahead placement will skip L2.
+        // The test verifies that the placement pass initiated from L1 will not reach L3 until
+        // L3's lookahead pass.
+
+        val root = node()
+        val delegate = createDelegate(root)
+        val lookaheadRoot = virtualNode { isVirtualLookaheadRoot = true }
+        root.add(lookaheadRoot)
+        val l1Node = node()
+        val l2Node = node()
+        val l3Node = node()
+        lookaheadRoot.add(l1Node)
+        l1Node.add(l2Node)
+        l2Node.add(l3Node)
+
+        rule.runOnIdle {
+            delegate.measureAndLayout()
+        }
+        rule.runOnIdle {
+            assertFalse(l1Node.measurePending)
+            assertFalse(l1Node.lookaheadMeasurePending)
+            assertFalse(l1Node.layoutPending)
+            assertFalse(l1Node.lookaheadLayoutPending)
+
+            assertFalse(l3Node.measurePending)
+            assertFalse(l3Node.lookaheadMeasurePending)
+            assertFalse(l3Node.layoutPending)
+            assertFalse(l3Node.lookaheadLayoutPending)
+
+            assertFalse(l2Node.measurePending)
+            assertFalse(l2Node.lookaheadMeasurePending)
+            assertFalse(l2Node.layoutPending)
+            assertFalse(l2Node.lookaheadLayoutPending)
+        }
+        l3Node.add(node())
+        rule.runOnIdle {
+            assertTrue(l3Node.lookaheadMeasurePending)
+            assertTrue(l3Node.children[0].lookaheadMeasurePending)
+        }
+        l1Node.requestLookaheadRemeasure()
+        l1Node.markLayoutPending()
+        l2Node.markLayoutPending()
+        l3Node.markLayoutPending()
+        rule.runOnIdle {
+            assertTrue(l1Node.lookaheadMeasurePending)
+            assertTrue(l1Node.layoutPending)
+            assertTrue(l2Node.layoutPending)
+            assertTrue(l3Node.layoutPending)
+        }
+        delegate.measureAndLayout(l1Node, l1Node.layoutDelegate.lastConstraints!!)
+        rule.runOnIdle {
+            assertFalse(l1Node.lookaheadMeasurePending)
+            assertFalse(l1Node.layoutPending)
+            assertFalse(l2Node.layoutPending)
+            assertFalse(l3Node.layoutPending)
+        }
+    }
+
+    @Test
     fun moveIntermediateLayout() {
         var positionInScope by mutableStateOf(IntOffset(Int.MAX_VALUE, Int.MAX_VALUE))
         var boxId by mutableStateOf(1)
@@ -2056,6 +2187,86 @@ class LookaheadScopeTest {
                 iterations++
             }
         }
+    }
+
+    @Test
+    fun forceMeasureLookaheadRootInParentsMeasurePass() {
+        var show by mutableStateOf(false)
+        var lookaheadOffset: Offset? = null
+        var offset: Offset? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                // Mutate this state in measure
+                Box(Modifier.fillMaxSize()) {
+                    val size by produceState(initialValue = 200) {
+                        delay(500)
+                        value = 600 - value
+                    }
+                    LazyColumn(Modifier.layout { measurable, _ ->
+                        // Mutate this state in measure. This state will later be used in descendant's
+                        // composition.
+                        show = size > 300
+                        measurable.measure(Constraints.fixed(size, size)).run {
+                            layout(width, height) { place(0, 0) }
+                        }
+                    }) {
+                        item {
+                            SubcomposeLayout(Modifier.fillMaxSize()) {
+                                val placeable = subcompose(Unit) {
+                                    // read the value to force a recomposition
+                                    Box(
+                                        Modifier.requiredSize(222.dp)
+                                    ) {
+                                        LookaheadScope {
+                                            AnimatedContent(show, Modifier.requiredSize(200.dp)) {
+                                                if (it) {
+                                                    Row(
+                                                        Modifier
+                                                            .fillMaxSize()
+                                                            .layout { measurable, constraints ->
+                                                                val p =
+                                                                    measurable.measure(constraints)
+                                                                layout(p.width, p.height) {
+                                                                    coordinates
+                                                                        ?.positionInRoot()
+                                                                        .let {
+                                                                            if (isLookingAhead) {
+                                                                                lookaheadOffset = it
+                                                                            } else {
+                                                                                offset = it
+                                                                            }
+                                                                        }
+                                                                    p.place(0, 0)
+                                                                }
+                                                            }) {}
+                                                } else {
+                                                    Row(
+                                                        Modifier.size(10.dp)
+                                                    ) {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }[0].measure(Constraints(0, 2000, 0, 2000))
+                                // Measure with the same constraints to ensure the child (i.e. Box)
+                                // gets no constraints change and hence starts forceMeasureSubtree
+                                // from there
+                                layout(700, 800) {
+                                    placeable.place(0, 0)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitUntil(2000) {
+            show
+        }
+        rule.waitForIdle()
+
+        assertEquals(Offset(-150f, 0f), lookaheadOffset)
+        assertEquals(Offset(-150f, 0f), offset)
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
