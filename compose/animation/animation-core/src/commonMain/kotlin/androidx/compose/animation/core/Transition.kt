@@ -924,9 +924,9 @@ class Transition<S> @PublishedApi internal constructor(
     /**
      * Play time in nano-seconds. [playTimeNanos] is always non-negative. It starts from 0L at the
      * beginning of the transition and increment until all child animations have finished.
-     * @suppress
      */
-    @InternalAnimationApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     var playTimeNanos by mutableLongStateOf(0L)
     private var startTimeNanos by mutableLongStateOf(AnimationConstants.UnspecifiedTime)
 
@@ -949,8 +949,8 @@ class Transition<S> @PublishedApi internal constructor(
         get() = _animations
 
     // Seeking related
-    /** @suppress */
-    @InternalAnimationApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     var isSeeking: Boolean by mutableStateOf(false)
         internal set
     internal var lastSeekedTimeNanos = 0L
@@ -1610,9 +1610,8 @@ class Transition<S> @PublishedApi internal constructor(
      * Once a [DeferredAnimation] is created, it can be configured and updated as needed using
      * [DeferredAnimation.animate] method.
      *
-     * @suppress
      */
-    @InternalAnimationApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     inner class DeferredAnimation<T, V : AnimationVector> internal constructor(
         val typeConverter: TwoWayConverter<T, V>,
         val label: String
@@ -1718,9 +1717,8 @@ private const val ResetAnimationSnapTarget = -5f
  * @param typeConverter A converter to convert any value of type [T] from/to an [AnimationVector]
  * @param label A label for differentiating this animation from others in android studio.
  *
- * @suppress
  */
-@InternalAnimationApi
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Composable
 fun <S, T, V : AnimationVector> Transition<S>.createDeferredAnimation(
     typeConverter: TwoWayConverter<T, V>,

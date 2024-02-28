@@ -597,9 +597,6 @@ package androidx.compose.animation.core {
     field public static final float StiffnessVeryLow = 50.0f;
   }
 
-  public final class SpringEstimationKt {
-  }
-
   @androidx.compose.runtime.Immutable public final class SpringSpec<T> implements androidx.compose.animation.core.FiniteAnimationSpec<T> {
     ctor public SpringSpec(optional float dampingRatio, optional float stiffness, optional T? visibilityThreshold);
     method public float getDampingRatio();
