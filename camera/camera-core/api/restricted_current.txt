@@ -398,6 +398,7 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public class ImageCaptureLatencyEstimate {
+    ctor public ImageCaptureLatencyEstimate(long, long);
     method public long getCaptureLatencyMillis();
     method public long getProcessingLatencyMillis();
     method public long getTotalCaptureLatencyMillis();
