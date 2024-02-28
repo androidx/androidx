@@ -28,10 +28,11 @@ import com.android.tools.lint.detector.api.Severity
 import org.jetbrains.uast.UDeclaration
 
 @Suppress("unused")
-class BanHideAndSuppressTags : Detector(), Detector.UastScanner {
+class BanVisibilityDocTags : Detector(), Detector.UastScanner {
     private val tagToIssue = mapOf(
         "@hide" to HIDE_ISSUE,
         "@suppress" to SUPPRESS_ISSUE,
+        "@removed" to REMOVED_ISSUE,
     )
 
     override fun getApplicableUastTypes() = listOf(UDeclaration::class.java)
@@ -62,7 +63,7 @@ class BanHideAndSuppressTags : Detector(), Detector.UastScanner {
             priority = 5,
             severity = Severity.ERROR,
             implementation = Implementation(
-                BanHideAndSuppressTags::class.java,
+                BanVisibilityDocTags::class.java,
                 Scope.JAVA_FILE_SCOPE
             )
         )
@@ -75,7 +76,20 @@ class BanHideAndSuppressTags : Detector(), Detector.UastScanner {
             priority = 5,
             severity = Severity.ERROR,
             implementation = Implementation(
-                BanHideAndSuppressTags::class.java,
+                BanVisibilityDocTags::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+        val REMOVED_ISSUE = Issue.create(
+            id = "BanRemovedTag",
+            briefDescription = "@removed is not allowed in Javadoc",
+            explanation = "Use of the @removed annotation in Javadoc is no longer allowed." +
+                " Please use @RestrictTo(LIBRARY_GROUP_PREFIX) instead.",
+            category = Category.CORRECTNESS,
+            priority = 5,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                BanVisibilityDocTags::class.java,
                 Scope.JAVA_FILE_SCOPE
             )
         )
