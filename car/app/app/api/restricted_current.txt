@@ -1291,8 +1291,8 @@ package androidx.car.app.model {
     method public androidx.car.app.model.GridItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
     method public androidx.car.app.model.GridItem.Builder setText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.GridItem.Builder setText(CharSequence);
-    method public androidx.car.app.model.GridItem.Builder setTitle(androidx.car.app.model.CarText);
-    method public androidx.car.app.model.GridItem.Builder setTitle(CharSequence);
+    method public androidx.car.app.model.GridItem.Builder setTitle(androidx.car.app.model.CarText?);
+    method public androidx.car.app.model.GridItem.Builder setTitle(CharSequence?);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class GridTemplate implements androidx.car.app.model.Template {
