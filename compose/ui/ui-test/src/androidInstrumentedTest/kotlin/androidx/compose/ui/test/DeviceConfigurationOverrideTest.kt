@@ -150,7 +150,7 @@ class DeviceConfigurationOverrideTest {
 
         // The constraint should be within 0.5 pixels of the specified size
         // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
-        // this is true in normal Compose code as well
+        // is true in normal Compose code as well
         assertEquals(
             with(actualDensity) { 30.dp.toPx() },
             actualConstraints!!.maxWidth.toFloat(),
@@ -189,7 +189,7 @@ class DeviceConfigurationOverrideTest {
 
         // The constraint should be within 0.5 pixels of the specified size
         // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
-        // this is true in normal Compose code as well
+        // is true in normal Compose code as well
         assertEquals(
             with(actualDensity) { 40.dp.toPx() },
             actualConstraints!!.maxWidth.toFloat(),
@@ -228,7 +228,7 @@ class DeviceConfigurationOverrideTest {
 
         // The constraint should be within 0.5 pixels of the specified size
         // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
-        // this is true in normal Compose code as well
+        // is true in normal Compose code as well
         assertEquals(
             with(actualDensity) { 3000.dp.toPx() },
             actualConstraints!!.maxWidth.toFloat(),
@@ -267,7 +267,7 @@ class DeviceConfigurationOverrideTest {
 
         // The constraint should be within 0.5 pixels of the specified size
         // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
-        // this is true in normal Compose code as well
+        // is true in normal Compose code as well
         assertEquals(
             with(actualDensity) { 4000.dp.toPx() },
             actualConstraints!!.maxWidth.toFloat(),
