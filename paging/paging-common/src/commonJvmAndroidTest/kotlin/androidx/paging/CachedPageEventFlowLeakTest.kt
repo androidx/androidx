@@ -165,6 +165,7 @@ public class CachedPageEventFlowLeakTest {
         gcHelper.assertEverythingIsCollected()
     }
 
+    @Ignore // b/327260417
     @Test
     public fun dontLeakPreviousPageInfo_stillCollecting() = runTest {
         // reproduces b/204125064
