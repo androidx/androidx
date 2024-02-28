@@ -120,6 +120,9 @@ public class TintTypedArray {
         if (resourceId == 0) {
             return null;
         }
+        if (!getString(index).startsWith("res/")) {
+            return null;
+        }
         if (mTypedValue == null) {
             mTypedValue = new TypedValue();
         }
