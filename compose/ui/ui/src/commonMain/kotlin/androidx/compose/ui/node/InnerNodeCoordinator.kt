@@ -99,16 +99,16 @@ internal class InnerNodeCoordinator(
         }
 
         override fun minIntrinsicWidth(height: Int) =
-            layoutNode.intrinsicsPolicy.minLookaheadIntrinsicWidth(height)
+            layoutNode.minLookaheadIntrinsicWidth(height)
 
         override fun minIntrinsicHeight(width: Int) =
-            layoutNode.intrinsicsPolicy.minLookaheadIntrinsicHeight(width)
+            layoutNode.minLookaheadIntrinsicHeight(width)
 
         override fun maxIntrinsicWidth(height: Int) =
-            layoutNode.intrinsicsPolicy.maxLookaheadIntrinsicWidth(height)
+            layoutNode.maxLookaheadIntrinsicWidth(height)
 
         override fun maxIntrinsicHeight(width: Int) =
-            layoutNode.intrinsicsPolicy.maxLookaheadIntrinsicHeight(width)
+            layoutNode.maxLookaheadIntrinsicHeight(width)
     }
 
     override fun ensureLookaheadDelegateCreated() {
@@ -139,16 +139,16 @@ internal class InnerNodeCoordinator(
     }
 
     override fun minIntrinsicWidth(height: Int) =
-        layoutNode.intrinsicsPolicy.minIntrinsicWidth(height)
+        layoutNode.minIntrinsicWidth(height)
 
     override fun minIntrinsicHeight(width: Int) =
-        layoutNode.intrinsicsPolicy.minIntrinsicHeight(width)
+        layoutNode.minIntrinsicHeight(width)
 
     override fun maxIntrinsicWidth(height: Int) =
-        layoutNode.intrinsicsPolicy.maxIntrinsicWidth(height)
+        layoutNode.maxIntrinsicWidth(height)
 
     override fun maxIntrinsicHeight(width: Int) =
-        layoutNode.intrinsicsPolicy.maxIntrinsicHeight(width)
+        layoutNode.maxIntrinsicHeight(width)
 
     override fun placeAt(
         position: IntOffset,
