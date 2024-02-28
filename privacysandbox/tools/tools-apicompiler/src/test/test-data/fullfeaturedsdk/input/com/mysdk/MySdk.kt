@@ -1,5 +1,6 @@
 package com.mysdk
 
+import android.os.Bundle
 import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
@@ -57,6 +58,8 @@ interface MyUiInterface : SandboxedUiAdapter {
 @PrivacySandboxInterface
 interface MySecondInterface {
     suspend fun doIntStuff(x: List<Int>): List<Int>
+
+    suspend fun doBundleStuff(x: Bundle): Bundle
 
     suspend fun doCharStuff(x: List<Char>): List<Char>
 

@@ -1,5 +1,6 @@
 package com.sdkwithvalues
 
+import android.os.Bundle
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
@@ -29,8 +30,10 @@ data class InnerSdkValue(
     val myInterface: MyInterface,
     val myUiInterface: MyUiInterface,
     val numbers: List<Int>,
+    val bundle: Bundle,
     val maybeNumber: Int?,
     val maybeInterface: MyInterface?,
+    val maybeBundle: Bundle?,
 )
 
 @PrivacySandboxValue
