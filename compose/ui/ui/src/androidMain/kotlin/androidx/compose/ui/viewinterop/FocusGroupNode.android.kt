@@ -215,10 +215,10 @@ private fun Modifier.Node.getView(): View {
 
 private fun View.containsDescendant(other: View): Boolean {
     var viewParent = other.parent
-    do {
+    while (viewParent != null) {
         if (viewParent === this.parent) return true
         viewParent = viewParent.parent
-    } while (viewParent != null)
+    }
     return false
 }
 
