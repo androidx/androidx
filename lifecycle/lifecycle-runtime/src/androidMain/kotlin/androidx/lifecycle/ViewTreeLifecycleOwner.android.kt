@@ -33,7 +33,7 @@ import androidx.lifecycle.runtime.R
  * @param lifecycleOwner LifecycleOwner representing the manager of the given view
  */
 @JvmName("set")
-fun View.setViewTreeLifecycleOwner(lifecycleOwner: LifecycleOwner?) {
+public fun View.setViewTreeLifecycleOwner(lifecycleOwner: LifecycleOwner?) {
     setTag(R.id.view_tree_lifecycle_owner, lifecycleOwner)
 }
 
@@ -46,7 +46,7 @@ fun View.setViewTreeLifecycleOwner(lifecycleOwner: LifecycleOwner?) {
  * of its ancestors
  */
 @JvmName("get")
-fun View.findViewTreeLifecycleOwner(): LifecycleOwner? {
+public fun View.findViewTreeLifecycleOwner(): LifecycleOwner? {
     return generateSequence(this) { currentView ->
         currentView.parent as? View
     }.mapNotNull { viewParent ->
