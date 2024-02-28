@@ -117,9 +117,9 @@ internal class FileStorageConnection<T>(
                 FileWriteScope(scratchFile, serializer).use {
                     block(it)
                 }
-                if (scratchFile.exists() && !scratchFile.renameTo(file)) {
+                if (scratchFile.exists() && !scratchFile.atomicMoveTo(file)) {
                     throw IOException(
-                        "Unable to rename $scratchFile. " +
+                        "Unable to rename $scratchFile to $file. " +
                         "This likely means that there are multiple instances of DataStore " +
                         "for this file. Ensure that you are only creating a single instance of " +
                         "datastore for this file."
