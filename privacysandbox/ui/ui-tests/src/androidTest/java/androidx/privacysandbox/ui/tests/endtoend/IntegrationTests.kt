@@ -409,6 +409,18 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     }
 
     @Test
+    fun testRegisterSessionObserverFactory_OnUiContainerChangedSentWhenSessionOpened() {
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        sessionManager.createAdapterAndWaitToBeActive(
+            viewForSession = view,
+            sessionObserverFactories = listOf(factory)
+        )
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+        val sessionObserver = factory.sessionObservers[0]
+        sessionObserver.assertOnUiContainerChangedSent()
+    }
+
+    @Test
     fun testRemoveSessionObserverFactory_DoesNotImpactExistingObservers() {
         val factory = TestSessionManager.SessionObserverFactoryImpl()
         val adapter =

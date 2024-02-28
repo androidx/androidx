@@ -173,8 +173,8 @@ class TestSessionManager(
          */
         inner class FailingTestSession(
             private val context: Context,
-            private val sessionClient: SandboxedUiAdapter.SessionClient
-        ) : SandboxedUiAdapter.Session {
+            sessionClient: SandboxedUiAdapter.SessionClient
+        ) : TestSession(context, sessionClient) {
             override val view: View
                 get() {
                     sessionClient.onSessionError(Throwable("Test Session Exception"))
@@ -190,7 +190,7 @@ class TestSessionManager(
             override fun close() {}
         }
 
-        inner class TestSession(
+        open inner class TestSession(
             private val context: Context,
             val sessionClient: SandboxedUiAdapter.SessionClient,
             private val placeViewInsideFrameLayout: Boolean = false
@@ -354,10 +354,15 @@ class TestSessionManager(
         var sessionObserverContext: SessionObserverContext? = null
         private val sessionOpenedLatch = CountDownLatch(1)
         private val sessionClosedLatch = CountDownLatch(1)
+        private val uiContainerChangedLatch = CountDownLatch(1)
 
         override fun onSessionOpened(sessionObserverContext: SessionObserverContext) {
             this.sessionObserverContext = sessionObserverContext
             sessionOpenedLatch.countDown()
+        }
+
+        override fun onUiContainerChanged(uiContainerInfo: Bundle) {
+            uiContainerChangedLatch.countDown()
         }
 
         override fun onSessionClosed() {
@@ -366,6 +371,10 @@ class TestSessionManager(
 
         fun assertSessionOpened() {
             assertThat(sessionOpenedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        fun assertOnUiContainerChangedSent() {
+            assertThat(uiContainerChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         }
 
         fun assertSessionClosed() {

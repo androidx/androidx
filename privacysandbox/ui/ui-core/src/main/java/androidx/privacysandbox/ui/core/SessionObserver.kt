@@ -16,6 +16,8 @@
 
 package androidx.privacysandbox.ui.core
 
+import android.os.Bundle
+
 /**
  * An interface that can be used by the client of a
  * [androidx.privacysandbox.ui.core.SandboxedUiAdapter.Session] to receive updates about its state.
@@ -23,7 +25,12 @@ package androidx.privacysandbox.ui.core
  *
  * When a new UI session is started, [onSessionOpened] will be invoked for all registered observers.
  * This callback will contain a [SessionObserverContext] object containing data which will be
- * constant for the lifetime of the UI session.
+ * constant for the lifetime of the UI session. [onUiContainerChanged] will also be sent when a new
+ * session is opened. This callback will contain a [Bundle] representing the UI presentation of the
+ * session's view.
+ *
+ * During the entire lifetime of the UI session, [onUiContainerChanged] will be sent when the UI
+ * presentation has changed. These updates will be throttled.
  *
  * When the UI session has completed, [onSessionClosed] will be sent. After this point, no more
  * callbacks will be sent and it is safe to free any resources associated with this session
@@ -40,6 +47,14 @@ interface SessionObserver {
      * be released when [onSessionClosed] is called.
      */
     fun onSessionOpened(sessionObserverContext: SessionObserverContext)
+
+    /**
+     * Called when the UI container has changed its presentation state. Note that these updates will
+     * not be sent instantaneously, and will be throttled. This should not be used to react to UI
+     * changes on the client side as it is not sent in real time.
+     */
+    // TODO(b/326942993): Decide on the correct data type to send.
+    fun onUiContainerChanged(uiContainerInfo: android.os.Bundle)
 
     /**
      * Called exactly once per session when the

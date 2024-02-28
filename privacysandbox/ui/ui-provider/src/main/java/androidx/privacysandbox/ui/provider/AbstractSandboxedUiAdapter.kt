@@ -17,6 +17,7 @@
 package androidx.privacysandbox.ui.provider
 
 import android.content.res.Configuration
+import android.os.Bundle
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.core.SessionObserverFactory
 
@@ -58,10 +59,17 @@ abstract class AbstractSandboxedUiAdapter : SandboxedUiAdapter {
      */
     abstract class AbstractSession : SandboxedUiAdapter.Session {
 
+        final override val signalOptions: Set<String>
+            get() = setOf()
+
         override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {}
 
         override fun notifyResized(width: Int, height: Int) {}
 
         override fun notifyConfigurationChanged(configuration: Configuration) {}
+
+        override fun notifyUiChanged(uiContainerInfo: Bundle) {}
+
+        override fun close() {}
     }
 }

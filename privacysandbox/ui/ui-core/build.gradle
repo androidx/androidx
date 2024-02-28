@@ -39,6 +39,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+    implementation("androidx.core:core:1.13.0")
 }
 
 android {

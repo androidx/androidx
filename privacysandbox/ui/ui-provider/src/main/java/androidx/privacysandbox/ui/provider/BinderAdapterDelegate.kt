@@ -191,7 +191,8 @@ private class BinderAdapterDelegate(
             remoteSessionClient.onRemoteSessionOpened(
                 surfacePackage,
                 remoteSessionController,
-                isZOrderOnTop
+                isZOrderOnTop,
+                session.signalOptions.isNotEmpty()
             )
         }
 
@@ -204,11 +205,10 @@ private class BinderAdapterDelegate(
         @VisibleForTesting
         private inner class RemoteSessionController(
             val surfaceControlViewHost: SurfaceControlViewHost,
-            val session: SandboxedUiAdapter.Session
+            val session: SandboxedUiAdapter.Session,
         ) : IRemoteSessionController.Stub() {
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
-                surfaceControlViewHost.surfacePackage?.notifyConfigurationChanged(configuration)
                 session.notifyConfigurationChanged(configuration)
             }
 
@@ -228,6 +228,10 @@ private class BinderAdapterDelegate(
                 sendSurfacePackage()
             }
 
+            override fun notifyUiChanged(uiContainerInfo: Bundle) {
+                session.notifyUiChanged(uiContainerInfo)
+            }
+
             override fun close() {
                 val mHandler = Handler(Looper.getMainLooper())
                 mHandler.post {
@@ -243,7 +247,7 @@ private class BinderAdapterDelegate(
      * opened.
      */
     private inner class SessionClientForObservers(val client: SandboxedUiAdapter.SessionClient) :
-        SandboxedUiAdapter.SessionClient {
+        SandboxedUiAdapter.SessionClient by client {
 
         override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
             val sessionObservers: MutableList<SessionObserver> = mutableListOf()
@@ -251,14 +255,6 @@ private class BinderAdapterDelegate(
                 adapter.sessionObserverFactories.forEach { sessionObservers.add(it.create()) }
             }
             client.onSessionOpened(SessionForObservers(session, sessionObservers))
-        }
-
-        override fun onSessionError(throwable: Throwable) {
-            client.onSessionError(throwable)
-        }
-
-        override fun onResizeRequested(width: Int, height: Int) {
-            client.onResizeRequested(width, height)
         }
     }
 
@@ -269,7 +265,7 @@ private class BinderAdapterDelegate(
     private class SessionForObservers(
         val session: SandboxedUiAdapter.Session,
         val sessionObservers: List<SessionObserver>
-    ) : SandboxedUiAdapter.Session {
+    ) : SandboxedUiAdapter.Session by session {
 
         init {
             if (sessionObservers.isNotEmpty()) {
@@ -281,16 +277,16 @@ private class BinderAdapterDelegate(
         override val view: View
             get() = session.view
 
-        override fun notifyResized(width: Int, height: Int) {
-            session.notifyResized(width, height)
-        }
+        override val signalOptions: Set<String>
+            get() =
+                if (sessionObservers.isEmpty()) {
+                    setOf()
+                } else {
+                    setOf("someOptions")
+                }
 
-        override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
-            session.notifyZOrderChanged(isZOrderOnTop)
-        }
-
-        override fun notifyConfigurationChanged(configuration: Configuration) {
-            session.notifyConfigurationChanged(configuration)
+        override fun notifyUiChanged(uiContainerInfo: Bundle) {
+            sessionObservers.forEach { it.onUiContainerChanged(uiContainerInfo) }
         }
 
         override fun close() {

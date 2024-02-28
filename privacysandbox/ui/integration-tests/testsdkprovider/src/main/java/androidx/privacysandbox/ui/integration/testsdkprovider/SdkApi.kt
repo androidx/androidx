@@ -19,10 +19,16 @@ package androidx.privacysandbox.ui.integration.testsdkprovider
 import android.content.Context
 import android.os.Bundle
 import android.os.Process
+import android.util.Log
 import android.view.View
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionObserver
+import androidx.privacysandbox.ui.core.SessionObserverContext
+import androidx.privacysandbox.ui.core.SessionObserverFactory
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
@@ -33,6 +39,7 @@ import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
 class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
     private val testAdapters = TestAdapters(sdkContext)
+    private val measurementManager = MeasurementManager()
 
     override fun loadBannerAd(
         @AdType adType: Int,
@@ -73,7 +80,9 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
     }
 
     private fun loadWebViewBannerAdFromLocalAssets(): Bundle {
-        return testAdapters.WebViewAdFromLocalAssets().toCoreLibInfo(sdkContext)
+        val ad = testAdapters.WebViewAdFromLocalAssets()
+        measurementManager.startObserving(ad)
+        return ad.toCoreLibInfo(sdkContext)
     }
 
     private fun loadNonWebViewBannerAd(text: String, waitInsideOnDraw: Boolean): Bundle {
@@ -139,8 +148,39 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
         return null
     }
 
+    class MeasurementManager {
+        fun startObserving(adapter: SandboxedUiAdapter) {
+            adapter.addObserverFactory(SessionObserverFactoryImpl())
+        }
+
+        private inner class SessionObserverFactoryImpl : SessionObserverFactory {
+
+            override fun create(): SessionObserver {
+                return SessionObserverImpl()
+            }
+
+            private inner class SessionObserverImpl : SessionObserver {
+
+                override fun onSessionOpened(sessionObserverContext: SessionObserverContext) {
+                    Log.i(TAG, "onSessionOpened $sessionObserverContext")
+                }
+
+                override fun onUiContainerChanged(uiContainerInfo: Bundle) {
+                    // TODO(b/330515740): Reflect this event in the app UI.
+                    val sandboxedSdkViewUiInfo = SandboxedSdkViewUiInfo.fromBundle(uiContainerInfo)
+                    Log.i(TAG, "onUiContainerChanged $sandboxedSdkViewUiInfo")
+                }
+
+                override fun onSessionClosed() {
+                    Log.i(TAG, "session closed")
+                }
+            }
+        }
+    }
+
     companion object {
         private const val MEDIATEE_SDK =
             "androidx.privacysandbox.ui.integration.mediateesdkprovider"
+        private const val TAG = "SdkApi"
     }
 }

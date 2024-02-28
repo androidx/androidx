@@ -18,6 +18,7 @@ package androidx.privacysandbox.ui.core
 
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import java.lang.AutoCloseable
@@ -81,6 +82,16 @@ interface SandboxedUiAdapter {
         val view: View
 
         /**
+         * The set of options that will be used to determine what information is calculated and sent
+         * to [SessionObserver]s attached to this session.
+         *
+         * This value should not be directly set by UI providers. Instead, the registration of any
+         * [SessionObserverFactory] with [addObserverFactory] will indicate that information should
+         * be calculated for this session.
+         */
+        val signalOptions: Set<String>
+
+        /**
          * Notify the provider that the size of the host presentation area has changed to a size of
          * [width] x [height] pixels.
          */
@@ -94,6 +105,19 @@ interface SandboxedUiAdapter {
 
         /** Notify the session that the host configuration has changed to [configuration]. */
         fun notifyConfigurationChanged(configuration: Configuration)
+
+        /**
+         * Notify the session when the presentation state of its UI container has changed.
+         *
+         * [uiContainerInfo] contains a Bundle that represents the state of the container. The exact
+         * details of this Bundle depend on the container this Bundle is describing. This
+         * notification is not in real time and is throttled, so it should not be used to react to
+         * UI changes on the client side.
+         *
+         * UI providers should use [addObserverFactory] to observe UI changes rather than using this
+         * method.
+         */
+        fun notifyUiChanged(uiContainerInfo: Bundle)
 
         /**
          * Close this session, indicating that the remote provider of content should dispose of
