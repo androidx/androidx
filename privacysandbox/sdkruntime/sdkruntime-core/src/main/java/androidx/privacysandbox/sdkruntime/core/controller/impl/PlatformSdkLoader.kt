@@ -29,7 +29,7 @@ import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.toLoadCompatSdkException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import java.util.concurrent.Executor
 
 /**
@@ -45,7 +45,7 @@ internal class PlatformSdkLoader private constructor(
         sdkName: String,
         params: Bundle,
         executor: Executor,
-        receiver: SdkSandboxControllerCompat.LoadSdkCallback
+        receiver: LoadSdkCallback
     ) {
         loaderImpl.loadSdk(sdkName, params, executor, receiver)
     }
@@ -55,7 +55,7 @@ internal class PlatformSdkLoader private constructor(
             sdkName: String,
             params: Bundle,
             executor: Executor,
-            callback: SdkSandboxControllerCompat.LoadSdkCallback
+            callback: LoadSdkCallback
         )
     }
 
@@ -67,7 +67,7 @@ internal class PlatformSdkLoader private constructor(
             sdkName: String,
             params: Bundle,
             executor: Executor,
-            callback: SdkSandboxControllerCompat.LoadSdkCallback
+            callback: LoadSdkCallback
         ) {
             executor.execute {
                 callback.onError(
@@ -93,7 +93,7 @@ internal class PlatformSdkLoader private constructor(
             sdkName: String,
             params: Bundle,
             executor: Executor,
-            callback: SdkSandboxControllerCompat.LoadSdkCallback
+            callback: LoadSdkCallback
         ) {
             controller.loadSdk(
                 sdkName,

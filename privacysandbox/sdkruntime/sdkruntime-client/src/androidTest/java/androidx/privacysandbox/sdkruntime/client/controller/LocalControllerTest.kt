@@ -24,7 +24,7 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -188,7 +188,7 @@ class LocalControllerTest {
         override fun getLoadedSdks(): List<SandboxedSdkCompat> = getLoadedSdksResult
     }
 
-    private class StubLoadSdkCallback : SdkSandboxControllerCompat.LoadSdkCallback {
+    private class StubLoadSdkCallback : LoadSdkCallback {
 
         var lastResult: SandboxedSdkCompat? = null
         var lastError: LoadSdkCompatException? = null

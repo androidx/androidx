@@ -26,6 +26,7 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -165,7 +166,7 @@ class SdkLoaderTest {
             sdkName: String,
             params: Bundle,
             executor: Executor,
-            callback: SdkSandboxControllerCompat.LoadSdkCallback
+            callback: LoadSdkCallback
         ) {
             executor.execute {
                 callback.onError(

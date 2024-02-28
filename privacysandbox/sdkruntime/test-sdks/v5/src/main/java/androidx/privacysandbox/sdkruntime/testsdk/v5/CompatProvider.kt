@@ -27,6 +27,7 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import kotlinx.coroutines.runBlocking
 
 @Suppress("unused") // Reflection usage from tests in privacysandbox:sdkruntime:sdkruntime-client
 class CompatProvider : SandboxedSdkProviderCompat() {
@@ -79,5 +80,10 @@ class CompatProvider : SandboxedSdkProviderCompat() {
         fun unregisterSdkSandboxActivityHandler(handler: SdkSandboxActivityHandlerCompat) {
             SdkSandboxControllerCompat.from(context).unregisterSdkSandboxActivityHandler(handler)
         }
+
+        fun loadSdk(sdkName: String, sdkParams: Bundle): SandboxedSdkCompat =
+            runBlocking {
+                SdkSandboxControllerCompat.from(context).loadSdk(sdkName, sdkParams)
+            }
     }
 }

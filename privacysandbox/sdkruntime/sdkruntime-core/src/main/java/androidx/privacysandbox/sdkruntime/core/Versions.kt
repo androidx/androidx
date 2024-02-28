@@ -30,7 +30,7 @@ import org.jetbrains.annotations.TestOnly
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Versions {
 
-    const val API_VERSION = 4
+    const val API_VERSION = 5
 
     @JvmField
     var CLIENT_VERSION: Int? = null
