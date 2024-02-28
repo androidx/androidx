@@ -64,6 +64,11 @@ internal interface ComposeInputMethodManager {
      * delegation when the InputConnection itself does not handle the received event.
      */
     fun sendKeyEvent(event: KeyEvent)
+
+    /**
+     * Signal the IME to start stylus handwriting.
+     */
+    fun startStylusHandwriting()
 }
 
 /**
@@ -78,6 +83,7 @@ internal fun ComposeInputMethodManager(view: View): ComposeInputMethodManager =
 /** This lets us swap out the implementation in our own tests. */
 private var ComposeInputMethodManagerFactory: (View) -> ComposeInputMethodManager = { view ->
     when {
+        Build.VERSION.SDK_INT >= 34 -> ComposeInputMethodManagerImplApi34(view)
         Build.VERSION.SDK_INT >= 24 -> ComposeInputMethodManagerImplApi24(view)
         else -> ComposeInputMethodManagerImplApi21(view)
     }
@@ -146,6 +152,10 @@ private abstract class ComposeInputMethodManagerImpl(protected val view: View) :
         requireImm().updateCursorAnchorInfo(view, info)
     }
 
+    override fun startStylusHandwriting() {
+        // stylus handwriting is only supported after Android U.
+    }
+
     protected fun requireImm(): InputMethodManager = imm ?: createImm().also { imm = it }
 
     private fun createImm() =
@@ -174,5 +184,13 @@ private open class ComposeInputMethodManagerImplApi24(view: View) :
 
     override fun sendKeyEvent(event: KeyEvent) {
         requireImm().dispatchKeyEventFromInputMethod(view, event)
+    }
+}
+
+@RequiresApi(34)
+private open class ComposeInputMethodManagerImplApi34(view: View) :
+    ComposeInputMethodManagerImplApi24(view) {
+    override fun startStylusHandwriting() {
+        requireImm().startStylusHandwriting(view)
     }
 }

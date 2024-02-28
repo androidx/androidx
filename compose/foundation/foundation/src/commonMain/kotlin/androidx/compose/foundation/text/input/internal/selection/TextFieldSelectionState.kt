@@ -344,27 +344,6 @@ internal class TextFieldSelectionState(
             }
         }
     }
-
-    /**
-     * Implements the complete set of gestures supported by the TextField area.
-     */
-    suspend fun PointerInputScope.textFieldGestures(
-        requestFocus: () -> Unit,
-        showKeyboard: () -> Unit
-    ) {
-        coroutineScope {
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                detectTouchMode()
-            }
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                detectTextFieldTapGestures(requestFocus, showKeyboard)
-            }
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                detectTextFieldLongPressAndAfterDrag(requestFocus)
-            }
-        }
-    }
-
     /**
      * Gesture detector for dragging the selection handles to change the selection in TextField.
      */
@@ -432,7 +411,7 @@ internal class TextFieldSelectionState(
      * This helper gesture detector should be added to all TextField pointer input receivers such
      * as TextFieldDecorator, cursor handle, and selection handles.
      */
-    private suspend fun PointerInputScope.detectTouchMode() {
+    suspend fun PointerInputScope.detectTouchMode() {
         awaitPointerEventScope {
             while (true) {
                 val event = awaitPointerEvent(PointerEventPass.Initial)
@@ -441,7 +420,7 @@ internal class TextFieldSelectionState(
         }
     }
 
-    private suspend fun PointerInputScope.detectTextFieldTapGestures(
+    suspend fun PointerInputScope.detectTextFieldTapGestures(
         requestFocus: () -> Unit,
         showKeyboard: () -> Unit
     ) {
@@ -614,7 +593,7 @@ internal class TextFieldSelectionState(
         }
     }
 
-    private suspend fun PointerInputScope.detectTextFieldLongPressAndAfterDrag(
+    suspend fun PointerInputScope.detectTextFieldLongPressAndAfterDrag(
         requestFocus: () -> Unit
     ) {
         var dragBeginOffsetInText = -1

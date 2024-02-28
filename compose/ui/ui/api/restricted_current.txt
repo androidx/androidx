@@ -2867,6 +2867,7 @@ package androidx.compose.ui.platform {
     method public float getTouchSlop();
     property public long doubleTapMinTimeMillis;
     property public long doubleTapTimeoutMillis;
+    property public float handwritingSlop;
     property public long longPressTimeoutMillis;
     property public float maximumFlingVelocity;
     property public float touchSlop;
@@ -3112,12 +3113,14 @@ package androidx.compose.ui.platform {
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ViewConfiguration {
     method public long getDoubleTapMinTimeMillis();
     method public long getDoubleTapTimeoutMillis();
+    method public default float getHandwritingSlop();
     method public long getLongPressTimeoutMillis();
     method public default float getMaximumFlingVelocity();
     method public default long getMinimumTouchTargetSize();
     method public float getTouchSlop();
     property public abstract long doubleTapMinTimeMillis;
     property public abstract long doubleTapTimeoutMillis;
+    property public default float handwritingSlop;
     property public abstract long longPressTimeoutMillis;
     property public default float maximumFlingVelocity;
     property public default long minimumTouchTargetSize;
