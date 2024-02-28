@@ -1087,9 +1087,9 @@ includeProject(":work:work-testing", [BuildType.MAIN])
 //
 /////////////////////////////
 
-File repoRoot = new File(rootDir, "../..")
+File repoRoot = new File(rootDir, "../..").canonicalFile
 
-includeOptionalProject(":xr:xr", new File(repoRoot, "xr"), [BuildType.XR])
+includeOptionalProject(":xr:xr", new File(repoRoot, "xr/xr"), [BuildType.XR])
 
 /////////////////////////////
 //
