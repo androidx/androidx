@@ -70,4 +70,8 @@ internal class FakeInputMethodManager : ComposeInputMethodManager {
     override fun sendKeyEvent(event: KeyEvent) {
         calls += "sendKeyEvent"
     }
+
+    override fun startStylusHandwriting() {
+        calls += "startStylusHandwriting"
+    }
 }

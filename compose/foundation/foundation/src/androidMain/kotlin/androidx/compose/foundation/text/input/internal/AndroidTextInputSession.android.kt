@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 /** Enable to print logs during debugging, see [logDebug]. */
@@ -43,7 +44,8 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     layoutState: TextLayoutState,
     imeOptions: ImeOptions,
     receiveContentConfiguration: ReceiveContentConfiguration?,
-    onImeAction: ((ImeAction) -> Unit)?
+    onImeAction: ((ImeAction) -> Unit)?,
+    stylusHandwritingTrigger: MutableSharedFlow<Unit>?
 ): Nothing {
     platformSpecificTextInputSession(
         state = state,
@@ -51,7 +53,8 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
         imeOptions = imeOptions,
         receiveContentConfiguration = receiveContentConfiguration,
         onImeAction = onImeAction,
-        composeImm = ComposeInputMethodManager(view)
+        composeImm = ComposeInputMethodManager(view),
+        stylusHandwritingTrigger = stylusHandwritingTrigger,
     )
 }
 
@@ -62,7 +65,8 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     imeOptions: ImeOptions,
     receiveContentConfiguration: ReceiveContentConfiguration?,
     onImeAction: ((ImeAction) -> Unit)?,
-    composeImm: ComposeInputMethodManager
+    composeImm: ComposeInputMethodManager,
+    stylusHandwritingTrigger: MutableSharedFlow<Unit>?
 ): Nothing {
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) {
@@ -89,6 +93,12 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 ) {
                     composeImm.restartInput()
                 }
+            }
+        }
+
+        stylusHandwritingTrigger?.let {
+            launch(start = CoroutineStart.UNDISPATCHED) {
+                it.collect { composeImm.startStylusHandwriting() }
             }
         }
 
