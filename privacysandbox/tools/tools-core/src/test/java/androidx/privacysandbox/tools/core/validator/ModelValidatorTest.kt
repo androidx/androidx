@@ -328,10 +328,36 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdk.processNestedList: only primitives, lists, data classes " +
-                "annotated with @PrivacySandboxValue, interfaces annotated with " +
-                "@PrivacySandboxCallback or @PrivacySandboxInterface, and SdkActivityLaunchers " +
-                "are supported as parameter types."
+            "Invalid type parameter in list, found kotlin.collections.List."
+        )
+    }
+
+    @Test
+    fun listWithNullable_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                    methods = listOf(
+                        Method(
+                            name = "processNestedList",
+                            parameters = listOf(
+                                Parameter(
+                                    name = "foo",
+                                    type = Types.list(Types.int.asNullable())
+                                )
+                            ),
+                            returnType = Types.unit,
+                            isSuspend = true,
+                        ),
+                    ),
+                ),
+            )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Nullable type parameters are not supported in lists, found kotlin.Int"
         )
     }
 
