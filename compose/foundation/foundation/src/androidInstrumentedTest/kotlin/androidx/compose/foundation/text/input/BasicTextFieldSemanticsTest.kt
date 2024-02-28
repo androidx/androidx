@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,6 +37,8 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -725,10 +728,79 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).assert(isEditable())
     }
 
+    @Test
+    fun inputTransformationSemantics_areApplied() {
+        val state = TextFieldState()
+        val semanticsPropertyKey = SemanticsPropertyKey<Int>("InputTransformation")
+        val transformation = object : InputTransformation {
+            override fun SemanticsPropertyReceiver.applySemantics() {
+                this[semanticsPropertyKey] = 2
+            }
+
+            override fun transformInput(
+                originalValue: TextFieldCharSequence,
+                valueWithChanges: TextFieldBuffer
+            ) = Unit
+        }
+        rule.setContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                inputTransformation = transformation
+            )
+        }
+        rule.onNodeWithTag(Tag).assertKey(2, semanticsPropertyKey)
+    }
+
+    @Test
+    fun inputTransformationSemantics_areApplied_stateBacked() {
+        val state = TextFieldState()
+        var number by mutableIntStateOf(1)
+        val semanticsPropertyKey = SemanticsPropertyKey<Int>("InputTransformation")
+        val transformation = object : InputTransformation {
+            override fun SemanticsPropertyReceiver.applySemantics() {
+                this[semanticsPropertyKey] = number
+            }
+
+            override fun transformInput(
+                originalValue: TextFieldCharSequence,
+                valueWithChanges: TextFieldBuffer
+            ) = Unit
+        }
+        rule.setContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                inputTransformation = transformation
+            )
+        }
+        rule.onNodeWithTag(Tag).assertKey(1, semanticsPropertyKey)
+        number = 2
+        rule.onNodeWithTag(Tag).assertKey(2, semanticsPropertyKey)
+    }
+
+    @Test
+    fun maxLengthInputTransformationSemantics() {
+        val state = TextFieldState()
+
+        rule.setContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                inputTransformation = InputTransformation.maxLengthInChars(10)
+            )
+        }
+        rule.onNodeWithTag(Tag).assertKey(10, SemanticsProperties.MaxTextLength)
+    }
+
     private fun SemanticsNodeInteraction.assertSelection(expected: TextRange) {
         val selection = fetchSemanticsNode().config
             .getOrNull(SemanticsProperties.TextSelectionRange)
         assertThat(selection).isEqualTo(expected)
+    }
+
+    private fun SemanticsNodeInteraction.assertKey(expected: Int, key: SemanticsPropertyKey<Int>) {
+        assertThat(fetchSemanticsNode().config.getOrNull(key)).isEqualTo(expected)
     }
 
     private fun SemanticsNodeInteraction.assertEditableTextEquals(

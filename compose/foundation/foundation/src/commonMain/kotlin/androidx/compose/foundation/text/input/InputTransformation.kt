@@ -19,6 +19,8 @@ package androidx.compose.foundation.text.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.substring
@@ -49,6 +51,12 @@ fun interface InputTransformation {
      * the IME. The options passed directly to the text field composable will always override this.
      */
     val keyboardOptions: KeyboardOptions? get() = null
+
+    /**
+     * Optional semantics configuration that can update certain characteristics of the applied
+     * TextField, e.g. [SemanticsPropertyReceiver.maxTextLength].
+     */
+    fun SemanticsPropertyReceiver.applySemantics() = Unit
 
     /**
      * The transform operation. For more information see the documentation on [InputTransformation].
@@ -178,6 +186,11 @@ private class FilterChain(
         // TODO(b/295951492) Do proper merging.
         get() = second.keyboardOptions ?: first.keyboardOptions
 
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        with(first) { applySemantics() }
+        with(second) { applySemantics() }
+    }
+
     override fun transformInput(
         originalValue: TextFieldCharSequence,
         valueWithChanges: TextFieldBuffer
@@ -271,6 +284,10 @@ private data class MaxLengthFilter(
 
     init {
         require(maxLength >= 0) { "maxLength must be at least zero, was $maxLength" }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        maxTextLength = maxLength
     }
 
     override fun transformInput(

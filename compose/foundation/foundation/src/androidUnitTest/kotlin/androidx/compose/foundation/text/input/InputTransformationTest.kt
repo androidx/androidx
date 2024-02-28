@@ -18,6 +18,10 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.maxTextLength
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -163,6 +167,38 @@ class InputTransformationTest {
         val chain = filter1.then(filter2)
 
         assertThat(chain.keyboardOptions).isSameInstanceAs(options2)
+    }
+
+    @Test
+    fun chainedFilters_applySecondSemantics_afterFirstSemantics() {
+        val filter1 = object : InputTransformation {
+            override fun SemanticsPropertyReceiver.applySemantics() {
+                maxTextLength = 10
+            }
+
+            override fun transformInput(
+                originalValue: TextFieldCharSequence,
+                valueWithChanges: TextFieldBuffer
+            ) {
+            }
+        }
+        val filter2 = object : InputTransformation {
+            override fun SemanticsPropertyReceiver.applySemantics() {
+                maxTextLength = 20
+            }
+
+            override fun transformInput(
+                originalValue: TextFieldCharSequence,
+                valueWithChanges: TextFieldBuffer
+            ) {
+            }
+        }
+
+        val chain = filter1.then(filter2)
+
+        val config = SemanticsConfiguration()
+        with(chain) { config.applySemantics() }
+        assertThat(config[SemanticsProperties.MaxTextLength]).isEqualTo(20)
     }
 
     @Test
