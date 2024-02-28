@@ -5,7 +5,11 @@ plugins {
 
 def docsForOptionalProject(path) {
     Project project = findProject(path)
-    if (project != null) docs(project)
+    if (project != null) {
+        dependencies {
+            docs(project)
+        }
+    }
 }
 
 android {
