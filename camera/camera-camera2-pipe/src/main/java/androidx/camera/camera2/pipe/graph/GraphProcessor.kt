@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
@@ -311,6 +312,15 @@ constructor(
     }
 
     override fun submit(requests: List<Request>) {
+        requests.firstOrNull { it.inputRequest != null }?.let {
+            check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                "Reprocessing not supported on Android ${Build.VERSION.SDK_INT} devices"
+            }
+            checkNotNull(cameraGraphConfig.input) {
+                "Cannot submit request $it with input request ${it.inputRequest} " +
+                    "to $this because CameraGraph was not configured to support reprocessing"
+            }
+        }
         synchronized(lock) {
             if (closed) {
                 graphScope.launch(threads.lightweightDispatcher) { abortBurst(requests) }
