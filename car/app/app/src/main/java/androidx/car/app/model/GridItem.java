@@ -254,35 +254,33 @@ public final class GridItem implements Item {
          * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
          * string.
          *
-         * @throws NullPointerException     if {@code title} is {@code null}
-         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
-         *                                  unsupported spans
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
         @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
-            CarText titleText = CarText.create(requireNonNull(title));
-            if (titleText.isEmpty()) {
-                throw new IllegalArgumentException("The title cannot be null or empty");
+        public Builder setTitle(@Nullable CharSequence title) {
+            if (title == null) {
+                mTitle = null;
+                return this;
             }
+            CarText titleText = CarText.create(title);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
             mTitle = titleText;
             return this;
         }
 
         /**
-         * Sets the title of the {@link GridItem}, with support for multiple length variants.,
+         * Sets the title of the {@link GridItem}, with support for multiple length variants.
          *
          * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
          * string.
          *
-         * @throws NullPointerException     if {@code title} is {@code null}
-         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
-         *                                  unsupported spans
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
         @NonNull
-        public Builder setTitle(@NonNull CarText title) {
-            if (CarText.isNullOrEmpty(title)) {
-                throw new IllegalArgumentException("The title cannot be null or empty");
+        public Builder setTitle(@Nullable CarText title) {
+            if (title == null) {
+                mTitle = null;
+                return this;
             }
             CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
             mTitle = title;
@@ -432,17 +430,12 @@ public final class GridItem implements Item {
         /**
          * Constructs the {@link GridItem} defined by this builder.
          *
-         * @throws IllegalStateException if the grid item's title is not set, if the grid item's
-         *                               image is set when it is loading or vice versa, if
-         *                               the grid item is loading but the click listener is set,
-         *                               or if a badge is set and an image is not set
+         * @throws IllegalStateException if the grid item's image is set when it is loading or vice
+         *                               versa, if the grid item is loading but the click listener
+         *                               is set, or if a badge is set and an image is not set
          */
         @NonNull
         public GridItem build() {
-            if (mTitle == null) {
-                throw new IllegalStateException("A title must be set on the grid item");
-            }
-
             if (mIsLoading == (mImage != null)) {
                 throw new IllegalStateException(
                         "When a grid item is loading, the image must not be set and vice versa");
