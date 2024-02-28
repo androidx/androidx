@@ -3,3 +3,7 @@ ChangedType: androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig#a
     Method androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig.at has changed return type from androidx.compose.animation.core.KeyframesSpec.KeyframeEntity to androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>
 ChangedType: androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig#atFraction(T, float):
     Method androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig.atFraction has changed return type from androidx.compose.animation.core.KeyframesSpec.KeyframeEntity to androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>
+
+
+RemovedClass: androidx.compose.animation.core.SpringEstimationKt:
+    Removed class androidx.compose.animation.core.SpringEstimationKt
