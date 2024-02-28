@@ -63,6 +63,16 @@ fun runMetalavaWithArgs(
                 "androidx.annotation.RequiresOptIn",
                 "--suppress-compatibility-meta-annotation",
                 "kotlin.RequiresOptIn",
+
+                // Skip reading comments in Metalava for two reasons:
+                // - We prefer for developers to specify api information via annotations instead
+                //   of just javadoc comments (like @hide)
+                // - This allows us to improve cacheability of Metalava tasks
+                "--ignore-comments",
+                "--hide",
+                "DeprecationMismatch",
+                "--hide",
+                "DocumentExceptions",
             )
     val workQueue = workerExecutor.processIsolation()
     workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
@@ -394,8 +404,6 @@ fun getGenerateApiArgs(
             args.addAll(
                 listOf(
                     "--error",
-                    "DeprecationMismatch", // Enforce deprecation mismatch
-                    "--error",
                     "ReferencesDeprecated",
                     "--error-message:api-lint",
                     """
@@ -413,8 +421,6 @@ fun getGenerateApiArgs(
         is ApiLintMode.Skip -> {
             args.addAll(
                 listOf(
-                    "--hide",
-                    "DeprecationMismatch",
                     "--hide",
                     "UnhiddenSystemApi",
                     "--hide",
