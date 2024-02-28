@@ -1874,6 +1874,46 @@ class XTypeElementTest(
                 assertWithMessage("$qName  enum entries are not type elements")
                     .that(typeElement.getEnclosedElements().filter { it.isTypeElement() })
                     .isEmpty()
+                // TODO(kuanyingchou): https://github.com/google/ksp/issues/1761
+                val parent = typeElement.superClass!!.typeElement!!
+                if (qName == "test.KotlinEnum" && !isPreCompiled && invocation.isKsp) {
+                    assertThat(parent.asClassName()).isEqualTo(Any::class.asClassName())
+                } else {
+                    assertThat(parent.asClassName()).isEqualTo(Enum::class.asClassName())
+                }
+                // TODO(kuanyingchou): make this more consistent.
+                val methodNames = typeElement.getDeclaredMethods().map { it.jvmName }
+                if (qName == "test.KotlinEnum") {
+                    if (invocation.isKsp) {
+                        if (isPreCompiled) {
+                            assertThat(methodNames).containsExactly(
+                                "enumMethod",
+                                "values",
+                                "valueOf",
+                            )
+                        } else {
+                            // `values` and `valueOf` will be added in KSP2.
+                            assertThat(methodNames).containsExactly(
+                                "enumMethod",
+                            )
+                        }
+                    } else {
+                        assertThat(methodNames).containsExactly(
+                            "values",
+                            "valueOf",
+                            "enumMethod",
+                            // `entries` became stable in Kotlin 1.9.0 but somehow only appears
+                            // in KAPT. We can't find an `entries` property in KSP yet.
+                            "getEntries"
+                        )
+                    }
+                } else {
+                    assertThat(methodNames).containsExactly(
+                        "values",
+                        "valueOf",
+                        "enumMethod",
+                    )
+                }
             }
         }
     }
