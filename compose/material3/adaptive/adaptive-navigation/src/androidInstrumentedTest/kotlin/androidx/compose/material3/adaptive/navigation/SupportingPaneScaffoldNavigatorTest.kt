@@ -55,14 +55,14 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Hidden)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Supporting, 0)
         }
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -86,14 +86,14 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Main)
         }
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -121,7 +121,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -132,7 +132,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -160,7 +160,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -171,7 +171,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -199,7 +199,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -211,7 +211,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -260,7 +260,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -272,7 +272,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane
@@ -453,7 +453,7 @@ class SupportingPaneScaffoldNavigatorTest {
         }
 
         composeRule.runOnIdle {
-            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+            scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded
@@ -466,7 +466,7 @@ class SupportingPaneScaffoldNavigatorTest {
         }
 
         composeRule.runOnIdle {
-            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+            scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
@@ -479,7 +479,7 @@ class SupportingPaneScaffoldNavigatorTest {
         }
 
         composeRule.runOnIdle {
-            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+            scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded
@@ -507,7 +507,7 @@ class SupportingPaneScaffoldNavigatorTest {
         }
 
         composeRule.runOnIdle {
-            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+            scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
@@ -520,7 +520,7 @@ class SupportingPaneScaffoldNavigatorTest {
         }
 
         composeRule.runOnIdle {
-            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+            scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
@@ -533,7 +533,7 @@ class SupportingPaneScaffoldNavigatorTest {
         }
 
         composeRule.runOnIdle {
-            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+            scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded
@@ -561,7 +561,7 @@ class SupportingPaneScaffoldNavigatorTest {
         }
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
+                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(
                 scaffoldNavigator.currentDestination?.pane

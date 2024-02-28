@@ -11,14 +11,16 @@ package androidx.compose.material3.adaptive.navigation {
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public interface ThreePaneScaffoldNavigator<T> {
     method public boolean canNavigateBack(optional androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior);
     method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<T>? getCurrentDestination();
-    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldState getScaffoldState();
+    method public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective getScaffoldDirective();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getScaffoldValue();
     method public boolean isDestinationHistoryAware();
     method public boolean navigateBack(optional androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior);
     method public void navigateTo(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane, optional T? content);
     method public void setDestinationHistoryAware(boolean);
     property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<T>? currentDestination;
     property public abstract boolean isDestinationHistoryAware;
-    property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldState scaffoldState;
+    property public abstract androidx.compose.material3.adaptive.layout.PaneScaffoldDirective scaffoldDirective;
+    property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue scaffoldValue;
   }
 
   public final class ThreePaneScaffoldNavigatorKt {

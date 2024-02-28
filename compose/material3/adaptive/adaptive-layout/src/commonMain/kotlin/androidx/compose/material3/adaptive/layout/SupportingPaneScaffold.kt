@@ -33,8 +33,9 @@ import androidx.compose.ui.Modifier
  * @param supportingPane the supporting pane of the scaffold.
  *        See [SupportingPaneScaffoldRole.Supporting].
  * @param modifier [Modifier] of the scaffold layout.
- * @param scaffoldState the state of the scaffold, which provides the current scaffold directive
- *        and scaffold value.
+ * @param directive The top-level directives about how the scaffold should arrange its panes.
+ * @param value The current adapted value of the scaffold, which indicates how each pane of
+ *        the scaffold is adapted.
  * @param windowInsets window insets that the scaffold will respect.
  * @param extraPane the extra pane of the scaffold. See [SupportingPaneScaffoldRole.Extra].
  * @param mainPane the main pane of the scaffold. See [SupportingPaneScaffoldRole.Main].
@@ -44,15 +45,21 @@ import androidx.compose.ui.Modifier
 fun SupportingPaneScaffold(
     supportingPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
-    scaffoldState: ThreePaneScaffoldState = calculateSupportingPaneScaffoldState(),
+    directive: PaneScaffoldDirective =
+        calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
+    value: ThreePaneScaffoldValue = calculateThreePaneScaffoldValue(
+        directive.maxHorizontalPartitions,
+        SupportingPaneScaffoldDefaults.adaptStrategies(),
+        ThreePaneScaffoldDestinationItem<Nothing>(SupportingPaneScaffoldRole.Main)
+    ),
     windowInsets: WindowInsets = SupportingPaneScaffoldDefaults.windowInsets,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     mainPane: @Composable ThreePaneScaffoldScope.() -> Unit
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
-        scaffoldDirective = scaffoldState.scaffoldDirective,
-        scaffoldValue = scaffoldState.scaffoldValue,
+        scaffoldDirective = directive,
+        scaffoldValue = value,
         paneOrder = ThreePaneScaffoldDefaults.SupportingPaneLayoutPaneOrder,
         windowInsets = windowInsets,
         secondaryPane = supportingPane,
@@ -60,71 +67,6 @@ fun SupportingPaneScaffold(
         primaryPane = mainPane
     )
 }
-
-/**
- * This function calculates [ThreePaneScaffoldValue] based on the given [PaneScaffoldDirective],
- * [ThreePaneScaffoldAdaptStrategies], and the current pane destination of a
- * [SupportingPaneScaffold].
- *
- * @param currentDestination the current destination item, which will be guaranteed to have the
- *        highest priority when deciding pane visibilities.
- * @param scaffoldDirective the layout directives that the associated [SupportingPaneScaffold]
- *        needs to follow. The default value will be the calculation result from
- *        [calculateStandardPaneScaffoldDirective] with the current window configuration, and
- *        will be automatically updated when the window configuration changes.
- * @param adaptStrategies the [ThreePaneScaffoldAdaptStrategies] should be used by scaffold panes.
- */
-@ExperimentalMaterial3AdaptiveApi
-@Composable
-fun calculateSupportingPaneScaffoldState(
-    currentDestination: ThreePaneScaffoldDestinationItem<*> =
-        ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, null),
-    scaffoldDirective: PaneScaffoldDirective =
-        calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
-    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
-        SupportingPaneScaffoldDefaults.adaptStrategies()
-): ThreePaneScaffoldState = ThreePaneScaffoldStateImpl(
-    scaffoldDirective,
-    calculateThreePaneScaffoldValue(
-        scaffoldDirective.maxHorizontalPartitions,
-        adaptStrategies,
-        currentDestination
-    )
-)
-
-/**
- * This function calculates [ThreePaneScaffoldValue] based on the given [PaneScaffoldDirective],
- * [ThreePaneScaffoldAdaptStrategies], and the pane destination history of a
- * [SupportingPaneScaffold].
- *
- * @param destinationHistory The history of past destination items. The last destination will
- *        have the highest priority, and the second last destination will have the second highest
- *        priority, and so forth until all panes have a priority assigned. Note that the last
- *        destination is supposed to be the last item of the provided list. When the history is
- *        empty or there are panes left unassigned, default priorities will be assigned to those
- *        panes in the order of Main > Supporting > Extra.
- * @param scaffoldDirective the layout directives that the associated [SupportingPaneScaffold]
- *        needs to follow. The default value will be the calculation result from
- *        [calculateStandardPaneScaffoldDirective] with the current window configuration, and
- *        will be automatically updated when the window configuration changes.
- * @param adaptStrategies the [ThreePaneScaffoldAdaptStrategies] should be used by scaffold panes.
- */
-@ExperimentalMaterial3AdaptiveApi
-@Composable
-fun calculateSupportingPaneScaffoldState(
-    destinationHistory: List<ThreePaneScaffoldDestinationItem<*>>,
-    scaffoldDirective: PaneScaffoldDirective =
-        calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
-    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
-        SupportingPaneScaffoldDefaults.adaptStrategies()
-): ThreePaneScaffoldState = ThreePaneScaffoldStateImpl(
-    scaffoldDirective,
-    calculateThreePaneScaffoldValue(
-        scaffoldDirective.maxHorizontalPartitions,
-        adaptStrategies,
-        destinationHistory
-    )
-)
 
 /**
  * Provides default values of [SupportingPaneScaffold].
