@@ -20,6 +20,7 @@
          <trust group="com.google.mlkit" reason="b/223907608"/>
          <trust group="com.google.testing.platform" reason="b/215430394"/>
          <trust group="gradle" name="gradle"/>
+         <trust file=".*[.]asc" regex="true"/>
          <trust file=".*-javadoc[.]jar" regex="true"/>
          <trust file=".*-sources[.]jar" regex="true"/>
          <trust group="^androidx(?!\.compose.compiler\b)\..*" regex="true" reason="not signed yet"/>
