@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.lerp
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
@@ -162,11 +163,14 @@ internal class Strategy(
         maxScrollOffset: Float,
         roundToNearestStep: Boolean = false
     ): KeylineList {
+        // The scroll offset could sometimes be slightly negative due to rounding; it should always
+        // be positive
+        val positiveScrollOffset = max(0f, scrollOffset)
         val startShiftOffset = startShiftDistance
         val endShiftOffset = maxScrollOffset - endShiftDistance
 
         // If we're not within either shift range, return the default keylines
-        if (scrollOffset in startShiftOffset..endShiftOffset) {
+        if (positiveScrollOffset in startShiftOffset..endShiftOffset) {
             return defaultKeylines
         }
 
@@ -175,18 +179,18 @@ internal class Strategy(
             outputMax = 0f,
             inputMin = 0f,
             inputMax = startShiftOffset,
-            value = scrollOffset
+            value = positiveScrollOffset
         )
         var shiftPoints = startShiftPoints
         var steps = startKeylineSteps
 
-        if (scrollOffset > endShiftOffset) {
+        if (positiveScrollOffset > endShiftOffset) {
             interpolation = lerp(
                 outputMin = 0f,
                 outputMax = 1f,
                 inputMin = endShiftOffset,
                 inputMax = maxScrollOffset,
-                value = scrollOffset
+                value = positiveScrollOffset
             )
             shiftPoints = endShiftPoints
             steps = endKeylineSteps
