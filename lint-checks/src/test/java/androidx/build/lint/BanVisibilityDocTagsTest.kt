@@ -21,9 +21,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanHideAndSuppressTagsTest : AbstractLintDetectorTest(
-    useDetector = BanHideAndSuppressTags(),
-    useIssues = listOf(BanHideAndSuppressTags.HIDE_ISSUE, BanHideAndSuppressTags.SUPPRESS_ISSUE),
+class BanVisibilityDocTagsTest : AbstractLintDetectorTest(
+    useDetector = BanVisibilityDocTags(),
+    useIssues = listOf(
+        BanVisibilityDocTags.HIDE_ISSUE,
+        BanVisibilityDocTags.SUPPRESS_ISSUE,
+        BanVisibilityDocTags.REMOVED_ISSUE,
+    ),
 ) {
 
     private val fileWithHideInJavadoc = java(
@@ -105,6 +109,50 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
 3 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun `Detection of removed tag`() {
+        val input = arrayOf(
+            kotlin(
+                """
+                    class Foo {
+                        /**
+                          * A previously useful function.
+                          * @removed
+                          **/
+                        fun foo() = Unit
+                    }
+                """.trimIndent()
+            ),
+            java(
+                """
+                    /**
+                      * Bar class
+                      * @removed don't use this
+                      */
+                    public class Bar {
+                        /** @removed */
+                        public void bar() {}
+                    }
+                """.trimIndent()
+            )
+        )
+
+        val expected = """
+            src/Bar.java:5: Error: @removed is not allowed in documentation [BanRemovedTag]
+            public class Bar {
+                         ~~~
+            src/Bar.java:7: Error: @removed is not allowed in documentation [BanRemovedTag]
+                public void bar() {}
+                            ~~~
+            src/Foo.kt:6: Error: @removed is not allowed in documentation [BanRemovedTag]
+                fun foo() = Unit
+                    ~~~
+            3 errors, 0 warnings
+        """.trimIndent()
 
         check(*input).expect(expected)
     }
