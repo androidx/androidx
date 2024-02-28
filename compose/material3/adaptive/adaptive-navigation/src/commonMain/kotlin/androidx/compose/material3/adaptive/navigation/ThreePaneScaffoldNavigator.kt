@@ -28,7 +28,6 @@ import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
-import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldState
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue
 import androidx.compose.material3.adaptive.layout.calculateStandardPaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.calculateThreePaneScaffoldValue
@@ -66,12 +65,16 @@ import androidx.compose.ui.util.fastMap
 @Stable
 interface ThreePaneScaffoldNavigator<T> {
     /**
-     * The current scaffold state provided by the navigator.
-     *
-     * Implementors of this interface should ensure this value is updated whenever a navigation
-     * operation is performed.
+     * The current layout directives that the associated three pane scaffold needs to follow. It's
+     * supposed to be automatically updated when the window configuration changes.
      */
-    val scaffoldState: ThreePaneScaffoldState
+    val scaffoldDirective: PaneScaffoldDirective
+
+    /**
+     * The current layout value of the associated three pane scaffold value, which represents unique
+     * layout states of the scaffold.
+     */
+    val scaffoldValue: ThreePaneScaffoldValue
 
     /**
      * The current destination as tracked by the navigator.
@@ -92,7 +95,7 @@ interface ThreePaneScaffoldNavigator<T> {
 
     /**
      * Navigates to a new destination. The new destination is supposed to have the highest
-     * priority when calculating the new [scaffoldState]. When implementing this method, please
+     * priority when calculating the new [scaffoldValue]. When implementing this method, please
      * ensure the new destination pane will be expanded or adapted in a reasonable way so it
      * provides users the sense that the new destination is the pane under current usage.
      *
@@ -234,14 +237,12 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
     initialScaffoldDirective: PaneScaffoldDirective,
     initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
     initialIsDestinationHistoryAware: Boolean
-) : ThreePaneScaffoldNavigator<T>, ThreePaneScaffoldState {
+) : ThreePaneScaffoldNavigator<T> {
 
     private val destinationHistory =
         mutableStateListOf<ThreePaneScaffoldDestinationItem<T>>().apply {
             addAll(initialDestinationHistory)
         }
-
-    override val scaffoldState = this
 
     override var scaffoldDirective by mutableStateOf(initialScaffoldDirective)
 
