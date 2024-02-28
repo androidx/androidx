@@ -423,15 +423,11 @@ internal class Camera2CaptureSequenceProcessor(
                 }
 
                 // Streams must be preview and/or video for high speed sessions
-                val containsInvalidHighSpeedStream = this.streamGraph.outputs.any {
-                    it.streamUseCase != OutputStream.StreamUseCase.VIDEO_RECORD &&
-                        it.streamUseCase != OutputStream.StreamUseCase.PREVIEW &&
-                        it.streamUseHint != OutputStream.StreamUseHint.VIDEO_RECORD &&
-                        it.streamUseHint != OutputStream.StreamUseHint.DEFAULT &&
-                        it.streamUseHint != null
+                val allStreamsValidForHighSpeedOperatingMode = this.streamGraph.outputs.all {
+                    it.isValidForHighSpeedOperatingMode()
                 }
 
-                if (containsInvalidHighSpeedStream) {
+                if (!allStreamsValidForHighSpeedOperatingMode) {
                     Log.error {
                         "HIGH_SPEED CameraGraph must only contain Preview and/or Video " +
                             "streams. Configured outputs are ${streamGraph.outputs}"

@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.GraphState
-import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
@@ -83,15 +82,11 @@ constructor(
             }
 
             // Streams must be preview and/or video for high speed sessions
-            val containsInvalidHighSpeedStream = this.streamGraph.outputs.any {
-                it.streamUseCase != OutputStream.StreamUseCase.VIDEO_RECORD &&
-                    it.streamUseCase != OutputStream.StreamUseCase.PREVIEW &&
-                    it.streamUseHint != OutputStream.StreamUseHint.VIDEO_RECORD &&
-                    it.streamUseHint != OutputStream.StreamUseHint.DEFAULT &&
-                    it.streamUseHint != null
+            val allStreamsValidForHighSpeedOperatingMode = this.streamGraph.outputs.all {
+                it.isValidForHighSpeedOperatingMode()
             }
 
-            require(containsInvalidHighSpeedStream) {
+            require(allStreamsValidForHighSpeedOperatingMode) {
                 "HIGH_SPEED CameraGraph must only contain Preview and/or Video " +
                     "streams. Configured outputs are ${streamGraph.outputs}"
             }
