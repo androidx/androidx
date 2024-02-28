@@ -384,17 +384,18 @@ public fun ScalingLazyColumn(
                 )
 
             // Set up transient state
-            state.scalingParams.value = actualScalingParams
-            state.extraPaddingPx.value = extraPaddingInPixels
-            state.beforeContentPaddingPx.value = beforeContentPaddingInPx
-            state.afterContentPaddingPx.value = afterContentPaddingInPx
-            state.viewportHeightPx.value = constraints.maxHeight
-            state.gapBetweenItemsPx.value =
-                verticalArrangement.spacing.roundToPx()
-            state.anchorType.value = anchorType
-            state.autoCentering.value = autoCentering
-            state.reverseLayout.value = reverseLayout
-            state.localInspectionMode.value = LocalInspectionMode.current
+            state.config.value = ScalingLazyListState.Configuration(
+                scalingParams = actualScalingParams,
+                extraPaddingPx = extraPaddingInPixels,
+                beforeContentPaddingPx = beforeContentPaddingInPx,
+                afterContentPaddingPx = afterContentPaddingInPx,
+                viewportHeightPx = constraints.maxHeight,
+                gapBetweenItemsPx = verticalArrangement.spacing.roundToPx(),
+                anchorType = anchorType,
+                autoCentering = autoCentering,
+                reverseLayout = reverseLayout,
+                localInspectionMode = LocalInspectionMode.current
+            )
 
             LazyColumn(
                 modifier = Modifier
@@ -653,8 +654,9 @@ private fun ScalingLazyColumnItemWrapper(
 ) {
     Box(
         modifier = Modifier.graphicsLayer {
-            val reverseLayout = state.reverseLayout.value!!
-            val anchorType = state.anchorType.value!!
+            val config = state.config.value!!
+            val reverseLayout = config.reverseLayout
+            val anchorType = config.anchorType
             val items = state.layoutInfo.internalVisibleItemInfo()
             val currentItem = items.fastFirstOrNull { it.index == index }
             if (currentItem != null) {
