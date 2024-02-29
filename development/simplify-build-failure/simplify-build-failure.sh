@@ -217,63 +217,28 @@ fi
 if [ "$gradleCommand" != "" ]; then
   startingOutDir="$tempDir/failing-out"
   outTestDir="$tempDir/out-test"
-  # determine if cleaning is necessary
-  if [ "$clean" != "true" ]; then
-    if [ "$resume" == "true" ]; then
-      if [ -e "$startingOutDir" ]; then
-        echo Will clean before each build because that was the previously computed setting
-        clean=true
-      else
-        echo Will not clean before each build because that was the previously computed setting
-      fi
-    else
-      echo Determining whether we must clean before each build
-      rm "$outTestDir" -rf
-      mkdir -p "$tempDir"
-      cp -r "$referenceFailingDir" "$outTestDir"
-      echo Doing first test build
-      if bash -c "cd "$outTestDir" && $gradleCommand $gradleTasks; $grepCommand"; then
-        echo Reproduced the problem
-      else
-        echo Failed to reproduce the problem
-        exit 1
-      fi
-      echo Doing another test build to determine if cleaning between builds is necessary
-      if bash -c "cd "$outTestDir" && $gradleCommand $gradleTasks; $grepCommand"; then
-        echo Reproduced the problem even when not starting from a clean out/ dir
-      else
-        echo Did not reproduce the problem when starting from previous out/ dir
-        echo Will have to clean the out/ dir before each build
-        clean=true
-      fi
-    fi
-  fi
-  # if we will be cleaning, then determine whether we can prepopulate a minimal out/ dir first
-  if [ "$clean" == "true" ]; then
-    if [ -e "$startingOutDir" ]; then
-      echo Reusing existing base out dir of "$startingOutDir"
-    else
-      echo Checking whether we can prepopulate a minimal out/ dir for faster execution
-      rm "$outTestDir" -rf
-      mkdir -p "$tempDir"
-      cp -r "$supportRoot" "$outTestDir"
-      if bash -c "cd "$outTestDir" && OUT_DIR=out ./gradlew projects --no-daemon && cp -r out out-base && $gradleCommand $gradleTasks; $grepCommand"; then
-        echo Will reuse base out dir of "$startingOutDir"
-        cp -r "$outTestDir/out-base" "$startingOutDir"
-      else
-        echo Will start subsequent builds from empty out dir
-        mkdir -p "$startingOutDir"
-      fi
-    fi
-    # reset the out/ dir
-    gradle_prepareState_command="rm out .gradle buildSrc/.gradle -rf && cp -r $startingOutDir out"
-    # update the timestamps on all files in case they affect anything
-    gradle_prepareState_command="$gradle_prepareState_command && find -type f | xargs touch || true"
-
-    gradleCommand="$(echo "$gradleCommand" | sed 's/gradlew/gradlew --no-daemon/')"
+  # determine whether we can prepopulate a minimal out/ dir first
+  if [ -e "$startingOutDir" ]; then
+    echo Reusing existing base out dir of "$startingOutDir"
   else
-    gradle_prepareState_command=""
+    echo Checking whether we can prepopulate a minimal out/ dir for faster execution
+    rm "$outTestDir" -rf
+    mkdir -p "$tempDir"
+    cp -r "$supportRoot" "$outTestDir"
+    if bash -c "cd "$outTestDir" && OUT_DIR=out ./gradlew projects --no-daemon && cp -r out out-base && $gradleCommand $gradleTasks; $grepCommand"; then
+      echo Will reuse base out dir of "$startingOutDir"
+      cp -r "$outTestDir/out-base" "$startingOutDir"
+    else
+      echo Will start subsequent builds from empty out dir
+      mkdir -p "$startingOutDir"
+    fi
   fi
+  # reset the out/ dir
+  gradle_prepareState_command="rm out .gradle buildSrc/.gradle -rf && cp -r $startingOutDir out"
+  # update the timestamps on all files in case they affect anything
+  gradle_prepareState_command="$gradle_prepareState_command && find -type f | xargs touch || true"
+
+  gradleCommand="$(echo "$gradleCommand" | sed 's/gradlew/gradlew --no-daemon/')"
   # determine whether we can reduce the list of tasks we'll be running
   # prepare directory
   allTasksWork="$tempDir/allTasksWork"
@@ -339,7 +304,7 @@ if [ "$gradleCommand" != "" ]; then
     cp -r "$minTasksGoal" "$minTasksFailing"
     cp -r "$allTasks" "$minTasksFailing/"
     echo Asking diff-filterer for a minimal set of tasks to reproduce this problem
-    if ./development/file-utils/diff-filterer.py --assume-no-side-effects --work-path "$tempDir" --num-jobs "$numJobs" "$minTasksFailing" "$minTasksGoal" "$testCommand"; then
+    if ./development/file-utils/diff-filterer.py --work-path "$tempDir" --num-jobs "$numJobs" "$minTasksFailing" "$minTasksGoal" "$testCommand"; then
       echo diff-filterer successfully identifed a minimal set of required tasks
       cp -r "$tempDir/bestResults" "$minTasksOutput"
     else
@@ -368,7 +333,7 @@ else
     fi
   fi
   echo Running diff-filterer.py once to identify the minimal set of files needed to reproduce the error
-  if ./development/file-utils/diff-filterer.py --assume-no-side-effects --work-path $filtererStep1Work --num-jobs "$numJobs" "$referenceFailingDir" "$referencePassingDir" "$testCommand"; then
+  if ./development/file-utils/diff-filterer.py --work-path $filtererStep1Work --num-jobs "$numJobs" "$referenceFailingDir" "$referencePassingDir" "$testCommand"; then
     echo diff-filterer completed successfully
   else
     failed
@@ -401,20 +366,6 @@ else
 
   # set up command for running diff-filterer against diffs within files
   filtererOptions="--num-jobs $numJobs"
-
-  # Determine whether we are willing to rely on incremental builds
-  # If we're making changes to buildSrc or gradlew then we can't rely on incremental builds to be reliable
-  incrementalBuildReliable=true
-  if [ "$subfilePath" == "" ]; then
-    incrementalBuildReliable=false
-  else
-    if echo $subfilePath | grep -v buildSrc >/dev/null 2>/dev/null; then
-      incrementalBuildReliable=false
-    fi
-  fi
-  if [ "$incrementalBuildReliable" == false ]; then
-    filtererOptions="$filtererOptions --assume-no-side-effects"
-  fi
 
   if echo "$resume" | grep true >/dev/null && stat "$noFunctionBodies_output" >/dev/null 2>/dev/null; then
     echo "Skipping asking diff-filterer to remove function bodies because $noFunctionBodies_output already exists"
