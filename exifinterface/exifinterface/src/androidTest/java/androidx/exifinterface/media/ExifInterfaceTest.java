@@ -20,12 +20,7 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.Manifest;
@@ -48,6 +43,7 @@ import androidx.test.rule.GrantPermissionRule;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.primitives.Ints;
+import com.google.common.truth.Expect;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -120,6 +116,8 @@ public class ExifInterfaceTest {
 
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @Rule public final Expect expect = Expect.create();
 
     @Before
     public void setUp() {
@@ -194,7 +192,7 @@ public class ExifInterfaceTest {
                 .hasCauseThat()
                 .hasMessageThat()
                 .contains("exceeds the max size of a JPEG APP1 segment");
-        assertBitmapsEquivalent(srcFile, imageFile);
+        expectBitmapsEquivalent(srcFile, imageFile);
     }
 
     @Test
@@ -316,8 +314,9 @@ public class ExifInterfaceTest {
             // return default values, not the actual values.
             ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
             String defaultTagValue = "0";
-            assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH));
-            assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH));
+            assertThat(exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH))
+                    .isEqualTo(defaultTagValue);
+            assertThat(exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH)).isEqualTo(defaultTagValue);
         }
     }
 
@@ -493,16 +492,16 @@ public class ExifInterfaceTest {
                         "jpeg_with_datetime_tag_primary_format.jpg");
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
         // Test getting datetime values
-        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTime());
-        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTimeOriginal());
-        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTimeDigitized());
-        assertEquals(expectedGetGpsDatetimeValue, (long) exif.getGpsDateTime());
-        assertEquals(expectedDatetimeOffsetStringValue,
-                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME));
-        assertEquals(expectedDatetimeOffsetStringValue,
-                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL));
-        assertEquals(expectedDatetimeOffsetStringValue,
-                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_DIGITIZED));
+        assertThat(exif.getDateTime()).isEqualTo(expectedGetDatetimeValue);
+        assertThat(exif.getDateTimeOriginal()).isEqualTo(expectedGetDatetimeValue);
+        assertThat(exif.getDateTimeDigitized()).isEqualTo(expectedGetDatetimeValue);
+        assertThat(exif.getGpsDateTime()).isEqualTo(expectedGetGpsDatetimeValue);
+        assertThat(exif.getAttribute(ExifInterface.TAG_OFFSET_TIME))
+                .isEqualTo(expectedDatetimeOffsetStringValue);
+        assertThat(exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL))
+                .isEqualTo(expectedDatetimeOffsetStringValue);
+        assertThat(exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_DIGITIZED))
+                .isEqualTo(expectedDatetimeOffsetStringValue);
 
         // Test setting datetime values
         final long newTimestamp = 1689328448000L; // 2023-07-14T09:54:32.000Z
@@ -510,7 +509,7 @@ public class ExifInterfaceTest {
         exif.setDateTime(newTimestamp);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(newTimestamp - expectedDatetimeOffsetLongValue, (long) exif.getDateTime());
+        assertThat(exif.getDateTime()).isEqualTo(newTimestamp - expectedDatetimeOffsetLongValue);
 
         // Test that setting null throws NPE
         try {
@@ -560,9 +559,9 @@ public class ExifInterfaceTest {
                         R.raw.jpeg_with_datetime_tag_secondary_format,
                         "jpeg_with_datetime_tag_secondary_format.jpg");
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(expectedDateTimeStringValue,
-                exif.getAttribute(ExifInterface.TAG_DATETIME));
-        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTime());
+        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME))
+                .isEqualTo(expectedDateTimeStringValue);
+        assertThat(exif.getDateTime()).isEqualTo(expectedGetDatetimeValue);
 
         // Test setting datetime value: check that secondary format value is modified correctly
         // when it is saved.
@@ -575,8 +574,9 @@ public class ExifInterfaceTest {
 
         exif.setAttribute(ExifInterface.TAG_DATETIME, newDateTimeStringValue);
         exif.saveAttributes();
-        assertEquals(modifiedNewDateTimeStringValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
-        assertEquals(newDateTimeLongValue, (long) exif.getDateTime());
+        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME))
+                .isEqualTo(modifiedNewDateTimeStringValue);
+        assertThat(exif.getDateTime()).isEqualTo(newDateTimeLongValue);
     }
 
     @Test
@@ -596,14 +596,15 @@ public class ExifInterfaceTest {
         exif.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, dateTimeOriginalValue);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(dateTimeValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
-        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL));
+        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME)).isEqualTo(dateTimeValue);
+        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL))
+                .isEqualTo(dateTimeOriginalValue);
 
         // 2. Check that when TAG_DATETIME has no value, it is set to TAG_DATETIME_ORIGINAL's value.
         exif.setAttribute(ExifInterface.TAG_DATETIME, null);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME)).isEqualTo(dateTimeOriginalValue);
     }
 
     @Test
@@ -618,7 +619,7 @@ public class ExifInterfaceTest {
         // Set initial value to 0
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 0ms */ "000");
         exif.saveAttributes();
-        assertEquals("000", exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo("000");
         long currentDateTimeValue = exif.getDateTime();
 
         // Test that single and double-digit values are set properly.
@@ -628,40 +629,42 @@ public class ExifInterfaceTest {
         String oneDigitSubSec = "1";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, oneDigitSubSec);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
-        assertEquals(oneDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 100);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(oneDigitSubSec);
 
         String twoDigitSubSec1 = "01";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, twoDigitSubSec1);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
-        assertEquals(twoDigitSubSec1, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 10);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(twoDigitSubSec1);
 
         String twoDigitSubSec2 = "11";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, twoDigitSubSec2);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 110, (long) exif.getDateTime());
-        assertEquals(twoDigitSubSec2, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 110);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(twoDigitSubSec2);
 
         // Test that 3-digit values are set properly.
         String hundredMs = "100";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, hundredMs);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
-        assertEquals(hundredMs, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 100);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(hundredMs);
 
         // Test that values starting with zero are also supported.
         String oneMsStartingWithZeroes = "001";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, oneMsStartingWithZeroes);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 1, (long) exif.getDateTime());
-        assertEquals(oneMsStartingWithZeroes, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 1);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME))
+                .isEqualTo(oneMsStartingWithZeroes);
 
         String tenMsStartingWithZero = "010";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, tenMsStartingWithZero);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
-        assertEquals(tenMsStartingWithZero, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 10);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME))
+                .isEqualTo(tenMsStartingWithZero);
 
         // Test that values with more than three digits are set properly. getAttribute() should
         // return the whole string, but getDateTime() should only add the first three digits
@@ -669,20 +672,20 @@ public class ExifInterfaceTest {
         String fourDigitSubSec = "1234";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, fourDigitSubSec);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 123, (long) exif.getDateTime());
-        assertEquals(fourDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 123);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(fourDigitSubSec);
 
         String fiveDigitSubSec = "23456";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, fiveDigitSubSec);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 234, (long) exif.getDateTime());
-        assertEquals(fiveDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 234);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(fiveDigitSubSec);
 
         String sixDigitSubSec = "345678";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, sixDigitSubSec);
         exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 345, (long) exif.getDateTime());
-        assertEquals(sixDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 345);
+        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(sixDigitSubSec);
     }
 
     @Test
@@ -1052,7 +1055,8 @@ public class ExifInterfaceTest {
         exif.resetOrientation();
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertIntTag(exif, ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        assertThat(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0))
+                .isEqualTo(ExifInterface.ORIENTATION_NORMAL);
     }
 
     @SuppressWarnings("deprecation")
@@ -1067,13 +1071,13 @@ public class ExifInterfaceTest {
 
         ExifInterface exif = createTestExifInterface();
         exif.setAttribute(oldTag, isoValue);
-        assertEquals(isoValue, exif.getAttribute(oldTag));
-        assertEquals(isoValue, exif.getAttribute(newTag));
+        assertThat(exif.getAttribute(oldTag)).isEqualTo(isoValue);
+        assertThat(exif.getAttribute(newTag)).isEqualTo(isoValue);
 
         exif = createTestExifInterface();
         exif.setAttribute(newTag, isoValue);
-        assertEquals(isoValue, exif.getAttribute(oldTag));
-        assertEquals(isoValue, exif.getAttribute(newTag));
+        assertThat(exif.getAttribute(oldTag)).isEqualTo(isoValue);
+        assertThat(exif.getAttribute(newTag)).isEqualTo(isoValue);
     }
 
     private void printExifTagsAndValues(String fileName, ExifInterface exifInterface) {
@@ -1120,24 +1124,14 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void assertIntTag(ExifInterface exifInterface, String tag, int expectedValue) {
-        int intValue = exifInterface.getAttributeInt(tag, 0);
-        assertEquals(expectedValue, intValue);
-    }
-
-    private void assertFloatTag(ExifInterface exifInterface, String tag, float expectedValue) {
-        double doubleValue = exifInterface.getAttributeDouble(tag, 0.0);
-        assertEquals(expectedValue, doubleValue, DIFFERENCE_TOLERANCE);
-    }
-
-    private void assertStringTag(ExifInterface exifInterface, String tag, String expectedValue) {
+    private void expectStringTag(ExifInterface exifInterface, String tag, String expectedValue) {
         String stringValue = exifInterface.getAttribute(tag);
         if (stringValue != null) {
             stringValue = stringValue.trim();
         }
         stringValue = ("".equals(stringValue)) ? null : stringValue;
 
-        assertEquals(expectedValue, stringValue);
+        expect.that(stringValue).isEqualTo(expectedValue);
     }
 
     private void compareWithExpectedAttributes(
@@ -1149,122 +1143,141 @@ public class ExifInterfaceTest {
             printExifTagsAndValues(verboseTag, exifInterface);
         }
         // Checks a thumbnail image.
-        assertEquals(expectedAttributes.hasThumbnail, exifInterface.hasThumbnail());
+        expect.that(exifInterface.hasThumbnail()).isEqualTo(expectedAttributes.hasThumbnail);
         if (expectedAttributes.hasThumbnail) {
-            assertNotNull(exifInterface.getThumbnailRange());
+            expect.that(exifInterface.getThumbnailRange()).isNotNull();
             if (assertRanges) {
-                final long[] thumbnailRange = exifInterface.getThumbnailRange();
-                assertEquals(expectedAttributes.thumbnailOffset, thumbnailRange[0]);
-                assertEquals(expectedAttributes.thumbnailLength, thumbnailRange[1]);
+                expect.that(exifInterface.getThumbnailRange())
+                        .asList()
+                        .containsExactly(
+                                expectedAttributes.thumbnailOffset,
+                                expectedAttributes.thumbnailLength)
+                        .inOrder();
             }
             testThumbnail(expectedAttributes, exifInterface);
         } else {
-            assertNull(exifInterface.getThumbnailRange());
-            assertNull(exifInterface.getThumbnail());
+            expect.that(exifInterface.getThumbnailRange()).isNull();
+            expect.that(exifInterface.getThumbnail()).isNull();
         }
 
         // Checks GPS information.
         double[] latLong = exifInterface.getLatLong();
-        assertEquals(expectedAttributes.hasLatLong, latLong != null);
+        long[] latitudeRange = exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE);
         if (expectedAttributes.hasLatLong) {
-            assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE));
+            expect.that(latitudeRange).isNotNull();
             if (assertRanges) {
-                final long[] latitudeRange = exifInterface
-                        .getAttributeRange(ExifInterface.TAG_GPS_LATITUDE);
-                assertEquals(expectedAttributes.latitudeOffset, latitudeRange[0]);
-                assertEquals(expectedAttributes.latitudeLength, latitudeRange[1]);
+                expect.that(latitudeRange)
+                        .asList()
+                        .containsExactly(
+                                expectedAttributes.latitudeOffset,
+                                expectedAttributes.latitudeLength)
+                        .inOrder();
             }
-            assertEquals(expectedAttributes.latitude, latLong[0], DIFFERENCE_TOLERANCE);
-            assertEquals(expectedAttributes.longitude, latLong[1], DIFFERENCE_TOLERANCE);
-            assertTrue(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE));
-            assertTrue(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE));
+            expect.that(latLong)
+                    .usingTolerance(DIFFERENCE_TOLERANCE)
+                    .containsExactly(expectedAttributes.latitude, expectedAttributes.longitude)
+                    .inOrder();
+            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE)).isTrue();
+            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE)).isTrue();
         } else {
-            assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE));
-            assertFalse(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE));
-            assertFalse(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE));
+            expect.that(latLong).isNull();
+            expect.that(latitudeRange).isNull();
+            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE)).isFalse();
+            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE)).isFalse();
         }
-        assertEquals(
-                expectedAttributes.altitude, exifInterface.getAltitude(.0), DIFFERENCE_TOLERANCE);
+        expect.that(exifInterface.getAltitude(.0))
+                .isWithin(DIFFERENCE_TOLERANCE)
+                .of(expectedAttributes.altitude);
 
         // Checks Make information.
         String make = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
-        assertEquals(expectedAttributes.hasMake, make != null);
+        long[] makeRange = exifInterface.getAttributeRange(ExifInterface.TAG_MAKE);
         if (expectedAttributes.hasMake) {
-            assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_MAKE));
+            expect.that(makeRange).isNotNull();
             if (assertRanges) {
-                final long[] makeRange = exifInterface
-                        .getAttributeRange(ExifInterface.TAG_MAKE);
-                assertEquals(expectedAttributes.makeOffset, makeRange[0]);
-                assertEquals(expectedAttributes.makeLength, makeRange[1]);
+                expect.that(makeRange)
+                        .asList()
+                        .containsExactly(
+                                expectedAttributes.makeOffset, expectedAttributes.makeLength)
+                        .inOrder();
             }
-            assertEquals(expectedAttributes.make, make);
+            expect.that(make).isEqualTo(expectedAttributes.make);
         } else {
-            assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_MAKE));
-            assertFalse(exifInterface.hasAttribute(ExifInterface.TAG_MAKE));
+            expect.that(make).isNull();
+            expect.that(makeRange).isNull();
+            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_MAKE)).isFalse();
         }
 
         // Checks values.
-        assertStringTag(exifInterface, ExifInterface.TAG_MAKE, expectedAttributes.make);
-        assertStringTag(exifInterface, ExifInterface.TAG_MODEL, expectedAttributes.model);
-        assertFloatTag(exifInterface, ExifInterface.TAG_F_NUMBER, expectedAttributes.aperture);
-        assertStringTag(
+        expectStringTag(exifInterface, ExifInterface.TAG_MAKE, expectedAttributes.make);
+        expectStringTag(exifInterface, ExifInterface.TAG_MODEL, expectedAttributes.model);
+        expect.that(exifInterface.getAttributeDouble(ExifInterface.TAG_F_NUMBER, 0.0))
+                .isWithin(DIFFERENCE_TOLERANCE)
+                .of(expectedAttributes.aperture);
+        expectStringTag(
                 exifInterface,
                 ExifInterface.TAG_DATETIME_ORIGINAL,
                 expectedAttributes.dateTimeOriginal);
-        assertFloatTag(
-                exifInterface, ExifInterface.TAG_EXPOSURE_TIME, expectedAttributes.exposureTime);
-        assertStringTag(
+        expect.that(exifInterface.getAttributeDouble(ExifInterface.TAG_EXPOSURE_TIME, 0.0))
+                .isWithin(DIFFERENCE_TOLERANCE)
+                .of(expectedAttributes.exposureTime);
+        expectStringTag(
                 exifInterface, ExifInterface.TAG_FOCAL_LENGTH, expectedAttributes.focalLength);
-        assertStringTag(
+        expectStringTag(
                 exifInterface, ExifInterface.TAG_GPS_ALTITUDE, expectedAttributes.gpsAltitude);
-        assertStringTag(
+        expectStringTag(
                 exifInterface,
                 ExifInterface.TAG_GPS_ALTITUDE_REF,
                 expectedAttributes.gpsAltitudeRef);
-        assertStringTag(
+        expectStringTag(
                 exifInterface, ExifInterface.TAG_GPS_DATESTAMP, expectedAttributes.gpsDatestamp);
-        assertStringTag(
+        expectStringTag(
                 exifInterface, ExifInterface.TAG_GPS_LATITUDE, expectedAttributes.gpsLatitude);
-        assertStringTag(
+        expectStringTag(
                 exifInterface,
                 ExifInterface.TAG_GPS_LATITUDE_REF,
                 expectedAttributes.gpsLatitudeRef);
-        assertStringTag(
+        expectStringTag(
                 exifInterface, ExifInterface.TAG_GPS_LONGITUDE, expectedAttributes.gpsLongitude);
-        assertStringTag(
+        expectStringTag(
                 exifInterface,
                 ExifInterface.TAG_GPS_LONGITUDE_REF,
                 expectedAttributes.gpsLongitudeRef);
-        assertStringTag(
+        expectStringTag(
                 exifInterface,
                 ExifInterface.TAG_GPS_PROCESSING_METHOD,
                 expectedAttributes.gpsProcessingMethod);
-        assertStringTag(
+        expectStringTag(
                 exifInterface, ExifInterface.TAG_GPS_TIMESTAMP, expectedAttributes.gpsTimestamp);
-        assertIntTag(exifInterface, ExifInterface.TAG_IMAGE_LENGTH, expectedAttributes.imageLength);
-        assertIntTag(exifInterface, ExifInterface.TAG_IMAGE_WIDTH, expectedAttributes.imageWidth);
-        assertStringTag(
+        expect.that(exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0))
+                .isEqualTo(expectedAttributes.imageLength);
+        expect.that(exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0))
+                .isEqualTo(expectedAttributes.imageWidth);
+        expectStringTag(
                 exifInterface, ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY, expectedAttributes.iso);
-        assertIntTag(exifInterface, ExifInterface.TAG_ORIENTATION, expectedAttributes.orientation);
+        expect.that(exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0))
+                .isEqualTo(expectedAttributes.orientation);
 
+        long[] xmpRange = exifInterface.getAttributeRange(ExifInterface.TAG_XMP);
         if (expectedAttributes.hasXmp) {
-            assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
+            expect.that(xmpRange).isNotNull();
             if (assertRanges) {
-                final long[] xmpRange = exifInterface.getAttributeRange(ExifInterface.TAG_XMP);
-                assertEquals(expectedAttributes.xmpOffset, xmpRange[0]);
-                assertEquals(expectedAttributes.xmpLength, xmpRange[1]);
+                expect.that(xmpRange)
+                        .asList()
+                        .containsExactly(expectedAttributes.xmpOffset, expectedAttributes.xmpLength)
+                        .inOrder();
             }
-            final String xmp = new String(exifInterface.getAttributeBytes(ExifInterface.TAG_XMP),
-                    Charset.forName("UTF-8"));
+            final String xmp =
+                    new String(
+                            exifInterface.getAttributeBytes(ExifInterface.TAG_XMP),
+                            Charset.forName("UTF-8"));
             // We're only interested in confirming that we were able to extract
             // valid XMP data, which must always include this XML tag; a full
             // XMP parser is beyond the scope of ExifInterface. See XMP
             // Specification Part 1, Section C.2.2 for additional details.
-            if (!xmp.contains("<rdf:RDF")) {
-                fail("Invalid XMP: " + xmp);
-            }
+            expect.that(xmp).contains("<rdf:RDF");
         } else {
-            assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
+            expect.that(xmpRange).isNull();
         }
     }
 
@@ -1294,12 +1307,10 @@ public class ExifInterfaceTest {
 
         // Creates via file.
         ExifInterface exifInterface = new ExifInterface(imageFile);
-        assertNotNull(exifInterface);
         compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag, true);
 
         // Creates via path.
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-        assertNotNull(exifInterface);
         compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag, true);
 
         // Creates via InputStream.
@@ -1335,11 +1346,12 @@ public class ExifInterfaceTest {
                         new byte[Ints.checkedCast(expectedAttributes.thumbnailLength)];
                 ByteStreams.readFully(in, thumbnailBytes);
                 // TODO: Need a way to check uncompressed thumbnail file
-                Bitmap thumbnailBitmap = BitmapFactory.decodeByteArray(thumbnailBytes, 0,
-                        thumbnailBytes.length);
-                assertNotNull(thumbnailBitmap);
-                assertEquals(expectedAttributes.thumbnailWidth, thumbnailBitmap.getWidth());
-                assertEquals(expectedAttributes.thumbnailHeight, thumbnailBitmap.getHeight());
+                Bitmap thumbnailBitmap =
+                        BitmapFactory.decodeByteArray(thumbnailBytes, 0, thumbnailBytes.length);
+                expect.that(thumbnailBitmap.getWidth())
+                        .isEqualTo(expectedAttributes.thumbnailWidth);
+                expect.that(thumbnailBitmap.getHeight())
+                        .isEqualTo(expectedAttributes.thumbnailHeight);
             }
         }
 
@@ -1355,7 +1367,7 @@ public class ExifInterfaceTest {
                 String makeString = new String(makeBytes);
                 // Remove null bytes
                 makeString = makeString.replaceAll("\u0000.*", "");
-                assertEquals(expectedAttributes.make, makeString);
+                expect.that(makeString).isEqualTo(expectedAttributes.make);
             }
         }
 
@@ -1366,8 +1378,8 @@ public class ExifInterfaceTest {
                 byte[] identifierBytes = new byte[Ints.checkedCast(expectedAttributes.xmpLength)];
                 ByteStreams.readFully(in, identifierBytes);
                 final String xmpIdentifier = "<?xpacket begin=";
-                assertTrue(new String(identifierBytes, Charset.forName("UTF-8"))
-                        .startsWith(xmpIdentifier));
+                expect.that(new String(identifierBytes, Charset.forName("UTF-8")))
+                        .startsWith(xmpIdentifier);
             }
             // TODO: Add code for retrieving raw latitude data using offset and length
         }
@@ -1382,8 +1394,8 @@ public class ExifInterfaceTest {
         exifInterface.saveAttributes();
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag, false);
-        assertBitmapsEquivalent(srcFile, imageFile);
-        assertSecondSaveProducesSameSizeFile(imageFile);
+        expectBitmapsEquivalent(srcFile, imageFile);
+        expectSecondSaveProducesSameSizeFile(imageFile);
 
         // Test for modifying one attribute.
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
@@ -1394,7 +1406,7 @@ public class ExifInterfaceTest {
         if (expectedAttributes.hasThumbnail) {
             testThumbnail(expectedAttributes, exifInterface);
         }
-        assertEquals("abc", exifInterface.getAttribute(ExifInterface.TAG_MAKE));
+        expect.that(exifInterface.getAttribute(ExifInterface.TAG_MAKE)).isEqualTo("abc");
         // Check if thumbnail bytes can be retrieved from the new thumbnail range.
         if (expectedAttributes.hasThumbnail) {
             testThumbnail(expectedAttributes, exifInterface);
@@ -1415,7 +1427,7 @@ public class ExifInterfaceTest {
                 exifInterface = new ExifInterface(fd);
                 exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
                 exifInterface.saveAttributes();
-                assertEquals("abc", exifInterface.getAttribute(ExifInterface.TAG_MAKE));
+                expect.that(exifInterface.getAttribute(ExifInterface.TAG_MAKE)).isEqualTo("abc");
             } catch (Exception e) {
                 throw new IOException("Failed to open file descriptor", e);
             } finally {
@@ -1441,22 +1453,19 @@ public class ExifInterfaceTest {
         exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
         exifInterface.saveAttributes();
 
-        assertBitmapsEquivalent(srcFile, imageFile);
+        expectBitmapsEquivalent(srcFile, imageFile);
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         String make = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
-        assertEquals("abc", make);
+        expect.that(make).isEqualTo("abc");
 
-        assertSecondSaveProducesSameSizeFile(imageFile);
+        expectSecondSaveProducesSameSizeFile(imageFile);
     }
 
     private void testThumbnail(ExpectedAttributes expectedAttributes, ExifInterface exifInterface) {
         byte[] thumbnail = exifInterface.getThumbnail();
-        assertNotNull(thumbnail);
-        Bitmap thumbnailBitmap = BitmapFactory.decodeByteArray(thumbnail, 0,
-                thumbnail.length);
-        assertNotNull(thumbnailBitmap);
-        assertEquals(expectedAttributes.thumbnailWidth, thumbnailBitmap.getWidth());
-        assertEquals(expectedAttributes.thumbnailHeight, thumbnailBitmap.getHeight());
+        Bitmap thumbnailBitmap = BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length);
+        expect.that(thumbnailBitmap.getWidth()).isEqualTo(expectedAttributes.thumbnailWidth);
+        expect.that(thumbnailBitmap.getHeight()).isEqualTo(expectedAttributes.thumbnailHeight);
     }
 
     @RequiresApi(21)
@@ -1490,16 +1499,17 @@ public class ExifInterfaceTest {
     }
 
     /**
-     * Asserts that {@code expectedImageFile} and {@code actualImageFile} can be decoded by
-     * {@link BitmapFactory} and the results have the same width, height and MIME type.
+     * Asserts (using {@link #expect}) that {@code expectedImageFile} and {@code actualImageFile}
+     * can be decoded by {@link BitmapFactory} and the results have the same width, height and MIME
+     * type.
      *
-     * <p>The assertion is skipped if the test is running on an API level where
-     * {@link BitmapFactory} is known not to support the image format of {@code expectedImageFile}
-     * (as determined by file extension).
+     * <p>The assertion is skipped if the test is running on an API level where {@link
+     * BitmapFactory} is known not to support the image format of {@code expectedImageFile} (as
+     * determined by file extension).
      *
      * <p>This does not check the image itself for similarity/equality.
      */
-    private void assertBitmapsEquivalent(File expectedImageFile, File actualImageFile) {
+    private void expectBitmapsEquivalent(File expectedImageFile, File actualImageFile) {
         if (Build.VERSION.SDK_INT < 26
                 && expectedImageFile.getName().equals(WEBP_WITHOUT_EXIF_WITH_ANIM_DATA)) {
             // BitmapFactory can't parse animated WebP files on API levels before 26: b/259964971
@@ -1511,12 +1521,12 @@ public class ExifInterfaceTest {
         BitmapFactory.Options actualOptions = new BitmapFactory.Options();
         Bitmap actualBitmap = Objects.requireNonNull(decodeBitmap(actualImageFile, actualOptions));
 
-        assertEquals(expectedOptions.outWidth, actualOptions.outWidth);
-        assertEquals(expectedOptions.outHeight, actualOptions.outHeight);
-        assertEquals(expectedOptions.outMimeType, actualOptions.outMimeType);
-        assertEquals(expectedBitmap.getWidth(), actualBitmap.getWidth());
-        assertEquals(expectedBitmap.getHeight(), actualBitmap.getHeight());
-        assertEquals(expectedBitmap.hasAlpha(), actualBitmap.hasAlpha());
+        expect.that(actualOptions.outWidth).isEqualTo(expectedOptions.outWidth);
+        expect.that(actualOptions.outHeight).isEqualTo(expectedOptions.outHeight);
+        expect.that(actualOptions.outMimeType).isEqualTo(expectedOptions.outMimeType);
+        expect.that(actualBitmap.getWidth()).isEqualTo(expectedBitmap.getWidth());
+        expect.that(actualBitmap.getHeight()).isEqualTo(expectedBitmap.getHeight());
+        expect.that(actualBitmap.hasAlpha()).isEqualTo(expectedBitmap.hasAlpha());
     }
 
     /**
@@ -1533,12 +1543,13 @@ public class ExifInterfaceTest {
     }
 
     /**
-     * Asserts that saving the file the second time (without modifying any attributes) produces
-     * exactly the same length file as the first save. The first save (with no modifications) is
-     * expected to (possibly) change the file length because {@link ExifInterface} may move/reformat
-     * the Exif block within the file, but the second save should not make further modifications.
+     * Asserts (using {@link #expect}) that saving the file the second time (without modifying any
+     * attributes) produces exactly the same length file as the first save. The first save (with no
+     * modifications) is expected to (possibly) change the file length because {@link ExifInterface}
+     * may move/reformat the Exif block within the file, but the second save should not make further
+     * modifications.
      */
-    private void assertSecondSaveProducesSameSizeFile(File imageFileAfterOneSave)
+    private void expectSecondSaveProducesSameSizeFile(File imageFileAfterOneSave)
             throws IOException {
         File imageFileAfterTwoSaves = clone(imageFileAfterOneSave);
         ExifInterface exifInterface = new ExifInterface(imageFileAfterTwoSaves.getAbsolutePath());
@@ -1550,9 +1561,10 @@ public class ExifInterfaceTest {
             File imageFileAfterThreeSaves = clone(imageFileAfterTwoSaves);
             exifInterface = new ExifInterface(imageFileAfterThreeSaves.getAbsolutePath());
             exifInterface.saveAttributes();
-            assertEquals(imageFileAfterTwoSaves.length(), imageFileAfterThreeSaves.length());
+            expect.that(imageFileAfterThreeSaves.length())
+                    .isEqualTo(imageFileAfterTwoSaves.length());
         } else {
-            assertEquals(imageFileAfterOneSave.length(), imageFileAfterTwoSaves.length());
+            expect.that(imageFileAfterTwoSaves.length()).isEqualTo(imageFileAfterOneSave.length());
         }
     }
 
