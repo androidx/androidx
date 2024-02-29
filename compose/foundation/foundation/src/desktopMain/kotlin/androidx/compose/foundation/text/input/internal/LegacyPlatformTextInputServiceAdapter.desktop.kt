@@ -95,6 +95,10 @@ internal class DesktopLegacyPlatformTextInputServiceAdapter :
             input.focusedRect = rect
         }
     }
+
+    override fun startStylusHandwriting() {
+        // Noop for desktop
+    }
 }
 
 internal class LegacyTextInputMethodRequest(

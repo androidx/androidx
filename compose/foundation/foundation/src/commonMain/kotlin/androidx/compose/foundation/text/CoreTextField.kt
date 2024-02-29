@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.text.handwriting.detectStylusHandwriting
+import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.input.internal.createLegacyPlatformTextInputServiceAdapter
 import androidx.compose.foundation.text.input.internal.legacyTextInputAdapter
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -401,6 +403,29 @@ internal fun CoreTextField(
             textDragObserver = manager.touchSelectionObserver,
         )
         .pointerHoverIcon(textPointerIcon)
+        .then(
+            if (isStylusHandwritingSupported) {
+                Modifier.pointerInput(enabled, readOnly) {
+                    if (enabled && !readOnly) {
+                        detectStylusHandwriting {
+                            if (!state.hasFocus) {
+                                focusRequester.requestFocus()
+                            }
+                            // TextInputService is calling LegacyTextInputServiceAdapter under the
+                            // hood.  And because it's a public API, startStylusHandwriting is added
+                            // to legacyTextInputServiceAdapter instead.
+                            // startStylusHandwriting may be called before the actual input
+                            // session starts when the editor is not focused, this is handled
+                            // internally by the LegacyTextInputServiceAdapter.
+                            legacyTextInputServiceAdapter.startStylusHandwriting()
+                            true
+                        }
+                    }
+                }
+            } else {
+                Modifier
+            }
+        )
 
     val drawModifier = Modifier.drawBehind {
         state.layoutResult?.let { layoutResult ->
