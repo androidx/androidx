@@ -53,7 +53,6 @@ fun runMetalavaWithArgs(
                 "RemovedFinalStrict",
                 "--error",
                 "UnresolvedImport",
-                "--delete-empty-removed-signatures",
 
                 "--kotlin-source",
                 kotlinSourceLevel.version,
@@ -331,7 +330,6 @@ fun getGenerateApiArgs(
         when (generateApiMode) {
             is GenerateApiMode.PublicApi -> {
                 args += listOf("--api", outputLocation.publicApiFile.toString())
-                args += listOf("--removed-api", outputLocation.removedApiFile.toString())
                 // Generate API levels just for the public API
                 args += apiLevelsArgs
             }

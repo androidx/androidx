@@ -64,10 +64,8 @@ abstract class CheckApiCompatibilityTask @Inject constructor(workerExecutor: Wor
         return listOf(
             apiLocation.publicApiFile,
             apiLocation.restrictedApiFile,
-            apiLocation.removedApiFile,
             referenceApiLocation.publicApiFile,
             referenceApiLocation.restrictedApiFile,
-            referenceApiLocation.removedApiFile,
             baselineApiLocation.publicApiFile,
             baselineApiLocation.restrictedApiFile
         )
@@ -90,9 +88,7 @@ abstract class CheckApiCompatibilityTask @Inject constructor(workerExecutor: Wor
 
         checkApiFile(
             apiLocation.publicApiFile,
-            apiLocation.removedApiFile,
             referenceApiLocation.publicApiFile,
-            referenceApiLocation.removedApiFile,
             baselineApiLocation.publicApiFile,
             referenceVersion,
             freezeApis,
@@ -101,9 +97,7 @@ abstract class CheckApiCompatibilityTask @Inject constructor(workerExecutor: Wor
         if (referenceApiLocation.restrictedApiFile.exists()) {
             checkApiFile(
                 apiLocation.restrictedApiFile,
-                null, // removed api
                 referenceApiLocation.restrictedApiFile,
-                null, // removed api
                 baselineApiLocation.restrictedApiFile,
                 referenceVersion,
                 freezeApis,
@@ -111,13 +105,10 @@ abstract class CheckApiCompatibilityTask @Inject constructor(workerExecutor: Wor
         }
     }
 
-    // Confirms that <api>+<removedApi> is compatible with
-    // <oldApi>+<oldRemovedApi> except for any baselines listed in <baselineFile>
+    // Confirms that <api> <oldApi> except for any baselines listed in <baselineFile>
     private fun checkApiFile(
         api: File,
-        removedApi: File?,
         oldApi: File,
-        oldRemovedApi: File?,
         baselineFile: File,
         referenceVersion: Version?,
         freezeApis: Boolean,
@@ -139,12 +130,6 @@ abstract class CheckApiCompatibilityTask @Inject constructor(workerExecutor: Wor
                 "--warnings-as-errors",
                 "--format=v3"
             )
-        if (removedApi != null && removedApi.exists()) {
-            args = args + listOf("--source-files", removedApi.toString())
-        }
-        if (oldRemovedApi != null && oldRemovedApi.exists()) {
-            args = args + listOf("--check-compatibility:removed:released", oldRemovedApi.toString())
-        }
         if (baselineFile.exists()) {
             args = args + listOf("--baseline", baselineFile.toString())
         }
