@@ -314,7 +314,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     public ListenableFuture<byte[]> execute(
             @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher) {
-        return execute(getSession(), dispatcher, new SessionRemoteCallback(this));
+        return execute(getSession(), dispatcher, new RemoteCallback());
     }
 
     /**
@@ -415,11 +415,26 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                 } catch (ExecutionException | InterruptedException exception) {
                     Logger.get().error(TAG, "Unable to bind to service");
                     reportFailure(callback, new RuntimeException("Unable to bind to service"));
-                    cleanUp();
                 }
             }
         }, mExecutor);
-        return callback.getFuture();
+        session.addListener(() -> {
+            try {
+                session.get();
+            } catch (ExecutionException | InterruptedException exception) {
+                cleanUp();
+            }
+        }, mExecutor);
+        ListenableFuture<byte[]> future = callback.getFuture();
+        future.addListener(() -> {
+            Handler handler = getSessionHandler();
+            SessionTracker tracker = getSessionTracker();
+            // Start tracking for session timeout.
+            // These callbacks are removed when the session timeout has expired or when getSession()
+            // is called.
+            handler.postDelayed(tracker, getSessionTimeout());
+        }, mExecutor);
+        return future;
     }
 
     @NonNull
@@ -470,7 +485,6 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     /**
      * The implementation of {@link ServiceConnection} that handles changes in the connection.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Session implements ServiceConnection {
@@ -519,29 +533,6 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             Logger.get().error(TAG, "Unable to bind to service");
             mFuture.setException(
                     new RuntimeException("Cannot bind to service " + name));
-        }
-    }
-
-    /**
-     * An extension of {@link RemoteCallback} that kills a {@link Session} after a timeout has
-     * elapsed.
-     */
-    public static class SessionRemoteCallback extends RemoteCallback {
-        private final RemoteWorkManagerClient mClient;
-
-        public SessionRemoteCallback(@NonNull RemoteWorkManagerClient client) {
-            mClient = client;
-        }
-
-        @Override
-        protected void onRequestCompleted() {
-            super.onRequestCompleted();
-            Handler handler = mClient.getSessionHandler();
-            SessionTracker tracker = mClient.getSessionTracker();
-            // Start tracking for session timeout.
-            // These callbacks are removed when the session timeout has expired or when getSession()
-            // is called.
-            handler.postDelayed(tracker, mClient.getSessionTimeout());
         }
     }
 

@@ -111,7 +111,7 @@ public class RemoteWorkManagerClientTest {
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
         val remoteStub = mock(IWorkManagerImpl::class.java)
-        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
+        val callback = spy(RemoteCallback())
         val message = "Something bad happened"
         `when`(remoteDispatcher.execute(remoteStub, callback)).thenThrow(RuntimeException(message))
         `when`(remoteStub.asBinder()).thenReturn(binder)
@@ -140,7 +140,7 @@ public class RemoteWorkManagerClientTest {
 
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
-        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
+        val callback = spy(RemoteCallback())
         val session = SettableFuture.create<IWorkManagerImpl>()
         session.setException(RuntimeException("Something bad happened"))
         var exception: Throwable? = null
@@ -168,7 +168,7 @@ public class RemoteWorkManagerClientTest {
             callback.onSuccess(ByteArray(0))
         }
         val remoteStub = mock(IWorkManagerImpl::class.java)
-        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
+        val callback = spy(RemoteCallback())
         `when`(remoteStub.asBinder()).thenReturn(binder)
         val session = SettableFuture.create<IWorkManagerImpl>()
         session.set(remoteStub)
