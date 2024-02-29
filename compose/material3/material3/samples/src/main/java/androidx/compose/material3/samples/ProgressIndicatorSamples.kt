@@ -20,13 +20,14 @@ import androidx.annotation.Sampled
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.material.Slider
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -56,21 +55,13 @@ fun LinearProgressIndicatorSample() {
             progress = { animatedProgress },
         )
         Spacer(Modifier.requiredHeight(30.dp))
+        Text("Set progress:")
         Slider(
-            modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp)
-                .semantics {
-                    val progressPercent = (progress * 100).toInt()
-                    if (progressPercent in progressBreakpoints) {
-                        stateDescription = "Progress $progressPercent%"
-                    }
-                },
+            modifier = Modifier.width(300.dp),
             value = progress,
             valueRange = 0f..1f,
-            steps = 100,
-            onValueChange = {
-                progress = it
-            })
+            onValueChange = { progress = it },
+        )
     }
 }
 
@@ -92,21 +83,13 @@ fun LegacyLinearProgressIndicatorSample() {
             drawStopIndicator = null
         )
         Spacer(Modifier.requiredHeight(30.dp))
+        Text("Set progress:")
         Slider(
-            modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp)
-                .semantics {
-                    val progressPercent = (progress * 100).toInt()
-                    if (progressPercent in progressBreakpoints) {
-                        stateDescription = "Progress $progressPercent%"
-                    }
-                },
+            modifier = Modifier.width(300.dp),
             value = progress,
             valueRange = 0f..1f,
-            steps = 100,
-            onValueChange = {
-                progress = it
-            })
+            onValueChange = { progress = it },
+        )
     }
 }
 
@@ -144,21 +127,13 @@ fun CircularProgressIndicatorSample() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
+        Text("Set progress:")
         Slider(
-            modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp)
-                .semantics {
-                    val progressPercent = (progress * 100).toInt()
-                    if (progressPercent in progressBreakpoints) {
-                        stateDescription = "Progress $progressPercent%"
-                    }
-                },
+            modifier = Modifier.width(300.dp),
             value = progress,
             valueRange = 0f..1f,
-            steps = 100,
-            onValueChange = {
-                progress = it
-            })
+            onValueChange = { progress = it },
+        )
     }
 }
 
@@ -179,21 +154,13 @@ fun LegacyCircularProgressIndicatorSample() {
             gapSize = 0.dp
         )
         Spacer(Modifier.requiredHeight(30.dp))
+        Text("Set progress:")
         Slider(
-            modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp)
-                .semantics {
-                    val progressPercent = (progress * 100).toInt()
-                    if (progressPercent in progressBreakpoints) {
-                        stateDescription = "Progress $progressPercent%"
-                    }
-                },
+            modifier = Modifier.width(300.dp),
             value = progress,
             valueRange = 0f..1f,
-            steps = 100,
-            onValueChange = {
-                progress = it
-            })
+            onValueChange = { progress = it }
+        )
     }
 }
 
@@ -215,5 +182,3 @@ fun LegacyIndeterminateCircularProgressIndicatorSample() {
         )
     }
 }
-
-private val progressBreakpoints = listOf(20, 40, 60, 80, 100)
