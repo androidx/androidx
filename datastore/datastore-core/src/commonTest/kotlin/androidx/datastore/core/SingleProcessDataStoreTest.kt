@@ -21,14 +21,12 @@ import androidx.datastore.TestIO
 import androidx.datastore.TestingSerializerConfig
 import androidx.datastore.core.UpdatingDataContextElement.Companion.NESTED_UPDATE_ERROR_MESSAGE
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
-import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -1098,35 +1096,36 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         assertThat(store2.data.first()).isEqualTo(2.toByte())
     }
 
-    @Ignore // b/289582516
     @Test
     fun testReadHandlesCorruptionAfterInit() {
         runTest {
+            val corruptionHandler = TestingCorruptionHandler(replaceWith = 3.toByte())
             val newStore = newDataStore(
                 testFile,
-                corruptionHandler = ReplaceFileCorruptionHandler { _ -> 2 }
+                corruptionHandler = corruptionHandler
             )
 
             // create the file to prevent serializer from returning default value
             newStore.updateData { 1 }
             assertThat(newStore.data.first()).isEqualTo(1)
 
-            // increment version to force non-cached read which gets [CorruptionException], the
-            // current state is [Data]
+            // increment version to force non-cached read which gets automatically reset from a
+            // [CorruptionException], the current state is [Data]
             serializerConfig.failReadWithCorruptionException = true
             serializerConfig.defaultValue = 2
             newStore.incrementSharedCounter()
-            assertThat(newStore.data.first()).isEqualTo(2)
+            assertThat(newStore.data.first()).isEqualTo(3.toByte())
+            assertThat(corruptionHandler.numCalls.get()).isEqualTo(1)
         }
     }
 
-    @Ignore // b/289582516
     @Test
     fun testUpdateHandlesCorruptionAfterInit() {
         runTest {
+            val corruptionHandler = TestingCorruptionHandler(replaceWith = 3.toByte())
             val newStore = newDataStore(
                 testFile,
-                corruptionHandler = ReplaceFileCorruptionHandler { _ -> 2 }
+                corruptionHandler = corruptionHandler
             )
 
             // create the file to prevent serializer from returning default value
@@ -1138,7 +1137,8 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             serializerConfig.failReadWithCorruptionException = true
             serializerConfig.defaultValue = 2
             newStore.incrementSharedCounter()
-            assertThat(newStore.updateData { 3.toByte() }).isEqualTo(3)
+            assertThat(newStore.updateData { it.inc() }).isEqualTo(4)
+            assertThat(corruptionHandler.numCalls.get()).isEqualTo(1)
         }
     }
 
