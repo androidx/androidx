@@ -356,6 +356,14 @@ internal object Api31Compat {
         inputConfigData: List<InputConfigData>,
         cameraId: String
     ): InputConfiguration {
+        check(inputConfigData.isNotEmpty()) {
+            "Call to create InputConfiguration but list of InputConfigData is empty."
+        }
+
+        if (inputConfigData.size == 1) {
+            val inputData = inputConfigData.first();
+            return InputConfiguration(inputData.width, inputData.height, inputData.format)
+        }
         val multiResolutionInput = inputConfigData.map { input ->
             MultiResolutionStreamInfo(input.width, input.height, cameraId)
         }
