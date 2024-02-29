@@ -37,7 +37,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Utils for {@link AnalyticsEvent} and subclasses.
- * @Hide
  */
 @RestrictTo(LIBRARY)
 public class AnalyticsEventsUtil {
@@ -78,7 +77,6 @@ public class AnalyticsEventsUtil {
 
     /**
      * Converts {@link AnalyticsEvent.ViewAction} to human readable text.
-     * @Hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
