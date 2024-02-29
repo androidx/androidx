@@ -18,7 +18,6 @@ package androidx.work.multiprocess;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportFailure;
 import static androidx.work.multiprocess.RemoteClientUtils.map;
 import static androidx.work.multiprocess.RemoteClientUtils.sVoidMapper;
 
@@ -27,9 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
@@ -37,7 +34,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
-import androidx.core.os.HandlerCompat;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
@@ -45,6 +41,7 @@ import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.RunnableScheduler;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkQuery;
@@ -72,14 +69,13 @@ import java.util.concurrent.Executor;
 /**
  * The implementation of the {@link RemoteWorkManager} which sets up the
  * {@link android.content.ServiceConnection} and dispatches the request.
- *
  */
 @SuppressLint("BanKeepAnnotation")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     /* The session timeout. */
-    private static final long SESSION_TIMEOUT_MILLIS = 60 * 1000;
+    private static final long SESSION_TIMEOUT_MILLIS = 6000 * 1000;
 
     // Synthetic access
     static final String TAG = Logger.tagWithPrefix("RemoteWorkManagerClient");
@@ -94,7 +90,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     private volatile long mSessionIndex;
     private final long mSessionTimeout;
-    private final Handler mHandler;
+    private final RunnableScheduler mRunnableScheduler;
     private final SessionTracker mSessionTracker;
 
     public RemoteWorkManagerClient(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
@@ -112,7 +108,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
         mSession = null;
         mSessionTracker = new SessionTracker(this);
         mSessionTimeout = sessionTimeout;
-        mHandler = HandlerCompat.createAsync(Looper.getMainLooper());
+        mRunnableScheduler = mWorkManager.getConfiguration().getRunnableScheduler();
     }
 
     @NonNull
@@ -314,7 +310,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     public ListenableFuture<byte[]> execute(
             @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher) {
-        return execute(getSession(), dispatcher, new RemoteCallback());
+        return execute(getSession(), dispatcher);
     }
 
     /**
@@ -347,14 +343,6 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @Nullable
     public Session getCurrentSession() {
         return mSession;
-    }
-
-    /**
-     * @return The {@link Handler} managing session timeouts.
-     */
-    @NonNull
-    public Handler getSessionHandler() {
-        return mHandler;
     }
 
     /**
@@ -392,32 +380,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @VisibleForTesting
     ListenableFuture<byte[]> execute(
             @NonNull final ListenableFuture<IWorkManagerImpl> session,
-            @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher,
-            @NonNull final RemoteCallback callback) {
-        session.addListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final IWorkManagerImpl iWorkManager = session.get();
-                    // Set the binder to scope the request
-                    callback.setBinder(iWorkManager.asBinder());
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                dispatcher.execute(iWorkManager, callback);
-                            } catch (Throwable innerThrowable) {
-                                Logger.get().error(TAG, "Unable to execute", innerThrowable);
-                                reportFailure(callback, innerThrowable);
-                            }
-                        }
-                    });
-                } catch (ExecutionException | InterruptedException exception) {
-                    Logger.get().error(TAG, "Unable to bind to service");
-                    reportFailure(callback, new RuntimeException("Unable to bind to service"));
-                }
-            }
-        }, mExecutor);
+            @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher) {
         session.addListener(() -> {
             try {
                 session.get();
@@ -425,14 +388,14 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                 cleanUp();
             }
         }, mExecutor);
-        ListenableFuture<byte[]> future = callback.getFuture();
+        ListenableFuture<byte[]> future = RemoteExecuteKt.execute(mExecutor, session,
+                dispatcher);
         future.addListener(() -> {
-            Handler handler = getSessionHandler();
             SessionTracker tracker = getSessionTracker();
             // Start tracking for session timeout.
             // These callbacks are removed when the session timeout has expired or when getSession()
             // is called.
-            handler.postDelayed(tracker, getSessionTimeout());
+            mRunnableScheduler.scheduleWithDelay(getSessionTimeout(), tracker);
         }, mExecutor);
         return future;
     }
@@ -455,7 +418,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                 }
             }
             // Reset session tracker.
-            mHandler.removeCallbacks(mSessionTracker);
+            mRunnableScheduler.cancel(mSessionTracker);
             return mSession.mFuture;
         }
     }
