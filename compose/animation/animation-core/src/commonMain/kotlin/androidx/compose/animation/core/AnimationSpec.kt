@@ -922,3 +922,107 @@ fun <T> infiniteRepeatable(
  */
 @Stable
 fun <T> snap(delayMillis: Int = 0) = SnapSpec<T>(delayMillis)
+
+/**
+ * Returns an [AnimationSpec] that is the same as [animationSpec] with a delay of [startDelayNanos].
+ */
+@Stable
+internal fun <T> delayed(
+    animationSpec: AnimationSpec<T>,
+    startDelayNanos: Long
+): AnimationSpec<T> = StartDelayAnimationSpec(animationSpec, startDelayNanos)
+
+/**
+ * A [VectorizedAnimationSpec] that wraps [vectorizedAnimationSpec], giving it a start delay
+ * of [startDelayNanos].
+ */
+@Immutable
+private class StartDelayVectorizedAnimationSpec<V : AnimationVector>(
+    val vectorizedAnimationSpec: VectorizedAnimationSpec<V>,
+    val startDelayNanos: Long
+) : VectorizedAnimationSpec<V> {
+    override val isInfinite: Boolean
+        get() = vectorizedAnimationSpec.isInfinite
+
+    override fun getDurationNanos(
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): Long = vectorizedAnimationSpec.getDurationNanos(
+        initialValue = initialValue,
+        targetValue = targetValue,
+        initialVelocity = initialVelocity
+    ) + startDelayNanos
+
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V = if (playTimeNanos < startDelayNanos) {
+        initialVelocity
+    } else {
+        vectorizedAnimationSpec.getVelocityFromNanos(
+            playTimeNanos = playTimeNanos - startDelayNanos,
+            initialValue = initialValue,
+            targetValue = targetValue,
+            initialVelocity = initialVelocity
+        )
+    }
+
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V = if (playTimeNanos < startDelayNanos) {
+        initialValue
+    } else {
+        vectorizedAnimationSpec.getValueFromNanos(
+            playTimeNanos = playTimeNanos - startDelayNanos,
+            initialValue = initialValue,
+            targetValue = targetValue,
+            initialVelocity = initialVelocity
+        )
+    }
+
+    override fun hashCode(): Int {
+        return 31 * vectorizedAnimationSpec.hashCode() + startDelayNanos.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is StartDelayVectorizedAnimationSpec<*>) {
+            return false
+        }
+        return other.startDelayNanos == startDelayNanos &&
+            other.vectorizedAnimationSpec == vectorizedAnimationSpec
+    }
+}
+
+/**
+ * An [AnimationSpec] that wraps [animationSpec], giving it a start delay of [startDelayNanos].
+ */
+@Immutable
+private class StartDelayAnimationSpec<T>(
+    val animationSpec: AnimationSpec<T>,
+    val startDelayNanos: Long
+) : AnimationSpec<T> {
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedAnimationSpec<V> {
+        val vecSpec = animationSpec.vectorize(converter)
+        return StartDelayVectorizedAnimationSpec(vecSpec, startDelayNanos)
+    }
+
+    override fun hashCode(): Int {
+        return 31 * animationSpec.hashCode() + startDelayNanos.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is StartDelayAnimationSpec<*>) {
+            return false
+        }
+        return other.startDelayNanos == startDelayNanos &&
+            other.animationSpec == animationSpec
+    }
+}
