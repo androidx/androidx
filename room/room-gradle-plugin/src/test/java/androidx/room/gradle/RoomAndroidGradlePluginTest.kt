@@ -21,8 +21,6 @@ import androidx.testutils.gradle.ProjectSetupRule
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import java.io.File
-import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +28,7 @@ import org.junit.runner.RunWith
 
 @Suppress("JUnitMalformedDeclaration") // Using TestParameterInjector in test functions.
 @RunWith(TestParameterInjector::class)
-class RoomGradlePluginTest {
+class RoomAndroidGradlePluginTest {
     @get:Rule
     val projectSetup = ProjectSetupRule()
 
@@ -359,7 +357,7 @@ class RoomGradlePluginTest {
 
         runGradleTasks(CLEAN_TASK, COMPILE_TASK, expectFailure = true).let { result ->
             assertThat(result.output).contains(
-                "The schema directory path for variant 'debug' must not be empty."
+                "The Room schema directory path for Android variant 'debug' must not be empty."
             )
         }
     }
@@ -396,7 +394,7 @@ class RoomGradlePluginTest {
             expectFailure = true
         ).let { result ->
             assertThat(result.output).contains(
-                "No matching schema directory for variant 'flavorTwoDebug'."
+                "No matching Room schema directory for Android variant 'flavorTwoDebug'."
             )
         }
     }
@@ -438,7 +436,7 @@ class RoomGradlePluginTest {
             result.assertTaskOutcome(":copyRoomSchemas", TaskOutcome.FAILED)
 
             assertThat(result.output).contains(
-                "Inconsistency detected exporting schema files"
+                "Inconsistency detected exporting Room schema files"
             )
         }
     }
@@ -447,23 +445,7 @@ class RoomGradlePluginTest {
         vararg args: String,
         projectDir: File = projectSetup.rootDir,
         expectFailure: Boolean = false
-    ): BuildResult {
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withDebug(true)
-            // workaround for b/231154556
-            .withArguments("-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m", *args)
-        return if (expectFailure) {
-            runner.buildAndFail()
-        } else {
-            runner.build()
-        }
-    }
-
-    private fun BuildResult.assertTaskOutcome(taskPath: String, outcome: TaskOutcome) {
-        assertThat(this.task(taskPath)!!.outcome).isEqualTo(outcome)
-    }
+    ) = runGradle(*args, projectDir = projectDir, expectFailure = expectFailure)
 
     private fun searchAndReplace(file: File, search: String, replace: String) {
         file.writeText(file.readText().replace(search, replace))
