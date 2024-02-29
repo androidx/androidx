@@ -366,6 +366,10 @@ package androidx.compose.runtime {
   }
 
   public final class HotReloaderKt {
+    method @org.jetbrains.annotations.TestOnly public static void clearCompositionErrors();
+    method @org.jetbrains.annotations.TestOnly public static java.util.List<kotlin.Pair<java.lang.Exception,java.lang.Boolean>> currentCompositionErrors();
+    method @org.jetbrains.annotations.TestOnly public static void invalidateGroupsWithKey(int key);
+    method @org.jetbrains.annotations.TestOnly public static void simulateHotReload(Object context);
   }
 
   @androidx.compose.runtime.StableMarker @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Immutable {
