@@ -341,17 +341,16 @@ fun LinearProgressIndicator(
         }
         val gapSizeFraction = adjustedGapSize / size.width.toDp()
 
-        if (firstLineHead.value - firstLineTail.value >= 0) {
-            if (firstLineTail.value > gapSizeFraction) {
-                val start = if (secondLineHead.value > gapSizeFraction) {
-                    secondLineHead.value + gapSizeFraction
-                } else {
-                    0f
-                }
-                drawLinearIndicator(
-                    start, firstLineTail.value - gapSizeFraction, trackColor, strokeWidth, strokeCap
-                )
-            }
+        // Track before line 1
+        if (firstLineHead.value < 1f - gapSizeFraction) {
+            val start = if (firstLineHead.value > 0) firstLineHead.value + gapSizeFraction else 0f
+            drawLinearIndicator(
+                start, 1f, trackColor, strokeWidth, strokeCap
+            )
+        }
+
+        // Line 1
+        if (firstLineHead.value - firstLineTail.value > 0) {
             drawLinearIndicator(
                 firstLineHead.value,
                 firstLineTail.value,
@@ -359,18 +358,19 @@ fun LinearProgressIndicator(
                 strokeWidth,
                 strokeCap,
             )
-            if (firstLineHead.value < 1f - gapSizeFraction) {
-                drawLinearIndicator(
-                    firstLineHead.value + gapSizeFraction, 1f, trackColor, strokeWidth, strokeCap
-                )
-            }
         }
-        if (secondLineHead.value - secondLineTail.value >= 0) {
-            if (secondLineTail.value > gapSizeFraction) {
-                drawLinearIndicator(
-                    0f, secondLineTail.value - gapSizeFraction, trackColor, strokeWidth, strokeCap
-                )
-            }
+
+        // Track between line 1 and line 2
+        if (firstLineTail.value > gapSizeFraction) {
+            val start = if (secondLineHead.value > 0) secondLineHead.value + gapSizeFraction else 0f
+            val end = if (firstLineTail.value < 1f) firstLineTail.value - gapSizeFraction else 1f
+            drawLinearIndicator(
+                start, end, trackColor, strokeWidth, strokeCap
+            )
+        }
+
+        // Line 2
+        if (secondLineHead.value - secondLineTail.value > 0) {
             drawLinearIndicator(
                 secondLineHead.value,
                 secondLineTail.value,
@@ -378,16 +378,14 @@ fun LinearProgressIndicator(
                 strokeWidth,
                 strokeCap,
             )
-            if (secondLineHead.value < 1f - gapSizeFraction) {
-                val end = if (firstLineTail.value < 1f - gapSizeFraction) {
-                    firstLineTail.value - gapSizeFraction
-                } else {
-                    1f
-                }
-                drawLinearIndicator(
-                    secondLineHead.value + gapSizeFraction, end, trackColor, strokeWidth, strokeCap
-                )
-            }
+        }
+
+        // Track after line 2
+        if (secondLineTail.value > gapSizeFraction) {
+            val end = if (secondLineTail.value < 1) secondLineTail.value - gapSizeFraction else 1f
+            drawLinearIndicator(
+                0f, end, trackColor, strokeWidth, strokeCap
+            )
         }
     }
 }
