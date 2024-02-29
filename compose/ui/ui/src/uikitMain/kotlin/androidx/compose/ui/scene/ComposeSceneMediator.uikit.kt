@@ -448,7 +448,6 @@ internal class ComposeSceneMediator(
                 if (renderingView.isReadyToShowContent.value) {
                     ProvideComposeSceneMediatorCompositionLocals {
                         interopViewContainer.TrackInteropContainer(
-                            container = interopViewContainer.containerView,
                             content = content
                         )
                     }

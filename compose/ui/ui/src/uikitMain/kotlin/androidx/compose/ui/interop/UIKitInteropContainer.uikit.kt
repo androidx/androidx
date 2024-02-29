@@ -44,14 +44,18 @@ internal val LocalUIKitInteropContainer = staticCompositionLocalOf<UIKitInteropC
 internal class UIKitInteropContainer: InteropContainer<UIView> {
     val containerView: UIView = UIKitInteropContainerView()
     override var rootModifier: TrackInteropModifierNode<UIView>? = null
+    override var interopViews = mutableSetOf<UIView>()
+        private set
 
     override fun addInteropView(nativeView: UIView) {
         val index = countInteropComponentsBefore(nativeView)
+        interopViews.add(nativeView)
         containerView.insertSubview(nativeView, index.toLong())
     }
 
     override fun removeInteropView(nativeView: UIView) {
         nativeView.removeFromSuperview()
+        interopViews.remove(nativeView)
     }
 }
 

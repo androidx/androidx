@@ -78,6 +78,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.ClipComponent
+import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkikoInput
@@ -151,7 +152,7 @@ internal class ComposeSceneMediator(
     )
 
     private val containerListener = object : ContainerListener {
-        private val clipMap = mutableMapOf<Component, ClipComponent>()
+        private val clipMap = mutableMapOf<Component, ClipRectangle>()
 
         override fun componentAdded(e: ContainerEvent) {
             val component = e.child
@@ -176,7 +177,7 @@ internal class ComposeSceneMediator(
         }
 
         private fun addClipComponent(component: Component) {
-            val clipRectangle = ClipComponent(component)
+            val clipRectangle = interopContainer.getClipRectForComponent(component)
             clipMap[component] = clipRectangle
             skiaLayerComponent.clipComponents.add(clipRectangle)
         }

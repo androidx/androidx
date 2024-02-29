@@ -41,7 +41,7 @@ import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.layout.EmptyLayout
 import androidx.compose.ui.layout.OverlayLayout
-import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
-import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Container
 import java.awt.event.FocusEvent
@@ -105,14 +104,36 @@ public fun <T : Component> SwingPanel(
 
     OverlayLayout(
         modifier = modifier.onGloballyPositioned { coordinates ->
-            val bounds = coordinates.boundsInRoot().round(density)
-            componentInfo.container.setBounds(bounds.left, bounds.top, bounds.width, bounds.height)
+            val rootCoordinates = coordinates.findRootCoordinates()
+            val clipedBounds = rootCoordinates
+                .localBoundingBoxOf(coordinates, clipBounds = true).round(density)
+            val bounds = rootCoordinates
+                .localBoundingBoxOf(coordinates, clipBounds = false).round(density)
+
+            // Take care about clipped bounds
+            componentInfo.clipBounds = clipedBounds // Clipping area for skia canvas
+            componentInfo.container.isVisible = !clipedBounds.isEmpty // Hide if it's fully clipped
+            // Swing clips children based on parent's bounds, so use our container for clipping
+            componentInfo.container.setBounds(
+                /* x = */ clipedBounds.left,
+                /* y = */ clipedBounds.top,
+                /* width = */ clipedBounds.width,
+                /* height = */ clipedBounds.height
+            )
+
+            // The real size and position should be based on not-clipped bounds
+            componentInfo.component.setBounds(
+                /* x = */ bounds.left - clipedBounds.left, // Local position relative to container
+                /* y = */ bounds.top - clipedBounds.top,
+                /* width = */ bounds.width,
+                /* height = */ bounds.height
+            )
             componentInfo.container.validate()
             componentInfo.container.repaint()
         }.drawBehind {
             // Clear interop area to make visible the component under our canvas.
             drawRect(Color.Transparent, blendMode = BlendMode.Clear)
-        }.trackSwingInterop(componentInfo.container)
+        }.trackSwingInterop(componentInfo)
             .then(InteropPointerInputModifier(componentInfo))
     ) {
         focusSwitcher.Content()
@@ -133,9 +154,9 @@ public fun <T : Component> SwingPanel(
             override fun focusLost(e: FocusEvent) = Unit
         }
         interopContainer.container.addFocusListener(focusListener)
-        interopContainer.addInteropView(componentInfo.container)
+        interopContainer.addInteropView(componentInfo)
         onDispose {
-            interopContainer.removeInteropView(componentInfo.container)
+            interopContainer.removeInteropView(componentInfo)
             interopContainer.container.removeFocusListener(focusListener)
         }
     }
@@ -156,13 +177,19 @@ public fun <T : Component> SwingPanel(
     }
 }
 
+/**
+ * A container for [SwingPanel]'s component. Takes care about focus and clipping.
+ *
+ * @param key The unique identifier for the panel container.
+ * @param focusComponent The component that should receive focus.
+ */
 private class SwingPanelContainer(
     key: Int,
     private val focusComponent: Component
 ): JPanel() {
     init {
-        name = "SwingPanel #$key"
-        layout = BorderLayout(0, 0)
+        name = "SwingPanel #${key.toString(MaxSupportedRadix)}"
+        layout = null
         focusTraversalPolicy = object : LayoutFocusTraversalPolicy() {
             override fun getComponentAfter(aContainer: Container?, aComponent: Component?): Component? {
                 return if (aComponent == getLastComponent(aContainer)) {
@@ -252,8 +279,8 @@ private class FocusSwitcher<T : Component>(
 }
 
 private class ComponentInfo<T : Component>(
-    val container: Container
-) {
+    container: SwingPanelContainer
+): InteropComponent(container) {
     lateinit var component: T
     lateinit var updater: Updater<T>
 }
@@ -371,3 +398,8 @@ private class InteropPointerInputModifier<T : Component>(
         return SwingUtilities.getDeepestComponentAt(parent, point.x, point.y)
     }
 }
+
+/**
+ * The maximum radix available for conversion to and from strings.
+ */
+private val MaxSupportedRadix = 36

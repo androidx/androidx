@@ -27,8 +27,10 @@ import androidx.compose.ui.node.TrackInteropModifierElement
 import androidx.compose.ui.node.TrackInteropModifierNode
 import androidx.compose.ui.node.countInteropComponentsBefore
 import androidx.compose.ui.scene.ComposeSceneMediator
+import androidx.compose.ui.unit.IntRect
 import java.awt.Component
 import java.awt.Container
+import org.jetbrains.skiko.ClipRectangle
 
 /**
  * Providing interop container as composition local, so [SwingPanel] can use it to add
@@ -50,30 +52,28 @@ internal val LocalSwingInteropContainer = staticCompositionLocalOf<SwingInteropC
 internal class SwingInteropContainer(
     val container: Container,
     private val placeInteropAbove: Boolean
-): InteropContainer<Component> {
+): InteropContainer<InteropComponent> {
     /**
-     * Represents the count of interop components in [container].
-     *
-     * This variable is required to add interop components to right indexes independently of
-     * already existing children of [container].
-     *
      * @see SwingInteropContainer.addInteropView
      * @see SwingInteropContainer.removeInteropView
      */
-    private var interopComponentsCount = 0
+    private var interopComponents = mutableMapOf<Component, InteropComponent>()
 
-    override var rootModifier: TrackInteropModifierNode<Component>? = null
+    override var rootModifier: TrackInteropModifierNode<InteropComponent>? = null
+    override val interopViews: Set<InteropComponent>
+        get() = interopComponents.values.toSet()
 
-    override fun addInteropView(nativeView: Component) {
-        val nonInteropComponents = container.componentCount - interopComponentsCount
+    override fun addInteropView(nativeView: InteropComponent) {
+        val component = nativeView.container
+        val nonInteropComponents = container.componentCount - interopComponents.size
         // AWT uses the reverse order for drawing and events, so index = size - count
-        val index = interopComponentsCount - countInteropComponentsBefore(nativeView)
-        container.add(nativeView, if (placeInteropAbove) {
+        val index = interopComponents.size - countInteropComponentsBefore(nativeView)
+        interopComponents[component] = nativeView
+        container.add(component, if (placeInteropAbove) {
             index
         } else {
             index + nonInteropComponents
         })
-        interopComponentsCount++
 
         // Sometimes Swing displays the rest of interop views in incorrect order after removing,
         // so we need to force re-validate it.
@@ -81,15 +81,19 @@ internal class SwingInteropContainer(
         container.repaint()
     }
 
-    override fun removeInteropView(nativeView: Component) {
-        interopComponentsCount--
-        container.remove(nativeView)
+    override fun removeInteropView(nativeView: InteropComponent) {
+        val component = nativeView.container
+        container.remove(component)
+        interopComponents.remove(component)
 
         // Sometimes Swing displays the rest of interop views in incorrect order after removing,
         // so we need to force re-validate it.
         container.validate()
         container.repaint()
     }
+
+    fun getClipRectForComponent(component: Component): ClipRectangle =
+        requireNotNull(interopComponents[component])
 
     @Composable
     operator fun invoke(content: @Composable () -> Unit) {
@@ -97,7 +101,6 @@ internal class SwingInteropContainer(
             LocalSwingInteropContainer provides this,
         ) {
             TrackInteropContainer(
-                container = container,
                 content = content
             )
         }
@@ -110,7 +113,27 @@ internal class SwingInteropContainer(
  * @param component The Swing component that matches the current node.
  */
 internal fun Modifier.trackSwingInterop(
-    component: Component
+    component: InteropComponent
 ): Modifier = this then TrackInteropModifierElement(
     nativeView = component
 )
+
+/**
+ * Provides clipping bounds for skia canvas.
+ *
+ * @param container The container that holds the component.
+ * @param clipBounds The rectangular region to clip skia canvas. It's relative to Compose root
+ */
+internal open class InteropComponent(
+    val container: Container,
+    var clipBounds: IntRect? = null
+) : ClipRectangle {
+    override val x: Float
+        get() = (clipBounds?.left ?: container.x).toFloat()
+    override val y: Float
+        get() = (clipBounds?.top ?: container.y).toFloat()
+    override val width: Float
+        get() = (clipBounds?.width ?: container.width).toFloat()
+    override val height: Float
+        get() = (clipBounds?.height ?: container.height).toFloat()
+}
