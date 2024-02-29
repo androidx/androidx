@@ -215,28 +215,29 @@ private class RippleNodeFactory private constructor(
 }
 
 private class DelegatingThemeAwareRippleNode(
-    private val interactionSource: InteractionSource,
-    private val bounded: Boolean,
-    private val radius: Dp,
-    private val color: ColorProducer,
+    interactionSource: InteractionSource,
+    bounded: Boolean,
+    radius: Dp,
+    color: ColorProducer,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode {
-    override fun onAttach() {
-        val calculateColor = ColorProducer {
-            val userDefinedColor = color()
-            if (userDefinedColor.isSpecified) {
-                userDefinedColor
-            } else {
-                currentValueOf(LocalContentColor)
-            }
-        }
 
-        delegate(createRippleModifierNode(
-            interactionSource,
-            bounded,
-            radius,
-            calculateColor,
-            CalculateRippleAlpha
-        ))
+    init {
+        delegate(
+            createRippleModifierNode(
+                interactionSource,
+                bounded,
+                radius,
+                ColorProducer {
+                    val userDefinedColor = color()
+                    if (userDefinedColor.isSpecified) {
+                        userDefinedColor
+                    } else {
+                        currentValueOf(LocalContentColor)
+                    }
+                },
+                CalculateRippleAlpha
+            )
+        )
     }
 }
 
