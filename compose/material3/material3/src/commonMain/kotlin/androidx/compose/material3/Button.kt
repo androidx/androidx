@@ -668,7 +668,7 @@ object ButtonDefaults {
                 disabledContentColor = fromToken(FilledTonalButtonTokens.DisabledLabelTextColor)
                     .copy(alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity)
             ).also {
-                defaultElevatedButtonColorsCached = it
+                defaultFilledTonalButtonColorsCached = it
             }
         }
 
@@ -732,12 +732,10 @@ object ButtonDefaults {
      */
     @Composable
     fun textButtonColors(
-        containerColor: Color = Color.Transparent,
-        contentColor: Color = TextButtonTokens.LabelTextColor.value,
-        disabledContainerColor: Color = Color.Transparent,
-        disabledContentColor: Color = TextButtonTokens.DisabledLabelTextColor
-            .value
-            .copy(alpha = TextButtonTokens.DisabledLabelTextOpacity),
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
     ): ButtonColors = MaterialTheme.colorScheme.defaultTextButtonColors.copy(
         containerColor = containerColor,
         contentColor = contentColor,
