@@ -543,7 +543,7 @@ private fun Modifier.clipToBounds(adaptedValue: PaneAdaptedValue): Modifier =
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun ThreePaneScaffoldScope.AnimatedPane(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     content: (@Composable ThreePaneScaffoldScope.() -> Unit),
 ) {
     AnimatedVisibility(
