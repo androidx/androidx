@@ -795,6 +795,6 @@ class AnimatedVisibilityTest {
         // After a few frames, we can check the position of the box. If it used the expected
         // transition, its current position should be offset to the right.
         assertEquals(0, boxPosition.y)
-        assertThat(boxPosition.x).isGreaterThan(positionAtInterruption.x)
+        assert(boxPosition.x > positionAtInterruption.x)
     }
 }
