@@ -40,13 +40,6 @@ data class ApiLocation(
     val apiFileDirectory: File,
     // File where the library's public API surface is recorded
     val publicApiFile: File,
-    // File where the library's removed API surface is recorded.
-    // The removed API surface contains APIs that used to be public, and are still
-    // available for linking against, but have been removed from the set of APIs that may be
-    // compiled against.
-    // The publicApiFile and the removedApiFile together provide the set of APIs that
-    // dependents may link against
-    val removedApiFile: File,
     // File where the library's public plus restricted (see @RestrictTo) API surfaces are recorded
     val restrictedApiFile: File,
     // File where the library's public resources are recorded
@@ -90,7 +83,6 @@ data class ApiLocation(
             return ApiLocation(
                 apiFileDirectory = apiFileDir,
                 publicApiFile = File(apiFileDir, "$baseName$EXTENSION"),
-                removedApiFile = File(apiFileDir, "$PREFIX_REMOVED$baseName$EXTENSION"),
                 restrictedApiFile = File(apiFileDir, "$PREFIX_RESTRICTED$baseName$EXTENSION"),
                 resourceFile = File(apiFileDir, "$PREFIX_RESOURCE$baseName$EXTENSION"),
                 aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName),
@@ -103,9 +95,6 @@ data class ApiLocation(
 
         /** Base file name used by current API files. */
         private const val CURRENT = "current"
-
-        /** Prefix used for removed API surface files. */
-        private const val PREFIX_REMOVED = "removed_"
 
         /** Prefix used for restricted API surface files. */
         private const val PREFIX_RESTRICTED = "restricted_"
