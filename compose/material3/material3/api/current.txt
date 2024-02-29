@@ -1020,7 +1020,7 @@ package androidx.compose.material3 {
     field public static final androidx.compose.material3.NavigationBarDefaults INSTANCE;
   }
 
-  @androidx.compose.runtime.Stable public final class NavigationBarItemColors {
+  @androidx.compose.runtime.Immutable public final class NavigationBarItemColors {
     ctor public NavigationBarItemColors(long selectedIconColor, long selectedTextColor, long selectedIndicatorColor, long unselectedIconColor, long unselectedTextColor, long disabledIconColor, long disabledTextColor);
     method public androidx.compose.material3.NavigationBarItemColors copy(optional long selectedIconColor, optional long selectedTextColor, optional long selectedIndicatorColor, optional long unselectedIconColor, optional long unselectedTextColor, optional long disabledIconColor, optional long disabledTextColor);
     method public long getDisabledIconColor();
