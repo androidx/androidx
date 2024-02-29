@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastAll
+import androidx.compose.ui.util.trace
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
@@ -192,7 +193,7 @@ internal class RootNodeOwner(
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks(forceDispatch = true)
     }
 
-    fun draw(canvas: Canvas) {
+    fun draw(canvas: Canvas) = trace("RootNodeOwner:draw") {
         owner.root.draw(canvas)
         clearInvalidObservations()
     }

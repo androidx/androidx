@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.SnapshotInvalidationTracker
 import androidx.compose.ui.platform.GlobalSnapshotManager
 import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.util.trace
 import kotlin.coroutines.CoroutineContext
 import kotlin.concurrent.Volatile
 
@@ -74,7 +75,7 @@ internal abstract class BaseComposeScene(
         private set
 
     private var isInvalidationDisabled = false
-    private inline fun <T> postponeInvalidation(crossinline block: () -> T): T {
+    private inline fun <T> postponeInvalidation(traceTag: String, crossinline block: () -> T): T = trace(traceTag) {
         check(!isClosed) { "ComposeScene is closed" }
         isInvalidationDisabled = true
         return try {
@@ -124,7 +125,7 @@ internal abstract class BaseComposeScene(
 
     override fun hasInvalidations(): Boolean = hasPendingDraws || recomposer.hasPendingWork
 
-    override fun setContent(content: @Composable () -> Unit) = postponeInvalidation {
+    override fun setContent(content: @Composable () -> Unit) = postponeInvalidation("BaseComposeScene:setContent") {
         check(!isClosed) { "ComposeScene is closed" }
         inputHandler.onChangeContent()
 
@@ -145,28 +146,29 @@ internal abstract class BaseComposeScene(
         recomposer.performScheduledTasks()
     }
 
-    override fun render(canvas: Canvas, nanoTime: Long) = postponeInvalidation {
-        // Note that on Android the order is slightly different:
-        // - Recomposition
-        // - Layout
-        // - Draw
-        // - Composition effects
-        // - Synthetic events
-        // We do this differently in order to be able to observe changes made by synthetic events
-        // in the drawing phase, thus reducing the time before they are visible on screen.
-        //
-        // It is important, however, to run the composition effects before the synthetic events are
-        // dispatched, in order to allow registering for these events before they are sent.
-        // Otherwise, events like a synthetic mouse-enter sent due to a new element appearing under
-        // the pointer would be missed by e.g. InteractionSource.collectHoverAsState
-        recomposer.performScheduledTasks()
-        frameClock.sendFrame(nanoTime)           // Recomposition
-        doLayout()                               // Layout
-        recomposer.performScheduledEffects()     // Composition effects (e.g. LaunchedEffect)
-        inputHandler.updatePointerPosition()     // Synthetic move event
-        snapshotInvalidationTracker.onDraw()
-        draw(canvas)                             // Draw
-    }
+    override fun render(canvas: Canvas, nanoTime: Long) =
+        postponeInvalidation("BaseComposeScene:render") {
+            // Note that on Android the order is slightly different:
+            // - Recomposition
+            // - Layout
+            // - Draw
+            // - Composition effects
+            // - Synthetic events
+            // We do this differently in order to be able to observe changes made by synthetic events
+            // in the drawing phase, thus reducing the time before they are visible on screen.
+            //
+            // It is important, however, to run the composition effects before the synthetic events are
+            // dispatched, in order to allow registering for these events before they are sent.
+            // Otherwise, events like a synthetic mouse-enter sent due to a new element appearing under
+            // the pointer would be missed by e.g. InteractionSource.collectHoverAsState
+            recomposer.performScheduledTasks()
+            frameClock.sendFrame(nanoTime)           // Recomposition
+            doLayout()                               // Layout
+            recomposer.performScheduledEffects()     // Composition effects (e.g. LaunchedEffect)
+            inputHandler.updatePointerPosition()     // Synthetic move event
+            snapshotInvalidationTracker.onDraw()
+            draw(canvas)                             // Draw
+        }
 
     override fun sendPointerEvent(
         eventType: PointerEventType,
@@ -178,7 +180,7 @@ internal abstract class BaseComposeScene(
         keyboardModifiers: PointerKeyboardModifiers?,
         nativeEvent: Any?,
         button: PointerButton?
-    ) = postponeInvalidation {
+    ) = postponeInvalidation("BaseComposeScene:sendPointerEvent") {
         inputHandler.onPointerEvent(
             eventType = eventType,
             position = position,
@@ -203,7 +205,7 @@ internal abstract class BaseComposeScene(
         timeMillis: Long,
         nativeEvent: Any?,
         button: PointerButton?,
-    ) = postponeInvalidation {
+    ) = postponeInvalidation("BaseComposeScene:sendPointerEvent") {
         inputHandler.onPointerEvent(
             eventType = eventType,
             pointers = pointers,
@@ -216,7 +218,7 @@ internal abstract class BaseComposeScene(
         )
     }
 
-    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean = postponeInvalidation {
+    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean = postponeInvalidation("BaseComposeScene:sendKeyEvent") {
         inputHandler.onKeyEvent(keyEvent)
     }
 

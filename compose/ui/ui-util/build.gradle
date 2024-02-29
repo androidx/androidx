@@ -70,7 +70,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             jbMain.dependsOn(commonMain)
             nativeMain.dependsOn(jbMain)
-            jsMain.dependsOn(jbMain)
             desktopMain.dependsOn(jbMain)
 
             wasmJsMain {
@@ -78,7 +77,19 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.kotlinStdlib)
                 }
             }
-            wasmJsMain.dependsOn(jbMain)
+
+            uikitMain {
+                dependencies {
+                    api project(":compose:ui:ui-uikit")
+                }
+            }
+
+            webMain {
+                dependsOn(jbMain)
+            }
+
+            jsMain.dependsOn(webMain)
+            wasmJsMain.dependsOn(webMain)
 
             commonTest.dependencies {
                 implementation(kotlin("test-junit"))

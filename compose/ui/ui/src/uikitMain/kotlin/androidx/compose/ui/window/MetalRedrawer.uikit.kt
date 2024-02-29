@@ -21,6 +21,7 @@ import androidx.compose.ui.interop.UIKitInteropTransaction
 import androidx.compose.ui.interop.doLocked
 import androidx.compose.ui.interop.isNotEmpty
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.trace
 import kotlin.math.roundToInt
 import kotlinx.cinterop.*
 import org.jetbrains.skia.*
@@ -329,7 +330,7 @@ internal class MetalRedrawer(
         draw(waitUntilCompletion = true, CACurrentMediaTime())
     }
 
-    private fun draw(waitUntilCompletion: Boolean, targetTimestamp: NSTimeInterval) {
+    private fun draw(waitUntilCompletion: Boolean, targetTimestamp: NSTimeInterval) = trace("MetalRedrawer:draw") {
         check(NSThread.isMainThread)
 
         lastRenderTimestamp = maxOf(targetTimestamp, lastRenderTimestamp)
@@ -344,23 +345,29 @@ internal class MetalRedrawer(
             }
 
             // Perform timestep and record all draw commands into [Picture]
-            pictureRecorder.beginRecording(
-                Rect(
-                    left = 0f,
-                    top = 0f,
-                    width.toFloat(),
-                    height.toFloat()
-                )
-            ).also { canvas ->
-                canvas.clear(if (metalLayer.opaque) Color.WHITE else Color.TRANSPARENT)
-                callbacks.render(canvas, lastRenderTimestamp)
+            val picture = trace("MetalRedrawer:draw:pictureRecording") {
+                pictureRecorder.beginRecording(
+                    Rect(
+                        left = 0f,
+                        top = 0f,
+                        width.toFloat(),
+                        height.toFloat()
+                    )
+                ).also { canvas ->
+                    canvas.clear(if (metalLayer.opaque) Color.WHITE else Color.TRANSPARENT)
+                    callbacks.render(canvas, lastRenderTimestamp)
+                }
+
+                pictureRecorder.finishRecordingAsPicture()
             }
 
-            val picture = pictureRecorder.finishRecordingAsPicture()
+            trace("MetalRedrawer:draw:waitInflightSemaphore") {
+                dispatch_semaphore_wait(inflightSemaphore, DISPATCH_TIME_FOREVER)
+            }
 
-            dispatch_semaphore_wait(inflightSemaphore, DISPATCH_TIME_FOREVER)
-
-            val metalDrawable = metalLayer.nextDrawable()
+            val metalDrawable = trace("MetalRedrawer:draw:nextDrawable") {
+                metalLayer.nextDrawable()
+            }
 
             if (metalDrawable == null) {
                 // TODO: anomaly, log
@@ -406,46 +413,53 @@ internal class MetalRedrawer(
             val mustEncodeAndPresentOnMainThread = true
 
             val encodeAndPresentBlock = {
-                surface.canvas.drawPicture(picture)
-                picture.close()
-                surface.flushAndSubmit()
+                trace("MetalRedrawer:draw:encodeAndPresent") {
+                    surface.canvas.drawPicture(picture)
+                    picture.close()
+                    surface.flushAndSubmit()
 
-                val commandBuffer = queue.commandBuffer()!!
-                commandBuffer.label = "Present"
+                    val commandBuffer = queue.commandBuffer()!!
+                    commandBuffer.label = "Present"
 
-                if (!presentsWithTransaction) {
-                    commandBuffer.presentDrawable(metalDrawable)
-                }
-
-                commandBuffer.addCompletedHandler {
-                    // Signal work finish, allow a new command buffer to be scheduled
-                    dispatch_semaphore_signal(inflightSemaphore)
-                }
-                commandBuffer.commit()
-
-                if (presentsWithTransaction) {
-                    // If there are pending changes in UIKit interop, [waitUntilScheduled](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443036-waituntilscheduled) is called
-                    // to ensure that transaction is available
-                    commandBuffer.waitUntilScheduled()
-                    metalDrawable.present()
-
-                    interopTransaction.actions.fastForEach {
-                        it.invoke()
+                    if (!presentsWithTransaction) {
+                        commandBuffer.presentDrawable(metalDrawable)
                     }
 
-                    if (interopTransaction.state == UIKitInteropState.ENDED) {
-                        isInteropActive = false
+                    commandBuffer.addCompletedHandler {
+                        // Signal work finish, allow a new command buffer to be scheduled
+                        dispatch_semaphore_signal(inflightSemaphore)
                     }
-                }
+                    commandBuffer.commit()
 
-                surface.close()
-                renderTarget.close()
+                    if (presentsWithTransaction) {
+                        // If there are pending changes in UIKit interop, [waitUntilScheduled](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443036-waituntilscheduled) is called
+                        // to ensure that transaction is available
+                        trace("MetalRedrawer:draw:waitTransaction") {
+                            commandBuffer.waitUntilScheduled()
+                        }
 
-                // Track current inflight command buffers to synchronously wait for their schedule in case app goes background
-                inflightCommandBuffers.add(commandBuffer)
+                        metalDrawable.present()
 
-                if (waitUntilCompletion) {
-                    commandBuffer.waitUntilCompleted()
+                        interopTransaction.actions.fastForEach {
+                            it.invoke()
+                        }
+
+                        if (interopTransaction.state == UIKitInteropState.ENDED) {
+                            isInteropActive = false
+                        }
+                    }
+
+                    surface.close()
+                    renderTarget.close()
+
+                    // Track current inflight command buffers to synchronously wait for their schedule in case app goes background
+                    inflightCommandBuffers.add(commandBuffer)
+
+                    if (waitUntilCompletion) {
+                        trace("MetalRedrawer:draw:waitUntilCompleted") {
+                            commandBuffer.waitUntilCompleted()
+                        }
+                    }
                 }
             }
 

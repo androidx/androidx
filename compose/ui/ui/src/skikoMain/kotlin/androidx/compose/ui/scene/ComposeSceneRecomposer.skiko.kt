@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.platform.FlushCoroutineDispatcher
+import androidx.compose.ui.util.trace
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -77,14 +78,14 @@ internal class ComposeSceneRecomposer(
      * Perform all scheduled tasks and wait for the tasks which are already
      * performing in the recomposition scope.
      */
-    fun performScheduledTasks() {
+    fun performScheduledTasks() = trace("ComposeSceneRecomposer:performScheduledTasks") {
         recomposeDispatcher.flush()
     }
 
     /**
      * Perform all scheduled effects.
      */
-    fun performScheduledEffects() {
+    fun performScheduledEffects() = trace("ComposeSceneRecomposer:performScheduledEffects") {
         effectDispatcher.flush()
     }
 
