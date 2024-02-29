@@ -1463,7 +1463,9 @@ class TextFieldTest {
             }
             TransformedText(transformed, mapping)
         }
-        rule.setMaterialContent(lightColorScheme()) {
+        // While surface is not used in TextField, setMaterialContent wraps content in a Surface
+        // component which is checked during assertPixels.
+        rule.setMaterialContent(lightColorScheme(surface = Color.White)) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
                 value = "",
