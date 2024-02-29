@@ -53,6 +53,11 @@ class InstantNodes {
 
         @Override
         public void destroy() {}
+
+        @Override
+        public int getCost() {
+            return FIXED_NODE_COST;
+        }
     }
 
     /** Dynamic Instant node that gets value from the platform source. */
@@ -96,6 +101,11 @@ class InstantNodes {
             if (mEpochTimePlatformDataSource != null) {
                 mEpochTimePlatformDataSource.unregisterForData(mDownstream);
             }
+        }
+
+        @Override
+        public int getCost() {
+            return DEFAULT_NODE_COST;
         }
     }
 

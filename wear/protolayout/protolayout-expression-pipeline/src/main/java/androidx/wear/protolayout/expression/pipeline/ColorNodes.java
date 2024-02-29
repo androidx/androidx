@@ -35,8 +35,7 @@ class ColorNodes {
         private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
         FixedColorNode(
-                FixedColor protoNode,
-                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
+                FixedColor protoNode, DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             this.mValue = protoNode.getArgb();
             this.mDownstream = downstream;
         }
@@ -55,6 +54,11 @@ class ColorNodes {
 
         @Override
         public void destroy() {}
+
+        @Override
+        public int getCost() {
+            return FIXED_NODE_COST;
+        }
     }
 
     /** Dynamic color node that gets value from the platform source. */
@@ -119,6 +123,11 @@ class ColorNodes {
         @UiThread
         public void destroy() {
             mQuotaAwareAnimator.stopAnimator();
+        }
+
+        @Override
+        public int getCost() {
+            return DEFAULT_NODE_COST;
         }
     }
 
@@ -202,6 +211,11 @@ class ColorNodes {
 
         public DynamicTypeValueReceiverWithPreUpdate<Integer> getInputCallback() {
             return mInputCallback;
+        }
+
+        @Override
+        public int getCost() {
+            return DEFAULT_NODE_COST;
         }
     }
 }

@@ -28,8 +28,8 @@ import androidx.annotation.UiThread;
 interface DynamicDataSourceNode<T> extends DynamicDataNode<T> {
     /**
      * Called on all source nodes before {@link DynamicDataSourceNode#init()} is called on any node.
-     * This should generally only call {@link
-     * DynamicTypeValueReceiverWithPreUpdate#onPreUpdate()} on all downstream nodes.
+     * This should generally only call {@link DynamicTypeValueReceiverWithPreUpdate#onPreUpdate()}
+     * on all downstream nodes.
      */
     @UiThread
     void preInit();
@@ -44,4 +44,9 @@ interface DynamicDataSourceNode<T> extends DynamicDataNode<T> {
     /** Destroy this node. This should cause it to unbind from any data sources. */
     @UiThread
     void destroy();
+
+    @Override
+    default int getCost() {
+        return DEFAULT_NODE_COST;
+    }
 }
