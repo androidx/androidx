@@ -1084,7 +1084,7 @@ package androidx.compose.material3 {
     field public static final androidx.compose.material3.NavigationRailDefaults INSTANCE;
   }
 
-  @androidx.compose.runtime.Stable public final class NavigationRailItemColors {
+  @androidx.compose.runtime.Immutable public final class NavigationRailItemColors {
     ctor public NavigationRailItemColors(long selectedIconColor, long selectedTextColor, long selectedIndicatorColor, long unselectedIconColor, long unselectedTextColor, long disabledIconColor, long disabledTextColor);
     method public androidx.compose.material3.NavigationRailItemColors copy(optional long selectedIconColor, optional long selectedTextColor, optional long selectedIndicatorColor, optional long unselectedIconColor, optional long unselectedTextColor, optional long disabledIconColor, optional long disabledTextColor);
     method public long getDisabledIconColor();
