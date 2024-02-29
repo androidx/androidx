@@ -335,12 +335,7 @@ internal sealed class KspTypeElement(
 
         return buildList {
             addAll(
-                constructors.map {
-                    KspConstructorElement(
-                        env = env,
-                        declaration = it
-                    )
-                }
+                constructors.map { env.wrapFunctionDeclaration(it) as XConstructorElement }
             )
             constructors
                 .filter { it.hasOverloads() }
