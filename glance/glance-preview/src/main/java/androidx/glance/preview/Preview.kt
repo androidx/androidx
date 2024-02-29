@@ -25,7 +25,6 @@ package androidx.glance.preview
  * the visual preview wraps its content. In this case, LocalSize should not be read within the
  * composable.
  *
- * @param surface indicates which of the possible glance [Surfaces] to use in this preview.
  * @param widthDp width in DP that will be used when rendering the annotated Glance @[Composable]
  * and that will be set as the widget's LocalSize width.
  * @param heightDp height in DP that will be used when rendering the annotated Glance @[Composable]
@@ -39,7 +38,6 @@ package androidx.glance.preview
 @ExperimentalGlancePreviewApi
 @Repeatable
 annotation class Preview(
-    @Surface val surface: String,
     val widthDp: Int = -1,
     val heightDp: Int = -1
 )
