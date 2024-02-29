@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.unit.Dp
@@ -64,6 +65,11 @@ import kotlinx.coroutines.launch
  * [Indication] implementations using this node internally. In most cases you should use those
  * factories directly: this node exists for design system libraries to delegate their Ripple
  * implementation to, after querying any required theme values for customizing the Ripple.
+ *
+ * NOTE: when using this factory with [DelegatingNode.delegate], ensure that the node is created
+ * once or [DelegatingNode.undelegate] is called in [Modifier.Node.onDetach]. Repeatedly delegating
+ * to a new node returned by this method in [Modifier.Node.onAttach] without removing the old one
+ * will result in multiple ripple nodes being attached to the node.
  *
  * @param interactionSource the [InteractionSource] used to determine the state of the ripple.
  * @param bounded if true, ripples are clipped by the bounds of the target layout. Unbounded
