@@ -67,7 +67,6 @@ abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecuto
         val prop = apiLocation.get()
         return listOf(
             prop.publicApiFile,
-            prop.removedApiFile,
             prop.restrictedApiFile,
             prop.apiLevelsFile
         )
