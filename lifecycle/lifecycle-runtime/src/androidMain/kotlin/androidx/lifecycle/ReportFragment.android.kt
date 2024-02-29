@@ -27,7 +27,7 @@ import androidx.annotation.RestrictTo
  */
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-open class ReportFragment() : android.app.Fragment() {
+public open class ReportFragment() : android.app.Fragment() {
     private var processListener: ActivityInitializationListener? = null
 
     private fun dispatchCreate(listener: ActivityInitializationListener?) {
@@ -86,14 +86,14 @@ open class ReportFragment() : android.app.Fragment() {
         }
     }
 
-    fun setProcessListener(processListener: ActivityInitializationListener?) {
+    public fun setProcessListener(processListener: ActivityInitializationListener?) {
         this.processListener = processListener
     }
 
-    interface ActivityInitializationListener {
-        fun onCreate()
-        fun onStart()
-        fun onResume()
+    public interface ActivityInitializationListener {
+        public fun onCreate()
+        public fun onStart()
+        public fun onResume()
     }
 
     // this class isn't inlined only because we need to add a proguard rule for it (b/142778206)
@@ -156,12 +156,12 @@ open class ReportFragment() : android.app.Fragment() {
         }
     }
 
-    companion object {
+    public companion object {
         private const val REPORT_FRAGMENT_TAG =
             "androidx.lifecycle.LifecycleDispatcher.report_fragment_tag"
 
         @JvmStatic
-        fun injectIfNeededIn(activity: Activity) {
+        public fun injectIfNeededIn(activity: Activity) {
             if (Build.VERSION.SDK_INT >= 29) {
                 // On API 29+, we can register for the correct Lifecycle callbacks directly
                 LifecycleCallbacks.registerIn(activity)
@@ -194,7 +194,7 @@ open class ReportFragment() : android.app.Fragment() {
 
         @JvmStatic
         @get:JvmName("get")
-        val Activity.reportFragment: ReportFragment
+        public val Activity.reportFragment: ReportFragment
             get() {
                 return this.fragmentManager.findFragmentByTag(
                     REPORT_FRAGMENT_TAG
