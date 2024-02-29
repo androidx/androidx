@@ -218,7 +218,7 @@ internal class PositionIndicatorWithScalingLazyColumnBenchmarkTestCase(
 
     override fun onChange() {
         runBlocking {
-            if (withScroll) slcState.scrollToItem(30)
+            if (withScroll) slcState.scrollToItem(2)
         }
     }
 
@@ -232,7 +232,7 @@ internal class PositionIndicatorWithScalingLazyColumnBenchmarkTestCase(
                 items(50) {
                     // By changing the size we can also change the size of the PositionIndicator,
                     // which will allow us to better measure all parts of PositionIndicator math.
-                    val height = it.dp
+                    val height = if (it % 2 == 0) 20.dp else 40.dp
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
