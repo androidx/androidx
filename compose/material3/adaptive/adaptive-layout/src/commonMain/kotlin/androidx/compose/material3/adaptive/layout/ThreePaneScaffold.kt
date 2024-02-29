@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -92,7 +93,10 @@ internal fun ThreePaneScaffold(
     val paneMotion = calculateThreePaneMotion(
         previousScaffoldValue = previousScaffoldValue.value,
         currentScaffoldValue = scaffoldValue,
-        paneOrder = ltrPaneOrder
+        paneOrder = ltrPaneOrder,
+        spacerSize = with(LocalDensity.current) {
+            scaffoldDirective.horizontalPartitionSpacerSize.roundToPx()
+        }
     )
     previousScaffoldValue.value = scaffoldValue
 

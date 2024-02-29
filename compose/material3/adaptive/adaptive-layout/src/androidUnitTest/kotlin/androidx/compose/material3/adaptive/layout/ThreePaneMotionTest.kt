@@ -42,7 +42,8 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Hidden
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
         assertThat(motions).isEqualTo(ThreePaneMotion.NoMotion)
     }
@@ -60,9 +61,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToLeftMotion)
+        assertThat(motions).isEqualTo(MovePanesToLeftMotion(SpacerSize))
     }
 
     @Test
@@ -78,9 +80,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToLeftMotion)
+        assertThat(motions).isEqualTo(MovePanesToLeftMotion(SpacerSize))
     }
 
     @Test
@@ -96,9 +99,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToLeftMotion)
+        assertThat(motions).isEqualTo(MovePanesToLeftMotion(SpacerSize))
     }
 
     @Test
@@ -114,9 +118,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Hidden
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToRightMotion)
+        assertThat(motions).isEqualTo(MovePanesToRightMotion(SpacerSize))
     }
 
     @Test
@@ -132,9 +137,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Hidden
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToRightMotion)
+        assertThat(motions).isEqualTo(MovePanesToRightMotion(SpacerSize))
     }
 
     @Test
@@ -150,9 +156,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToRightMotion)
+        assertThat(motions).isEqualTo(MovePanesToRightMotion(SpacerSize))
     }
 
     @Test
@@ -168,9 +175,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToLeftMotion)
+        assertThat(motions).isEqualTo(MovePanesToLeftMotion(SpacerSize))
     }
 
     @Test
@@ -186,9 +194,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.movePanesToRightMotion)
+        assertThat(motions).isEqualTo(MovePanesToRightMotion(SpacerSize))
     }
 
     @Test
@@ -204,9 +213,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.switchRightTwoPanesMotion)
+        assertThat(motions).isEqualTo(SwitchRightTwoPanesMotion(SpacerSize))
     }
 
     @Test
@@ -222,9 +232,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.switchRightTwoPanesMotion)
+        assertThat(motions).isEqualTo(SwitchRightTwoPanesMotion(SpacerSize))
     }
 
     @Test
@@ -240,9 +251,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.switchLeftTwoPanesMotion)
+        assertThat(motions).isEqualTo(SwitchLeftTwoPanesMotion(SpacerSize))
     }
 
     @Test
@@ -258,9 +270,10 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
-        assertThat(motions).isEqualTo(ThreePaneMotionDefaults.switchLeftTwoPanesMotion)
+        assertThat(motions).isEqualTo(SwitchLeftTwoPanesMotion(SpacerSize))
     }
 
     @Test
@@ -277,7 +290,8 @@ class ThreePaneMotionTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Hidden
             ),
-            PaneOrder
+            PaneOrder,
+            SpacerSize
         )
         assertThat(motions).isEqualTo(ThreePaneMotion.NoMotion)
     }
@@ -340,3 +354,4 @@ class ThreePaneMotionTest {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal val PaneOrder = ThreePaneScaffoldDefaults.SupportingPaneLayoutPaneOrder
+internal const val SpacerSize = 123
