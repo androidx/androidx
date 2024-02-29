@@ -569,8 +569,7 @@ package androidx.compose.animation.core {
     method public S getCurrentState();
     method @FloatRange(from=0.0, to=1.0) public float getFraction();
     method public S getTargetState();
-    method public suspend Object? seekTo(@FloatRange(from=0.0, to=1.0) float fraction, optional S targetState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? snapTo(S targetState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? snapTo(optional S targetState, optional @FloatRange(from=0.0, to=1.0) float fraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public S currentState;
     property @FloatRange(from=0.0, to=1.0) public final float fraction;
     property public S targetState;
