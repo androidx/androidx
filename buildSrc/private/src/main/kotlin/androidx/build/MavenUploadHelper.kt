@@ -19,6 +19,7 @@ package androidx.build
 import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask
 import androidx.build.checkapi.shouldConfigureApiTasks
 import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
 import com.android.utils.forEach
@@ -50,6 +51,7 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
@@ -187,11 +189,18 @@ private fun Project.configureComponentPublishing(
             val addStubAar = isKmpAnchor && pomPlatform == PlatformIdentifier.ANDROID.id
             val buildDir = project.layout.buildDirectory
             if (addStubAar) {
+                // After b/327630926 is fixed move to:
+                // project.extensions.getByType<LibraryAndroidComponentsExtension>().onVariants {
+                //   it.minSdk
+                // }
+                val baseExtension = project.extensions.getByType<BaseExtension>()
                 // create a unique namespace for this .aar, different from the android artifact
-                val stubNamespace = project.group.toString().replace(':', '.') + ".anchor"
+                val stubNamespace = project.group.toString().replace(':', '.') +
+                    "." + project.name.toString().replace('-', '.') + ".anchor"
                 val unpackedStubAarTask =
                     tasks.register("unpackedStubAar", UnpackedStubAarTask::class.java) { aarTask ->
                     aarTask.aarPackage.set(stubNamespace)
+                    aarTask.minSdkVersion.set(baseExtension.defaultConfig.minSdk)
                     aarTask.outputDir.set(buildDir.dir("intermediates/stub-aar"))
                 }
                 val stubAarTask = tasks.register("stubAar", Zip::class.java) { zipTask ->
