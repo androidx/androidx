@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.IntOffset
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-internal class ThreePaneMotion internal constructor(
+internal open class ThreePaneMotion internal constructor(
     internal val animationSpec: FiniteAnimationSpec<IntOffset> = snap(),
     private val firstPaneEnterTransition: EnterTransition = EnterTransition.None,
     private val firstPaneExitTransition: ExitTransition = ExitTransition.None,
@@ -114,6 +114,130 @@ internal class ThreePaneMotion internal constructor(
          * [ExitTransition.None].
          */
         val NoMotion = ThreePaneMotion()
+
+        @JvmStatic
+        protected fun slideInFromLeft(spacerSize: Int) =
+            slideInHorizontally(ThreePaneMotionDefaults.PaneSpringSpec) { -it - spacerSize }
+
+        @JvmStatic
+        protected fun slideInFromLeftDelayed(spacerSize: Int) =
+            slideInHorizontally(ThreePaneMotionDefaults.PaneSpringSpecDelayed) { -it - spacerSize }
+
+        @JvmStatic
+        protected fun slideInFromRight(spacerSize: Int) =
+            slideInHorizontally(ThreePaneMotionDefaults.PaneSpringSpec) { it + spacerSize }
+
+        @JvmStatic
+        protected fun slideInFromRightDelayed(spacerSize: Int) =
+            slideInHorizontally(ThreePaneMotionDefaults.PaneSpringSpecDelayed) { it + spacerSize }
+
+        @JvmStatic
+        protected fun slideOutToLeft(spacerSize: Int) =
+            slideOutHorizontally(ThreePaneMotionDefaults.PaneSpringSpec) { -it - spacerSize }
+
+        @JvmStatic
+        protected fun slideOutToRight(spacerSize: Int) =
+            slideOutHorizontally(ThreePaneMotionDefaults.PaneSpringSpec) { it + spacerSize }
+    }
+}
+
+@ExperimentalMaterial3AdaptiveApi
+@Immutable
+internal class MovePanesToLeftMotion(
+    private val spacerSize: Int
+) : ThreePaneMotion(
+    ThreePaneMotionDefaults.PaneSpringSpec,
+    slideInFromRight(spacerSize),
+    slideOutToLeft(spacerSize),
+    slideInFromRight(spacerSize),
+    slideOutToLeft(spacerSize),
+    slideInFromRight(spacerSize),
+    slideOutToLeft(spacerSize)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MovePanesToLeftMotion) return false
+        if (this.spacerSize != other.spacerSize) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return spacerSize
+    }
+}
+
+@ExperimentalMaterial3AdaptiveApi
+@Immutable
+internal class MovePanesToRightMotion(
+    private val spacerSize: Int
+) : ThreePaneMotion(
+    ThreePaneMotionDefaults.PaneSpringSpec,
+    slideInFromLeft(spacerSize),
+    slideOutToRight(spacerSize),
+    slideInFromLeft(spacerSize),
+    slideOutToRight(spacerSize),
+    slideInFromLeft(spacerSize),
+    slideOutToRight(spacerSize)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MovePanesToRightMotion) return false
+        if (this.spacerSize != other.spacerSize) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return spacerSize
+    }
+}
+
+@ExperimentalMaterial3AdaptiveApi
+@Immutable
+internal class SwitchLeftTwoPanesMotion(
+    private val spacerSize: Int
+) : ThreePaneMotion(
+    ThreePaneMotionDefaults.PaneSpringSpec,
+    slideInFromLeftDelayed(spacerSize),
+    slideOutToLeft(spacerSize),
+    slideInFromLeftDelayed(spacerSize),
+    slideOutToLeft(spacerSize),
+    EnterTransition.None,
+    ExitTransition.None
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SwitchLeftTwoPanesMotion) return false
+        if (this.spacerSize != other.spacerSize) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return spacerSize
+    }
+}
+
+@ExperimentalMaterial3AdaptiveApi
+@Immutable
+internal class SwitchRightTwoPanesMotion(
+    private val spacerSize: Int
+) : ThreePaneMotion(
+    ThreePaneMotionDefaults.PaneSpringSpec,
+    EnterTransition.None,
+    ExitTransition.None,
+    slideInFromRightDelayed(spacerSize),
+    slideOutToRight(spacerSize),
+    slideInFromRightDelayed(spacerSize),
+    slideOutToRight(spacerSize)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SwitchRightTwoPanesMotion) return false
+        if (this.spacerSize != other.spacerSize) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return spacerSize
     }
 }
 
@@ -121,7 +245,8 @@ internal class ThreePaneMotion internal constructor(
 internal fun calculateThreePaneMotion(
     previousScaffoldValue: ThreePaneScaffoldValue,
     currentScaffoldValue: ThreePaneScaffoldValue,
-    paneOrder: ThreePaneScaffoldHorizontalOrder
+    paneOrder: ThreePaneScaffoldHorizontalOrder,
+    spacerSize: Int
 ): ThreePaneMotion {
     if (previousScaffoldValue.equals(currentScaffoldValue)) {
         return ThreePaneMotion.NoMotion
@@ -135,19 +260,19 @@ internal fun calculateThreePaneMotion(
     return when (previousExpandedCount) {
         1 -> when (PaneAdaptedValue.Expanded) {
             previousScaffoldValue[paneOrder.firstPane] -> {
-                ThreePaneMotionDefaults.movePanesToLeftMotion
+                MovePanesToLeftMotion(spacerSize)
             }
 
             previousScaffoldValue[paneOrder.thirdPane] -> {
-                ThreePaneMotionDefaults.movePanesToRightMotion
+                MovePanesToRightMotion(spacerSize)
             }
 
             currentScaffoldValue[paneOrder.thirdPane] -> {
-                ThreePaneMotionDefaults.movePanesToLeftMotion
+                MovePanesToLeftMotion(spacerSize)
             }
 
             else -> {
-                ThreePaneMotionDefaults.movePanesToRightMotion
+                MovePanesToRightMotion(spacerSize)
             }
         }
 
@@ -155,24 +280,24 @@ internal fun calculateThreePaneMotion(
             previousScaffoldValue[paneOrder.firstPane] == PaneAdaptedValue.Expanded &&
                 currentScaffoldValue[paneOrder.firstPane] == PaneAdaptedValue.Expanded -> {
                 // The first pane stays, the right two panes switch
-                ThreePaneMotionDefaults.switchRightTwoPanesMotion
+                SwitchRightTwoPanesMotion(spacerSize)
             }
 
             previousScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded &&
                 currentScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded -> {
                 // The third pane stays, the left two panes switch
-                ThreePaneMotionDefaults.switchLeftTwoPanesMotion
+                SwitchLeftTwoPanesMotion(spacerSize)
             }
 
             // Implies the second pane stays hereafter
             currentScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded -> {
                 // The third pane shows, all panes move left
-                ThreePaneMotionDefaults.movePanesToLeftMotion
+                MovePanesToLeftMotion(spacerSize)
             }
 
             else -> {
                 // The first pane shows, all panes move right
-                ThreePaneMotionDefaults.movePanesToRightMotion
+                MovePanesToRightMotion(spacerSize)
             }
         }
 
@@ -287,51 +412,4 @@ internal object ThreePaneMotionDefaults {
             delayedRatio = 0.1f,
             visibilityThreshold = IntOffset.VisibilityThreshold
         )
-
-    private val slideInFromLeft = slideInHorizontally(PaneSpringSpec) { -it }
-    private val slideInFromLeftDelayed = slideInHorizontally(PaneSpringSpecDelayed) { -it }
-    private val slideInFromRight = slideInHorizontally(PaneSpringSpec) { it }
-    private val slideInFromRightDelayed = slideInHorizontally(PaneSpringSpecDelayed) { it }
-    private val slideOutToLeft = slideOutHorizontally(PaneSpringSpec) { -it }
-    private val slideOutToRight = slideOutHorizontally(PaneSpringSpec) { it }
-
-    val movePanesToRightMotion = ThreePaneMotion(
-        PaneSpringSpec,
-        slideInFromLeft,
-        slideOutToRight,
-        slideInFromLeft,
-        slideOutToRight,
-        slideInFromLeft,
-        slideOutToRight
-    )
-
-    val movePanesToLeftMotion = ThreePaneMotion(
-        PaneSpringSpec,
-        slideInFromRight,
-        slideOutToLeft,
-        slideInFromRight,
-        slideOutToLeft,
-        slideInFromRight,
-        slideOutToLeft
-    )
-
-    val switchLeftTwoPanesMotion = ThreePaneMotion(
-        PaneSpringSpec,
-        slideInFromLeftDelayed,
-        slideOutToLeft,
-        slideInFromLeftDelayed,
-        slideOutToLeft,
-        EnterTransition.None,
-        ExitTransition.None
-    )
-
-    val switchRightTwoPanesMotion = ThreePaneMotion(
-        PaneSpringSpec,
-        EnterTransition.None,
-        ExitTransition.None,
-        slideInFromRightDelayed,
-        slideOutToRight,
-        slideInFromRightDelayed,
-        slideOutToRight
-    )
 }
