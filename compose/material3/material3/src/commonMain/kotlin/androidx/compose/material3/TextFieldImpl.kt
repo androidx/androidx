@@ -89,9 +89,7 @@ internal fun CommonDecorationBox(
         else -> InputPhase.UnfocusedNotEmpty
     }
 
-    val labelColor: @Composable (InputPhase) -> Color = {
-        colors.labelColor(enabled, isError, interactionSource).value
-    }
+    val labelColor = colors.labelColor(enabled, isError, isFocused)
 
     val typography = MaterialTheme.typography
     val bodyLarge = typography.bodyLarge
@@ -103,10 +101,10 @@ internal fun CommonDecorationBox(
     TextFieldTransitionScope.Transition(
         inputState = inputState,
         focusedTextStyleColor = with(MaterialTheme.typography.bodySmall.color) {
-            if (shouldOverrideTextStyleColor) this.takeOrElse { labelColor(inputState) } else this
+            if (shouldOverrideTextStyleColor) this.takeOrElse { labelColor } else this
         },
         unfocusedTextStyleColor = with(MaterialTheme.typography.bodyLarge.color) {
-            if (shouldOverrideTextStyleColor) this.takeOrElse { labelColor(inputState) } else this
+            if (shouldOverrideTextStyleColor) this.takeOrElse { labelColor } else this
         },
         contentColor = labelColor,
         showLabel = label != null
@@ -129,7 +127,7 @@ internal fun CommonDecorationBox(
         // Transparent components interfere with Talkback (b/261061240), so if any components below
         // have alpha == 0, we set the component to null instead.
 
-        val placeholderColor = colors.placeholderColor(enabled, isError, interactionSource).value
+        val placeholderColor = colors.placeholderColor(enabled, isError, isFocused)
         val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
             if (placeholder != null && transformedText.isEmpty() && placeholderAlphaProgress > 0f) {
                 @Composable { modifier ->
@@ -143,7 +141,7 @@ internal fun CommonDecorationBox(
                 }
             } else null
 
-        val prefixColor = colors.prefixColor(enabled, isError, interactionSource).value
+        val prefixColor = colors.prefixColor(enabled, isError, isFocused)
         val decoratedPrefix: @Composable (() -> Unit)? =
             if (prefix != null && prefixSuffixAlphaProgress > 0f) {
                 @Composable {
@@ -157,7 +155,7 @@ internal fun CommonDecorationBox(
                 }
             } else null
 
-        val suffixColor = colors.suffixColor(enabled, isError, interactionSource).value
+        val suffixColor = colors.suffixColor(enabled, isError, isFocused)
         val decoratedSuffix: @Composable (() -> Unit)? =
             if (suffix != null && prefixSuffixAlphaProgress > 0f) {
                 @Composable {
@@ -171,14 +169,14 @@ internal fun CommonDecorationBox(
                 }
             } else null
 
-        val leadingIconColor = colors.leadingIconColor(enabled, isError, interactionSource).value
+        val leadingIconColor = colors.leadingIconColor(enabled, isError, isFocused)
         val decoratedLeading: @Composable (() -> Unit)? = leadingIcon?.let {
             @Composable {
                 Decoration(contentColor = leadingIconColor, content = it)
             }
         }
 
-        val trailingIconColor = colors.trailingIconColor(enabled, isError, interactionSource).value
+        val trailingIconColor = colors.trailingIconColor(enabled, isError, isFocused)
         val decoratedTrailing: @Composable (() -> Unit)? = trailingIcon?.let {
             @Composable {
                 Decoration(contentColor = trailingIconColor, content = it)
@@ -186,7 +184,7 @@ internal fun CommonDecorationBox(
         }
 
         val supportingTextColor =
-            colors.supportingTextColor(enabled, isError, interactionSource).value
+            colors.supportingTextColor(enabled, isError, isFocused)
         val decoratedSupporting: @Composable (() -> Unit)? = supportingText?.let {
             @Composable {
                 Decoration(contentColor = supportingTextColor, typography = bodySmall, content = it)
@@ -298,7 +296,7 @@ private object TextFieldTransitionScope {
         inputState: InputPhase,
         focusedTextStyleColor: Color,
         unfocusedTextStyleColor: Color,
-        contentColor: @Composable (InputPhase) -> Color,
+        contentColor: Color,
         showLabel: Boolean,
         content: @Composable (
             labelProgress: Float,
@@ -373,10 +371,11 @@ private object TextFieldTransitionScope {
             }
         }
 
+        @Suppress("UnusedTransitionTargetStateParameter")
         val labelContentColor by transition.animateColor(
             transitionSpec = { tween(durationMillis = AnimationDuration) },
             label = "LabelContentColor",
-            targetValueByState = contentColor
+            targetValueByState = { contentColor }
         )
 
         content(

@@ -647,7 +647,8 @@ private fun SearchBarInputField(
     val searchSemantics = getString(Strings.SearchBarSearch)
     val suggestionsAvailableSemantics = getString(Strings.SuggestionsAvailable)
     val textColor = LocalTextStyle.current.color.takeOrElse {
-        colors.textColor(enabled, isError = false, interactionSource = interactionSource).value
+        val focused = interactionSource.collectIsFocusedAsState().value
+        colors.textColor(enabled, isError = false, focused = focused)
     }
 
     BasicTextField(
@@ -671,7 +672,7 @@ private fun SearchBarInputField(
         enabled = enabled,
         singleLine = true,
         textStyle = LocalTextStyle.current.merge(TextStyle(color = textColor)),
-        cursorBrush = SolidColor(colors.cursorColor(isError = false).value),
+        cursorBrush = SolidColor(colors.cursorColor(isError = false)),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { onSearch(query) }),
         interactionSource = interactionSource,

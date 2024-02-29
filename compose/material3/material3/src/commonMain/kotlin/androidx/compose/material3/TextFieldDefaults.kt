@@ -35,6 +35,7 @@ import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.OutlinedTextFieldTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -101,10 +102,15 @@ object TextFieldDefaults {
         colors: TextFieldColors,
         shape: Shape = TextFieldDefaults.shape,
     ) {
+        val focused = interactionSource.collectIsFocusedAsState().value
+        val containerColor = colors.containerColor(enabled, isError, focused)
+        val containerColorState =
+            animateColorAsState(containerColor, tween(durationMillis = AnimationDuration))
         Box(
             Modifier
-                .background(colors.containerColor(enabled, isError, interactionSource).value, shape)
-                .indicatorLine(enabled, isError, interactionSource, colors))
+                .background(containerColorState.value, shape)
+                .indicatorLine(enabled, isError, interactionSource, colors)
+        )
     }
 
     /**
@@ -1466,12 +1472,15 @@ object OutlinedTextFieldDefaults {
             focusedBorderThickness,
             unfocusedBorderThickness
         )
+        val focused = interactionSource.collectIsFocusedAsState().value
+        val containerColor = colors.containerColor(enabled, isError, focused)
+        val containerColorState =
+            animateColorAsState(containerColor, tween(durationMillis = AnimationDuration))
         Box(
             Modifier
                 .border(borderStroke.value, shape)
-                .background(
-                    colors.containerColor(enabled, isError, interactionSource).value, shape
-                ))
+                .background(containerColorState.value, shape)
+        )
     }
 
     /**
@@ -2017,25 +2026,18 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun leadingIconColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        return rememberUpdatedState(
-            when {
-                !enabled -> disabledLeadingIconColor
-                isError -> errorLeadingIconColor
-                focused -> focusedLeadingIconColor
-                else -> unfocusedLeadingIconColor
-            }
-        )
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledLeadingIconColor
+        isError -> errorLeadingIconColor
+        focused -> focusedLeadingIconColor
+        else -> unfocusedLeadingIconColor
     }
 
     /**
@@ -2043,25 +2045,18 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun trailingIconColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        return rememberUpdatedState(
-            when {
-                !enabled -> disabledTrailingIconColor
-                isError -> errorTrailingIconColor
-                focused -> focusedTrailingIconColor
-                else -> unfocusedTrailingIconColor
-            }
-        )
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledTrailingIconColor
+        isError -> errorTrailingIconColor
+        focused -> focusedTrailingIconColor
+        else -> unfocusedTrailingIconColor
     }
 
     /**
@@ -2069,28 +2064,18 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun indicatorColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        val targetValue = when {
-            !enabled -> disabledIndicatorColor
-            isError -> errorIndicatorColor
-            focused -> focusedIndicatorColor
-            else -> unfocusedIndicatorColor
-        }
-        return if (enabled) {
-            animateColorAsState(targetValue, tween(durationMillis = AnimationDuration))
-        } else {
-            rememberUpdatedState(targetValue)
-        }
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledIndicatorColor
+        isError -> errorIndicatorColor
+        focused -> focusedIndicatorColor
+        else -> unfocusedIndicatorColor
     }
 
     /**
@@ -2098,24 +2083,18 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun containerColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        val targetValue = when {
-            !enabled -> disabledContainerColor
-            isError -> errorContainerColor
-            focused -> focusedContainerColor
-            else -> unfocusedContainerColor
-        }
-        return animateColorAsState(targetValue, tween(durationMillis = AnimationDuration))
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledContainerColor
+        isError -> errorContainerColor
+        focused -> focusedContainerColor
+        else -> unfocusedContainerColor
     }
 
     /**
@@ -2123,24 +2102,18 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun placeholderColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        val targetValue = when {
-            !enabled -> disabledPlaceholderColor
-            isError -> errorPlaceholderColor
-            focused -> focusedPlaceholderColor
-            else -> unfocusedPlaceholderColor
-        }
-        return rememberUpdatedState(targetValue)
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledPlaceholderColor
+        isError -> errorPlaceholderColor
+        focused -> focusedPlaceholderColor
+        else -> unfocusedPlaceholderColor
     }
 
     /**
@@ -2148,24 +2121,18 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun labelColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        val targetValue = when {
-            !enabled -> disabledLabelColor
-            isError -> errorLabelColor
-            focused -> focusedLabelColor
-            else -> unfocusedLabelColor
-        }
-        return rememberUpdatedState(targetValue)
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledLabelColor
+        isError -> errorLabelColor
+        focused -> focusedLabelColor
+        else -> unfocusedLabelColor
     }
 
     /**
@@ -2173,42 +2140,37 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun textColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        val targetValue = when {
-            !enabled -> disabledTextColor
-            isError -> errorTextColor
-            focused -> focusedTextColor
-            else -> unfocusedTextColor
-        }
-        return rememberUpdatedState(targetValue)
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledTextColor
+        isError -> errorTextColor
+        focused -> focusedTextColor
+        else -> unfocusedTextColor
     }
 
-    @Composable
+    /**
+     * Represents the colors used for the supporting text of this text field.
+     *
+     * @param enabled whether the text field is enabled
+     * @param isError whether the text field's current value is in error
+     * @param focused whether the text field is in focus
+     */
+    @Stable
     internal fun supportingTextColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        return rememberUpdatedState(
-            when {
-                !enabled -> disabledSupportingTextColor
-                isError -> errorSupportingTextColor
-                focused -> focusedSupportingTextColor
-                else -> unfocusedSupportingTextColor
-            }
-        )
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledSupportingTextColor
+        isError -> errorSupportingTextColor
+        focused -> focusedSupportingTextColor
+        else -> unfocusedSupportingTextColor
     }
 
     /**
@@ -2216,24 +2178,18 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun prefixColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        val targetValue = when {
-            !enabled -> disabledPrefixColor
-            isError -> errorPrefixColor
-            focused -> focusedPrefixColor
-            else -> unfocusedPrefixColor
-        }
-        return rememberUpdatedState(targetValue)
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledPrefixColor
+        isError -> errorPrefixColor
+        focused -> focusedPrefixColor
+        else -> unfocusedPrefixColor
     }
 
     /**
@@ -2241,24 +2197,18 @@ class TextFieldColors constructor(
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
-     * the text field is in focus or not
+     * @param focused whether the text field is in focus
      */
-    @Composable
+    @Stable
     internal fun suffixColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
-    ): State<Color> {
-        val focused by interactionSource.collectIsFocusedAsState()
-
-        val targetValue = when {
-            !enabled -> disabledSuffixColor
-            isError -> errorSuffixColor
-            focused -> focusedSuffixColor
-            else -> unfocusedSuffixColor
-        }
-        return rememberUpdatedState(targetValue)
+        focused: Boolean,
+    ): Color = when {
+        !enabled -> disabledSuffixColor
+        isError -> errorSuffixColor
+        focused -> focusedSuffixColor
+        else -> unfocusedSuffixColor
     }
 
     /**
@@ -2266,16 +2216,9 @@ class TextFieldColors constructor(
      *
      * @param isError whether the text field's current value is in error
      */
-    @Composable
-    internal fun cursorColor(isError: Boolean): State<Color> {
-        return rememberUpdatedState(if (isError) errorCursorColor else cursorColor)
-    }
-
-    /**
-     * Represents the colors used for text selection in this text field.
-     */
-    internal val selectionColors: TextSelectionColors
-        @Composable get() = textSelectionColors
+    @Stable
+    internal fun cursorColor(isError: Boolean): Color =
+        if (isError) errorCursorColor else cursorColor
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -2386,7 +2329,12 @@ private fun animateBorderStrokeAsState(
     unfocusedBorderThickness: Dp
 ): State<BorderStroke> {
     val focused by interactionSource.collectIsFocusedAsState()
-    val indicatorColor = colors.indicatorColor(enabled, isError, interactionSource)
+    val indicatorColor = colors.indicatorColor(enabled, isError, focused)
+    val indicatorColorState = if (enabled) {
+        animateColorAsState(indicatorColor, tween(durationMillis = AnimationDuration))
+    } else {
+        rememberUpdatedState(indicatorColor)
+    }
     val targetThickness = if (focused) focusedBorderThickness else unfocusedBorderThickness
     val animatedThickness = if (enabled) {
         animateDpAsState(targetThickness, tween(durationMillis = AnimationDuration))
@@ -2394,6 +2342,6 @@ private fun animateBorderStrokeAsState(
         rememberUpdatedState(unfocusedBorderThickness)
     }
     return rememberUpdatedState(
-        BorderStroke(animatedThickness.value, SolidColor(indicatorColor.value))
+        BorderStroke(animatedThickness.value, SolidColor(indicatorColorState.value))
     )
 }
