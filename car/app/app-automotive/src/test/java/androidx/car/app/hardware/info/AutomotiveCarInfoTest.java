@@ -950,6 +950,34 @@ public class AutomotiveCarInfoTest {
         assertThat(loadedResult.get()).isEqualTo(new Speed.Builder().build());
     }
 
+    @Test
+    public void getSpeed_with0SpeedUnit_doesNotCrash() throws InterruptedException {
+        AtomicReference<Speed> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<Speed> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addSpeedListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(any(),
+                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
+
+        // Set the speed display unit to 0 (as reported by some OEMs)
+        mResponse.add(CarPropertyResponse.builder().setPropertyId(SPEED_DISPLAY_UNIT_ID).setStatus(
+                STATUS_SUCCESS).setValue(0).setTimestampMillis(1L).build());
+
+        // This should not crash
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        // But just to be certain it processed correctly, assert that the 0 is reported by the API
+        Speed speed = loadedResult.get();
+        assertThat(speed.getSpeedDisplayUnit().getValue()).isEqualTo(0);
+    }
+
     private void getEnergyLevelHelperFunction(List<CarPropertyResponse<?>> energyCapacities,
             List<CarPropertyResponse<?>> energyResponses, EnergyLevel expectedEnergyLevel) throws
             InterruptedException {

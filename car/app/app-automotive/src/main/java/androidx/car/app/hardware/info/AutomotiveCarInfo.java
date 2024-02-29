@@ -523,10 +523,10 @@ public class AutomotiveCarInfo implements CarInfo {
                             speedBuilder.setDisplaySpeedMetersPerSecond(getCarValue(response));
                             break;
                         case SPEED_DISPLAY_UNIT_ID:
-                            if (response.getValue() != null) {
+                            Integer speedUnitResponse = (Integer) response.getValue();
+                            if (speedUnitResponse != null && speedUnitResponse != 0) {
                                 speedBuilder.setSpeedDisplayUnit(getCarValue(response,
-                                        PropertyUtils.convertSpeedUnit(
-                                                (Integer) response.getValue())));
+                                        PropertyUtils.convertSpeedUnit(speedUnitResponse)));
                             } else {
                                 speedBuilder.setSpeedDisplayUnit(getCarValue(response));
                             }
