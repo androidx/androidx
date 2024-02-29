@@ -51,7 +51,7 @@ public class AppSetIdManagerTest {
 
         // Put in a short sleep to make sure the updated config propagates
         // before starting the tests
-        TimeUnit.SECONDS.sleep(1000);
+        TimeUnit.SECONDS.sleep(1);
     }
 
     @After
