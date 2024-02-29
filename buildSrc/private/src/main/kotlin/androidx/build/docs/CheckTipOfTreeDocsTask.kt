@@ -17,6 +17,7 @@
 package androidx.build.docs
 
 import androidx.build.AndroidXExtension
+import androidx.build.INCLUDE_OPTIONAL_PROJECTS
 import androidx.build.LibraryType
 import androidx.build.addToBuildOnServer
 import androidx.build.checkapi.shouldConfigureApiTasks
@@ -48,6 +49,9 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
     abstract val projectPathProvider: Property<String>
 
     @get:Input
+    abstract val includeOptionalProjects: Property<Boolean>
+
+    @get:Input
     abstract val type: Property<DocsType>
 
     @TaskAction
@@ -62,7 +66,13 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
         val fullExpectedText = "$prefix($projectDependency)"
 
         val fileContents = tipOfTreeBuildFile.asFile.get().readText()
-        if (!fileContents.contains(fullExpectedText)) {
+        val foundExpectedText = fileContents.contains(fullExpectedText)
+
+        // Optional projects use a different path for docs configuration
+        val foundOptionalText = includeOptionalProjects.get() &&
+            fileContents.contains("${prefix}ForOptionalProject(\"$projectPath\")")
+
+        if (!foundExpectedText && !foundOptionalText) {
             // If this is a KMP project, check if it is present but configured as non-KMP
             val message = if (fileContents.contains(projectDependency)) {
                 "Project $projectPath has the wrong configuration type in " +
@@ -106,6 +116,10 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
                         project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")
                     )
                     task.projectPathProvider.set(path)
+                    task.includeOptionalProjects.set(
+                        providers.gradleProperty(INCLUDE_OPTIONAL_PROJECTS)
+                            .getOrElse("false").toBoolean()
+                    )
                     task.type.set(docsType)
                     task.cacheEvenIfNoOutputs()
                 }
