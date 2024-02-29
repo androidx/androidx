@@ -27,9 +27,9 @@
 
     <queries>
         <intent>
-            <action android:name="android.intent.action.ANNOTATE" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <data android:mimeType="application/pdf"/>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
         </intent>
     </queries>
 
