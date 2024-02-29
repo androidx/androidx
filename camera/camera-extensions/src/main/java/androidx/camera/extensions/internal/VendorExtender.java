@@ -157,9 +157,9 @@ public interface VendorExtender {
     }
 
     /**
-     * Returns if dynamic extension type is supported or not.
+     * Returns if reporting current extension mode is supported or not.
      */
-    default boolean isCurrentExtensionTypeAvailable() {
+    default boolean isCurrentExtensionModeAvailable() {
         return false;
     }
 

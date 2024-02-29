@@ -62,36 +62,36 @@ public interface CameraExtensionsInfo {
     }
 
     /**
-     * Returns whether reporting the currently active extension type is supported for the
+     * Returns whether reporting the currently active extension mode is supported for the
      * extensions-enabled camera that is associated with the CameraExtensionsInfo.
      *
-     * <p>When current extension type is supported, applications can observe the current extension
-     * value changes via the {@link LiveData} object returned by {@link #getCurrentExtensionType()}.
+     * <p>When current extension mode is supported, applications can observe the current extension
+     * value changes via the {@link LiveData} object returned by {@link #getCurrentExtensionMode()}.
      *
-     * @return {@code true} if current extension type is supported. Otherwise, returns {@code
+     * @return {@code true} if current extension mode is supported. Otherwise, returns {@code
      * false}.
      */
-    default boolean isCurrentExtensionTypeAvailable() {
+    default boolean isCurrentExtensionModeAvailable() {
         return false;
     }
 
     /**
-     * Returns a {@link LiveData} which observes the extension type changes for the
+     * Returns a {@link LiveData} which observes the extension mode changes for the
      * extensions-enabled camera that is associated with the CameraExtensionsInfo.
      *
-     * <p>This is only available when {@link #isCurrentExtensionTypeAvailable()} returns {@code
-     * true}. When this is supported, the initial value will be equal to the extension type the
-     * session was started with. Then, the current extension type may change over time. For
-     * example, when the extension mode is {@link ExtensionMode#AUTO}, the current extension type
+     * <p>This is only available when {@link #isCurrentExtensionModeAvailable()} returns {@code
+     * true}. When this is supported, the initial value will be equal to the extension mode the
+     * session was started with. Then, the current extension mode may change over time. For
+     * example, when the extension mode is {@link ExtensionMode#AUTO}, the current extension mode
      * may change to the {@link ExtensionMode#NIGHT} or {@link ExtensionMode#HDR} depending on
      * the current lighting conditions or environment.
      *
-     * @return a {@link LiveData} of {@link Integer} type to observe the extension type changes
-     * when {@link #isCurrentExtensionTypeAvailable()} returns {@code true}. Otherwise, returns
+     * @return a {@link LiveData} of {@link Integer} type to observe the extension mode changes
+     * when {@link #isCurrentExtensionModeAvailable()} returns {@code true}. Otherwise, returns
      * {@code null}.
      */
     @Nullable
-    default LiveData<Integer> getCurrentExtensionType() {
+    default LiveData<Integer> getCurrentExtensionMode() {
         return null;
     }
 }

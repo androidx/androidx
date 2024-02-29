@@ -662,8 +662,8 @@ class ExtensionsManagerTest(
 
         val sessionProcessor = camera.extendedConfig.sessionProcessor
         val cameraExtensionsInfo = sessionProcessor as CameraExtensionsInfo
-        val currentType = cameraExtensionsInfo.currentExtensionType
-        if (cameraExtensionsInfo.isCurrentExtensionTypeAvailable) {
+        val currentType = cameraExtensionsInfo.currentExtensionMode
+        if (cameraExtensionsInfo.isCurrentExtensionModeAvailable) {
             assertThat(currentType!!.value).isEqualTo(extensionMode)
         } else {
             assertThat(currentType).isNull()
@@ -680,12 +680,12 @@ class ExtensionsManagerTest(
 
         val cameraExtensionsInfo = extensionsManager.getCameraExtensionsInfo(camera.cameraInfo)
 
-        if (cameraExtensionsInfo.isCurrentExtensionTypeAvailable) {
-            assertThat(cameraExtensionsInfo.currentExtensionType!!.value).isEqualTo(
+        if (cameraExtensionsInfo.isCurrentExtensionModeAvailable) {
+            assertThat(cameraExtensionsInfo.currentExtensionMode!!.value).isEqualTo(
                 extensionMode
             )
         } else {
-            assertThat(cameraExtensionsInfo.currentExtensionType).isNull()
+            assertThat(cameraExtensionsInfo.currentExtensionMode).isNull()
         }
     }
 
@@ -722,7 +722,7 @@ class ExtensionsManagerTest(
                     return true
                 }
 
-                override fun isCurrentExtensionTypeAvailable(): Boolean {
+                override fun isCurrentExtensionModeAvailable(): Boolean {
                     return true
                 }
 
@@ -742,7 +742,7 @@ class ExtensionsManagerTest(
             cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
         }
         val cameraExtensionsInfo = extensionsManager.getCameraExtensionsInfo(camera.cameraInfo)
-        assertThat(cameraExtensionsInfo.isCurrentExtensionTypeAvailable).isTrue()
+        assertThat(cameraExtensionsInfo.isCurrentExtensionModeAvailable).isTrue()
     }
 
     @Test

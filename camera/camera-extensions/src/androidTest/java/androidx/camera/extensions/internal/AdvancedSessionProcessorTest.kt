@@ -255,7 +255,7 @@ class AdvancedSessionProcessorTest {
                 FakeSessionProcessImpl(), emptyList(), advancedVendorExtender, context
             )
 
-            assertThat(advancedSessionProcessor.isCurrentExtensionTypeAvailable).isFalse()
+            assertThat(advancedSessionProcessor.isCurrentExtensionModeAvailable).isFalse()
         }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -278,7 +278,7 @@ class AdvancedSessionProcessorTest {
                 FakeSessionProcessImpl(), emptyList(), advancedVendorExtender, context
             )
 
-            assertThat(advancedSessionProcessor.isCurrentExtensionTypeAvailable).isTrue()
+            assertThat(advancedSessionProcessor.isCurrentExtensionModeAvailable).isTrue()
         }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -387,7 +387,7 @@ class AdvancedSessionProcessorTest {
             }
             val advancedSessionProcessor = AdvancedSessionProcessor(
                 fakeSessionProcessImpl, emptyList(), object : VendorExtender {
-                    override fun isCurrentExtensionTypeAvailable(): Boolean {
+                    override fun isCurrentExtensionModeAvailable(): Boolean {
                         return true
                     }
                 }, context, ExtensionMode.AUTO
@@ -401,7 +401,7 @@ class AdvancedSessionProcessorTest {
             // FACE_RETOUCH type
             val countDownLatch = CountDownLatch(2)
             withContext(Dispatchers.Main) {
-                advancedSessionProcessor.currentExtensionType.observeForever {
+                advancedSessionProcessor.currentExtensionMode.observeForever {
                     receivedTypeList.add(it)
                     countDownLatch.countDown()
                 }

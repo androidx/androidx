@@ -120,7 +120,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         mVendorExtender = vendorExtender;
         mContext = context;
         mMode = mode;
-        mCurrentExtensionTypeLiveData = isCurrentExtensionTypeAvailable() ? new MutableLiveData<>(
+        mCurrentExtensionTypeLiveData = isCurrentExtensionModeAvailable() ? new MutableLiveData<>(
                 mMode) : null;
         mExtensionStrengthLiveData = isExtensionStrengthAvailable() ? new MutableLiveData<>(100)
                 : null;
@@ -222,13 +222,13 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     }
 
     @Override
-    public boolean isCurrentExtensionTypeAvailable() {
-        return mVendorExtender.isCurrentExtensionTypeAvailable();
+    public boolean isCurrentExtensionModeAvailable() {
+        return mVendorExtender.isCurrentExtensionModeAvailable();
     }
 
     @NonNull
     @Override
-    public LiveData<Integer> getCurrentExtensionType() {
+    public LiveData<Integer> getCurrentExtensionMode() {
         return mCurrentExtensionTypeLiveData;
     }
 
