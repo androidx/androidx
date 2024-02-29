@@ -24,7 +24,7 @@ import kotlin.jvm.JvmStatic
  * It is used by Fragments and Support Library Activities. You can also directly use it if you have
  * a custom LifecycleOwner.
  */
-expect open class LifecycleRegistry
+public expect open class LifecycleRegistry
 
 /**
  * Creates a new LifecycleRegistry for the given provider.
@@ -45,16 +45,16 @@ constructor(provider: LifecycleOwner) : Lifecycle {
      *
      * @param event The event that was received
      */
-    open fun handleLifecycleEvent(event: Event)
+    public open fun handleLifecycleEvent(event: Event)
 
     /**
      * The number of observers.
      *
      * @return The number of observers.
      */
-    open val observerCount: Int
+    public open val observerCount: Int
 
-    companion object {
+    public companion object {
         /**
          * Creates a new LifecycleRegistry for the given provider, that doesn't check
          * that its methods are called on the threads other than main.
@@ -65,6 +65,6 @@ constructor(provider: LifecycleOwner) : Lifecycle {
          */
         @JvmStatic
         @VisibleForTesting
-        fun createUnsafe(owner: LifecycleOwner): LifecycleRegistry
+        public fun createUnsafe(owner: LifecycleOwner): LifecycleRegistry
     }
 }

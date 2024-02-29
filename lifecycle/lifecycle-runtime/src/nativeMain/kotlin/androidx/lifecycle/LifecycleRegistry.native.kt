@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * It is used by Fragments and Support Library Activities. You can also directly use it if you have
  * a custom LifecycleOwner.
  */
-actual open class LifecycleRegistry private constructor(
+public actual open class LifecycleRegistry private constructor(
     provider: LifecycleOwner,
     private val enforceMainThread: Boolean
 ) : Lifecycle() {
@@ -73,7 +73,7 @@ actual open class LifecycleRegistry private constructor(
      *
      * @param provider The owner LifecycleOwner
      */
-    actual constructor(provider: LifecycleOwner) : this(provider, true)
+    public actual constructor(provider: LifecycleOwner) : this(provider, true)
 
     init {
         lifecycleOwner = WeakReference(provider)
@@ -103,7 +103,7 @@ actual open class LifecycleRegistry private constructor(
      *
      * @param event The event that was received
      */
-    actual open fun handleLifecycleEvent(event: Event) {
+    public actual open fun handleLifecycleEvent(event: Event) {
         enforceMainThreadIfNeeded("handleLifecycleEvent")
         moveToState(event.targetState)
     }
@@ -222,7 +222,7 @@ actual open class LifecycleRegistry private constructor(
      *
      * @return The number of observers.
      */
-    actual open val observerCount: Int
+    public actual open val observerCount: Int
         get() {
             enforceMainThreadIfNeeded("getObserverCount")
             return observerMap.size
@@ -332,7 +332,7 @@ actual open class LifecycleRegistry private constructor(
         }
     }
 
-    actual companion object {
+    public actual companion object {
         /**
          * Creates a new LifecycleRegistry for the given provider, that doesn't check
          * that its methods are called on the threads other than main.
@@ -342,7 +342,7 @@ actual open class LifecycleRegistry private constructor(
          * Another possible use-case for this method is JVM testing, when main thread is not present.
          */
         @VisibleForTesting
-        actual fun createUnsafe(owner: LifecycleOwner): LifecycleRegistry {
+        public actual fun createUnsafe(owner: LifecycleOwner): LifecycleRegistry {
             return LifecycleRegistry(owner, false)
         }
 

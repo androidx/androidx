@@ -23,6 +23,7 @@
  */
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
@@ -36,6 +37,10 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+
+    kotlin {
+        explicitApi = ExplicitApiMode.Strict
+    }
 
     defaultPlatform(PlatformIdentifier.JVM)
 
