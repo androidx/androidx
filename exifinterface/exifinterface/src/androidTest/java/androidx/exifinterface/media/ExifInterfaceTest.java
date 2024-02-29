@@ -37,7 +37,6 @@ import android.os.StrictMode;
 import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.RequiresApi;
 import androidx.exifinterface.test.R;
@@ -67,7 +66,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -94,111 +92,6 @@ public class ExifInterfaceTest {
     private static final double DELTA = 1e-8;
     // We translate double to rational in a 1/10000 precision.
     private static final double RATIONAL_DELTA = 0.0001;
-    private static final int[][] TEST_ROTATION_STATE_MACHINE = {
-            {ExifInterface.ORIENTATION_UNDEFINED, -90, ExifInterface.ORIENTATION_UNDEFINED},
-            {ExifInterface.ORIENTATION_UNDEFINED, 0, ExifInterface.ORIENTATION_UNDEFINED},
-            {ExifInterface.ORIENTATION_UNDEFINED, 90, ExifInterface.ORIENTATION_UNDEFINED},
-            {ExifInterface.ORIENTATION_UNDEFINED, 180, ExifInterface.ORIENTATION_UNDEFINED},
-            {ExifInterface.ORIENTATION_UNDEFINED, 270, ExifInterface.ORIENTATION_UNDEFINED},
-            {ExifInterface.ORIENTATION_UNDEFINED, 540, ExifInterface.ORIENTATION_UNDEFINED},
-            {ExifInterface.ORIENTATION_NORMAL, -90, ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_NORMAL, 0, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_NORMAL, 90, ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_NORMAL, 180, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_NORMAL, 270, ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_NORMAL, 540, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_ROTATE_90, -90, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_ROTATE_90, 0, ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_ROTATE_90, 90, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_ROTATE_90, 180 , ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_ROTATE_90, 270, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_ROTATE_90, 540, ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_ROTATE_180, -90, ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_ROTATE_180, 0, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_ROTATE_180, 90, ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_ROTATE_180, 180, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_ROTATE_180, 270, ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_ROTATE_180, 540, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_ROTATE_270, -90, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_ROTATE_270, 0, ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_ROTATE_270, 90, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_ROTATE_270, 180, ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_ROTATE_270, 270, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_ROTATE_270, 540, ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, -90, ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 0, ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 90, ExifInterface.ORIENTATION_TRANSPOSE},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 180,
-                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 270, ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 540,
-                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, -90, ExifInterface.ORIENTATION_TRANSPOSE},
-            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 0,
-                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 90, ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 180,
-                    ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 270, ExifInterface.ORIENTATION_TRANSPOSE},
-            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 540,
-                    ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_TRANSPOSE, -90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_TRANSPOSE, 0, ExifInterface.ORIENTATION_TRANSPOSE},
-            {ExifInterface.ORIENTATION_TRANSPOSE, 90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_TRANSPOSE, 180, ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_TRANSPOSE, 270, ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_TRANSPOSE, 540, ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_TRANSVERSE, -90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_TRANSVERSE, 0, ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_TRANSVERSE, 90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_TRANSVERSE, 180, ExifInterface.ORIENTATION_TRANSPOSE},
-            {ExifInterface.ORIENTATION_TRANSVERSE, 270, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_TRANSVERSE, 540, ExifInterface.ORIENTATION_TRANSPOSE},
-    };
-    private static final int[][] TEST_FLIP_VERTICALLY_STATE_MACHINE = {
-            {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
-            {ExifInterface.ORIENTATION_NORMAL, ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_ROTATE_180, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSPOSE},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_90}
-    };
-    private static final int[][] TEST_FLIP_HORIZONTALLY_STATE_MACHINE = {
-            {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
-            {ExifInterface.ORIENTATION_NORMAL, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSPOSE},
-            {ExifInterface.ORIENTATION_ROTATE_180, ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_270}
-    };
-    private static final HashMap<Integer, Pair<Boolean, Integer>> FLIP_STATE_AND_ROTATION_DEGREES =
-            new HashMap<>();
-    static {
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_UNDEFINED, new Pair<>(false, 0));
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_NORMAL, new Pair<>(false, 0));
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_90, new Pair<>(false, 90));
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_180, new Pair<>(false, 180));
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_270, new Pair<>(false, 270));
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair<>(true, 0));
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_TRANSVERSE, new Pair<>(true, 90));
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair<>(true, 180));
-        FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_TRANSPOSE, new Pair<>(true, 270));
-    }
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_MAKE,
@@ -794,73 +687,371 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testRotation() throws IOException {
+        // Test flip vertically.
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_UNDEFINED,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_UNDEFINED);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_NORMAL,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_FLIP_VERTICAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_90,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_TRANSVERSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_180,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_270,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_TRANSPOSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_NORMAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_ROTATE_180);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSPOSE,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_ROTATE_270);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSVERSE,
+                ExifInterface::flipVertically,
+                ExifInterface.ORIENTATION_ROTATE_90);
+
+        // Test flip horizontally.
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_UNDEFINED,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_UNDEFINED);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_NORMAL,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_90,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_TRANSPOSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_180,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_FLIP_VERTICAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_270,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_TRANSVERSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_ROTATE_180);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_NORMAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSPOSE,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_ROTATE_90);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSVERSE,
+                ExifInterface::flipHorizontally,
+                ExifInterface.ORIENTATION_ROTATE_270);
+
+        // Test rotate by degrees
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_UNDEFINED,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_UNDEFINED);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_UNDEFINED,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_UNDEFINED);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_UNDEFINED,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_UNDEFINED);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_UNDEFINED,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_UNDEFINED);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_UNDEFINED,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_UNDEFINED);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_UNDEFINED,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_UNDEFINED);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_NORMAL,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_ROTATE_270);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_NORMAL,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_NORMAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_NORMAL,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_ROTATE_90);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_NORMAL,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_ROTATE_180);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_NORMAL,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_ROTATE_270);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_NORMAL,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_ROTATE_180);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_90,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_NORMAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_90,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_ROTATE_90);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_90,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_ROTATE_180);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_90,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_ROTATE_270);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_90,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_NORMAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_90,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_ROTATE_270);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_180,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_ROTATE_90);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_180,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_ROTATE_180);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_180,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_ROTATE_270);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_180,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_NORMAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_180,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_ROTATE_90);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_180,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_NORMAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_270,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_ROTATE_180);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_270,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_ROTATE_270);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_270,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_NORMAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_270,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_ROTATE_90);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_270,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_ROTATE_180);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_ROTATE_270,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_ROTATE_90);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_TRANSVERSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_FLIP_VERTICAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_TRANSPOSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_TRANSVERSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_TRANSPOSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_TRANSVERSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_FLIP_VERTICAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_TRANSPOSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_FLIP_VERTICAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSPOSE,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_FLIP_VERTICAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSPOSE,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_TRANSPOSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSPOSE,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSPOSE,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_TRANSVERSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSPOSE,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_FLIP_VERTICAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSPOSE,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_TRANSVERSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSVERSE,
+                exifInterface -> exifInterface.rotate(-90),
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSVERSE,
+                exifInterface -> exifInterface.rotate(0),
+                ExifInterface.ORIENTATION_TRANSVERSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSVERSE,
+                exifInterface -> exifInterface.rotate(90),
+                ExifInterface.ORIENTATION_FLIP_VERTICAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSVERSE,
+                exifInterface -> exifInterface.rotate(180),
+                ExifInterface.ORIENTATION_TRANSPOSE);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSVERSE,
+                exifInterface -> exifInterface.rotate(270),
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
+        testModifyOrientation(
+                ExifInterface.ORIENTATION_TRANSVERSE,
+                exifInterface -> exifInterface.rotate(540),
+                ExifInterface.ORIENTATION_TRANSPOSE);
+    }
+
+    private void testModifyOrientation(
+            int originalOrientation,
+            ExifInterfaceOperation rotationOperation,
+            int expectedOrientation)
+            throws IOException {
         File imageFile =
                 copyFromResourceToFile(
                         R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION, Integer.toString(originalOrientation));
+        rotationOperation.applyTo(exif);
+        exif.saveAttributes();
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertThat(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0))
+                .isEqualTo(expectedOrientation);
+        imageFile.delete();
+    }
 
-        int num;
-        // Test flip vertically.
-        for (num = 0; num < TEST_FLIP_VERTICALLY_STATE_MACHINE.length; num++) {
-            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
-                    Integer.toString(TEST_FLIP_VERTICALLY_STATE_MACHINE[num][0]));
-            exif.flipVertically();
-            exif.saveAttributes();
-            exif = new ExifInterface(imageFile.getAbsolutePath());
-            assertIntTag(exif, ExifInterface.TAG_ORIENTATION,
-                    TEST_FLIP_VERTICALLY_STATE_MACHINE[num][1]);
+    @Test
+    @LargeTest
+    public void testRotation_byDegrees_invalid() throws IOException {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertThrows(IllegalArgumentException.class, () -> exif.rotate(108));
+    }
 
-        }
+    @Test
+    @LargeTest
+    public void testRotation_flipState() throws IOException {
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_UNDEFINED, false, 0);
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_NORMAL, false, 0);
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_ROTATE_90, false, 90);
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_ROTATE_180, false, 180);
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_ROTATE_270, false, 270);
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_FLIP_HORIZONTAL, true, 0);
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_TRANSVERSE, true, 90);
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_FLIP_VERTICAL, true, 180);
+        testFlipStateAndRotation(ExifInterface.ORIENTATION_TRANSPOSE, true, 270);
+    }
 
-        // Test flip horizontally.
-        for (num = 0; num < TEST_FLIP_VERTICALLY_STATE_MACHINE.length; num++) {
-            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
-                    Integer.toString(TEST_FLIP_HORIZONTALLY_STATE_MACHINE[num][0]));
-            exif.flipHorizontally();
-            exif.saveAttributes();
-            exif = new ExifInterface(imageFile.getAbsolutePath());
-            assertIntTag(exif, ExifInterface.TAG_ORIENTATION,
-                    TEST_FLIP_HORIZONTALLY_STATE_MACHINE[num][1]);
+    private void testFlipStateAndRotation(
+            int orientation, boolean expectedFlipState, int expectedDegrees) throws IOException {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
+        exif.saveAttributes();
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertThat(exif.isFlipped()).isEqualTo(expectedFlipState);
+        assertThat(exif.getRotationDegrees()).isEqualTo(expectedDegrees);
+        imageFile.delete();
+    }
 
-        }
-
-        // Test rotate by degrees
-        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
-                Integer.toString(ExifInterface.ORIENTATION_NORMAL));
-        try {
-            exif.rotate(108);
-            fail("Rotate with 108 degree should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Success
-        }
-
-        for (num = 0; num < TEST_ROTATION_STATE_MACHINE.length; num++) {
-            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
-                    Integer.toString(TEST_ROTATION_STATE_MACHINE[num][0]));
-            exif.rotate(TEST_ROTATION_STATE_MACHINE[num][1]);
-            exif.saveAttributes();
-            exif = new ExifInterface(imageFile.getAbsolutePath());
-            assertIntTag(exif, ExifInterface.TAG_ORIENTATION, TEST_ROTATION_STATE_MACHINE[num][2]);
-        }
-
-        // Test get flip state and rotation degrees.
-        for (Integer key : FLIP_STATE_AND_ROTATION_DEGREES.keySet()) {
-            exif.setAttribute(ExifInterface.TAG_ORIENTATION, key.toString());
-            exif.saveAttributes();
-            exif = new ExifInterface(imageFile.getAbsolutePath());
-            assertEquals(FLIP_STATE_AND_ROTATION_DEGREES.get(key).first, exif.isFlipped());
-            assertEquals((int) FLIP_STATE_AND_ROTATION_DEGREES.get(key).second,
-                    exif.getRotationDegrees());
-        }
-
-        // Test reset the rotation.
-        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+    @Test
+    @LargeTest
+    public void testResetOrientation() throws IOException {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        exif.setAttribute(
+                ExifInterface.TAG_ORIENTATION,
                 Integer.toString(ExifInterface.ORIENTATION_FLIP_HORIZONTAL));
         exif.resetOrientation();
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
         assertIntTag(exif, ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
     }
 
     @SuppressWarnings("deprecation")
@@ -1378,5 +1569,15 @@ public class ExifInterfaceTest {
             ByteStreams.copy(inputStream, outputStream);
         }
         return file;
+    }
+
+    /**
+     * An operation that can be applied to an {@link ExifInterface} instance.
+     *
+     * <p>We would use java.util.Consumer but it's not available before API 24, and there's no Guava
+     * equivalent.
+     */
+    private interface ExifInterfaceOperation {
+        void applyTo(ExifInterface exifInterface);
     }
 }
