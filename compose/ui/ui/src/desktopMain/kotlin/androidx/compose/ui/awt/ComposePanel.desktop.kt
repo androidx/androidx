@@ -171,8 +171,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         }
 
     override fun add(component: Component): Component {
-        _composeContainer?.addToComponentLayer(component)
-        return component
+        return super.add(component)
     }
 
     override fun remove(component: Component) {

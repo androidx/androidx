@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.uikit
+package androidx.compose.mpp.demo
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.window.uiContentSizeCategoryToFontScaleMap
+import androidx.compose.ui.interop.UIKitView
 import platform.UIKit.UIColor
-import platform.UIKit.UIContentSizeCategoryUnspecified
-import platform.UIKit.UIScreen
-import platform.UIKit.UITraitEnvironmentProtocol
+import platform.UIKit.UIView
 
-internal val UITraitEnvironmentProtocol.systemDensity: Density
-    get() {
-        val contentSizeCategory =
-            traitCollection.preferredContentSizeCategory ?: UIContentSizeCategoryUnspecified
-        return Density(
-            density = UIScreen.mainScreen.scale.toFloat(),
-            fontScale = uiContentSizeCategoryToFontScaleMap[contentSizeCategory] ?: 1.0f
-        )
-    }
+@Composable
+internal actual fun TestInteropView(modifier: Modifier, color: Color) {
+    UIKitView(
+        factory = { UIView().apply { backgroundColor = color.toUIColor() } },
+        modifier = modifier,
+    )
+}
 
-internal fun Color.toUIColor() = UIColor(
+private fun Color.toUIColor() = UIColor(
     red = red.toDouble(),
     green = green.toDouble(),
     blue = blue.toDouble(),

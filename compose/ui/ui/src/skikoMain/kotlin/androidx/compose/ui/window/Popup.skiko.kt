@@ -31,6 +31,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.layout.EmptyLayout
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -481,15 +482,6 @@ private fun rememberLayerContent(layer: ComposeSceneLayer, content: @Composable 
         layer.setContent(content)
     }
 }
-
-@Composable
-private fun EmptyLayout(modifier: Modifier = Modifier) = Layout(
-    content = {},
-    modifier = modifier,
-    measurePolicy = { _, _ ->
-        layout(0, 0) {}
-    }
-)
 
 private fun Modifier.parentBoundsInWindow(
     onBoundsChanged: (IntRect) -> Unit

@@ -414,13 +414,6 @@ public final class androidx/compose/ui/awt/AwtEvents_desktopKt {
 	public static final fun getAwtEventOrNull-ZmokQxo (Ljava/lang/Object;)Ljava/awt/event/KeyEvent;
 }
 
-public final class androidx/compose/ui/awt/ComposableSingletons$SwingPanel_desktopKt {
-	public static final field INSTANCE Landroidx/compose/ui/awt/ComposableSingletons$SwingPanel_desktopKt;
-	public static field lambda-1 Lkotlin/jvm/functions/Function2;
-	public fun <init> ()V
-	public final fun getLambda-1$ui ()Lkotlin/jvm/functions/Function2;
-}
-
 public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog {
 	public static final field $stable I
 	public fun <init> ()V

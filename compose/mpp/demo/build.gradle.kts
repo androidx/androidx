@@ -161,6 +161,7 @@ kotlin {
                 implementation(project(":compose:ui:ui"))
                 implementation(project(":compose:ui:ui-graphics"))
                 implementation(project(":compose:ui:ui-text"))
+                implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesCore)
                 api(libs.kotlinSerializationCore)
             }
@@ -181,19 +182,18 @@ kotlin {
             }
         }
 
-        val jsMain by getting {
+        val webMain by creating {
             dependsOn(skikoMain)
             resources.setSrcDirs(resources.srcDirs)
             resources.srcDirs(unzipTask.map { it.destinationDir })
         }
 
+        val jsMain by getting {
+            dependsOn(webMain)
+        }
+
         val wasmJsMain by getting {
-            dependsOn(skikoMain)
-            resources.setSrcDirs(resources.srcDirs)
-            resources.srcDirs(unzipTask.map { it.destinationDir })
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
+            dependsOn(webMain)
         }
 
         val nativeMain by creating { dependsOn(skikoMain) }

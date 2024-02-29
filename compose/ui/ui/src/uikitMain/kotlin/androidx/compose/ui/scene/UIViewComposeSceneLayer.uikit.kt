@@ -25,6 +25,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
+import androidx.compose.ui.uikit.toUIColor
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -44,7 +45,6 @@ import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSize
 import platform.UIKit.NSLayoutConstraint
-import platform.UIKit.UIColor
 import platform.UIKit.UIEvent
 import platform.UIKit.UITouch
 import platform.UIKit.UIView
@@ -222,10 +222,3 @@ internal class UIViewComposeSceneLayer(
     }
 
 }
-
-private fun Color.toUIColor() = UIColor(
-    red = red.toDouble(),
-    green = green.toDouble(),
-    blue = blue.toDouble(),
-    alpha = alpha.toDouble(),
-)

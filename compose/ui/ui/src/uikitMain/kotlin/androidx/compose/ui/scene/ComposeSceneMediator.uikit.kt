@@ -30,7 +30,7 @@ import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.interop.LocalInteropContainer
+import androidx.compose.ui.interop.LocalUIKitInteropContainer
 import androidx.compose.ui.interop.LocalUIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropTransaction
@@ -62,7 +62,8 @@ import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.InteractionUIView
-import androidx.compose.ui.window.InteropContainer
+import androidx.compose.ui.interop.UIKitInteropContainer
+import androidx.compose.ui.node.TrackInteropContainer
 import androidx.compose.ui.window.KeyboardEventHandler
 import androidx.compose.ui.window.KeyboardVisibilityListenerImpl
 import androidx.compose.ui.window.RenderingUIView
@@ -254,7 +255,7 @@ internal class ComposeSceneMediator(
     /**
      * Container for UIKitView and UIKitViewController
      */
-    private val interopViewContainer = InteropContainer()
+    private val interopViewContainer = UIKitInteropContainer()
 
     private val interactionView by lazy {
         InteractionUIView(
@@ -418,10 +419,10 @@ internal class ComposeSceneMediator(
             getConstraintsToFillParent(rootView, container)
         )
 
-        interopViewContainer.translatesAutoresizingMaskIntoConstraints = false
-        rootView.addSubview(interopViewContainer)
+        interopViewContainer.containerView.translatesAutoresizingMaskIntoConstraints = false
+        rootView.addSubview(interopViewContainer.containerView)
         NSLayoutConstraint.activateConstraints(
-            getConstraintsToFillParent(interopViewContainer, rootView)
+            getConstraintsToFillParent(interopViewContainer.containerView, rootView)
         )
 
         interactionView.translatesAutoresizingMaskIntoConstraints = false
@@ -446,7 +447,10 @@ internal class ComposeSceneMediator(
                  */
                 if (renderingView.isReadyToShowContent.value) {
                     ProvideComposeSceneMediatorCompositionLocals {
-                        content()
+                        interopViewContainer.TrackInteropContainer(
+                            container = interopViewContainer.containerView,
+                            content = content
+                        )
                     }
                 }
             }
@@ -472,10 +476,10 @@ internal class ComposeSceneMediator(
     private fun ProvideComposeSceneMediatorCompositionLocals(content: @Composable () -> Unit) =
         CompositionLocalProvider(
             LocalUIKitInteropContext provides interopContext,
+            LocalUIKitInteropContainer provides interopViewContainer,
             LocalKeyboardOverlapHeight provides keyboardOverlapHeightState.value,
             LocalSafeArea provides safeAreaState.value,
             LocalLayoutMargins provides layoutMarginsState.value,
-            LocalInteropContainer provides interopViewContainer,
             content = content
         )
 

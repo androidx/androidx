@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.awt
+package androidx.compose.ui.layout
 
-import androidx.compose.runtime.staticCompositionLocalOf
-import java.awt.Container
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
-internal val LocalLayerContainer = staticCompositionLocalOf<Container> {
-    error("CompositionLocal LayerContainer not provided")
-}
+/**
+ * Creates a layout with no content. It's usually used to add modifier to the hierarchy.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ */
+@Composable
+internal fun EmptyLayout(modifier: Modifier) = Layout(
+    content = {},
+    modifier = modifier,
+    measurePolicy = { _, _ ->
+        layout(0, 0) {}
+    }
+)

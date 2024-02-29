@@ -21,7 +21,6 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.LayerType
-import androidx.compose.ui.awt.LocalLayerContainer
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -203,10 +202,6 @@ internal class ComposeContainer(
         setWindow(null)
     }
 
-    fun addToComponentLayer(component: Component) {
-        mediator.addToComponentLayer(component)
-    }
-
     fun setBounds(x: Int, y: Int, width: Int, height: Int) {
         mediator.contentComponent.setSize(width, height)
 
@@ -343,6 +338,5 @@ private fun ProvideContainerCompositionLocals(
     composeContainer: ComposeContainer,
     content: @Composable () -> Unit,
 ) = CompositionLocalProvider(
-    LocalLayerContainer provides composeContainer.container,
     content = content
 )

@@ -140,11 +140,6 @@ internal class ComposeWindowPanel(
         composeContainer.setBounds(0, 0, width, height)
     }
 
-    override fun add(component: Component): Component {
-        composeContainer.addToComponentLayer(component)
-        return component
-    }
-
     override fun getPreferredSize(): Dimension? = if (isPreferredSizeSet) {
         super.getPreferredSize()
     } else {

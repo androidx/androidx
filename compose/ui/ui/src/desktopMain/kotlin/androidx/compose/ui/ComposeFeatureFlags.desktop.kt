@@ -64,7 +64,11 @@ internal object ComposeFeatureFlags {
      * Indicates whether interop blending is enabled.
      * It allows drawing compose elements above interop and apply clip/shape modifiers to it.
      *
-     * Note that it currently works only with Metal, DirectX and offscreen rendering.
+     * Known limitations:
+     * - Works only with Metal, DirectX and offscreen rendering
+     * - On DirectX, it cannot overlay another DirectX component (due to OS blending limitation)
+     * - On macOS, render and event dispatching order differs. It means that interop view might
+     *   catch the mouse event even if visually it renders below Compose content
      */
     val useInteropBlending: Boolean
         get() = System.getProperty("compose.interop.blending").toBoolean()
