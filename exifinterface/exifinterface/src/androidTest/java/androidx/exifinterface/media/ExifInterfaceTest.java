@@ -47,6 +47,7 @@ import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import com.google.common.primitives.Ints;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -1330,7 +1331,8 @@ public class ExifInterfaceTest {
                 new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedAttributes.hasThumbnail) {
                 ByteStreams.skipFully(in, expectedAttributes.thumbnailOffset);
-                byte[] thumbnailBytes = new byte[expectedAttributes.thumbnailLength];
+                byte[] thumbnailBytes =
+                        new byte[Ints.checkedCast(expectedAttributes.thumbnailLength)];
                 ByteStreams.readFully(in, thumbnailBytes);
                 // TODO: Need a way to check uncompressed thumbnail file
                 Bitmap thumbnailBitmap = BitmapFactory.decodeByteArray(thumbnailBytes, 0,
@@ -1348,7 +1350,7 @@ public class ExifInterfaceTest {
                 new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedAttributes.hasMake) {
                 ByteStreams.skipFully(in, expectedAttributes.makeOffset);
-                byte[] makeBytes = new byte[expectedAttributes.makeLength];
+                byte[] makeBytes = new byte[Ints.checkedCast(expectedAttributes.makeLength)];
                 ByteStreams.readFully(in, makeBytes);
                 String makeString = new String(makeBytes);
                 // Remove null bytes
@@ -1361,7 +1363,7 @@ public class ExifInterfaceTest {
                 new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
             if (expectedAttributes.hasXmp) {
                 ByteStreams.skipFully(in, expectedAttributes.xmpOffset);
-                byte[] identifierBytes = new byte[expectedAttributes.xmpLength];
+                byte[] identifierBytes = new byte[Ints.checkedCast(expectedAttributes.xmpLength)];
                 ByteStreams.readFully(in, identifierBytes);
                 final String xmpIdentifier = "<?xpacket begin=";
                 assertTrue(new String(identifierBytes, Charset.forName("UTF-8"))
