@@ -302,6 +302,7 @@ public inline var View.isGone: Boolean
  * Executes [block] with the View's layoutParams and reassigns the layoutParams with the
  * updated version.
  *
+ * @throws NullPointerException If no `LayoutParams` is set on the view.
  * @see View.getLayoutParams
  * @see View.setLayoutParams
  */
@@ -313,6 +314,8 @@ public inline fun View.updateLayoutParams(block: ViewGroup.LayoutParams.() -> Un
  * Executes [block] with a typed version of the View's layoutParams and reassigns the
  * layoutParams with the updated version.
  *
+ * @throws NullPointerException If no `LayoutParams` is set on the view.
+ * @throws ClassCastException If the `LayoutParams` type is not `T` or a subtype of `T`.
  * @see View.getLayoutParams
  * @see View.setLayoutParams
  */
