@@ -75,7 +75,7 @@ internal class SwingInteropContainer(
             index + nonInteropComponents
         })
 
-        // Sometimes Swing displays the rest of interop views in incorrect order after removing,
+        // Sometimes Swing displays the rest of interop views in incorrect order after adding,
         // so we need to force re-validate it.
         container.validate()
         container.repaint()
