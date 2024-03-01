@@ -3073,15 +3073,15 @@ package androidx.core.view {
     method @Deprecated public android.view.View! onCreateView(android.view.View!, String!, android.content.Context!, android.util.AttributeSet!);
   }
 
-  public final class MarginLayoutParamsCompat {
-    method public static int getLayoutDirection(android.view.ViewGroup.MarginLayoutParams);
-    method public static int getMarginEnd(android.view.ViewGroup.MarginLayoutParams);
-    method public static int getMarginStart(android.view.ViewGroup.MarginLayoutParams);
-    method public static boolean isMarginRelative(android.view.ViewGroup.MarginLayoutParams);
-    method public static void resolveLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
-    method public static void setLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
-    method public static void setMarginEnd(android.view.ViewGroup.MarginLayoutParams, int);
-    method public static void setMarginStart(android.view.ViewGroup.MarginLayoutParams, int);
+  @Deprecated public final class MarginLayoutParamsCompat {
+    method @Deprecated public static int getLayoutDirection(android.view.ViewGroup.MarginLayoutParams);
+    method @Deprecated public static int getMarginEnd(android.view.ViewGroup.MarginLayoutParams);
+    method @Deprecated public static int getMarginStart(android.view.ViewGroup.MarginLayoutParams);
+    method @Deprecated public static boolean isMarginRelative(android.view.ViewGroup.MarginLayoutParams);
+    method @Deprecated public static void resolveLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
+    method @Deprecated public static void setLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
+    method @Deprecated public static void setMarginEnd(android.view.ViewGroup.MarginLayoutParams, int);
+    method @Deprecated public static void setMarginStart(android.view.ViewGroup.MarginLayoutParams, int);
   }
 
   public final class MenuCompat {

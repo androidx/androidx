@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SuppressWarnings("deprecation")
 public class MarginLayoutParamsCompatTest {
     @Test
     public void testLayoutDirection() {

@@ -324,14 +324,14 @@ class ViewTest {
 
     @Test fun marginStart() {
         view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            MarginLayoutParamsCompat.setMarginStart(this, 10)
+            marginStart = 10
         }
         assertEquals(10, view.marginStart)
     }
 
     @Test fun marginEnd() {
         view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            MarginLayoutParamsCompat.setMarginEnd(this, 10)
+            marginEnd = 10
         }
         assertEquals(10, view.marginEnd)
     }
