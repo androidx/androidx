@@ -234,7 +234,7 @@ internal class ComposeContainer(
         super.viewWillAppear(animated)
 
         isInsideSwiftUI = checkIfInsideSwiftUI()
-        setContent(content)
+        createMediatorIfNeeded()
         configuration.delegate.viewWillAppear(animated)
     }
 
@@ -316,8 +316,14 @@ internal class ComposeContainer(
         )
     }
 
-    private fun setContent(content: @Composable () -> Unit) {
-        val mediator = mediator ?: ComposeSceneMediator(
+    private fun createMediatorIfNeeded() {
+        if (mediator == null) {
+            mediator = createMediator()
+        }
+    }
+
+    private fun createMediator(): ComposeSceneMediator {
+        val mediator = ComposeSceneMediator(
             container = view,
             configuration = configuration,
             focusStack = focusStack,
@@ -325,15 +331,12 @@ internal class ComposeContainer(
             coroutineContext = coroutineDispatcher,
             renderingUIViewFactory = ::createSkikoUIView,
             composeSceneFactory = ::createComposeScene,
-        ).also {
-            this.mediator = it
-        }
+        )
         mediator.setContent {
-            ProvideContainerCompositionLocals(this) {
-                content()
-            }
+            ProvideContainerCompositionLocals(this, content)
         }
         mediator.setLayout(SceneLayout.UseConstraintsToFillContainer)
+        return mediator
     }
 
     private fun dispose() {
