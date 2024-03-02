@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-GetterSetterNames: property ComplicationRequest.immediateResponseRequired:
+GetterSetterNames: androidx.wear.watchface.complications.datasource.ComplicationRequest#immediateResponseRequired:
     Invalid name for boolean property `immediateResponseRequired`. Should start with one of `has`, `can`, `should`, `is`.
 
 

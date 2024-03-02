@@ -3,17 +3,17 @@ AcronymName: androidx.room.ColumnInfo.SQLiteTypeAffinity:
     Acronyms should not be capitalized in class names: was `SQLiteTypeAffinity`, should this be `SqLiteTypeAffinity`?
 
 
-GetterSetterNames: property ColumnInfo.index:
+GetterSetterNames: androidx.room.ColumnInfo#index:
     Invalid name for boolean property `index`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property Database.exportSchema:
+GetterSetterNames: androidx.room.Database#exportSchema:
     Invalid name for boolean property `exportSchema`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property Entity.inheritSuperIndices:
+GetterSetterNames: androidx.room.Entity#inheritSuperIndices:
     Invalid name for boolean property `inheritSuperIndices`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property ForeignKey.deferred:
+GetterSetterNames: androidx.room.ForeignKey#deferred:
     Invalid name for boolean property `deferred`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property Index.unique:
+GetterSetterNames: androidx.room.Index#unique:
     Invalid name for boolean property `unique`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property PrimaryKey.autoGenerate:
+GetterSetterNames: androidx.room.PrimaryKey#autoGenerate:
     Invalid name for boolean property `autoGenerate`. Should start with one of `has`, `can`, `should`, `is`.
 
 

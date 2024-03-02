@@ -89,11 +89,11 @@ GetterOnBuilder: androidx.navigation.PopUpToBuilder#getInclusive():
     Getter should be on the built object, not the builder: method androidx.navigation.PopUpToBuilder.getInclusive()
 
 
-GetterSetterNames: property NavArgumentBuilder.nullable:
+GetterSetterNames: androidx.navigation.NavArgumentBuilder#nullable:
     Invalid name for boolean property `nullable`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property NavOptionsBuilder.launchSingleTop:
+GetterSetterNames: androidx.navigation.NavOptionsBuilder#launchSingleTop:
     Invalid name for boolean property `launchSingleTop`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property PopUpToBuilder.inclusive:
+GetterSetterNames: androidx.navigation.PopUpToBuilder#inclusive:
     Invalid name for boolean property `inclusive`. Should start with one of `has`, `can`, `should`, `is`.
 
 

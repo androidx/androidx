@@ -11,6 +11,12 @@ DocumentExceptions: androidx.compose.runtime.snapshots.SnapshotApplyResult.Failu
 
 GetterSetterNames: androidx.compose.runtime.BroadcastFrameClock#getHasAwaiters():
     Getter for boolean property `hasAwaiters` is named `getHasAwaiters` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.runtime.Composer#defaultsInvalid:
+    Invalid name for boolean property `defaultsInvalid`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.runtime.Composer#inserting:
+    Invalid name for boolean property `inserting`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.runtime.Composer#skipping:
+    Invalid name for boolean property `skipping`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.compose.runtime.Composition#getHasInvalidations():
     Getter for boolean property `hasInvalidations` is named `getHasInvalidations` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.runtime.ControlledComposition#getHasPendingChanges():
@@ -19,21 +25,15 @@ GetterSetterNames: androidx.compose.runtime.Recomposer#getHasPendingWork():
     Getter for boolean property `hasPendingWork` is named `getHasPendingWork` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.runtime.RecomposerInfo#getHasPendingWork():
     Getter for boolean property `hasPendingWork` is named `getHasPendingWork` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: property Composer.defaultsInvalid:
-    Invalid name for boolean property `defaultsInvalid`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property Composer.inserting:
-    Invalid name for boolean property `inserting`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property Composer.skipping:
-    Invalid name for boolean property `skipping`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property MutableSnapshot.readOnly:
+GetterSetterNames: androidx.compose.runtime.snapshots.MutableSnapshot#readOnly:
     Invalid name for boolean property `readOnly`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property Snapshot.readOnly:
+GetterSetterNames: androidx.compose.runtime.snapshots.Snapshot#readOnly:
     Invalid name for boolean property `readOnly`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property SnapshotApplyResult.Failure.succeeded:
+GetterSetterNames: androidx.compose.runtime.snapshots.SnapshotApplyResult#succeeded:
     Invalid name for boolean property `succeeded`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property SnapshotApplyResult.Success.succeeded:
+GetterSetterNames: androidx.compose.runtime.snapshots.SnapshotApplyResult.Failure#succeeded:
     Invalid name for boolean property `succeeded`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property SnapshotApplyResult.succeeded:
+GetterSetterNames: androidx.compose.runtime.snapshots.SnapshotApplyResult.Success#succeeded:
     Invalid name for boolean property `succeeded`. Should start with one of `has`, `can`, `should`, `is`.
 
 
