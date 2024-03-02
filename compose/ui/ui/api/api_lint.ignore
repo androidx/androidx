@@ -13,39 +13,39 @@ GetterSetterNames: androidx.compose.ui.platform.ComposeView#getShouldCreateCompo
     Getter for boolean property `shouldCreateCompositionOnAttachedToWindow` is named `getShouldCreateCompositionOnAttachedToWindow` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.ui.platform.ViewRootForTest#getHasPendingMeasureOrLayout():
     Getter for boolean property `hasPendingMeasureOrLayout` is named `getHasPendingMeasureOrLayout` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field DialogProperties.decorFitsSystemWindows:
+GetterSetterNames: property DialogProperties.decorFitsSystemWindows:
     Invalid name for boolean property `decorFitsSystemWindows`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field DialogProperties.dismissOnBackPress:
+GetterSetterNames: property DialogProperties.dismissOnBackPress:
     Invalid name for boolean property `dismissOnBackPress`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field DialogProperties.dismissOnClickOutside:
+GetterSetterNames: property DialogProperties.dismissOnClickOutside:
     Invalid name for boolean property `dismissOnClickOutside`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field DialogProperties.usePlatformDefaultWidth:
+GetterSetterNames: property DialogProperties.usePlatformDefaultWidth:
     Invalid name for boolean property `usePlatformDefaultWidth`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ImageVector.autoMirror:
+GetterSetterNames: property ImageVector.autoMirror:
     Invalid name for boolean property `autoMirror`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PointerInputChange.pressed:
+GetterSetterNames: property PointerInputChange.pressed:
     Invalid name for boolean property `pressed`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PointerInputChange.previousPressed:
+GetterSetterNames: property PointerInputChange.previousPressed:
     Invalid name for boolean property `previousPressed`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PointerInputFilter.interceptOutOfBoundsChildEvents:
+GetterSetterNames: property PointerInputFilter.interceptOutOfBoundsChildEvents:
     Invalid name for boolean property `interceptOutOfBoundsChildEvents`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PointerInputFilter.shareWithSiblings:
+GetterSetterNames: property PointerInputFilter.shareWithSiblings:
     Invalid name for boolean property `shareWithSiblings`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.clippingEnabled:
+GetterSetterNames: property PopupProperties.clippingEnabled:
     Invalid name for boolean property `clippingEnabled`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.dismissOnBackPress:
+GetterSetterNames: property PopupProperties.dismissOnBackPress:
     Invalid name for boolean property `dismissOnBackPress`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.dismissOnClickOutside:
+GetterSetterNames: property PopupProperties.dismissOnClickOutside:
     Invalid name for boolean property `dismissOnClickOutside`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.excludeFromSystemGesture:
+GetterSetterNames: property PopupProperties.excludeFromSystemGesture:
     Invalid name for boolean property `excludeFromSystemGesture`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.focusable:
+GetterSetterNames: property PopupProperties.focusable:
     Invalid name for boolean property `focusable`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.usePlatformDefaultWidth:
+GetterSetterNames: property PopupProperties.usePlatformDefaultWidth:
     Invalid name for boolean property `usePlatformDefaultWidth`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ScrollAxisRange.reverseScrolling:
+GetterSetterNames: property ScrollAxisRange.reverseScrolling:
     Invalid name for boolean property `reverseScrolling`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SemanticsNode.mergingEnabled:
+GetterSetterNames: property SemanticsNode.mergingEnabled:
     Invalid name for boolean property `mergingEnabled`. Should start with one of `has`, `can`, `should`, `is`.
 
 

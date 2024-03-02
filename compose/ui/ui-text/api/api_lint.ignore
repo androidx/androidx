@@ -1,55 +1,29 @@
 // Baseline format: 1.0
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#append(String):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.append(String)
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#append(androidx.compose.ui.text.AnnotatedString):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.append(androidx.compose.ui.text.AnnotatedString)
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#append(char):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.append(char)
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pop():
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pop()
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pop(int):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pop(int)
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pushStringAnnotation(String, String):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pushStringAnnotation(String,String)
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pushStyle(androidx.compose.ui.text.ParagraphStyle):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pushStyle(androidx.compose.ui.text.ParagraphStyle)
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pushStyle(androidx.compose.ui.text.SpanStyle):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pushStyle(androidx.compose.ui.text.SpanStyle)
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pushTtsAnnotation(androidx.compose.ui.text.TtsAnnotation):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pushTtsAnnotation(androidx.compose.ui.text.TtsAnnotation)
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#toAnnotatedString():
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.toAnnotatedString()
-
-
-GetterOnBuilder: androidx.compose.ui.text.AnnotatedString.Builder#getLength():
-    Getter should be on the built object, not the builder: method androidx.compose.ui.text.AnnotatedString.Builder.getLength()
-
-
 GetterSetterNames: androidx.compose.ui.text.MultiParagraphIntrinsics#getHasStaleResolvedFonts():
     Getter for boolean property `hasStaleResolvedFonts` is named `getHasStaleResolvedFonts` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.ui.text.ParagraphIntrinsics#getHasStaleResolvedFonts():
     Getter for boolean property `hasStaleResolvedFonts` is named `getHasStaleResolvedFonts` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.ui.text.TextLayoutResult#getHasVisualOverflow():
     Getter for boolean property `hasVisualOverflow` is named `getHasVisualOverflow` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field FontVariation.Setting.needsDensity:
+GetterSetterNames: property FontVariation.Setting.needsDensity:
     Invalid name for boolean property `needsDensity`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ImeOptions.autoCorrect:
+GetterSetterNames: property ImeOptions.autoCorrect:
     Invalid name for boolean property `autoCorrect`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ImeOptions.singleLine:
+GetterSetterNames: property ImeOptions.singleLine:
     Invalid name for boolean property `singleLine`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field MultiParagraph.didExceedMaxLines:
+GetterSetterNames: property MultiParagraph.didExceedMaxLines:
     Invalid name for boolean property `didExceedMaxLines`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field Paragraph.didExceedMaxLines:
+GetterSetterNames: property Paragraph.didExceedMaxLines:
     Invalid name for boolean property `didExceedMaxLines`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextLayoutInput.softWrap:
+GetterSetterNames: property TextLayoutInput.softWrap:
     Invalid name for boolean property `softWrap`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextLayoutResult.didOverflowHeight:
+GetterSetterNames: property TextLayoutResult.didOverflowHeight:
     Invalid name for boolean property `didOverflowHeight`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextLayoutResult.didOverflowWidth:
+GetterSetterNames: property TextLayoutResult.didOverflowWidth:
     Invalid name for boolean property `didOverflowWidth`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextRange.collapsed:
+GetterSetterNames: property TextRange.collapsed:
     Invalid name for boolean property `collapsed`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextRange.reversed:
+GetterSetterNames: property TextRange.reversed:
     Invalid name for boolean property `reversed`. Should start with one of `has`, `can`, `should`, `is`.
 
 
@@ -59,19 +33,7 @@ KotlinDefaultParameterOrder: androidx.compose.ui.text.ParagraphIntrinsicsKt#Para
     Parameter `placeholders` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 
 
-MissingBuildMethod: androidx.compose.ui.text.AnnotatedString.Builder:
-    androidx.compose.ui.text.AnnotatedString.Builder does not declare a `build()` method, but builder classes are expected to
-
-
 NullableCollection: androidx.compose.ui.text.SpanStyle#getLocaleList():
     Return type of method androidx.compose.ui.text.SpanStyle.getLocaleList() is a nullable collection (`androidx.compose.ui.text.intl.LocaleList`); must be non-null
 NullableCollection: androidx.compose.ui.text.TextStyle#getLocaleList():
     Return type of method androidx.compose.ui.text.TextStyle.getLocaleList() is a nullable collection (`androidx.compose.ui.text.intl.LocaleList`); must be non-null
-
-
-SetterReturnsThis: androidx.compose.ui.text.AnnotatedString.Builder#addStringAnnotation(String, String, int, int):
-    Methods must return the builder object (return type androidx.compose.ui.text.AnnotatedString.Builder instead of void): method androidx.compose.ui.text.AnnotatedString.Builder.addStringAnnotation(String,String,int,int)
-SetterReturnsThis: androidx.compose.ui.text.AnnotatedString.Builder#addStyle(androidx.compose.ui.text.ParagraphStyle, int, int):
-    Methods must return the builder object (return type androidx.compose.ui.text.AnnotatedString.Builder instead of void): method androidx.compose.ui.text.AnnotatedString.Builder.addStyle(androidx.compose.ui.text.ParagraphStyle,int,int)
-SetterReturnsThis: androidx.compose.ui.text.AnnotatedString.Builder#addStyle(androidx.compose.ui.text.SpanStyle, int, int):
-    Methods must return the builder object (return type androidx.compose.ui.text.AnnotatedString.Builder instead of void): method androidx.compose.ui.text.AnnotatedString.Builder.addStyle(androidx.compose.ui.text.SpanStyle,int,int)

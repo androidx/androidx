@@ -1,7 +1,7 @@
 // Baseline format: 1.0
-GetterSetterNames: field PerfettoTraceRule.enableAppTagTracing:
+GetterSetterNames: property PerfettoTraceRule.enableAppTagTracing:
     Invalid name for boolean property `enableAppTagTracing`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PerfettoTraceRule.enableUserspaceTracing:
+GetterSetterNames: property PerfettoTraceRule.enableUserspaceTracing:
     Invalid name for boolean property `enableUserspaceTracing`. Should start with one of `has`, `can`, `should`, `is`.
 
 

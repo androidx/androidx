@@ -9,9 +9,3 @@ InvalidNullabilityOverride: androidx.car.app.CarAppService#onUnbind(android.cont
     Invalid nullability on parameter `intent` in method `onUnbind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.car.app.model.CarSpan#updateDrawState(android.text.TextPaint) parameter #0:
     Invalid nullability on parameter `tp` in method `updateDrawState`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-
-
-MissingNullability: androidx.car.app.mediaextensions.analytics.client.AnalyticsBroadcastReceiver#onReceive(android.content.Context, android.content.Intent) parameter #0:
-    Missing nullability on parameter `context` in method `onReceive`
-MissingNullability: androidx.car.app.mediaextensions.analytics.client.AnalyticsBroadcastReceiver#onReceive(android.content.Context, android.content.Intent) parameter #1:
-    Missing nullability on parameter `intent` in method `onReceive`
