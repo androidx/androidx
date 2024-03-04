@@ -6,6 +6,8 @@
  * modifying its settings.
  */
 
+import androidx.build.KmpPlatformsKt
+import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
@@ -15,12 +17,18 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
+
+def jsEnabled = KmpPlatformsKt.enableJs(project)
+def wasmEnabled = KmpPlatformsKt.enableWasm(project)
+
 androidXMultiplatform {
     android()
     desktop()
     mac()
     linux()
     ios()
+    js()
+    wasm()
 
     kotlin {
         explicitApi = ExplicitApiMode.Strict
@@ -100,6 +108,10 @@ androidXMultiplatform {
             dependsOn(commonTest)
         }
 
+        if (jsEnabled || wasmEnabled) {
+            webMain.dependsOn(nonJvmMain)
+        }
+
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -110,6 +122,13 @@ androidXMultiplatform {
                 }
                 target.compilations["test"].defaultSourceSet {
                     dependsOn(nativeTest)
+                }
+            } else if (target.platformType in [
+                    KotlinPlatformType.js,
+                    KotlinPlatformType.wasm
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(webMain)
                 }
             }
         }
@@ -134,6 +153,7 @@ android {
 androidx {
     name = "Lifecycle Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear "2017"
     description "Android Lifecycle Runtime"
     metalavaK2UastEnabled = true
