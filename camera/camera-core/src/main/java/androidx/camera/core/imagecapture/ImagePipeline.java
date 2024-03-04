@@ -36,7 +36,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MetadataImageReader;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
@@ -79,8 +78,6 @@ public class ImagePipeline {
     @NonNull
     private final CaptureNode mCaptureNode;
     @NonNull
-    private final SingleBundlingNode mBundlingNode;
-    @NonNull
     private final ProcessingNode mProcessingNode;
     @NonNull
     private final CaptureNode.In mPipelineIn;
@@ -120,7 +117,6 @@ public class ImagePipeline {
 
         // Create nodes
         mCaptureNode = new CaptureNode();
-        mBundlingNode = new SingleBundlingNode();
         mProcessingNode = new ProcessingNode(
                 requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())),
                 cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
@@ -134,8 +130,7 @@ public class ImagePipeline {
                 mUseCaseConfig.getImageReaderProxyProvider(),
                 postviewSize,
                 postviewImageFormat);
-        CaptureNode.Out captureOut = mCaptureNode.transform(mPipelineIn);
-        ProcessingNode.In processingIn = mBundlingNode.transform(captureOut);
+        ProcessingNode.In processingIn = mCaptureNode.transform(mPipelineIn);
         mProcessingNode.transform(processingIn);
     }
 
@@ -165,7 +160,6 @@ public class ImagePipeline {
     public void close() {
         checkMainThread();
         mCaptureNode.release();
-        mBundlingNode.release();
         mProcessingNode.release();
     }
 
@@ -235,9 +229,9 @@ public class ImagePipeline {
     }
 
     @MainThread
-    void notifyCaptureError(@NonNull ImageCaptureException e) {
+    void notifyCaptureError(@NonNull TakePictureManager.CaptureError error) {
         checkMainThread();
-        mPipelineIn.getErrorEdge().accept(e);
+        mPipelineIn.getErrorEdge().accept(error);
     }
 
     // ===== private methods =====
