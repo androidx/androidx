@@ -42,15 +42,9 @@ public final class ComplexDao_Impl extends ComplexDao {
 
     @Override
     public boolean transactionMethod(final int i, final String s, final long l) {
-        __db.beginTransaction();
-        try {
-            final boolean _result;
-            _result = ComplexDao_Impl.super.transactionMethod(i, s, l);
-            __db.setTransactionSuccessful();
-            return _result;
-        } finally {
-            __db.endTransaction();
-        }
+        return DBUtil.performBlocking(__db, false, true, (_connection) -> {
+            return ComplexDao_Impl.super.transactionMethod(i, s, l);
+        });
     }
 
     @Override
