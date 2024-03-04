@@ -34,7 +34,8 @@ class MultiBrowseTest {
             density = Density,
             carouselMainAxisSize = 500f,
             preferredItemSize = itemSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            itemCount = 10,
         )!!
         val strategy = Strategy { keylineList }.apply(500f)
 
@@ -48,8 +49,9 @@ class MultiBrowseTest {
             density = Density,
             carouselMainAxisSize = 100f,
             preferredItemSize = itemSize,
-            itemSpacing = 0f
-        )!!
+            itemSpacing = 0f,
+            itemCount = 10,
+            )!!
         val strategy = Strategy { keylineList }.apply(100f)
         val minSmallItemSize: Float = with(Density) { StrategyDefaults.MinSmallSize.toPx() }
         val keylines = strategy.defaultKeylines
@@ -71,8 +73,9 @@ class MultiBrowseTest {
             density = Density,
             carouselMainAxisSize = minSmallItemSize,
             preferredItemSize = 200f,
-            itemSpacing = 0f
-        )!!
+            itemSpacing = 0f,
+            itemCount = 10,
+            )!!
         val strategy = Strategy { keylineList }.apply(minSmallItemSize)
         val keylines = strategy.defaultKeylines
 
@@ -87,8 +90,9 @@ class MultiBrowseTest {
             density = Density,
             carouselMainAxisSize = 0f,
             preferredItemSize = 200f,
-            itemSpacing = 0f
-        )
+            itemSpacing = 0f,
+            itemCount = 10,
+            )
         assertThat(keylineList).isNull()
     }
 
@@ -101,8 +105,9 @@ class MultiBrowseTest {
             density = Density,
             carouselMainAxisSize = carouselSize,
             preferredItemSize = preferredItemSize,
-            itemSpacing = 0f
-        )!!
+            itemSpacing = 0f,
+            itemCount = 10,
+            )!!
         val strategy = Strategy { keylineList }.apply(carouselSize)
         val keylines = strategy.defaultKeylines
 
@@ -114,5 +119,28 @@ class MultiBrowseTest {
         assertThat(keylines[2].isFocal).isTrue()
         assertThat(keylines[3].size).isLessThan(keylines[2].size)
         assertThat(keylines[4].size).isLessThan(keylines[3].size)
+    }
+
+    @Test
+    fun testMultiBrowse_withLessItemsThanKeylines() {
+        val maxSmallItemSize: Float = with(Density) { StrategyDefaults.MaxSmallSize.toPx() }
+        val preferredItemSize = 200f
+        val carouselSize = preferredItemSize * 2 + maxSmallItemSize * 2
+        val keylineList = multiBrowseKeylineList(
+            density = Density,
+            carouselMainAxisSize = carouselSize,
+            preferredItemSize = preferredItemSize,
+            itemSpacing = 0f,
+            itemCount = 3,
+        )!!
+        val strategy = Strategy { keylineList }.apply(carouselSize)
+        val keylines = strategy.defaultKeylines
+
+        // We originally expect a keyline list of [xSmall-Large-Large-Medium-Small-xSmall], but with
+        // a maximum keyline restriction of 3, we now expect [xSmall-Large-Large-Small-xSmall]
+        assertThat(keylines).hasSize(5)
+        assertThat(keylines[1].isFocal).isTrue()
+        assertThat(keylines[2].isFocal).isTrue()
+        assertThat(keylines[3].size).isLessThan(keylines[2].size)
     }
 }
