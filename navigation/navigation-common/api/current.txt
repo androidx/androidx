@@ -406,6 +406,7 @@ package androidx.navigation {
     method public T parseValue(String value, T previousValue);
     method public abstract void put(android.os.Bundle bundle, String key, T value);
     method public String serializeAsValue(T value);
+    method public boolean valueEquals(T value, T other);
     property public boolean isNullableAllowed;
     property public String name;
     field public static final androidx.navigation.NavType<boolean[]?> BoolArrayType;
@@ -436,6 +437,7 @@ package androidx.navigation {
     method public D[]? get(android.os.Bundle bundle, String key);
     method public D[] parseValue(String value);
     method public void put(android.os.Bundle bundle, String key, D[]? value);
+    method public boolean valueEquals(D[]? value, D[]? other);
     property public String name;
   }
 
@@ -452,6 +454,7 @@ package androidx.navigation {
     method public D[]? get(android.os.Bundle bundle, String key);
     method public D[] parseValue(String value);
     method public void put(android.os.Bundle bundle, String key, D[]? value);
+    method public boolean valueEquals(D[]? value, D[]? other);
     property public String name;
   }
 
