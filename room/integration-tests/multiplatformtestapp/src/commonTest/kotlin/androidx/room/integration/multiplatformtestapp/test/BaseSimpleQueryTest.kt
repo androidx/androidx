@@ -54,4 +54,27 @@ abstract class BaseSimpleQueryTest {
         val result = dao.getItemList()
         assertThat(result.map { it.pk }).containsExactly(1L, 2L, 3L)
     }
+
+    @Test
+    fun transactionDelegate() = runTest {
+        val dao = getRoomDatabase().dao()
+        dao.insertItem(1)
+        dao.insertItem(2)
+        dao.insertItem(3)
+
+        // Perform multiple delete transaction with error so delete is not committed
+        assertThrows<IllegalArgumentException> {
+            dao.deleteList(
+                pks = listOf(1L, 2L, 3L),
+                withError = true
+            )
+        }
+        assertThat(dao.getItemList().map { it.pk }).containsExactly(1L, 2L, 3L)
+
+        // Perform multiple delete in transaction successfully
+        dao.deleteList(
+            pks = listOf(1L, 3L),
+        )
+        assertThat(dao.getItemList().map { it.pk }).containsExactly(2L)
+    }
 }

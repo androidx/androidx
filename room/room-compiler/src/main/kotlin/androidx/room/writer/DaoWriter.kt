@@ -235,7 +235,6 @@ class DaoWriter(
     private fun createTransactionMethodBody(method: TransactionMethod): XFunSpec {
         val scope = CodeGenScope(this)
         method.methodBinder.executeAndReturn(
-            returnType = method.returnType,
             parameterNames = method.parameterNames,
             daoName = dao.typeName,
             daoImplName = dao.implTypeName,

@@ -18,12 +18,18 @@ package androidx.room.solver.transaction.binder
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.box
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isKotlinUnit
+import androidx.room.compiler.processing.isVoid
+import androidx.room.ext.Function1TypeSpec
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.isNotKotlinUnit
-import androidx.room.ext.isNotVoid
+import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 
@@ -31,10 +37,76 @@ import androidx.room.solver.transaction.result.TransactionMethodAdapter
  * Binder that knows how to write instant (blocking) transaction wrapper methods.
  */
 class InstantTransactionMethodBinder(
-    adapter: TransactionMethodAdapter
+    private val returnType: XType,
+    adapter: TransactionMethodAdapter,
+    private val javaLambdaSyntaxAvailable: Boolean
 ) : TransactionMethodBinder(adapter) {
     override fun executeAndReturn(
-        returnType: XType,
+        parameterNames: List<String>,
+        daoName: XClassName,
+        daoImplName: XClassName,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
+        when (scope.language) {
+            CodeLanguage.JAVA -> executeAndReturnJava(
+                parameterNames, daoName, daoImplName, dbProperty, scope
+            )
+            CodeLanguage.KOTLIN -> executeAndReturnKotlin(
+                parameterNames, daoName, daoImplName, dbProperty, scope
+            )
+        }
+    }
+
+    private fun executeAndReturnJava(
+        parameterNames: List<String>,
+        daoName: XClassName,
+        daoImplName: XClassName,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
+        val adapterScope = scope.fork()
+        val returnPrefix = if (returnType.isVoid() || returnType.isKotlinUnit()) "" else "return "
+        adapter.createDelegateToSuperCode(
+            parameterNames = parameterNames,
+            daoName = daoName,
+            daoImplName = daoImplName,
+            scope = adapterScope
+        )
+        val connectionVar = scope.getTmpVar("_connection")
+        val functionImpl: Any = if (javaLambdaSyntaxAvailable) {
+            XCodeBlock.builder(scope.language).apply {
+                add("(%L) -> {\n", connectionVar)
+                add("%>$returnPrefix%L;\n", adapterScope.generate())
+                if (returnPrefix.isEmpty()) {
+                    add("return %T.INSTANCE;\n", KotlinTypeNames.UNIT)
+                }
+                add("%<}")
+            }.build()
+        } else {
+            Function1TypeSpec(
+                language = scope.language,
+                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                parameterName = connectionVar,
+                returnTypeName = returnType.asTypeName().box()
+            ) {
+                this.addStatement("$returnPrefix%L", adapterScope.generate())
+                if (returnPrefix.isEmpty()) {
+                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
+                }
+            }
+        }
+        scope.builder.addStatement(
+            "$returnPrefix%M(%N, %L, %L, %L)",
+            RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+            dbProperty,
+            false, // isReadOnly
+            true, // inTransaction
+            functionImpl
+        )
+    }
+
+    private fun executeAndReturnKotlin(
         parameterNames: List<String>,
         daoName: XClassName,
         daoImplName: XClassName,
@@ -42,41 +114,21 @@ class InstantTransactionMethodBinder(
         scope: CodeGenScope
     ) {
         scope.builder.apply {
-            addStatement("%N.beginTransaction()", dbProperty)
-            beginControlFlow("try").apply {
-                val returnsValue = returnType.isNotVoid() && returnType.isNotKotlinUnit()
-                val resultVar = if (returnsValue) {
-                    scope.getTmpVar("_result")
-                } else {
-                    null
-                }
-                if (resultVar != null) {
-                    addLocalVariable(
-                        name = resultVar,
-                        typeName = returnType.asTypeName()
-                    )
-                }
-
-                val adapterScope = scope.fork()
-                adapter.createDelegateToSuperCode(
-                    parameterNames = parameterNames,
-                    daoName = daoName,
-                    daoImplName = daoImplName,
-                    resultVar = resultVar,
-                    scope = adapterScope
-                )
-                addStatement("%L", adapterScope.generate())
-
-                addStatement("%N.setTransactionSuccessful()", dbProperty)
-                if (resultVar != null) {
-                    addStatement("return %N", resultVar)
-                } else if (returnType.isKotlinUnit() && language == CodeLanguage.JAVA) {
-                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
-                }
-            }
-            nextControlFlow("finally").apply {
-                addStatement("%N.endTransaction()", dbProperty)
-            }
+            beginControlFlow(
+                "return %M(%N, %L, %L) {",
+                RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                dbProperty,
+                false, // isReadOnly
+                true, // inTransaction
+            )
+            val adapterScope = scope.fork()
+            adapter.createDelegateToSuperCode(
+                parameterNames = parameterNames,
+                daoName = daoName,
+                daoImplName = daoImplName,
+                scope = adapterScope
+            )
+            addStatement("%L", adapterScope.generate())
             endControlFlow()
         }
     }

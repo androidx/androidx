@@ -22,6 +22,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.Transaction
 
 @Entity
 data class SampleEntity(
@@ -43,6 +44,12 @@ interface SampleDao {
 
     @Query("SELECT * FROM SampleEntity")
     suspend fun getItemList(): List<SampleEntity>
+
+    @Transaction
+    suspend fun deleteList(pks: List<Long>, withError: Boolean = false) {
+        require(!withError)
+        pks.forEach { deleteItem(it) }
+    }
 }
 
 @Database(

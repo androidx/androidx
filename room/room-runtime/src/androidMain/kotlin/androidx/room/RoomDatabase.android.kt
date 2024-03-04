@@ -1871,22 +1871,30 @@ actual abstract class RoomDatabase {
  * The internal dispatcher used to execute the given [block] will block an utilize a thread from
  * Room's transaction executor until the [block] is complete.
  */
-public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
+public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R =
+    withTransactionContext {
+        @Suppress("DEPRECATION")
+        beginTransaction()
+        try {
+            val result = block.invoke()
+            @Suppress("DEPRECATION")
+            setTransactionSuccessful()
+            result
+        } finally {
+            @Suppress("DEPRECATION")
+            endTransaction()
+        }
+    }
+
+/**
+ * Calls the specified suspending [block] with Room's transaction context.
+ */
+internal suspend fun <R> RoomDatabase.withTransactionContext(block: suspend () -> R): R {
     val transactionBlock: suspend CoroutineScope.() -> R = transaction@{
         val transactionElement = coroutineContext[TransactionElement]!!
         transactionElement.acquire()
         try {
-            @Suppress("DEPRECATION")
-            beginTransaction()
-            try {
-                val result = block.invoke()
-                @Suppress("DEPRECATION")
-                setTransactionSuccessful()
-                return@transaction result
-            } finally {
-                @Suppress("DEPRECATION")
-                endTransaction()
-            }
+            return@transaction block.invoke()
         } finally {
             transactionElement.release()
         }

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
@@ -327,13 +328,10 @@ public final class UpdateDao_Impl implements UpdateDao {
 
     @Override
     public void updateAndAge(final User user) {
-        __db.beginTransaction();
-        try {
+        DBUtil.performBlocking(__db, false, true, (_connection) -> {
             UpdateDao.super.updateAndAge(user);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
-        }
+            return Unit.INSTANCE;
+        });
     }
 
     @Override
