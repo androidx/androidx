@@ -66,7 +66,7 @@ internal class KspRoundEnv(
                         }
 
                         is KSFunctionDeclaration -> {
-                            add(KspExecutableElement.create(env, symbol))
+                            add(env.wrapFunctionDeclaration(symbol))
                         }
 
                         is KSPropertyAccessor -> {
