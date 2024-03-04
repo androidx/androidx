@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavDeepLinkDslBuilderKt")
+
 package androidx.navigation
 
 @DslMarker

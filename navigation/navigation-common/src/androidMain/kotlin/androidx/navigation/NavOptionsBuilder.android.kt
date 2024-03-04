@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavOptionsBuilderKt")
+
 package androidx.navigation
 
 import androidx.annotation.AnimRes

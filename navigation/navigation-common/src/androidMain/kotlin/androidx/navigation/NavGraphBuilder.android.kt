@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavGraphBuilderKt")
+
 package androidx.navigation
 
 import androidx.annotation.IdRes
