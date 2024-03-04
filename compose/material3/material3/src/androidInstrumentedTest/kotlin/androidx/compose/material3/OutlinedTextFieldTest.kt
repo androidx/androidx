@@ -19,7 +19,6 @@ package androidx.compose.material3
 import android.os.Build
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.EditorInfo.IME_ACTION_GO
 import androidx.compose.foundation.background
@@ -41,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -51,17 +51,15 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.PlatformTextInputMethodRequest
-import androidx.compose.ui.platform.PlatformTextInputSession
+import androidx.compose.ui.platform.PlatformTextInputInterceptor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -88,7 +86,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.awaitCancellation
@@ -205,7 +202,10 @@ class OutlinedTextFieldTest {
         val density = Density(4f)
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides density) {
-                Box(Modifier.testTag("box").background(Color.Red)) {
+                Box(
+                    Modifier
+                        .testTag("box")
+                        .background(Color.Red)) {
                     OutlinedTextField(
                         value = "",
                         onValueChange = {},
@@ -238,11 +238,12 @@ class OutlinedTextFieldTest {
                 onValueChange = {},
                 singleLine = true,
                 label = {
-                    Box(Modifier
-                        .size(MinTextLineHeight)
-                        .onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                        }
+                    Box(
+                        Modifier
+                            .size(MinTextLineHeight)
+                            .onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
                     )
                 }
             )
@@ -267,11 +268,12 @@ class OutlinedTextFieldTest {
                 value = "",
                 onValueChange = {},
                 label = {
-                    Box(Modifier
-                        .size(MinTextLineHeight)
-                        .onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                        }
+                    Box(
+                        Modifier
+                            .size(MinTextLineHeight)
+                            .onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
                     )
                 }
             )
@@ -336,11 +338,12 @@ class OutlinedTextFieldTest {
                 value = "",
                 onValueChange = {},
                 label = {
-                    Box(Modifier
-                        .size(MinFocusedLabelLineHeight)
-                        .onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                        }
+                    Box(
+                        Modifier
+                            .size(MinFocusedLabelLineHeight)
+                            .onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
                     )
                 }
             )
@@ -366,7 +369,9 @@ class OutlinedTextFieldTest {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(textFieldWidth),
+                modifier = Modifier
+                    .testTag(TextFieldTag)
+                    .requiredWidth(textFieldWidth),
                 label = {
                     Text(
                         text = "long long long long long long long long long long long long",
@@ -406,9 +411,11 @@ class OutlinedTextFieldTest {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.testTag(TextFieldTag).onGloballyPositioned {
-                    tfSize.value = it.size
-                },
+                modifier = Modifier
+                    .testTag(TextFieldTag)
+                    .onGloballyPositioned {
+                        tfSize.value = it.size
+                    },
                 label = {
                     Box(Modifier.size(width = 50.dp, height = labelHeight))
                 },
@@ -430,13 +437,17 @@ class OutlinedTextFieldTest {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(textFieldWidth),
+                modifier = Modifier
+                    .testTag(TextFieldTag)
+                    .requiredWidth(textFieldWidth),
                 label = {
                     Text(
                         text = "Label",
-                        modifier = Modifier.width(labelRequestedWidth).onGloballyPositioned {
-                            labelSize.value = it.size
-                        }
+                        modifier = Modifier
+                            .width(labelRequestedWidth)
+                            .onGloballyPositioned {
+                                labelSize.value = it.size
+                            }
                     )
                 },
                 trailingIcon = {
@@ -478,11 +489,12 @@ class OutlinedTextFieldTest {
                 value = "input",
                 onValueChange = {},
                 label = {
-                    Box(Modifier
-                        .size(labelSize)
-                        .onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                        }
+                    Box(
+                        Modifier
+                            .size(labelSize)
+                            .onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
                     )
                 }
             )
@@ -534,11 +546,12 @@ class OutlinedTextFieldTest {
                     onValueChange = {},
                     label = { Box(Modifier.size(MinFocusedLabelLineHeight)) },
                     placeholder = {
-                        Box(Modifier
-                            .size(placeholderSize)
-                            .onGloballyPositioned {
-                                placeholderPosition.value = it.positionInRoot()
-                            }
+                        Box(
+                            Modifier
+                                .size(placeholderSize)
+                                .onGloballyPositioned {
+                                    placeholderPosition.value = it.positionInRoot()
+                                }
                         )
                     }
                 )
@@ -565,11 +578,12 @@ class OutlinedTextFieldTest {
                 value = "",
                 onValueChange = {},
                 placeholder = {
-                    Box(Modifier
-                        .size(placeholderSize)
-                        .onGloballyPositioned {
-                            placeholderPosition.value = it.positionInRoot()
-                        }
+                    Box(
+                        Modifier
+                            .size(placeholderSize)
+                            .onGloballyPositioned {
+                                placeholderPosition.value = it.positionInRoot()
+                            }
                     )
                 }
             )
@@ -678,19 +692,21 @@ class OutlinedTextFieldTest {
                 value = "",
                 onValueChange = {},
                 label = {
-                    Box(Modifier
-                        .size(labelSize)
-                        .onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                        }
+                    Box(
+                        Modifier
+                            .size(labelSize)
+                            .onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
                     )
                 },
                 placeholder = {
-                    Box(Modifier
-                        .size(placeholderSize)
-                        .onGloballyPositioned {
-                            placeholderPosition.value = it.positionInRoot()
-                        }
+                    Box(
+                        Modifier
+                            .size(placeholderSize)
+                            .onGloballyPositioned {
+                                placeholderPosition.value = it.positionInRoot()
+                            }
                     )
                 }
             )
@@ -808,7 +824,9 @@ class OutlinedTextFieldTest {
                 OutlinedTextField(
                     value = "text",
                     onValueChange = {},
-                    modifier = Modifier.width(textFieldWidth).height(textFieldHeight),
+                    modifier = Modifier
+                        .width(textFieldWidth)
+                        .height(textFieldHeight),
                     leadingIcon = {
                         IconButton(
                             onClick = {},
@@ -870,21 +888,27 @@ class OutlinedTextFieldTest {
                 OutlinedTextField(
                     value = "text",
                     onValueChange = {},
-                    modifier = Modifier.width(textFieldWidth).height(textFieldHeight),
+                    modifier = Modifier
+                        .width(textFieldWidth)
+                        .height(textFieldHeight),
                     leadingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                leadingPosition = it.positionInRoot()
-                                leadingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    leadingPosition = it.positionInRoot()
+                                    leadingSize = it.size
+                                }
                         )
                     },
                     trailingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                trailingPosition = it.positionInRoot()
-                                trailingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    trailingPosition = it.positionInRoot()
+                                    trailingSize = it.size
+                                }
                         )
                     },
                 )
@@ -933,19 +957,21 @@ class OutlinedTextFieldTest {
                     modifier = Modifier.width(textFieldWidth),
                     label = { Box(Modifier.size(MinFocusedLabelLineHeight)) },
                     prefix = {
-                        Box(Modifier
-                            .size(prefixSize)
-                            .onGloballyPositioned {
-                                prefixPosition.value = it.positionInRoot()
-                            }
+                        Box(
+                            Modifier
+                                .size(prefixSize)
+                                .onGloballyPositioned {
+                                    prefixPosition.value = it.positionInRoot()
+                                }
                         )
                     },
                     suffix = {
-                        Box(Modifier
-                            .size(suffixSize)
-                            .onGloballyPositioned {
-                                suffixPosition.value = it.positionInRoot()
-                            }
+                        Box(
+                            Modifier
+                                .size(suffixSize)
+                                .onGloballyPositioned {
+                                    suffixPosition.value = it.positionInRoot()
+                                }
                         )
                     }
                 )
@@ -987,19 +1013,21 @@ class OutlinedTextFieldTest {
                     onValueChange = {},
                     modifier = Modifier.width(textFieldWidth),
                     prefix = {
-                        Box(Modifier
-                            .size(prefixSize)
-                            .onGloballyPositioned {
-                                prefixPosition.value = it.positionInRoot()
-                            }
+                        Box(
+                            Modifier
+                                .size(prefixSize)
+                                .onGloballyPositioned {
+                                    prefixPosition.value = it.positionInRoot()
+                                }
                         )
                     },
                     suffix = {
-                        Box(Modifier
-                            .size(suffixSize)
-                            .onGloballyPositioned {
-                                suffixPosition.value = it.positionInRoot()
-                            }
+                        Box(
+                            Modifier
+                                .size(suffixSize)
+                                .onGloballyPositioned {
+                                    suffixPosition.value = it.positionInRoot()
+                                }
                         )
                     }
                 )
@@ -1037,19 +1065,21 @@ class OutlinedTextFieldTest {
                     onValueChange = {},
                     modifier = Modifier.width(textFieldWidth),
                     prefix = {
-                        Box(Modifier
-                            .size(prefixSize)
-                            .onGloballyPositioned {
-                                prefixPosition.value = it.positionInRoot()
-                            }
+                        Box(
+                            Modifier
+                                .size(prefixSize)
+                                .onGloballyPositioned {
+                                    prefixPosition.value = it.positionInRoot()
+                                }
                         )
                     },
                     suffix = {
-                        Box(Modifier
-                            .size(suffixSize)
-                            .onGloballyPositioned {
-                                suffixPosition.value = it.positionInRoot()
-                            }
+                        Box(
+                            Modifier
+                                .size(suffixSize)
+                                .onGloballyPositioned {
+                                    suffixPosition.value = it.positionInRoot()
+                                }
                         )
                     },
                     leadingIcon = { Icon(Icons.Default.Favorite, null) },
@@ -1176,11 +1206,12 @@ class OutlinedTextFieldTest {
                 onValueChange = {},
                 textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
                 supportingText = {
-                    Box(Modifier
-                        .size(MinSupportingTextLineHeight)
-                        .onGloballyPositioned {
-                            supportingPosition.value = it.positionInRoot()
-                        }
+                    Box(
+                        Modifier
+                            .size(MinSupportingTextLineHeight)
+                            .onGloballyPositioned {
+                                supportingPosition.value = it.positionInRoot()
+                            }
                     )
                 }
             )
@@ -1312,27 +1343,21 @@ class OutlinedTextFieldTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun testOutlinedTextField_imeActionAndKeyboardTypePropagatedDownstream() {
         var editorInfo: EditorInfo? = null
-        val sessionHandler = object : PlatformTextInputSession {
-            override val view: View = View(getInstrumentation().targetContext)
-
-            override suspend fun startInputMethod(
-                request: PlatformTextInputMethodRequest
-            ): Nothing {
-                EditorInfo().also {
-                    request.createInputConnection(it)
-                    editorInfo = it
-                }
-                awaitCancellation()
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            EditorInfo().also {
+                request.createInputConnection(it)
+                editorInfo = it
             }
+            awaitCancellation()
         }
         rule.setContent {
-            PlatformTextInputMethodTestOverride(sessionHandler) {
-                val text = remember { mutableStateOf("") }
+            val text = remember { mutableStateOf("") }
+            InterceptPlatformTextInput(interceptor) {
                 OutlinedTextField(
                     modifier = Modifier.testTag(TextFieldTag),
                     value = text.value,
@@ -1764,7 +1789,10 @@ class OutlinedTextFieldTest {
         val text = "Long text input. ".repeat(20)
         rule.setMaterialContent(lightColorScheme()) {
             Row {
-                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
+                Box(
+                    Modifier
+                        .width(150.dp)
+                        .height(IntrinsicSize.Min)) {
                     OutlinedTextField(
                         value = text,
                         onValueChange = {},
@@ -1837,9 +1865,11 @@ class OutlinedTextFieldTest {
     fun testTextFields_noCrashConstraintsInfinity() {
 
         rule.setMaterialContent(lightColorScheme()) {
-            Column(modifier = Modifier.height(IntrinsicSize.Min).horizontalScroll(
-                rememberScrollState()
-            )) {
+            Column(modifier = Modifier
+                .height(IntrinsicSize.Min)
+                .horizontalScroll(
+                    rememberScrollState()
+                )) {
                 OutlinedTextField(
                     value = "Cat",
                     onValueChange = {},
