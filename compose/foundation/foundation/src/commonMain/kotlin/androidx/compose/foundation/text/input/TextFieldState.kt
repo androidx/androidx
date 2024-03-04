@@ -58,7 +58,6 @@ internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldStateCompleteSample
  */
-@ExperimentalFoundationApi
 @Stable
 class TextFieldState internal constructor(
     initialText: String,
