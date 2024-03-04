@@ -220,7 +220,9 @@ internal class TextFieldDecoratorModifierNode(
                             } else {
                                 startInputSession(fromTap = true)
                             }
-                        })
+                        },
+                        interactionSource = interactionSource
+                    )
                 }
                 launch(start = CoroutineStart.UNDISPATCHED) {
                     detectTextFieldLongPressAndAfterDrag(requestFocus)
@@ -477,6 +479,7 @@ internal class TextFieldDecoratorModifierNode(
         val previousKeyboardOptions = this.keyboardOptions
         val previousTextFieldSelectionState = this.textFieldSelectionState
         val previousFilter = this.filter
+        val previousInteractionSource = this.interactionSource
 
         // Apply the diff.
         this.textFieldState = textFieldState
@@ -516,6 +519,10 @@ internal class TextFieldDecoratorModifierNode(
                 textFieldSelectionState.receiveContentConfiguration =
                     receiveContentConfigurationProvider
             }
+        }
+
+        if (interactionSource != previousInteractionSource) {
+            pointerInputNode.resetPointerInputHandler()
         }
     }
 

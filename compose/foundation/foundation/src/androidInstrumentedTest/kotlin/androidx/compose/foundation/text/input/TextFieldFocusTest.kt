@@ -22,11 +22,16 @@ import android.view.KeyEvent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
@@ -36,13 +41,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsFocused
@@ -52,6 +61,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -60,6 +70,8 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -124,6 +136,43 @@ internal class TextFieldFocusTest {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isFalse()
             assertThat(testDataList[2].focused).isTrue()
+        }
+    }
+
+    @Test
+    fun interactionSource_emitsFocusEvents() {
+        val interactionSource = MutableInteractionSource()
+        val tag = "TextField"
+        lateinit var scope: CoroutineScope
+        lateinit var focusManager: FocusManager
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            focusManager = LocalFocusManager.current
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(tag),
+                interactionSource = interactionSource
+            )
+            Box(modifier = Modifier.size(10.dp).focusable())
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.onNodeWithTag(tag).requestFocus()
+
+        rule.runOnIdle {
+            assertThat(interactions.filterIsInstance<FocusInteraction.Focus>()).isNotEmpty()
+        }
+
+        focusManager.moveFocus(FocusDirection.Next)
+
+        rule.runOnIdle {
+            assertThat(interactions.filterIsInstance<FocusInteraction.Unfocus>()).isNotEmpty()
         }
     }
 
