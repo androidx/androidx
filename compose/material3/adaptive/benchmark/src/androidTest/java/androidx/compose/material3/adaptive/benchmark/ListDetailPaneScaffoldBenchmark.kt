@@ -182,9 +182,8 @@ internal open class ListDetailPaneScaffoldTestCase(
                 currentDestination = currentDestination
             ),
             listPane = { TestPane(Color.Red) },
+            detailPane = { TestPane(Color.Yellow) },
             extraPane = { TestPane(Color.Blue) }
-        ) {
-            TestPane(Color.Yellow)
-        }
+        )
     }
 }

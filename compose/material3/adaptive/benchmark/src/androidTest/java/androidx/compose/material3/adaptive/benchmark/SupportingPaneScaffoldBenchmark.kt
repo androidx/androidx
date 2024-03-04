@@ -181,10 +181,9 @@ internal open class SupportingPaneScaffoldTestCase(
                 adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
                 currentDestination = currentDestination
             ),
+            mainPane = { TestPane(Color.Yellow) },
             supportingPane = { TestPane(Color.Red) },
             extraPane = { TestPane(Color.Blue) }
-        ) {
-            TestPane(Color.Yellow)
-        }
+        )
     }
 }
