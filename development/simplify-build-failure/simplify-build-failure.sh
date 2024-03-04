@@ -235,8 +235,6 @@ if [ "$gradleCommand" != "" ]; then
   fi
   # reset the out/ dir
   gradle_prepareState_command="rm out .gradle buildSrc/.gradle -rf && cp -r $startingOutDir out"
-  # update the timestamps on all files in case they affect anything
-  gradle_prepareState_command="$gradle_prepareState_command && find -type f | xargs touch || true"
 
   gradleCommand="$(echo "$gradleCommand" | sed 's/gradlew/gradlew --no-daemon/')"
   # determine whether we can reduce the list of tasks we'll be running
