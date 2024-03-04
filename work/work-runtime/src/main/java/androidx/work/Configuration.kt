@@ -292,16 +292,17 @@ class Configuration internal constructor(builder: Builder) {
         }
 
         /**
-         * Specifies a custom [CoroutineDispatcher] to run [CoroutineWorker.doWork].
+         * Specifies a custom [CoroutineContext] to run [CoroutineWorker.doWork].
+         * WorkManager will use its own `Job` with the provided [CoroutineContext].
          *
-         * If [setExecutor] wasn't called then [dispatcher] will be used as [Executor]
+         * If [setExecutor] wasn't called then [context] will be used as [Executor]
          * to run [Worker] as well.
          *
-         * @param dispatcher A [CoroutineDispatcher] for running [CoroutineWorker]s
+         * @param context A [CoroutineContext] for running [CoroutineWorker]s
          * @return This [Builder] instance
          */
-        fun setWorkerCoroutineContext(dispatcher: CoroutineDispatcher): Builder {
-            this.workerContext = dispatcher
+        fun setWorkerCoroutineContext(context: CoroutineContext): Builder {
+            this.workerContext = context
             return this
         }
 
