@@ -49,7 +49,19 @@ public class ImageCaptureLatencyEstimate {
     private final long mProcessingLatencyMillis;
     private final long mTotalCaptureLatencyMillis;
 
-    ImageCaptureLatencyEstimate(long captureLatencyMillis, long processingLatencyMillis) {
+    /**
+     * Created by {@link ImageCapture#getRealtimeCaptureLatencyEstimate()} when querying for the
+     * current realtime latency estimate. This can also be used for testing. It is not necessary to
+     * explicitly construct this in any other scenario.
+     *
+     * @param captureLatencyMillis The estimated duration in milliseconds from when the camera
+     *                             begins capturing frames to the moment the camera has completed
+     *                             capturing frames.
+     * @param processingLatencyMillis The estimated duration in milliseconds from when the
+     *                                processing begins until the processing has completed and the
+     *                                final processed capture is available.
+     */
+    public ImageCaptureLatencyEstimate(long captureLatencyMillis, long processingLatencyMillis) {
         mCaptureLatencyMillis = captureLatencyMillis;
         mProcessingLatencyMillis = processingLatencyMillis;
         mTotalCaptureLatencyMillis = computeTotalCaptureLatencyMillis(captureLatencyMillis,
