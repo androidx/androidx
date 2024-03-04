@@ -756,7 +756,7 @@ class DiffRunner(object):
                     invalidatedIds.add(i)
                 # record our first success
                 if numJobsAtFirstSuccessAfterMerge is None:
-                  numJobsAtFirstSuccessAfterMerge = len(availableJobs)
+                  numJobsAtFirstSuccessAfterMerge = len(availableJobs) + len(activeJobsById)
         else:
           testState = job.testState
           if not os.path.isdir(self.sampleFailure_path):
@@ -801,7 +801,7 @@ class DiffRunner(object):
             # To make sure that we consider deleting the dependency directory, we recombine all of our states and start splitting from there
             print("#############################################################")
             print("#                                                           #")
-            print("# Lots of failures since first success!!!!!!!!!!!!!!!!!!!!! #")
+            print("# Lots of failures (" + str(len(availableJobs)) + " available jobs) since first success (" + str(numJobsAtFirstSuccessAfterMerge) + ")!")
             print("# Recombining all states in case we uncovered a dependency! #")
             print("#                                                           #")
             print("#############################################################")
