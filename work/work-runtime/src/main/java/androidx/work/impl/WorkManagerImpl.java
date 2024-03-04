@@ -278,6 +278,14 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
+     * @return workmanager's CoroutineScope
+     */
+    @NonNull
+    CoroutineScope getWorkManagerScope() {
+        return mWorkManagerScope;
+    }
+
+    /**
      * @return The {@link Configuration} instance associated with this WorkManager.
      */
     @NonNull
@@ -671,6 +679,13 @@ public class WorkManagerImpl extends WorkManager {
                 mRescheduleReceiverResult = null;
             }
         }
+    }
+
+    /**
+     * Cancels workmanager's scope and closes the database
+     */
+    public void closeDatabase() {
+        WorkManagerImplExtKt.close(this);
     }
 
     /**
