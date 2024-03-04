@@ -229,11 +229,13 @@ public final class Preview extends UseCase {
         CameraInternal camera = requireNonNull(getCamera());
         clearPipeline();
 
+        int format = config.get(OPTION_INPUT_FORMAT);
+
         // Make sure the previously created camera edge is cleared before creating a new one.
         checkState(mCameraEdge == null);
         mCameraEdge = new SurfaceEdge(
                 PREVIEW,
-                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                format,
                 streamSpec,
                 getSensorToBufferTransformMatrix(),
                 camera.getHasTransform(),
@@ -560,9 +562,6 @@ public final class Preview extends UseCase {
     @Override
     protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
-        builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
-                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
-
         return builder.getUseCaseConfig();
     }
 
@@ -805,7 +804,8 @@ public final class Preview extends UseCase {
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE)
+                    .setFormat(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
@@ -1273,6 +1273,23 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
             getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
+            return this;
+        }
+
+        /**
+         * Sets the buffer format for the associated Preview use case.
+         *
+         * <p>
+         * While {@link ImageFormat.PRiVATE} is the recommended buffer format, applications
+         * may choose a different {@link ImageFormat} such as {@link ImageFormat.YUV_420_888}
+         * when using {@link CameraEffect}s.
+         *
+         * @param format a buffer format.
+         * @return the current Builder.
+         */
+        @NonNull
+        public Builder setFormat(@CameraEffect.Formats int format) {
+            getMutableConfig().insertOption(OPTION_INPUT_FORMAT, format);
             return this;
         }
 
