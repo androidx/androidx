@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-GetterSetterNames: property ParameterInformation.compared:
+GetterSetterNames: androidx.compose.ui.tooling.data.ParameterInformation#compared:
     Invalid name for boolean property `compared`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property ParameterInformation.fromDefault:
+GetterSetterNames: androidx.compose.ui.tooling.data.ParameterInformation#fromDefault:
     Invalid name for boolean property `fromDefault`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property ParameterInformation.stable:
+GetterSetterNames: androidx.compose.ui.tooling.data.ParameterInformation#stable:
     Invalid name for boolean property `stable`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property ParameterInformation.static:
+GetterSetterNames: androidx.compose.ui.tooling.data.ParameterInformation#static:
     Invalid name for boolean property `static`. Should start with one of `has`, `can`, `should`, `is`.
