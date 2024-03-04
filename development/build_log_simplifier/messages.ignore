@@ -241,6 +241,7 @@ WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setAutoSizeTextTypeUniformWithPresetSizes
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setFirstBaselineToTopHeight
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setLastBaselineToBottomHeight
+WARN: .*\/unzippedJvmSources\/androidx\/credentials\/PrepareGetCredentialResponse\.kt:[0-9]+ Unable to find reference @property frameworkHandle in DClass PendingGetCredentialHandle
 WARN: .*\/unzippedJvmSources\/androidx\/cursoradapter\/widget\/ResourceCursorAdapter\.java:UnknownLine Missing @param tag for parameter `c` in DFunction ResourceCursorAdapter
 WARN: .*\/unzippedJvmSources\/androidx\/customview\/poolingcontainer\/PoolingContainer\.kt:[0-9]+ Missing @param tag for parameter `listener` in DFunction addPoolingContainerListener
 WARN: .*\/unzippedJvmSources\/androidx\/customview\/widget\/ViewDragHelper\.java:[0-9]+ Missing @param tag for parameter `pointerId` in DFunction isEdgeTouched
