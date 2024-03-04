@@ -75,20 +75,27 @@
                 android:layout_marginTop="16dp"
                 android:background="#FF0000" />
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/mediation_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/mediation_switch"
+                android:checked="false" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/app_owned_mediatee_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/app_owned_mediatee_switch"
+                android:checked="false" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/mediation_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/mediation_switch"
-                    android:checked="false"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
                 <Button
                     android:id="@+id/new_ad_button"
                     android:layout_width="wrap_content"
