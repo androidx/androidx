@@ -24,6 +24,9 @@ import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.runBlocking
 
 @JvmName("createWorkManager")
 @JvmOverloads
@@ -95,3 +98,10 @@ private fun createSchedulers(
 @JvmName("createWorkManagerScope")
 internal fun WorkManagerScope(taskExecutor: TaskExecutor) =
     CoroutineScope(taskExecutor.taskCoroutineDispatcher)
+
+fun WorkManagerImpl.close() {
+    runBlocking {
+        workManagerScope.coroutineContext[Job]!!.cancelAndJoin()
+    }
+    workDatabase.close()
+}
