@@ -20,4 +20,5 @@
     <string name="resizeFromSdk">resize from sdk</string>
     <string name="local_to_internet_switch">local webview</string>
     <string name="mediation_switch">Mediation</string>
+    <string name="app_owned_mediatee_switch">AppOwnedMediatee</string>
 </resources>
