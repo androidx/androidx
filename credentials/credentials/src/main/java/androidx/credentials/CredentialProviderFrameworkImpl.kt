@@ -364,9 +364,9 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
                 )
             }) return
 
-        val outcome = object : OutcomeReceiver<Void,
+        val outcome = object : OutcomeReceiver<Void?,
             android.credentials.ClearCredentialStateException> {
-            override fun onResult(response: Void) {
+            override fun onResult(response: Void?) {
                 Log.i(TAG, "Clear result returned from framework: ")
                 callback.onResult(response)
             }
