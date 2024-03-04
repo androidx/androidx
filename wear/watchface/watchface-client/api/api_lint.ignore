@@ -1,7 +1,7 @@
 // Baseline format: 1.0
-GetterSetterNames: field ComplicationSlotMetadata.fixedComplicationDataSource:
+GetterSetterNames: property ComplicationSlotMetadata.fixedComplicationDataSource:
     Invalid name for boolean property `fixedComplicationDataSource`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ComplicationSlotState.fixedComplicationDataSource:
+GetterSetterNames: property ComplicationSlotState.fixedComplicationDataSource:
     Invalid name for boolean property `fixedComplicationDataSource`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field WatchUiState.inAmbientMode:
+GetterSetterNames: property WatchUiState.inAmbientMode:
     Invalid name for boolean property `inAmbientMode`. Should start with one of `has`, `can`, `should`, `is`.

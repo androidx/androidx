@@ -7,5 +7,5 @@ GetterSetterNames: androidx.compose.material3.SheetState#getHasExpandedState():
     Getter for boolean property `hasExpandedState` is named `getHasExpandedState` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.material3.SheetState#getHasPartiallyExpandedState():
     Getter for boolean property `hasPartiallyExpandedState` is named `getHasPartiallyExpandedState` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field SnackbarVisuals.withDismissAction:
+GetterSetterNames: property SnackbarVisuals.withDismissAction:
     Invalid name for boolean property `withDismissAction`. Should start with one of `has`, `can`, `should`, `is`.

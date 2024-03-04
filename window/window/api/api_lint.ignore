@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-GetterSetterNames: field ActivityRule.alwaysExpand:
+GetterSetterNames: property ActivityRule.alwaysExpand:
     Invalid name for boolean property `alwaysExpand`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SplitAttributesCalculatorParams.areDefaultConstraintsSatisfied:
+GetterSetterNames: property SplitAttributesCalculatorParams.areDefaultConstraintsSatisfied:
     Invalid name for boolean property `areDefaultConstraintsSatisfied`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SplitPairRule.clearTop:
+GetterSetterNames: property SplitPairRule.clearTop:
     Invalid name for boolean property `clearTop`. Should start with one of `has`, `can`, `should`, `is`.
 
 

@@ -7,7 +7,7 @@ GetterSetterNames: androidx.tv.foundation.lazy.list.TvLazyListState#getCanScroll
     Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.tv.foundation.lazy.list.TvLazyListState#getCanScrollForward():
     Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field TvLazyGridLayoutInfo.reverseLayout:
+GetterSetterNames: property TvLazyGridLayoutInfo.reverseLayout:
     Invalid name for boolean property `reverseLayout`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TvLazyListLayoutInfo.reverseLayout:
+GetterSetterNames: property TvLazyListLayoutInfo.reverseLayout:
     Invalid name for boolean property `reverseLayout`. Should start with one of `has`, `can`, `should`, `is`.

@@ -2048,7 +2048,7 @@ NoClone: androidx.constraintlayout.widget.ConstraintSet.Constraint#clone():
 
 
 ReferencesHidden: androidx.constraintlayout.motion.widget.MotionScene.Transition#getTouchResponse():
-    Class androidx.constraintlayout.motion.widget.TouchResponse is not public but was referenced (as return type) from public method androidx.constraintlayout.motion.widget.MotionScene.Transition.getTouchResponse()
+    Class androidx.constraintlayout.motion.widget.TouchResponse is not public but was referenced (in return type) from public method androidx.constraintlayout.motion.widget.MotionScene.Transition.getTouchResponse()
 
 
 StaticFinalBuilder: androidx.constraintlayout.motion.widget.TransitionBuilder:
