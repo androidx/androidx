@@ -18,11 +18,8 @@ package androidx.compose.material3.internal
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.InteractionSource
@@ -30,6 +27,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldLayout
@@ -37,6 +35,8 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.material3.TextFieldLayout
 import androidx.compose.material3.outlineCutout
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
+import androidx.compose.material3.value
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
@@ -316,6 +316,8 @@ internal fun Modifier.textFieldBackground(
         onDrawBehind { drawOutline(outline, color = color()) }
     }
 
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private inline fun TextFieldTransitionScope(
     inputState: InputPhase,
@@ -338,10 +340,11 @@ private inline fun TextFieldTransitionScope(
     // multiple text fields.
     val transition = updateTransition(inputState, label = "TextFieldInputState")
 
+    // TODO Load the motionScheme tokens from the component tokens file
     val labelProgress =
         transition.animateFloat(
             label = "LabelProgress",
-            transitionSpec = { tween(durationMillis = TextFieldAnimationDuration) }
+            transitionSpec = { MotionSchemeKeyTokens.FastSpatial.value() }
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
@@ -355,21 +358,14 @@ private inline fun TextFieldTransitionScope(
             label = "PlaceholderOpacity",
             transitionSpec = {
                 if (InputPhase.Focused isTransitioningTo InputPhase.UnfocusedEmpty) {
-                    tween(
-                        durationMillis = PlaceholderAnimationDelayOrDuration,
-                        easing = LinearEasing
-                    )
+                    MotionSchemeKeyTokens.FastEffects.value()
                 } else if (
                     InputPhase.UnfocusedEmpty isTransitioningTo InputPhase.Focused ||
                         InputPhase.UnfocusedNotEmpty isTransitioningTo InputPhase.UnfocusedEmpty
                 ) {
-                    tween(
-                        durationMillis = PlaceholderAnimationDuration,
-                        delayMillis = PlaceholderAnimationDelayOrDuration,
-                        easing = LinearEasing
-                    )
+                    MotionSchemeKeyTokens.SlowEffects.value()
                 } else {
-                    spring()
+                    MotionSchemeKeyTokens.FastEffects.value()
                 }
             }
         ) {
@@ -383,7 +379,7 @@ private inline fun TextFieldTransitionScope(
     val prefixSuffixOpacity =
         transition.animateFloat(
             label = "PrefixSuffixOpacity",
-            transitionSpec = { tween(durationMillis = TextFieldAnimationDuration) }
+            transitionSpec = { MotionSchemeKeyTokens.FastEffects.value() }
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
@@ -394,7 +390,7 @@ private inline fun TextFieldTransitionScope(
 
     val labelTextStyleColor =
         transition.animateColor(
-            transitionSpec = { tween(durationMillis = TextFieldAnimationDuration) },
+            transitionSpec = { MotionSchemeKeyTokens.FastEffects.value() },
             label = "LabelTextStyleColor"
         ) {
             when (it) {
@@ -406,7 +402,7 @@ private inline fun TextFieldTransitionScope(
     @Suppress("UnusedTransitionTargetStateParameter")
     val labelContentColor =
         transition.animateColor(
-            transitionSpec = { tween(durationMillis = TextFieldAnimationDuration) },
+            transitionSpec = { MotionSchemeKeyTokens.FastEffects.value() },
             label = "LabelContentColor",
             targetValueByState = { labelColor }
         )
@@ -420,6 +416,7 @@ private inline fun TextFieldTransitionScope(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun animateBorderStrokeAsState(
     enabled: Boolean,
@@ -429,10 +426,11 @@ internal fun animateBorderStrokeAsState(
     focusedBorderThickness: Dp,
     unfocusedBorderThickness: Dp
 ): State<BorderStroke> {
+    // TODO Load the motionScheme tokens from the component tokens file
     val targetColor = colors.indicatorColor(enabled, isError, focused)
     val indicatorColor =
         if (enabled) {
-            animateColorAsState(targetColor, tween(durationMillis = TextFieldAnimationDuration))
+            animateColorAsState(targetColor, MotionSchemeKeyTokens.FastEffects.value())
         } else {
             rememberUpdatedState(targetColor)
         }
@@ -440,7 +438,7 @@ internal fun animateBorderStrokeAsState(
     val thickness =
         if (enabled) {
             val targetThickness = if (focused) focusedBorderThickness else unfocusedBorderThickness
-            animateDpAsState(targetThickness, tween(durationMillis = TextFieldAnimationDuration))
+            animateDpAsState(targetThickness, MotionSchemeKeyTokens.FastSpatial.value())
         } else {
             rememberUpdatedState(unfocusedBorderThickness)
         }
@@ -469,10 +467,6 @@ internal const val PrefixId = "Prefix"
 internal const val SuffixId = "Suffix"
 internal const val SupportingId = "Supporting"
 internal const val ContainerId = "Container"
-
-internal const val TextFieldAnimationDuration = 150
-private const val PlaceholderAnimationDuration = 83
-private const val PlaceholderAnimationDelayOrDuration = 67
 
 internal val TextFieldPadding = 16.dp
 // SP not DP because it should scale with font size. Value equal to bodySmall line height / 2.

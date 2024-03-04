@@ -73,7 +73,7 @@ class SwipeToDismissBoxState(
     internal val anchoredDraggableState =
         AnchoredDraggableState(
             initialValue = initialValue,
-            animationSpec = AnchoredDraggableDefaults.AnimationSpec,
+            animationSpec = { AnchoredDraggableDefaults.AnimationSpec },
             confirmValueChange = confirmValueChange,
             positionalThreshold = positionalThreshold,
             velocityThreshold = { with(density) { DismissVelocityThreshold.toPx() } }

@@ -17,6 +17,9 @@ package androidx.compose.material3
 
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -24,6 +27,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -357,12 +361,16 @@ class FloatingActionButtonScreenshotTest {
         assertRootAgainstGolden("fab_focus")
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun extended_fab_half_way_animation() {
         rule.mainClock.autoAdvance = false
 
         var expanded by mutableStateOf(true)
+        lateinit var motionSpec: FiniteAnimationSpec<Float>
         rule.setMaterialContent(lightColorScheme()) {
+            // Loads the same FiniteAnimationSpec that is used by the ExtendedFloatingActionButton
+            motionSpec = MotionSchemeKeyTokens.FastSpatial.value()
             ExtendedFloatingActionButton(
                 expanded = expanded,
                 onClick = {},
@@ -375,7 +383,18 @@ class FloatingActionButtonScreenshotTest {
 
         rule.runOnIdle { expanded = false }
 
-        rule.mainClock.advanceTimeBy(127)
+        // Calculate the time it should take the current motion to run and advance the clock to
+        // 50% of it.
+        val duration =
+            motionSpec
+                .vectorize(Float.VectorConverter)
+                .getDurationNanos(
+                    initialValue = AnimationVector1D(0f),
+                    targetValue = AnimationVector1D(1f),
+                    initialVelocity = AnimationVector1D(0f)
+                ) / 1_000_000.0
+
+        rule.mainClock.advanceTimeBy(duration.toLong() / 2)
 
         assertRootAgainstGolden("fab_extended_animation")
     }

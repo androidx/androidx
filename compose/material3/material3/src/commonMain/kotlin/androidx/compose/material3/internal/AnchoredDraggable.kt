@@ -218,7 +218,7 @@ internal class AnchoredDraggableState<T>(
     initialValue: T,
     internal val positionalThreshold: (totalDistance: Float) -> Float,
     internal val velocityThreshold: () -> Float,
-    val animationSpec: AnimationSpec<Float>,
+    val animationSpec: () -> AnimationSpec<Float>,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true }
 ) {
 
@@ -244,7 +244,7 @@ internal class AnchoredDraggableState<T>(
         anchors: DraggableAnchors<T>,
         positionalThreshold: (totalDistance: Float) -> Float,
         velocityThreshold: () -> Float,
-        animationSpec: AnimationSpec<Float>,
+        animationSpec: () -> AnimationSpec<Float>,
         confirmValueChange: (newValue: T) -> Boolean = { true }
     ) : this(
         initialValue,
@@ -628,7 +628,7 @@ internal class AnchoredDraggableState<T>(
     companion object {
         /** The default [Saver] implementation for [AnchoredDraggableState]. */
         fun <T : Any> Saver(
-            animationSpec: AnimationSpec<Float>,
+            animationSpec: () -> AnimationSpec<Float>,
             confirmValueChange: (T) -> Boolean,
             positionalThreshold: (distance: Float) -> Float,
             velocityThreshold: () -> Float,
@@ -682,7 +682,7 @@ internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
         val targetOffset = anchors.positionOf(latestTarget)
         if (!targetOffset.isNaN()) {
             var prev = if (offset.isNaN()) 0f else offset
-            animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
+            animate(prev, targetOffset, velocity, animationSpec.invoke()) { value, velocity ->
                 // Our onDrag coerces the value within the bounds, but an animation may
                 // overshoot, for example a spring animation or an overshooting interpolator
                 // We respect the user's intention and allow the overshoot, but still use

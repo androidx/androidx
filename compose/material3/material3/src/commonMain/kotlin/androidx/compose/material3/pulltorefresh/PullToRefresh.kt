@@ -20,10 +20,8 @@ import androidx.annotation.FloatRange
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -40,7 +38,8 @@ import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.tokens.ElevationTokens
-import androidx.compose.material3.tokens.MotionTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
+import androidx.compose.material3.value
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -480,6 +479,7 @@ object PullToRefreshDefaults {
      *   release
      */
     @Suppress("DEPRECATION")
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     fun Indicator(
         state: PullToRefreshState,
@@ -496,9 +496,10 @@ object PullToRefreshDefaults {
             containerColor = containerColor,
             threshold = threshold,
         ) {
+            // TODO Load the motionScheme tokens from the component tokens file
             Crossfade(
                 targetState = isRefreshing,
-                animationSpec = tween(durationMillis = CrossfadeDurationMs)
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
             ) { refreshing ->
                 if (refreshing) {
                     CircularProgressIndicator(
@@ -536,9 +537,10 @@ object PullToRefreshDefaults {
             elevation = elevation,
             threshold = threshold,
         ) {
+            // TODO Load the motionScheme tokens from the component tokens file
             Crossfade(
                 targetState = isRefreshing,
-                animationSpec = tween(durationMillis = CrossfadeDurationMs)
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
             ) { refreshing ->
                 if (refreshing) {
                     ContainedLoadingIndicator(
@@ -670,6 +672,7 @@ private constructor(private val anim: Animatable<Float, AnimationVector1D>) : Pu
 }
 
 /** The default pull indicator for [PullToRefreshBox] */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CircularArrowProgressIndicator(
     progress: () -> Float,
@@ -678,7 +681,12 @@ private fun CircularArrowProgressIndicator(
     val path = remember { Path().apply { fillType = PathFillType.EvenOdd } }
     // TODO: Consider refactoring this sub-component utilizing Modifier.Node
     val targetAlpha by remember { derivedStateOf { if (progress() >= 1f) MaxAlpha else MinAlpha } }
-    val alphaState = animateFloatAsState(targetValue = targetAlpha, animationSpec = AlphaTween)
+    // TODO Load the motionScheme tokens from the component tokens file
+    val alphaState =
+        animateFloatAsState(
+            targetValue = targetAlpha,
+            animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
+        )
     Canvas(
         Modifier.semantics(mergeDescendants = true) {
                 progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f, 0)
@@ -768,7 +776,6 @@ private fun DrawScope.drawArrow(
 }
 
 private const val MaxProgressArc = 0.8f
-private const val CrossfadeDurationMs = MotionTokens.DurationShort2.toInt()
 
 /** The default stroke width for [Indicator] */
 private val StrokeWidth = 2.5.dp
@@ -786,7 +793,6 @@ internal val LoaderIndicatorWidth = LoadingIndicatorDefaults.ContainerWidth
 // Values taken from SwipeRefreshLayout
 private const val MinAlpha = 0.3f
 private const val MaxAlpha = 1f
-private val AlphaTween = tween<Float>(MotionTokens.DurationMedium2.toInt(), easing = LinearEasing)
 
 /**
  * The distance pulled is multiplied by this value to give us the adjusted distance pulled, which is

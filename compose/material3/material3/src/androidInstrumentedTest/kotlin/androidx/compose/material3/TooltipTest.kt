@@ -84,7 +84,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         rule
@@ -110,7 +110,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         rule
@@ -141,7 +141,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         rule
@@ -172,7 +172,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         rule
@@ -201,7 +201,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         rule
@@ -232,7 +232,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         val subhead = rule.onNodeWithTag(SubheadTestTag)
@@ -283,7 +283,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         // Check that the tooltip is now showing
         rule.waitForIdle()
@@ -319,7 +319,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         // Check that the tooltip is now showing
         rule.waitForIdle()
@@ -363,7 +363,7 @@ class TooltipTest {
         scope.launch { state.show() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         // Check that the tooltip is now showing
         rule.waitForIdle()
@@ -380,7 +380,7 @@ class TooltipTest {
 
         // Advance by the fade out duration
         // plus some additional time to make sure that the tooltip is full faded out.
-        rule.mainClock.advanceTimeBy(TooltipFadeOutDuration.toLong() + 100L)
+        rule.mainClock.advanceTimeBy(TooltipFadeOutDuration)
         rule.waitForIdle()
         assertThat(state.isVisible).isFalse()
     }
@@ -661,7 +661,7 @@ class TooltipTest {
         rule.mainClock.autoAdvance = false
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         // Check that only the tooltip associated with bottomState is visible
         rule.waitForIdle()
@@ -726,7 +726,7 @@ class TooltipTest {
         rule.mainClock.autoAdvance = false
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         // Check that both tooltips are now showing
         rule.waitForIdle()
@@ -809,3 +809,6 @@ private const val AnchorTestTag = "Anchor"
 private const val ContainerTestTag = "Container"
 private const val SubheadTestTag = "Subhead"
 private const val TextTestTag = "Text"
+// We use springs to animate, so picking an arbitrary durations that work.
+private const val TooltipFadeInDuration = 300L
+private const val TooltipFadeOutDuration = 300L

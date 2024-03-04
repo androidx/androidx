@@ -833,10 +833,10 @@ package androidx.compose.material3 {
     method public float getContainerSize();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method public float getScreenOffset();
-    method public androidx.compose.animation.EnterTransition horizontalEnterTransition(androidx.compose.ui.Alignment.Horizontal expandFrom);
-    method public androidx.compose.animation.ExitTransition horizontalExitTransition(androidx.compose.ui.Alignment.Horizontal shrinkTowards);
-    method public androidx.compose.animation.EnterTransition verticalEnterTransition(androidx.compose.ui.Alignment.Vertical expandFrom);
-    method public androidx.compose.animation.ExitTransition verticalExitTransition(androidx.compose.ui.Alignment.Vertical shrinkTowards);
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.EnterTransition horizontalEnterTransition(androidx.compose.ui.Alignment.Horizontal expandFrom);
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ExitTransition horizontalExitTransition(androidx.compose.ui.Alignment.Horizontal shrinkTowards);
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.EnterTransition verticalEnterTransition(androidx.compose.ui.Alignment.Vertical expandFrom);
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ExitTransition verticalExitTransition(androidx.compose.ui.Alignment.Vertical shrinkTowards);
     property @androidx.compose.runtime.Composable public final long ContainerColor;
     property public final float ContainerElevation;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape ContainerShape;

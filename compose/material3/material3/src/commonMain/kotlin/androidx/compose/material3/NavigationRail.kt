@@ -18,7 +18,6 @@ package androidx.compose.material3
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
@@ -42,6 +41,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.internal.MappedInteractionSource
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.systemBarsForVisualComponents
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.NavigationRailTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -168,6 +168,7 @@ fun NavigationRail(
  *   preview the item in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavigationRailItem(
     selected: Boolean,
@@ -187,7 +188,8 @@ fun NavigationRailItem(
             val iconColor by
                 animateColorAsState(
                     targetValue = colors.iconColor(selected = selected, enabled = enabled),
-                    animationSpec = tween(ItemAnimationDurationMillis)
+                    // TODO Load the motionScheme tokens from the component tokens file
+                    animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
                 )
             // If there's a label, don't have a11y services repeat the icon description.
             val clearSemantics = label != null && (alwaysShowLabel || selected)
@@ -203,7 +205,8 @@ fun NavigationRailItem(
                 val textColor by
                     animateColorAsState(
                         targetValue = colors.textColor(selected = selected, enabled = enabled),
-                        animationSpec = tween(ItemAnimationDurationMillis)
+                        // TODO Load the motionScheme tokens from the component tokens file
+                        animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
                     )
                 ProvideContentColorTextStyle(
                     contentColor = textColor,
@@ -228,10 +231,17 @@ fun NavigationRailItem(
         contentAlignment = Alignment.Center,
         propagateMinConstraints = true,
     ) {
-        val animationProgress: State<Float> =
+        val alphaAnimationProgress: State<Float> =
             animateFloatAsState(
                 targetValue = if (selected) 1f else 0f,
-                animationSpec = tween(ItemAnimationDurationMillis)
+                // TODO Load the motionScheme tokens from the component tokens file
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
+            )
+        val sizeAnimationProgress: State<Float> =
+            animateFloatAsState(
+                targetValue = if (selected) 1f else 0f,
+                // TODO Load the motionScheme tokens from the component tokens file
+                animationSpec = MotionSchemeKeyTokens.FastSpatial.value()
             )
 
         // The entire item is selectable, but only the indicator pill shows the ripple. To achieve
@@ -269,7 +279,7 @@ fun NavigationRailItem(
             @Composable {
                 Box(
                     Modifier.layoutId(IndicatorLayoutIdTag)
-                        .graphicsLayer { alpha = animationProgress.value }
+                        .graphicsLayer { alpha = alphaAnimationProgress.value }
                         .background(color = colors.indicatorColor, shape = indicatorShape)
                 )
             }
@@ -280,7 +290,8 @@ fun NavigationRailItem(
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
-            animationProgress = { animationProgress.value },
+            alphaAnimationProgress = { alphaAnimationProgress.value },
+            sizeAnimationProgress = { sizeAnimationProgress.value },
         )
     }
 }
@@ -500,8 +511,11 @@ constructor(
  * @param label text label for this item
  * @param alwaysShowLabel whether to always show the label for this item. If false, the label will
  *   only be shown when this item is selected.
- * @param animationProgress progress of the animation, where 0 represents the unselected state of
- *   this item and 1 represents the selected state. This value controls other values such as
+ * @param alphaAnimationProgress progress of the animation, where 0 represents the unselected state
+ *   of this item and 1 represents the selected state. This value controls the indicator's color
+ *   alpha.
+ * @param sizeAnimationProgress progress of the animation, where 0 represents the unselected state
+ *   of this item and 1 represents the selected state. This value controls other values such as
  *   indicator size, icon and label positions, etc.
  */
 @Composable
@@ -511,7 +525,8 @@ private fun NavigationRailItemLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
     alwaysShowLabel: Boolean,
-    animationProgress: () -> Float,
+    alphaAnimationProgress: () -> Float,
+    sizeAnimationProgress: () -> Float,
 ) {
     Layout(
         modifier = Modifier.badgeBounds(),
@@ -524,7 +539,7 @@ private fun NavigationRailItemLayout(
             if (label != null) {
                 Box(
                     Modifier.layoutId(LabelLayoutIdTag).graphicsLayer {
-                        alpha = if (alwaysShowLabel) 1f else animationProgress()
+                        alpha = if (alwaysShowLabel) 1f else alphaAnimationProgress()
                     }
                 ) {
                     label()
@@ -532,7 +547,9 @@ private fun NavigationRailItemLayout(
             }
         }
     ) { measurables, constraints ->
-        @Suppress("NAME_SHADOWING") val animationProgress = animationProgress()
+        @Suppress("NAME_SHADOWING")
+        // Ensure that the progress is >= 0. It may be negative on bouncy springs, for example.
+        val animationProgress = sizeAnimationProgress().coerceAtLeast(0f)
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val iconPlaceable =
             measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)
@@ -726,8 +743,6 @@ internal val NavigationRailVerticalPadding: Dp = 4.dp
  * header is not null.
  */
 private val NavigationRailHeaderPadding: Dp = 8.dp
-
-private const val ItemAnimationDurationMillis: Int = 150
 
 /*@VisibleForTesting*/
 /** Width of an individual [NavigationRailItem]. */

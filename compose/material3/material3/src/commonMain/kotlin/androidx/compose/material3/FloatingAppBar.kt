@@ -20,10 +20,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.rememberSplineBasedDecay
@@ -52,6 +50,7 @@ import androidx.compose.material3.FloatingAppBarPosition.Companion.Start
 import androidx.compose.material3.FloatingAppBarPosition.Companion.Top
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ElevationTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.ShapeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -405,7 +404,7 @@ object FloatingAppBarDefaults {
         position: FloatingAppBarPosition,
         screenOffset: Dp = ScreenOffset,
         state: FloatingAppBarState = rememberFloatingAppBarState(),
-        snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
+        snapAnimationSpec: AnimationSpec<Float> = MotionSchemeKeyTokens.DefaultEffects.value(),
         flingAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
     ): FloatingAppBarScrollBehavior =
         remember(position, screenOffset, state, snapAnimationSpec, flingAnimationSpec) {
@@ -419,46 +418,34 @@ object FloatingAppBarDefaults {
         }
 
     /** Default enter transition used for [HorizontalFloatingAppBar] when expanding */
+    @Composable
     fun horizontalEnterTransition(expandFrom: Alignment.Horizontal) =
         expandHorizontally(
-            animationSpec =
-                spring(
-                    dampingRatio = .8f,
-                    stiffness = 380f,
-                ),
+            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
             expandFrom = expandFrom,
         )
 
     /** Default enter transition used for [VerticalFloatingAppBar] when expanding */
+    @Composable
     fun verticalEnterTransition(expandFrom: Alignment.Vertical) =
         expandVertically(
-            animationSpec =
-                spring(
-                    dampingRatio = .8f,
-                    stiffness = 380f,
-                ),
+            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
             expandFrom = expandFrom,
         )
 
     /** Default exit transition used for [HorizontalFloatingAppBar] when shrinking */
+    @Composable
     fun horizontalExitTransition(shrinkTowards: Alignment.Horizontal) =
         shrinkHorizontally(
-            animationSpec =
-                spring(
-                    dampingRatio = .8f,
-                    stiffness = 380f,
-                ),
+            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
             shrinkTowards = shrinkTowards,
         )
 
     /** Default exit transition used for [VerticalFloatingAppBar] when shrinking */
+    @Composable
     fun verticalExitTransition(shrinkTowards: Alignment.Vertical) =
         shrinkVertically(
-            animationSpec =
-                spring(
-                    dampingRatio = .8f,
-                    stiffness = 380f,
-                ),
+            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
             shrinkTowards = shrinkTowards,
         )
 }

@@ -17,8 +17,6 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -33,6 +31,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.PrimaryNavigationTabTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -270,6 +269,7 @@ fun Tab(
  * component uses [LocalContentColor] to provide an interpolated value between [activeColor] and
  * [inactiveColor] depending on the animation status.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun TabTransition(
     activeColor: Color,
@@ -278,17 +278,16 @@ private fun TabTransition(
     content: @Composable () -> Unit
 ) {
     val transition = updateTransition(selected)
+    // TODO Load the motionScheme tokens from the component tokens file
     val color by
         transition.animateColor(
             transitionSpec = {
                 if (false isTransitioningTo true) {
-                    tween(
-                        durationMillis = TabFadeInAnimationDuration,
-                        delayMillis = TabFadeInAnimationDelay,
-                        easing = LinearEasing
-                    )
+                    // Fade-in
+                    MotionSchemeKeyTokens.DefaultEffects.value()
                 } else {
-                    tween(durationMillis = TabFadeOutAnimationDuration, easing = LinearEasing)
+                    // Fade-out
+                    MotionSchemeKeyTokens.FastEffects.value()
                 }
             }
         ) {
@@ -424,11 +423,6 @@ private fun Placeable.PlacementScope.placeTextAndIcon(
 // Tab specifications
 private val SmallTabHeight = PrimaryNavigationTabTokens.ContainerHeight
 private val LargeTabHeight = 72.dp
-
-// Tab transition specifications
-private const val TabFadeInAnimationDuration = 150
-private const val TabFadeInAnimationDelay = 100
-private const val TabFadeOutAnimationDuration = 100
 
 // The horizontal padding on the left and right of text
 internal val HorizontalTextPadding = 16.dp
