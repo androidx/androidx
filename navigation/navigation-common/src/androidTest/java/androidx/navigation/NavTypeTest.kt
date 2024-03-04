@@ -20,6 +20,8 @@ import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.navigation.common.test.R
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -256,6 +258,45 @@ class NavTypeTest {
     }
 
     @Test
+    fun parcelableArrayValueEquals() {
+        val type = NavType.ParcelableArrayType(TestParcelable::class.java)
+        val array1 = arrayOf(TestParcelable(1), TestParcelable(2))
+        val array2 = arrayOf(TestParcelable(1), TestParcelable(2))
+        assertThat(type.valueEquals(array1, array2)).isTrue()
+
+        // deep comparison, order matters
+        val array3 = arrayOf(TestParcelable(2), TestParcelable(1))
+        val array4 = arrayOf(TestParcelable(1), TestParcelable(2))
+        assertThat(type.valueEquals(array3, array4)).isFalse()
+    }
+
+    @Test
+    fun serializableArrayValueEquals() {
+        val type = NavType.SerializableArrayType(TestSerializable::class.java)
+        val array1 = arrayOf(TestSerializable(1), TestSerializable(2))
+        val array2 = arrayOf(TestSerializable(1), TestSerializable(2))
+        assertThat(type.valueEquals(array1, array2)).isTrue()
+
+        // deep comparison, order matters
+        val array3 = arrayOf(TestSerializable(2), TestSerializable(1))
+        val array4 = arrayOf(TestSerializable(1), TestSerializable(2))
+        assertThat(type.valueEquals(array3, array4)).isFalse()
+    }
+
+    @Test
+    fun primitiveArrayValueEquals() {
+        val type = NavType.IntArrayType
+        val array1 = intArrayOf(1, 2)
+        val array2 = intArrayOf(1, 2)
+        assertThat(type.valueEquals(array1, array2)).isTrue()
+
+        // deep comparison, order matters
+        val array3 = intArrayOf(2, 1)
+        val array4 = intArrayOf(1, 2)
+        assertThat(type.valueEquals(array3, array4)).isFalse()
+    }
+
+    @Test
     fun customType_defaultSerializeAsValue() {
         val testItemType = object : NavType<TestItem> (false) {
             override fun put(bundle: Bundle, key: String, value: TestItem) {
@@ -338,3 +379,10 @@ private class TestItem {
         return "TestItem"
     }
 }
+
+private data class TestParcelable(val arg: Int) : Parcelable {
+    override fun describeContents(): Int = 0
+    override fun writeToParcel(dest: Parcel, flags: Int) {}
+}
+
+private data class TestSerializable(val arg: Int) : Serializable
