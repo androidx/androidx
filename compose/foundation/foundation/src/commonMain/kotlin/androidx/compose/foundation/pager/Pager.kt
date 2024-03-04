@@ -895,7 +895,7 @@ private class DefaultPagerNestedScrollConnection(
         available: Offset,
         source: NestedScrollSource
     ): Offset {
-        if (source == NestedScrollSource.Fling && available != Offset.Zero) {
+        if (source == NestedScrollSource.Fling && available.toFloat() != 0f) {
             throw CancellationException("End of scrollable area reached")
         }
         return Offset.Zero
@@ -904,6 +904,9 @@ private class DefaultPagerNestedScrollConnection(
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
         return available.consumeOnOrientation(orientation)
     }
+
+    private fun Offset.toFloat(): Float =
+        if (orientation == Orientation.Horizontal) this.x else this.y
 }
 
 @OptIn(ExperimentalFoundationApi::class)
