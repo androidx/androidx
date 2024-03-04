@@ -28,11 +28,6 @@ import androidx.collection.keyIterator
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.core.net.toUri
-import androidx.navigation.NavType.Companion.BoolArrayType
-import androidx.navigation.NavType.Companion.FloatArrayType
-import androidx.navigation.NavType.Companion.IntArrayType
-import androidx.navigation.NavType.Companion.LongArrayType
-import androidx.navigation.NavType.Companion.StringArrayType
 import androidx.navigation.common.R
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -138,38 +133,11 @@ public open class NavDestination(
                 val type = destination._arguments[key]?.type
                 val matchingArgValue = type?.get(matchingArgs, key)
                 val entryArgValue = type?.get(arguments, key)
-                // process Arrays separately by comparing array content
-                if (type == IntArrayType || type == BoolArrayType ||
-                    type == LongArrayType || type == StringArrayType || type == FloatArrayType) {
-                    val matchingArgArray = arrayToList(type, matchingArgValue)
-                    val entryArgArray = arrayToList(type, entryArgValue)
-                    if (matchingArgArray == null && entryArgArray != null) return false
-                    matchingArgArray.let {
-                        if (entryArgArray == null) return false
-                        if (it?.size != entryArgArray.size) return false
-                        it.forEachIndexed { index, arg ->
-                            val entryArg = entryArgArray[index]
-                            if (arg != entryArg) return false
-                        }
-                    }
-                } else {
-                    if (matchingArgValue != entryArgValue) return false
+                if (type?.valueEquals(matchingArgValue, entryArgValue) == false) {
+                    return false
                 }
             }
             return true
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun arrayToList(type: NavType<*>, value: Any?): List<*>? {
-            return when {
-                value == null -> null
-                type == IntArrayType -> (value as IntArray).toList()
-                type == FloatArrayType -> (value as FloatArray).toList()
-                type == BoolArrayType -> (value as BooleanArray).toList()
-                type == LongArrayType -> (value as LongArray).toList()
-                type == StringArrayType -> (value as Array<String>).toList()
-                else -> null
-            }
         }
     }
 

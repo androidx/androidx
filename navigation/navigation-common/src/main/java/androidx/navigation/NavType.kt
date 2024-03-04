@@ -144,6 +144,14 @@ public abstract class NavType<T>(
      */
     public open val name: String = "nav_type"
 
+    /**
+     * Compares two values of type [T] and returns true if values are equal.
+     *
+     * @param value the first value for comparison
+     * @param other the second value for comparison
+     */
+    public open fun valueEquals(value: T, other: T): Boolean = value == other
+
     override fun toString(): String {
         return name
     }
@@ -392,6 +400,12 @@ public abstract class NavType<T>(
             override fun parseValue(value: String, previousValue: IntArray?): IntArray {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: IntArray?, other: IntArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
         }
 
         /**
@@ -460,6 +474,12 @@ public abstract class NavType<T>(
             override fun parseValue(value: String, previousValue: LongArray?): LongArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: LongArray?, other: LongArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
         }
 
         /**
@@ -514,6 +534,12 @@ public abstract class NavType<T>(
 
             override fun parseValue(value: String, previousValue: FloatArray?): FloatArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: FloatArray?, other: FloatArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
             }
         }
 
@@ -577,6 +603,12 @@ public abstract class NavType<T>(
 
             override fun parseValue(value: String, previousValue: BooleanArray?): BooleanArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: BooleanArray?, other: BooleanArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
             }
         }
 
@@ -652,6 +684,9 @@ public abstract class NavType<T>(
             override fun parseValue(value: String, previousValue: Array<String>?): Array<String>? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: Array<String>?, other: Array<String>?) =
+                value.contentDeepEquals(other)
         }
     }
 
@@ -755,6 +790,11 @@ public abstract class NavType<T>(
         public override fun hashCode(): Int {
             return arrayType.hashCode()
         }
+
+        override fun valueEquals(
+            @Suppress("ArrayReturn") value: Array<D>?,
+            @Suppress("ArrayReturn") other: Array<D>?
+        ) = value.contentDeepEquals(other)
 
         /**
          * Constructs a NavType that supports arrays of a given Parcelable type.
@@ -920,6 +960,11 @@ public abstract class NavType<T>(
         public override fun hashCode(): Int {
             return arrayType.hashCode()
         }
+
+        override fun valueEquals(
+            @Suppress("ArrayReturn") value: Array<D>?,
+            @Suppress("ArrayReturn") other: Array<D>?
+        ) = value.contentDeepEquals(other)
 
         /**
          * Constructs a NavType that supports arrays of a given Serializable type.
