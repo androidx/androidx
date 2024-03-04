@@ -80,20 +80,18 @@ import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.PlatformTextInputMethodRequest
-import androidx.compose.ui.platform.PlatformTextInputSession
+import androidx.compose.ui.platform.PlatformTextInputInterceptor
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -124,7 +122,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
@@ -134,7 +131,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldTest {
@@ -601,13 +597,16 @@ class TextFieldTest {
         rule.setMaterialContent {
             Box {
                 TextField(
-                    modifier = Modifier.height(height).testTag(TextFieldTag),
+                    modifier = Modifier
+                        .height(height)
+                        .testTag(TextFieldTag),
                     value = "",
                     onValueChange = {},
                     placeholder = {
                         Text(
                             text = "placeholder",
-                            modifier = Modifier.requiredHeight(20.dp)
+                            modifier = Modifier
+                                .requiredHeight(20.dp)
                                 .onGloballyPositioned {
                                     placeholderPosition.value = it.positionInRoot()
                                     placeholderSize.value = it.size
@@ -859,18 +858,22 @@ class TextFieldTest {
                     modifier = Modifier.size(textFieldWidth, textFieldHeight),
                     leadingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                leadingPosition = it.positionInRoot()
-                                leadingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    leadingPosition = it.positionInRoot()
+                                    leadingSize = it.size
+                                }
                         )
                     },
                     trailingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                trailingPosition = it.positionInRoot()
-                                trailingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    trailingPosition = it.positionInRoot()
+                                    trailingSize = it.size
+                                }
                         )
                     }
                 )
@@ -1015,25 +1018,20 @@ class TextFieldTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testTextField_imeActionAndKeyboardTypePropagatedDownstream() {
         var editorInfo: EditorInfo? = null
-        val sessionHandler = object : PlatformTextInputSession {
-            override val view: View = View(getInstrumentation().targetContext)
-
-            override suspend fun startInputMethod(
-                request: PlatformTextInputMethodRequest
-            ): Nothing {
-                EditorInfo().also {
-                    request.createInputConnection(it)
-                    editorInfo = it
-                }
-                awaitCancellation()
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            EditorInfo().also {
+                request.createInputConnection(it)
+                editorInfo = it
             }
+            awaitCancellation()
         }
         rule.setContent {
-            PlatformTextInputMethodTestOverride(sessionHandler) {
-                val text = remember { mutableStateOf("") }
+            val text = remember { mutableStateOf("") }
+            InterceptPlatformTextInput(interceptor) {
                 TextField(
                     modifier = Modifier.testTag(TextFieldTag),
                     value = text.value,
@@ -1170,7 +1168,9 @@ class TextFieldTest {
                     Text(
                         text = "label",
                         color = Color.Red,
-                        modifier = Modifier.testTag("Label").background(Color.Red)
+                        modifier = Modifier
+                            .testTag("Label")
+                            .background(Color.Red)
                     )
                 },
                 textStyle = TextStyle(color = Color.Blue),
@@ -1342,7 +1342,11 @@ class TextFieldTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testTextField_label_notUsingErrorColor_notFocused_withoutInput() {
         rule.setMaterialContent {
-            Box(Modifier.background(Color.White).padding(10.dp)) {
+            Box(
+                Modifier
+                    .background(Color.White)
+                    .padding(10.dp)
+            ) {
                 TextField(
                     value = "",
                     onValueChange = {},
@@ -1591,7 +1595,11 @@ class TextFieldTest {
         val text = "Long text input. ".repeat(20)
         rule.setMaterialContent {
             Row {
-                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
+                Box(
+                    Modifier
+                        .width(150.dp)
+                        .height(IntrinsicSize.Min)
+                ) {
                     TextField(
                         value = text,
                         onValueChange = {},
@@ -1658,9 +1666,13 @@ class TextFieldTest {
     fun testTextFields_noCrashConstraintsInfinity() {
 
         rule.setMaterialContent {
-            Column(modifier = Modifier.height(IntrinsicSize.Min).horizontalScroll(
-                rememberScrollState()
-            )) {
+            Column(
+                modifier = Modifier
+                    .height(IntrinsicSize.Min)
+                    .horizontalScroll(
+                        rememberScrollState()
+                    )
+            ) {
                 TextField(
                     value = "Cat",
                     onValueChange = {},

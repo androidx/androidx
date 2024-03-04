@@ -201,7 +201,10 @@ internal class TextFieldFocusTest {
                 }
             },
             wrapContent = {
-                Dialog(onDismissRequest = {}, content = it)
+                Dialog(onDismissRequest = {}) {
+                    // Need to explicitly install the interceptor in the dialog as well.
+                    inputMethodInterceptor.Content(it)
+                }
             }
         )
     }
@@ -219,7 +222,10 @@ internal class TextFieldFocusTest {
                 }
             },
             wrapContent = {
-                Dialog(onDismissRequest = {}, content = it)
+                Dialog(onDismissRequest = {}) {
+                    // Need to explicitly install the interceptor in the dialog as well.
+                    inputMethodInterceptor.Content(it)
+                }
             }
         )
     }
