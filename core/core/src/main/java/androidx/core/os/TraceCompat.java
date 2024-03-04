@@ -50,7 +50,7 @@ public final class TraceCompat {
     private static Method sTraceCounterMethod;
 
     static {
-        if (Build.VERSION.SDK_INT >= 18 && Build.VERSION.SDK_INT < 29) {
+        if (Build.VERSION.SDK_INT < 29) {
             try {
                 Field traceTagAppField = Trace.class.getField("TRACE_TAG_APP");
                 sTraceTagApp = traceTagAppField.getLong(null);
