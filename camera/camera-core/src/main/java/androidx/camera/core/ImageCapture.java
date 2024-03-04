@@ -19,7 +19,7 @@ package androidx.camera.core;
 import static android.graphics.ImageFormat.JPEG_R;
 
 import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
-import static androidx.camera.core.DynamicRange.HLG_10_BIT;
+import static androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -464,7 +464,8 @@ public final class ImageCapture extends UseCase {
         } else {
             if (isOutputFormatUltraHdr(builder.getMutableConfig())) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
-                builder.getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, HLG_10_BIT);
+                builder.getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
+                        HDR_UNSPECIFIED_10_BIT);
             } else if (useSoftwareJpeg) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                         ImageFormat.YUV_420_888);
@@ -2299,7 +2300,8 @@ public final class ImageCapture extends UseCase {
             } else {
                 if (isOutputFormatUltraHdr(getMutableConfig())) {
                     getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
-                    getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, HLG_10_BIT);
+                    getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
+                            HDR_UNSPECIFIED_10_BIT);
                 } else {
                     getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
                 }
@@ -2805,8 +2807,8 @@ public final class ImageCapture extends UseCase {
          *
          * <p>If not set, the output format will default to {@link #OUTPUT_FORMAT_JPEG}.
          *
-         * <p>If an Ultra HDR output format is used, a {@link DynamicRange#HLG_10_BIT} will be
-         * used as the dynamic range of this use case.
+         * <p>If an Ultra HDR output format is used, a {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}
+         * will be used as the dynamic range of this use case.
          *
          * @param outputFormat The output image format. Value is {@link #OUTPUT_FORMAT_JPEG} or
          *                     {@link #OUTPUT_FORMAT_ULTRA_HDR}.
