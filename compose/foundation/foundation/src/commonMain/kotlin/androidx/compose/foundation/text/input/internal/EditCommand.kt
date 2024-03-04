@@ -196,8 +196,11 @@ internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
             if (isSurrogatePair(lead, trail)) {
                 beforeLenInChars++
             }
+        } else {
+            // overflowing
+            beforeLenInChars = selectionStart
+            break
         }
-        if (beforeLenInChars == selectionStart) break
     }
 
     var afterLenInChars = 0
@@ -210,8 +213,11 @@ internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
             if (isSurrogatePair(lead, trail)) {
                 afterLenInChars++
             }
+        } else {
+            // overflowing
+            afterLenInChars = length - selectionEnd
+            break
         }
-        if (selectionEnd + afterLenInChars == length) break
     }
 
     delete(selectionEnd, selectionEnd + afterLenInChars)
