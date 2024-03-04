@@ -185,7 +185,7 @@ if [ ! -e "$referenceFailingDir" ]; then
   mkdir -p "$tempDir"
   cp -rT . "$referenceFailingDir"
   # remove some unhelpful settings
-  sed -i 's/.*Werror.*//' "$referenceFailingDir/buildSrc/build.gradle"
+  sed -i 's/.*Werror.*//' "$referenceFailingDir/buildSrc/shared.gradle"
   sed -i 's/.*Exception.*cannot include.*//' "$referenceFailingDir/settings.gradle"
   # remove some generated files that we don't want diff-filterer.py to track
   rm -rf "$referenceFailingDir/.gradle" "$referenceFailingDir/buildSrc/.gradle" "$referenceFailingDir/out"
