@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
@@ -37,6 +39,8 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    js()
+    wasm()
 
     kotlin {
         explicitApi = ExplicitApiMode.Strict
@@ -53,7 +57,9 @@ androidXMultiplatform {
             }
         }
 
-        jvmMain.dependsOn(commonMain)
+        jvmMain {
+            dependsOn(commonMain)
+        }
 
         jvmTest {
             dependencies {
@@ -82,6 +88,7 @@ androidXMultiplatform {
 androidx {
     name = "Lifecycle-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
     metalavaK2UastEnabled = true
