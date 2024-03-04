@@ -38,7 +38,7 @@ import androidx.credentials.R
  * foo@gmail.com). These guidelines should be followed in cases where [CustomCredentialEntry] are
  * created.
  *
- * @property type the type of the credential associated with this entry, e.g. a
+ * (RestrictTo property) type the type of the credential associated with this entry, e.g. a
  * [BeginGetPasswordOption] will have type [TYPE_PASSWORD_CREDENTIAL]
  * @property beginGetCredentialOption the option from the original [BeginGetCredentialRequest],
  * for which this credential entry is being added
