@@ -568,7 +568,7 @@ package androidx.tv.material3 {
     property public final androidx.compose.ui.graphics.Shape shape;
   }
 
-  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class MaterialTheme {
+  public final class MaterialTheme {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ColorScheme getColorScheme();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Shapes getShapes();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Typography getTypography();
@@ -579,7 +579,7 @@ package androidx.tv.material3 {
   }
 
   public final class MaterialThemeKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void MaterialTheme(optional androidx.tv.material3.ColorScheme colorScheme, optional androidx.tv.material3.Shapes shapes, optional androidx.tv.material3.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void MaterialTheme(optional androidx.tv.material3.ColorScheme colorScheme, optional androidx.tv.material3.Shapes shapes, optional androidx.tv.material3.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemBorder {
