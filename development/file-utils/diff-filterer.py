@@ -888,11 +888,14 @@ class DiffRunner(object):
             clean = job.ancestorSucceeded
             if workerId in consecutiveIncrementalBuildsById:
               consecutiveIncrementalBuilds = consecutiveIncrementalBuildsById[workerId]
+              if consecutiveIncrementalBuilds >= 10:
+                clean = True
+                consecutiveIncrementalBuilds = 0
             else:
               consecutiveIncrementalBuilds = 0
-            if consecutiveIncrementalBuilds >= 10:
+              # Also, if this worker hasn't run any jobs yet, then we don't expect it to have any leftover files, so an incremental test is essentially equivalent to a clean test anyway
+              # We ask the worker to run a clean test so that if it succeeds, we can detect that the success started from a clean state
               clean = True
-              consecutiveIncrementalBuilds = 0
             consecutiveIncrementalBuildsById[workerId] = 0
             fullTestState = self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState)
             description = testState.summarize() + " (job " + str(workerId) + ", "
