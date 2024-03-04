@@ -376,7 +376,11 @@ private class PagerWrapperFlingBehavior(
         val scope: ScrollScope = this
         return with(originalFlingBehavior) {
             performFling(initialVelocity) { remainingScrollOffset ->
-                val flingPageDisplacement = remainingScrollOffset / (pagerState.pageSizeWithSpacing)
+                val flingPageDisplacement = if (pagerState.pageSizeWithSpacing != 0) {
+                    remainingScrollOffset / (pagerState.pageSizeWithSpacing)
+                } else {
+                    0f
+                }
                 val targetPage = flingPageDisplacement.roundToInt() + pagerState.currentPage
                 with(pagerState) {
                     scope.updateTargetPage(targetPage)
