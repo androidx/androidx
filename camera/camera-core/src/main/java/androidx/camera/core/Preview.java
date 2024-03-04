@@ -229,7 +229,7 @@ public final class Preview extends UseCase {
         CameraInternal camera = requireNonNull(getCamera());
         clearPipeline();
 
-        int format = config.get(OPTION_INPUT_FORMAT);
+        int format = config.getInputFormat();
 
         // Make sure the previously created camera edge is cleared before creating a new one.
         checkState(mCameraEdge == null);
