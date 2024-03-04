@@ -16,7 +16,7 @@
 #
 
 
-import datetime, filecmp, math, multiprocessing, os, random, shutil, subprocess, stat, sys, time
+import datetime, filecmp, math, multiprocessing, os, shutil, subprocess, stat, sys, time
 from collections import OrderedDict
 
 def usage():
@@ -541,10 +541,9 @@ class Test(object):
 
 # keeps track of a plan for running a Test
 class Job(object):
-  def __init__(self, testState, ancestorSucceeded, clean):
+  def __init__(self, testState, ancestorSucceeded):
     self.testState = testState
     self.ancestorSucceeded = ancestorSucceeded
-    self.clean = clean
 
   def size(self):
     return self.testState.size()
@@ -675,10 +674,11 @@ class DiffRunner(object):
     queue = multiprocessing.Queue()
     activeJobsById = {}
     workerStatesById = {}
+    consecutiveIncrementalBuildsById = {}
     initialSplitSize = 2
     if self.maxNumJobsAtOnce != "auto" and self.maxNumJobsAtOnce > 2:
       initialSplitSize = self.maxNumJobsAtOnce
-    availableJobs = [Job(testState, False, False) for testState in self.targetState.splitOnce(initialSplitSize)]
+    availableJobs = [Job(testState, False) for testState in self.targetState.splitOnce(initialSplitSize)]
     numConsecutiveFailures = 0
     numFailuresSinceLastSplitOrSuccess = 0
     numCompletionsSinceLastPoolSizeChange = 0
@@ -788,20 +788,7 @@ class DiffRunner(object):
             if len(split) > 1:
               numFailuresSinceLastSplitOrSuccess = 0
             for testState in split:
-              ancestorSucceeded = job.ancestorSucceeded
-              # If job.ancestorSucceeded, then this job came from another job that succeeded (it's either the union of several jobs that succeeded, or a piece of a job that succeeded).
-              # However, if we get here, then this job failed.
-              # So, joining or splitting this job's successful ancestor(s) created a failed job (this one).
-              # So, in the future it's also likely that we'll find jobs that succeed on their own but if joined will fail.
-              # So, in the future we don't want to join all successful jobs (because that could be likely to introduce a failure).
-              # Any successful jobs in the future that we don't accept, we join together.
-              # So, we want to accept a successful job soon.
-              # We can only accept the results of clean builds (because for incremental builds we're not sure that the results are reliable)
-              # So, if job.ancestorSucceeded, we make the descendants of this job be clean
-              #
-              # Also, we want each worker to occasionally use a new state in case so that incremental errors can't remain forever
-              clean = ancestorSucceeded or (random.random() < 0.1)
-              availableJobs.append(Job(testState, ancestorSucceeded, clean))
+              availableJobs.append(Job(testState, job.ancestorSucceeded))
         # clear invalidation status
         if identifier in invalidatedIds:
           invalidatedIds.remove(identifier)
@@ -823,7 +810,7 @@ class DiffRunner(object):
               state = job.testState
               rejoinedState = rejoinedState.expandedWithEmptyEntriesFor(state).withConflictsFrom(state)
             rejoinedState = rejoinedState.withoutDuplicatesFrom(self.resetTo_state)
-            availableJobs = [Job(testState, False, False) for testState in rejoinedState.splitOnce(initialSplitSize)]
+            availableJobs = [Job(testState, False) for testState in rejoinedState.splitOnce(initialSplitSize)]
             numFailuresSinceLastSplitOrSuccess = 0
             numJobsAtFirstSuccessAfterMerge = None
             numCompletionsSinceLastPoolSizeChange = 0
@@ -836,7 +823,7 @@ class DiffRunner(object):
         probablyAcceptableState = probablyAcceptableState.withoutDuplicatesFrom(self.resetTo_state)
         if probablyAcceptableState.size() > 0:
           print("Retesting " + str(len(probablyAcceptableStates)) + " previous likely successful states as a single test: " + probablyAcceptableState.summarize())
-          availableJobs = [Job(probablyAcceptableState, True, True)] + availableJobs
+          availableJobs = [Job(probablyAcceptableState, True)] + availableJobs
         probablyAcceptableStates = []
       if len(availableJobs) < 1 and len(activeJobsById) < 1:
         print("Error: no changes remain left to test. It was expected that applying all changes would fail")
@@ -876,28 +863,47 @@ class DiffRunner(object):
             # find next pending job
             job = availableJobs[0]
             # find next unused job id
-            jobId = 0
-            while jobId in activeJobsById:
-              jobId += 1
+            workerId = 0
+            while workerId in activeJobsById:
+              workerId += 1
             # start job
-            workingDir = self.getWorkPath(jobId)
-            if jobId in workerStatesById:
-              workerPreviousState = workerStatesById[jobId]
+            workingDir = self.getWorkPath(workerId)
+            if workerId in workerStatesById:
+              workerPreviousState = workerStatesById[workerId]
             else:
               workerPreviousState = FilesState()
             testState = job.testState
-            clean = job.clean
-            randomNumber = random.random()
+
+            # If job.ancestorSucceeded, then this job came from another job that succeeded (it's either the union of several jobs that succeeded, or a piece of a job that succeeded).
+            # However, if we get here, then this job failed.
+            # So, joining or splitting this job's successful ancestor(s) created a failed job (this one).
+            # So, in the future it's also likely that we'll find jobs that succeed on their own but if joined will fail.
+            # So, in the future we don't want to join all successful jobs (because that could be likely to introduce a failure).
+            # Any successful jobs in the future that we don't accept, we join together.
+            # So, we want to accept a successful job soon.
+            # We can only accept the results of clean builds (because for incremental builds we're not sure that the results are reliable)
+            # So, if job.ancestorSucceeded, we make the descendants of this job be clean
+            #
+            # Also, we want each worker to occasionally use a new state in case so that incremental errors can't remain forever
+            clean = job.ancestorSucceeded
+            if workerId in consecutiveIncrementalBuildsById:
+              consecutiveIncrementalBuilds = consecutiveIncrementalBuildsById[workerId]
+            else:
+              consecutiveIncrementalBuilds = 0
+            if consecutiveIncrementalBuilds >= 10:
+              clean = True
+              consecutiveIncrementalBuilds = 0
+            consecutiveIncrementalBuildsById[workerId] = 0
             fullTestState = self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState)
-            description = testState.summarize() + " (job " + str(jobId) + ", "
+            description = testState.summarize() + " (job " + str(workerId) + ", "
             if clean:
               description += "clean"
             else:
               description += "incremental"
             description += ")"
-            runJobInOtherProcess(self.testScript_path, workingDir, workerPreviousState, clean, fullTestState, description, queue, jobId)
-            activeJobsById[jobId] = job
-            workerStatesById[jobId] = fullTestState
+            runJobInOtherProcess(self.testScript_path, workingDir, workerPreviousState, clean, fullTestState, description, queue, workerId)
+            activeJobsById[workerId] = job
+            workerStatesById[workerId] = fullTestState
             availableJobs = availableJobs[1:]
 
     if timedOut:
