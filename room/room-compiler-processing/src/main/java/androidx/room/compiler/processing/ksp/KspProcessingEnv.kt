@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XConstructorType
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XExecutableElementStore
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
@@ -103,6 +104,13 @@ internal class KspProcessingEnv(
             }
         )
 
+    private val executableElementStore =
+        XExecutableElementStore(
+            wrap = { functionDeclaration: KSFunctionDeclaration ->
+                KspExecutableElement.create(this, functionDeclaration)
+            }
+        )
+
     override val messager: XMessager = KspMessager(logger)
 
     private val arrayTypeFactory by lazy {
@@ -127,6 +135,10 @@ internal class KspProcessingEnv(
 
     override fun findTypeElement(qName: String): KspTypeElement? {
         return typeElementStore[qName]
+    }
+
+    fun wrapFunctionDeclaration(ksFunction: KSFunctionDeclaration): KspExecutableElement {
+        return executableElementStore[ksFunction]
     }
 
     @OptIn(KspExperimental::class)
