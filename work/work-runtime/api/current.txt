@@ -65,7 +65,7 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler runnableScheduler);
     method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> schedulingExceptionHandler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor taskExecutor);
-    method public androidx.work.Configuration.Builder setWorkerCoroutineContext(kotlinx.coroutines.CoroutineDispatcher dispatcher);
+    method public androidx.work.Configuration.Builder setWorkerCoroutineContext(kotlin.coroutines.CoroutineContext context);
     method public androidx.work.Configuration.Builder setWorkerExecutionExceptionHandler(androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo> workerExceptionHandler);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory workerFactory);
     method public androidx.work.Configuration.Builder setWorkerInitializationExceptionHandler(androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo> workerExceptionHandler);
