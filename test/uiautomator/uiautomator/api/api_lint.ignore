@@ -3,14 +3,6 @@ ArrayReturn: androidx.test.uiautomator.UiDevice#swipe(android.graphics.Point[], 
     Method parameter should be Collection<Point> (or subclass) instead of raw array; was `android.graphics.Point[]`
 
 
-MissingNullability: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#getAndroidTestRunner():
-    Missing nullability on method `getAndroidTestRunner` return
-MissingNullability: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase) parameter #0:
-    Missing nullability on parameter `test` in method `initializeUiAutomatorTest`
-MissingNullability: androidx.test.uiautomator.UiAutomatorTestCase#getParams():
-    Missing nullability on method `getParams` return
-MissingNullability: androidx.test.uiautomator.UiAutomatorTestCase#getUiDevice():
-    Missing nullability on method `getUiDevice` return
 MissingNullability: androidx.test.uiautomator.UiDevice#findObject(androidx.test.uiautomator.BySelector):
     Missing nullability on method `findObject` return
 MissingNullability: androidx.test.uiautomator.UiDevice#getCurrentPackageName():

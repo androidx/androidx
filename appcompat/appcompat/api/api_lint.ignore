@@ -55,8 +55,6 @@ InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onSupportAc
     Invalid nullability on parameter `mode` in method `onSupportActionModeFinished`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onSupportActionModeStarted(androidx.appcompat.view.ActionMode) parameter #0:
     Invalid nullability on parameter `mode` in method `onSupportActionModeStarted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback):
-    Invalid nullability on method `onWindowStartingSupportActionMode` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback) parameter #0:
     Invalid nullability on parameter `callback` in method `onWindowStartingSupportActionMode`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatAutoCompleteTextView#getCustomSelectionActionModeCallback():
@@ -139,60 +137,6 @@ MissingNullability: androidx.appcompat.app.ActionBar.LayoutParams#LayoutParams(a
     Missing nullability on parameter `source` in method `LayoutParams`
 MissingNullability: androidx.appcompat.app.ActionBar.LayoutParams#LayoutParams(androidx.appcompat.app.ActionBar.LayoutParams) parameter #0:
     Missing nullability on parameter `source` in method `LayoutParams`
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#getContentDescription():
-    Missing nullability on method `getContentDescription` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#getCustomView():
-    Missing nullability on method `getCustomView` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#getIcon():
-    Missing nullability on method `getIcon` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#getTag():
-    Missing nullability on method `getTag` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#getText():
-    Missing nullability on method `getText` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setContentDescription(CharSequence):
-    Missing nullability on method `setContentDescription` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setContentDescription(CharSequence) parameter #0:
-    Missing nullability on parameter `contentDesc` in method `setContentDescription`
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setContentDescription(int):
-    Missing nullability on method `setContentDescription` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setCustomView(android.view.View):
-    Missing nullability on method `setCustomView` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setCustomView(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `setCustomView`
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setCustomView(int):
-    Missing nullability on method `setCustomView` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setIcon(android.graphics.drawable.Drawable):
-    Missing nullability on method `setIcon` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setIcon(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `icon` in method `setIcon`
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setIcon(int):
-    Missing nullability on method `setIcon` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setTabListener(androidx.appcompat.app.ActionBar.TabListener):
-    Missing nullability on method `setTabListener` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setTabListener(androidx.appcompat.app.ActionBar.TabListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setTabListener`
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setTag(Object):
-    Missing nullability on method `setTag` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setTag(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `setTag`
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setText(CharSequence):
-    Missing nullability on method `setText` return
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setText(CharSequence) parameter #0:
-    Missing nullability on parameter `text` in method `setText`
-MissingNullability: androidx.appcompat.app.ActionBar.Tab#setText(int):
-    Missing nullability on method `setText` return
-MissingNullability: androidx.appcompat.app.ActionBar.TabListener#onTabReselected(androidx.appcompat.app.ActionBar.Tab, androidx.fragment.app.FragmentTransaction) parameter #0:
-    Missing nullability on parameter `tab` in method `onTabReselected`
-MissingNullability: androidx.appcompat.app.ActionBar.TabListener#onTabReselected(androidx.appcompat.app.ActionBar.Tab, androidx.fragment.app.FragmentTransaction) parameter #1:
-    Missing nullability on parameter `ft` in method `onTabReselected`
-MissingNullability: androidx.appcompat.app.ActionBar.TabListener#onTabSelected(androidx.appcompat.app.ActionBar.Tab, androidx.fragment.app.FragmentTransaction) parameter #0:
-    Missing nullability on parameter `tab` in method `onTabSelected`
-MissingNullability: androidx.appcompat.app.ActionBar.TabListener#onTabSelected(androidx.appcompat.app.ActionBar.Tab, androidx.fragment.app.FragmentTransaction) parameter #1:
-    Missing nullability on parameter `ft` in method `onTabSelected`
-MissingNullability: androidx.appcompat.app.ActionBar.TabListener#onTabUnselected(androidx.appcompat.app.ActionBar.Tab, androidx.fragment.app.FragmentTransaction) parameter #0:
-    Missing nullability on parameter `tab` in method `onTabUnselected`
-MissingNullability: androidx.appcompat.app.ActionBar.TabListener#onTabUnselected(androidx.appcompat.app.ActionBar.Tab, androidx.fragment.app.FragmentTransaction) parameter #1:
-    Missing nullability on parameter `ft` in method `onTabUnselected`
 MissingNullability: androidx.appcompat.app.ActionBarDrawerToggle#ActionBarDrawerToggle(android.app.Activity, androidx.drawerlayout.widget.DrawerLayout, androidx.appcompat.widget.Toolbar, int, int) parameter #0:
     Missing nullability on parameter `activity` in method `ActionBarDrawerToggle`
 MissingNullability: androidx.appcompat.app.ActionBarDrawerToggle#ActionBarDrawerToggle(android.app.Activity, androidx.drawerlayout.widget.DrawerLayout, androidx.appcompat.widget.Toolbar, int, int) parameter #1:

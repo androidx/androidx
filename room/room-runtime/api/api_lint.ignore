@@ -40,13 +40,13 @@ InvalidNullabilityOverride: androidx.room.MultiInstanceInvalidationService#onBin
 
 
 MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
-    T does not declare a `getCallbacks()` method matching method androidx.room.RoomDatabase.Builder.addCallback(androidx.room.RoomDatabase.Callback)
+    androidx.room.RoomDatabase does not declare a `getCallbacks()` method matching method androidx.room.RoomDatabase.Builder.addCallback(androidx.room.RoomDatabase.Callback)
 MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#addMigrations(androidx.room.migration.Migration...):
-    T does not declare a getter method matching method androidx.room.RoomDatabase.Builder.addMigrations(androidx.room.migration.Migration...) (expected one of: [getMigrations(), getMigrationses()])
+    androidx.room.RoomDatabase does not declare a getter method matching method androidx.room.RoomDatabase.Builder.addMigrations(androidx.room.migration.Migration...) (expected one of: [getMigrations(), getMigrationses()])
 MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#addTypeConverter(Object):
-    T does not declare a `getTypeConverters()` method matching method androidx.room.RoomDatabase.Builder.addTypeConverter(Object)
+    androidx.room.RoomDatabase does not declare a `getTypeConverters()` method matching method androidx.room.RoomDatabase.Builder.addTypeConverter(Object)
 MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#setJournalMode(androidx.room.RoomDatabase.JournalMode):
-    T does not declare a `getJournalMode()` method matching method androidx.room.RoomDatabase.Builder.setJournalMode(androidx.room.RoomDatabase.JournalMode)
+    androidx.room.RoomDatabase does not declare a `getJournalMode()` method matching method androidx.room.RoomDatabase.Builder.setJournalMode(androidx.room.RoomDatabase.JournalMode)
 
 
 NotCloseable: androidx.room.RoomDatabase:
