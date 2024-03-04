@@ -733,7 +733,7 @@ class DiffRunner(object):
             probablyAcceptableStates.append(acceptedState)
           else:
             if identifier in invalidatedIds:
-              print("Queuing a re-test of response from job " + str(identifier) + " due to previous invalidation. Successful state: " + str(acceptedState.summarize()))
+              print("Queuing a retest of response from job " + str(identifier) + " due to previous invalidation. Successful state: " + str(acceptedState.summarize()))
               probablyAcceptableStates.append(acceptedState)
             else:
               if not clean:
