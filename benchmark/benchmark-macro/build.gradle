@@ -109,8 +109,11 @@ tasks.withType(KotlinCompile).configureEach {
 wire {
     kotlin {}
     sourcePath {
-        srcDir 'src/main/proto'
-        include '*.proto'
+        srcDir AndroidXConfig.getPrebuiltsRoot(project).absolutePath + '/androidx/traceprocessor'
+
+        // currently, all protos are at same tree depth
+        // can add further includes if this stops working
+        include 'protos/perfetto/*/*.proto'
     }
 
     prune 'perfetto.protos.AndroidBatteryMetric'
@@ -142,7 +145,6 @@ wire {
     prune 'perfetto.protos.AndroidRtRuntimeMetric'
     prune 'perfetto.protos.AndroidSimpleperfMetric'
     prune 'perfetto.protos.AndroidSurfaceflingerMetric'
-    prune 'perfetto.protos.AndroidSysUiCujMetrics'
     prune 'perfetto.protos.AndroidTaskNames'
     prune 'perfetto.protos.AndroidTraceQualityMetric'
     prune 'perfetto.protos.AndroidTrustyWorkqueues'
