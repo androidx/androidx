@@ -24,14 +24,18 @@ import androidx.sqlite.use
 import kotlin.jvm.JvmName
 
 /**
- * Returns the ROWID of the last row insert from the database connection which invoked the
- * function.
+ * Returns the ROWID of the last row insert from the database connection or `-1` if the most
+ * recently executed `INSERT` did not completed. This function should only be called with a
+ * connection whose most recent statement was an `INSERT`.
  *
  * See (official SQLite documentation)[http://www.sqlite.org/lang_corefunc.html#last_insert_rowid]
  * for details.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun getLastInsertedRowId(connection: SQLiteConnection): Long {
+    if (getTotalChangedRows(connection) == 0) {
+        return -1
+    }
     return connection.prepare("SELECT last_insert_rowid()").use {
         it.step()
         it.getLong(0)
