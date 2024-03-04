@@ -335,6 +335,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                         it.destinationDirectory.set(xmlReportDestDir)
                         it.archiveFileName.set(archiveName)
                         it.from(project.file(xmlReport.outputLocation))
+                        it.include("*.xml")
                     }
                 task.finalizedBy(zipXmlTask)
             }
