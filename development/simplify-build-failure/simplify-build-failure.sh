@@ -215,27 +215,6 @@ fi
 
 # if Gradle tasks are specified, then determine the appropriate shell command
 if [ "$gradleCommand" != "" ]; then
-  startingOutDir="$tempDir/failing-out"
-  outTestDir="$tempDir/out-test"
-  # determine whether we can prepopulate a minimal out/ dir first
-  if [ -e "$startingOutDir" ]; then
-    echo Reusing existing base out dir of "$startingOutDir"
-  else
-    echo Checking whether we can prepopulate a minimal out/ dir for faster execution
-    rm "$outTestDir" -rf
-    mkdir -p "$tempDir"
-    cp -r "$supportRoot" "$outTestDir"
-    if bash -c "cd "$outTestDir" && OUT_DIR=out ./gradlew projects --no-daemon && cp -r out out-base && $gradleCommand $gradleTasks; $grepCommand"; then
-      echo Will reuse base out dir of "$startingOutDir"
-      cp -r "$outTestDir/out-base" "$startingOutDir"
-    else
-      echo Will start subsequent builds from empty out dir
-      mkdir -p "$startingOutDir"
-    fi
-  fi
-  # reset the out/ dir
-  gradle_prepareState_command="rm out .gradle buildSrc/.gradle -rf && cp -r $startingOutDir out"
-
   gradleCommand="$(echo "$gradleCommand" | sed 's/gradlew/gradlew --no-daemon/')"
   # determine whether we can reduce the list of tasks we'll be running
   # prepare directory
@@ -267,10 +246,6 @@ if [ "$gradleCommand" != "" ]; then
   # build command for passing to diff-filterer
   # set OUT_DIR
   testCommand="export OUT_DIR=out"
-  # delete generated files if needed
-  if [ "$gradle_prepareState_command" != "" ]; then
-    testCommand="$testCommand && $gradle_prepareState_command"
-  fi
   # delete log
   testCommand="$testCommand && rm -f log"
   # make sure at least one task exists
