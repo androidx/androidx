@@ -9,17 +9,17 @@ ExecutorRegistration: androidx.paging.DataSource#addInvalidatedCallback(androidx
     Registration methods should have overload that accepts delivery Executor: `addInvalidatedCallback`
 
 
-GetterSetterNames: property LoadState.endOfPaginationReached:
+GetterSetterNames: androidx.paging.LoadState#endOfPaginationReached:
     Invalid name for boolean property `endOfPaginationReached`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property PagingSource.LoadParams.placeholdersEnabled:
-    Invalid name for boolean property `placeholdersEnabled`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property PagingSource.invalid:
+GetterSetterNames: androidx.paging.PagingSource#invalid:
     Invalid name for boolean property `invalid`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property PagingSource.jumpingSupported:
+GetterSetterNames: androidx.paging.PagingSource#jumpingSupported:
     Invalid name for boolean property `jumpingSupported`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property PagingSource.keyReuseSupported:
+GetterSetterNames: androidx.paging.PagingSource#keyReuseSupported:
     Invalid name for boolean property `keyReuseSupported`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: property RemoteMediator.MediatorResult.Success.endOfPaginationReached:
+GetterSetterNames: androidx.paging.PagingSource.LoadParams#placeholdersEnabled:
+    Invalid name for boolean property `placeholdersEnabled`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.paging.RemoteMediator.MediatorResult.Success#endOfPaginationReached:
     Invalid name for boolean property `endOfPaginationReached`. Should start with one of `has`, `can`, `should`, `is`.
 
 

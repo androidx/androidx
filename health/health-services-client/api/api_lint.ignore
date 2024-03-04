@@ -3,7 +3,7 @@ ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdate
     Registration methods should have overload that accepts delivery Executor: `clearUpdateCallbackAsync`
 
 
-GetterSetterNames: property ExerciseTypeCapabilities.supportsAutoPauseAndResume:
+GetterSetterNames: androidx.health.services.client.data.ExerciseTypeCapabilities#supportsAutoPauseAndResume:
     Invalid name for boolean property `supportsAutoPauseAndResume`. Should start with one of `has`, `can`, `should`, `is`.
 
 

@@ -17,6 +17,8 @@ BecameUnchecked: androidx.glance.appwidget.CheckBoxKt#CheckBox(boolean, kotlin.j
     Removed parameter maxLines in androidx.glance.appwidget.CheckBoxKt.CheckBox(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit> onCheckedChange, androidx.glance.GlanceModifier modifier, String text, androidx.glance.text.TextStyle style, androidx.glance.appwidget.CheckBoxColors colors, int maxLines, String key) from compatibility checked API surface
 BecameUnchecked: androidx.glance.appwidget.CheckBoxKt#CheckBox(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.glance.GlanceModifier, String, androidx.glance.text.TextStyle, androidx.glance.appwidget.CheckBoxColors, int, String) parameter #7:
     Removed parameter key in androidx.glance.appwidget.CheckBoxKt.CheckBox(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit> onCheckedChange, androidx.glance.GlanceModifier modifier, String text, androidx.glance.text.TextStyle style, androidx.glance.appwidget.CheckBoxColors colors, int maxLines, String key) from compatibility checked API surface
+BecameUnchecked: androidx.glance.appwidget.GlanceAppWidgetReceiver#coroutineContext:
+    Removed property GlanceAppWidgetReceiver.coroutineContext from compatibility checked API surface
 BecameUnchecked: androidx.glance.appwidget.GlanceAppWidgetReceiver#getCoroutineContext():
     Removed method androidx.glance.appwidget.GlanceAppWidgetReceiver.getCoroutineContext() from compatibility checked API surface
 BecameUnchecked: androidx.glance.appwidget.RadioButtonKt#RadioButton(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.glance.GlanceModifier, boolean, String, androidx.glance.text.TextStyle, androidx.glance.appwidget.RadioButtonColors, int, String):
@@ -87,8 +89,6 @@ BecameUnchecked: androidx.glance.appwidget.lazy.LazyVerticalGridKt#LazyVerticalG
     Removed parameter horizontalAlignment in androidx.glance.appwidget.lazy.LazyVerticalGridKt.LazyVerticalGrid(androidx.glance.appwidget.lazy.GridCells gridCells, android.os.Bundle activityOptions, androidx.glance.GlanceModifier modifier, int horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.appwidget.lazy.LazyVerticalGridScope,kotlin.Unit> content) from compatibility checked API surface
 BecameUnchecked: androidx.glance.appwidget.lazy.LazyVerticalGridKt#LazyVerticalGrid(androidx.glance.appwidget.lazy.GridCells, android.os.Bundle, androidx.glance.GlanceModifier, int, kotlin.jvm.functions.Function1<? super androidx.glance.appwidget.lazy.LazyVerticalGridScope,kotlin.Unit>) parameter #4:
     Removed parameter content in androidx.glance.appwidget.lazy.LazyVerticalGridKt.LazyVerticalGrid(androidx.glance.appwidget.lazy.GridCells gridCells, android.os.Bundle activityOptions, androidx.glance.GlanceModifier modifier, int horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.appwidget.lazy.LazyVerticalGridScope,kotlin.Unit> content) from compatibility checked API surface
-BecameUnchecked: property GlanceAppWidgetReceiver.coroutineContext:
-    Removed property GlanceAppWidgetReceiver.coroutineContext from compatibility checked API surface
 
 
 DefaultValueChange: androidx.glance.appwidget.AppWidgetComposerKt#compose(androidx.glance.appwidget.GlanceAppWidget, android.content.Context, androidx.glance.GlanceId, android.os.Bundle, androidx.compose.ui.unit.DpSize, Object, kotlin.coroutines.Continuation<? super android.widget.RemoteViews>) parameter #6:
