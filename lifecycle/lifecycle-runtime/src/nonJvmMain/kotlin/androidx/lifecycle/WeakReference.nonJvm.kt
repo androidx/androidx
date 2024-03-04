@@ -15,5 +15,11 @@
  */
 package androidx.lifecycle
 
-internal actual fun isMainThread(): Boolean =
-    MainDispatcherChecker.isMainDispatcherThread()
+/**
+ * Class WeakReference encapsulates weak reference to an object, which could be used to either
+ * retrieve a strong reference to an object, or return null, if object was already destroyed by
+ * the memory manager.
+ */
+internal expect class WeakReference<T : Any>(reference: T) {
+    fun get(): T?
+}
