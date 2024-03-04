@@ -18,8 +18,6 @@ package androidx.work.multiprocess;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportFailure;
-
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,7 +34,6 @@ import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 /***
@@ -105,45 +102,19 @@ public class ListenableWorkerImplClient {
             @NonNull RemoteDispatcher<IListenableWorkerImpl> dispatcher) {
 
         ListenableFuture<IListenableWorkerImpl> session = getListenableWorkerImpl(componentName);
-        return execute(session, dispatcher, new RemoteCallback());
+        return execute(session, dispatcher);
     }
 
     /**
      * Executes a method on an instance of {@link IListenableWorkerImpl} using the instance of
-     * {@link RemoteDispatcher} and the {@link RemoteCallback}.
+     * {@link RemoteDispatcher}
      */
     @NonNull
     @SuppressLint("LambdaLast")
     public ListenableFuture<byte[]> execute(
             @NonNull ListenableFuture<IListenableWorkerImpl> session,
-            @NonNull final RemoteDispatcher<IListenableWorkerImpl> dispatcher,
-            @NonNull final RemoteCallback callback) {
-
-        session.addListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final IListenableWorkerImpl iListenableWorker = session.get();
-                    callback.setBinder(iListenableWorker.asBinder());
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                dispatcher.execute(iListenableWorker, callback);
-                            } catch (Throwable innerThrowable) {
-                                Logger.get().error(TAG, "Unable to execute", innerThrowable);
-                                reportFailure(callback, innerThrowable);
-                            }
-                        }
-                    });
-                } catch (ExecutionException | InterruptedException exception) {
-                    String message = "Unable to bind to service";
-                    Logger.get().error(TAG, message, exception);
-                    reportFailure(callback, exception);
-                }
-            }
-        }, mExecutor);
-        return callback.getFuture();
+            @NonNull final RemoteDispatcher<IListenableWorkerImpl> dispatcher) {
+        return RemoteExecuteKt.execute(mExecutor, session, dispatcher);
     }
 
     /**
