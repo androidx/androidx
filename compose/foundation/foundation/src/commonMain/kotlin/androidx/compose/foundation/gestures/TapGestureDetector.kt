@@ -53,7 +53,7 @@ interface PressGestureScope : Density {
     /**
      * Waits for the press to be released before returning. If the press was released,
      * `true` is returned, or if the gesture was canceled by motion being consumed by
-     * another gesture, `false` is returned .
+     * another gesture, `false` is returned.
      */
     suspend fun tryAwaitRelease(): Boolean
 }
