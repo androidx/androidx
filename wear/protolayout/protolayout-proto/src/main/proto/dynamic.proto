@@ -5,6 +5,7 @@ package androidx.wear.protolayout.expression.proto;
 
 import "animation_parameters.proto";
 import "fixed.proto";
+import "fingerprint.proto";
 
 option java_package = "androidx.wear.protolayout.expression.proto";
 option java_outer_classname = "DynamicProto";
@@ -194,6 +195,9 @@ message DynamicInt32 {
     AnimatableDynamicInt32 animatable_dynamic = 9;
     GetZonedDateTimePartOp zoned_date_time_part = 10;
   }
+
+  // The fingerprint for the dynamic node
+  androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 11;
 }
 
 // Simple formatting for dynamic int32.
@@ -286,6 +290,9 @@ message DynamicString {
     ConcatStringOp concat_op = 5;
     FloatFormatOp float_format_op = 6;
   }
+
+  // The fingerprint for the dynamic node
+  androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 7;
 }
 
 // An arithmetic operation, operating on two Float instances. This implements
@@ -377,6 +384,9 @@ message DynamicFloat {
     AnimatableFixedFloat animatable_fixed = 6;
     AnimatableDynamicFloat animatable_dynamic = 7;
   }
+
+  // The fingerprint for the dynamic node
+  androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 8;
 }
 
 // A dynamic boolean type which sources its data from the tile's state.
@@ -490,6 +500,9 @@ message DynamicBool {
     LogicalBoolOp logical_op = 5;
     ComparisonFloatOp float_comparison = 6;
   }
+
+   // The fingerprint for the dynamic node
+   androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 7;
 }
 
 // A dynamic Color which sources its data from the tile's state.
@@ -552,6 +565,9 @@ message DynamicColor {
     AnimatableDynamicColor animatable_dynamic = 4;
     ConditionalColorOp conditional_op = 5;
   }
+
+  // The fingerprint for the dynamic node
+  androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 6;
 }
 
 // A dynamic time instant that sources its value from the platform.
@@ -579,6 +595,9 @@ message DynamicInstant {
     ConditionalInstantOp conditional_op = 3;
     StateInstantSource state_source = 4;
   }
+
+  // The fingerprint for the dynamic node
+  androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 5;
 }
 
 // A dynamic zoned date-time type.
@@ -659,6 +678,9 @@ message DynamicDuration {
     ConditionalDurationOp conditional_op = 3;
     StateDurationSource state_source = 4;
   }
+
+  // The fingerprint for the dynamic node
+  androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 5;
 }
 
 // The duration part to retrieve using GetDurationPartOp.

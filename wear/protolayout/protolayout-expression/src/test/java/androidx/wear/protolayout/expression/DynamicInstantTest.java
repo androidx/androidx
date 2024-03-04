@@ -18,7 +18,11 @@ package androidx.wear.protolayout.expression;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static androidx.wear.protolayout.expression.DynamicBuilders.dynamicInstantFromProto;
+
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
+import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,5 +38,27 @@ public final class DynamicInstantTest {
 
         assertThat(stateInstant.toDynamicInstantProto().getStateSource().getSourceKey())
                 .isEqualTo(STATE_KEY);
+    }
+
+    @Test
+    public void serializing_deserializing_withFingerprint() {
+        DynamicInstant from = DynamicInstant.platformTimeWithSecondsPrecision();
+        NodeFingerprint fingerprint = from.getFingerprint().toProto();
+
+        DynamicProto.DynamicInstant to = from.toDynamicInstantProto(true);
+        assertThat(to.getFingerprint()).isEqualTo(fingerprint);
+
+        DynamicInstant back = dynamicInstantFromProto(to);
+        assertThat(back.getFingerprint().toProto()).isEqualTo(fingerprint);
+    }
+
+    @Test
+    public void toByteArray_fromByteArray_withFingerprint() {
+        DynamicInstant from = DynamicInstant.from(new AppDataKey<>(STATE_KEY));
+        byte[] buffer = from.toDynamicInstantByteArray();
+        DynamicProto.DynamicInstant toProto =
+                DynamicInstant.fromByteArray(buffer).toDynamicInstantProto(true);
+
+        assertThat(toProto.getFingerprint()).isEqualTo(from.getFingerprint().toProto());
     }
 }

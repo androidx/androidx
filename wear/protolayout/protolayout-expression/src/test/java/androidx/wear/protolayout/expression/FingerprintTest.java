@@ -18,6 +18,8 @@ package androidx.wear.protolayout.expression;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -67,5 +69,22 @@ public final class FingerprintTest {
         assertThat(parentFingerPrint.selfPropsValue()).isEqualTo(DISCARDED_VALUE);
         assertThat(parentFingerPrint.childNodes()).isEmpty();
         assertThat(parentFingerPrint.childNodesValue()).isEqualTo(DISCARDED_VALUE);
+    }
+
+    @Test
+    public void toProto_fromProto() {
+        Fingerprint parentFingerPrint = new Fingerprint(SELF_TYPE_VALUE);
+        Fingerprint childFingerPrint = new Fingerprint(SELF_TYPE_VALUE);
+        childFingerPrint.recordPropertyUpdate(FIELD_1, VALUE_HASH1);
+        parentFingerPrint.addChildNode(childFingerPrint);
+
+        NodeFingerprint proto = parentFingerPrint.toProto();
+        Fingerprint fingerprint = new Fingerprint(proto);
+        assertThat(fingerprint.selfTypeValue()).isEqualTo(SELF_TYPE_VALUE);
+        assertThat(fingerprint.selfPropsValue()).isEqualTo(0);
+
+        Fingerprint child = fingerprint.childNodes().get(0);
+        assertThat(child.selfTypeValue()).isEqualTo(SELF_TYPE_VALUE);
+        assertThat(child.selfPropsValue()).isEqualTo(31 * FIELD_1 + VALUE_HASH1);
     }
 }
