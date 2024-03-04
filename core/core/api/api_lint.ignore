@@ -117,28 +117,6 @@ ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIntents(andr
     Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
 ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPersons(androidx.core.app.Person[]) parameter #0:
     Method parameter should be Collection<Person> (or subclass) instead of raw array; was `androidx.core.app.Person[]`
-ArrayReturn: androidx.core.graphics.PathParser#canMorph(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#canMorph(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #1:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#createNodesFromPathData(String):
-    Method should return Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#deepCopyNodes(androidx.core.graphics.PathParser.PathDataNode[]):
-    Method should return Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#deepCopyNodes(androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #0:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #1:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #2:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#updateNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser#updateNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #1:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
-ArrayReturn: androidx.core.graphics.PathParser.PathDataNode#nodesToPath(androidx.core.graphics.PathParser.PathDataNode[], android.graphics.Path) parameter #0:
-    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
 ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays():
     Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
 ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays(String):
