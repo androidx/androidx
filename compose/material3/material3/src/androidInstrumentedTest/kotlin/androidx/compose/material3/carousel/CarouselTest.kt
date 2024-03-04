@@ -165,6 +165,7 @@ class CarouselTest {
                         carouselMainAxisSize = availableSpace,
                         preferredItemSize = with(density) { 186.dp.toPx() },
                         itemSpacing = 0f,
+                        itemCount = itemCount.invoke(),
                     )
                 },
                 modifier = modifier.testTag(CarouselTestTag),

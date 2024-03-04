@@ -38,6 +38,7 @@ import kotlin.math.min
  * @param carouselMainAxisSize The carousel container's pixel size in the main scrolling axis
  * @param preferredItemSize the desired size of large items, in pixels, in the main scrolling axis
  * @param itemSpacing the spacing between items in pixels
+ * @param itemCount the number of items in the carousel
  * @param minSmallSize the minimum allowable size of small items in pixels
  * @param maxSmallSize the maximum allowable size of small items in pixels
  */
@@ -46,6 +47,7 @@ internal fun multiBrowseKeylineList(
     carouselMainAxisSize: Float,
     preferredItemSize: Float,
     itemSpacing: Float,
+    itemCount: Int,
     minSmallSize: Float = with(density) { StrategyDefaults.MinSmallSize.toPx() },
     maxSmallSize: Float = with(density) { StrategyDefaults.MaxSmallSize.toPx() },
 ): KeylineList? {
@@ -85,7 +87,7 @@ internal fun multiBrowseKeylineList(
 
     val largeCounts = IntArray(maxLargeCount - minLargeCount + 1) { maxLargeCount - it }
     val anchorSize = with(density) { StrategyDefaults.AnchorSize.toPx() }
-    val arrangement = Arrangement.findLowestCostArrangement(
+    var arrangement = Arrangement.findLowestCostArrangement(
         availableSpace = carouselMainAxisSize,
         targetSmallSize = targetSmallSize,
         minSmallSize = minSmallSize,
@@ -97,16 +99,45 @@ internal fun multiBrowseKeylineList(
         largeCounts = largeCounts,
     )
 
-    return if (arrangement == null) {
-        null
-    } else {
-        createLeftAlignedKeylineList(
-            carouselMainAxisSize = carouselMainAxisSize,
-            leftAnchorSize = anchorSize,
-            rightAnchorSize = anchorSize,
-            arrangement = arrangement
+    if (arrangement != null && arrangement.itemCount() > itemCount) {
+        var keylineSurplus = arrangement.itemCount() - itemCount
+        var smallCount = arrangement.smallCount
+        var mediumCount = arrangement.mediumCount
+        while (keylineSurplus > 0) {
+            if (smallCount > 0) {
+                smallCount -= 1;
+            } else if (mediumCount > 1) {
+                // Keep at least 1 medium so the large items don't fill the entire carousel in new
+                // strategy.
+                mediumCount -= 1;
+            }
+            // large items don't need to be removed even if they are a surplus because large items
+            // are already fully unmasked.
+            keylineSurplus -= 1;
+        }
+        arrangement = Arrangement.findLowestCostArrangement(
+            availableSpace = carouselMainAxisSize,
+            targetSmallSize = targetSmallSize,
+            minSmallSize = minSmallSize,
+            maxSmallSize = maxSmallSize,
+            smallCounts = intArrayOf(smallCount),
+            targetMediumSize = targetMediumSize,
+            mediumCounts = intArrayOf(mediumCount),
+            targetLargeSize = targetLargeSize,
+            largeCounts = largeCounts,
         )
     }
+
+    if (arrangement == null) {
+        return null
+    }
+
+    return createLeftAlignedKeylineList(
+        carouselMainAxisSize = carouselMainAxisSize,
+        rightAnchorSize = anchorSize,
+        leftAnchorSize = anchorSize,
+        arrangement = arrangement
+    )
 }
 
 internal fun createLeftAlignedKeylineList(

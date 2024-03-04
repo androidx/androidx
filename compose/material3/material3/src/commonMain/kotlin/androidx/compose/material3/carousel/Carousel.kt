@@ -93,8 +93,9 @@ internal fun HorizontalMultiBrowseCarousel(
                     carouselMainAxisSize = availableSpace,
                     preferredItemSize = preferredItemSize.toPx(),
                     itemSpacing = itemSpacing.toPx(),
+                    itemCount = state.itemCountState.value.invoke(),
                     minSmallSize = minSmallSize.toPx(),
-                    maxSmallSize = maxSmallSize.toPx()
+                    maxSmallSize = maxSmallSize.toPx(),
                 )
             }
         },

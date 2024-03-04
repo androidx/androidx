@@ -302,11 +302,12 @@ class StrategyTest {
     fun testStrategy_sameAvailableSpaceCreatesEqualObjects() {
         val itemSize = large
         val itemSpacing = 0f
+        val itemCount = 10
         val strategy1 = Strategy { availableSpace ->
-            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing)
+            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount)
         }
         val strategy2 = Strategy { availableSpace ->
-            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing)
+            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount)
         }
         strategy1.apply(500f)
         strategy2.apply(500f)
@@ -319,11 +320,12 @@ class StrategyTest {
     fun testStrategy_differentAvailableSpaceCreatesUnequalObjects() {
         val itemSize = large
         val itemSpacing = 0f
+        val itemCount = 10
         val strategy1 = Strategy { availableSpace ->
-            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing)
+            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount)
         }
         val strategy2 = Strategy { availableSpace ->
-            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing)
+            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount)
         }
         strategy1.apply(500f)
         strategy2.apply(500f + 1f)
@@ -336,11 +338,12 @@ class StrategyTest {
     fun testStrategy_invalidObjectDoesNotEqualValidObject() {
         val itemSize = large
         val itemSpacing = 0f
+        val itemCount = 10
         val strategy1 = Strategy { availableSpace ->
-            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing)
+            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount)
         }
         val strategy2 = Strategy { availableSpace ->
-            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing)
+            multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount)
         }
         strategy1.apply(500f)
 
