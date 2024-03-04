@@ -240,9 +240,6 @@ fun Text(
  *
  * @see ProvideTextStyle
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalTvMaterial3Api
-@get:ExperimentalTvMaterial3Api
 val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 // TODO(b/156598010): remove this and replace with fold definition on the backing CompositionLocal
@@ -253,7 +250,6 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTex
  *
  * @see LocalTextStyle
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)
