@@ -42,6 +42,7 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Pair;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayDeque;
@@ -262,13 +263,16 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
                     // early if the request has been aborted.
                     return;
                 } else {
+                    int requestId = cameraRequest.getCaptureConfigs().get(0).getId();
                     if (throwable instanceof ImageCaptureException) {
-                        mImagePipeline.notifyCaptureError((ImageCaptureException) throwable);
+                        mImagePipeline.notifyCaptureError(
+                                CaptureError.of(requestId, (ImageCaptureException) throwable));
                     } else {
-                        mImagePipeline.notifyCaptureError(new ImageCaptureException(
-                                ERROR_CAPTURE_FAILED,
-                                "Failed to submit capture request",
-                                throwable));
+                        mImagePipeline.notifyCaptureError(
+                                CaptureError.of(requestId, new ImageCaptureException(
+                                        ERROR_CAPTURE_FAILED,
+                                        "Failed to submit capture request",
+                                        throwable)));
                     }
                 }
                 mImageCaptureControl.unlockFlashMode();
@@ -297,4 +301,18 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
     public void onImageClose(@NonNull ImageProxy image) {
         mainThreadExecutor().execute(this::issueNextRequest);
     }
+
+    @AutoValue
+    abstract static class CaptureError {
+        abstract int getRequestId();
+
+        @NonNull
+        abstract ImageCaptureException getImageCaptureException();
+
+        static CaptureError of(int requestId,
+                @NonNull ImageCaptureException imageCaptureException) {
+            return new AutoValue_TakePictureManager_CaptureError(requestId, imageCaptureException);
+        }
+    }
+
 }
