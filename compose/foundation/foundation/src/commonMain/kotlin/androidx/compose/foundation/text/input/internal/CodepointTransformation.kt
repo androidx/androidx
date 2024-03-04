@@ -28,7 +28,6 @@ import androidx.compose.runtime.Stable
  * codepoint before text is rendered. Visual transformation is useful when the underlying source
  * of input needs to remain but rendered content should look different, e.g. password obscuring.
  */
-@ExperimentalFoundationApi
 @Stable
 internal fun interface CodepointTransformation {
 

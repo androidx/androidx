@@ -42,7 +42,6 @@ import androidx.compose.ui.text.toUpperCase
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
  */
-@ExperimentalFoundationApi
 @Stable
 fun interface InputTransformation {
 
@@ -50,12 +49,14 @@ fun interface InputTransformation {
      * Optional [KeyboardOptions] that will be used as the default keyboard options for configuring
      * the IME. The options passed directly to the text field composable will always override this.
      */
+    @ExperimentalFoundationApi
     val keyboardOptions: KeyboardOptions? get() = null
 
     /**
      * Optional semantics configuration that can update certain characteristics of the applied
      * TextField, e.g. [SemanticsPropertyReceiver.maxTextLength].
      */
+    @ExperimentalFoundationApi
     fun SemanticsPropertyReceiver.applySemantics() = Unit
 
     /**
