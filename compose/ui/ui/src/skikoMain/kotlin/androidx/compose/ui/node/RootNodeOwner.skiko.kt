@@ -383,7 +383,10 @@ internal class RootNodeOwner(
         }
 
         override fun onLayoutChange(layoutNode: LayoutNode) {
-            platformContext.semanticsOwnerListener?.onSemanticsChange(semanticsOwner)
+            platformContext.semanticsOwnerListener?.onLayoutChange(
+                semanticsOwner = semanticsOwner,
+                semanticsNodeId = layoutNode.semanticsId
+            )
         }
 
         override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {

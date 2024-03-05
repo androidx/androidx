@@ -967,6 +967,14 @@ internal class AccessibilityMediator(
         isCurrentComposeAccessibleTreeDirty = true
     }
 
+    fun onLayoutChange(nodeId: Int) {
+        debugLogger?.log("onLayoutChange (nodeId=$nodeId)")
+
+        // TODO: Only recompute the layout-related properties of the node
+        isCurrentComposeAccessibleTreeDirty = true
+
+    }
+
     fun convertRectToWindowSpaceCGRect(rect: Rect): CValue<CGRect> {
         val window = view.window ?: return CGRectMake(0.0, 0.0, 0.0, 0.0)
         val density = Density(window.screen.scale.toFloat())

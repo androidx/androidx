@@ -77,7 +77,6 @@ import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.ClipComponent
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.GraphicsApi
@@ -633,6 +632,10 @@ internal class ComposeSceneMediator(
 
         override fun onSemanticsChange(semanticsOwner: SemanticsOwner) {
             _accessibilityControllers[semanticsOwner]?.onSemanticsChange()
+        }
+
+        override fun onLayoutChange(semanticsOwner: SemanticsOwner, semanticsNodeId: Int) {
+            _accessibilityControllers[semanticsOwner]?.onLayoutChanged(nodeId = semanticsNodeId)
         }
     }
 

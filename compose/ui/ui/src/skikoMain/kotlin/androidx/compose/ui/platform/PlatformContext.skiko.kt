@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.scene.ComposeScene
@@ -125,6 +126,15 @@ interface PlatformContext {
          * @see Owner.onSemanticsChange
          */
         fun onSemanticsChange(semanticsOwner: SemanticsOwner)
+
+        /**
+         * Callback method that is called when the position and/or size of the [LayoutNode] with
+         * the given semantics id changed.
+         *
+         * Note that the id, rather than the [LayoutNode] itself, is passed here because
+         * [LayoutNode] is an internal type, so it can't be exposed in a public method.
+         */
+        fun onLayoutChange(semanticsOwner: SemanticsOwner, semanticsNodeId: Int)
     }
 
     companion object {

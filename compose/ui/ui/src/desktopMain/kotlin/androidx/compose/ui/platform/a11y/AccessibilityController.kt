@@ -316,6 +316,16 @@ internal class AccessibilityController(
     }
 
     /**
+     * Invoked when the position and/or size of the [SemanticsNode] with the given semantics id
+     * changed.
+     */
+    fun onLayoutChanged(@Suppress("UNUSED_PARAMETER") nodeId: Int) {
+        // TODO: Only recompute the layout-related properties of the node
+        nodeMappingIsValid = false
+        syncNodesChannel.trySend(Unit)
+    }
+
+    /**
      * The [SemanticsNode] that is the root of the semantics node tree.
      */
     private val rootSemanticNode: SemanticsNode

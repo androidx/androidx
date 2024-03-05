@@ -156,6 +156,14 @@ private class SemanticsOwnerListenerImpl(
             current.second.onSemanticsChange()
         }
     }
+
+    override fun onLayoutChange(semanticsOwner: SemanticsOwner, semanticsNodeId: Int) {
+        val current = current ?: return
+
+        if (current.first == semanticsOwner) {
+            current.second.onLayoutChange(nodeId = semanticsNodeId)
+        }
+    }
 }
 
 private class RenderingUIViewDelegateImpl(

@@ -3152,6 +3152,7 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext$Roo
 }
 
 public abstract interface class androidx/compose/ui/platform/PlatformContext$SemanticsOwnerListener {
+	public abstract fun onLayoutChange (Landroidx/compose/ui/semantics/SemanticsOwner;I)V
 	public abstract fun onSemanticsChange (Landroidx/compose/ui/semantics/SemanticsOwner;)V
 	public abstract fun onSemanticsOwnerAppended (Landroidx/compose/ui/semantics/SemanticsOwner;)V
 	public abstract fun onSemanticsOwnerRemoved (Landroidx/compose/ui/semantics/SemanticsOwner;)V
