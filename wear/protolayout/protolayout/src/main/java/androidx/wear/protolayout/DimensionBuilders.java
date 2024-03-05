@@ -895,6 +895,8 @@ public final class DimensionBuilders {
          * {@link androidx.wear.protolayout.LayoutElementBuilders.Column}. By default, all children
          * have equal weight. Where applicable, the width or height of the element is proportional
          * to the sum of the weights of its siblings.
+         *
+         * <p>Note that negative values are not supported and it can lead to unexpected behaviour.
          */
         @Nullable
         public FloatProp getLayoutWeight() {
@@ -983,6 +985,9 @@ public final class DimensionBuilders {
              * {@link androidx.wear.protolayout.LayoutElementBuilders.Column}. By default, all
              * children have equal weight. Where applicable, the width or height of the element is
              * proportional to the sum of the weights of its siblings.
+             *
+             * <p>Note that negative values are not supported and it can lead to unexpected
+             * behaviour.
              *
              * <p>Note that this field only supports static values.
              */

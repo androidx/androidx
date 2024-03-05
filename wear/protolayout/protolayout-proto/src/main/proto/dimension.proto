@@ -80,6 +80,9 @@ message ExpandedAngularDimensionProp {
   // angular dimension for this element will be layout_weight times the
   // available space divided by the sum of the layout_weights. If not set this
   // defaults to 1.
+  //
+  // <p>Note that negative values are not supported and it can lead to
+  // unexpected behaviour.
   FloatProp layout_weight = 1;
 }
 
@@ -113,6 +116,9 @@ message ExpandedDimensionProp {
   // of a Column. By default, all children have equal weight. Where applicable,
   // the width or height of the element is proportional to the sum of the
   // weights of its siblings.
+  //
+  // <p>Note that negative values are not supported and it can lead to
+  // unexpected behaviour.
   FloatProp layout_weight = 1;
 }
 
