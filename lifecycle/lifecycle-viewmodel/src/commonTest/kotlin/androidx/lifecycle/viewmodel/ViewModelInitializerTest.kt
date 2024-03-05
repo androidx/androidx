@@ -19,19 +19,25 @@ package androidx.lifecycle.viewmodel
 import androidx.kruth.assertThat
 import androidx.lifecycle.ViewModel
 import kotlin.test.Test
+import kotlin.test.fail
 
 class ViewModelInitializerTest {
+
     @Test
-    fun testInitializerFactory() {
-        val key = object : CreationExtras.Key<String> {}
+    fun viewModelFactory_withUniqueInitializers_withCreationExtras_returnsViewModels() {
+        val key1 = object : CreationExtras.Key<String> {}
         val value1 = "test_value1"
-        val extras1 = MutableCreationExtras().apply { set(key, value1) }
+        val extras1 = MutableCreationExtras().apply { set(key1, value1) }
+
+        val key2 = object : CreationExtras.Key<String> {}
         val value2 = "test_value2"
-        val extras2 = MutableCreationExtras().apply { set(key, value2) }
+        val extras2 = MutableCreationExtras().apply { set(key2, value2) }
+
         val factory = viewModelFactory {
-            initializer { TestViewModel1(extras1[key]) }
-            initializer { TestViewModel2(extras2[key]) }
+            initializer<TestViewModel1> { TestViewModel1(get(key1)) }
+            initializer<TestViewModel2> { TestViewModel2(get(key2)) }
         }
+
         val viewModel1: TestViewModel1 = factory.create(TestViewModel1::class, extras1)
         val viewModel2: TestViewModel2 = factory.create(TestViewModel2::class, extras2)
         assertThat(viewModel1.value).isEqualTo(value1)
@@ -39,13 +45,26 @@ class ViewModelInitializerTest {
     }
 
     @Test
-    fun testInitializerFactoryNoInitializer() {
-        val key = object : CreationExtras.Key<String> {}
-        val value = "test_value"
-        val extras = MutableCreationExtras().apply { set(key, value) }
+    fun viewModelFactory_withDuplicatedInitializers_throwsException() {
+        try {
+            viewModelFactory {
+                initializer<TestViewModel1> { TestViewModel1(null) }
+                initializer<TestViewModel1> { TestViewModel1(null) }
+            }
+            fail("Expected `IllegalArgumentException` but no exception has been throw.")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e).hasMessageThat().isEqualTo(
+                "A `initializer` with the same `clazz` has already been added: " +
+                    "${TestViewModel1::class.qualifiedName}."
+            )
+        }
+    }
+
+    @Test
+    fun viewModelFactory_noInitializers_throwsException() {
         val factory = viewModelFactory { }
         try {
-            factory.create(TestViewModel1::class, extras)
+            factory.create(TestViewModel1::class, CreationExtras.Empty)
         } catch (e: IllegalArgumentException) {
             assertThat(e).hasMessageThat().isEqualTo(
                 "No initializer set for given class ${TestViewModel1::class.qualifiedName}"
