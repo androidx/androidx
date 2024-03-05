@@ -200,24 +200,24 @@ final class ExpectedAttributes {
     public static class Builder {
         // Thumbnail information.
         private boolean mHasThumbnail;
-        private int mThumbnailOffset;
-        private int mThumbnailLength;
+        private long mThumbnailOffset;
+        private long mThumbnailLength;
         private int mThumbnailWidth;
         private int mThumbnailHeight;
         private boolean mIsThumbnailCompressed;
 
         // GPS information.
         private boolean mHasLatLong;
-        private int mLatitudeOffset;
-        private int mLatitudeLength;
+        private long mLatitudeOffset;
+        private long mLatitudeLength;
         private float mLatitude;
         private float mLongitude;
         private float mAltitude;
 
         // Make information
         private boolean mHasMake;
-        private int mMakeOffset;
-        private int mMakeLength;
+        private long mMakeOffset;
+        private long mMakeLength;
         @Nullable private String mMake;
 
         // Values.
@@ -244,8 +244,8 @@ final class ExpectedAttributes {
 
         // XMP information.
         private boolean mHasXmp;
-        private int mXmpOffset;
-        private int mXmpLength;
+        private long mXmpOffset;
+        private long mXmpLength;
 
         Builder() {}
 
@@ -302,18 +302,18 @@ final class ExpectedAttributes {
             return this;
         }
 
-        public Builder setThumbnailOffsetAndLength(int offset, int length) {
+        public Builder setThumbnailOffsetAndLength(long offset, long length) {
             mHasThumbnail = true;
             mThumbnailOffset = offset;
             mThumbnailLength = length;
             return this;
         }
 
-        public Builder setThumbnailOffset(int offset) {
+        public Builder setThumbnailOffset(long offset) {
             if (!mHasThumbnail) {
                 throw new IllegalStateException(
                         "Thumbnail position in the file must first be set with "
-                                + "setThumbnailOffsetAndLength(int, int)");
+                                + "setThumbnailOffsetAndLength(...)");
             }
             mThumbnailOffset = offset;
             return this;
@@ -336,18 +336,18 @@ final class ExpectedAttributes {
             return this;
         }
 
-        public Builder setLatitudeOffsetAndLength(int offset, int length) {
+        public Builder setLatitudeOffsetAndLength(long offset, long length) {
             mHasLatLong = true;
             mLatitudeOffset = offset;
             mLatitudeLength = length;
             return this;
         }
 
-        public Builder setLatitudeOffset(int offset) {
+        public Builder setLatitudeOffset(long offset) {
             if (!mHasLatLong) {
                 throw new IllegalStateException(
                         "Latitude position in the file must first be "
-                                + "set with setLatitudeOffsetAndLength(int, int)");
+                                + "set with setLatitudeOffsetAndLength(...)");
             }
             mLatitudeOffset = offset;
             return this;
@@ -379,18 +379,18 @@ final class ExpectedAttributes {
 
         // TODO: b/270554381 - consider deriving length automatically from `make.length() + 1`
         //  (since the string is null-terminated in the format).
-        public Builder setMakeOffsetAndLength(int offset, int length) {
+        public Builder setMakeOffsetAndLength(long offset, long length) {
             mHasMake = true;
             mMakeOffset = offset;
             mMakeLength = length;
             return this;
         }
 
-        public Builder setMakeOffset(int offset) {
+        public Builder setMakeOffset(long offset) {
             if (!mHasMake) {
                 throw new IllegalStateException(
                         "Make position in the file must first be set with"
-                                + " setMakeOffsetAndLength(int, int)");
+                                + " setMakeOffsetAndLength(...)");
             }
             mMakeOffset = offset;
             return this;
@@ -503,7 +503,7 @@ final class ExpectedAttributes {
             if (!mHasXmp) {
                 throw new IllegalStateException(
                         "XMP position in the file must first be set with"
-                                + " setXmpOffsetAndLength(int, int)");
+                                + " setXmpOffsetAndLength(...)");
             }
             mXmpOffset = offset;
             return this;
@@ -531,22 +531,22 @@ final class ExpectedAttributes {
     // TODO: b/270554381 - Merge these offset and length (and others) into long[] arrays, and
     //  move them down to their own section. This may also allow removing some of the hasXXX
     // fields.
-    public final int thumbnailOffset;
-    public final int thumbnailLength;
+    public final long thumbnailOffset;
+    public final long thumbnailLength;
 
     // GPS information.
     public final boolean hasLatLong;
     // TODO: b/270554381 - Merge this and longitude into a double[]
     public final float latitude;
-    public final int latitudeOffset;
-    public final int latitudeLength;
+    public final long latitudeOffset;
+    public final long latitudeLength;
     public final float longitude;
     public final float altitude;
 
     // Make information
     public final boolean hasMake;
-    public final int makeOffset;
-    public final int makeLength;
+    public final long makeOffset;
+    public final long makeLength;
     public final String make;
 
     // Values.
@@ -575,8 +575,8 @@ final class ExpectedAttributes {
 
     // XMP information.
     public final boolean hasXmp;
-    public final int xmpOffset;
-    public final int xmpLength;
+    public final long xmpOffset;
+    public final long xmpLength;
 
     private ExpectedAttributes(Builder builder) {
         // TODO: b/270554381 - Re-order these assignments to match the fields above.
