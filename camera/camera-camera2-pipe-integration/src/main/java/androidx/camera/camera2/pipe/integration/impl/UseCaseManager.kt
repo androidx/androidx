@@ -45,6 +45,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCameraDeviceOn
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnDisconnectQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnVideoQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.DisableAbortCapturesOnStopWithSessionProcessorQuirk
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
@@ -739,12 +740,26 @@ class UseCaseManager @Inject constructor(
                 }
             val shouldCloseCameraDeviceOnClose =
                 DeviceQuirks[CloseCameraDeviceOnCameraGraphCloseQuirk::class.java] != null
+            val shouldAbortCapturesOnStop =
+                if (isExtensions &&
+                    DeviceQuirks[DisableAbortCapturesOnStopWithSessionProcessorQuirk::class.java] !=
+                    null
+                ) {
+                    false
+                } else {
+                    /**
+                     * @see [CameraGraph.Flags.abortCapturesOnStop]
+                     */
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                }
 
             val combinedFlags = cameraGraphFlags?.copy(
+                abortCapturesOnStop = shouldAbortCapturesOnStop,
                 quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
                 quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
             )
                 ?: CameraGraph.Flags(
+                    abortCapturesOnStop = shouldAbortCapturesOnStop,
                     quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
                     quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
                 )
