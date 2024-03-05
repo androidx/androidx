@@ -58,6 +58,9 @@ class TapAndDoubleTapTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private var pressed = false
+    private var released = false
+    private var canceled = false
     private var tapped = false
     private var doubleTapped = false
 
@@ -72,6 +75,14 @@ class TapAndDoubleTapTest {
 
     private val util = layoutWithGestureDetector {
         detectTapAndDoubleTap(
+            onPress = {
+                pressed = true
+                if (tryAwaitRelease()) {
+                    released = true
+                } else {
+                    canceled = true
+                }
+            },
             onTap = {
                 tapped = true
             }
@@ -80,6 +91,14 @@ class TapAndDoubleTapTest {
 
     private val utilWithDoubleTap = layoutWithGestureDetector {
         detectTapAndDoubleTap(
+            onPress = {
+                pressed = true
+                if (tryAwaitRelease()) {
+                    released = true
+                } else {
+                    canceled = true
+                }
+            },
             onTap = {
                 tapped = true
             },
@@ -162,7 +181,9 @@ class TapAndDoubleTapTest {
             down(0, Offset(5f, 5f))
         }
 
+        assertTrue(pressed)
         assertFalse(tapped)
+        assertFalse(released)
 
         rule.mainClock.advanceTimeBy(50)
 
@@ -171,6 +192,8 @@ class TapAndDoubleTapTest {
         }
 
         assertTrue(tapped)
+        assertTrue(released)
+        assertFalse(canceled)
     }
 
     @Test
@@ -204,6 +227,9 @@ class TapAndDoubleTapTest {
         performTouch { down(0, Offset(5f, 5f)) }
         performTouch(finalPass = { assertTrue(isConsumed) }) { up(0) }
 
+        assertTrue(pressed)
+        assertTrue(released)
+        // this is the major difference compared to the regular detectTapGestures
         assertTrue(tapped)
         assertFalse(doubleTapped)
 
@@ -212,8 +238,11 @@ class TapAndDoubleTapTest {
         performTouch { down(0, Offset(5f, 5f)) }
         performTouch(finalPass = { assertTrue(isConsumed) }) { up(0) }
 
+        // this is the major difference compared to the regular detectTapGestures
         assertTrue(tapped)
         assertTrue(doubleTapped)
+        assertTrue(pressed)
+        assertTrue(released)
     }
 
     @Test
@@ -240,6 +269,8 @@ class TapAndDoubleTapTest {
 
         assertFalse(tapped)
         assertFalse(doubleTapped)
+        assertTrue(released)
+        assertFalse(canceled)
     }
 
     /**
@@ -259,6 +290,9 @@ class TapAndDoubleTapTest {
             up(0)
         }
 
+        assertTrue(pressed)
+        assertTrue(canceled)
+        assertFalse(released)
         assertFalse(tapped)
     }
 
@@ -281,6 +315,9 @@ class TapAndDoubleTapTest {
             up(0)
         }
 
+        assertTrue(pressed)
+        assertFalse(released)
+        assertTrue(canceled)
         assertFalse(tapped)
         assertFalse(doubleTapped)
     }
@@ -298,7 +335,12 @@ class TapAndDoubleTapTest {
             up(0)
         }
 
-        assertTrue(tapped)
+        assertTrue(pressed)
+        assertTrue(released)
+        assertFalse(canceled)
+
+        pressed = false
+        released = false
 
         rule.mainClock.advanceTimeBy(50)
 
@@ -311,8 +353,35 @@ class TapAndDoubleTapTest {
             up(1)
         }
 
+        assertTrue(pressed)
+        assertFalse(released)
+        assertTrue(canceled)
         assertTrue(tapped)
         assertFalse(doubleTapped)
+    }
+
+    /**
+     * Pressing in the region, sliding out, then back in, then lifting
+     * should result the gesture being canceled.
+     */
+    @Test
+    fun tapOutAndIn() {
+        rule.setContent(util)
+
+        performTouch {
+            down(0, Offset(5f, 5f))
+            moveTo(0, Offset(15f, 15f))
+            moveTo(0, Offset(6f, 6f))
+        }
+
+        performTouch(finalPass = { assertFalse(isConsumed) }) {
+            up(0)
+        }
+
+        assertFalse(tapped)
+        assertTrue(pressed)
+        assertFalse(released)
+        assertTrue(canceled)
     }
 
     /**
@@ -327,9 +396,13 @@ class TapAndDoubleTapTest {
             up(0)
         }
 
-        assertTrue(tapped)
+        assertTrue(pressed)
+        assertTrue(released)
+        assertFalse(canceled)
 
         tapped = false
+        pressed = false
+        released = false
 
         performTouch(finalPass = { assertTrue(isConsumed) }) {
             down(1, Offset(4f, 4f))
@@ -337,6 +410,9 @@ class TapAndDoubleTapTest {
         }
 
         assertTrue(tapped)
+        assertTrue(pressed)
+        assertTrue(released)
+        assertFalse(canceled)
     }
 
     /**
@@ -352,12 +428,15 @@ class TapAndDoubleTapTest {
         }
 
         assertFalse(tapped)
+        assertTrue(pressed)
 
         performTouch(initialPass = { if (pressed != previousPressed) consume() }) {
             up(0)
         }
 
         assertFalse(tapped)
+        assertFalse(released)
+        assertTrue(canceled)
     }
 
     /**
@@ -383,6 +462,57 @@ class TapAndDoubleTapTest {
         }
 
         assertFalse(tapped)
+        assertTrue(pressed)
+        assertFalse(released)
+        assertTrue(canceled)
+    }
+
+    @Test
+    fun consumedChange_MotionTap() {
+        rule.setContent(util)
+
+        performTouch {
+            down(0, Offset(5f, 5f))
+        }
+
+        performTouch(initialPass = { consume() }) {
+            moveTo(0, Offset(6f, 2f))
+        }
+
+        rule.mainClock.advanceTimeBy(50)
+
+        performTouch {
+            up(0)
+        }
+
+        assertFalse(tapped)
+        assertTrue(pressed)
+        assertFalse(released)
+        assertTrue(canceled)
+    }
+
+    /**
+     * Clicking in the region with the up already consumed should result in the callback not
+     * being invoked.
+     */
+    @Test
+    fun consumedChange_upTap() {
+        rule.setContent(util)
+
+        performTouch {
+            down(0, Offset(5f, 5f))
+        }
+
+        assertFalse(tapped)
+        assertTrue(pressed)
+
+        performTouch(initialPass = { consume() }) {
+            up(0)
+        }
+
+        assertFalse(tapped)
+        assertFalse(released)
+        assertTrue(canceled)
     }
 
     /**
@@ -396,25 +526,29 @@ class TapAndDoubleTapTest {
             down(0, Offset(1f, 1f))
         }
 
-        assertFalse(tapped)
+        assertTrue(pressed)
+        pressed = false
 
         performTouch(finalPass = { assertFalse(isConsumed) }) {
             down(1, Offset(9f, 5f))
         }
 
-        assertFalse(tapped)
+        assertFalse(pressed)
 
         performTouch(finalPass = { assertFalse(isConsumed) }) {
             up(0)
         }
 
         assertFalse(tapped)
+        assertFalse(released)
 
         performTouch(finalPass = { assertTrue(isConsumed) }) {
             up(1)
         }
 
         assertTrue(tapped)
+        assertTrue(released)
+        assertFalse(canceled)
     }
 
     /**
@@ -427,7 +561,7 @@ class TapAndDoubleTapTest {
         performTouch {
             down(0, Offset(1f, 1f))
         }
-        assertFalse(tapped)
+        assertTrue(pressed)
 
         performTouch {
             down(1, Offset(9f, 5f))
@@ -441,6 +575,7 @@ class TapAndDoubleTapTest {
         }
 
         assertFalse(tapped)
+        assertTrue(canceled)
 
         rule.mainClock.advanceTimeBy(50)
         performTouch(finalPass = { assertFalse(isConsumed) }) {
@@ -448,5 +583,6 @@ class TapAndDoubleTapTest {
         }
 
         assertFalse(tapped)
+        assertFalse(released)
     }
 }

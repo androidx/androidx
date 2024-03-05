@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
+import androidx.compose.foundation.gestures.PressGestureScope
+import androidx.compose.foundation.gestures.PressGestureScopeImpl
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -29,6 +31,7 @@ import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Detect tap and double tap gestures. This is a special gesture detector that's copied from
@@ -39,10 +42,20 @@ import kotlinx.coroutines.coroutineScope
 internal suspend fun PointerInputScope.detectTapAndDoubleTap(
     onTap: TapOnPosition? = null,
     onDoubleTap: TapOnPosition? = null,
+    onPress: suspend PressGestureScope.(Offset) -> Unit,
 ) = coroutineScope {
+    // special signal to indicate to the sending side that it shouldn't intercept and consume
+    // cancel/up events as we're only require down events
+    val pressScope = PressGestureScopeImpl(this@detectTapAndDoubleTap)
+
     awaitEachGesture {
         val down = awaitFirstDown()
         down.consume()
+        launch {
+            pressScope.reset()
+            pressScope.onPress(down.position)
+        }
+
         val longPressTimeout = viewConfiguration.longPressTimeoutMillis
         var upOrCancel: PointerInputChange? = null
         try {
@@ -50,8 +63,21 @@ internal suspend fun PointerInputScope.detectTapAndDoubleTap(
             upOrCancel = withTimeout(longPressTimeout) {
                 waitForUpOrCancellation()
             }
+            if (upOrCancel == null) {
+                launch {
+                    pressScope.cancel() // tap-up was canceled
+                }
+            } else {
+                upOrCancel.consume()
+                launch {
+                    pressScope.release()
+                }
+            }
         } catch (_: PointerEventTimeoutCancellationException) {
             consumeUntilUp()
+            launch {
+                pressScope.release()
+            }
         }
 
         if (upOrCancel != null) {
@@ -64,17 +90,31 @@ internal suspend fun PointerInputScope.detectTapAndDoubleTap(
                 val secondDown = awaitSecondDown(upOrCancel)
 
                 if (secondDown != null) {
+                    launch {
+                        pressScope.reset()
+                    }
+                    launch { pressScope.onPress(secondDown.position) }
                     try {
                         // Might have a long second press as the second tap
                         withTimeout(longPressTimeout) {
                             val secondUp = waitForUpOrCancellation()
                             if (secondUp != null) {
                                 secondUp.consume()
+                                launch {
+                                    pressScope.release()
+                                }
                                 onDoubleTap.onEvent(secondUp.position)
+                            } else {
+                                launch {
+                                    pressScope.cancel()
+                                }
                             }
                         }
                     } catch (e: PointerEventTimeoutCancellationException) {
                         consumeUntilUp()
+                        launch {
+                            pressScope.release()
+                        }
                     }
                 }
             }
