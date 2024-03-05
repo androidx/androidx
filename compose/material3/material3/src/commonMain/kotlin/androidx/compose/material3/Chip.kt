@@ -1922,7 +1922,7 @@ private fun SelectableChip(
         modifier = modifier.semantics { role = Role.Checkbox },
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled, selected).value,
+        color = colors.containerColor(enabled, selected),
         shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
         border = border,
         interactionSource = interactionSource
@@ -2535,14 +2535,13 @@ class SelectableChipColors constructor(
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable
-    internal fun containerColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target = when {
+    @Stable
+    internal fun containerColor(enabled: Boolean, selected: Boolean): Color {
+        return when {
             !enabled -> if (selected) disabledSelectedContainerColor else disabledContainerColor
             !selected -> containerColor
             else -> selectedContainerColor
         }
-        return rememberUpdatedState(target)
     }
 
     /**
@@ -2551,6 +2550,7 @@ class SelectableChipColors constructor(
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
+    @Stable
     internal fun labelColor(enabled: Boolean, selected: Boolean): Color {
         return when {
             !enabled -> disabledLabelColor
@@ -2565,6 +2565,7 @@ class SelectableChipColors constructor(
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
+    @Stable
     internal fun leadingIconContentColor(enabled: Boolean, selected: Boolean): Color {
         return when {
             !enabled -> disabledLeadingIconColor
@@ -2579,6 +2580,7 @@ class SelectableChipColors constructor(
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
+    @Stable
     internal fun trailingIconContentColor(enabled: Boolean, selected: Boolean): Color {
         return when {
             !enabled -> disabledTrailingIconColor
