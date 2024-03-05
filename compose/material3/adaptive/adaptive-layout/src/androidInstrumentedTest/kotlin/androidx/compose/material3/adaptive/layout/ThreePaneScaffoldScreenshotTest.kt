@@ -17,11 +17,18 @@
 package androidx.compose.material3.adaptive.layout
 
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -226,6 +233,7 @@ class ThreePaneScaffoldScreenshotTest {
                 "threePaneScaffold_paneExpansion_overflowFirstPaneWidth"
             )
     }
+
     @Test
     fun threePaneScaffold_paneExpansion_fixedFirstPanePercentage() {
         rule.setContentWithSimulatedSize(
@@ -320,6 +328,92 @@ class ThreePaneScaffoldScreenshotTest {
                 "threePaneScaffold_paneExpansion_fullFirstPanePercentage"
             )
     }
+
+    @Test
+    fun threePaneScaffold_paneExpansionWithDragHandle_fixedFirstPaneWidth() {
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 1024.dp,
+            simulatedHeight = 800.dp
+        ) {
+            val mockPaneExpansionState = PaneExpansionState()
+            mockPaneExpansionState.firstPaneWidth = with(LocalDensity.current) {
+                412.dp.roundToPx()
+            }
+            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) {
+                MockDragHandle()
+            }
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "threePaneScaffold_paneExpansionWithDragHandle_fixedFirstPaneWidth"
+            )
+    }
+
+    @Test
+    fun threePaneScaffold_paneExpansionWithDragHandle_zeroFirstPaneWidth() {
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 1024.dp,
+            simulatedHeight = 800.dp
+        ) {
+            val mockPaneExpansionState = PaneExpansionState()
+            mockPaneExpansionState.firstPaneWidth = 0
+            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) {
+                MockDragHandle()
+            }
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "threePaneScaffold_paneExpansionWithDragHandle_zeroFirstPaneWidth"
+            )
+    }
+
+    @Test
+    fun threePaneScaffold_paneExpansionWithDragHandle_overflowFirstPaneWidth() {
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 1024.dp,
+            simulatedHeight = 800.dp
+        ) {
+            val mockPaneExpansionState = PaneExpansionState()
+            mockPaneExpansionState.firstPaneWidth = with(LocalDensity.current) {
+                1024.dp.roundToPx()
+            }
+            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) {
+                MockDragHandle()
+            }
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "threePaneScaffold_paneExpansionWithDragHandle_overflowFirstPaneWidth"
+            )
+    }
+
+    @Test
+    fun threePaneScaffold_paneExpansionDragHandle_unspecifiedExpansionState() {
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 1024.dp,
+            simulatedHeight = 800.dp
+        ) {
+            SampleThreePaneScaffoldWithPaneExpansion(PaneExpansionState()) {
+                MockDragHandle()
+            }
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "threePaneScaffold_paneExpansionDragHandle_unspecifiedExpansionState"
+            )
+    }
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -382,7 +476,8 @@ private fun SampleThreePaneScaffoldWithInsets(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun SampleThreePaneScaffoldWithPaneExpansion(
-    paneExpansionState: PaneExpansionState
+    paneExpansionState: PaneExpansionState,
+    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
 ) {
     val scaffoldDirective = calculateStandardPaneScaffoldDirective(
         currentWindowAdaptiveInfo()
@@ -396,6 +491,22 @@ private fun SampleThreePaneScaffoldWithPaneExpansion(
         scaffoldDirective = scaffoldDirective,
         scaffoldValue = scaffoldValue,
         paneOrder = ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
-        paneExpansionState = paneExpansionState
+        paneExpansionState = paneExpansionState,
+        paneExpansionDragHandle = paneExpansionDragHandle
+    )
+}
+
+@Composable
+private fun MockDragHandle() {
+    Box(
+        modifier = Modifier
+            .size(
+                4.dp, 48.dp
+            )
+            .graphicsLayer(
+                shape = CircleShape,
+                clip = true
+            )
+            .background(MaterialTheme.colorScheme.outline)
     )
 }
