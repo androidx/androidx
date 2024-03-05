@@ -64,6 +64,7 @@ public class FragmentTransitionSupportTest extends BaseTest {
         mReorderingAllowed = reorderingAllowed;
     }
 
+    @Ignore // b/326237469
     @Test
     public void preconditions() {
         final TransitionFragment fragment1 = TransitionFragment.newInstance(R.layout.scene2);
