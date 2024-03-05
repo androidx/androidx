@@ -81,7 +81,7 @@ public final class RequestToPlatformConverter {
                         jetpackRequest.getNamespace())
                         .addIds(jetpackRequest.getIds());
         for (Map.Entry<String, List<String>> projection :
-                jetpackRequest.getProjectionsInternal().entrySet()) {
+                jetpackRequest.getProjections().entrySet()) {
             platformBuilder.addProjection(projection.getKey(), projection.getValue());
         }
         return platformBuilder.build();

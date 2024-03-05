@@ -68,7 +68,7 @@ public final class RequestToGmsConverter {
                         jetpackRequest.getNamespace())
                         .addIds(jetpackRequest.getIds());
         for (Map.Entry<String, List<String>> projection :
-                jetpackRequest.getProjectionsInternal().entrySet()) {
+                jetpackRequest.getProjections().entrySet()) {
             gmsBuilder.addProjection(projection.getKey(), projection.getValue());
         }
         return gmsBuilder.build();
