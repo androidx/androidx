@@ -77,4 +77,54 @@ abstract class BaseSimpleQueryTest {
         )
         assertThat(dao.getItemList().map { it.pk }).containsExactly(2L)
     }
+
+    @Test
+    fun simpleInsertAndDelete() = runTest {
+        val sampleEntity = SampleEntity(1, 1)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity)
+        assertThat(dao.getSingleItemWithColumn().pk).isEqualTo(1)
+
+        dao.delete(sampleEntity)
+        assertThrows<IllegalStateException> {
+            dao.getSingleItemWithColumn()
+        }.hasMessageThat().contains("The query result was empty")
+    }
+
+    @Test
+    fun simpleInsertAndUpdateAndDelete() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity(1, 2)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity1)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
+
+        dao.update(sampleEntity2)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(2)
+
+        dao.delete(sampleEntity2)
+        assertThrows<IllegalStateException> {
+            dao.getSingleItem()
+        }.hasMessageThat().contains("The query result was empty")
+    }
+
+    @Test
+    fun simpleInsertAndUpsertAndDelete() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity(1, 2)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity1)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
+
+        dao.upsert(sampleEntity2)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(2)
+
+        dao.delete(sampleEntity2)
+        assertThrows<IllegalStateException> {
+            dao.getSingleItem()
+        }.hasMessageThat().contains("The query result was empty")
+    }
 }

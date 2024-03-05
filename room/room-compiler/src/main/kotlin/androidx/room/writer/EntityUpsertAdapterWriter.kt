@@ -38,13 +38,18 @@ class EntityUpsertAdapterWriter private constructor(
     fun createConcrete(
         entity: ShortcutEntity,
         typeWriter: TypeWriter,
-        dbProperty: XPropertySpec
+        dbProperty: XPropertySpec,
+        useDriverApi: Boolean
     ): XCodeBlock {
-        val upsertAdapter = RoomTypeNames.UPSERT_ADAPTER.parametrizedBy(pojo.typeName)
+        val upsertAdapter = if (useDriverApi) {
+            RoomTypeNames.UPSERT_ADAPTER
+        } else {
+            RoomTypeNames.UPSERT_ADAPTER_COMPAT
+        }.parametrizedBy(pojo.typeName)
         val insertHelper = EntityInsertAdapterWriter.create(entity, "")
-            .createAnonymous(typeWriter, dbProperty)
+            .createAnonymous(typeWriter, dbProperty, useDriverApi)
         val updateHelper = EntityUpdateAdapterWriter.create(entity, "")
-            .createAnonymous(typeWriter, dbProperty.name)
+            .createAnonymous(typeWriter, dbProperty.name, useDriverApi)
         return XCodeBlock.ofNewInstance(
             language = typeWriter.codeLanguage,
             typeName = upsertAdapter,

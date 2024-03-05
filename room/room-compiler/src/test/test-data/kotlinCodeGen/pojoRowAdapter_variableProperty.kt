@@ -1,13 +1,13 @@
-import androidx.room.EntityInsertionAdapter
+import androidx.room.EntityInsertAdapter
 import androidx.room.RoomDatabase
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
 import kotlin.reflect.KClass
 
@@ -18,36 +18,30 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __insertAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+  private val __insertAdapterOfMyEntity: EntityInsertAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__insertAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+    this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `MyEntity` (`pk`,`variablePrimitive`,`variableString`,`variableNullableString`) VALUES (?,?,?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
         statement.bindLong(2, entity.variablePrimitive)
-        statement.bindString(3, entity.variableString)
+        statement.bindText(3, entity.variableString)
         val _tmpVariableNullableString: String? = entity.variableNullableString
         if (_tmpVariableNullableString == null) {
           statement.bindNull(4)
         } else {
-          statement.bindString(4, _tmpVariableNullableString)
+          statement.bindText(4, _tmpVariableNullableString)
         }
       }
     }
   }
 
-  public override fun addEntity(item: MyEntity) {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      __insertAdapterOfMyEntity.insert(item)
-      __db.setTransactionSuccessful()
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun addEntity(item: MyEntity): Unit = performBlocking(__db, false, true) {
+      _connection ->
+    __insertAdapterOfMyEntity.insert(_connection, item)
   }
 
   public override fun getEntity(): MyEntity {
