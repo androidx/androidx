@@ -40,7 +40,7 @@ public inline fun viewModelFactory(
 public class InitializerViewModelFactoryBuilder
 public constructor() {
 
-    private val initializers = mutableListOf<ViewModelInitializer<*>>()
+    private val initializers = mutableMapOf<KClass<*>, ViewModelInitializer<*>>()
 
     /**
      * Associates the specified [initializer] with the given [ViewModel] class.
@@ -53,7 +53,10 @@ public constructor() {
         clazz: KClass<T>,
         initializer: CreationExtras.() -> T,
     ) {
-        initializers += ViewModelInitializer(clazz, initializer)
+        require(clazz !in initializers) {
+            "A `initializer` with the same `clazz` has already been added: ${clazz.qualifiedName}."
+        }
+        initializers[clazz] = ViewModelInitializer(clazz, initializer)
     }
 
     /**
@@ -61,7 +64,7 @@ public constructor() {
      * builder.
      */
     public fun build(): ViewModelProvider.Factory =
-        ViewModelProviders.createInitializerFactory(initializers)
+        ViewModelProviders.createInitializerFactory(initializers.values)
 }
 
 /**
