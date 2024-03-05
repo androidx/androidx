@@ -35,15 +35,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.overscroll
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 private enum class AnchoredDraggableSampleValue {
-    Start, HalfStart, Center, HalfEnd, End
+    Start, Center, End
 }
 
 @Composable
@@ -135,7 +131,7 @@ fun AnchoredDraggableLayoutDependentAnchorsSample() {
             decayAnimationSpec
         )
     }
-    val draggableSize = 60.dp
+    val draggableSize = 100.dp
     val draggableSizePx = with(LocalDensity.current) { draggableSize.toPx() }
     Box(
         Modifier
@@ -147,18 +143,15 @@ fun AnchoredDraggableLayoutDependentAnchorsSample() {
                 state.updateAnchors(
                     DraggableAnchors {
                         AnchoredDraggableSampleValue.Start at 0f
-                        AnchoredDraggableSampleValue.HalfStart at dragEndPoint * .25f
-                        AnchoredDraggableSampleValue.Center at dragEndPoint * .5f
-                        AnchoredDraggableSampleValue.HalfEnd at dragEndPoint * .75f
+                        AnchoredDraggableSampleValue.Center at dragEndPoint / 2f
                         AnchoredDraggableSampleValue.End at dragEndPoint
                     }
                 )
             }
-            .visualizeDraggableAnchors(state, Orientation.Horizontal)
     ) {
         Box(
             Modifier
-                .size(draggableSize)
+                .size(100.dp)
                 .offset {
                     IntOffset(
                         x = state
@@ -313,46 +306,6 @@ fun AnchoredDraggableWithOverscrollSample() {
                 )
                 .overscroll(overscrollEffect)
                 .background(Color.Red)
-        )
-    }
-}
-
-/**
- * A [Modifier] that visualizes the anchors attached to an [AnchoredDraggableState] as lines along
- * the cross axis of the layout (start to end for [Orientation.Vertical], top to end for
- * [Orientation.Horizontal]).
- * This is useful to debug components with a complex set of anchors, or for AnchoredDraggable
- * development.
- *
- * @param state The state whose anchors to visualize
- * @param orientation The orientation of the [anchoredDraggable]
- * @param lineColor The color of the visualization lines
- * @param lineStrokeWidth The stroke width of the visualization lines
- * @param linePathEffect The path effect used to draw the visualization lines
- */
-private fun Modifier.visualizeDraggableAnchors(
-    state: AnchoredDraggableState<*>,
-    orientation: Orientation,
-    lineColor: Color = Color.Black,
-    lineStrokeWidth: Float = 10f,
-    linePathEffect: PathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 30f))
-) = drawWithContent {
-    drawContent()
-    state.anchors.forEach { _, position ->
-        val startOffset = Offset(
-            x = if (orientation == Orientation.Horizontal) position else 0f,
-            y = if (orientation == Orientation.Vertical) position else 0f
-        )
-        val endOffset = Offset(
-            x = if (orientation == Orientation.Horizontal) startOffset.x else size.height,
-            y = if (orientation == Orientation.Vertical) startOffset.y else size.width
-        )
-        drawLine(
-            color = lineColor,
-            start = startOffset,
-            end = endOffset,
-            strokeWidth = lineStrokeWidth,
-            pathEffect = linePathEffect
         )
     }
 }
