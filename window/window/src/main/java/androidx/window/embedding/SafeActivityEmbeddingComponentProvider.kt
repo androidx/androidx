@@ -400,8 +400,8 @@ internal class SafeActivityEmbeddingComponentProvider(
     private fun isClassWindowAttributesValid(): Boolean =
         validateReflection("Class WindowAttributes is not valid") {
             val windowAttributesClass = WindowAttributes::class.java
-            val getDimAreaMethod = windowAttributesClass.getMethod(
-                "getDimArea"
+            val getDimAreaBehaviorMethod = windowAttributesClass.getMethod(
+                "getDimAreaBehavior"
             )
 
             val splitAttributesClass = SplitAttributes::class.java
@@ -415,8 +415,8 @@ internal class SafeActivityEmbeddingComponentProvider(
                 WindowAttributes::class.java
             )
 
-            getDimAreaMethod.isPublic &&
-                getDimAreaMethod.doesReturn(Int::class.javaPrimitiveType!!) &&
+            getDimAreaBehaviorMethod.isPublic &&
+                getDimAreaBehaviorMethod.doesReturn(Int::class.javaPrimitiveType!!) &&
                 getWindowAttributesMethod.isPublic &&
                 getWindowAttributesMethod.doesReturn(windowAttributesClass) &&
                 setWindowAttributesMethod.isPublic

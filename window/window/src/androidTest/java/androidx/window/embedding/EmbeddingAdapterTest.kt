@@ -305,11 +305,11 @@ class EmbeddingAdapterTest {
     fun testTranslateEmbeddingConfigurationToWindowAttributes() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(5)
 
-        val dimArea = EmbeddingConfiguration.DimArea.ON_TASK
-        adapter.embeddingConfiguration = EmbeddingConfiguration(dimArea)
+        val dimAreaBehavior = EmbeddingConfiguration.DimAreaBehavior.ON_TASK
+        adapter.embeddingConfiguration = EmbeddingConfiguration(dimAreaBehavior)
         val oemSplitAttributes = adapter.translateSplitAttributes(SplitAttributes.Builder().build())
 
-        assertEquals(dimArea.value, oemSplitAttributes.windowAttributes.dimAreaBehavior)
+        assertEquals(dimAreaBehavior.value, oemSplitAttributes.windowAttributes.dimAreaBehavior)
     }
 
     @Suppress("Deprecation") // Verify the behavior of version 3 and 4.

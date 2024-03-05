@@ -183,7 +183,7 @@ internal class EmbeddingCompat(
     @OptIn(ExperimentalWindowApi::class)
     private fun setDefaultSplitAttributeCalculatorIfNeeded() {
         // Setting a default SplitAttributeCalculator if the EmbeddingConfiguration is set,
-        // in order to ensure the dimArea in the SplitAttribute is up-to-date.
+        // in order to ensure the dimAreaBehavior in the SplitAttribute is up-to-date.
         if (windowSdkExtensions.extensionVersion >= 5 && !isCustomSplitAttributeCalculatorSet &&
             adapter.embeddingConfiguration != null) {
             embeddingExtension.setSplitAttributesCalculator { params ->

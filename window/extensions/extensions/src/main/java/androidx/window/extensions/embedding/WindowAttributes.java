@@ -19,7 +19,6 @@ package androidx.window.extensions.embedding;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 
 import java.lang.annotation.Retention;
@@ -75,18 +74,6 @@ public final class WindowAttributes {
     @DimAreaBehavior
     @RequiresVendorApiLevel(level = 5)
     public int getDimAreaBehavior() {
-        return mDimAreaBehavior;
-    }
-
-    /**
-     * TODO(b/324092846): Keeping this API for now to prevent the WM extension library build break
-     * once the aar file is updated. Will remove this API once the aar file is updated and the WM
-     * extension library starts using the new {@link #getDimAreaBehavior} API.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @DimAreaBehavior
-    @RequiresVendorApiLevel(level = 5)
-    public int getDimArea() {
         return mDimAreaBehavior;
     }
 
