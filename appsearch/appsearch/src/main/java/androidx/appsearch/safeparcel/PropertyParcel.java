@@ -40,7 +40,8 @@ import java.util.Objects;
 // This won't be used to send data over binder, and we have to use Parcelable for code sync purpose.
 @SuppressLint("BanParcelableUsage")
 public final class PropertyParcel extends AbstractSafeParcelable implements Parcelable {
-    @NonNull public static final PropertyParcelCreator CREATOR = new PropertyParcelCreator();
+    @NonNull public static final Parcelable.Creator<PropertyParcel> CREATOR =
+            new PropertyParcelCreator();
 
     @NonNull
     @Field(id = 1, getter = "getPropertyName")
