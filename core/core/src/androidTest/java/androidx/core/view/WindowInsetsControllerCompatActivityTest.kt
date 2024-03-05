@@ -196,7 +196,7 @@ public class WindowInsetsControllerCompatActivityTest {
     }
 
     /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
-    @SdkSuppress(minSdkVersion = 23)
+    @SdkSuppress(minSdkVersion = 23, excludedSdks = [ 28 ]) // Excluded due to flakes (b/324904606)
     @Test
     public fun hide_IME() {
         // Test do not currently work on Cuttlefish

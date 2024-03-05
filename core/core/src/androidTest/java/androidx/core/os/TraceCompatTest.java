@@ -112,6 +112,7 @@ public final class TraceCompatTest {
     }
 
     @Test
+    @SdkSuppress(excludedSdks = { 30, 33 }) // Excluded due to flakes (b/328063273)
     public void beginAndEndSection() throws IOException {
         startTrace();
         TraceCompat.beginSection("beginAndEndSection");
