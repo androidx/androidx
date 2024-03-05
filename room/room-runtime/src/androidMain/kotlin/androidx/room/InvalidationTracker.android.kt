@@ -76,7 +76,7 @@ actual constructor(
     @Volatile
     internal var cleanupStatement: SupportSQLiteStatement? = null
 
-    private val observedTableTracker: ObservedTableTracker = ObservedTableTracker(tableNames.size)
+    private val observedTableTracker = ObservedTableStates(tableNames.size)
 
     private val invalidationLiveDataContainer: InvalidationLiveDataContainer =
         InvalidationLiveDataContainer(database)
@@ -283,7 +283,7 @@ actual constructor(
         val currentObserver = synchronized(observerMap) {
             observerMap.putIfAbsent(observer, wrapper)
         }
-        if (currentObserver == null && observedTableTracker.onAdded(*tableIds)) {
+        if (currentObserver == null && observedTableTracker.onObserverAdded(tableIds)) {
             syncTriggers()
         }
     }
@@ -342,7 +342,7 @@ actual constructor(
         val wrapper = synchronized(observerMap) {
             observerMap.remove(observer)
         }
-        if (wrapper != null && observedTableTracker.onRemoved(tableIds = wrapper.tableIds)) {
+        if (wrapper != null && observedTableTracker.onObserverRemoved(wrapper.tableIds)) {
             syncTriggers()
         }
     }
@@ -506,9 +506,10 @@ actual constructor(
                     try {
                         tablesToSync.forEachIndexed { tableId, syncState ->
                             when (syncState) {
-                                ObservedTableTracker.ADD ->
+                                ObservedTableStates.ObserveOp.NO_OP -> {}
+                                ObservedTableStates.ObserveOp.ADD ->
                                     startTrackingTable(database, tableId)
-                                ObservedTableTracker.REMOVE ->
+                                ObservedTableStates.ObserveOp.REMOVE ->
                                     stopTrackingTable(database, tableId)
                             }
                         }
@@ -711,106 +712,6 @@ actual constructor(
 
         internal open val isRemote: Boolean
             get() = false
-    }
-
-    /**
-     * Keeps a list of tables we should observe. Invalidation tracker lazily syncs this list w/
-     * triggers in the database.
-     *
-     * This class is thread safe
-     */
-    internal class ObservedTableTracker(tableCount: Int) {
-        // number of observers per table
-        val tableObservers = LongArray(tableCount)
-
-        // trigger state for each table at last sync
-        // this field is updated when syncAndGet is called.
-        private val triggerStates = BooleanArray(tableCount)
-
-        // when sync is called, this field is returned. It includes actions as ADD, REMOVE, NO_OP
-        private val triggerStateChanges = IntArray(tableCount)
-
-        var needsSync = false
-
-        /**
-         * @return true if # of triggers is affected.
-         */
-        fun onAdded(vararg tableIds: Int): Boolean {
-            var needTriggerSync = false
-            synchronized(this) {
-                tableIds.forEach { tableId ->
-                    val prevObserverCount = tableObservers[tableId]
-                    tableObservers[tableId] = prevObserverCount + 1
-                    if (prevObserverCount == 0L) {
-                        needsSync = true
-                        needTriggerSync = true
-                    }
-                }
-            }
-            return needTriggerSync
-        }
-
-        /**
-         * @return true if # of triggers is affected.
-         */
-        fun onRemoved(vararg tableIds: Int): Boolean {
-            var needTriggerSync = false
-            synchronized(this) {
-                tableIds.forEach { tableId ->
-                    val prevObserverCount = tableObservers[tableId]
-                    tableObservers[tableId] = prevObserverCount - 1
-                    if (prevObserverCount == 1L) {
-                        needsSync = true
-                        needTriggerSync = true
-                    }
-                }
-            }
-            return needTriggerSync
-        }
-
-        /**
-         * If we are re-opening the db we'll need to add all the triggers that we need so change
-         * the current state to false for all.
-         */
-        fun resetTriggerState() {
-            synchronized(this) {
-                triggerStates.fill(element = false)
-                needsSync = true
-            }
-        }
-
-        /**
-         * If this returns non-null, you must call onSyncCompleted.
-         *
-         * @return int[] An int array where the index for each tableId has the action for that
-         * table.
-         */
-        @VisibleForTesting
-        @JvmName("getTablesToSync")
-        fun getTablesToSync(): IntArray? {
-            synchronized(this) {
-                if (!needsSync) {
-                    return null
-                }
-                tableObservers.forEachIndexed { i, observerCount ->
-                    val newState = observerCount > 0
-                    if (newState != triggerStates[i]) {
-                        triggerStateChanges[i] = if (newState) ADD else REMOVE
-                    } else {
-                        triggerStateChanges[i] = NO_OP
-                    }
-                    triggerStates[i] = newState
-                }
-                needsSync = false
-                return triggerStateChanges.clone()
-            }
-        }
-
-        internal companion object {
-            const val NO_OP = 0 // don't change trigger state for this table
-            const val ADD = 1 // add triggers for this table
-            const val REMOVE = 2 // remove triggers for this table
-        }
     }
 
     /**
