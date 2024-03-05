@@ -252,8 +252,6 @@ WARN: .*\/unzippedJvmSources\/androidx\/documentfile\/provider\/DocumentFile\.ja
 WARN: .*\/unzippedJvmSources\/androidx\/draganddrop\/DropHelper\.java:[0-9]+ Failed to resolve See <a href="https:\/\/developer\.android\.com\/guide\/topics\/ui\/drag-drop">Drag and drop<\/a> in DClass DropHelper
 WARN: .*\/unzippedJvmSources\/androidx\/emoji\/text\/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
 WARN: .*\/unzippedJvmSources\/androidx\/emoji2\/text\/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
-# Due to b/325460563
-ERROR: An attempt to write \$OUT_DIR/androidx/docs\-tip\-of\-tree/build/docs//reference/androidx/room/Room\.html several times!
 WARN: .*\/unzippedJvmSources\/androidx\/fragment\/app\/Fragment\.java:[0-9]+ Missing @param tag for parameter `inflater` in DFunction onCreateOptionsMenu
 WARN: .*\/unzippedJvmSources\/androidx\/graphics\/opengl\/egl\/EGLSpec\.kt:[0-9]+ Missing @param tag for parameter `context` in DFunction eglMakeCurrent
 WARN: .*\/unzippedJvmSources\/androidx\/leanback\/app\/SearchFragment\.java:[0-9]+ Missing @param tag for parameter `query` in DFunction createArgs
@@ -410,8 +408,6 @@ WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebViewCompat\.java:[0-9]+ Missi
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebViewCompat\.java:[0-9]+ Missing @param tag for parameter `webview` in DFunction removeWebMessageListener
 WARN: .*\/unzippedJvmSources\/androidx\/work\/testing\/TestListenableWorkerBuilder\.kt:UnknownLine Missing @param tag for parameter `tags` in DFunction TestListenableWorkerBuilder
 WARN: .*\/unzippedJvmSources\/androidx\/work\/testing\/TestWorkerBuilder\.kt:UnknownLine Missing @param tag for parameter `tags` in DFunction TestWorkerBuilder
-# Due to b/325460563
-ERROR: An attempt to write \$OUT_DIR/androidx/docs\-tip\-of\-tree/build/docs//reference/kotlin/androidx/room/Room\.html several times!
 WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
 WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedInitialKey` in DFunction LoadInitialParams
 WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams

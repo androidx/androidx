@@ -43,6 +43,7 @@ import androidx.room.support.PrePackagedCopyOpenHelper
 import androidx.room.support.PrePackagedCopyOpenHelperFactory
 import androidx.room.support.QueryInterceptorOpenHelperFactory
 import androidx.room.util.contains as containsExt
+import androidx.room.util.findAndInstantiateDatabaseImpl
 import androidx.room.util.findMigrationPath as findMigrationPathExt
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
@@ -1650,8 +1651,7 @@ actual abstract class RoomDatabase {
                 allowDestructiveMigrationForAllTables,
                 driver,
             )
-            val db = factory?.invoke()
-                ?: Room.getGeneratedImplementation<T, T>(klass.java, "_Impl")
+            val db = factory?.invoke() ?: findAndInstantiateDatabaseImpl(klass.java)
             db.init(configuration)
             return db
         }
