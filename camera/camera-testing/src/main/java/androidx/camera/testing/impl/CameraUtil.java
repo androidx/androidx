@@ -47,13 +47,16 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.ExperimentalRetryPolicy;
 import androidx.camera.core.Logger;
+import androidx.camera.core.RetryPolicy;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraConfig;
@@ -618,6 +621,8 @@ public final class CameraUtil {
      * @param cameraCoordinator The camera coordinator for concurrent cameras.
      * @param cameraSelector The selector to select cameras with.
      */
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(markerClass = ExperimentalRetryPolicy.class)
     @VisibleForTesting
     @NonNull
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
@@ -626,8 +631,8 @@ public final class CameraUtil {
             @NonNull CameraSelector cameraSelector,
             @NonNull CameraConfig cameraConfig) {
         try {
-            CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
-                    TimeUnit.MILLISECONDS);
+            CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(
+                    RetryPolicy.getDefaultRetryTimeoutInMillis() + 2000, TimeUnit.MILLISECONDS);
             CameraInternal camera =
                     cameraSelector.select(cameraX.getCameraRepository().getCameras());
             return new CameraUseCaseAdapter(camera,
