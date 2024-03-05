@@ -34,9 +34,12 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
+import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER_COMPAT
 import androidx.room.ext.RoomTypeNames.INSERT_ADAPTER
+import androidx.room.ext.RoomTypeNames.INSERT_ADAPTER_COMPAT
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER
+import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER_COMPAT
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
@@ -352,11 +355,13 @@ class DaoWriter(
             .map { insertMethod ->
                 val onConflict = OnConflictProcessor.onConflictText(insertMethod.onConflict)
                 val entities = insertMethod.entities
+                val useDriverApi = insertMethod.methodBinder?.isMigratedToDriver() == true
 
                 val fields = entities.mapValues {
-                    val spec = getOrCreateProperty(InsertMethodProperty(it.value, onConflict))
+                    val spec = getOrCreateProperty(
+                        InsertMethodProperty(it.value, onConflict, useDriverApi))
                     val impl = EntityInsertAdapterWriter.create(it.value, onConflict)
-                        .createAnonymous(this@DaoWriter, dbProperty)
+                        .createAnonymous(this@DaoWriter, dbProperty, useDriverApi)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
@@ -376,13 +381,23 @@ class DaoWriter(
         if (insertAdapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
         }
-        val scope = CodeGenScope(this)
-        method.methodBinder.convertAndReturn(
-            parameters = method.parameters,
-            adapters = insertAdapters,
-            dbProperty = dbProperty,
-            scope = scope
-        )
+        val useDriverApi = method.methodBinder.isMigratedToDriver()
+        val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
+        if (useDriverApi) {
+            method.methodBinder.convertAndReturn(
+                parameters = method.parameters,
+                adapters = insertAdapters,
+                dbProperty = dbProperty,
+                scope = scope
+            )
+        } else {
+            method.methodBinder.convertAndReturnCompat(
+                parameters = method.parameters,
+                adapters = insertAdapters,
+                dbProperty = dbProperty,
+                scope = scope
+            )
+        }
         return scope.generate()
     }
 
@@ -390,9 +405,10 @@ class DaoWriter(
      * Creates EntityUpdateAdapter for each delete method.
      */
     private fun createDeleteMethods(): List<PreparedStmtQuery> {
-        return createShortcutMethods(dao.deleteMethods, "delete") { _, entity ->
+        return createShortcutMethods(dao.deleteMethods, "delete") { deleteMethod, entity ->
+            val useDriverApi = deleteMethod.methodBinder?.isMigratedToDriver() == true
             EntityDeleteAdapterWriter.create(entity)
-                .createAnonymous(this@DaoWriter, dbProperty.name)
+                .createAnonymous(this@DaoWriter, dbProperty.name, useDriverApi)
         }
     }
 
@@ -402,8 +418,9 @@ class DaoWriter(
     private fun createUpdateMethods(): List<PreparedStmtQuery> {
         return createShortcutMethods(dao.updateMethods, "update") { update, entity ->
             val onConflict = OnConflictProcessor.onConflictText(update.onConflictStrategy)
+            val useDriverApi = update.methodBinder?.isMigratedToDriver() == true
             EntityUpdateAdapterWriter.create(entity, onConflict)
-                .createAnonymous(this@DaoWriter, dbProperty.name)
+                .createAnonymous(this@DaoWriter, dbProperty.name, useDriverApi)
         }
     }
 
@@ -422,9 +439,15 @@ class DaoWriter(
                 } else {
                     ""
                 }
+                val useDriverApi = method.methodBinder?.isMigratedToDriver() == true
                 val fields = entities.mapValues {
                     val spec = getOrCreateProperty(
-                        DeleteOrUpdateAdapterProperty(it.value, methodPrefix, onConflict)
+                        DeleteOrUpdateAdapterProperty(
+                            it.value,
+                            methodPrefix,
+                            onConflict,
+                            useDriverApi
+                        )
                     )
                     val impl = implCallback(method, it.value)
                     spec to impl
@@ -444,14 +467,23 @@ class DaoWriter(
         if (adapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
         }
-        val scope = CodeGenScope(this)
-
-        method.methodBinder.convertAndReturn(
-            parameters = method.parameters,
-            adapters = adapters,
-            dbProperty = dbProperty,
-            scope = scope
-        )
+        val useDriverApi = method.methodBinder.isMigratedToDriver()
+        val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
+        if (useDriverApi) {
+            method.methodBinder.convertAndReturn(
+                parameters = method.parameters,
+                adapters = adapters,
+                dbProperty = dbProperty,
+                scope = scope
+            )
+        } else {
+            method.methodBinder.convertAndReturnCompat(
+                parameters = method.parameters,
+                adapters = adapters,
+                dbProperty = dbProperty,
+                scope = scope
+            )
+        }
         return scope.generate()
     }
 
@@ -464,9 +496,10 @@ class DaoWriter(
             .map { upsertMethod ->
                 val entities = upsertMethod.entities
                 val fields = entities.mapValues {
-                    val spec = getOrCreateProperty(UpsertAdapterProperty(it.value))
+                    val useDriverApi = upsertMethod.methodBinder?.isMigratedToDriver() == true
+                    val spec = getOrCreateProperty(UpsertAdapterProperty(it.value, useDriverApi))
                     val impl = EntityUpsertAdapterWriter.create(it.value)
-                        .createConcrete(it.value, this@DaoWriter, dbProperty)
+                        .createConcrete(it.value, this@DaoWriter, dbProperty, useDriverApi)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
@@ -486,14 +519,24 @@ class DaoWriter(
         if (upsertAdapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
         }
-        val scope = CodeGenScope(this)
+        val useDriverApi = method.methodBinder.isMigratedToDriver()
+        val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
 
-        method.methodBinder.convertAndReturn(
-            parameters = method.parameters,
-            adapters = upsertAdapters,
-            dbProperty = dbProperty,
-            scope = scope
-        )
+        if (useDriverApi) {
+            method.methodBinder.convertAndReturn(
+                parameters = method.parameters,
+                adapters = upsertAdapters,
+                dbProperty = dbProperty,
+                scope = scope
+            )
+        } else {
+            method.methodBinder.convertAndReturnCompat(
+                parameters = method.parameters,
+                adapters = upsertAdapters,
+                dbProperty = dbProperty,
+                scope = scope
+            )
+        }
         return scope.generate()
     }
 
@@ -640,13 +683,23 @@ class DaoWriter(
 
     private class InsertMethodProperty(
         val shortcutEntity: ShortcutEntity,
-        val onConflictText: String
+        val onConflictText: String,
+        val useDriverApi: Boolean
     ) : SharedPropertySpec(
-        baseName = "insertAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = INSERT_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
+        baseName = if (useDriverApi) {
+            "insertAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
+        } else {
+            "insertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
+               },
+        type = if (useDriverApi) {
+            INSERT_ADAPTER
+        } else {
+            INSERT_ADAPTER_COMPAT
+        }.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$onConflictText"
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
+                "$onConflictText-$useDriverApi"
         }
 
         override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
@@ -656,28 +709,46 @@ class DaoWriter(
     class DeleteOrUpdateAdapterProperty(
         val shortcutEntity: ShortcutEntity,
         val methodPrefix: String,
-        val onConflictText: String
+        val onConflictText: String,
+        val useDriverApi: Boolean
     ) : SharedPropertySpec(
-        baseName = "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = DELETE_OR_UPDATE_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
+        baseName = if (useDriverApi) {
+            "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
+        } else {
+            "${methodPrefix}CompatAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
+               },
+        type = if (useDriverApi) {
+            DELETE_OR_UPDATE_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
+        } else {
+            DELETE_OR_UPDATE_ADAPTER_COMPAT.parametrizedBy(shortcutEntity.pojo.typeName)
+        }
     ) {
         override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
         }
 
         override fun getUniqueKey(): String {
             return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
-                "$methodPrefix$onConflictText"
+                "$methodPrefix$onConflictText-$useDriverApi"
         }
     }
 
     class UpsertAdapterProperty(
-        val shortcutEntity: ShortcutEntity
+        val shortcutEntity: ShortcutEntity,
+        val useDriverApi: Boolean
     ) : SharedPropertySpec(
-        baseName = "upsertAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = UPSERT_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
+        baseName = if (useDriverApi) {
+            "upsertAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
+        } else {
+            "upsertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
+               },
+        type = if (useDriverApi) {
+            UPSERT_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
+        } else {
+            UPSERT_ADAPTER_COMPAT.parametrizedBy(shortcutEntity.pojo.typeName)
+        }
     ) {
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}"
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}-$useDriverApi"
         }
 
         override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {

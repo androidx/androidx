@@ -25,6 +25,7 @@ import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.FieldWithIndex
@@ -64,12 +65,26 @@ class EntityInsertAdapterWriter private constructor(
         }
     }
 
-    fun createAnonymous(typeWriter: TypeWriter, dbProperty: XPropertySpec): XTypeSpec {
-        return XTypeSpec.anonymousClassBuilder(
-            typeWriter.codeLanguage, "%N", dbProperty
-        ).apply {
+    fun createAnonymous(
+        typeWriter: TypeWriter,
+        dbProperty: XPropertySpec,
+        useDriverApi: Boolean
+    ): XTypeSpec {
+        return if (useDriverApi) {
+            XTypeSpec.anonymousClassBuilder(
+                typeWriter.codeLanguage
+            )
+        } else {
+            XTypeSpec.anonymousClassBuilder(
+                typeWriter.codeLanguage, "%N", dbProperty
+            )
+        }.apply {
             superclass(
-                RoomTypeNames.INSERT_ADAPTER.parametrizedBy(pojo.typeName)
+                if (useDriverApi) {
+                    RoomTypeNames.INSERT_ADAPTER
+                } else {
+                    RoomTypeNames.INSERT_ADAPTER_COMPAT
+                }.parametrizedBy(pojo.typeName)
             )
             addFunction(
                 XFunSpec.builder(
@@ -110,11 +125,21 @@ class EntityInsertAdapterWriter private constructor(
                 ).apply {
                     returns(XTypeName.UNIT_VOID)
                     val stmtParam = "statement"
-                    addParameter(SupportDbTypeNames.SQLITE_STMT, stmtParam)
+                    addParameter(
+                        if (useDriverApi) {
+                            SQLiteDriverTypeNames.STATEMENT
+                        } else {
+                            SupportDbTypeNames.SQLITE_STMT
+                        },
+                        stmtParam
+                    )
                     val entityParam = "entity"
                     addParameter(pojo.typeName, entityParam)
                     val mapped = FieldWithIndex.byOrder(pojo.fields)
-                    val bindScope = CodeGenScope(typeWriter)
+                    val bindScope = CodeGenScope(
+                        writer = typeWriter,
+                        useDriverApi = useDriverApi
+                    )
                     FieldReadWriteWriter.bindToStatement(
                         ownerVar = entityParam,
                         stmtParamVar = stmtParam,

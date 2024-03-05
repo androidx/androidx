@@ -1,14 +1,14 @@
-import androidx.room.EntityInsertionAdapter
+import androidx.room.EntityInsertAdapter
 import androidx.room.RoomDatabase
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
 import kotlin.reflect.KClass
 
@@ -19,14 +19,14 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __insertAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+  private val __insertAdapterOfMyEntity: EntityInsertAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__insertAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+    this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `MyEntity` (`pk`,`boolean`,`nullableBoolean`) VALUES (?,?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
         val _tmp: Int = if (entity.boolean) 1 else 0
         statement.bindLong(2, _tmp.toLong())
@@ -41,15 +41,9 @@ public class MyDao_Impl(
     }
   }
 
-  public override fun addEntity(item: MyEntity) {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      __insertAdapterOfMyEntity.insert(item)
-      __db.setTransactionSuccessful()
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun addEntity(item: MyEntity): Unit = performBlocking(__db, false, true) {
+      _connection ->
+    __insertAdapterOfMyEntity.insert(_connection, item)
   }
 
   public override fun getEntity(): MyEntity {

@@ -1,13 +1,15 @@
-import androidx.room.EntityDeletionOrUpdateAdapter
-import androidx.room.EntityInsertionAdapter
-import androidx.room.EntityUpsertionAdapter
+import androidx.room.EntityDeleteOrUpdateAdapter
+import androidx.room.EntityInsertAdapter
+import androidx.room.EntityUpsertAdapter
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteStatement
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Array
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
 import kotlin.reflect.KClass
 
@@ -18,135 +20,87 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __insertAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+  private val __insertAdapterOfMyEntity: EntityInsertAdapter<MyEntity>
 
-  private val __upsertAdapterOfMyEntity: EntityUpsertionAdapter<MyEntity>
+  private val __upsertAdapterOfMyEntity: EntityUpsertAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__insertAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+    this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `MyEntity` (`pk`,`data`) VALUES (?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk)
-        statement.bindString(2, entity.data)
+        statement.bindText(2, entity.data)
       }
     }
-    this.__upsertAdapterOfMyEntity = EntityUpsertionAdapter<MyEntity>(object :
-        EntityInsertionAdapter<MyEntity>(__db) {
+    this.__upsertAdapterOfMyEntity = EntityUpsertAdapter<MyEntity>(object :
+        EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT INTO `MyEntity` (`pk`,`data`) VALUES (?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk)
-        statement.bindString(2, entity.data)
+        statement.bindText(2, entity.data)
       }
-    }, object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    }, object : EntityDeleteOrUpdateAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "UPDATE `MyEntity` SET `pk` = ?,`data` = ? WHERE `pk` = ?"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk)
-        statement.bindString(2, entity.data)
+        statement.bindText(2, entity.data)
         statement.bindLong(3, entity.pk)
       }
     })
   }
 
-  public override fun insertEntity(item: MyEntity) {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      __insertAdapterOfMyEntity.insert(item)
-      __db.setTransactionSuccessful()
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun insertEntity(item: MyEntity): Unit = performBlocking(__db, false, true) {
+      _connection ->
+    __insertAdapterOfMyEntity.insert(_connection, item)
   }
 
-  public override fun insertEntityAndReturnRowId(item: MyEntity): Long {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      val _result: Long = __insertAdapterOfMyEntity.insertAndReturnId(item)
-      __db.setTransactionSuccessful()
-      return _result
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun insertEntityAndReturnRowId(item: MyEntity): Long = performBlocking(__db,
+      false, true) { _connection ->
+    val _result: Long = __insertAdapterOfMyEntity.insertAndReturnId(_connection, item)
+    _result
   }
 
-  public override fun insertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long> {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      val _result: List<Long> = __insertAdapterOfMyEntity.insertAndReturnIdsList(items)
-      __db.setTransactionSuccessful()
-      return _result
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun insertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long> =
+      performBlocking(__db, false, true) { _connection ->
+    val _result: List<Long> = __insertAdapterOfMyEntity.insertAndReturnIdsList(_connection, items)
+    _result
   }
 
-  public override fun upsertEntity(item: MyEntity) {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      __upsertAdapterOfMyEntity.upsert(item)
-      __db.setTransactionSuccessful()
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun upsertEntity(item: MyEntity): Unit = performBlocking(__db, false, true) {
+      _connection ->
+    __upsertAdapterOfMyEntity.upsert(_connection, item)
   }
 
-  public override fun upsertEntityAndReturnRowId(item: MyEntity): Long {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      val _result: Long = __upsertAdapterOfMyEntity.upsertAndReturnId(item)
-      __db.setTransactionSuccessful()
-      return _result
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun upsertEntityAndReturnRowId(item: MyEntity): Long = performBlocking(__db,
+      false, true) { _connection ->
+    val _result: Long = __upsertAdapterOfMyEntity.upsertAndReturnId(_connection, item)
+    _result
   }
 
-  public override fun upsertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long> {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      val _result: List<Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(items)
-      __db.setTransactionSuccessful()
-      return _result
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun upsertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long> =
+      performBlocking(__db, false, true) { _connection ->
+    val _result: List<Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(_connection, items)
+    _result
   }
 
-  public override fun upsertEntityListAndReturnRowIdsArray(items: List<MyEntity>): Array<Long> {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      val _result: Array<Long> = (__upsertAdapterOfMyEntity.upsertAndReturnIdsArrayBox(items)) as
-          Array<Long>
-      __db.setTransactionSuccessful()
-      return _result
-    } finally {
-      __db.endTransaction()
-    }
+  public override fun upsertEntityListAndReturnRowIdsArray(items: List<MyEntity>): Array<Long> =
+      performBlocking(__db, false, true) { _connection ->
+    val _result: Array<Long> = (__upsertAdapterOfMyEntity.upsertAndReturnIdsArrayBox(_connection,
+        items)) as Array<Long>
+    _result
   }
 
   public override fun upsertEntityListAndReturnRowIdsOutArray(items: List<MyEntity>):
-      Array<out Long> {
-    __db.assertNotSuspendingTransaction()
-    __db.beginTransaction()
-    try {
-      val _result: Array<out Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsArrayBox(items)
-      __db.setTransactionSuccessful()
-      return _result
-    } finally {
-      __db.endTransaction()
-    }
+      Array<out Long> = performBlocking(__db, false, true) { _connection ->
+    val _result: Array<out Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsArrayBox(_connection,
+        items)
+    _result
   }
 
   public companion object {
