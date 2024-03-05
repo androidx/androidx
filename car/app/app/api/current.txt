@@ -641,6 +641,7 @@ package androidx.car.app.hardware.info {
     method public void addSpeedListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
     method public void addTollListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
     method public void fetchEnergyProfile(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyProfile!>);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public default void fetchExteriorDimensions(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.ExteriorDimensions!>);
     method public void fetchModel(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Model!>);
     method public void removeEnergyLevelListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public void removeEvStatusListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EvStatus!>);
@@ -736,6 +737,20 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EvStatus build();
     method public androidx.car.app.hardware.info.EvStatus.Builder setEvChargePortConnected(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
     method public androidx.car.app.hardware.info.EvStatus.Builder setEvChargePortOpen(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(7) public class ExteriorDimensions {
+    ctor public ExteriorDimensions();
+    ctor public ExteriorDimensions(androidx.car.app.hardware.common.CarValue<java.lang.Integer![]!>);
+    method public androidx.car.app.hardware.common.CarValue<java.lang.Integer![]!> getExteriorDimensions();
+    field public static final int CURB_TO_CURB_TURNING_RADIUS_INDEX = 7; // 0x7
+    field public static final int HEIGHT_INDEX = 0; // 0x0
+    field public static final int LENGTH_INDEX = 1; // 0x1
+    field public static final int TRACK_WIDTH_FRONT_INDEX = 5; // 0x5
+    field public static final int TRACK_WIDTH_REAR_INDEX = 6; // 0x6
+    field public static final int WHEEL_BASE_INDEX = 4; // 0x4
+    field public static final int WIDTH_INCLUDING_MIRRORS_INDEX = 3; // 0x3
+    field public static final int WIDTH_INDEX = 2; // 0x2
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Gyroscope {
