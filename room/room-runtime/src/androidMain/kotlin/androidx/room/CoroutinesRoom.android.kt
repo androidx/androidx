@@ -18,14 +18,11 @@ package androidx.room
 
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
+import androidx.room.util.getCoroutineContext
 import java.util.concurrent.Callable
-import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -55,17 +52,14 @@ public class CoroutinesRoom private constructor() {
                 return callable.call()
             }
 
-            // Use the transaction dispatcher if we are on a transaction coroutine, otherwise
-            // use the database dispatchers.
-            val context = coroutineContext[TransactionElement]?.transactionDispatcher
-                ?: if (inTransaction) db.transactionDispatcher else db.getQueryDispatcher()
+            val context = db.getCoroutineContext(inTransaction)
             return withContext(context) {
                 callable.call()
             }
         }
 
-        @OptIn(DelicateCoroutinesApi::class)
         @JvmStatic
+        @Deprecated("No longer called by generated implementation")
         public suspend fun <R> execute(
             db: RoomDatabase,
             inTransaction: Boolean,
@@ -76,12 +70,9 @@ public class CoroutinesRoom private constructor() {
                 return callable.call()
             }
 
-            // Use the transaction dispatcher if we are on a transaction coroutine, otherwise
-            // use the database dispatchers.
-            val context = coroutineContext[TransactionElement]?.transactionDispatcher
-                ?: if (inTransaction) db.transactionDispatcher else db.getQueryDispatcher()
+            val context = db.getCoroutineContext(inTransaction)
             return suspendCancellableCoroutine<R> { continuation ->
-                val job = GlobalScope.launch(context) {
+                val job = db.getCoroutineScope().launch(context) {
                     try {
                         val result = callable.call()
                         continuation.resume(result)
@@ -112,8 +103,9 @@ public class CoroutinesRoom private constructor() {
                     }
                 }
                 observerChannel.trySend(Unit) // Initial signal to perform first query.
-                val queryContext = coroutineContext[TransactionElement]?.transactionDispatcher
-                    ?: if (inTransaction) db.transactionDispatcher else db.getQueryDispatcher()
+                // Use the database context minus the Job since the collector already has one and
+                // the child coroutine should be tied to it.
+                val queryContext = db.getCoroutineContext(inTransaction).minusKey(Job)
                 val resultChannel = Channel<R>()
                 launch(queryContext) {
                     db.invalidationTracker.addObserver(observer)
@@ -134,23 +126,3 @@ public class CoroutinesRoom private constructor() {
         }
     }
 }
-
-/**
- * Gets the query coroutine dispatcher.
- *
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RoomDatabase.getQueryDispatcher(): CoroutineDispatcher {
-    return backingFieldMap.getOrPut("QueryDispatcher") {
-        queryExecutor.asCoroutineDispatcher()
-    } as CoroutineDispatcher
-}
-
-/**
- * Gets the transaction coroutine dispatcher.
- *
- */
-internal val RoomDatabase.transactionDispatcher: CoroutineDispatcher
-    get() = backingFieldMap.getOrPut("TransactionDispatcher") {
-        transactionExecutor.asCoroutineDispatcher()
-    } as CoroutineDispatcher

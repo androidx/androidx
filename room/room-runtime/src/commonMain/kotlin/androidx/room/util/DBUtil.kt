@@ -26,6 +26,7 @@ import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.execSQL
 import androidx.sqlite.use
+import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
@@ -39,6 +40,15 @@ expect suspend fun <R> performSuspending(
     inTransaction: Boolean,
     block: (SQLiteConnection) -> R
 ): R
+
+/**
+ * Gets the database [CoroutineContext] to perform database operation on utility functions. Prefer
+ * using this function over directly accessing [RoomDatabase.getCoroutineScope] as it has platform
+ * compatibility behaviour.
+ */
+internal expect suspend fun RoomDatabase.getCoroutineContext(
+    inTransaction: Boolean
+): CoroutineContext
 
 /**
  * Utility function to wrap a suspend block in Room's transaction coroutine.

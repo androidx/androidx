@@ -18,6 +18,7 @@ package androidx.room {
     field public final boolean multiInstanceInvalidation;
     field public final String? name;
     field public final androidx.room.RoomDatabase.PrepackagedDatabaseCallback? prepackagedDatabaseCallback;
+    field public final kotlin.coroutines.CoroutineContext? queryCoroutineContext;
     field public final java.util.concurrent.Executor queryExecutor;
     field public final boolean requireMigration;
     field public final androidx.sqlite.SQLiteDriver? sqliteDriver;
@@ -125,6 +126,7 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T> setJournalMode(androidx.room.RoomDatabase.JournalMode journalMode);
     method @SuppressCompatibility @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setMultiInstanceInvalidationServiceIntent(android.content.Intent invalidationServiceIntent);
     method public androidx.room.RoomDatabase.Builder<T> setQueryCallback(androidx.room.RoomDatabase.QueryCallback queryCallback, java.util.concurrent.Executor executor);
+    method public final androidx.room.RoomDatabase.Builder<T> setQueryCoroutineContext(kotlin.coroutines.CoroutineContext context);
     method public androidx.room.RoomDatabase.Builder<T> setQueryExecutor(java.util.concurrent.Executor executor);
     method public androidx.room.RoomDatabase.Builder<T> setTransactionExecutor(java.util.concurrent.Executor executor);
   }

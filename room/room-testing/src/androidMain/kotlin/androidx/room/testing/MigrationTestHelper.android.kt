@@ -210,7 +210,8 @@ open class MigrationTestHelper : TestWatcher {
             typeConverters = emptyList(),
             autoMigrationSpecs = emptyList(),
             allowDestructiveMigrationForAllTables = false,
-            sqliteDriver = null
+            sqliteDriver = null,
+            queryCoroutineContext = null
         )
         @Suppress("DEPRECATION") // Due to RoomOpenHelper
         val roomOpenHelper = androidx.room.RoomOpenHelper(
@@ -291,7 +292,8 @@ open class MigrationTestHelper : TestWatcher {
             typeConverters = emptyList(),
             autoMigrationSpecs = emptyList(),
             allowDestructiveMigrationForAllTables = false,
-            sqliteDriver = null
+            sqliteDriver = null,
+            queryCoroutineContext = null
         )
         @Suppress("DEPRECATION") // Due to RoomOpenHelper
         val roomOpenHelper = androidx.room.RoomOpenHelper(
