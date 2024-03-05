@@ -21,6 +21,7 @@ import static android.graphics.ImageFormat.YUV_420_888;
 
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.camera.core.internal.utils.ImageUtil.isJpegFormats;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
@@ -196,6 +197,10 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
 
     @WorkerThread
     void processPostviewInputPacket(@NonNull InputPacket inputPacket) {
+        int format = mInputEdge.getOutputFormat();
+        checkArgument(format == YUV_420_888 || format == JPEG,
+                String.format("Postview only support YUV and JPEG output formats. "
+                        + "Output format: %s", format));
         ProcessingRequest request = inputPacket.getProcessingRequest();
         try {
             Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
@@ -211,9 +216,9 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     @WorkerThread
     ImageCapture.OutputFileResults processOnDiskCapture(@NonNull InputPacket inputPacket)
             throws ImageCaptureException {
-        checkArgument(mInputEdge.getOutputFormat() == JPEG,
-                String.format("On-disk capture only support JPEG output format. Output format: %s",
-                        mInputEdge.getOutputFormat()));
+        int format = mInputEdge.getOutputFormat();
+        checkArgument(isJpegFormats(format), String.format("On-disk capture only support JPEG and"
+                + " JPEG/R output formats. Output format: %s", format));
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> originalImage = mInput2Packet.apply(inputPacket);
         Packet<byte[]> jpegBytes = mImage2JpegBytes.apply(
@@ -231,6 +236,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             throws ImageCaptureException {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
+        // TODO(b/322311893): Update to handle JPEG/R as output format in the if-statement when YUV
+        //  to JPEG/R and effect with JPEG/R are supported.
         if ((image.getFormat() == YUV_420_888 || mBitmapEffect != null
                 || mHasIncorrectJpegMetadataQuirk)
                 && mInputEdge.getOutputFormat() == JPEG) {
@@ -249,7 +256,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      */
     private Packet<byte[]> cropAndMaybeApplyEffect(Packet<byte[]> jpegPacket, int jpegQuality)
             throws ImageCaptureException {
-        checkState(jpegPacket.getFormat() == JPEG);
+        checkState(isJpegFormats(jpegPacket.getFormat()));
         Packet<Bitmap> bitmapPacket = mJpegBytes2CroppedBitmap.apply(jpegPacket);
         if (mBitmapEffect != null) {
             // Apply effect if present.
@@ -310,8 +317,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         /**
          * The output format of the pipeline.
          *
-         * <p> For public users, only {@link ImageFormat#JPEG} is supported. Other formats are
-         * only used by in-memory capture in tests.
+         * <p> For public users, only {@link ImageFormat#JPEG} and {@link ImageFormat#JPEG_R} are
+         * supported. Other formats are only used by in-memory capture in tests.
          */
         abstract int getOutputFormat();
 

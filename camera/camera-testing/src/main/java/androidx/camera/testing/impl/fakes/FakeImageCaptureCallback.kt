@@ -71,7 +71,7 @@ class FakeImageCaptureCallback(captureCount: Int = 1) : ImageCapture.OnImageCapt
     }
 
     private fun getExif(image: ImageProxy): Exif? {
-        if (image.format == ImageFormat.JPEG) {
+        if (image.format == ImageFormat.JPEG || image.format == ImageFormat.JPEG_R) {
             val planes = image.planes
             val buffer = planes[0].buffer
             val data = ByteArray(buffer.capacity())
