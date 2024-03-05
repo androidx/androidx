@@ -64,7 +64,6 @@ import kotlinx.coroutines.launch
  *
  * See the DraggableAnchors factory method to construct drag anchors using a default implementation.
  */
-@ExperimentalMaterial3Api
 internal interface DraggableAnchors<T> {
 
     /**
@@ -122,7 +121,6 @@ internal interface DraggableAnchors<T> {
  * corresponding [Float] positions. This [DraggableAnchorsConfig] is used to construct an immutable
  * [DraggableAnchors] instance later on.
  */
-@ExperimentalMaterial3Api
 internal class DraggableAnchorsConfig<T> {
 
     internal val anchors = mutableMapOf<T, Float>()
@@ -145,7 +143,6 @@ internal class DraggableAnchorsConfig<T> {
  * @return A new [DraggableAnchors] instance with the anchor positions set by the `builder`
  * function.
  */
-@ExperimentalMaterial3Api
 internal fun <T : Any> DraggableAnchors(
     builder: DraggableAnchorsConfig<T>.() -> Unit
 ): DraggableAnchors<T> = MapDraggableAnchors(DraggableAnchorsConfig<T>().apply(builder).anchors)
@@ -169,7 +166,6 @@ internal fun <T : Any> DraggableAnchors(
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to
  * the internal [Modifier.draggable].
  */
-@ExperimentalMaterial3Api
 internal fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     orientation: Orientation,
@@ -193,7 +189,6 @@ internal fun <T> Modifier.anchoredDraggable(
  * @see [AnchoredDraggableState.anchoredDrag] to learn how to start the anchored drag and get the
  * access to this scope.
  */
-@ExperimentalMaterial3Api
 internal interface AnchoredDragScope {
     /**
      * Assign a new value for an offset value for [AnchoredDraggableState].
@@ -227,7 +222,6 @@ internal interface AnchoredDragScope {
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Stable
-@ExperimentalMaterial3Api
 internal class AnchoredDraggableState<T>(
     initialValue: T,
     internal val positionalThreshold: (totalDistance: Float) -> Float,
@@ -253,7 +247,6 @@ internal class AnchoredDraggableState<T>(
      * to exceed in order to animate to the next state, even if the [positionalThreshold] has not
      * been reached.
      */
-    @ExperimentalMaterial3Api
     constructor(
         initialValue: T,
         anchors: DraggableAnchors<T>,
@@ -644,7 +637,6 @@ internal class AnchoredDraggableState<T>(
         /**
          * The default [Saver] implementation for [AnchoredDraggableState].
          */
-        @ExperimentalMaterial3Api
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
             confirmValueChange: (T) -> Boolean,
@@ -675,7 +667,6 @@ internal class AnchoredDraggableState<T>(
  *
  * @param targetValue The target value of the animation
  */
-@ExperimentalMaterial3Api
 internal suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
     anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
         val targetOffset = anchors.positionOf(latestTarget)
@@ -694,7 +685,6 @@ internal suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
  * @param targetValue The target value of the animation
  * @param velocity The velocity the animation should start with
  */
-@ExperimentalMaterial3Api
 internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
     targetValue: T,
     velocity: Float = this.lastVelocity,
@@ -719,14 +709,10 @@ internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
  * Contains useful defaults for [anchoredDraggable] and [AnchoredDraggableState].
  */
 @Stable
-@ExperimentalMaterial3Api
 internal object AnchoredDraggableDefaults {
     /**
      * The default animation used by [AnchoredDraggableState].
      */
-    @get:ExperimentalMaterial3Api
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalMaterial3Api
     val AnimationSpec = SpringSpec<Float>()
 }
 
@@ -760,7 +746,6 @@ private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit)
 
 private fun <T> emptyDraggableAnchors() = MapDraggableAnchors<T>(emptyMap())
 
-@OptIn(ExperimentalMaterial3Api::class)
 private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) : DraggableAnchors<T> {
 
     override fun positionOf(value: T): Float = anchors[value] ?: Float.NaN
@@ -810,14 +795,12 @@ private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) : Dragg
  * @param anchors Lambda to calculate the anchors based on this layout's size and the incoming
  * constraints. These can be useful to avoid subcomposition.
  */
-@ExperimentalMaterial3Api
 internal fun<T> Modifier.draggableAnchors(
     state: AnchoredDraggableState<T>,
     orientation: Orientation,
     anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
 ) = this then DraggableAnchorsElement(state, anchors, orientation)
 
-@OptIn(ExperimentalMaterial3Api::class)
 private class DraggableAnchorsElement<T>(
     private val state: AnchoredDraggableState<T>,
     private val anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
@@ -860,7 +843,6 @@ private class DraggableAnchorsElement<T>(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private class DraggableAnchorsNode<T>(
     var state: AnchoredDraggableState<T>,
     var anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
