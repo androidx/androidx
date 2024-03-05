@@ -410,12 +410,10 @@ package androidx.compose.foundation.gestures {
     method public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> getDecayAnimationSpec();
     method public float getLastVelocity();
     method public float getOffset();
-    method @Deprecated @FloatRange(from=0.0, to=1.0) public float getProgress();
-    method public T getSettledValue();
+    method @FloatRange(from=0.0, to=1.0) public float getProgress();
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getSnapAnimationSpec();
     method public T getTargetValue();
     method public boolean isAnimationRunning();
-    method @FloatRange(from=0.0, to=1.0) public float progress(T from, T to);
     method public float requireOffset();
     method public suspend Object? settle(float velocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
     method public void updateAnchors(androidx.compose.foundation.gestures.DraggableAnchors<T> newAnchors, optional T newTarget);
@@ -425,8 +423,7 @@ package androidx.compose.foundation.gestures {
     property public final boolean isAnimationRunning;
     property public final float lastVelocity;
     property public final float offset;
-    property @Deprecated @FloatRange(from=0.0, to=1.0) public final float progress;
-    property public final T settledValue;
+    property @FloatRange(from=0.0, to=1.0) public final float progress;
     property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
     property public final T targetValue;
     field public static final androidx.compose.foundation.gestures.AnchoredDraggableState.Companion Companion;
