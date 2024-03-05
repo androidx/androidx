@@ -45,7 +45,7 @@ import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilati
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasDeviceTests
 import com.android.build.api.variant.HasUnitTestBuilder
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -688,34 +688,34 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    private fun HasAndroidTest.configureTests() {
-        configureLicensePackaging()
-        androidTest?.packaging?.resources?.apply { excludeVersionFiles(this) }
-    }
+    @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+    private fun HasDeviceTests.configureTests() {
+        deviceTests.forEach { deviceTest ->
+            deviceTest.packaging.resources.apply {
+                excludeVersionFiles(this)
 
-    @Suppress("UnstableApiUsage") // usage of experimentalProperties
-    private fun Variant.artRewritingWorkaround() {
-        // b/279234807
-        experimentalProperties.put("android.experimental.art-profile-r8-rewriting", false)
-    }
-
-    @Suppress("UnstableApiUsage") // usage of experimentalProperties
-    private fun Variant.aotCompileMicrobenchmarks(project: Project) {
-        if (project.hasBenchmarkPlugin()) {
-            experimentalProperties.put("android.experimental.force-aot-compilation", true)
+                // Workaround a limitation in AGP that fails to merge these META-INF license files.
+                pickFirsts.add("/META-INF/AL2.0")
+                // In addition to working around the above issue, we exclude the LGPL2.1 license as
+                // we're
+                // approved to distribute code via AL2.0 and the only dependencies which pull in LGPL2.1
+                // are currently dual-licensed with AL2.0 and LGPL2.1. The affected dependencies are:
+                //   - net.java.dev.jna:jna:5.5.0
+                excludes.add("/META-INF/LGPL2.1")
+            }
         }
     }
 
-    private fun HasAndroidTest.configureLicensePackaging() {
-        androidTest?.packaging?.resources?.apply {
-            // Workaround a limitation in AGP that fails to merge these META-INF license files.
-            pickFirsts.add("/META-INF/AL2.0")
-            // In addition to working around the above issue, we exclude the LGPL2.1 license as
-            // we're
-            // approved to distribute code via AL2.0 and the only dependencies which pull in LGPL2.1
-            // are currently dual-licensed with AL2.0 and LGPL2.1. The affected dependencies are:
-            //   - net.java.dev.jna:jna:5.5.0
-            excludes.add("/META-INF/LGPL2.1")
+    private fun Variant.artRewritingWorkaround() {
+        // b/279234807
+        @Suppress("UnstableApiUsage") // usage of experimentalProperties
+        experimentalProperties.put("android.experimental.art-profile-r8-rewriting", false)
+    }
+
+    private fun Variant.aotCompileMicrobenchmarks(project: Project) {
+        if (project.hasBenchmarkPlugin()) {
+            @Suppress("UnstableApiUsage") // usage of experimentalProperties
+            experimentalProperties.put("android.experimental.force-aot-compilation", true)
         }
     }
 
