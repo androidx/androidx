@@ -248,6 +248,30 @@ class InstrumentationResultsTest {
     }
 
     @Test
+    fun ideSummary_warning_singleLine() {
+        val metricResult = MetricResult("timeNs", listOf(0.0, 1.0, 2.0))
+
+        InstrumentationResults.scheduleIdeWarningOnNextReport("warning\nstring")
+        val summary = InstrumentationResults.ideSummary(
+            testName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(metricResult),
+                sampledMetrics = emptyList()
+            ),
+        )
+        assertEquals(
+            """
+                |warning
+                |string
+                |            0.0 ns    foo
+            """.trimMargin(),
+            summary.summaryV1
+        )
+        // no links so both versions are equivalent
+        assertEquals(summary.summaryV1, summary.summaryV2)
+    }
+
+    @Test
     fun ideSummary_warning() {
         val metricResult = MetricResult("Metric", listOf(0.0, 1.0, 2.0))
         val absoluteTracePaths = createAbsoluteTracePaths(3)
