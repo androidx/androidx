@@ -23,6 +23,7 @@ import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -113,6 +115,12 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             Option.create(
                     "camerax.core.appConfig.cameraOpenRetryMaxTimeoutInMillisWhileResuming",
                     long.class);
+
+    @OptIn(markerClass = ExperimentalRetryPolicy.class)
+    static final Option<RetryPolicy> OPTION_CAMERA_PROVIDER_INIT_RETRY_POLICY =
+            Option.create(
+                    "camerax.core.appConfig.cameraProviderInitRetryPolicy",
+                    RetryPolicy.class);
 
     static final long DEFAULT_OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING = -1L;
 
@@ -208,6 +216,23 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     public long getCameraOpenRetryMaxTimeoutInMillisWhileResuming() {
         return mConfig.retrieveOption(OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING,
                 DEFAULT_OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING);
+    }
+
+    /**
+     * Retrieves the {@link RetryPolicy} for the CameraProvider initialization. This policy
+     * determines whether to retry the CameraProvider initialization if it fails.
+     *
+     * @return The {@link RetryPolicy} to be used for the CameraProvider initialization. If not
+     * explicitly set, it defaults to {@link RetryPolicy#DEFAULT}.
+     *
+     * @see Builder#setCameraProviderInitRetryPolicy(RetryPolicy)
+     */
+    @NonNull
+    @ExperimentalRetryPolicy
+    public RetryPolicy getCameraProviderInitRetryPolicy() {
+        return Objects.requireNonNull(
+                mConfig.retrieveOption(OPTION_CAMERA_PROVIDER_INIT_RETRY_POLICY,
+                        RetryPolicy.DEFAULT));
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -410,6 +435,25 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             getMutableConfig().insertOption(
                     OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING,
                     maxTimeoutInMillis);
+            return this;
+        }
+
+        /**
+         * Sets the {@link RetryPolicy} for the CameraProvider initialization. This policy
+         * determines whether to retry the CameraProvider initialization if it fails.
+         *
+         * <p>If not set, a default retry policy {@link RetryPolicy#DEFAULT} will be applied.
+         *
+         * @param retryPolicy The {@link RetryPolicy} to use for retrying the CameraProvider
+         *                    initialization.
+         * @return this builder.
+         */
+        @NonNull
+        @ExperimentalRetryPolicy
+        public Builder setCameraProviderInitRetryPolicy(@NonNull RetryPolicy retryPolicy) {
+            getMutableConfig().insertOption(
+                    OPTION_CAMERA_PROVIDER_INIT_RETRY_POLICY,
+                    retryPolicy);
             return this;
         }
 
