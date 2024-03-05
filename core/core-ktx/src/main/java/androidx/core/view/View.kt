@@ -368,26 +368,24 @@ public inline val View.marginBottom: Int
  * Returns the start margin if this view's [ViewGroup.LayoutParams] is a
  * [ViewGroup.MarginLayoutParams], otherwise 0.
  *
- * @see ViewGroup.MarginLayoutParams
- * @see MarginLayoutParamsCompat.getMarginStart
+ * @see ViewGroup.MarginLayoutParams.getMarginStart
  */
 public inline val View.marginStart: Int
     get() {
         val lp = layoutParams
-        return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginStart(lp) else 0
+        return if (lp is MarginLayoutParams) lp.marginStart else 0
     }
 
 /**
  * Returns the end margin if this view's [ViewGroup.LayoutParams] is a
  * [ViewGroup.MarginLayoutParams], otherwise 0.
  *
- * @see ViewGroup.MarginLayoutParams
- * @see MarginLayoutParamsCompat.getMarginEnd
+ * @see ViewGroup.MarginLayoutParams.getMarginEnd
  */
 public inline val View.marginEnd: Int
     get() {
         val lp = layoutParams
-        return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginEnd(lp) else 0
+        return if (lp is MarginLayoutParams) lp.marginEnd else 0
     }
 
 /**
