@@ -22,6 +22,7 @@ import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
+import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResult.MatchInfo;
@@ -169,5 +170,9 @@ public class StubCreators {
     /** Stub creator for {@link androidx.appsearch.app.RemoveByDocumentIdRequest}. */
     public static class RemoveByDocumentIdRequestCreator extends
             AbstractCreator<RemoveByDocumentIdRequest> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.ReportUsageRequest}. */
+    public static class ReportUsageRequestCreator extends AbstractCreator<ReportUsageRequest> {
     }
 }
