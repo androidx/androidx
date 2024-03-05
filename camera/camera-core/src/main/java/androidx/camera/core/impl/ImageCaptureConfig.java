@@ -42,14 +42,15 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     // *********************************************************************************************
 
     public static final Option<Integer> OPTION_IMAGE_CAPTURE_MODE =
-            Option.create(
-                    "camerax.core.imageCapture.captureMode", int.class);
+            Option.create("camerax.core.imageCapture.captureMode", int.class);
     public static final Option<Integer> OPTION_FLASH_MODE =
             Option.create("camerax.core.imageCapture.flashMode", int.class);
     public static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
             Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
     public static final Option<Integer> OPTION_BUFFER_FORMAT =
             Option.create("camerax.core.imageCapture.bufferFormat", Integer.class);
+    public static final Option<Integer> OPTION_OUTPUT_FORMAT =
+            Option.create("camerax.core.imageCapture.outputFormat", Integer.class);
     public static final Option<Integer> OPTION_MAX_CAPTURE_STAGES =
             Option.create("camerax.core.imageCapture.maxCaptureStages", Integer.class);
     public static final Option<ImageReaderProxyProvider> OPTION_IMAGE_READER_PROXY_PROVIDER =
