@@ -28,6 +28,13 @@ dependencies {
 
 android {
     namespace "androidx.pdf"
+
+    externalNativeBuild {
+        cmake {
+            path file('src/main/native/CMakeLists.txt')
+            version libs.versions.cmake.get()
+        }
+    }
 }
 
 androidx {
