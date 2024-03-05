@@ -21,6 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -29,6 +30,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,10 +42,10 @@ import androidx.compose.ui.tooling.preview.Preview
 @Sampled
 @Composable
 fun ExposedDropdownMenuSample() {
-    val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
+    val options = listOf("Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread")
     var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf(options[0]) }
-    // We want to react on tap/press on TextField to show menu
+    var text by remember { mutableStateOf(options[0]) }
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
@@ -47,9 +53,10 @@ fun ExposedDropdownMenuSample() {
         TextField(
             // The `menuAnchor` modifier must be passed to the text field for correctness.
             modifier = Modifier.menuAnchor(),
-            readOnly = true,
-            value = selectedOptionText,
+            value = text,
             onValueChange = {},
+            readOnly = true,
+            singleLine = true,
             label = { Text("Label") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
@@ -58,11 +65,11 @@ fun ExposedDropdownMenuSample() {
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            options.forEach { selectionOption ->
+            options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(selectionOption) },
+                    text = { Text(option, style = MaterialTheme.typography.bodyLarge) },
                     onClick = {
-                        selectedOptionText = selectionOption
+                        text = option
                         expanded = false
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -77,40 +84,73 @@ fun ExposedDropdownMenuSample() {
 @Sampled
 @Composable
 fun EditableExposedDropdownMenuSample() {
-    val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf("") }
+    val options = listOf("Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread")
+    var text by remember { mutableStateOf("") }
+
+    // The text that the user inputs into the text field can be used to filter the options.
+    // This sample uses string subsequence matching.
+    val filteredOptions = options.filteredBy(text)
+
+    val (allowExpanded, setExpanded) = remember { mutableStateOf(false) }
+    val expanded = allowExpanded && filteredOptions.isNotEmpty()
+
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = setExpanded,
     ) {
         TextField(
             // The `menuAnchor` modifier must be passed to the text field for correctness.
             modifier = Modifier.menuAnchor(),
-            value = selectedOptionText,
-            onValueChange = { selectedOptionText = it },
+            value = text,
+            onValueChange = { text = it },
+            singleLine = true,
             label = { Text("Label") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
-        // filter options based on text field value
-        val filteringOptions = options.filter { it.contains(selectedOptionText, ignoreCase = true) }
-        if (filteringOptions.isNotEmpty()) {
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-            ) {
-                filteringOptions.forEach { selectionOption ->
-                    DropdownMenuItem(
-                        text = { Text(selectionOption) },
-                        onClick = {
-                            selectedOptionText = selectionOption
-                            expanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                    )
-                }
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { setExpanded(false) },
+            // If the text field is editable, the menu should not be focusable
+            // in order to prevent stealing focus from the input method.
+            focusable = false,
+        ) {
+            filteredOptions.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option, style = MaterialTheme.typography.bodyLarge) },
+                    onClick = {
+                        text = option.text
+                        setExpanded(false)
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
             }
         }
     }
+}
+
+/**
+ * Returns the element of [this] list that contain [text] as a subsequence,
+ * with the subsequence underlined as an [AnnotatedString].
+ */
+private fun List<String>.filteredBy(text: String): List<AnnotatedString> {
+    fun underlineSubsequence(needle: String, haystack: String): AnnotatedString? {
+        return buildAnnotatedString {
+            var i = 0
+            for (char in needle) {
+                val start = i
+                haystack.indexOf(char, startIndex = i, ignoreCase = true).let {
+                    if (it < 0) return null
+                    else i = it
+                }
+                append(haystack.substring(start, i))
+                withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
+                    append(haystack[i])
+                }
+                i += 1
+            }
+            append(haystack.substring(i, haystack.length))
+        }
+    }
+    return this.mapNotNull { option -> underlineSubsequence(text, option) }
 }
