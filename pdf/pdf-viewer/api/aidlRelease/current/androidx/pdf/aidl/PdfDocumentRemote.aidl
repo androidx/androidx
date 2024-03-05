@@ -17,6 +17,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.pdf.aidl;
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface PdfDocumentRemote {
   int create(in ParcelFileDescriptor pfd, String password);
   int numPages();

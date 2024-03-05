@@ -107,7 +107,7 @@ public class ContentOpenable implements Openable, Parcelable {
          * in which case we can't seek or re-read the resulting {@link android.os
          * .ParcelFileDescriptor},
          * so callers can call this again to get a fresh handle on the underlying data.
-         * b/33132721. */
+         */
         mOpen = opener.open(this);
         return mOpen;
     }
@@ -137,7 +137,7 @@ public class ContentOpenable implements Openable, Parcelable {
             dest.writeString("");
         }
         if (mSize != null) {
-            /** Value of 1 indicates that {@code size} is not null, to avoid unparcelling errors. */
+            /* Value of 1 indicates that {@code size} is not null, to avoid un-parceling errors. */
             dest.writeInt(1);
             dest.writeParcelable(mSize, flags);
         } else {
@@ -150,6 +150,7 @@ public class ContentOpenable implements Openable, Parcelable {
         return 0;
     }
 
+    @SuppressWarnings("deprecation")
     public static final Creator<ContentOpenable> CREATOR = new Creator<ContentOpenable>() {
         @Override
         public ContentOpenable createFromParcel(Parcel parcel) {

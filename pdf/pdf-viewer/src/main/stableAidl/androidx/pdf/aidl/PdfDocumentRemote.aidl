@@ -10,6 +10,7 @@ import androidx.pdf.aidl.SelectionBoundary;
 import androidx.pdf.aidl.LinkRects;
 
 /** Remote interface around a PdfDocument. */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface PdfDocumentRemote {
     int create(in ParcelFileDescriptor pfd, String password);
 

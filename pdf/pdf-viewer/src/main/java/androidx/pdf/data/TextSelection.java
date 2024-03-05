@@ -29,6 +29,7 @@ public class TextSelection implements Parcelable {
     public static final TextSelection EMPTY_SELECTION = new TextSelection(
             SelectionBoundary.PAGE_START, SelectionBoundary.PAGE_START);
 
+    @SuppressWarnings("deprecation")
     public static final Creator<TextSelection> CREATOR = new Creator<TextSelection>() {
         @SuppressWarnings("unchecked")
         @Override

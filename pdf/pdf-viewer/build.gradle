@@ -34,7 +34,7 @@ allprojects {
 dependencies {
     api(libs.rxjava2)
     api(libs.guavaAndroid)
-    api("com.google.android.material:material:1.11.0")
+    api("com.google.android.material:material:1.6.0")
 
     implementation(libs.kotlinStdlib)
     implementation("androidx.exifinterface:exifinterface:1.3.2")
@@ -50,6 +50,10 @@ dependencies {
 
 android {
     namespace "androidx.pdf"
+
+    defaultConfig {
+        minSdkVersion 30
+    }
 
     buildFeatures {
         aidl = true
@@ -68,7 +72,14 @@ android {
         }
     }
     sourceSets {
-        test.assets.srcDirs += ["src/test/assets"]
+        test {
+            assets {
+                srcDirs += ["src/test/assets"]
+            }
+            resources {
+                srcDirs += ["src/test/res"]
+            }
+        }
     }
 }
 

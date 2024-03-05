@@ -1,3 +1,5 @@
 package androidx.pdf.aidl;
 
-@JavaOnlyStableParcelable parcelable LinkRects;
+@JavaOnlyStableParcelable
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+parcelable LinkRects;
