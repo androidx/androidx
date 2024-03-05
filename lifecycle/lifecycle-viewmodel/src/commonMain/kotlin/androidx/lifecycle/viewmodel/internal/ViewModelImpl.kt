@@ -21,6 +21,7 @@ package androidx.lifecycle.viewmodel.internal
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import kotlin.jvm.Volatile
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Internal implementation of the multiplatform [ViewModel].
@@ -61,22 +62,18 @@ internal class ViewModelImpl {
     @Volatile
     private var isCleared = false
 
-    /**
-     * Construct a new [ViewModel] instance.
-     *
-     * You should **never** manually construct a [ViewModel] outside of a
-     * [androidx.lifecycle.ViewModelProvider.Factory].
-     */
     constructor()
 
-    /**
-     * Construct a new [ViewModel] instance. Any [AutoCloseable] objects provided here
-     * will be closed directly before [ViewModel.onCleared] is called.
-     *
-     * You should **never** manually construct a [ViewModel] outside of a
-     * [androidx.lifecycle.ViewModelProvider.Factory].
-     */
+    constructor(viewModelScope: CoroutineScope) {
+        addCloseable(VIEW_MODEL_SCOPE_KEY, viewModelScope.asCloseable())
+    }
+
     constructor(vararg closeables: AutoCloseable) {
+        this.closeables += closeables
+    }
+
+    constructor(viewModelScope: CoroutineScope, vararg closeables: AutoCloseable) {
+        addCloseable(VIEW_MODEL_SCOPE_KEY, viewModelScope.asCloseable())
         this.closeables += closeables
     }
 
