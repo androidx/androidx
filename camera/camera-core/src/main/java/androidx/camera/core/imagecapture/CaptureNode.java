@@ -386,8 +386,8 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         /**
          * The output format of the pipeline.
          *
-         * <p> For public users, only {@link ImageFormat#JPEG} is supported. Other formats are
-         * only used by in-memory capture in tests.
+         * <p> For public users, only {@link ImageFormat#JPEG} and {@link ImageFormat#JPEG_R} are
+         * supported. Other formats are only used by in-memory capture in tests.
          */
         abstract int getOutputFormat();
 

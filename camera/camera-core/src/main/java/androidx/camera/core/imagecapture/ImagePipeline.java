@@ -18,8 +18,10 @@ package androidx.camera.core.imagecapture;
 
 import static androidx.camera.core.CaptureBundles.singleDefaultCaptureBundle;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.hasCropping;
+import static androidx.camera.core.internal.utils.ImageUtil.isJpegFormats;
 
 import static java.util.Objects.requireNonNull;
 
@@ -242,6 +244,12 @@ public class ImagePipeline {
         if (bufferFormat != null) {
             return bufferFormat;
         }
+
+        Integer inputFormat = mUseCaseConfig.retrieveOption(OPTION_INPUT_FORMAT, null);
+        if (inputFormat != null && inputFormat == ImageFormat.JPEG_R) {
+            return ImageFormat.JPEG_R;
+        }
+
         // By default, use JPEG format.
         return ImageFormat.JPEG;
     }
@@ -298,9 +306,9 @@ public class ImagePipeline {
             builder.addSurface(mPipelineIn.getSurface());
             builder.setPostviewEnabled(shouldEnablePostview());
 
-            // Only sets the JPEG rotation and quality for JPEG format. Some devices do not
+            // Only sets the JPEG rotation and quality for JPEG formats. Some devices do not
             // handle these configs for non-JPEG images. See b/204375890.
-            if (mPipelineIn.getInputFormat() == ImageFormat.JPEG) {
+            if (isJpegFormats(mPipelineIn.getInputFormat())) {
                 if (EXIF_ROTATION_AVAILABILITY.isRotationOptionSupported()) {
                     builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
                             takePictureRequest.getRotationDegrees());
