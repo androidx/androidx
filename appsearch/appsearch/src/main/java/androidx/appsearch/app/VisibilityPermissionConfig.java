@@ -17,6 +17,7 @@
 package androidx.appsearch.app;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,7 +40,7 @@ import java.util.Set;
 @SafeParcelable.Class(creator = "VisibilityPermissionConfigCreator")
 public final class VisibilityPermissionConfig extends AbstractSafeParcelable {
     @NonNull
-    public static final VisibilityPermissionConfigCreator CREATOR =
+    public static final Parcelable.Creator<VisibilityPermissionConfig> CREATOR =
             new VisibilityPermissionConfigCreator();
 
     /**

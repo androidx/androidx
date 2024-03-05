@@ -134,7 +134,7 @@ class AppSearchMigrationHelper implements Closeable {
                     byte[] serializedMessage;
                     Parcel parcel = Parcel.obtain();
                     try {
-                        parcel.writeParcelable(documentParcel, /*parcelableFlags=*/ 0);
+                        documentParcel.writeToParcel(parcel, /* flags= */ 0);
                         serializedMessage = parcel.marshall();
                     } finally {
                         parcel.recycle();
@@ -219,7 +219,6 @@ class AppSearchMigrationHelper implements Closeable {
      *
      * @throws IOException        on File operation error.
      */
-    @SuppressWarnings("deprecation") // Parcelable.readParcelable(ClassLoader) is deprecated.
     @NonNull
     private static GenericDocument readDocumentFromInputStream(
             @NonNull CodedInputStream codedInputStream) throws IOException {
@@ -230,7 +229,7 @@ class AppSearchMigrationHelper implements Closeable {
         try {
             parcel.unmarshall(serializedMessage, 0, serializedMessage.length);
             parcel.setDataPosition(0);
-            documentParcel = parcel.readParcelable(GenericDocumentParcel.class.getClassLoader());
+            documentParcel = GenericDocumentParcel.CREATOR.createFromParcel(parcel);
         } finally {
             parcel.recycle();
         }

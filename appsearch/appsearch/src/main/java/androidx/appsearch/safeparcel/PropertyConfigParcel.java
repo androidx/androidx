@@ -17,6 +17,7 @@
 package androidx.appsearch.safeparcel;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,7 +51,8 @@ import java.util.Objects;
 @SafeParcelable.Class(creator = "PropertyConfigParcelCreator")
 public final class PropertyConfigParcel extends AbstractSafeParcelable {
     @NonNull
-    public static final PropertyConfigParcelCreator CREATOR = new PropertyConfigParcelCreator();
+    public static final Parcelable.Creator<PropertyConfigParcel> CREATOR =
+            new PropertyConfigParcelCreator();
 
     @Field(id = 1, getter = "getName")
     private final String mName;
@@ -307,7 +309,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     @SafeParcelable.Class(creator = "JoinableConfigParcelCreator")
     public static class JoinableConfigParcel extends AbstractSafeParcelable {
         @NonNull
-        public static final JoinableConfigParcelCreator CREATOR = new JoinableConfigParcelCreator();
+        public static final Parcelable.Creator<JoinableConfigParcel> CREATOR =
+                new JoinableConfigParcelCreator();
 
         @JoinableValueType
         @Field(id = 1, getter = "getJoinableValueType")
@@ -371,7 +374,7 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     @SafeParcelable.Class(creator = "StringIndexingConfigParcelCreator")
     public static class StringIndexingConfigParcel extends AbstractSafeParcelable {
         @NonNull
-        public static final StringIndexingConfigParcelCreator CREATOR =
+        public static final Parcelable.Creator<StringIndexingConfigParcel> CREATOR =
                 new StringIndexingConfigParcelCreator();
 
         @AppSearchSchema.StringPropertyConfig.IndexingType
