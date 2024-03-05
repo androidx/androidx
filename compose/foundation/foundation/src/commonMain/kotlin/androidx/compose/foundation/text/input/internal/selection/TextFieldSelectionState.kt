@@ -23,6 +23,8 @@ import androidx.compose.foundation.content.readPlainText
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.input.TextFieldCharSequence
@@ -220,6 +222,8 @@ internal class TextFieldSelectionState(
      * or set to -1 if a new drag begins.
      */
     private var previousRawDragOffset: Int = -1
+
+    private var pressInteraction: PressInteraction.Press? = null
 
     /**
      * State of the cursor handle that includes its visibility and position.
@@ -421,6 +425,7 @@ internal class TextFieldSelectionState(
     }
 
     suspend fun PointerInputScope.detectTextFieldTapGestures(
+        interactionSource: MutableInteractionSource?,
         requestFocus: () -> Unit,
         showKeyboard: () -> Unit
     ) {
@@ -467,6 +472,34 @@ internal class TextFieldSelectionState(
                     adjustment = SelectionAdjustment.Word,
                 )
                 textFieldState.selectCharsIn(newSelection)
+            },
+            onPress = { offset ->
+                interactionSource?.let { interactionSource ->
+                    coroutineScope {
+                        launch {
+                            // Remove any old interactions if we didn't fire stop / cancel properly
+                            pressInteraction?.let { oldValue ->
+                                val interaction = PressInteraction.Cancel(oldValue)
+                                interactionSource.emit(interaction)
+                                pressInteraction = null
+                            }
+
+                            val press = PressInteraction.Press(offset)
+                            interactionSource.emit(press)
+                            pressInteraction = press
+                        }
+                        val success = tryAwaitRelease()
+                        pressInteraction?.let { pressInteraction ->
+                            val endInteraction = if (success) {
+                                PressInteraction.Release(pressInteraction)
+                            } else {
+                                PressInteraction.Cancel(pressInteraction)
+                            }
+                            interactionSource.emit(endInteraction)
+                        }
+                        pressInteraction = null
+                    }
+                }
             }
         )
     }
