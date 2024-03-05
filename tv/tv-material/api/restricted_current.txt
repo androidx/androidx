@@ -200,10 +200,10 @@ package androidx.tv.material3 {
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableChipShape {
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceBorder {
+  @androidx.compose.runtime.Immutable public final class ClickableSurfaceBorder {
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceColors {
+  @androidx.compose.runtime.Immutable public final class ClickableSurfaceColors {
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceDefaults {
@@ -215,10 +215,10 @@ package androidx.tv.material3 {
     field public static final androidx.tv.material3.ClickableSurfaceDefaults INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceGlow {
+  @androidx.compose.runtime.Immutable public final class ClickableSurfaceGlow {
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceScale {
+  @androidx.compose.runtime.Immutable public final class ClickableSurfaceScale {
     field public static final androidx.tv.material3.ClickableSurfaceScale.Companion Companion;
   }
 
@@ -227,7 +227,7 @@ package androidx.tv.material3 {
     property public final androidx.tv.material3.ClickableSurfaceScale None;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceShape {
+  @androidx.compose.runtime.Immutable public final class ClickableSurfaceShape {
   }
 
   @androidx.compose.runtime.Stable public final class ColorScheme {
@@ -749,7 +749,7 @@ package androidx.tv.material3 {
     property public abstract boolean hasFocus;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NonInteractiveSurfaceColors {
+  @androidx.compose.runtime.Immutable public final class NonInteractiveSurfaceColors {
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NonInteractiveSurfaceDefaults {
@@ -938,10 +938,10 @@ package androidx.tv.material3 {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceBorder {
+  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceBorder {
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceColors {
+  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceColors {
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceDefaults {
@@ -953,10 +953,10 @@ package androidx.tv.material3 {
     field public static final androidx.tv.material3.ToggleableSurfaceDefaults INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceGlow {
+  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceGlow {
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceScale {
+  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceScale {
     field public static final androidx.tv.material3.ToggleableSurfaceScale.Companion Companion;
   }
 
@@ -965,7 +965,7 @@ package androidx.tv.material3 {
     property public final androidx.tv.material3.ToggleableSurfaceScale None;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceShape {
+  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceShape {
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
