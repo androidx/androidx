@@ -33,4 +33,5 @@ val IosBugs = Screen.Selection(
     BackspaceIssue,
     DropdownMenuIssue,
     KeyboardIMEActionPopup,
+    MeasureAndLayoutCrash
 )
