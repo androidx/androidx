@@ -19,11 +19,14 @@ package androidx.lifecycle
 import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -31,49 +34,95 @@ import org.junit.runner.RunWith
 @SmallTest
 class ViewModelScopeTest {
 
+    private val testScope = TestScope()
+
+    //region viewModelScope with default scope
     @Test
-    fun testVmScope() {
-        val vm = object : ViewModel() {}
-        val job1 = vm.viewModelScope.launch { delay(1000) }
-        val job2 = vm.viewModelScope.launch { delay(1000) }
-        vm.clear()
+    fun viewModelScope_withDefaultScope_whenLaunch_cancelsOnClear() {
+        val viewModel = ViewModel1()
+
+        val job1 = viewModel.viewModelScope.launch { delay(1.seconds) }
+        val job2 = viewModel.viewModelScope.launch { delay(1.seconds) }
+        viewModel.clear()
+
         assertThat(job1.isCancelled).isTrue()
         assertThat(job2.isCancelled).isTrue()
     }
 
     @Test
-    fun testStartJobInClearedVM() {
-        val vm = object : ViewModel() {}
-        vm.clear()
-        val job1 = vm.viewModelScope.launch { delay(1000) }
+    fun viewModelScope_withDefaultScope_afterClear_launchesCancelledJob() {
+        val viewModel = ViewModel1()
+
+        viewModel.clear()
+        val job1 = viewModel.viewModelScope.launch { delay(1.seconds) }
+
         assertThat(job1.isCancelled).isTrue()
     }
 
     @Test
-    fun testSameScope() {
-        val vm = object : ViewModel() {}
-        val scope1 = vm.viewModelScope
-        val scope2 = vm.viewModelScope
-        assertThat(scope1).isSameInstanceAs(scope2)
-        vm.clear()
-        val scope3 = vm.viewModelScope
-        assertThat(scope3).isSameInstanceAs(scope2)
+    fun viewModelScope_withDefaultScope_afterClear_returnsSameScope() {
+        val viewModel = ViewModel1()
+
+        val scopeBeforeClear = viewModel.viewModelScope
+        viewModel.clear()
+        val scopeAfterClear = viewModel.viewModelScope
+
+        assertThat(scopeBeforeClear).isSameInstanceAs(scopeAfterClear)
     }
 
     @Test
-    fun testJobIsSuperVisor() {
-        val vm = object : ViewModel() {}
-        val scope = vm.viewModelScope
-        val delayingDeferred = scope.async { delay(Long.MAX_VALUE) }
-        val failingDeferred = scope.async { throw Error() }
+    fun viewModelScope_defaultScope_launchesSupervisedJobs() {
+        testScope.runTest {
+            val viewModel = ViewModel1()
 
-        runBlocking {
-            try {
-                failingDeferred.await()
-            } catch (e: Error) {
-            }
+            val delayingDeferred = viewModel.viewModelScope.async { delay(Long.MAX_VALUE) }
+            val failingDeferred = viewModel.viewModelScope.async { throw Error() }
+            runCatching { failingDeferred.await() }
+
             assertThat(delayingDeferred.isActive).isTrue()
             delayingDeferred.cancelAndJoin()
         }
     }
+    //endregion
+
+    //region viewModelScope with custom scope
+    @Test
+    fun viewModelScope_withCustomScope_whenLaunch_cancelsOnClear() {
+        val viewModel = ViewModel2(viewModelScope = testScope.backgroundScope)
+
+        val job1 = viewModel.viewModelScope.launch { delay(1.seconds) }
+        val job2 = viewModel.viewModelScope.launch { delay(1.seconds) }
+        viewModel.clear()
+
+        assertThat(job1.isCancelled).isTrue()
+        assertThat(job2.isCancelled).isTrue()
+    }
+
+    @Test
+    fun viewModelScope_withCustomScope_afterClear_launchesCancelledJob() {
+        val viewModel = ViewModel2(viewModelScope = testScope.backgroundScope)
+
+        viewModel.clear()
+        val job1 = viewModel.viewModelScope.launch { delay(1.seconds) }
+
+        assertThat(job1.isCancelled).isTrue()
+    }
+
+    @Test
+    fun viewModelScope_withCustomScope_afterClear_returnsSameScope() {
+        val viewModel = ViewModel2(viewModelScope = testScope.backgroundScope)
+
+        val scopeBeforeClear = viewModel.viewModelScope
+        viewModel.clear()
+        val scopeAfterClear = viewModel.viewModelScope
+
+        assertThat(scopeBeforeClear).isSameInstanceAs(scopeAfterClear)
+        assertThat(scopeAfterClear.coroutineContext)
+            .isSameInstanceAs(testScope.backgroundScope.coroutineContext)
+    }
+    //endregion
+
+    private class ViewModel1() : ViewModel()
+
+    private class ViewModel2(viewModelScope: CoroutineScope) : ViewModel(viewModelScope)
 }

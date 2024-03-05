@@ -17,6 +17,8 @@ package androidx.lifecycle {
     ctor public ViewModel();
     ctor @Deprecated public ViewModel(java.io.Closeable... closeables);
     ctor public ViewModel(java.lang.AutoCloseable... closeables);
+    ctor public ViewModel(kotlinx.coroutines.CoroutineScope viewModelScope);
+    ctor public ViewModel(kotlinx.coroutines.CoroutineScope viewModelScope, java.lang.AutoCloseable... closeables);
     method @Deprecated public void addCloseable(java.io.Closeable closeable);
     method public void addCloseable(AutoCloseable closeable);
     method public final void addCloseable(String key, AutoCloseable closeable);

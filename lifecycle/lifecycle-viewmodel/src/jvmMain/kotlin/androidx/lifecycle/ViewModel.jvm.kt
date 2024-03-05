@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 @file:JvmName("ViewModel")
+@file:OptIn(ExperimentalStdlibApi::class)
 
 package androidx.lifecycle
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewmodel.internal.ViewModelImpl
 import java.io.Closeable
+import kotlinx.coroutines.CoroutineScope
 
 public actual abstract class ViewModel {
-
     /**
      * Internal implementation of the multiplatform [ViewModel].
      *
@@ -36,8 +37,16 @@ public actual abstract class ViewModel {
         impl = ViewModelImpl()
     }
 
+    public actual constructor(viewModelScope: CoroutineScope) {
+        impl = ViewModelImpl(viewModelScope)
+    }
+
     public actual constructor(vararg closeables: AutoCloseable) {
         impl = ViewModelImpl(*closeables)
+    }
+
+    public actual constructor(viewModelScope: CoroutineScope, vararg closeables: AutoCloseable) {
+        impl = ViewModelImpl(viewModelScope, *closeables)
     }
 
     /**
