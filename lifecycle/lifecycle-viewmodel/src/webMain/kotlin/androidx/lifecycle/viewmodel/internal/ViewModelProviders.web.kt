@@ -16,19 +16,7 @@
 
 package androidx.lifecycle.viewmodel.internal
 
-/**
- * Provides a custom multiplatform locking mechanism for controlling access to a shared resource by
- * multiple threads.
- *
- * The implementation depends on the platform:
- * - On JVM/ART: uses JDK's synchronization.
- * - On Native: uses posix.
- * - On JS/WASM: No-op as it's single thread environment.
- */
-internal expect class Lock() {
+import kotlin.reflect.KClass
 
-    /**
-     * Executes the given function [block] while holding the monitor of the current [Lock].
-     */
-    inline fun <T> withLock(crossinline block: () -> T): T
-}
+internal actual val <T : Any> KClass<T>.canonicalName: String?
+    get() = simpleName // `qualifiedName` reflection API is not supported yet in JavaScript
