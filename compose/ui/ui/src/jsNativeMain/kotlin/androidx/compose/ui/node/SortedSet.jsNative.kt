@@ -27,6 +27,8 @@ internal actual class SortedSet<E> actual constructor(
         var index = list.binarySearch(element, comparator)
         if (index < 0) {
             index = -index - 1
+        } else {
+            return false
         }
         list.add(index, element)
         return true

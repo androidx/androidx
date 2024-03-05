@@ -55,6 +55,16 @@ class SortedSetTest {
     }
 
     @Test
+    fun checkExistingWhenAdded() {
+        val set = sortedSetOf(1, 2, 3, 4, 5)
+        assertFalse(set.add(3))
+        assertFalse(set.add(4))
+        assertFalse(set.add(5))
+        assertTrue(set.add(6))
+        assertTrue(set.add(7))
+    }
+
+    @Test
     fun customComparator() {
         val set = sortedSetOf(compareBy { it.length }, "B", "AAA", "DD")
         assertOrderEquals(listOf("B", "DD", "AAA"), set)
