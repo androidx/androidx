@@ -26,6 +26,7 @@ import androidx.annotation.WorkerThread
 import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.LiveData
 import androidx.room.Room.LOG_TAG
+import androidx.room.concurrent.ifNotClosed
 import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.support.AutoCloser
 import androidx.room.util.useCursor
@@ -365,9 +366,7 @@ actual constructor(
     @JvmField
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     val refreshRunnable: Runnable = object : Runnable {
-        override fun run() {
-            val closeLock = database.getCloseLock()
-            closeLock.lock()
+        override fun run() = database.closeBarrier.ifNotClosed {
             val invalidatedTableIds: Set<Int> =
                 try {
                     if (!ensureInitialization()) {
@@ -410,7 +409,6 @@ actual constructor(
                     )
                     emptySet()
                 } finally {
-                    closeLock.unlock()
                     autoCloser?.decrementCountAndScheduleClose()
                 }
 
@@ -498,9 +496,7 @@ actual constructor(
             return
         }
         try {
-            val closeLock = this.database.getCloseLock()
-            closeLock.lock()
-            try {
+            this.database.closeBarrier.ifNotClosed {
                 // Serialize adding and removing table trackers, this is specifically important
                 // to avoid missing invalidation before a transaction starts but there are
                 // pending (possibly concurrent) observer changes.
@@ -521,8 +517,6 @@ actual constructor(
                         database.endTransaction()
                     }
                 }
-            } finally {
-                closeLock.unlock()
             }
         } catch (ex: IllegalStateException) {
             // may happen if db is closed. just log.
