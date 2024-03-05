@@ -163,9 +163,13 @@ class PerfettoTraceProcessorTest {
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             val error = assertFailsWith<IllegalStateException> {
-                query("SYNTAX ERROR, PLEASE!")
+                query("SYNTAX ERROR, PLEASE")
             }
-            assertContains(error.message!!, "syntax error")
+            assertContains(
+                charSequence = error.message!!,
+                other = "syntax error",
+                message = "expected 'syntax error', saw message : '''${error.message}'''"
+            )
         }
     }
 
