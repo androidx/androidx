@@ -20,8 +20,13 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.layer.GraphicsLayerImpl
 import androidx.compose.ui.graphics.layer.GraphicsLayerV29
+import androidx.compose.ui.graphics.layer.LayerManager
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Create a new [GraphicsContext] with the provided [ViewGroup] to contain [View] based layers.
@@ -35,12 +40,13 @@ fun GraphicsContext(layerContainer: ViewGroup): GraphicsContext =
 private class AndroidGraphicsContext(private val ownerView: ViewGroup) : GraphicsContext {
 
     private val lock = Any()
+    private val layerManager = LayerManager(CanvasHolder())
 
     override fun createGraphicsLayer(): GraphicsLayer {
         synchronized(lock) {
             val ownerId = getUniqueDrawingId(ownerView)
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                GraphicsLayer(GraphicsLayerV29(ownerId))
+            val layerImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                GraphicsLayerV29(ownerId)
             } else {
                 // Temporarily throw unsupported exceptions for API levels < Q as the GraphicsLayer
                 // implementations for lower API levels are checked in
@@ -48,12 +54,27 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
                     "GraphicsLayer is currently only supported on Android Q"
                 )
             }
+            return GraphicsLayer(layerImpl).also { layer ->
+                // Do a placeholder recording of drawing instructions to avoid errors when doing a
+                // persistence render.
+                // This will be overridden by the consumer of the created GraphicsLayer
+                layer.buildLayer(
+                    DefaultDensity,
+                    LayoutDirection.Ltr,
+                    IntSize(1, 1),
+                    GraphicsLayerImpl.DefaultDrawBlock
+                )
+                layerManager.persist(layer)
+                // Reset the size to zero so that immediately after GraphicsLayer creation
+                // we do not advertise a size of 1 x 1
+                layer.size = IntSize.Zero
+            }
         }
     }
 
     override fun releaseGraphicsLayer(layer: GraphicsLayer) {
         synchronized(lock) {
-            layer.release()
+            layerManager.release(layer)
         }
     }
 

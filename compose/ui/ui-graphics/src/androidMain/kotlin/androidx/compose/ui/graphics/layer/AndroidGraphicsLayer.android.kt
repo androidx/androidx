@@ -108,7 +108,12 @@ actual class GraphicsLayer internal constructor(
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerSizeSample
      */
     actual var size: IntSize = IntSize.Zero
-        private set
+        internal set(value) {
+            if (field != value) {
+                field = value
+                setPosition(topLeft, value)
+            }
+        }
 
     /**
      * Alpha of the content of the [GraphicsLayer] between 0f and 1f. Any value between 0f and 1f
@@ -811,6 +816,10 @@ internal interface GraphicsLayerImpl {
      * @see GraphicsLayer.release
      */
     fun release()
+
+    companion object {
+        val DefaultDrawBlock: DrawScope.() -> Unit = { drawRect(Color.Transparent) }
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.R)

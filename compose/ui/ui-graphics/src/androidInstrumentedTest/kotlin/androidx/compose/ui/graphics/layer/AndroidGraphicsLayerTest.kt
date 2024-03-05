@@ -80,6 +80,7 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
+                    assertEquals(IntSize.Zero, this.size)
                     buildLayer {
                         drawRect(Color.Red)
                     }
