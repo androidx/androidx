@@ -327,24 +327,41 @@ internal class AndroidComposeView(
         val focusDirection = getFocusDirection(keyEvent)
         if (focusDirection == null || keyEvent.type != KeyDown) return@onKeyEvent false
 
+        val focusedRect = onFetchFocusRect()
+
         // Consume the key event if we moved focus or if focus search or requestFocus is cancelled.
-        val focusWasMovedOrCancelled = focusOwner.focusSearch(focusDirection, onFetchFocusRect()) {
+        val focusWasMovedOrCancelled = focusOwner.focusSearch(focusDirection, focusedRect) {
             it.requestFocus(focusDirection) ?: true
         } ?: true
         if (focusWasMovedOrCancelled) return@onKeyEvent true
 
-        // For 1D focus search, we need to wrap around at this point.
-        // Note: By returning false here, we could rely on the view framework's wrap around focus,
-        // but we don't do that since it will visit subviews before wrapping around, which would
-        // cause subviews to be re-visited.
+        // For 2D focus search, we don't need to wrap around, so we just return false. If there are
+        // items after this view that haven't been visited, they will be visited when the
+        // unconsumed key event triggers a focus search.
         if (!focusDirection.is1dFocusSearch()) return@onKeyEvent false
 
+        // For 1D focus search, we use FocusFinder to find the next view that is not a child of
+        // this view. We don't return false because we don't want to re-visit sub-views. They will
+        // instead be visited when the AndroidView around them gets a moveFocus(Enter)).
+        val androidDirection = checkNotNull(focusDirection.toAndroidFocusDirection()) {
+            "Invalid focus direction"
+        }
+        val androidRect = checkNotNull(focusedRect?.toAndroidRect()) { "Invalid rect" }
+
+        val nextView = findNextNonChildView(androidDirection).takeIf { it != this }
+        if (nextView != null && nextView.requestInteropFocus(androidDirection, androidRect)) {
+            return@onKeyEvent true
+        }
+
+        // Focus finder couldn't find another view. We manually wrap around since focus remained
+        // on this view.
         val clearedFocusSuccessfully = focusOwner.clearFocus(
-                force = false,
-                refreshFocusEvents = true,
-                clearOwnerFocus = false,
-                focusDirection = focusDirection
+            force = false,
+            refreshFocusEvents = true,
+            clearOwnerFocus = false,
+            focusDirection = focusDirection
         )
+
         // Consume the key event if clearFocus was cancelled.
         if (!clearedFocusSuccessfully) return@onKeyEvent true
 
@@ -352,6 +369,17 @@ internal class AndroidComposeView(
         return@onKeyEvent focusOwner.focusSearch(focusDirection, null) {
             it.requestFocus(focusDirection) ?: true
         } ?: true
+    }
+
+    private fun findNextNonChildView(direction: Int): View? {
+        var currentView: View? = this
+        while (currentView != null) {
+            currentView = FocusFinder
+                .getInstance()
+                .findNextFocus(rootView as ViewGroup, currentView, direction)
+            if (currentView != null && !containsDescendant(currentView)) return currentView
+        }
+        return null
     }
 
     private val rotaryInputModifier = Modifier.onRotaryScrollEvent {
@@ -784,6 +812,7 @@ internal class AndroidComposeView(
 
         // When we clear focus on Pre P devices, request focus is called even when we are
         // in touch mode. We fix this by assigning initial focus only in non-touch mode.
+        // https://developer.android.com/about/versions/pie/android-9.0-changes-28#focus
         if (isInTouchMode) return false
 
         val focusDirection = toFocusDirection(direction) ?: Enter
@@ -2561,6 +2590,16 @@ private class DragAndDropModifierOnDragListener(
     override fun isInterestedNode(node: DragAndDropModifierNode): Boolean {
         return interestedNodes.contains(node)
     }
+}
+
+private fun View.containsDescendant(other: View): Boolean {
+    if (other == this) return false
+    var viewParent = other.parent
+    while (viewParent != null) {
+        if (viewParent === this) return true
+        viewParent = viewParent.parent
+    }
+    return false
 }
 
 private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? {

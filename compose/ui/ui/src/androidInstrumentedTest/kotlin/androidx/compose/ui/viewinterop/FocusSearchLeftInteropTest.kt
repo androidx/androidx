@@ -18,10 +18,12 @@ package androidx.compose.ui.viewinterop
 
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.O
+import android.os.Build.VERSION_CODES.P
 import android.view.KeyEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -37,6 +39,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -45,6 +48,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -167,6 +171,57 @@ class FocusSearchLeftInteropTest(private val moveFocusProgrammatically: Boolean)
             assertThat(view1.isFocused).isFalse()
             assertThat(view2.isFocused).isTrue()
         }
+    }
+
+    @Test
+    fun focusedComposableViewInLinearLayout() {
+        // Arrange.
+        setContent {
+            AndroidView({
+                LinearLayout(it).apply {
+                    orientation = HORIZONTAL
+                    addView(FocusableView(it).apply { view = this })
+                    addView(ComposeView(it).apply { setContent { FocusableComponent(composable) } })
+                }
+            })
+        }
+        rule.onNodeWithTag(composable).requestFocus()
+
+        // Act.
+        rule.focusSearchLeft()
+
+        // Assert.
+        rule.onNodeWithTag(composable).assertIsNotFocused()
+        rule.runOnIdle { assertThat(view.isFocused).isTrue() }
+    }
+
+    @SdkSuppress(minSdkVersion = P) // b/328143586
+    @Test
+    fun focusedComposableWithFocusableView_view_inLinearLayout() {
+        // Arrange.
+        setContent {
+            AndroidView({
+                LinearLayout(it).apply {
+                    orientation = HORIZONTAL
+                    addView(FocusableView(it).apply { view2 = this })
+                    addView(ComposeView(it).apply {
+                        setContent {
+                            Row(Modifier.testTag(composable).focusable()) {
+                                AndroidView({ FocusableView(it).apply { view1 = this } })
+                            }
+                        }
+                    })
+                }
+            })
+        }
+        rule.onNodeWithTag(composable).requestFocus()
+
+        // Act.
+        rule.focusSearchLeft()
+
+        // Assert.
+        rule.onNodeWithTag(composable).assertIsNotFocused()
+        rule.runOnIdle { assertThat(view2.isFocused).isTrue() }
     }
 
     @Test
