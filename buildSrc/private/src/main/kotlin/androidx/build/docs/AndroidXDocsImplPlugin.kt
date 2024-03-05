@@ -716,7 +716,9 @@ private val hiddenAnnotations: List<String> =
         // This annotations is not useful for developers but right now is @ShowAnnotation?
         "kotlin.js.JsName",
         // This annotation is intended to target the compiler and is general not useful for devs.
-        "java.lang.Override"
+        "java.lang.Override",
+        // This annotation is used by the room processor and isn't useful for developers
+        "androidx.room.Ignore"
     )
 
 val validNullabilityAnnotations = listOf(
