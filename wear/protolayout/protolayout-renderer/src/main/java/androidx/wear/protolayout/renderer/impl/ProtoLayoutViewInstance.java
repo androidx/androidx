@@ -177,7 +177,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
     private boolean mCanReattachWithoutRendering = false;
 
-    private static final int DYNAMIC_NODES_MAX_COUNT = Integer.MAX_VALUE;
+    private static final int DYNAMIC_NODES_MAX_COUNT = 200;
 
     /**
      * This is used to provide a {@link ResourceResolvers} object to the {@link
