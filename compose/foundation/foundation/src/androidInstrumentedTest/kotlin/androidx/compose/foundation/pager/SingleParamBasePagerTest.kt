@@ -114,15 +114,17 @@ open class SingleParamBasePagerTest {
         }
         composeView = LocalView.current
         focusManager = LocalFocusManager.current
-        val resolvedFlingBehavior = flingBehavior ?: PagerDefaults.flingBehavior(
-            state = state,
-            pagerSnapDistance = snappingPage,
-            snapPositionalThreshold = snapPositionalThreshold
-        )
+
         CompositionLocalProvider(
             LocalLayoutDirection provides layoutDirection,
             LocalOverscrollConfiguration provides null
         ) {
+            val resolvedFlingBehavior = flingBehavior ?: PagerDefaults.flingBehavior(
+                state = state,
+                pagerSnapDistance = snappingPage,
+                snapPositionalThreshold = snapPositionalThreshold
+            )
+
             scope = rememberCoroutineScope()
             Box(
                 modifier = Modifier

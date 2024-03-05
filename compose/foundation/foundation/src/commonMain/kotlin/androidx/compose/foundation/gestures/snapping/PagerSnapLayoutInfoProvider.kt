@@ -25,6 +25,7 @@ import androidx.compose.foundation.pager.PagerLayoutInfo
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.mainAxisViewportSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -186,8 +187,12 @@ internal fun SnapLayoutInfoProvider(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-private fun PagerState.isScrollingForward() = dragGestureDelta() < 0
+private fun PagerState.isLtrDragging() = dragGestureDelta() > 0
+private fun PagerState.isScrollingForward(): Boolean {
+    val reverseScrollDirection = layoutInfo.reverseLayout
+    return (isLtrDragging() && reverseScrollDirection ||
+        !isLtrDragging() && !reverseScrollDirection)
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun PagerState.dragGestureDelta() = if (layoutInfo.orientation == Orientation.Horizontal) {
@@ -209,16 +214,27 @@ private inline fun debugLog(generateMsg: () -> String) {
 @OptIn(ExperimentalFoundationApi::class)
 internal fun calculateFinalSnappingBound(
     pagerState: PagerState,
+    layoutDirection: LayoutDirection,
     snapPositionalThreshold: Float,
     flingVelocity: Float,
     lowerBoundOffset: Float,
     upperBoundOffset: Float
 ): Float {
 
-    val isForward = pagerState.isScrollingForward()
-
-    debugLog { "isForward=$isForward" }
-
+    val isForward = if (pagerState.layoutInfo.orientation == Orientation.Vertical) {
+        pagerState.isScrollingForward()
+    } else {
+        if (layoutDirection == LayoutDirection.Ltr) {
+            pagerState.isScrollingForward()
+        } else {
+            !pagerState.isScrollingForward()
+        }
+    }
+    debugLog {
+        "isLtrDragging=${pagerState.isLtrDragging()} " +
+            "isForward=$isForward " +
+            "layoutDirection=$layoutDirection"
+    }
     // how many pages have I scrolled using a drag gesture.
     val offsetFromSnappedPosition =
         pagerState.dragGestureDelta() / pagerState.layoutInfo.pageSize.toFloat()
