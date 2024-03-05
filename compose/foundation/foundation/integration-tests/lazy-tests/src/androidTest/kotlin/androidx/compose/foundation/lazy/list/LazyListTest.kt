@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+
 package androidx.compose.foundation.lazy.list
 
 import android.os.Build
@@ -49,7 +51,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.savePointerInputEvents
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.matchers.isZero
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -2214,7 +2215,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             .scrollMainAxisBy(250.dp) // 10 items, half a screen
 
         rule.runOnIdle {
-            assertThat(composedMoreThanOnce).isZero()
+            assertThat(composedMoreThanOnce).isEqualTo(0)
 
             assertTrue(
                 "Items are expected to be composed only once.",
