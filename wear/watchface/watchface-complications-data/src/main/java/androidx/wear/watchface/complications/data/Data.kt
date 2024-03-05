@@ -1440,7 +1440,26 @@ internal constructor(
             fallbackValue: Float,
             targetValue: Float,
             contentDescription: ComplicationText
-        ) : this(fallbackValue, dynamicValue, targetValue, contentDescription)
+        ) : this(value = fallbackValue, dynamicValue, targetValue = targetValue, contentDescription)
+
+        /**
+         * Creates a [Builder] for a [RangedValueComplicationData] with a [DynamicFloat] value, and
+         * no `fallbackValue` for API levels known to support dynamic values.
+         *
+         * @param dynamicValue The [DynamicFloat] of the goal complication which will be evaluated
+         *   into a value dynamically, and should be >= 0.
+         * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
+         * @param contentDescription Defines localized text that briefly describes content of the
+         *   complication. This property is used primarily for accessibility. Since some
+         *   complications do not have textual representation this attribute can be used for
+         *   providing such. Please do not include the word 'complication' in the description.
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        public constructor(
+            dynamicValue: DynamicFloat,
+            targetValue: Float,
+            contentDescription: ComplicationText
+        ) : this(value = 0f, dynamicValue, targetValue = targetValue, contentDescription)
 
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null

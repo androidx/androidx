@@ -137,6 +137,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class GoalProgressComplicationData.Builder {
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public GoalProgressComplicationData.Builder(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dynamicValue, float targetValue, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     ctor @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public GoalProgressComplicationData.Builder(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dynamicValue, float fallbackValue, float targetValue, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     ctor public GoalProgressComplicationData.Builder(float value, float targetValue, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData build();
