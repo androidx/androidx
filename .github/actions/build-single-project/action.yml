@@ -33,7 +33,7 @@ runs:
       run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "ndk;23.1.7779620"
     - name: "Install Android SDK Build-Tools"
       shell: bash
-      run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0"
+      run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "build-tools;35.0.0-rc1"
     - name: "Set environment variables"
       shell: bash
       run: |
