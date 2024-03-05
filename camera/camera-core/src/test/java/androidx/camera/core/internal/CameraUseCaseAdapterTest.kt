@@ -17,6 +17,7 @@
 package androidx.camera.core.internal
 
 import android.graphics.ImageFormat.JPEG
+import android.graphics.ImageFormat.JPEG_R
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
@@ -47,6 +48,7 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Identifier
+import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.RestrictedCameraControl
@@ -271,6 +273,56 @@ class CameraUseCaseAdapterTest {
         // Act: add UseCase that uses HDR.
         val hdrUseCase = FakeUseCaseConfig.Builder().setDynamicRange(HDR_UNSPECIFIED_10_BIT).build()
         adapter.addUseCases(setOf(hdrUseCase))
+    }
+
+    @RequiresApi(34) // Ultra HDR only supported on API 34+
+    @Test(expected = CameraException::class)
+    fun useUltraHdrWithExtensions_throwsException() {
+        // Arrange: enable extensions.
+        val extensionsConfig = createCoexistingRequiredRuleCameraConfig(FakeSessionProcessor())
+        val cameraId = "fakeCameraId"
+        val fakeManager = FakeCameraDeviceSurfaceManager()
+        fakeManager.setValidSurfaceCombos(
+            setOf(listOf(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, JPEG_R))
+        )
+        val fakeCamera = FakeCamera(cameraId)
+        val adapter = CameraUseCaseAdapter(
+            fakeCamera,
+            RestrictedCameraInfo(fakeCamera.cameraInfoInternal, extensionsConfig),
+            FakeCameraCoordinator(),
+            fakeManager,
+            FakeUseCaseConfigFactory(),
+        )
+
+        // Act: add ImageCapture that sets Ultra HDR.
+        val imageCapture = ImageCapture.Builder()
+            .setOutputFormat(ImageCapture.OUTPUT_FORMAT_ULTRA_HDR)
+            .build()
+        adapter.addUseCases(setOf(imageCapture))
+    }
+
+    @RequiresApi(34) // Ultra HDR only supported on API 34+
+    @Test(expected = CameraException::class)
+    fun useUltraHdrWithCameraEffect_throwsException() {
+        // Arrange: add an image effect.
+        val cameraId = "fakeCameraId"
+        val fakeManager = FakeCameraDeviceSurfaceManager()
+        fakeManager.setValidSurfaceCombos(
+            setOf(listOf(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, JPEG_R))
+        )
+        val adapter = CameraUseCaseAdapter(
+            FakeCamera(cameraId),
+            FakeCameraCoordinator(),
+            fakeManager,
+            FakeUseCaseConfigFactory(),
+        )
+        adapter.setEffects(listOf(imageEffect))
+
+        // Act: add ImageCapture that sets Ultra HDR.
+        val imageCapture = ImageCapture.Builder()
+            .setOutputFormat(ImageCapture.OUTPUT_FORMAT_ULTRA_HDR)
+            .build()
+        adapter.addUseCases(setOf(imageCapture))
     }
 
     @Test(expected = CameraException::class)
