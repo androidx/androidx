@@ -500,18 +500,18 @@ package androidx.compose.animation.core {
   public static final class KeyframesSpec.KeyframesSpecConfig<T> extends androidx.compose.animation.core.KeyframesSpecBaseConfig<T,androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>> {
     ctor public KeyframesSpec.KeyframesSpecConfig();
     method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> at(T, @IntRange(from=0L) int timeStamp);
-    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> atFraction(T, float fraction);
+    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> atFraction(T, @FloatRange(from=0.0, to=1.0) float fraction);
     method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> using(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.ArcMode arcMode);
     method @Deprecated public infix void with(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.Easing easing);
   }
 
   public abstract sealed class KeyframesSpecBaseConfig<T, E extends androidx.compose.animation.core.KeyframeBaseEntity<T>> {
     method public infix E at(T, @IntRange(from=0L) int timeStamp);
-    method public infix E atFraction(T, float fraction);
+    method public infix E atFraction(T, @FloatRange(from=0.0, to=1.0) float fraction);
     method @IntRange(from=0L) public final int getDelayMillis();
     method @IntRange(from=0L) public final int getDurationMillis();
-    method public final void setDelayMillis(int);
-    method public final void setDurationMillis(int);
+    method public final void setDelayMillis(@IntRange(from=0L) int);
+    method public final void setDurationMillis(@IntRange(from=0L) int);
     method public final infix E using(E, androidx.compose.animation.core.Easing easing);
     property @IntRange(from=0L) public final int delayMillis;
     property @IntRange(from=0L) public final int durationMillis;
