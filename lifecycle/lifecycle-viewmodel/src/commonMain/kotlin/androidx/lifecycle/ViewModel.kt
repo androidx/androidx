@@ -182,9 +182,6 @@ public expect abstract class ViewModel {
     public fun <T : AutoCloseable> getCloseable(key: String): T?
 }
 
-internal const val VIEW_MODEL_SCOPE_KEY =
-    "androidx.lifecycle.viewmodel.internal.ViewModelCoroutineScope.JOB_KEY"
-
 /**
  * The [CoroutineScope] associated with this [ViewModel].
  *
