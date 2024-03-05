@@ -25,9 +25,8 @@ class SimpleQueryTest : BaseSimpleQueryTest() {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     override fun getRoomDatabase(): SampleDatabase {
-        return Room.inMemoryDatabaseBuilder(
+        return Room.inMemoryDatabaseBuilder<SampleDatabase>(
             context = instrumentation.targetContext,
-            factory = { SampleDatabase::class.instantiateImpl() }
         ).setDriver(BundledSQLiteDriver(":memory:"))
             .build()
     }

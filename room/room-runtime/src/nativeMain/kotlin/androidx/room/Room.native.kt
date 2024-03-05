@@ -16,7 +16,10 @@
 
 package androidx.room
 
-object Room {
+/**
+ * Entry point for building and initializing a [RoomDatabase].
+ */
+actual object Room {
 
     /**
      * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory

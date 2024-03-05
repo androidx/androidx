@@ -22,7 +22,6 @@ import android.util.Log
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.room.DatabaseConfiguration
 import androidx.room.Room
-import androidx.room.Room.getGeneratedImplementation
 import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
@@ -33,6 +32,7 @@ import androidx.room.migration.bundle.SchemaBundle.Companion.deserialize
 import androidx.room.util.FtsTableInfo
 import androidx.room.util.TableInfo
 import androidx.room.util.ViewInfo
+import androidx.room.util.findAndInstantiateDatabaseImpl
 import androidx.room.util.useCursor
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -331,9 +331,7 @@ open class MigrationTestHelper : TestWatcher {
                 )
             }
         }
-        val db: RoomDatabase = getGeneratedImplementation(
-            databaseClass, "_Impl"
-        )
+        val db: RoomDatabase = findAndInstantiateDatabaseImpl(databaseClass)
         val requiredAutoMigrationSpecs = db.getRequiredAutoMigrationSpecClasses()
         return db.createAutoMigrations(
             createAutoMigrationSpecMap(requiredAutoMigrationSpecs, userProvidedSpecs)
