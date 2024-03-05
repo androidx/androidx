@@ -17,6 +17,7 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
+import androidx.room.InvalidationTracker.Observer
 import androidx.sqlite.SQLiteConnection
 import kotlin.jvm.JvmSuppressWildcards
 import kotlinx.atomicfu.locks.reentrantLock
@@ -38,6 +39,36 @@ constructor(
      * Internal method to initialize table tracking. Invoked by generated code.
      */
     internal fun internalInit(connection: SQLiteConnection)
+
+    /**
+     * An observer that can listen for changes in the database by subscribing to an
+     * [InvalidationTracker].
+     *
+     * @param tables The names of the tables this observer is interested in getting notified if
+     * they are modified.
+     */
+    abstract class Observer(tables: Array<out String>) {
+
+        internal val tables: Array<out String>
+
+        /**
+         * Creates an observer for the given tables and views.
+         *
+         * @param firstTable The name of the table or view.
+         * @param rest       More names of tables or views.
+         */
+        protected constructor(firstTable: String, vararg rest: String)
+
+        /**
+         * Invoked when one of the observed tables is invalidated (changed).
+         *
+         * @param tables A set of invalidated tables. When the observer is interested in multiple
+         * tables, this set can be used to distinguish which of the observed tables were
+         * invalidated. When observing a database view the names of underlying tables will be in
+         * the set instead of the view name.
+         */
+        abstract fun onInvalidated(tables: Set<String>)
+    }
 }
 
 /**
@@ -121,5 +152,65 @@ internal class ObservedTableStates(size: Int) {
         NO_OP, // Don't change observation / tracking state for a table
         ADD, // Starting observation / tracking of a table
         REMOVE // Stop observation / tracking of a table
+    }
+}
+
+/**
+ * Wraps an [Observer] and keeps the table information.
+ *
+ * Internally table ids are used which may change from database to database so the table
+ * related information is kept here rather than in the actual observer.
+ */
+internal class ObserverWrapper(
+    internal val observer: Observer,
+    internal val tableIds: IntArray,
+    private val tableNames: Array<out String>
+) {
+    init {
+        check(tableIds.size == tableNames.size)
+    }
+
+    // Optimization for a single-table observer
+    private val singleTableSet = if (tableNames.isNotEmpty()) setOf(tableNames[0]) else emptySet()
+
+    internal fun notifyByTableIds(invalidatedTablesIds: Set<Int>) {
+        val invalidatedTables = when (tableIds.size) {
+            0 -> emptySet()
+            1 -> if (invalidatedTablesIds.contains(tableIds[0])) singleTableSet else emptySet()
+            else -> buildSet {
+                tableIds.forEachIndexed { id, tableId ->
+                    if (invalidatedTablesIds.contains(tableId)) {
+                        add(tableNames[id])
+                    }
+                }
+            }
+        }
+        if (invalidatedTables.isNotEmpty()) {
+            observer.onInvalidated(invalidatedTables)
+        }
+    }
+
+    internal fun notifyByTableNames(invalidatedTablesNames: Set<String>) {
+        val invalidatedTables = when (tableNames.size) {
+            0 -> emptySet()
+            1 -> if (invalidatedTablesNames.any { it.equals(tableNames[0], ignoreCase = true) }) {
+                singleTableSet
+            } else {
+                emptySet()
+            }
+            else -> buildSet {
+                invalidatedTablesNames.forEach { table ->
+                    for (ourTable in tableNames) {
+                        if (ourTable.equals(table, ignoreCase = true)) {
+                            add(ourTable)
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        if (invalidatedTables.isNotEmpty()) {
+            observer.onInvalidated(invalidatedTables)
+        }
     }
 }

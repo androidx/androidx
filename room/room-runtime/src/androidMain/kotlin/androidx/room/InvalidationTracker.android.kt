@@ -25,6 +25,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.LiveData
+import androidx.room.InvalidationTracker.Observer
 import androidx.room.Room.LOG_TAG
 import androidx.room.concurrent.ifNotClosed
 import androidx.room.driver.SupportSQLiteConnection
@@ -415,7 +416,7 @@ actual constructor(
             if (invalidatedTableIds.isNotEmpty()) {
                 synchronized(observerMap) {
                     observerMap.forEach {
-                        it.value.notifyByTableInvalidStatus(invalidatedTableIds)
+                        it.value.notifyByTableIds(invalidatedTableIds)
                     }
                 }
             }
@@ -481,10 +482,11 @@ actual constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun notifyObserversByTableNames(vararg tables: String) {
+        val tableNames = setOf(*tables)
         synchronized(observerMap) {
             observerMap.forEach { (observer, wrapper) ->
                 if (!observer.isRemote) {
-                    wrapper.notifyByTableNames(tables)
+                    wrapper.notifyByTableNames(tableNames)
                 }
             }
         }
@@ -605,110 +607,35 @@ actual constructor(
     }
 
     /**
-     * Wraps an observer and keeps the table information.
+     * An observer that can listen for changes in the database by subscribing to an
+     * [InvalidationTracker].
      *
-     * Internally table ids are used which may change from database to database so the table
-     * related information is kept here rather than in the Observer.
+     * @param tables The names of the tables this observer is interested in getting notified if
+     * they are modified.
      */
-    internal class ObserverWrapper(
-        internal val observer: Observer,
-        internal val tableIds: IntArray,
-        private val tableNames: Array<out String>
+    actual abstract class Observer actual constructor(
+        internal actual val tables: Array<out String>
     ) {
-        private val singleTableSet = if (tableNames.isNotEmpty()) {
-            setOf(tableNames[0])
-        } else {
-            emptySet()
-        }
-
-        init {
-            check(tableIds.size == tableNames.size)
-        }
-
         /**
-         * Notifies the underlying [.mObserver] if any of the observed tables are invalidated
-         * based on the given invalid status set.
-         *
-         * @param invalidatedTablesIds The table ids of the tables that are invalidated.
-         */
-        internal fun notifyByTableInvalidStatus(invalidatedTablesIds: Set<Int?>) {
-            val invalidatedTables = when (tableIds.size) {
-                0 -> emptySet()
-                1 -> if (invalidatedTablesIds.contains(tableIds[0])) {
-                    singleTableSet // Optimization for a single-table observer
-                } else {
-                    emptySet()
-                }
-                else -> buildSet {
-                    tableIds.forEachIndexed { idx, tableId ->
-                        if (invalidatedTablesIds.contains(tableId)) {
-                            add(tableNames[idx])
-                        }
-                    }
-                }
-            }
-
-            if (invalidatedTables.isNotEmpty()) {
-                observer.onInvalidated(invalidatedTables)
-            }
-        }
-
-        /**
-         * Notifies the underlying [.mObserver] if it observes any of the specified
-         * `tables`.
-         *
-         * @param tables The invalidated table names.
-         */
-        internal fun notifyByTableNames(tables: Array<out String>) {
-            val invalidatedTables = when (tableNames.size) {
-                0 -> emptySet()
-                1 -> if (tables.any { it.equals(tableNames[0], ignoreCase = true) }) {
-                    singleTableSet // Optimization for a single-table observer
-                } else {
-                    emptySet()
-                }
-                else -> buildSet {
-                    tables.forEach { table ->
-                        tableNames.forEach ourTablesLoop@{ ourTable ->
-                            if (ourTable.equals(table, ignoreCase = true)) {
-                                add(ourTable)
-                                return@ourTablesLoop
-                            }
-                        }
-                    }
-                }
-            }
-            if (invalidatedTables.isNotEmpty()) {
-                observer.onInvalidated(invalidatedTables)
-            }
-        }
-    }
-
-    /**
-     * An observer that can listen for changes in the database.
-     */
-    abstract class Observer(internal val tables: Array<out String>) {
-        /**
-         * Observes the given list of tables and views.
+         * Creates an observer for the given tables and views.
          *
          * @param firstTable The name of the table or view.
          * @param rest       More names of tables or views.
          */
-        protected constructor(firstTable: String, vararg rest: String) : this(
-            buildList {
-                addAll(rest)
-                add(firstTable)
-            }.toTypedArray()
-        )
+        protected actual constructor(
+            firstTable: String,
+            vararg rest: String
+        ) : this(arrayOf(firstTable, *rest))
 
         /**
-         * Called when one of the observed tables is invalidated in the database.
+         * Invoked when one of the observed tables is invalidated (changed).
          *
-         * @param tables A set of invalidated tables. This is useful when the observer targets
-         * multiple tables and you want to know which table is invalidated. This will
-         * be names of underlying tables when you are observing views.
+         * @param tables A set of invalidated tables. When the observer is interested in multiple
+         * tables, this set can be used to distinguish which of the observed tables were
+         * invalidated. When observing a database view the names of underlying tables will be in
+         * the set instead of the view name.
          */
-        abstract fun onInvalidated(tables: Set<String>)
+        actual abstract fun onInvalidated(tables: Set<String>)
 
         internal open val isRemote: Boolean
             get() = false

@@ -17,6 +17,7 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
+import androidx.room.InvalidationTracker.Observer
 import androidx.sqlite.SQLiteConnection
 
 /**
@@ -35,5 +36,37 @@ actual constructor(
      * Internal method to initialize table tracking. Invoked by generated code.
      */
     internal actual fun internalInit(connection: SQLiteConnection) {
+    }
+
+    /**
+     * An observer that can listen for changes in the database by subscribing to an
+     * [InvalidationTracker].
+     *
+     * @param tables The names of the tables this observer is interested in getting notified if
+     * they are modified.
+     */
+    actual abstract class Observer actual constructor(
+        internal actual val tables: Array<out String>
+    ) {
+        /**
+         * Creates an observer for the given tables and views.
+         *
+         * @param firstTable The name of the table or view.
+         * @param rest       More names of tables or views.
+         */
+        protected actual constructor(
+            firstTable: String,
+            vararg rest: String
+        ) : this(arrayOf(firstTable, *rest))
+
+        /**
+         * Invoked when one of the observed tables is invalidated (changed).
+         *
+         * @param tables A set of invalidated tables. When the observer is interested in multiple
+         * tables, this set can be used to distinguish which of the observed tables were
+         * invalidated. When observing a database view the names of underlying tables will be in
+         * the set instead of the view name.
+         */
+        actual abstract fun onInvalidated(tables: Set<String>)
     }
 }
