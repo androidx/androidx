@@ -636,6 +636,8 @@ internal fun polyFitLeastSquares(
  *
  * Note that approach 2) is sensitive to the proper ordering of the data in time, since
  * the boundary condition must be applied to the oldest sample to be accurate.
+ *
+ * NOTE: [sampleCount] MUST be >= 2
  */
 private fun calculateImpulseVelocity(
     dataPoints: FloatArray,
@@ -643,33 +645,23 @@ private fun calculateImpulseVelocity(
     sampleCount: Int,
     isDataDifferential: Boolean
 ): Float {
-    if (sampleCount < 2) {
-        return 0f
-    }
-    if (sampleCount == 2) {
-        if (time[0] == time[1]) {
-            return 0f
-        }
-        val dataPointsDelta =
-        // For differential data ponits, each measurement reflects the amount of change in the
-        // subject's position. However, the first sample is discarded in computation because we
-            // don't know the time duration over which this change has occurred.
-            if (isDataDifferential) dataPoints[0]
-            else dataPoints[0] - dataPoints[1]
-        return dataPointsDelta / (time[0] - time[1])
-    }
+    println(sampleCount)
     var work = 0f
-    for (i in (sampleCount - 1) downTo 1) {
-        if (time[i] == time[i - 1]) {
+    val start = sampleCount - 1
+    var nextTime = time[start]
+    for (i in start downTo 1) {
+        val currentTime = nextTime
+        nextTime = time[i - 1]
+        if (currentTime == nextTime) {
             continue
         }
-        val vPrev = kineticEnergyToVelocity(work)
         val dataPointsDelta =
             if (isDataDifferential) -dataPoints[i - 1]
             else dataPoints[i] - dataPoints[i - 1]
-        val vCurr = dataPointsDelta / (time[i] - time[i - 1])
+        val vCurr = dataPointsDelta / (currentTime - nextTime)
+        val vPrev = kineticEnergyToVelocity(work)
         work += (vCurr - vPrev) * abs(vCurr)
-        if (i == (sampleCount - 1)) {
+        if (i == start) {
             work = (work * 0.5f)
         }
     }
