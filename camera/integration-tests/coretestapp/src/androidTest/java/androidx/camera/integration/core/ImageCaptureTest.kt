@@ -1941,6 +1941,11 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 28)
     fun getRealtimeCaptureLatencyEstimate_whenSessionProcessorSupportsRealtimeLatencyEstimate() =
         runBlocking {
+            assumeTrue(
+                "TODO(b/275493663, b/328022142): Enable when camera-pipe has extensions support",
+                implName != CameraPipeConfig::class.simpleName
+            )
+
             val expectedCaptureLatencyMillis = 1000L
             val expectedProcessingLatencyMillis = 100L
             val sessionProcessor = object : SessionProcessor by FakeSessionProcessor(
