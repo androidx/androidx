@@ -20,17 +20,21 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Sampled
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
+import androidx.compose.material3.carousel.startOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -120,6 +124,63 @@ fun HorizontalUncontainedCarouselSample() {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun FadingHorizontalMultiBrowseCarouselSample() {
+
+    data class CarouselItem(
+        val id: Int,
+        @DrawableRes val imageResId: Int,
+        @StringRes val contentDescriptionResId: Int
+    )
+
+    val items = listOf(
+        CarouselItem(0, R.drawable.carousel_image_1, R.string.carousel_image_1_description),
+        CarouselItem(1, R.drawable.carousel_image_2, R.string.carousel_image_2_description),
+        CarouselItem(2, R.drawable.carousel_image_3, R.string.carousel_image_3_description),
+        CarouselItem(3, R.drawable.carousel_image_4, R.string.carousel_image_4_description),
+        CarouselItem(4, R.drawable.carousel_image_5, R.string.carousel_image_5_description),
+    )
+    val state = rememberCarouselState { items.count() }
+    HorizontalMultiBrowseCarousel(
+        state = state,
+        modifier = Modifier
+            .width(412.dp)
+            .height(221.dp),
+        preferredItemWidth = 130.dp,
+        itemSpacing = 8.dp,
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) { i ->
+        val item = items[i]
+        Card(
+            modifier = Modifier
+                .height(205.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = carouselItemInfo.size / carouselItemInfo.maxSize
+                    }
+            ) {
+                Image(
+                    painter = painterResource(id = item.imageResId),
+                    contentDescription = stringResource(item.contentDescriptionResId),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Text(
+                    text = "sample text",
+                    modifier = Modifier.graphicsLayer {
+                        translationX = carouselItemInfo.startOffset()
+                    }
+                )
+            }
         }
     }
 }

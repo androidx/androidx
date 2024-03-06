@@ -265,7 +265,7 @@ class CarouselTest {
                 state = it,
             )
         },
-        content: @Composable CarouselScope.(item: Int) -> Unit = { Item(index = it) }
+        content: @Composable CarouselItemScope.(item: Int) -> Unit = { Item(index = it) }
     ) {
         rule.setMaterialContent(lightColorScheme()) {
             val state = rememberCarouselState(initialItem, itemCount).also {
@@ -299,7 +299,7 @@ class CarouselTest {
         modifier: Modifier = Modifier
             .width(412.dp)
             .height(221.dp),
-        content: @Composable CarouselScope.(item: Int) -> Unit = { Item(index = it) }
+        content: @Composable CarouselItemScope.(item: Int) -> Unit = { Item(index = it) }
     ) {
         rule.setMaterialContent(lightColorScheme()) {
             val state = rememberCarouselState(initialItem, itemCount).also {
