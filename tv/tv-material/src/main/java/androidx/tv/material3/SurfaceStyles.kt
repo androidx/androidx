@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Shape
 /**
  * Defines [Shape] for all TV [Interaction] states of a Clickable Surface.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ClickableSurfaceShape internal constructor(
     internal val shape: Shape,
@@ -69,7 +68,6 @@ class ClickableSurfaceShape internal constructor(
 /**
  * Defines [Shape] for all TV [Interaction] states of a toggleable Surface.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ToggleableSurfaceShape internal constructor(
     internal val shape: Shape,
@@ -132,7 +130,6 @@ class ToggleableSurfaceShape internal constructor(
 /**
  * Defines [Color] for all TV [Interaction] states of a Clickable Surface.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ClickableSurfaceColors internal constructor(
     internal val containerColor: Color,
@@ -190,7 +187,6 @@ class ClickableSurfaceColors internal constructor(
 /**
  * Defines [Color] for all TV [Interaction] states of a toggleable Surface.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ToggleableSurfaceColors internal constructor(
     internal val containerColor: Color,
@@ -273,7 +269,6 @@ class ToggleableSurfaceColors internal constructor(
  * Defines the scale for all TV indication states of Surface. Note: This scale must be
  * a non-negative float.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ClickableSurfaceScale internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
@@ -332,7 +327,6 @@ class ClickableSurfaceScale internal constructor(
  * Defines the scale for all TV [Interaction] states of toggleable Surface. Note: This
  * scale must be a non-negative float.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ToggleableSurfaceScale internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
@@ -413,7 +407,6 @@ class ToggleableSurfaceScale internal constructor(
 /**
  * Defines [Border] for all TV states of [Surface].
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ClickableSurfaceBorder internal constructor(
     internal val border: Border,
@@ -459,7 +452,6 @@ class ClickableSurfaceBorder internal constructor(
 /**
  * Defines [Border] for all TV states of a toggleable Surface.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ToggleableSurfaceBorder internal constructor(
     internal val border: Border,
@@ -522,7 +514,6 @@ class ToggleableSurfaceBorder internal constructor(
 /**
  * Defines [Glow] for all TV [Interaction] states of [Surface].
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ClickableSurfaceGlow internal constructor(
     internal val glow: Glow,
@@ -559,7 +550,6 @@ class ClickableSurfaceGlow internal constructor(
 /**
  * Defines [Glow] for all TV [Interaction] states of a toggleable Surface.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ToggleableSurfaceGlow internal constructor(
     internal val glow: Glow,
@@ -606,7 +596,6 @@ class ToggleableSurfaceGlow internal constructor(
 /**
  * Defines the container & content color [Color] for a non interactive surface.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class NonInteractiveSurfaceColors internal constructor(
     internal val containerColor: Color,
