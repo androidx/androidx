@@ -6,9 +6,9 @@ package androidx.camera.extensions {
   }
 
   public interface CameraExtensionsInfo {
-    method public default androidx.lifecycle.LiveData<java.lang.Integer!>? getCurrentExtensionType();
+    method public default androidx.lifecycle.LiveData<java.lang.Integer!>? getCurrentExtensionMode();
     method public default androidx.lifecycle.LiveData<java.lang.Integer!>? getExtensionStrength();
-    method public default boolean isCurrentExtensionTypeAvailable();
+    method public default boolean isCurrentExtensionModeAvailable();
     method public default boolean isExtensionStrengthAvailable();
   }
 
