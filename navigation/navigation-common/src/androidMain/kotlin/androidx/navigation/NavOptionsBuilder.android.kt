@@ -14,28 +14,17 @@
  * limitations under the License.
  */
 
-@file:JvmName("NavOptionsBuilderKt")
-
 package androidx.navigation
 
 import androidx.annotation.AnimRes
 import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
 
-@DslMarker
-public annotation class NavOptionsDsl
-
-/**
- * Construct a new [NavOptions]
- */
-public fun navOptions(optionsBuilder: NavOptionsBuilder.() -> Unit): NavOptions =
-    NavOptionsBuilder().apply(optionsBuilder).build()
-
 /**
  * DSL for constructing a new [NavOptions]
  */
 @NavOptionsDsl
-public class NavOptionsBuilder {
+public actual class NavOptionsBuilder {
     private val builder = NavOptions.Builder()
 
     /**
@@ -45,7 +34,7 @@ public class NavOptionsBuilder {
      * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP]
      * works with activites.
      */
-    public var launchSingleTop: Boolean = false
+    public actual var launchSingleTop: Boolean = false
 
     /**
      * Whether this navigation action should restore any state previously saved
@@ -54,7 +43,7 @@ public class NavOptionsBuilder {
      */
     @get:Suppress("GetterOnBuilder", "GetterSetterNames")
     @set:Suppress("SetterReturnsThis", "GetterSetterNames")
-    public var restoreState: Boolean = false
+    public actual var restoreState: Boolean = false
 
     /**
      * Returns the current destination that the builder will pop up to.
@@ -82,7 +71,7 @@ public class NavOptionsBuilder {
      * Pop up to a given destination before navigating. This pops all non-matching destinations
      * from the back stack until this destination is found.
      */
-    public var popUpToRoute: String? = null
+    public actual var popUpToRoute: String? = null
         private set(value) {
             if (value != null) {
                 require(value.isNotBlank()) { "Cannot pop up to an empty route" }
@@ -112,7 +101,7 @@ public class NavOptionsBuilder {
      * @param route route for the destination
      * @param popUpToBuilder builder used to construct a popUpTo operation
      */
-    public fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
+    public actual fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRoute = route
         popUpToId = -1
         val builder = PopUpToBuilder().apply(popUpToBuilder)
@@ -134,7 +123,7 @@ public class NavOptionsBuilder {
         }
     }
 
-    internal fun build() = builder.apply {
+    internal actual fun build() = builder.apply {
         setLaunchSingleTop(launchSingleTop)
         setRestoreState(restoreState)
         if (popUpToRoute != null) {
@@ -143,28 +132,6 @@ public class NavOptionsBuilder {
             setPopUpTo(popUpToId, inclusive, saveState)
         }
     }.build()
-}
-
-/**
- * DSL for customizing [NavOptionsBuilder.popUpTo] operations.
- */
-@NavOptionsDsl
-public class PopUpToBuilder {
-    /**
-     * Whether the `popUpTo` destination should be popped from the back stack.
-     */
-    public var inclusive: Boolean = false
-
-    /**
-     * Whether the back stack and the state of all destinations between the
-     * current destination and the [NavOptionsBuilder.popUpTo] ID should be saved for later
-     * restoration via [NavOptionsBuilder.restoreState] or the `restoreState` attribute using
-     * the same [NavOptionsBuilder.popUpTo] ID (note: this matching ID is true whether
-     * [inclusive] is true or false).
-     */
-    @get:Suppress("GetterOnBuilder", "GetterSetterNames")
-    @set:Suppress("SetterReturnsThis", "GetterSetterNames")
-    public var saveState: Boolean = false
 }
 
 /**

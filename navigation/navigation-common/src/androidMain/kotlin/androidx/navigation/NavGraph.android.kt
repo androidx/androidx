@@ -44,10 +44,11 @@ import java.lang.StringBuilder
  *                          with. Generally retrieved via a
  *                          [NavController]'s[NavigatorProvider.getNavigator] method.
  */
-public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
-    NavDestination(navGraphNavigator), Iterable<NavDestination> {
+public actual open class NavGraph actual constructor(
+    navGraphNavigator: Navigator<out NavGraph>
+) : NavDestination(navGraphNavigator), Iterable<NavDestination> {
 
-    public val nodes: SparseArrayCompat<NavDestination> = SparseArrayCompat<NavDestination>()
+    public val nodes: SparseArrayCompat<NavDestination> = SparseArrayCompat()
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get
     private var startDestId = 0
@@ -96,7 +97,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @throws IllegalArgumentException if destination does not have an id, the destination has
      * the same id as the graph, or the destination already has a parent.
      */
-    public fun addDestination(node: NavDestination) {
+    public actual fun addDestination(node: NavDestination) {
         val id = node.id
         val innerRoute = node.route
         require(id != 0 || innerRoute != null) {
@@ -134,7 +135,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      *
      * @param nodes destinations to add
      */
-    public fun addDestinations(nodes: Collection<NavDestination?>) {
+    public actual fun addDestinations(nodes: Collection<NavDestination?>) {
         for (node in nodes) {
             if (node == null) {
                 continue
@@ -153,7 +154,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      *
      * @param nodes destinations to add
      */
-    public fun addDestinations(vararg nodes: NavDestination) {
+    public actual fun addDestinations(vararg nodes: NavDestination) {
         for (node in nodes) {
             addDestination(node)
         }
@@ -177,7 +178,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @param route Route to locate
      * @return the node with route
      */
-    public fun findNode(route: String?): NavDestination? {
+    public actual fun findNode(route: String?): NavDestination? {
         return if (!route.isNullOrBlank()) findNode(route, true) else null
     }
 
@@ -191,7 +192,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findNode(route: String, searchParents: Boolean): NavDestination? {
+    public actual fun findNode(route: String, searchParents: Boolean): NavDestination? {
         // first try matching with routePattern
         val id = createRoute(route).hashCode()
         val destination = nodes[id] ?: nodes.valueIterator().asSequence().firstOrNull {
@@ -208,7 +209,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     /**
      * @throws NoSuchElementException if there no more elements
      */
-    public final override fun iterator(): MutableIterator<NavDestination> {
+    public actual final override fun iterator(): MutableIterator<NavDestination> {
         return object : MutableIterator<NavDestination> {
             private var index = -1
             private var wentToNext = false
@@ -243,7 +244,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @param other collection of destinations to add. All destinations will be removed from this
      * graph after being added to this graph.
      */
-    public fun addAll(other: NavGraph) {
+    public actual fun addAll(other: NavGraph) {
         val iterator = other.iterator()
         while (iterator.hasNext()) {
             val destination = iterator.next()
@@ -257,7 +258,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      *
      * @param node the destination to remove.
      */
-    public fun remove(node: NavDestination) {
+    public actual fun remove(node: NavDestination) {
         val index = nodes.indexOfKey(node.id)
         if (index >= 0) {
             nodes.valueAt(index).parent = null
@@ -268,7 +269,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     /**
      * Clear all destinations from this navigation graph.
      */
-    public fun clear() {
+    public actual fun clear() {
         val iterator = iterator()
         while (iterator.hasNext()) {
             iterator.next()
@@ -328,7 +329,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @param startDestRoute The route of the destination to be shown when navigating to this
      *                    NavGraph.
      */
-    public fun setStartDestination(startDestRoute: String) {
+    public actual fun setStartDestination(startDestRoute: String) {
         startDestinationRoute = startDestRoute
     }
 
@@ -336,7 +337,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * The route for the starting destination for this NavGraph. When navigating to the
      * NavGraph, the destination represented by this route is the one the user will initially see.
      */
-    public var startDestinationRoute: String? = null
+    public actual var startDestinationRoute: String? = null
         private set(startDestRoute) {
             startDestId = if (startDestRoute == null) {
                 0
@@ -399,7 +400,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         return result
     }
 
-    public companion object {
+    public actual companion object {
         /**
          * Finds the actual start destination of the graph, handling cases where the graph's starting
          * destination is itself a NavGraph.
@@ -407,7 +408,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
          * @return the actual startDestination of the given graph.
          */
         @JvmStatic
-        public fun NavGraph.findStartDestination(): NavDestination =
+        public actual fun NavGraph.findStartDestination(): NavDestination =
             generateSequence(findNode(startDestinationId)) {
                 if (it is NavGraph) {
                     it.findNode(it.startDestinationId)
@@ -433,7 +434,7 @@ public inline operator fun NavGraph.get(@IdRes id: Int): NavDestination =
  * @throws IllegalArgumentException if no destination is found with that route.
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline operator fun NavGraph.get(route: String): NavDestination =
+public actual inline operator fun NavGraph.get(route: String): NavDestination =
     findNode(route)
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
@@ -441,7 +442,7 @@ public inline operator fun NavGraph.get(route: String): NavDestination =
 public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
-public operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
+public actual operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have an
@@ -454,7 +455,7 @@ public operator fun NavGraph.contains(route: String): Boolean = findNode(route) 
  * @param node destination to add
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline operator fun NavGraph.plusAssign(node: NavDestination) {
+public actual inline operator fun NavGraph.plusAssign(node: NavDestination) {
     addDestination(node)
 }
 
@@ -466,12 +467,12 @@ public inline operator fun NavGraph.plusAssign(node: NavDestination) {
  * parameter graph after being added to this graph.
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline operator fun NavGraph.plusAssign(other: NavGraph) {
+public actual inline operator fun NavGraph.plusAssign(other: NavGraph) {
     addAll(other)
 }
 
 /** Removes `node` from this navigation graph. */
 @Suppress("NOTHING_TO_INLINE")
-public inline operator fun NavGraph.minusAssign(node: NavDestination) {
+public actual inline operator fun NavGraph.minusAssign(node: NavDestination) {
     remove(node)
 }

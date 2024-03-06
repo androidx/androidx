@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.navigation
 
-import android.os.Bundle
 import kotlinx.coroutines.flow.StateFlow
 
-/**
- * A Navigator built specifically for [NavGraph] elements. Handles navigating to the
- * correct destination when the NavGraph is the target of navigation actions.
- *
- * Construct a Navigator capable of routing incoming navigation requests to the proper
- * destination within a [NavGraph].
- *
- * @param navigatorProvider NavigatorProvider used to retrieve the correct
- * [Navigator] to navigate to the start destination
- */
-@Navigator.Name("navigation")
 public actual open class NavGraphNavigator actual constructor(
     private val navigatorProvider: NavigatorProvider
-) : Navigator<NavGraph>() {
+) : Navigator<NavGraph>(Companion.name) {
 
     /**
      * Gets the backstack of [NavBackStackEntry] associated with this Navigator
@@ -67,32 +56,16 @@ public actual open class NavGraphNavigator actual constructor(
     ) {
         val destination = entry.destination as NavGraph
         // contains restored args or args passed explicitly as startDestinationArgs
-        var args = entry.arguments
-        val startId = destination.startDestinationId
+        val args = entry.arguments
         val startRoute = destination.startDestinationRoute
-        check(startId != 0 || startRoute != null) {
+        check(startRoute != null) {
             ("no start destination defined via app:startDestination for ${destination.displayName}")
         }
-        val startDestination = if (startRoute != null) {
-            destination.findNode(startRoute, false)
-        } else {
-            destination.findNode(startId, false)
-        }
+        val startDestination = destination.findNode(startRoute, false)
         requireNotNull(startDestination) {
-            val dest = destination.startDestDisplayName
             throw IllegalArgumentException(
-                "navigation destination $dest is not a direct child of this NavGraph"
+                "navigation destination $startRoute is not a direct child of this NavGraph"
             )
-        }
-        if (startRoute != null) {
-            val matchingArgs = startDestination.matchDeepLink(startRoute)?.matchingArgs
-            if (matchingArgs != null && !matchingArgs.isEmpty) {
-                val bundle = Bundle()
-                // we need to add args from startRoute, but it should not override existing args
-                bundle.putAll(matchingArgs)
-                args?.let { bundle.putAll(args) }
-                args = bundle
-            }
         }
 
         val navigator = navigatorProvider.getNavigator<Navigator<NavDestination>>(
@@ -105,5 +78,9 @@ public actual open class NavGraphNavigator actual constructor(
             startDestination.addInDefaultArgs(args)
         )
         navigator.navigate(listOf(startDestinationEntry), navOptions, navigatorExtras)
+    }
+
+    internal companion object {
+        internal const val name = "navigation"
     }
 }

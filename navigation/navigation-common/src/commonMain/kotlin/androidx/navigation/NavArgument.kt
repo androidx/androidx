@@ -15,8 +15,8 @@
  */
 package androidx.navigation
 
-import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.core.bundle.Bundle
 
 /**
  * NavArgument denotes an argument that is supported by a [NavDestination].
@@ -81,7 +81,7 @@ public class NavArgument internal constructor(
 
     override fun toString(): String {
         val sb = StringBuilder()
-        sb.append(javaClass.simpleName)
+        sb.append(this::class.simpleName)
         sb.append(" Type: $type")
         sb.append(" Nullable: $isNullable")
         if (isDefaultValuePresent) {
@@ -92,7 +92,7 @@ public class NavArgument internal constructor(
 
     public override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
+        if (other == null || this::class != other::class) return false
         val that = other as NavArgument
         if (isNullable != that.isNullable) return false
         if (isDefaultValuePresent != that.isDefaultValuePresent) return false

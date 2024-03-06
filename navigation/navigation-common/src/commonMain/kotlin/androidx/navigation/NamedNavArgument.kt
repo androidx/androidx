@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("NamedNavArgumentKt")
-
 package androidx.navigation
 
 /**

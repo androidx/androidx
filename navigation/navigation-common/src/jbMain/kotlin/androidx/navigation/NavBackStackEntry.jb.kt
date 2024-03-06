@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.navigation
 
-import android.app.Application
-import android.content.Context
-import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.core.bundle.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
@@ -28,7 +27,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -40,7 +38,11 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import java.util.UUID
+import kotlin.experimental.and
+import kotlin.experimental.or
+import kotlin.random.Random
+import kotlin.reflect.KClass
+
 
 /**
  * Representation of an entry in the back stack of a [androidx.navigation.NavController]. The
@@ -49,10 +51,7 @@ import java.util.UUID
  * destination is popped off the back stack, the lifecycle will be destroyed, state
  * will no longer be saved, and ViewModels will be cleared.
  */
-public actual class NavBackStackEntry
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-private constructor(
-    private val context: Context?,
+public actual class NavBackStackEntry private constructor(
     /**
      * The destination associated with this entry
      * @return The destination that is currently visible to users
@@ -66,7 +65,7 @@ private constructor(
      * The unique ID that serves as the identity of this entry
      * @return the unique ID of this entry
      */
-    public actual val id: String = UUID.randomUUID().toString(),
+    public actual val id: String = randomId(),
     private val savedState: Bundle? = null
 ) : LifecycleOwner,
     ViewModelStoreOwner,
@@ -75,7 +74,6 @@ private constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     actual constructor(entry: NavBackStackEntry, arguments: Bundle?) : this(
-        entry.context,
         entry.destination,
         arguments,
         entry.hostLifecycleState,
@@ -90,25 +88,28 @@ private constructor(
     public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun create(
-            context: Context?,
             destination: NavDestination,
             arguments: Bundle? = null,
             hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
             viewModelStoreProvider: NavViewModelStoreProvider? = null,
-            id: String = UUID.randomUUID().toString(),
+            id: String = randomUUID(),
             savedState: Bundle? = null
         ): NavBackStackEntry = NavBackStackEntry(
-            context, destination, arguments,
-            hostLifecycleState, viewModelStoreProvider, id, savedState
+            destination = destination,
+            immutableArgs = arguments,
+            hostLifecycleState = hostLifecycleState,
+            viewModelStoreProvider = viewModelStoreProvider,
+            id = id,
+            savedState = savedState
         )
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun randomId(): String = randomUUID()
     }
 
     private var _lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private var savedStateRegistryAttached = false
-    private val defaultFactory by lazy {
-        SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
-    }
 
     /**
      * The arguments used for this entry. Note that the arguments of
@@ -139,9 +140,9 @@ private constructor(
             "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
                 "NavBackStackEntry is destroyed."
         }
-        ViewModelProvider(
+        ViewModelProvider.create(
             this, NavResultSavedStateFactory(this)
-        ).get(SavedStateViewModel::class.java).handle
+        ).get(SavedStateViewModel::class).handle
     }
 
     /**
@@ -215,14 +216,13 @@ private constructor(
             return viewModelStoreProvider.getViewModelStore(id)
         }
 
-    override val defaultViewModelProviderFactory: ViewModelProvider.Factory = defaultFactory
+    override val defaultViewModelProviderFactory = object : ViewModelProvider.Factory {
+        // Use default implementation
+    }
 
     override val defaultViewModelCreationExtras: CreationExtras
         get() {
             val extras = MutableCreationExtras()
-            (context?.applicationContext as? Application)?.let { application ->
-                extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
-            }
             extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
             extras[VIEW_MODEL_STORE_OWNER_KEY] = this
             arguments?.let { args ->
@@ -248,7 +248,7 @@ private constructor(
             (
                 immutableArgs == other.immutableArgs ||
                     immutableArgs?.keySet()
-                    ?.all { immutableArgs.get(it) == other.immutableArgs?.get(it) } == true
+                        ?.all { immutableArgs.get(it) == other.immutableArgs?.get(it) } == true
                 )
     }
 
@@ -266,7 +266,7 @@ private constructor(
 
     override fun toString(): String {
         val sb = StringBuilder()
-        sb.append(javaClass.simpleName)
+        sb.append(this::class.simpleName)
         sb.append("($id)")
         sb.append(" destination=")
         sb.append(destination)
@@ -282,7 +282,7 @@ private constructor(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(
             key: String,
-            modelClass: Class<T>,
+            modelClass: KClass<T>,
             handle: SavedStateHandle
         ): T {
             return SavedStateViewModel(handle) as T
@@ -290,4 +290,25 @@ private constructor(
     }
 
     private class SavedStateViewModel(val handle: SavedStateHandle) : ViewModel()
+}
+
+@OptIn(ExperimentalStdlibApi::class)
+private fun randomUUID(): String {
+    val bytes = Random.nextBytes(16).also {
+        it[6] = it[6] and 0x0f // clear version
+        it[6] = it[6] or 0x40 // set to version 4
+        it[8] = it[8] and 0x3f // clear variant
+        it[8] = it[8] or 0x80.toByte() // set to IETF variant
+    }
+   return StringBuilder(36)
+       .append(bytes.toHexString(0, 4))
+       .append('-')
+       .append(bytes.toHexString(4, 6))
+       .append('-')
+       .append(bytes.toHexString(6, 8))
+       .append('-')
+       .append(bytes.toHexString(8, 10))
+       .append('-')
+       .append(bytes.toHexString(10))
+       .toString()
 }

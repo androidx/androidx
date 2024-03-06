@@ -49,11 +49,11 @@ import kotlin.reflect.KClass
  *
  * NavDestinations should be created via [Navigator.createDestination].
  */
-public open class NavDestination(
+public actual open class NavDestination actual constructor(
     /**
      * The name associated with this destination's [Navigator].
      */
-    public val navigatorName: String
+    public actual val navigatorName: String
 ) {
     /**
      * This optional annotation allows tooling to offer auto-complete for the
@@ -145,7 +145,7 @@ public open class NavDestination(
      * Gets the [NavGraph] that contains this destination. This will be set when a
      * destination is added to a NavGraph via [NavGraph.addDestination].
      */
-    public var parent: NavGraph? = null
+    public actual var parent: NavGraph? = null
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public set
     private var idName: String? = null
@@ -153,7 +153,7 @@ public open class NavDestination(
     /**
      * The descriptive label of this destination.
      */
-    public var label: CharSequence? = null
+    public actual var label: CharSequence? = null
     private val deepLinks = mutableListOf<NavDeepLink>()
     private val actions: SparseArrayCompat<NavAction> = SparseArrayCompat()
 
@@ -168,7 +168,7 @@ public open class NavDestination(
      * use [addArgument] and [removeArgument].
      * @return Read-only map of argument names to arguments.
      */
-    public val arguments: Map<String, NavArgument>
+    public actual val arguments: Map<String, NavArgument>
         get() = _arguments.toMap()
 
     /**
@@ -176,7 +176,7 @@ public open class NavDestination(
      *
      * This constructor requires that the given Navigator has a [Navigator.Name] annotation.
      */
-    public constructor(navigator: Navigator<out NavDestination>) : this(
+    public actual constructor(navigator: Navigator<out NavDestination>) : this(
         NavigatorProvider.getNameForNavigator(
             navigator.javaClass
         )
@@ -220,7 +220,7 @@ public open class NavDestination(
      *
      * @throws IllegalArgumentException is the given route is empty
      */
-    public var route: String? = null
+    public actual var route: String? = null
         set(route) {
             if (route == null) {
                 id = 0
@@ -234,7 +234,7 @@ public open class NavDestination(
             field = route
         }
 
-    public open val displayName: String
+    public actual open val displayName: String
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() = idName ?: id.toString()
 
@@ -304,7 +304,7 @@ public open class NavDestination(
      * @see NavController.navigate
      * @see NavDestination.addDeepLink
      */
-    public fun addDeepLink(uriPattern: String) {
+    public actual fun addDeepLink(uriPattern: String) {
         addDeepLink(NavDeepLink.Builder().setUriPattern(uriPattern).build())
     }
 
@@ -349,7 +349,7 @@ public open class NavDestination(
      * @see NavController.handleDeepLink
      * @see NavController.navigate
      */
-    public fun addDeepLink(navDeepLink: NavDeepLink) {
+    public actual fun addDeepLink(navDeepLink: NavDeepLink) {
         val missingRequiredArguments = _arguments.missingRequiredArguments { key ->
             key !in navDeepLink.argumentsNames
         }
@@ -482,7 +482,7 @@ public open class NavDestination(
      * to this destination
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun hasRoute(route: String, arguments: Bundle?): Boolean {
+    public actual fun hasRoute(route: String, arguments: Bundle?): Boolean {
         // this matches based on routePattern
         if (this.route == route) return true
 
@@ -566,7 +566,7 @@ public open class NavDestination(
      * @param argumentName argument object to associate with destination
      * @param argument argument object to associate with destination
      */
-    public fun addArgument(argumentName: String, argument: NavArgument) {
+    public actual fun addArgument(argumentName: String, argument: NavArgument) {
         _arguments[argumentName] = argument
     }
 
@@ -575,7 +575,7 @@ public open class NavDestination(
      *
      * @param argumentName argument to remove
      */
-    public fun removeArgument(argumentName: String) {
+    public actual fun removeArgument(argumentName: String) {
         _arguments.remove(argumentName)
     }
 
@@ -586,7 +586,7 @@ public open class NavDestination(
      */
     @Suppress("NullableCollection") // Needed for nullable bundle
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun addInDefaultArgs(args: Bundle?): Bundle? {
+    public actual fun addInDefaultArgs(args: Bundle?): Bundle? {
         if (args == null && _arguments.isNullOrEmpty()) {
             return null
         }
@@ -718,7 +718,7 @@ public open class NavDestination(
         return result
     }
 
-    public companion object {
+    public actual companion object {
         private val classes = mutableMapOf<String, Class<*>>()
 
         /**
@@ -809,7 +809,7 @@ public open class NavDestination(
          * graph's parent, and up the hierarchy until you've reached the root navigation graph.
          */
         @JvmStatic
-        public val NavDestination.hierarchy: Sequence<NavDestination>
+        public actual val NavDestination.hierarchy: Sequence<NavDestination>
             get() = generateSequence(this) { it.parent }
     }
 }

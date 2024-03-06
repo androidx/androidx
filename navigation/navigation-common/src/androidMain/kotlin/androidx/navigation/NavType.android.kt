@@ -32,12 +32,12 @@ import java.io.Serializable
  *
  * @param T the type of the data that is supported by this NavType
  */
-public abstract class NavType<T>(
+public actual abstract class NavType<T> actual constructor(
     /**
      * Check if an argument with this type can hold a null value.
      * @return Returns true if this type allows null values, false otherwise.
      */
-    public open val isNullableAllowed: Boolean
+    public actual open val isNullableAllowed: Boolean
 ) {
 
     /**
@@ -47,7 +47,7 @@ public abstract class NavType<T>(
      * @param key    bundle key
      * @param value  value of this type
      */
-    public abstract fun put(bundle: Bundle, key: String, value: T)
+    public actual abstract fun put(bundle: Bundle, key: String, value: T)
 
     /**
      * Get a value of this type from the `bundle`
@@ -56,7 +56,7 @@ public abstract class NavType<T>(
      * @param key    bundle key
      * @return value of this type
      */
-    public abstract operator fun get(bundle: Bundle, key: String): T?
+    public actual abstract operator fun get(bundle: Bundle, key: String): T?
 
     /**
      * Parse a value of this type from a String.
@@ -65,7 +65,7 @@ public abstract class NavType<T>(
      * @return parsed value of the type represented by this NavType
      * @throws IllegalArgumentException if value cannot be parsed into this type
      */
-    public abstract fun parseValue(value: String): T
+    public actual abstract fun parseValue(value: String): T
 
     /**
      * Parse a value of this type from a String and then combine that
@@ -79,7 +79,7 @@ public abstract class NavType<T>(
      * @return combined parsed value of the type represented by this NavType
      * @throws IllegalArgumentException if value cannot be parsed into this type
      */
-    public open fun parseValue(value: String, previousValue: T) = parseValue(value)
+    public actual open fun parseValue(value: String, previousValue: T): T = parseValue(value)
 
     /**
      * Parse a value of this type from a String and put it in a `bundle`
@@ -90,7 +90,7 @@ public abstract class NavType<T>(
      * @return parsed value of the type represented by this NavType
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun parseAndPut(bundle: Bundle, key: String, value: String): T {
+    public actual fun parseAndPut(bundle: Bundle, key: String, value: String): T {
         val parsedValue = parseValue(value)
         put(bundle, key, parsedValue)
         return parsedValue
@@ -108,7 +108,7 @@ public abstract class NavType<T>(
      * @return combined parsed value of the type represented by this NavType
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun parseAndPut(bundle: Bundle, key: String, value: String?, previousValue: T): T {
+    public actual fun parseAndPut(bundle: Bundle, key: String, value: String?, previousValue: T): T {
         if (!bundle.containsKey(key)) {
             throw IllegalArgumentException("There is no previous value in this bundle.")
         }
@@ -131,7 +131,7 @@ public abstract class NavType<T>(
      * @param value a value representing this NavType to be serialized into a String
      * @return serialized String value of [value]
      */
-    public open fun serializeAsValue(value: T): String {
+    public actual open fun serializeAsValue(value: T): String {
         return value.toString()
     }
 
@@ -142,7 +142,7 @@ public abstract class NavType<T>(
      *
      * @return name of this type
      */
-    public open val name: String = "nav_type"
+    public actual open val name: String = "nav_type"
 
     /**
      * Compares two values of type [T] and returns true if values are equal.
@@ -150,7 +150,7 @@ public abstract class NavType<T>(
      * @param value the first value for comparison
      * @param other the second value for comparison
      */
-    public open fun valueEquals(value: T, other: T): Boolean = value == other
+    public actual open fun valueEquals(value: T, other: T): Boolean = value == other
 
     override fun toString(): String {
         return name
@@ -159,7 +159,7 @@ public abstract class NavType<T>(
     internal fun isPrimitive() = this == IntType || this == BoolType ||
         this == FloatType || this == LongType || this == StringType
 
-    public companion object {
+    public actual companion object {
         /**
          * Parse an argType string into a NavType.
          *
@@ -174,7 +174,7 @@ public abstract class NavType<T>(
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT", "UNCHECKED_CAST") // this needs to be open to
         // maintain api compatibility and type cast are unchecked
         @JvmStatic
-        public open fun fromArgType(type: String?, packageName: String?): NavType<*> {
+        public actual open fun fromArgType(type: String?, packageName: String?): NavType<*> {
             when {
                 IntType.name == type -> return IntType
                 IntArrayType.name == type -> return IntArrayType
@@ -240,7 +240,7 @@ public abstract class NavType<T>(
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun inferFromValue(value: String): NavType<Any> {
+        public actual fun inferFromValue(value: String): NavType<Any> {
             // because we allow Long literals without the L suffix at runtime,
             // the order of IntType and LongType parsing has to be reversed compared to Safe Args
             try {
@@ -277,7 +277,7 @@ public abstract class NavType<T>(
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun inferFromValueType(value: Any?): NavType<Any> {
+        public actual fun inferFromValueType(value: Any?): NavType<Any> {
             return when {
                 value is Int -> IntType as NavType<Any>
                 value is IntArray -> IntArrayType as NavType<Any>
@@ -320,7 +320,7 @@ public abstract class NavType<T>(
          * Null values are not supported.
          */
         @JvmField
-        public val IntType: NavType<Int> = object : NavType<Int>(false) {
+        public actual val IntType: NavType<Int> = object : NavType<Int>(false) {
             override val name: String
                 get() = "integer"
 
@@ -380,7 +380,7 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val IntArrayType: NavType<IntArray?> = object : NavType<IntArray?>(true) {
+        public actual val IntArrayType: NavType<IntArray?> = object : NavType<IntArray?>(true) {
             override val name: String
                 get() = "integer[]"
 
@@ -417,7 +417,7 @@ public abstract class NavType<T>(
          * `app:defaultValue="123L"`.
          */
         @JvmField
-        public val LongType: NavType<Long> = object : NavType<Long>(false) {
+        public actual val LongType: NavType<Long> = object : NavType<Long>(false) {
             override val name: String
                 get() = "long"
 
@@ -454,7 +454,7 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val LongArrayType: NavType<LongArray?> = object : NavType<LongArray?>(true) {
+        public actual val LongArrayType: NavType<LongArray?> = object : NavType<LongArray?>(true) {
             override val name: String
                 get() = "long[]"
 
@@ -489,7 +489,7 @@ public abstract class NavType<T>(
          * Null values are not supported.
          */
         @JvmField
-        public val FloatType: NavType<Float> = object : NavType<Float>(false) {
+        public actual val FloatType: NavType<Float> = object : NavType<Float>(false) {
             override val name: String
                 get() = "float"
 
@@ -515,7 +515,7 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val FloatArrayType: NavType<FloatArray?> = object : NavType<FloatArray?>(true) {
+        public actual val FloatArrayType: NavType<FloatArray?> = object : NavType<FloatArray?>(true) {
             override val name: String
                 get() = "float[]"
 
@@ -550,7 +550,7 @@ public abstract class NavType<T>(
          * Null values are not supported.
          */
         @JvmField
-        public val BoolType: NavType<Boolean> = object : NavType<Boolean>(false) {
+        public actual val BoolType: NavType<Boolean> = object : NavType<Boolean>(false) {
             override val name: String
                 get() = "boolean"
 
@@ -584,7 +584,7 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val BoolArrayType: NavType<BooleanArray?> = object : NavType<BooleanArray?>(true) {
+        public actual val BoolArrayType: NavType<BooleanArray?> = object : NavType<BooleanArray?>(true) {
             override val name: String
                 get() = "boolean[]"
 
@@ -619,7 +619,7 @@ public abstract class NavType<T>(
          * Null values are supported.
          */
         @JvmField
-        public val StringType: NavType<String?> = object : NavType<String?>(true) {
+        public actual val StringType: NavType<String?> = object : NavType<String?>(true) {
             override val name: String
                 get() = "string"
 
@@ -662,7 +662,7 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val StringArrayType: NavType<Array<String>?> = object : NavType<Array<String>?>(
+        public actual val StringArrayType: NavType<Array<String>?> = object : NavType<Array<String>?>(
             true
         ) {
             override val name: String

@@ -52,9 +52,9 @@ public inline fun NavigatorProvider.navigation(
  *
  * @return the newly constructed NavGraph
  */
-public inline fun NavigatorProvider.navigation(
+public actual inline fun NavigatorProvider.navigation(
     startDestination: String,
-    route: String? = null,
+    route: String?,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = NavGraphBuilder(this, startDestination, route).apply(builder)
     .build()
@@ -91,7 +91,7 @@ public inline fun NavGraphBuilder.navigation(
  *
  * @return the newly constructed nested NavGraph
  */
-public inline fun NavGraphBuilder.navigation(
+public actual inline fun NavGraphBuilder.navigation(
     startDestination: String,
     route: String,
     builder: NavGraphBuilder.() -> Unit
@@ -101,11 +101,11 @@ public inline fun NavGraphBuilder.navigation(
  * DSL for constructing a new [NavGraph]
  */
 @NavDestinationDsl
-public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
+public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
     /**
      * The [NavGraphBuilder]'s [NavigatorProvider].
      */
-    public val provider: NavigatorProvider
+    public actual val provider: NavigatorProvider
     @IdRes private var startDestinationId: Int = 0
     private var startDestinationRoute: String? = null
 
@@ -144,7 +144,7 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      *
      * @return the newly created NavGraph
      */
-    public constructor(
+    public actual constructor(
         provider: NavigatorProvider,
         startDestination: String,
         route: String?
@@ -158,21 +158,21 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
     /**
      * Build and add a new destination to the [NavGraphBuilder]
      */
-    public fun <D : NavDestination> destination(navDestination: NavDestinationBuilder<D>) {
+    public actual fun <D : NavDestination> destination(navDestination: NavDestinationBuilder<D>) {
         destinations += navDestination.build()
     }
 
     /**
      * Adds this destination to the [NavGraphBuilder]
      */
-    public operator fun NavDestination.unaryPlus() {
+    public actual operator fun NavDestination.unaryPlus() {
         addDestination(this)
     }
 
     /**
      * Add the destination to the [NavGraphBuilder]
      */
-    public fun addDestination(destination: NavDestination) {
+    public actual fun addDestination(destination: NavDestination) {
         destinations += destination
     }
 

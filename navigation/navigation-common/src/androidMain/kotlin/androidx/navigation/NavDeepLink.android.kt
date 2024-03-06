@@ -27,25 +27,25 @@ import java.util.regex.Pattern
  * This should be added to a [NavDestination] using
  * [NavDestination.addDeepLink].
  */
-public class NavDeepLink internal constructor(
+public actual class NavDeepLink internal actual constructor(
     /**
      * The uri pattern from the NavDeepLink.
      *
      * @see NavDeepLinkRequest.uri
      */
-    public val uriPattern: String?,
+    public actual val uriPattern: String?,
     /**
      * The action from the NavDeepLink.
      *
      * @see NavDeepLinkRequest.action
      */
-    public val action: String?,
+    public actual val action: String?,
     /**
      * The mimeType from the NavDeepLink.
      *
      * @see NavDeepLinkRequest.mimeType
      */
-    public val mimeType: String?
+    public actual val mimeType: String?
 ) {
     // path
     private val pathArgs = mutableListOf<String>()
@@ -427,10 +427,10 @@ public class NavDeepLink internal constructor(
     /**
      * A builder for constructing [NavDeepLink] instances.
      */
-    public class Builder {
+    public actual class Builder {
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public constructor()
+        public actual constructor()
 
         private var uriPattern: String? = null
         private var action: String? = null
@@ -443,7 +443,7 @@ public class NavDeepLink internal constructor(
          *
          * @return This builder.
          */
-        public fun setUriPattern(uriPattern: String): Builder {
+        public actual fun setUriPattern(uriPattern: String): Builder {
             this.uriPattern = uriPattern
             return this
         }
@@ -457,7 +457,7 @@ public class NavDeepLink internal constructor(
          *
          * @return This builder.
          */
-        public fun setAction(action: String): Builder {
+        public actual fun setAction(action: String): Builder {
             // if the action given at runtime is empty we should throw
             require(action.isNotEmpty()) { "The NavDeepLink cannot have an empty action." }
             this.action = action
@@ -471,7 +471,7 @@ public class NavDeepLink internal constructor(
          *
          * @return This builder.
          */
-        public fun setMimeType(mimeType: String): Builder {
+        public actual fun setMimeType(mimeType: String): Builder {
             this.mimeType = mimeType
             return this
         }
@@ -481,11 +481,11 @@ public class NavDeepLink internal constructor(
          *
          * @return the newly constructed NavDeepLink.
          */
-        public fun build(): NavDeepLink {
+        public actual fun build(): NavDeepLink {
             return NavDeepLink(uriPattern, action, mimeType)
         }
 
-        internal companion object {
+        internal actual companion object {
             /**
              * Creates a [NavDeepLink.Builder] with a set uri pattern.
              *
@@ -493,7 +493,7 @@ public class NavDeepLink internal constructor(
              * @return a [Builder] instance
              */
             @JvmStatic
-            fun fromUriPattern(uriPattern: String): Builder {
+            actual fun fromUriPattern(uriPattern: String): Builder {
                 val builder = Builder()
                 builder.setUriPattern(uriPattern)
                 return builder
@@ -508,7 +508,7 @@ public class NavDeepLink internal constructor(
              * @return a [Builder] instance
              */
             @JvmStatic
-            fun fromAction(action: String): Builder {
+            actual fun fromAction(action: String): Builder {
                 // if the action given at runtime is empty we should throw
                 require(action.isNotEmpty()) { "The NavDeepLink cannot have an empty action." }
                 val builder = Builder()
@@ -523,7 +523,7 @@ public class NavDeepLink internal constructor(
              * @return a [Builder] instance
              */
             @JvmStatic
-            fun fromMimeType(mimeType: String): Builder {
+            actual fun fromMimeType(mimeType: String): Builder {
                 val builder = Builder()
                 builder.setMimeType(mimeType)
                 return builder

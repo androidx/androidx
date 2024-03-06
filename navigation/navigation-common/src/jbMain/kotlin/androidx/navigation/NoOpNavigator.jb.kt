@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.navigation
 
-import android.os.Bundle
-import androidx.annotation.RestrictTo
+import androidx.core.bundle.Bundle
 
-/**
- * A [Navigator] that only supports creating destinations.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Navigator.Name("NoOp")
-public actual class NoOpNavigator : Navigator<NavDestination>() {
+public actual class NoOpNavigator : Navigator<NavDestination>("NoOp") {
     override fun createDestination(): NavDestination = NavDestination(this)
 
     override fun navigate(

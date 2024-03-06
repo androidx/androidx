@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,24 @@
  */
 package androidx.navigation
 
-import android.os.Bundle
 import androidx.annotation.CallSuper
-import androidx.navigation.Navigator.Name
+import androidx.core.bundle.Bundle
 
 /**
  * Navigator defines a mechanism for navigating within an app.
  *
- * Each Navigator sets the policy for a specific type of navigation, e.g.
- * [ActivityNavigator] knows how to launch into [destinations][NavDestination]
- * backed by activities using [startActivity][Context.startActivity].
+ * Each Navigator sets the policy for a specific type of navigation.
  *
  * Navigators should be able to manage their own back stack when navigating between two
  * destinations that belong to that navigator. The [NavController] manages a back stack of
  * navigators representing the current navigation stack across all navigators.
- *
- * Each Navigator should add the [Navigator.Name annotation][Name] to their class. Any
- * custom attributes used by the associated [destination][NavDestination] subclass should
- * have a name corresponding with the name of the Navigator, e.g., [ActivityNavigator] uses
- * `<declare-styleable name="ActivityNavigator">`
  *
  * @param D the subclass of [NavDestination] used with this Navigator which can be used
  * to hold any special data that will be needed to navigate to that destination.
  * Examples include information about an intent to navigate to other activities,
  * or a fragment class name to instantiate and swap to a new fragment.
  */
-public actual abstract class Navigator<D : NavDestination> {
-    /**
-     * This annotation should be added to each Navigator subclass to denote the default name used
-     * to register the Navigator with a [NavigatorProvider].
-     *
-     * @see NavigatorProvider.addNavigator
-     * @see NavigatorProvider.getNavigator
-     */
-    @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
-    @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
-    public annotation class Name(val value: String)
-
-    private var _state: NavigatorState? = null
-
+public expect abstract class Navigator<D : NavDestination> {
     /**
      * The state of the Navigator is the communication conduit between the Navigator
      * and the [NavController] that has called [onAttach].
@@ -64,17 +43,14 @@ public actual abstract class Navigator<D : NavDestination> {
      *
      * @throws IllegalStateException if [isAttached] is `false`
      */
-    protected actual val state: NavigatorState
-        get() = checkNotNull(_state) {
-            "You cannot access the Navigator's state until the Navigator is attached"
-        }
+    protected val state: NavigatorState
 
     /**
      * Whether this Navigator is actively being used by a [NavController].
      *
      * This is set to `true` when [onAttach] is called.
      */
-    public actual var isAttached: Boolean = false
+    public var isAttached: Boolean
         private set
 
     /**
@@ -82,10 +58,7 @@ public actual abstract class Navigator<D : NavDestination> {
      * is called when the NavController's state is ready to be restored.
      */
     @CallSuper
-    public actual open fun onAttach(state: NavigatorState) {
-        _state = state
-        isAttached = true
-    }
+    public open fun onAttach(state: NavigatorState)
 
     /**
      * Construct a new NavDestination associated with this Navigator.
@@ -94,7 +67,7 @@ public actual abstract class Navigator<D : NavDestination> {
      * it is not guaranteed that every destination will be created through this method.
      * @return a new NavDestination
      */
-    public actual abstract fun createDestination(): D
+    public abstract fun createDestination(): D
 
     /**
      * Navigate to a destination.
@@ -107,31 +80,11 @@ public actual abstract class Navigator<D : NavDestination> {
      * @param navOptions additional options for navigation
      * @param navigatorExtras extras unique to your Navigator.
      */
-    @Suppress("UNCHECKED_CAST")
-    public actual open fun navigate(
+    public open fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
-    ) {
-        entries.asSequence().map { backStackEntry ->
-            val destination = backStackEntry.destination as? D ?: return@map null
-            val navigatedToDestination = navigate(
-                destination, backStackEntry.arguments, navOptions, navigatorExtras
-            )
-            when (navigatedToDestination) {
-                null -> null
-                destination -> backStackEntry
-                else -> {
-                    state.createBackStackEntry(
-                        navigatedToDestination,
-                        navigatedToDestination.addInDefaultArgs(backStackEntry.arguments)
-                    )
-                }
-            }
-        }.filterNotNull().forEach { backStackEntry ->
-            state.push(backStackEntry)
-        }
-    }
+    )
 
     /**
      * Informational callback indicating that the given [backStackEntry] has been
@@ -139,12 +92,7 @@ public actual abstract class Navigator<D : NavDestination> {
      * [NavBackStackEntry] instance with all the previous state of the old entry and possibly
      * new arguments.
      */
-    @Suppress("UNCHECKED_CAST")
-    public actual open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
-        val destination = backStackEntry.destination as? D ?: return
-        navigate(destination, null, navOptions { launchSingleTop = true }, null)
-        state.onLaunchSingleTop(backStackEntry)
-    }
+    public open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry)
 
     /**
      * Navigate to a destination.
@@ -162,12 +110,12 @@ public actual abstract class Navigator<D : NavDestination> {
      * where the destination is already on top of the back stack).
      */
     // TODO Deprecate this method once all call sites are removed
-    public actual open fun navigate(
+    public open fun navigate(
         destination: D,
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
-    ): NavDestination? = destination
+    ): NavDestination?
 
     /**
      * Attempt to pop this navigator's back stack, performing the appropriate navigation.
@@ -179,24 +127,7 @@ public actual abstract class Navigator<D : NavDestination> {
      * @param savedState whether any Navigator specific state associated with [popUpTo] should
      * be saved to later be restored by a call to [navigate] with [NavOptions.shouldRestoreState].
      */
-    public actual open fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
-        val backStack = state.backStack.value
-        check(backStack.contains(popUpTo)) {
-            "popBackStack was called with $popUpTo which does not exist in back stack $backStack"
-        }
-        val iterator = backStack.listIterator(backStack.size)
-        var lastPoppedEntry: NavBackStackEntry? = null
-        do {
-            if (!popBackStack()) {
-                // Quit early if popBackStack() returned false
-                break
-            }
-            lastPoppedEntry = iterator.previous()
-        } while (lastPoppedEntry != popUpTo)
-        if (lastPoppedEntry != null) {
-            state.pop(lastPoppedEntry, savedState)
-        }
-    }
+    public open fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean)
 
     /**
      * Attempt to pop this navigator's back stack, performing the appropriate navigation.
@@ -208,15 +139,13 @@ public actual abstract class Navigator<D : NavDestination> {
      * @return `true` if pop was successful
      */
     // TODO Deprecate this method once all call sites are removed
-    public actual open fun popBackStack(): Boolean = true
+    public open fun popBackStack(): Boolean
 
     /**
      * Called to ask for a [Bundle] representing the Navigator's state. This will be
      * restored in [onRestoreState].
      */
-    public actual open fun onSaveState(): Bundle? {
-        return null
-    }
+    public open fun onSaveState(): Bundle?
 
     /**
      * Restore any state previously saved in [onSaveState]. This will be called before
@@ -228,11 +157,11 @@ public actual abstract class Navigator<D : NavDestination> {
      *
      * @param savedState The state previously saved
      */
-    public actual open fun onRestoreState(savedState: Bundle) {}
+    public open fun onRestoreState(savedState: Bundle)
 
     /**
      * Interface indicating that this class should be passed to its respective
      * [Navigator] to enable Navigator specific behavior.
      */
-    public actual interface Extras
+    public interface Extras
 }

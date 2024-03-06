@@ -28,10 +28,10 @@ import kotlin.reflect.KClass
  * to a destination.
  */
 @SuppressLint("TypeParameterUnusedInFormals")
-public open class NavigatorProvider {
+public actual open class NavigatorProvider {
     private val _navigators: MutableMap<String, Navigator<out NavDestination>> = mutableMapOf()
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val navigators: Map<String, Navigator<out NavDestination>>
+    public actual val navigators: Map<String, Navigator<out NavDestination>>
         get() = _navigators.toMap()
 
     /**
@@ -64,7 +64,7 @@ public open class NavigatorProvider {
      */
     @Suppress("UNCHECKED_CAST")
     @CallSuper
-    public open fun <T : Navigator<*>> getNavigator(name: String): T {
+    public actual open fun <T : Navigator<*>> getNavigator(name: String): T {
         require(validateName(name)) { "navigator name cannot be an empty string" }
         val navigator = _navigators[name]
             ?: throw IllegalStateException(
@@ -84,7 +84,7 @@ public open class NavigatorProvider {
      * @return the previously added Navigator for the name provided by the
      * [Navigator.Name annotation][Navigator.Name], if any
      */
-    public fun addNavigator(
+    public actual fun addNavigator(
         navigator: Navigator<out NavDestination>
     ): Navigator<out NavDestination>? {
         return addNavigator(getNameForNavigator(navigator.javaClass), navigator)
@@ -100,7 +100,7 @@ public open class NavigatorProvider {
      * @return the previously added Navigator for the given name, if any
      */
     @CallSuper
-    public open fun addNavigator(
+    public actual open fun addNavigator(
         name: String,
         navigator: Navigator<out NavDestination>
     ): Navigator<out NavDestination>? {
@@ -148,7 +148,7 @@ public open class NavigatorProvider {
  * @throws IllegalStateException if the Navigator has not been added
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
+public actual inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
     name: String
 ): T = getNavigator(name)
 
@@ -170,7 +170,7 @@ public inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider
  * @return the previously added [Navigator] for the given name, if any
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline operator fun NavigatorProvider.set(
+public actual inline operator fun NavigatorProvider.set(
     name: String,
     navigator: Navigator<out NavDestination>
 ): Navigator<out NavDestination>? = addNavigator(name, navigator)
@@ -180,6 +180,6 @@ public inline operator fun NavigatorProvider.set(
  * [Navigator.Name annotation][Navigator.Name].
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {
+public actual inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {
     addNavigator(navigator)
 }

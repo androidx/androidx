@@ -16,12 +16,12 @@
 
 package androidx.navigation
 
-import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import androidx.core.bundle.Bundle
 import androidx.lifecycle.Lifecycle
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import androidx.navigation.internal.Lock
+import androidx.navigation.internal.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * [NavController].
  */
 public abstract class NavigatorState {
-    private val backStackLock = ReentrantLock(true)
+    private val backStackLock = Lock()
     private val _backStack: MutableStateFlow<List<NavBackStackEntry>> = MutableStateFlow(listOf())
     private val _transitionsInProgress: MutableStateFlow<Set<NavBackStackEntry>> =
         MutableStateFlow(setOf())
