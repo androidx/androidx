@@ -171,7 +171,6 @@ internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
 }
 
 /** Converts a shape token key to the local shape provided by the theme */
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun ShapeKeyTokens.toShape(): Shape {
     return MaterialTheme.shapes.fromToken(this)
