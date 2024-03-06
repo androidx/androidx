@@ -301,19 +301,18 @@ internal class DraggableNode(
     startDragImmediately: () -> Boolean,
     private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     private var onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
-    reverseDirection: Boolean
-) : AbstractDraggableNode(
+    private var reverseDirection: Boolean
+) : DragGestureNode(
     canDrag,
     enabled,
     interactionSource,
-    startDragImmediately,
-    reverseDirection
+    startDragImmediately
 ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
         state.drag(MutatePriority.UserInput) {
             forEachDelta { dragDelta ->
-                dragBy(dragDelta.delta.toFloat(orientation))
+                dragBy(dragDelta.delta.reverseIfNeeded().toFloat(orientation))
             }
         }
     }
@@ -324,7 +323,7 @@ internal class DraggableNode(
         this@DraggableNode.onDragStarted(this, startedPosition)
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) =
-        this@DraggableNode.onDragStopped(this, velocity.toFloat(orientation))
+        this@DraggableNode.onDragStopped(this, velocity.reverseIfNeeded().toFloat(orientation))
 
     fun update(
         state: DraggableState,
@@ -346,6 +345,11 @@ internal class DraggableNode(
             this.orientation = orientation
             resetPointerInputHandling = true
         }
+        if (this.reverseDirection != reverseDirection) {
+            this.reverseDirection = reverseDirection
+            resetPointerInputHandling = true
+        }
+
         this.onDragStarted = onDragStarted
         this.onDragStopped = onDragStopped
 
@@ -354,18 +358,22 @@ internal class DraggableNode(
             enabled,
             interactionSource,
             startDragImmediately,
-            reverseDirection,
             resetPointerInputHandling
         )
     }
+
+    private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+    private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
 }
 
-internal abstract class AbstractDraggableNode(
+/**
+ * A node that performs drag gesture recognition and event propagation.
+ */
+internal abstract class DragGestureNode(
     private var canDrag: (PointerInputChange) -> Boolean,
     private var enabled: Boolean,
     private var interactionSource: MutableInteractionSource?,
-    private var startDragImmediately: () -> Boolean,
-    private var reverseDirection: Boolean
+    private var startDragImmediately: () -> Boolean
 ) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
 
     // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
@@ -462,8 +470,7 @@ internal abstract class AbstractDraggableNode(
                                     it.first,
                                     it.second,
                                     velocityTracker,
-                                    channel,
-                                    reverseDirection
+                                    channel
                                 ) { event ->
                                     pointerDirectionConfig.calculateDeltaChange(
                                         event.positionChangeIgnoreConsumed()
@@ -480,7 +487,7 @@ internal abstract class AbstractDraggableNode(
                                         Velocity(maximumVelocity, maximumVelocity)
                                     )
                                     velocityTracker.resetTracking()
-                                    DragStopped(velocity * if (reverseDirection) -1f else 1f)
+                                    DragStopped(velocity)
                                 } else {
                                     DragCancelled
                                 }
@@ -555,7 +562,6 @@ internal abstract class AbstractDraggableNode(
         enabled: Boolean = this.enabled,
         interactionSource: MutableInteractionSource? = this.interactionSource,
         startDragImmediately: () -> Boolean = this.startDragImmediately,
-        reverseDirection: Boolean = this.reverseDirection,
         isResetPointerInputHandling: Boolean = false
     ) {
         var resetPointerInputHandling = isResetPointerInputHandling
@@ -572,10 +578,6 @@ internal abstract class AbstractDraggableNode(
             this.interactionSource = interactionSource
         }
         this.startDragImmediately = startDragImmediately
-        if (this.reverseDirection != reverseDirection) {
-            this.reverseDirection = reverseDirection
-            resetPointerInputHandling = true
-        }
         if (resetPointerInputHandling) {
             pointerInputNode.resetPointerInputHandler()
         }
@@ -623,7 +625,6 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
     initialDelta: Offset,
     velocityTracker: VelocityTracker,
     channel: SendChannel<DragEvent>,
-    reverseDirection: Boolean,
     hasDragged: (PointerInputChange) -> Boolean,
 ): Boolean {
 
@@ -634,7 +635,7 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
         Offset(overSlopOffset.x * xSign, overSlopOffset.y * ySign)
     channel.trySend(DragStarted(adjustedStart))
 
-    channel.trySend(DragDelta(if (reverseDirection) initialDelta * -1f else initialDelta))
+    channel.trySend(DragDelta(initialDelta))
 
     return onDragOrUp(hasDragged, startEvent.id) { event ->
         // Velocity tracker takes all events, even UP
@@ -644,7 +645,7 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
         if (!event.changedToUpIgnoreConsumed()) {
             val delta = event.positionChange()
             event.consume()
-            channel.trySend(DragDelta(if (reverseDirection) delta * -1f else delta))
+            channel.trySend(DragDelta(delta))
         }
     }
 }

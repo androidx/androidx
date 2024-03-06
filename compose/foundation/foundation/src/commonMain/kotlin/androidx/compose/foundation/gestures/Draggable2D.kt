@@ -267,13 +267,12 @@ internal class Draggable2DNode(
     startDragImmediately: () -> Boolean,
     private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
-    reverseDirection: Boolean
-) : AbstractDraggableNode(
+    private var reverseDirection: Boolean
+) : DragGestureNode(
     canDrag,
     enabled,
     interactionSource,
-    startDragImmediately,
-    reverseDirection
+    startDragImmediately
 ) {
 
     override suspend fun drag(
@@ -281,7 +280,7 @@ internal class Draggable2DNode(
     ) {
         state.drag(MutatePriority.UserInput) {
             forEachDelta { dragDelta ->
-                dragBy(dragDelta.delta)
+                dragBy(dragDelta.delta.reverseIfNeeded())
             }
         }
     }
@@ -292,7 +291,7 @@ internal class Draggable2DNode(
         this@Draggable2DNode.onDragStarted(this, startedPosition)
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) =
-        this@Draggable2DNode.onDragStopped(this, velocity)
+        this@Draggable2DNode.onDragStopped(this, velocity.reverseIfNeeded())
 
     fun update(
         state: Draggable2DState,
@@ -309,6 +308,11 @@ internal class Draggable2DNode(
             this.state = state
             resetPointerInputHandling = true
         }
+        if (this.reverseDirection != reverseDirection) {
+            this.reverseDirection = reverseDirection
+            resetPointerInputHandling = true
+        }
+
         this.onDragStarted = onDragStarted
         this.onDragStopped = onDragStopped
 
@@ -317,10 +321,12 @@ internal class Draggable2DNode(
             enabled,
             interactionSource,
             startDragImmediately,
-            reverseDirection,
             resetPointerInputHandling
         )
     }
+
+    private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+    private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
 }
 
 @OptIn(ExperimentalFoundationApi::class)
