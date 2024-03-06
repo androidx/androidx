@@ -34,8 +34,8 @@ import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES_B
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME
 import androidx.baselineprofile.gradle.utils.InstrumentationTestRunnerArgumentsAgp82
-import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
-import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
+import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
+import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED_INCLUSIVE
 import androidx.baselineprofile.gradle.utils.RELEASE
 import androidx.baselineprofile.gradle.utils.TestedApksAgp83
 import androidx.baselineprofile.gradle.utils.camelCase
@@ -64,8 +64,8 @@ class BaselineProfileProducerPlugin : Plugin<Project> {
 private class BaselineProfileProducerAgpPlugin(private val project: Project) : AgpPlugin(
     project = project,
     supportedAgpPlugins = setOf(AgpPluginId.ID_ANDROID_TEST_PLUGIN),
-    minAgpVersion = MIN_AGP_VERSION_REQUIRED,
-    maxAgpVersion = MAX_AGP_VERSION_REQUIRED
+    minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
+    maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
 ) {
 
     companion object {

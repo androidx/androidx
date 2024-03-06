@@ -23,8 +23,8 @@ import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.Dependencies
-import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
-import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
+import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
+import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED_INCLUSIVE
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.copyBuildTypeSources
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
@@ -53,8 +53,8 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
         AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN,
         AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN
     ),
-    minAgpVersion = MIN_AGP_VERSION_REQUIRED,
-    maxAgpVersion = MAX_AGP_VERSION_REQUIRED
+    minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
+    maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
 ) {
 
     private val ApplicationExtension.debugSigningConfig

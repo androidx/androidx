@@ -31,8 +31,8 @@ import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.KOTLIN_MULTIPLATFORM_PLUGIN_ID
 import androidx.baselineprofile.gradle.utils.KotlinMultiPlatformUtils
-import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
-import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
+import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
+import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED_INCLUSIVE
 import androidx.baselineprofile.gradle.utils.R8Utils
 import androidx.baselineprofile.gradle.utils.RELEASE
 import androidx.baselineprofile.gradle.utils.camelCase
@@ -64,8 +64,8 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN,
         AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN
     ),
-    minAgpVersion = MIN_AGP_VERSION_REQUIRED,
-    maxAgpVersion = MAX_AGP_VERSION_REQUIRED
+    minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
+    maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
 ) {
 
     // List of the non debuggable build types
