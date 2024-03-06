@@ -16,9 +16,20 @@
 
 package androidx.appsearch.app;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.FlaggedApi;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.ReportUsageRequestCreator;
 import androidx.core.util.Preconditions;
+
+import java.util.Objects;
 
 /**
  * A request to report usage of a document.
@@ -27,17 +38,33 @@ import androidx.core.util.Preconditions;
  *
  * @see AppSearchSession#reportUsageAsync
  */
-public final class ReportUsageRequest {
-    private final String mNamespace;
-    private final String mDocumentId;
-    private final long mUsageTimestampMillis;
+@SuppressWarnings("HiddenSuperclass")
+@SafeParcelable.Class(creator = "ReportUsageRequestCreator")
+public final class ReportUsageRequest extends AbstractSafeParcelable {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @NonNull public static final Parcelable.Creator<ReportUsageRequest> CREATOR =
+            new ReportUsageRequestCreator();
 
+    @NonNull
+    @Field(id = 1, getter = "getNamespace")
+    private final String mNamespace;
+    @NonNull
+    @Field(id = 2, getter = "getDocumentId")
+    private final String mDocumentId;
+    @Field(id = 3, getter = "getUsageTimestampMillis")
+    private final  long mUsageTimestampMillis;
+
+    @Constructor
     ReportUsageRequest(
-            @NonNull String namespace, @NonNull String documentId, long usageTimestampMillis) {
-        mNamespace = Preconditions.checkNotNull(namespace);
-        mDocumentId = Preconditions.checkNotNull(documentId);
+            @Param(id = 1) @NonNull String namespace,
+            @Param(id = 2) @NonNull String documentId,
+            @Param(id = 3) long usageTimestampMillis) {
+        mNamespace = Objects.requireNonNull(namespace);
+        mDocumentId = Objects.requireNonNull(documentId);
         mUsageTimestampMillis = usageTimestampMillis;
     }
+
 
     /** Returns the namespace of the document that was used. */
     @NonNull
@@ -60,6 +87,13 @@ public final class ReportUsageRequest {
     /*@exportToFramework:CurrentTimeMillisLong*/
     public long getUsageTimestampMillis() {
         return mUsageTimestampMillis;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        ReportUsageRequestCreator.writeToParcel(this, dest, flags);
     }
 
     /** Builder for {@link ReportUsageRequest} objects. */
