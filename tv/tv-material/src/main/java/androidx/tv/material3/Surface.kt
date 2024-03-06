@@ -318,7 +318,7 @@ fun Surface(
     )
 }
 
-@ExperimentalTvMaterial3Api
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SurfaceImpl(
     modifier: Modifier,
@@ -567,7 +567,6 @@ private fun Modifier.handleDPadEnter(
 }
 
 @Composable
-@ExperimentalTvMaterial3Api
 internal fun surfaceColorAtElevation(color: Color, elevation: Dp): Color {
     return if (color == MaterialTheme.colorScheme.surface) {
         MaterialTheme.colorScheme.surfaceColorAtElevation(elevation)
