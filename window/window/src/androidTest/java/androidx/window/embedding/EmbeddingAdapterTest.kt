@@ -53,7 +53,7 @@ class EmbeddingAdapterTest {
     }
 
     @Test
-    fun testTranslateSplitInfoWithDefaultAttrs() {
+    fun testTranslateSplitInfoWithDefaultAttrsWithApiLevel2() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(2)
         WindowTestUtils.assumeBeforeVendorApiLevel(3)
 
@@ -69,8 +69,60 @@ class EmbeddingAdapterTest {
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
 
+    @Suppress("DEPRECATION")
     @Test
-    fun testTranslateSplitInfoWithExpandingContainers() {
+    fun testTranslateSplitInfoWithDefaultAttrsWithApiLevel3() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(3)
+        WindowTestUtils.assumeBeforeVendorApiLevel(5)
+
+        val oemSplitInfo = createTestOEMSplitInfo(
+            OEMSplitAttributes.Builder().build(),
+            testBinder = Binder(),
+        )
+        val expectedSplitInfo = SplitInfo(
+            ActivityStack(emptyList(), isEmpty = true),
+            ActivityStack(emptyList(), isEmpty = true),
+            SplitAttributes.Builder()
+                .setSplitType(SplitType.SPLIT_TYPE_EQUAL)
+                .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+                .build(),
+            oemSplitInfo.token,
+        )
+        assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
+    }
+
+    @Test
+    fun testTranslateSplitInfoWithDefaultAttrsWithApiLevel5() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(5)
+
+        val oemSplitInfo = createTestOEMSplitInfo(
+            createTestOEMActivityStack(OEMActivityStackToken.createFromBinder(Binder())),
+            createTestOEMActivityStack(OEMActivityStackToken.createFromBinder(Binder())),
+            OEMSplitAttributes.Builder().build(),
+            testToken = OEMSplitInfoToken.createFromBinder(Binder()),
+        )
+        val expectedSplitInfo = SplitInfo(
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                oemSplitInfo.primaryActivityStack.token,
+            ),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                oemSplitInfo.secondaryActivityStack.token,
+            ),
+            SplitAttributes.Builder()
+                .setSplitType(SplitType.SPLIT_TYPE_EQUAL)
+                .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+                .build(),
+            oemSplitInfo.splitInfoToken,
+        )
+        assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
+    }
+
+    @Test
+    fun testTranslateSplitInfoWithExpandingContainersWithApiLevel2() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(2)
         WindowTestUtils.assumeBeforeVendorApiLevel(3)
 
@@ -86,6 +138,62 @@ class EmbeddingAdapterTest {
                 .setSplitType(SplitType.SPLIT_TYPE_EXPAND)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                 .build(),
+        )
+        assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun testTranslateSplitInfoWithExpandingContainersWithApiLevel3() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(3)
+        WindowTestUtils.assumeBeforeVendorApiLevel(5)
+
+        val oemSplitInfo = createTestOEMSplitInfo(
+            OEMSplitAttributes.Builder()
+                .setSplitType(OEMSplitAttributes.SplitType.ExpandContainersSplitType())
+                .build(),
+            testBinder = Binder(),
+        )
+        val expectedSplitInfo = SplitInfo(
+            ActivityStack(ArrayList(), isEmpty = true),
+            ActivityStack(emptyList(), isEmpty = true),
+            SplitAttributes.Builder()
+                .setSplitType(SplitType.SPLIT_TYPE_EXPAND)
+                .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+                .build(),
+            oemSplitInfo.token,
+        )
+        assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
+    }
+
+    @Test
+    fun testTranslateSplitInfoWithExpandingContainersWithApiLevel5() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(5)
+
+        val oemSplitInfo = createTestOEMSplitInfo(
+            createTestOEMActivityStack(OEMActivityStackToken.createFromBinder(Binder())),
+            createTestOEMActivityStack(OEMActivityStackToken.createFromBinder(Binder())),
+            OEMSplitAttributes.Builder()
+                .setSplitType(OEMSplitAttributes.SplitType.ExpandContainersSplitType())
+                .build(),
+            testToken = OEMSplitInfoToken.createFromBinder(Binder()),
+        )
+        val expectedSplitInfo = SplitInfo(
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                oemSplitInfo.primaryActivityStack.token
+            ),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                oemSplitInfo.secondaryActivityStack.token
+            ),
+            SplitAttributes.Builder()
+                .setSplitType(SplitType.SPLIT_TYPE_EXPAND)
+                .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+                .build(),
+            oemSplitInfo.splitInfoToken,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
