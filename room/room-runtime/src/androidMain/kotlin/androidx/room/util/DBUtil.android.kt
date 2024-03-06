@@ -21,7 +21,6 @@ package androidx.room.util
 
 import android.database.AbstractWindowedCursor
 import android.database.Cursor
-import android.database.sqlite.SQLiteConstraintException
 import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
@@ -218,12 +217,10 @@ fun foreignKeyCheck(
     db: SupportSQLiteDatabase,
     tableName: String
 ) {
-    db.query("PRAGMA foreign_key_check(`$tableName`)").useCursor { cursor ->
-        if (cursor.count > 0) {
-            val errorMsg = processForeignKeyCheckFailure(cursor)
-            throw SQLiteConstraintException(errorMsg)
-        }
-    }
+    foreignKeyCheck(
+        SupportSQLiteConnection(db),
+        tableName
+    )
 }
 
 /**
@@ -262,50 +259,4 @@ fun readVersion(databaseFile: File): Int {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun createCancellationSignal(): CancellationSignal {
     return CancellationSignal()
-}
-
-/**
- * Converts the [Cursor] returned in case of a foreign key violation into a detailed
- * error message for debugging.
- *
- * The foreign_key_check pragma returns one row output for each foreign key violation.
- *
- * The cursor received has four columns for each row output. The first column is the name of
- * the child table. The second column is the rowId of the row that contains the foreign key
- * violation (or NULL if the child table is a WITHOUT ROWID table). The third column is the
- * name of the parent table. The fourth column is the index of the specific foreign key
- * constraint that failed.
- *
- * @param cursor Cursor containing information regarding the FK violation
- * @return Error message generated containing debugging information
- */
-private fun processForeignKeyCheckFailure(cursor: Cursor): String {
-    return buildString {
-        val rowCount = cursor.count
-        val fkParentTables = mutableMapOf<String, String>()
-
-        while (cursor.moveToNext()) {
-            if (cursor.isFirst) {
-                append("Foreign key violation(s) detected in '")
-                append(cursor.getString(0)).append("'.\n")
-            }
-            val constraintIndex = cursor.getString(3)
-            if (!fkParentTables.containsKey(constraintIndex)) {
-                fkParentTables[constraintIndex] = cursor.getString(2)
-            }
-        }
-
-        append("Number of different violations discovered: ")
-        append(fkParentTables.keys.size).append("\n")
-        append("Number of rows in violation: ")
-        append(rowCount).append("\n")
-        append("Violation(s) detected in the following constraint(s):\n")
-
-        for ((key, value) in fkParentTables) {
-            append("\tParent Table = ")
-            append(value)
-            append(", Foreign Key Constraint Index = ")
-            append(key).append("\n")
-        }
-    }
 }
