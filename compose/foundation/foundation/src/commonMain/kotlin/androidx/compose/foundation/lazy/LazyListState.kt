@@ -267,7 +267,7 @@ class LazyListState @ExperimentalFoundationApi constructor(
 
     internal val prefetchState = LazyLayoutPrefetchState(prefetchStrategy.prefetchExecutor)
 
-    private val prefetchScope = object : LazyListPrefetchScope {
+    private val prefetchScope: LazyListPrefetchScope = object : LazyListPrefetchScope {
         override fun schedulePrefetch(index: Int): LazyLayoutPrefetchState.PrefetchHandle {
             // Without read observation since this can be triggered from scroll - this will then
             // cause us to recompose when the measure result changes. We don't care since the
