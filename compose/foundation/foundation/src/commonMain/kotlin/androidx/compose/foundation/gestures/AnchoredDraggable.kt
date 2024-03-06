@@ -374,7 +374,8 @@ private open class AnchoredDraggableNode<T>(
 ) : DragGestureNode(
     canDrag = AlwaysDrag,
     enabled = enabled,
-    interactionSource = interactionSource
+    interactionSource = interactionSource,
+    orientationLock = orientation
 ) {
 
     open suspend fun AnchoredDragScope.anchoredDrag(
@@ -388,9 +389,6 @@ private open class AnchoredDraggableNode<T>(
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
         state.anchoredDrag(MutatePriority.Default) { anchoredDrag(forEachDelta) }
     }
-
-    override val pointerDirectionConfig: PointerDirectionConfig
-        get() = orientation.toPointerDirectionConfig()
 
     override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) {}
 
@@ -429,7 +427,8 @@ private open class AnchoredDraggableNode<T>(
         update(
             enabled = enabled,
             interactionSource = interactionSource,
-            isResetPointerInputHandling = resetPointerInputHandling,
+            shouldResetPointerInputHandling = resetPointerInputHandling,
+            orientationLock = orientation
         )
     }
 
@@ -742,7 +741,8 @@ class AnchoredDraggableState<T>(
     @Deprecated(
         message = "Use the progress function to query the progress between two specified " +
             "anchors.",
-        replaceWith = ReplaceWith("progress(state.settledValue, state.targetValue)"))
+        replaceWith = ReplaceWith("progress(state.settledValue, state.targetValue)")
+    )
     @get:FloatRange(from = 0.0, to = 1.0)
     val progress: Float by derivedStateOf(structuralEqualityPolicy()) {
         val a = anchors.positionOf(settledValue)
@@ -1296,7 +1296,7 @@ private class MapDraggableAnchors<T>(private val anchors: ObjectFloatMap<T>) : D
     }
 }
 
-private fun<K> ObjectFloatMap<K>.minValueOrNaN(): Float {
+private fun <K> ObjectFloatMap<K>.minValueOrNaN(): Float {
     if (size == 1) return Float.NaN
     var minValue = Float.POSITIVE_INFINITY
     forEachValue { value ->
@@ -1307,7 +1307,7 @@ private fun<K> ObjectFloatMap<K>.minValueOrNaN(): Float {
     return minValue
 }
 
-private fun<K> ObjectFloatMap<K>.maxValueOrNaN(): Float {
+private fun <K> ObjectFloatMap<K>.maxValueOrNaN(): Float {
     if (size == 1) return Float.NaN
     var maxValue = Float.NEGATIVE_INFINITY
     forEachValue { value ->

@@ -273,7 +273,8 @@ private class ScrollableNode(
 ) : DragGestureNode(
     canDrag = CanDragCalculation,
     enabled = enabled,
-    interactionSource = interactionSource
+    interactionSource = interactionSource,
+    orientationLock = orientation
 ), ObserverModifierNode, CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode, KeyInputModifierNode {
 
@@ -333,9 +334,6 @@ private class ScrollableNode(
         scrollingLogic.dispatchDragEvents(forEachDelta)
     }
 
-    override val pointerDirectionConfig: PointerDirectionConfig
-        get() = scrollingLogic.pointerDirectionConfig()
-
     override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) {}
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
@@ -386,7 +384,13 @@ private class ScrollableNode(
         this.flingBehavior = flingBehavior
 
         // update DragGestureNode
-        update(CanDragCalculation, enabled, interactionSource, resetPointerInputHandling)
+        update(
+            canDrag = CanDragCalculation,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            orientationLock = if (scrollingLogic.isVertical()) Vertical else Horizontal,
+            shouldResetPointerInputHandling = resetPointerInputHandling
+        )
     }
 
     override fun onAttach() {
@@ -776,8 +780,6 @@ private class ScrollingLogic(
         this.nestedScrollDispatcher = nestedScrollDispatcher
         return resetPointerInputHandling
     }
-
-    fun pointerDirectionConfig(): PointerDirectionConfig = orientation.toPointerDirectionConfig()
 
     fun isVertical(): Boolean = orientation == Vertical
 }
