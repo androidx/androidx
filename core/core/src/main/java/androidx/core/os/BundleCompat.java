@@ -187,7 +187,10 @@ public final class BundleCompat {
      * @param bundle The bundle to get the {@link IBinder}.
      * @param key The key to use while getting the {@link IBinder}.
      * @return The {@link IBinder} that was obtained.
+     *
+     * @deprecated Use {@link Bundle#getBinder(String)} directly.
      */
+    @Deprecated
     @Nullable
     public static IBinder getBinder(@NonNull Bundle bundle, @Nullable String key) {
         return bundle.getBinder(key);
@@ -200,7 +203,10 @@ public final class BundleCompat {
      * @param bundle The bundle to insert the {@link IBinder}.
      * @param key The key to use while putting the {@link IBinder}.
      * @param binder The {@link IBinder} to put.
+     *
+     * @deprecated Use {@link Bundle#putBinder(String, IBinder)} directly.
      */
+    @Deprecated
     public static void putBinder(@NonNull Bundle bundle, @Nullable String key,
             @Nullable IBinder binder) {
         bundle.putBinder(key, binder);
