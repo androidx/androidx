@@ -39,8 +39,8 @@ class TextFieldCharSequenceTest {
         val text = "a"
         val textFieldValue =
             TextFieldCharSequence(text = text, selection = TextRange(text.length + 1))
-        assertThat(textFieldValue.selectionInChars.collapsed).isTrue()
-        assertThat(textFieldValue.selectionInChars.max).isEqualTo(textFieldValue.length)
+        assertThat(textFieldValue.selection.collapsed).isTrue()
+        assertThat(textFieldValue.selection.max).isEqualTo(textFieldValue.length)
     }
 
     @Test
@@ -51,7 +51,7 @@ class TextFieldCharSequenceTest {
         val textFieldValue = TextFieldCharSequence(text = text, selection = selection)
 
         assertThat(textFieldValue.toString()).isEqualTo(text)
-        assertThat(textFieldValue.selectionInChars).isEqualTo(selection)
+        assertThat(textFieldValue.selection).isEqualTo(selection)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -63,8 +63,8 @@ class TextFieldCharSequenceTest {
     fun aligns_composition_to_text_length() {
         val text = "a"
         val textFieldValue = TextEditState(text = text, composition = TextRange(text.length + 1))
-        assertThat(textFieldValue.compositionInChars?.collapsed).isTrue()
-        assertThat(textFieldValue.compositionInChars?.max).isEqualTo(textFieldValue.length)
+        assertThat(textFieldValue.composition?.collapsed).isTrue()
+        assertThat(textFieldValue.composition?.max).isEqualTo(textFieldValue.length)
     }
 
     @Test
@@ -75,7 +75,7 @@ class TextFieldCharSequenceTest {
         val textFieldValue = TextEditState(text = text, composition = composition)
 
         assertThat(textFieldValue.toString()).isEqualTo(text)
-        assertThat(textFieldValue.compositionInChars).isEqualTo(composition)
+        assertThat(textFieldValue.composition).isEqualTo(composition)
     }
 
     @Test
@@ -100,8 +100,8 @@ class TextFieldCharSequenceTest {
         assertThat(
             TextFieldCharSequence(
                 textFieldValue,
-                textFieldValue.selectionInChars,
-                textFieldValue.compositionInChars
+                textFieldValue.selection,
+                textFieldValue.composition
             )
         ).isEqualTo(textFieldValue)
     }
@@ -113,7 +113,7 @@ class TextFieldCharSequenceTest {
             selection = TextRange(1)
         )
 
-        assertThat(textFieldValue.compositionInChars).isNull()
+        assertThat(textFieldValue.composition).isNull()
     }
 
     private fun TextEditState(text: String, composition: TextRange) =

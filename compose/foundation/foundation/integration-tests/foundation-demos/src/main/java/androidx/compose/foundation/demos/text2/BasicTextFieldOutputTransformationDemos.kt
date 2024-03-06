@@ -149,7 +149,7 @@ private fun InsertReplaceDeleteDemo() {
                     // Only draw selection outline when not focused.
                     if (isFirstFieldFocused) return@drawWithContent
                     val textLayoutResult = textLayoutResultProvider() ?: return@drawWithContent
-                    val selection = text.text.selectionInChars
+                    val selection = text.text.selection
                     if (selection.collapsed) {
                         val cursorRect = textLayoutResult.getCursorRect(selection.start)
                         drawLine(

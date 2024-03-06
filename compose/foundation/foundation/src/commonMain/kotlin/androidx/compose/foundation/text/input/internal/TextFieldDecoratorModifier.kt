@@ -532,7 +532,7 @@ internal class TextFieldDecoratorModifierNode(
     // This function is called inside a snapshot observer.
     override fun SemanticsPropertyReceiver.applySemantics() {
         val text = textFieldState.outputText
-        val selection = text.selectionInChars
+        val selection = text.selection
         editableText = AnnotatedString(text.toString())
         textSelectionRange = selection
 
@@ -559,7 +559,7 @@ internal class TextFieldDecoratorModifierNode(
             } else {
                 textFieldState.visualText
             }
-            val selection = text.selectionInChars
+            val selection = text.selection
 
             if (!enabled ||
                 minOf(start, end) < 0 ||
@@ -683,7 +683,7 @@ internal class TextFieldDecoratorModifierNode(
         // grows due to a newline entered while typing, which isn't handled by the cursor moving yet
         // because the resize happens after the text state change, and the resize moves the cursor
         // under the keyboard. This also covers the case where the field shrinks while focused.
-        val selection = textFieldState.visualText.selectionInChars
+        val selection = textFieldState.visualText.selection
         if (selection.collapsed) {
             coroutineScope.launch {
                 textLayoutState.bringCursorIntoView(cursorIndex = selection.start)

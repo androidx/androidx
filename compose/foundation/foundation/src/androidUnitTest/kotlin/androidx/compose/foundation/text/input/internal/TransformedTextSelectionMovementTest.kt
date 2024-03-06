@@ -34,7 +34,7 @@ class TransformedTextSelectionMovementTest {
 
     @Test
     fun calculateNextCursorPosition_aroundReplacement() {
-        val state = TextFieldState("abc", initialSelectionInChars = TextRange(1))
+        val state = TextFieldState("abc", initialSelection = TextRange(1))
         val outputTransformation = OutputTransformation {
             replace(1, 2, "zz") // "azzc"
         }
@@ -43,29 +43,29 @@ class TransformedTextSelectionMovementTest {
 
         calculateNextCursorPosition(transformedState)
 
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(3))
+        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(3))
     }
 
     @Test
     fun calculatePreviousCursorPosition_aroundReplacement() {
-        val state = TextFieldState("abc", initialSelectionInChars = TextRange(2))
+        val state = TextFieldState("abc", initialSelection = TextRange(2))
         val outputTransformation = OutputTransformation {
             replace(1, 2, "zz") // "azzc"
         }
         val transformedState =
             TransformedTextFieldState(state, outputTransformation = outputTransformation)
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(3))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(3))
 
         calculatePreviousCursorPosition(transformedState)
 
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
     }
 
     @Test
     fun calculateNextCursorPosition_aroundInsertion() {
-        val state = TextFieldState("ab", initialSelectionInChars = TextRange(0))
+        val state = TextFieldState("ab", initialSelection = TextRange(0))
         val outputTransformation = OutputTransformation {
             insert(1, "zz") // "azzb"
         }
@@ -73,56 +73,56 @@ class TransformedTextSelectionMovementTest {
             TransformedTextFieldState(state, outputTransformation = outputTransformation)
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(3))
+        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(3))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.End))
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(4))
+        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(4))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.End))
     }
 
     @Test
     fun calculatePreviousCursorPosition_aroundInsertion() {
-        val state = TextFieldState("ab", initialSelectionInChars = TextRange(2))
+        val state = TextFieldState("ab", initialSelection = TextRange(2))
         val outputTransformation = OutputTransformation {
             insert(1, "zz") // "azzb"
         }
         val transformedState =
             TransformedTextFieldState(state, outputTransformation = outputTransformation)
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(4))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(4))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(3))
+        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(3))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.End))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(0))
+        assertThat(state.text.selection).isEqualTo(TextRange(0))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(0))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
     }
 
     @Test
     fun calculateNextCursorPosition_aroundDeletion() {
-        val state = TextFieldState("abcd", initialSelectionInChars = TextRange(0))
+        val state = TextFieldState("abcd", initialSelection = TextRange(0))
         val outputTransformation = OutputTransformation {
             delete(1, 3) // "ad"
         }
@@ -130,37 +130,37 @@ class TransformedTextSelectionMovementTest {
             TransformedTextFieldState(state, outputTransformation = outputTransformation)
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1, 3))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(state.text.selection).isEqualTo(TextRange(1, 3))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(4))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(state.text.selection).isEqualTo(TextRange(4))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(2))
     }
 
     @Test
     fun calculatePreviousCursorPosition_aroundDeletion() {
-        val state = TextFieldState("abcd", initialSelectionInChars = TextRange(4))
+        val state = TextFieldState("abcd", initialSelection = TextRange(4))
         val outputTransformation = OutputTransformation {
             delete(1, 3) // "ad"
         }
         val transformedState =
             TransformedTextFieldState(state, outputTransformation = outputTransformation)
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(2))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1, 3))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(state.text.selection).isEqualTo(TextRange(1, 3))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
-        assertThat(transformedState.visualText.selectionInChars).isEqualTo(TextRange(0))
+        assertThat(state.text.selection).isEqualTo(TextRange(0))
+        assertThat(transformedState.visualText.selection).isEqualTo(TextRange(0))
     }
 
     private fun calculateNextCursorPosition(state: TransformedTextFieldState) {
         val newCursor = calculateAdjacentCursorPosition(
             state.visualText.toString(),
-            state.visualText.selectionInChars.end,
+            state.visualText.selection.end,
             forward = true,
             state
         )
@@ -170,7 +170,7 @@ class TransformedTextSelectionMovementTest {
     private fun calculatePreviousCursorPosition(state: TransformedTextFieldState) {
         val newCursor = calculateAdjacentCursorPosition(
             state.visualText.toString(),
-            state.visualText.selectionInChars.end,
+            state.visualText.selection.end,
             forward = false,
             state
         )

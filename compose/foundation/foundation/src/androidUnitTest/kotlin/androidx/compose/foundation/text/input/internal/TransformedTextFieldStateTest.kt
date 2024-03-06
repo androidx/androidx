@@ -207,8 +207,8 @@ class TransformedTextFieldStateTest {
         )
         assertThat(transformedState.outputText.toString()).isEqualTo("aahello")
 
-        state.edit { selectCharsIn(TextRange(0, 2)) }
-        assertThat(transformedState.outputText.selectionInChars).isEqualTo(TextRange(0, 4))
+        state.edit { selection = TextRange(0, 2) }
+        assertThat(transformedState.outputText.selection).isEqualTo(TextRange(0, 4))
         // Rest of indices and wedge affinity are covered by mapToTransformed tests.
     }
 }

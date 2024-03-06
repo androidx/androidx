@@ -71,10 +71,10 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) {
             state.collectImeNotifications { oldValue, newValue, restartImeIfContentChanges ->
-                val oldSelection = oldValue.selectionInChars
-                val newSelection = newValue.selectionInChars
-                val oldComposition = oldValue.compositionInChars
-                val newComposition = newValue.compositionInChars
+                val oldSelection = oldValue.selection
+                val newSelection = newValue.selection
+                val oldComposition = oldValue.composition
+                val newComposition = newValue.composition
 
                 if ((oldSelection != newSelection) || oldComposition != newComposition) {
                     composeImm.updateSelection(
@@ -155,7 +155,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
 
             outAttrs.update(
                 text = state.visualText,
-                selection = state.visualText.selectionInChars,
+                selection = state.visualText.selection,
                 imeOptions = imeOptions,
                 contentMimeTypes = contentMimeTypes
             )

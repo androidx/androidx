@@ -40,7 +40,7 @@ import kotlinx.coroutines.flow.collectLatest
 internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
     return TextFieldState(
         initialText = initialValue.text,
-        initialSelectionInChars = initialValue.selection
+        initialSelection = initialValue.selection
     )
 }
 
@@ -61,14 +61,14 @@ internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
 @Stable
 class TextFieldState internal constructor(
     initialText: String,
-    initialSelectionInChars: TextRange,
+    initialSelection: TextRange,
     initialTextUndoManager: TextUndoManager
 ) {
 
     constructor(
         initialText: String = "",
-        initialSelectionInChars: TextRange = TextRange(initialText.length)
-    ) : this(initialText, initialSelectionInChars, TextUndoManager())
+        initialSelection: TextRange = TextRange(initialText.length)
+    ) : this(initialText, initialSelection, TextUndoManager())
 
     /**
      * Manages the history of edit operations that happen in this [TextFieldState].
@@ -82,7 +82,7 @@ class TextFieldState internal constructor(
     @VisibleForTesting
     internal var mainBuffer: EditingBuffer = EditingBuffer(
         text = initialText,
-        selection = initialSelectionInChars.coerceIn(0, initialText.length)
+        selection = initialSelection.coerceIn(0, initialText.length)
     )
 
     /**
@@ -104,7 +104,7 @@ class TextFieldState internal constructor(
      * @see textAsFlow
      */
     var text: TextFieldCharSequence by mutableStateOf(
-        TextFieldCharSequence(initialText, initialSelectionInChars)
+        TextFieldCharSequence(initialText, initialSelection)
     )
         private set
 
@@ -125,7 +125,7 @@ class TextFieldState internal constructor(
     }
 
     override fun toString(): String =
-        "TextFieldState(selectionInChars=${text.selectionInChars}, text=\"$text\")"
+        "TextFieldState(selection=${text.selection}, text=\"$text\")"
 
     /**
      * Undo history controller for this TextFieldState.
@@ -155,7 +155,7 @@ class TextFieldState internal constructor(
     @PublishedApi
     internal fun commitEdit(newValue: TextFieldBuffer) {
         val textChanged = newValue.changes.changeCount > 0
-        val selectionChanged = newValue.selectionInChars != mainBuffer.selection
+        val selectionChanged = newValue.selection != mainBuffer.selection
         if (textChanged || selectionChanged) {
             val finalValue = newValue.toTextFieldCharSequence()
             resetStateAndNotifyIme(finalValue)
@@ -195,8 +195,8 @@ class TextFieldState internal constructor(
         mainBuffer.block()
 
         if (mainBuffer.changeTracker.changeCount == 0 &&
-            previousValue.selectionInChars == mainBuffer.selection &&
-            previousValue.compositionInChars == mainBuffer.composition) {
+            previousValue.selection == mainBuffer.selection &&
+            previousValue.composition == mainBuffer.composition) {
             // nothing has changed after applying block.
             return
         }
@@ -267,7 +267,7 @@ class TextFieldState internal constructor(
 
         // if only difference is composition, don't run filter, don't send it to undo manager
         if (afterEditValue.contentEquals(oldValue) &&
-            afterEditValue.selectionInChars == oldValue.selectionInChars
+            afterEditValue.selection == oldValue.selection
         ) {
             text = afterEditValue
             sendChangesToIme(
@@ -290,7 +290,7 @@ class TextFieldState internal constructor(
         // If neither the text nor the selection changed, we want to preserve the composition.
         // Otherwise, the IME will reset it anyway.
         val afterFilterValue = mutableValue.toTextFieldCharSequence(
-            composition = afterEditValue.compositionInChars
+            composition = afterEditValue.composition
         )
         if (afterFilterValue == afterEditValue) {
             text = afterFilterValue
@@ -390,21 +390,21 @@ class TextFieldState internal constructor(
 
         var textChanged = false
         var selectionChanged = false
-        val compositionChanged = newValue.compositionInChars != mainBuffer.composition
+        val compositionChanged = newValue.composition != mainBuffer.composition
 
         if (!bufferState.contentEquals(newValue)) {
             // reset the buffer in its entirety
             mainBuffer = EditingBuffer(
                 text = newValue.toString(),
-                selection = newValue.selectionInChars
+                selection = newValue.selection
             )
             textChanged = true
-        } else if (bufferState.selectionInChars != newValue.selectionInChars) {
-            mainBuffer.setSelection(newValue.selectionInChars.start, newValue.selectionInChars.end)
+        } else if (bufferState.selection != newValue.selection) {
+            mainBuffer.setSelection(newValue.selection.start, newValue.selection.end)
             selectionChanged = true
         }
 
-        val composition = newValue.compositionInChars
+        val composition = newValue.composition
         if (composition == null || composition.collapsed) {
             mainBuffer.commitComposition()
         } else {
@@ -460,8 +460,8 @@ class TextFieldState internal constructor(
         override fun SaverScope.save(value: TextFieldState): Any? {
             return listOf(
                 value.text.toString(),
-                value.text.selectionInChars.start,
-                value.text.selectionInChars.end,
+                value.text.selection.start,
+                value.text.selection.end,
                 with(TextUndoManager.Companion.Saver) {
                     save(value.textUndoManager)
                 }
@@ -472,7 +472,7 @@ class TextFieldState internal constructor(
             val (text, selectionStart, selectionEnd, savedTextUndoManager) = value as List<*>
             return TextFieldState(
                 initialText = text as String,
-                initialSelectionInChars = TextRange(
+                initialSelection = TextRange(
                     start = selectionStart as Int,
                     end = selectionEnd as Int
                 ),
@@ -504,9 +504,9 @@ fun TextFieldState.textAsFlow(): Flow<TextFieldCharSequence> = snapshotFlow { te
 @Composable
 fun rememberTextFieldState(
     initialText: String = "",
-    initialSelectionInChars: TextRange = TextRange(initialText.length)
+    initialSelection: TextRange = TextRange(initialText.length)
 ): TextFieldState = rememberSaveable(saver = TextFieldState.Saver) {
-    TextFieldState(initialText, initialSelectionInChars)
+    TextFieldState(initialText, initialSelection)
 }
 
 /**

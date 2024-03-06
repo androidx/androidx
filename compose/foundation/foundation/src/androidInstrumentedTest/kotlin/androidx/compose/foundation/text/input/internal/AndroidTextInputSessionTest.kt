@@ -84,7 +84,7 @@ class AndroidTextInputSessionTest {
 
     @Test
     fun createInputConnection_modifiesEditorInfo() {
-        val state = TextFieldState("hello", initialSelectionInChars = TextRange(0, 5))
+        val state = TextFieldState("hello", initialSelection = TextRange(0, 5))
         launchInputSessionWithDefaultsForTest(state)
         val editorInfo = EditorInfo()
 

@@ -212,7 +212,7 @@ internal class BasicTextFieldUndoTest {
         state.undoState.undo()
 
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isNotEqualTo(TextRange(7))
+            assertThat(state.text.selection).isNotEqualTo(TextRange(7))
         }
 
         state.undoState.redo()
@@ -368,7 +368,7 @@ internal class BasicTextFieldUndoTest {
     private fun TextFieldState.assertTextAndSelection(text: String, selection: TextRange) {
         rule.runOnIdle {
             assertThat(this.text.toString()).isEqualTo(text)
-            assertThat(this.text.selectionInChars).isEqualTo(selection)
+            assertThat(this.text.selection).isEqualTo(selection)
         }
     }
 }

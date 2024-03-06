@@ -187,8 +187,8 @@ internal class CursorAnchorInfoController(
         )
         return builder.build(
             text,
-            text.selectionInChars,
-            text.compositionInChars,
+            text.selection,
+            text.composition,
             textLayoutResult,
             androidMatrix,
             innerTextFieldBounds,

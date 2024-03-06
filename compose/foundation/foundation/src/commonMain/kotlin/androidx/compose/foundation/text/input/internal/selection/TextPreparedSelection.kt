@@ -99,7 +99,7 @@ internal class TextFieldPreparedSelection(
     /**
      * Current active selection in the context of this [TextFieldPreparedSelection]
      */
-    var selection = initialValue.selectionInChars
+    var selection = initialValue.selection
 
     /**
      * Initial text value.
@@ -139,7 +139,7 @@ internal class TextFieldPreparedSelection(
      * been measured yet, this function returns the current offset.
      */
     private fun jumpByPagesOffset(pagesAmount: Int): Int {
-        val currentOffset = initialValue.selectionInChars.end
+        val currentOffset = initialValue.selection.end
         val currentPos = textLayoutResult.getCursorRect(currentOffset)
         val newPos = currentPos.translate(
             translateX = 0f,
@@ -353,7 +353,7 @@ internal class TextFieldPreparedSelection(
 
     /** Selects a text from the original selection start to a current selection end. */
     fun selectMovement() = applyIfNotEmpty(resetCachedX = false) {
-        selection = TextRange(initialValue.selectionInChars.start, selection.end)
+        selection = TextRange(initialValue.selection.start, selection.end)
     }
 
     private fun isLtr(): Boolean {

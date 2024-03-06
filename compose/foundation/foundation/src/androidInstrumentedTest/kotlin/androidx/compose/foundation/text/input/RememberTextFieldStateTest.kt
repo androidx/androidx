@@ -44,13 +44,13 @@ class RememberTextFieldStateTest {
         rule.setContent {
             state = rememberTextFieldState(
                 initialText = "hello",
-                initialSelectionInChars = TextRange(2)
+                initialSelection = TextRange(2)
             )
         }
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("hello")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+            assertThat(state.text.selection).isEqualTo(TextRange(2))
         }
     }
 
@@ -78,7 +78,7 @@ class RememberTextFieldStateTest {
 
         rule.runOnIdle {
             assertThat(restoredState.text.toString()).isEqualTo("hello, world")
-            assertThat(restoredState.text.selectionInChars).isEqualTo(TextRange(0, 12))
+            assertThat(restoredState.text.selection).isEqualTo(TextRange(0, 12))
         }
     }
 
@@ -90,7 +90,7 @@ class RememberTextFieldStateTest {
         restorationTester.setContent {
             val state = rememberTextFieldState(
                 initialText = "this should be ignored",
-                initialSelectionInChars = TextRange.Zero
+                initialSelection = TextRange.Zero
             )
             if (remember { rememberCount++ } == 0) {
                 originalState = state
@@ -109,7 +109,7 @@ class RememberTextFieldStateTest {
 
         rule.runOnIdle {
             assertThat(restoredState.text.toString()).isEqualTo("hello, world")
-            assertThat(restoredState.text.selectionInChars).isEqualTo(TextRange(0, 12))
+            assertThat(restoredState.text.selection).isEqualTo(TextRange(0, 12))
         }
     }
 }

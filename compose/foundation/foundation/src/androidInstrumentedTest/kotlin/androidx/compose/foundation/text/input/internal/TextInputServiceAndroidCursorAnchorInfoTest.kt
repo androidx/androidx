@@ -116,7 +116,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
     @Test
     fun requestCursorUpdates_immediate() = runTest {
-        val textFieldState = TextFieldState("abc", initialSelectionInChars = TextRange(2))
+        val textFieldState = TextFieldState("abc", initialSelection = TextRange(2))
         backgroundScope.startFakeTextInputSession(textFieldState)
 
         // This requests a single update, immediately, with no future monitoring.
@@ -125,8 +125,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Immediate update.
         val expectedInfo = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selectionInChars,
-            composition = textFieldState.text.compositionInChars,
+            selection = textFieldState.text.selection,
+            composition = textFieldState.text.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(windowOffset),
             innerTextFieldBounds = Rect.Zero,
@@ -145,7 +145,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
     @Test
     fun requestCursorUpdates_immediate_beforeUpdateTextLayoutResult() = runTest {
-        val textFieldState = TextFieldState("abc", initialSelectionInChars = TextRange(2))
+        val textFieldState = TextFieldState("abc", initialSelection = TextRange(2))
         val transformedState = TransformedTextFieldState(
             textFieldState = textFieldState,
             inputTransformation = null,
@@ -170,7 +170,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
     @Test
     fun requestCursorUpdates_monitor() = runTest {
-        val textFieldState = TextFieldState("abc", initialSelectionInChars = TextRange(2))
+        val textFieldState = TextFieldState("abc", initialSelection = TextRange(2))
         backgroundScope.startFakeTextInputSession(textFieldState)
 
         // This requests a single update, immediately, with no future monitoring.
@@ -186,8 +186,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Monitoring update.
         val expectedInfo = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selectionInChars,
-            composition = textFieldState.text.compositionInChars,
+            selection = textFieldState.text.selection,
+            composition = textFieldState.text.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(Offset(67f, 89f)),
             innerTextFieldBounds = Rect.Zero,
@@ -198,7 +198,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
     @Test
     fun requestCursorUpdates_immediateAndMonitor() = runTest {
-        val textFieldState = TextFieldState("abc", initialSelectionInChars = TextRange(2))
+        val textFieldState = TextFieldState("abc", initialSelection = TextRange(2))
         backgroundScope.startFakeTextInputSession(textFieldState)
 
         inputConnection.requestCursorUpdates(
@@ -208,8 +208,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Immediate update.
         val expectedInfo = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selectionInChars,
-            composition = textFieldState.text.compositionInChars,
+            selection = textFieldState.text.selection,
+            composition = textFieldState.text.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(windowOffset),
             innerTextFieldBounds = Rect.Zero,
@@ -225,8 +225,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Monitoring update.
         val expectedInfo2 = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selectionInChars,
-            composition = textFieldState.text.compositionInChars,
+            selection = textFieldState.text.selection,
+            composition = textFieldState.text.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(Offset(67f, 89f)),
             innerTextFieldBounds = Rect.Zero,
@@ -237,7 +237,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
     @Test
     fun requestCursorUpdates_cancel() = runTest {
-        val textFieldState = TextFieldState("abc", initialSelectionInChars = TextRange(2))
+        val textFieldState = TextFieldState("abc", initialSelection = TextRange(2))
         backgroundScope.startFakeTextInputSession(textFieldState)
 
         inputConnection.requestCursorUpdates(
@@ -247,8 +247,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Immediate update.
         val expectedInfo = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selectionInChars,
-            composition = textFieldState.text.compositionInChars,
+            selection = textFieldState.text.selection,
+            composition = textFieldState.text.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(windowOffset),
             innerTextFieldBounds = Rect.Zero,
