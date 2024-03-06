@@ -350,6 +350,8 @@ class ColorScheme(
             "scrim=$scrim" +
             ")"
     }
+
+    internal var defaultSwitchColorsCached: SwitchColors? = null
 }
 
 /**

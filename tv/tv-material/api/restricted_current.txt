@@ -884,10 +884,45 @@ package androidx.tv.material3 {
     property @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteTonalElevation;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SwitchColors {
+  @androidx.compose.runtime.Immutable public final class SwitchColors {
+    ctor public SwitchColors(long checkedThumbColor, long checkedTrackColor, long checkedBorderColor, long checkedIconColor, long uncheckedThumbColor, long uncheckedTrackColor, long uncheckedBorderColor, long uncheckedIconColor, long disabledCheckedThumbColor, long disabledCheckedTrackColor, long disabledCheckedBorderColor, long disabledCheckedIconColor, long disabledUncheckedThumbColor, long disabledUncheckedTrackColor, long disabledUncheckedBorderColor, long disabledUncheckedIconColor);
+    method public androidx.tv.material3.SwitchColors copy(optional long checkedThumbColor, optional long checkedTrackColor, optional long checkedBorderColor, optional long checkedIconColor, optional long uncheckedThumbColor, optional long uncheckedTrackColor, optional long uncheckedBorderColor, optional long uncheckedIconColor, optional long disabledCheckedThumbColor, optional long disabledCheckedTrackColor, optional long disabledCheckedBorderColor, optional long disabledCheckedIconColor, optional long disabledUncheckedThumbColor, optional long disabledUncheckedTrackColor, optional long disabledUncheckedBorderColor, optional long disabledUncheckedIconColor);
+    method public long getCheckedBorderColor();
+    method public long getCheckedIconColor();
+    method public long getCheckedThumbColor();
+    method public long getCheckedTrackColor();
+    method public long getDisabledCheckedBorderColor();
+    method public long getDisabledCheckedIconColor();
+    method public long getDisabledCheckedThumbColor();
+    method public long getDisabledCheckedTrackColor();
+    method public long getDisabledUncheckedBorderColor();
+    method public long getDisabledUncheckedIconColor();
+    method public long getDisabledUncheckedThumbColor();
+    method public long getDisabledUncheckedTrackColor();
+    method public long getUncheckedBorderColor();
+    method public long getUncheckedIconColor();
+    method public long getUncheckedThumbColor();
+    method public long getUncheckedTrackColor();
+    property public final long checkedBorderColor;
+    property public final long checkedIconColor;
+    property public final long checkedThumbColor;
+    property public final long checkedTrackColor;
+    property public final long disabledCheckedBorderColor;
+    property public final long disabledCheckedIconColor;
+    property public final long disabledCheckedThumbColor;
+    property public final long disabledCheckedTrackColor;
+    property public final long disabledUncheckedBorderColor;
+    property public final long disabledUncheckedIconColor;
+    property public final long disabledUncheckedThumbColor;
+    property public final long disabledUncheckedTrackColor;
+    property public final long uncheckedBorderColor;
+    property public final long uncheckedIconColor;
+    property public final long uncheckedThumbColor;
+    property public final long uncheckedTrackColor;
   }
 
-  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SwitchDefaults {
+  public final class SwitchDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.SwitchColors colors();
     method @androidx.compose.runtime.Composable public androidx.tv.material3.SwitchColors colors(optional long checkedThumbColor, optional long checkedTrackColor, optional long checkedBorderColor, optional long checkedIconColor, optional long uncheckedThumbColor, optional long uncheckedTrackColor, optional long uncheckedBorderColor, optional long uncheckedIconColor, optional long disabledCheckedThumbColor, optional long disabledCheckedTrackColor, optional long disabledCheckedBorderColor, optional long disabledCheckedIconColor, optional long disabledUncheckedThumbColor, optional long disabledUncheckedTrackColor, optional long disabledUncheckedBorderColor, optional long disabledUncheckedIconColor);
     method public float getIconSize();
     property public final float IconSize;
@@ -895,7 +930,7 @@ package androidx.tv.material3 {
   }
 
   public final class SwitchKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? thumbContent, optional boolean enabled, optional androidx.tv.material3.SwitchColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @androidx.compose.runtime.Composable public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? thumbContent, optional boolean enabled, optional androidx.tv.material3.SwitchColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabColors {
