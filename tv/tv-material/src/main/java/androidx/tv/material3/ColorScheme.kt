@@ -352,6 +352,7 @@ class ColorScheme(
     }
 
     internal var defaultSwitchColorsCached: SwitchColors? = null
+    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
 }
 
 /**

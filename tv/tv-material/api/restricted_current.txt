@@ -797,16 +797,27 @@ package androidx.tv.material3 {
     field public static final androidx.tv.material3.OutlinedIconButtonDefaults INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class RadioButtonColors {
+  @androidx.compose.runtime.Immutable public final class RadioButtonColors {
+    ctor public RadioButtonColors(long selectedColor, long unselectedColor, long disabledSelectedColor, long disabledUnselectedColor);
+    method public androidx.tv.material3.RadioButtonColors copy(optional long selectedColor, optional long unselectedColor, optional long disabledSelectedColor, optional long disabledUnselectedColor);
+    method public long getDisabledSelectedColor();
+    method public long getDisabledUnselectedColor();
+    method public long getSelectedColor();
+    method public long getUnselectedColor();
+    property public final long disabledSelectedColor;
+    property public final long disabledUnselectedColor;
+    property public final long selectedColor;
+    property public final long unselectedColor;
   }
 
-  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class RadioButtonDefaults {
+  public final class RadioButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.RadioButtonColors colors();
     method @androidx.compose.runtime.Composable public androidx.tv.material3.RadioButtonColors colors(optional long selectedColor, optional long unselectedColor, optional long disabledSelectedColor, optional long disabledUnselectedColor);
     field public static final androidx.tv.material3.RadioButtonDefaults INSTANCE;
   }
 
   public final class RadioButtonKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.RadioButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @androidx.compose.runtime.Composable public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.RadioButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public sealed interface ScrollPauseHandle {
