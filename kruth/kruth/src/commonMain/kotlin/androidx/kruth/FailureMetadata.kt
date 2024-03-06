@@ -60,6 +60,14 @@ class FailureMetadata internal constructor(
         )
     }
 
+    internal fun updateForCheckCall(): FailureMetadata {
+        return FailureMetadata(
+            failureStrategy = failureStrategy,
+            messagesToPrepend = messagesToPrepend,
+            steps = steps + CheckStep(null, null)
+        )
+    }
+
     internal fun updateForCheckCall(
         valuesAreSimilar: OldAndNewValuesAreSimilar,
         descriptionUpdate: (String?) -> String
@@ -75,11 +83,15 @@ class FailureMetadata internal constructor(
         fail(facts.asList())
     }
 
-    // TODO: change to AssertionError that takes in a cause when upgraded to 1.9.20
+    // TODO: change to AssertionError that takes in a cause when upgraded to 1.9.20.
+    //  Take care to also update the places we check for AssertionErrorWithFacts for error message
+    //  formatting.
     internal fun fail(facts: List<Fact> = emptyList()) {
         failureStrategy.fail(
             AssertionErrorWithFacts(
                 messagesToPrepend = messagesToPrepend,
+                // TODO(dustinlam): We should sometimes be calling into failEqualityCheck, which has
+                //  different formatting for ComparisonFailures.
                 facts = description() + facts + rootUnlessThrowable(),
                 cause = rootCause()
             ).also(AssertionErrorWithFacts::cleanStackTrace)
@@ -137,7 +149,7 @@ class FailureMetadata internal constructor(
 
             if (description == null) {
                 require(step is SubjectStep)
-                description = step.subject.typeName()
+                description = step.subject.typeDescription()
             }
         }
 
@@ -209,7 +221,8 @@ class FailureMetadata internal constructor(
             require(rootSubject is SubjectStep)
             listOf(
                 fact(
-                    "${rootSubject.subject.typeName()} was ", rootSubject.subject.actual
+                    // TODO(dustinlam): Value should be .actualCustomStringRepresentation()
+                    "${rootSubject.subject.typeDescription()} was", rootSubject.subject.actual
                 )
             )
         } else {

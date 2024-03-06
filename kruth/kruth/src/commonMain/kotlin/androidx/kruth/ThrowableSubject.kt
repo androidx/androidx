@@ -22,18 +22,35 @@ package androidx.kruth
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class ThrowableSubject<out T : Throwable> protected constructor(
-    metadata: FailureMetadata,
+open class ThrowableSubject<out T : Throwable> internal constructor(
     actual: T?,
-) : Subject<T>(actual, metadata) {
+    metadata: FailureMetadata,
+    typeDescriptionOverride: String?
+) : Subject<T>(actual, metadata, typeDescriptionOverride) {
 
-    internal constructor(actual: T?, metadata: FailureMetadata) : this(metadata, actual)
+    /**
+     * Constructor for use by subclasses. If you want to create an instance of this class
+     *  * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+     */
+    protected constructor(metadata: FailureMetadata, actual: T?) : this(actual, metadata, null)
+
+    /*
+     * TODO(cpovirk): consider a special case for isEqualTo and isSameInstanceAs that adds |expected|
+     *  as a suppressed exception
+     */
 
     /**
      * Returns a [StringSubject] to make assertions about the throwable's message.
      */
     fun hasMessageThat(): StringSubject {
-        return StringSubject(actual = actual?.message, metadata = metadata)
+        var check: StandardSubjectBuilder = check("message")
+        if (actual is AssertionErrorWithFacts && actual.facts.isNotEmpty()) {
+            check = check.withMessage(
+                "(Note from Truth: When possible, instead of asserting on the full message, " +
+                    "assert about individual facts by using ExpectFailure.assertThat.)"
+            )
+        }
+        return check.that(requireNonNull(actual).message)
     }
 
     /**

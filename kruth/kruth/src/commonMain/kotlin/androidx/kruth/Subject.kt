@@ -35,15 +35,22 @@ import kotlin.reflect.typeOf
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class Subject<out T> protected constructor(
-    metadata: FailureMetadata,
+open class Subject<out T> internal constructor(
     val actual: T?,
+    metadata: FailureMetadata,
+    private val typeDescriptionOverride: String?
 ) {
-    internal constructor(actual: T?, metadata: FailureMetadata) : this(metadata, actual)
+    /**
+     * Constructor for use by subclasses. If you want to create an instance of this class
+     * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+     */
+    protected constructor(metadata: FailureMetadata, actual: T?) : this(actual, metadata, null)
 
     val metadata: FailureMetadata by lazy { metadata.updateForSubject(this) }
 
-    protected fun check(): StandardSubjectBuilder = StandardSubjectBuilder(metadata = metadata)
+    protected fun check(): StandardSubjectBuilder = StandardSubjectBuilder(
+        metadata = metadata.updateForCheckCall()
+    )
 
     /**
      *  Fails if the subject is not null.
@@ -184,6 +191,7 @@ open class Subject<out T> protected constructor(
             listOf(
                 first,
                 *rest,
+                // TODO(dustinlam): Value should be .actualCustomStringRepresentation()
                 fact("but was", actual)
             )
         )
@@ -268,6 +276,30 @@ open class Subject<out T> protected constructor(
     /** Fails if the subject is equal to any of the given elements.  */
     open fun isNoneOf(first: Any?, second: Any?, vararg rest: Any?) {
         isNotIn(listOf(first, second, *rest))
+    }
+
+    /**
+     * Supplies the direct string representation of the actual value to other methods which may
+     * prefix or otherwise position it in an error message. This should only be overridden to
+     * provide an improved string representation of the value under test, as it would appear in any
+     * given error message, and should not be used for additional prefixing.
+     *
+     * Subjects should override this with care.
+     *
+     * By default, this returns `actual.toString()`.
+     */
+    // TODO(cpovirk): Consider whether this API pulls its weight. If users want to format the actual
+    //  value, maybe they should do so themselves? Of course, they won't have a chance to use a
+    //  custom format for inherited implementations like isEqualTo(). But if they want to format the
+    //  actual value specially, then it seems likely that they'll want to format the expected value
+    //  specially, too. And that applies just as well to APIs like isIn(). Maybe we'll want an API
+    //  that supports formatting those values, too (like formatActualOrExpected below)? See also the
+    //  related b/70930431. But note that we are likely to use this from FailureMetadata, at least
+    //  in the short term, for better or for worse.
+    protected open fun actualCustomStringRepresentation(): String {
+        // TODO(dustinlam): This should check for ByteArray to return ByteArray.toHexString()
+        //  when we move to Kotlin 1.9
+        return actual.toString()
     }
 
     private fun Any?.standardIsEqualTo(expected: Any?) {
@@ -365,7 +397,8 @@ open class Subject<out T> protected constructor(
      * @param args the arguments to be inserted into those placeholders
      */
     protected fun check(format: String, vararg args: Any): StandardSubjectBuilder {
-        return doCheck(DIFFERENT, format, args)
+        validatePlaceholders(format, args)
+        return doCheck(DIFFERENT, lenientFormat(format, *args))
     }
 
     // TODO(b/134064106): Figure out a public API for this.
@@ -373,20 +406,53 @@ open class Subject<out T> protected constructor(
         format: String,
         vararg args: Any
     ): StandardSubjectBuilder {
-        return doCheck(SIMILAR, format, args)
+        validatePlaceholders(format, args)
+        return doCheck(SIMILAR, lenientFormat(format, *args))
+    }
+
+    private fun validatePlaceholders(format: String, args: Array<out Any?>) {
+        var placeholders = 0
+        var index = format.indexOf("%s")
+        while (index != -1) {
+            placeholders++
+            index = format.indexOf("%s", index + 1)
+        }
+        require(placeholders == args.size) {
+            "Incorrect number of args (${args.size}) for the given placeholders ($placeholders) " +
+                "in string template:\"$format\""
+        }
     }
 
     private fun doCheck(
         valuesAreSimilar: OldAndNewValuesAreSimilar,
-        format: String,
-        args: Array<out Any>?
+        message: String
     ): StandardSubjectBuilder {
-        val message: String by lazy { lenientFormat(format, args) }
         return StandardSubjectBuilder(
             metadata.updateForCheckCall(valuesAreSimilar) { input: String? ->
                 "$input.$message"
             }
         )
+    }
+
+    internal fun typeDescription(): String {
+        if (typeDescriptionOverride != null) return typeDescriptionOverride
+
+        /**
+         * j2cl doesn't store enough metadata to know whether "Foo$BarSubject" is a nested class, so it
+         * can't tell whether the simple name is "Foo$BarSubject" or just "BarSubject": b/71808768. It
+         * returns "Foo$BarSubject" to err on the side of preserving information. We want just
+         * "BarSubject," so we strip any likely enclosing type ourselves.
+         */
+        val subjectClass: String? = this::class.simpleName?.replaceFirst(Regex(".*[$]"), "")
+        val actualClass: String = if (subjectClass != null &&
+            subjectClass.endsWith("Subject") &&
+            subjectClass != "Subject"
+        ) {
+            subjectClass.substring(0, subjectClass.length - "Subject".length)
+        } else {
+            "Object"
+        }
+        return actualClass.replaceFirstChar { it.lowercaseChar() }
     }
 
     protected fun ignoreCheck(): StandardSubjectBuilder {
@@ -407,11 +473,11 @@ open class Subject<out T> protected constructor(
      * the process.
      */
     fun interface Factory<out SubjectT : Subject<ActualT>, ActualT> {
-        fun createSubject(metadata: FailureMetadata, actual: ActualT): SubjectT
+        fun createSubject(metadata: FailureMetadata, actual: ActualT?): SubjectT
     }
 }
 
-private fun lenientFormat(template: String, vararg args: Any?): String {
+internal fun lenientFormat(template: String, vararg args: Any?): String {
     val argsToLenientStrings = args.map {
         if (it == null) {
             return@map "null"

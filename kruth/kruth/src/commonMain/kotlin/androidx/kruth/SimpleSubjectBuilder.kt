@@ -34,6 +34,5 @@ class SimpleSubjectBuilder<out S : Subject<T>, T> internal constructor(
     private val subjectFactory: Subject.Factory<S, T>,
 ) {
 
-    fun that(actual: T): S =
-        subjectFactory.createSubject(metadata, actual)
+    fun that(actual: T?): S = subjectFactory.createSubject(metadata, actual)
 }

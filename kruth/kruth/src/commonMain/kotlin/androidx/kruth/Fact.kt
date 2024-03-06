@@ -19,7 +19,7 @@ package androidx.kruth
 import kotlin.jvm.JvmStatic
 
 // TODO(dustinlam): This needs to implement Serializable on JVM.
-class Fact private constructor(private val key: String, private val value: String?) {
+class Fact private constructor(internal val key: String, internal val value: String?) {
     override fun toString(): String {
         return if (value == null) key else "$key: $value"
     }
@@ -28,10 +28,20 @@ class Fact private constructor(private val key: String, private val value: Strin
      * Helper function to format fact messages with appropriate padding and indentations
      * given the appearance of new line values.
      */
-    private fun toMessageString(padKeyToLength: Int, seenNewLineInValue: Boolean) = when {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun toMessageString(padKeyToLength: Int, seenNewLineInValue: Boolean) = when {
         value == null -> key
-        seenNewLineInValue -> "$key:\n${value.prependIndent("    ")}"
+        seenNewLineInValue -> "$key:\n${indent(value)}"
         else -> "${key.padEnd(padKeyToLength)}: $value"
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun indent(value: String): String {
+        // We don't want to indent with \t because the text would align exactly with the stack
+        // trace. We don't want to indent with \t\t because it would be very far for people with
+        // 8-space tabs. Let's compromise and indent by 4 spaces, which is different than both 2-
+        // and 8-space tabs.
+        return "    ${value.replace("\n", "\n    ")}"
     }
 
     companion object {
@@ -69,16 +79,35 @@ class Fact private constructor(private val key: String, private val value: Strin
         internal fun makeMessage(messages: List<String>, facts: List<Fact>): String {
             val longestKeyLength = facts.filter { it.value != null }
                 .maxOfOrNull { it.key.length } ?: 0
-            val seenNewlineInValue = facts.filter { it.value != null }
-                .any { it.value!!.contains("\n") }
-            // Using transform instead of separator ensures we end with a newline.
-            val messagesToMessage = messages.joinToString("") { it + "\n" }
-            val factsToMessage =
-                facts.joinToString(
-                    separator = "\n",
-                    transform = { it.toMessageString(longestKeyLength, seenNewlineInValue) }
-                )
-            return messagesToMessage + factsToMessage
+            // TODO(cpovirk): Look for other kinds of newlines.
+            val seenNewlineInValue = facts.any { it.value?.contains("\n") == true }
+
+            return buildString {
+                messages.forEach {
+                    append(it)
+                    append("\n")
+                }
+
+                /*
+                 * *Usually* the first fact is printed at the beginning of a new line. However, when
+                 * this exception is the cause of another exception, that exception will print it
+                 * starting after "Caused by: " on the same line. The other exception sometimes also
+                 * reuses this message as its own message. In both of those scenarios, the first
+                 * line doesn't start at column 0, so the horizontal alignment is thrown off.
+                 *
+                 * There's not much we can do about this, short of always starting with a newline
+                 * (which would leave a blank line at the beginning of the message in the normal
+                 *  case).
+                 */
+                facts.forEach {
+                    append(it.toMessageString(longestKeyLength, seenNewlineInValue))
+                    append("\n")
+                }
+
+                if (isNotEmpty()) {
+                    setLength(length - 1) // remove trailing \n
+                }
+            }
         }
     }
 }

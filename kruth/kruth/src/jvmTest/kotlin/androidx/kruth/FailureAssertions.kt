@@ -16,21 +16,20 @@
 
 package androidx.kruth
 
-/**
- * Propositions for [Class] subjects.
- */
-class ClassSubject internal constructor(
-    actual: Class<*>?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Class<*>>(actual, metadata = metadata, typeDescriptionOverride = null) {
+/** Convenience methods for Truth Subject tests. */
 
-    /**
-     * Fails if this class or interface is not the same as or a subclass or subinterface of, the
-     * given class or interface.
-     */
-    fun isAssignableTo(clazz: Class<*>) {
-        if (!clazz.isAssignableFrom(requireNonNull(actual))) {
-            failWithActual("Expected to be assignable to", clazz.getName())
-        }
-    }
+fun ExpectFailure.assertFailureKeys(vararg keys: String?) {
+    assertThatFailure().factKeys().containsExactlyElementsIn(keys).inOrder()
+}
+
+fun ExpectFailure.assertFailureValue(key: String?, value: String?) {
+    assertThatFailure().factValue(key!!).isEqualTo(value)
+}
+
+fun ExpectFailure.assertFailureValueIndexed(key: String?, index: Int, value: String?) {
+    assertThatFailure().factValue(key!!, index).isEqualTo(value)
+}
+
+fun ExpectFailure.assertThatFailure(): TruthFailureSubject<AssertionError> {
+    return ExpectFailure.assertThat(getFailure())
 }

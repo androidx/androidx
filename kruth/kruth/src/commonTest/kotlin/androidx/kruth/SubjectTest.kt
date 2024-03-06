@@ -702,7 +702,7 @@ class SubjectTest {
     fun failWithActual_printsAllMessagesPlusActualValue() {
         val subject =
             object : Subject<Int>(
-                0,
+                actual = 0,
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
@@ -725,7 +725,7 @@ class SubjectTest {
     fun failWithActual_printsAllMessagesPlusMultilineActualValue() {
         val subject =
             object : Subject<String>(
-                "a\nb",
+                actual = "a\nb",
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
@@ -750,7 +750,7 @@ class SubjectTest {
     fun failWithoutActual_printsAllMessagesPlusActualValue() {
         val subject =
             object : Subject<Int>(
-                0,
+                actual = 0,
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
@@ -770,15 +770,14 @@ class SubjectTest {
 
     @Test
     fun failWithoutActual_printsAllMessagesPlusMultilineActualValue() {
-        val subject =
-            object : Subject<String>(
-                "a\nb",
-                metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
-            ) {
-                fun fail() {
-                    failWithoutActual(simpleFact("msg3"), simpleFact("msg4"))
-                }
+        val subject = object : Subject<String>(
+            actual = "a\nb",
+            metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
+        ) {
+            fun fail() {
+                failWithoutActual(simpleFact("msg3"), simpleFact("msg4"))
             }
+        }
 
         assertFailsWithMessage(
             """
@@ -820,7 +819,7 @@ private class ThrowsOnEqualsNull {
  */
 private class ForbidsEqualityChecksSubject(
     actual: Any?
-) : Subject<Any>(actual, metadata = FailureMetadata()) {
+) : Subject<Any>(actual = actual, metadata = FailureMetadata()) {
 
     // Not sure how to feel about this, but people do it:
     override fun isEqualTo(expected: Any?) {
