@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.viewer.pdf.loader;
+package androidx.pdf.viewer.loader;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Loads data for an individual page of the PDF document. Makes sure that if
@@ -50,6 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * a new request is accepted.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressWarnings("BanConcurrentHashMap")
 public class PdfPageLoader {
     public static final String TAG = PdfPageLoader.class.getSimpleName();
 
@@ -81,7 +81,8 @@ public class PdfPageLoader {
      * combined remove-get).
      */
     @SuppressLint("UseSparseArrays")
-    Map<Integer, RenderTileTask> mTileTasks = new ConcurrentHashMap<Integer, RenderTileTask>();
+    Map<Integer, RenderTileTask> mTileTasks =
+            new java.util.concurrent.ConcurrentHashMap<Integer, RenderTileTask>();
 
     /** The reference pageWidth for all tile related tasks. */
     int mTilePageWidth;

@@ -16,9 +16,7 @@
 
 package androidx.pdf.util;
 
-import android.annotation.TargetApi;
 import android.graphics.Rect;
-import android.os.Build;
 import android.view.View;
 
 import androidx.annotation.RestrictTo;
@@ -39,6 +37,9 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SystemGestureExclusionHelper {
+
+    private SystemGestureExclusionHelper() {
+    }
 
     /**
      * Creates {@link Rect}s to cover the left and right system gesture areas for {@code
@@ -143,19 +144,13 @@ public class SystemGestureExclusionHelper {
                 && xCoordinatePx > (screenWidthPx - systemGestureInsetsWidthPx - bufferDistancePx);
     }
 
-    /** True if system gesture exclusion rects api is available for the current OS version. */
-    public static boolean exclusionRectsApiAvailable() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
-    }
-
     /**
      * Sets the {@code exclusionRects} on the {@code view}.
      *
      * @return true if the {@code exclusionRects} were set, false otherwise.
      */
-    @TargetApi(Build.VERSION_CODES.Q)
     public static boolean setSystemGestureExclusionRects(View view, List<Rect> exclusionRects) {
-        if (!exclusionRectsApiAvailable() || view == null || exclusionRects == null) {
+        if (view == null || exclusionRects == null) {
             return false;
         }
         view.setSystemGestureExclusionRects(exclusionRects);

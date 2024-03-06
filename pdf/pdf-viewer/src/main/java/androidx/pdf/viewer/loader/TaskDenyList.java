@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.pdf.viewer.pdf.loader;
+package androidx.pdf.viewer.loader;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.viewer.pdf.loader.PdfPageLoader.GetPageLinksTask;
-import androidx.pdf.viewer.pdf.loader.PdfPageLoader.GetPageTextTask;
+import androidx.pdf.viewer.loader.PdfPageLoader.GetPageLinksTask;
+import androidx.pdf.viewer.loader.PdfPageLoader.GetPageTextTask;
 
 /**
  * Utility to disable tasks that are causing crashes.

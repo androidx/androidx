@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.viewer.pdf.loader;
+package androidx.pdf.viewer.loader;
 
 import android.util.Log;
 
@@ -62,13 +62,15 @@ public class PdfTaskExecutor extends Thread {
         }
     }
 
-    private synchronized void waitForTask() {
-        try {
-            // Could wait indefinitely for a notify(), but this is safer.
-            this.wait(10000);  // Wait 10 seconds.
-        } catch (InterruptedException e) {
-            ErrorLog.log(TAG, "Unexpected interrupt while waiting for next task", e);
-            throw new RuntimeException(e);
+    private void waitForTask() {
+        synchronized (this) {
+            try {
+                // Could wait indefinitely for a notify(), but this is safer.
+                this.wait(10000);  // Wait 10 seconds.
+            } catch (InterruptedException e) {
+                ErrorLog.log(TAG, "Unexpected interrupt while waiting for next task", e);
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -78,29 +80,34 @@ public class PdfTaskExecutor extends Thread {
     }
 
     /** Schedule the given task. */
-    public synchronized void schedule(AbstractPdfTask<?> task) {
-        Log.v(TAG, "Schedule task: " + task.toString());
-        mScheduledTasks.add(task);
-        this.notifyAll();
+    public void schedule(AbstractPdfTask<?> task) {
+        synchronized (this) {
+            Log.v(TAG, "Schedule task: " + task.toString());
+            mScheduledTasks.add(task);
+            this.notifyAll();
+        }
     }
 
     @Nullable
-    private synchronized AbstractPdfTask<?> getNextTask() {
-        // Linear search - could use a priority heap for more efficiency, but this
-        // way allows for changing priority of tasks that are already scheduled.
-        AbstractPdfTask<?> taskToRun = null;
-        for (Iterator<AbstractPdfTask<?>> it = mScheduledTasks.iterator(); it.hasNext(); ) {
-            AbstractPdfTask<?> task = it.next();
-            if (task.isCancelled()) {
-                it.remove();
-            } else if (taskToRun == null || task.mPriority.compareTo(taskToRun.mPriority) < 0) {
-                taskToRun = task;
+    private AbstractPdfTask<?> getNextTask() {
+        synchronized (this) {
+            // Linear search - could use a priority heap for more efficiency, but this
+            // way allows for changing priority of tasks that are already scheduled.
+            AbstractPdfTask<?> taskToRun = null;
+            for (Iterator<AbstractPdfTask<?>> it = mScheduledTasks.iterator(); it.hasNext(); ) {
+                AbstractPdfTask<?> task = it.next();
+                if (task.isCancelled()) {
+                    it.remove();
+                } else if (taskToRun == null || task.mPriority.compareTo(taskToRun.mPriority) < 0) {
+                    taskToRun = task;
+                }
             }
+            if (taskToRun != null) {
+                mScheduledTasks.remove(taskToRun);
+            }
+            return taskToRun;
         }
-        if (taskToRun != null) {
-            mScheduledTasks.remove(taskToRun);
-        }
-        return taskToRun;
+
     }
 
     private <T> void executeTask(final AbstractPdfTask<T> task) {

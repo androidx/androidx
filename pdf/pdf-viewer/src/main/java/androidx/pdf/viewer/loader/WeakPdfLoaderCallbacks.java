@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.pdf.viewer.pdf.loader;
+package androidx.pdf.viewer.loader;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.pdf.aidl.Dimensions;
 import androidx.pdf.aidl.LinkRects;
@@ -36,6 +37,7 @@ import java.util.List;
  * to be garbage collected by holding only a weak reference. Once the delegate
  * is garbage collected, every call is a no-op.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WeakPdfLoaderCallbacks implements PdfLoaderCallbacks {
 
     private static final String TAG = WeakPdfLoaderCallbacks.class.getSimpleName();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.viewer.pdf.loader;
+package androidx.pdf.viewer.loader;
 
 
 import static com.google.common.truth.Truth.assertThat;
@@ -44,11 +44,11 @@ import androidx.pdf.util.TileBoard;
 import androidx.pdf.util.TileBoard.CancelTilesCallback;
 import androidx.pdf.util.TileBoard.TileInfo;
 import androidx.pdf.util.TileBoard.ViewAreaUpdateCallback;
-import androidx.pdf.viewer.pdf.loader.PdfPageLoader.GetDimensionsTask;
-import androidx.pdf.viewer.pdf.loader.PdfPageLoader.GetPageTextTask;
-import androidx.pdf.viewer.pdf.loader.PdfPageLoader.RenderBitmapTask;
-import androidx.pdf.viewer.pdf.loader.PdfPageLoader.RenderTileTask;
-import androidx.pdf.viewer.pdf.loader.PdfPageLoader.SelectionTask;
+import androidx.pdf.viewer.loader.PdfPageLoader.GetDimensionsTask;
+import androidx.pdf.viewer.loader.PdfPageLoader.GetPageTextTask;
+import androidx.pdf.viewer.loader.PdfPageLoader.RenderBitmapTask;
+import androidx.pdf.viewer.loader.PdfPageLoader.RenderTileTask;
+import androidx.pdf.viewer.loader.PdfPageLoader.SelectionTask;
 import androidx.pdf.widget.WidgetType;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;

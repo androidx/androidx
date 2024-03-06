@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
+import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
@@ -35,6 +36,7 @@ import androidx.pdf.widget.ZoomView.ZoomScroll;
  *            handles whenever it changes.
  */
 @SuppressWarnings("deprecation")
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class ZoomableSelectionHandles<S> {
     private static final float SCALE_OFFSET = 0.5f;
     private static final float HANDLE_ALPHA = 0.75f;

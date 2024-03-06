@@ -16,11 +16,13 @@
 
 package androidx.pdf.pdflib;
 
+import androidx.annotation.RestrictTo;
 import androidx.pdf.aidl.PdfDocumentRemote;
 
 /**
  *
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PdfDocumentRemoteProto {
     private PdfDocumentRemote mRemote;
 

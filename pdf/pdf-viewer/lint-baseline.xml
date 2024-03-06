@@ -175,6 +175,51 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AbstractPaginatedView(Context context) {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AbstractPaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AbstractPaginatedView(Context context, AttributeSet attrs) {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AbstractPaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AbstractPaginatedView(Context context, AttributeSet attrs) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AbstractPaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AbstractPaginatedView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AbstractPaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AbstractPaginatedView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AbstractPaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static final Accessibility get() {"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
@@ -242,6 +287,51 @@
         errorLine2="                                          ~~~~">
         <location
             file="src/main/java/androidx/pdf/util/Accessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Context context,"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AccessibilityPageWrapper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            PageMosaicView pageView,"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AccessibilityPageWrapper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            PageLinksView pageLinksView) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AccessibilityPageWrapper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageMosaicView getPageView() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AccessibilityPageWrapper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View asView() {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/AccessibilityPageWrapper.java"/>
     </issue>
 
     <issue
@@ -755,6 +845,15 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/pdf/util/DrawSpec.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static &lt;E extends Enum&lt;E>> String createKey(@Nullable Collection&lt;E> enums) {"
+        errorLine2="                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/EnumKeyGenerator.java"/>
     </issue>
 
     <issue
@@ -1309,6 +1408,195 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTracker(String tag, Context context) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTracker(String tag, Context context) {"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setDelegateHandler(GestureHandler handler) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean feed(MotionEvent event, boolean handle) {"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void handleDoubleTap(MotionEvent ev) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean matches(Gesture... gestures) {"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getLog() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onScale(ScaleGestureDetector detector) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onScaleBegin(ScaleGestureDetector detector) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onScaleEnd(ScaleGestureDetector detector) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        protected void onGestureEnd(Gesture gesture) {"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTracker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTrackingView(Context context) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTrackingView(Context context, AttributeSet attrs) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTrackingView(Context context, AttributeSet attrs) {"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTrackingView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTrackingView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTrackingView(Context ctx, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public GestureTrackingView(Context ctx, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract boolean interceptGesture(GestureTracker gestureTracker);"
+        errorLine2="                                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected OnGestureListener patchGestureListener(OnGestureListener original) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected OnGestureListener patchGestureListener(OnGestureListener original) {"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/GestureTrackingView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected HighlightOverlay(DrawSpec... drawSpecs) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
@@ -1430,6 +1718,87 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/pdf/data/ListOfList.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Fetcher mFetcher;"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Viewer feed(DisplayData contents) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Viewer feed(DisplayData contents) {"
+        errorLine2="                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {"
+        errorLine2="                                                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void postContentsAvailable(final DisplayData contents,"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public LoadingViewer setFetcher(@NonNull Fetcher fetcher) {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/LoadingViewer.java"/>
     </issue>
 
     <issue
@@ -1993,6 +2362,87 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageLinksView(Context context, ObservableValue&lt;ZoomView.ZoomScroll> zoomScroll) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageLinksView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageLinksView(Context context, ObservableValue&lt;ZoomView.ZoomScroll> zoomScroll) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageLinksView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Context context,"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageMosaicView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Dimensions pageSize,"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageMosaicView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            BitmapSource bitmapSource,"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageMosaicView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            BitmapRecycler bitmapRecycler) {"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageMosaicView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getLinkUrl(Point p) {"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageMosaicView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageMosaicView getPageView() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageMosaicView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View asView() {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageMosaicView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PageSelection(int page, SelectionBoundary start, SelectionBoundary stop,"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~">
         <location
@@ -2056,10 +2506,289 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        PageMosaicView getPageView();"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageViewFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        View asView();"
+        errorLine2="        ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageViewFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static PageView createPageView("
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageViewFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Context context,"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageViewFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Dimensions pageSize,"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageViewFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            MosaicView.BitmapSource bitmapSource,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageViewFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            BitmapRecycler bitmapRecycler,"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageViewFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            ObservableValue&lt;ZoomView.ZoomScroll> zoomScroll) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PageViewFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PaginatedView(Context context) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PaginatedView(Context context, AttributeSet attrs) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PaginatedView(Context context, AttributeSet attrs) {"
+        errorLine2="                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PaginatedView(Context context, AttributeSet attrs, int defStyle) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PaginatedView(Context context, AttributeSet attrs, int defStyle) {"
+        errorLine2="                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addView(PageView pageView) {"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public List&lt;PageMosaicView> getChildViews() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginatedView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addPage(int pageNum, Dimensions pageSize) {"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range getPagesInWindow(Range intervalPx, boolean includePartial) {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range getPagesInWindow(Range intervalPx, boolean includePartial) {"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setViewArea(Rect viewArea) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Rect getPageLocation(int pageNum) {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Dimensions getPageSize(int pageNum) {"
+        errorLine2="           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Rect getViewArea() {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addObserver(PaginationModelObserver observer) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void removeObserver(PaginationModelObserver observer) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Iterator&lt;PaginationModelObserver> iterator() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PaginationModel.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setOnConnectInitializer(Runnable onConnect) {"
+        errorLine2="                                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfConnection.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setConnectionFailureHandler(Runnable onConnectFailure) {"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfConnection.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PdfDocumentRemote getPdfDocument(String forTask) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfConnection.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PdfDocumentRemote getPdfDocument(String forTask) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfConnection.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PdfDocumentRemoteProto(PdfDocumentRemote remote) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/pdflib/PdfDocumentRemoteProto.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PdfDocumentRemote getPdfDocumentRemote() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/pdflib/PdfDocumentRemoteProto.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PdfHighlightOverlay(PageSelection selection) {"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/pdf/viewer/pdf/PdfHighlightOverlay.java"/>
+            file="src/main/java/androidx/pdf/viewer/PdfHighlightOverlay.java"/>
     </issue>
 
     <issue
@@ -2068,7 +2797,7 @@
         errorLine1="    public PdfHighlightOverlay(MatchRects matchRects) {"
         errorLine2="                               ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/pdf/viewer/pdf/PdfHighlightOverlay.java"/>
+            file="src/main/java/androidx/pdf/viewer/PdfHighlightOverlay.java"/>
     </issue>
 
     <issue
@@ -2077,7 +2806,232 @@
         errorLine1="    public PdfHighlightOverlay(MatchRects matchRects, int currentMatch) {"
         errorLine2="                               ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/pdf/viewer/pdf/PdfHighlightOverlay.java"/>
+            file="src/main/java/androidx/pdf/viewer/PdfHighlightOverlay.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void searchPageText(int pageNum, String query) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void selectPageText(int pageNum, SelectionBoundary start, SelectionBoundary stop) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void selectPageText(int pageNum, SelectionBoundary start, SelectionBoundary stop) {"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected PdfDocumentRemote getPdfDocument(String forTask) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected PdfDocumentRemote getPdfDocument(String forTask) {"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected PdfDocumentRemote getLoadedPdfDocument(String forTask) {"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected WeakPdfLoaderCallbacks getCallbacks() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void documentNotLoaded(PdfStatus status);"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setPageDimensions(int pageNum, Dimensions dimensions);"
+        errorLine2="                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setPageBitmap(int pageNum, Bitmap bitmap);"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setTileBitmap(int pageNum, TileInfo tileInfo, Bitmap bitmap);"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setTileBitmap(int pageNum, TileInfo tileInfo, Bitmap bitmap);"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setPageText(int pageNum, String text);"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setSearchResults(String query, int pageNum, MatchRects matches);"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setSearchResults(String query, int pageNum, MatchRects matches);"
+        errorLine2="                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setSelection(int pageNum, PageSelection selection);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setPageUrlLinks(int pageNum, LinkRects result);"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setInvalidRects(int pageNum, List&lt;Rect> invalidRects);"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void loadPageBitmap(Dimensions pageSize) {"
+        errorLine2="                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfPageLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void loadTilesBitmaps(Dimensions pageSize, Iterable&lt;TileInfo> tiles) {"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfPageLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void loadTilesBitmaps(Dimensions pageSize, Iterable&lt;TileInfo> tiles) {"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfPageLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void searchPageText(String query) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfPageLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void selectPageText(SelectionBoundary start, SelectionBoundary stop) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfPageLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void selectPageText(SelectionBoundary start, SelectionBoundary stop) {"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfPageLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void schedule(AbstractPdfTask&lt;?> task) {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/PdfTaskExecutor.java"/>
     </issue>
 
     <issue
@@ -2096,6 +3050,132 @@
         errorLine2="                                                    ~~~~~~">
         <location
             file="src/main/java/androidx/pdf/util/Preconditions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean shouldSkipZoomDetector(MotionEvent event, GestureTracker.EventId lastEvent) {"
+        errorLine2="                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/QuickScaleBypassDecider.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean shouldSkipZoomDetector(MotionEvent event, GestureTracker.EventId lastEvent) {"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/QuickScaleBypassDecider.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLastGesture(GestureTracker.Gesture gesture) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/QuickScaleBypassDecider.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range union(int value) {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range union(Range other) {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range union(Range other) {"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range intersect(Range other) {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range intersect(Range other) {"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range[] minus(Range other) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range[] minus(Range other) {"
+        errorLine2="                         ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean contains(Range other) {"
+        errorLine2="                            ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range expand(int margin, Range bounds) {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Range expand(int margin, Range bounds) {"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Iterator&lt;Integer> iterator() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/data/Range.java"/>
     </issue>
 
     <issue
@@ -2200,6 +3280,24 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ReusableToast(View view) {"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ReusableToast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View getView() {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ReusableToast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Screen(Context ctx) {"
         errorLine2="                  ~~~~~~~">
         <location
@@ -2290,10 +3388,73 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static List&lt;Rect> createExclusionRectsForCorners("
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/SystemGestureExclusionHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Rect rect, int systemGestureInsetsWidthPx, int bufferDistancePx, int screenWidthPx) {"
+        errorLine2="            ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/SystemGestureExclusionHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static Rect createLeftSideExclusionRect("
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/SystemGestureExclusionHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static Rect createRightSideExclusionRect("
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/SystemGestureExclusionHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static boolean setSystemGestureExclusionRects(View view, List&lt;Rect> exclusionRects) {"
+        errorLine2="                                                         ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/SystemGestureExclusionHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static boolean setSystemGestureExclusionRects(View view, List&lt;Rect> exclusionRects) {"
+        errorLine2="                                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/SystemGestureExclusionHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public TaskCancelledException(String detailMessage) {"
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/pdf/fetcher/TaskCancelledException.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static void maybeDenyListTask(String task) {"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/TaskDenyList.java"/>
     </issue>
 
     <issue
@@ -2686,6 +3847,42 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void popToast(Context context, int resId, Object... args) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/Toaster.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void popToast(Context context, int resId, Object... args) {"
+        errorLine2="                                                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/Toaster.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void popToast(Context context, String message) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/Toaster.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void popToast(Context context, String message) {"
+        errorLine2="                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/Toaster.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static &lt;T> FutureValue&lt;T> immediateValue(final T value) {"
         errorLine2="                      ~~~~~~~~~~~~~~">
         <location
@@ -2875,10 +4072,586 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract String getLogTag();"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ViewGroup mContainer;"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ExposedValue&lt;ViewState> mViewState = Observables.newExposedValueWithInitialValue("
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ObservableValue&lt;ViewState> viewState() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {"
+        errorLine2="                                                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onActivityCreated(Bundle savedInstanceState) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void saveToArguments(DisplayData data) {"
+        errorLine2="                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void log(char tag, String step) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected String getEventlog() {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/Viewer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static WeakPdfLoaderCallbacks wrap(PdfLoaderCallbacks delegate) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static WeakPdfLoaderCallbacks wrap(PdfLoaderCallbacks delegate) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected WeakPdfLoaderCallbacks(PdfLoaderCallbacks delegate) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void documentNotLoaded(PdfStatus status) {"
+        errorLine2="                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setPageDimensions(int pageNum, Dimensions dimensions) {"
+        errorLine2="                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setPageBitmap(int pageNum, Bitmap bitmap) {"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setTileBitmap(int pageNum, TileInfo tileInfo, Bitmap bitmap) {"
+        errorLine2="                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setTileBitmap(int pageNum, TileInfo tileInfo, Bitmap bitmap) {"
+        errorLine2="                                                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setPageText(int pageNum, String text) {"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setSearchResults(String query, int pageNum, MatchRects matches) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setSearchResults(String query, int pageNum, MatchRects matches) {"
+        errorLine2="                                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setSelection(int pageNum, PageSelection selection) {"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setPageUrlLinks(int pageNum, LinkRects links) {"
+        errorLine2="                                             ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setInvalidRects(int pageNum, List&lt;Rect> invalidRects) {"
+        errorLine2="                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/loader/WeakPdfLoaderCallbacks.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static WidgetType of(int id) {"
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/pdf/widget/WidgetType.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void attemptRestorePosition(ZoomScroll position);"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/util/ZoomScrollRestorer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView(Context context, AttributeSet attrs) {"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView(Context context, AttributeSet attrs) {"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView(Context context, AttributeSet attrs, int defStyle) {"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView(Context context, AttributeSet attrs, int defStyle) {"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setFitMode(int fitMode) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setInitialZoomMode(int initialZoomMode) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setRotateMode(int rotateMode) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setContentResizedMode(int contentResizedMode) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setContentResizedModeX(int contentResizedMode) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setContentResizedModeY(int contentResizedMode) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setContentResizedModeZoom(int contentResizedMode) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setKeepFitZoomOnRotate(boolean keepFitZoomOnRotate) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setOverrideMinZoomToFit(boolean overrideMinZoomToFit) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setOverrideMaxZoomToFit(boolean overrideMaxZoomToFit) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setAllowParentToHandleScaleEvents(boolean allowParentToHandleScaleEvents) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setEnableDoubleTap(boolean doubleTapEnabled) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ObservableValue&lt;ZoomScroll> zoomScroll() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setInitialZoom(float initialZoom) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ZoomView setMinZoom(float minZoom) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Rect getUsableAreaInContentCoords() {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Rect getVisibleAreaInContentCoords() {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            float x, float y, float newZoom, ValueAnimator.AnimatorUpdateListener updateListener) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Parcelable onSaveInstanceState() {"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void attemptRestorePosition(ZoomScroll position) {"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected boolean interceptGesture(GestureTracker gestureTracker) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public static ZoomScroll fromBundle(Bundle bundle) {"
+        errorLine2="                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public static ZoomScroll fromBundle(Bundle bundle) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Bundle asBundle() {"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ZoomableSelectionHandles(ZoomView zoomView, ViewGroup handleParent,"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ZoomableSelectionHandles(ZoomView zoomView, ViewGroup handleParent,"
+        errorLine2="                                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            ObservableValue&lt;S> selectionObservable) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Object createSelectionObserver() {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Object createZoomViewObserver() {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void showHandle(ImageView handle, float rawX, float rawY, boolean isRight) {"
+        errorLine2="                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ImageView createHandle(ViewGroup parent, boolean isStop) {"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ImageView createHandle(ViewGroup parent, boolean isStop) {"
+        errorLine2="                                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void destroyHandle(ImageView handle) {"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/ZoomableSelectionHandles.java"/>
     </issue>
 
 </issues>

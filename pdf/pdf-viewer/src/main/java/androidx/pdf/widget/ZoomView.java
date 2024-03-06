@@ -121,7 +121,7 @@ import java.util.Queue;
  * </ul>
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "RestrictedApiAndroidX"})
 public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer {
 
     private static final String TAG = "ZoomView";
@@ -615,7 +615,10 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         }
     }
 
-    private float getInitialZoom() {
+    /**
+     *
+     */
+    public float getInitialZoom() {
         switch (mInitialZoomMode) {
             case InitialZoomMode.ZOOM_TO_FIT:
                 return getConstrainedZoomToFit();
@@ -652,7 +655,10 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         return this;
     }
 
-    private float getMaxZoom() {
+    /**
+     *
+     */
+    public float getMaxZoom() {
         if (mOverrideMaxZoomToFit) {
             return Math.max(mMaxZoom, getUnconstrainedZoomToFit());
         }
@@ -1198,45 +1204,19 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         }
 
         @Override
-        public void fling(
-                int startX,
-                int startY,
-                int velocityX,
-                int velocityY,
-                int minX,
-                int maxX,
-                int minY,
-                int maxY) {
+        public void fling(int startX, int startY, int velocityX, int velocityY, int minX, int maxX,
+                int minY, int maxY) {
             reset();
-            super.fling(
-                    0, 0, velocityX, velocityY, minX - startX, maxX - startX, minY - startY,
+            super.fling(0, 0, velocityX, velocityY, minX - startX, maxX - startX, minY - startY,
                     maxY - startY);
         }
 
         @Override
-        public void fling(
-                int startX,
-                int startY,
-                int velocityX,
-                int velocityY,
-                int minX,
-                int maxX,
-                int minY,
-                int maxY,
-                int overX,
-                int overY) {
+        public void fling(int startX, int startY, int velocityX, int velocityY, int minX, int maxX,
+                int minY, int maxY, int overX, int overY) {
             reset();
-            super.fling(
-                    0,
-                    0,
-                    velocityX,
-                    velocityY,
-                    minX - startX,
-                    maxX - startX,
-                    minY - startY,
-                    maxY - startY,
-                    overX,
-                    overY);
+            super.fling(0, 0, velocityX, velocityY, minX - startX, maxX - startX, minY - startY,
+                    maxY - startY, overX, overY);
         }
 
         public void apply(View v) {
