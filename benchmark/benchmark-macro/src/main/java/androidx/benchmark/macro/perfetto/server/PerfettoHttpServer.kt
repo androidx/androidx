@@ -32,6 +32,10 @@ import java.io.OutputStream
 import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 import perfetto.protos.AppendTraceDataResult
 import perfetto.protos.ComputeMetricArgs
 import perfetto.protos.ComputeMetricResult
@@ -57,9 +61,9 @@ internal class PerfettoHttpServer {
         private const val PATH_RESTORE_INITIAL_TABLES = "/restore_initial_tables"
 
         private const val TAG = "PerfettoHttpServer"
-        private const val SERVER_START_TIMEOUT_MS = 5000
-        private const val READ_TIMEOUT_SECONDS = 300000
         private const val SERVER_PROCESS_NAME = "trace_processor_shell"
+        private val WAIT_INTERVAL = 5.milliseconds
+        private val READ_TIMEOUT = 30.seconds
 
         // Note that trace processor http server has a hard limit of 64Mb for payload size.
         // https://cs.android.com/android/platform/superproject/+/master:external/perfetto/src/base/http/http_server.cc;l=33
@@ -101,7 +105,7 @@ internal class PerfettoHttpServer {
      * @throws IllegalStateException if the server is not running by the end of the timeout.
      */
     @SuppressLint("BanThreadSleep")
-    fun startServer() = inMemoryTrace("PerfettoHttpServer#startServer") {
+    fun startServer(timeout: Duration) = inMemoryTrace("PerfettoHttpServer#startServer") {
         if (processId != null) {
             Log.w(TAG, "Tried to start a trace shell processor that is already running.")
             return@inMemoryTrace
@@ -131,11 +135,11 @@ internal class PerfettoHttpServer {
             .toInt()
 
         // Wait for the trace_processor_shell server to start.
-        var elapsed = 0
+        var elapsed = 0.milliseconds
         while (!isRunning()) {
-            Thread.sleep(5)
-            elapsed += 5
-            if (elapsed >= SERVER_START_TIMEOUT_MS) {
+            Thread.sleep(WAIT_INTERVAL.toLong(DurationUnit.MILLISECONDS))
+            elapsed += WAIT_INTERVAL
+            if (elapsed >= timeout) {
 
                 // In the event that the instrumentation app cannot connect to the
                 // trace_processor_shell server, trying to read the full stderr may make the
@@ -279,7 +283,7 @@ internal class PerfettoHttpServer {
                 .openConnection() as HttpURLConnection
         ) {
             requestMethod = method
-            readTimeout = READ_TIMEOUT_SECONDS
+            readTimeout = READ_TIMEOUT.toInt(DurationUnit.MILLISECONDS)
             setRequestProperty("Content-Type", contentType)
             if (encodeBlock != null) {
                 doOutput = true
