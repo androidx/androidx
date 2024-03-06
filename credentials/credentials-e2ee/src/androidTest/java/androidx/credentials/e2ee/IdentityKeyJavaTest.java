@@ -54,7 +54,7 @@ public class IdentityKeyJavaTest {
                 "ba33d523fd7bf0d06ce9298c3440be1bea3748c6270ae3e07ae8ea19abb8ed23";
 
         IdentityKey identityKey = IdentityKey.createFromPrf(prf, salt,
-                IdentityKey.IDENTITYKEY_TYPE_ED25519);
+                IdentityKey.IDENTITY_KEY_TYPE_ED25519);
 
         assertThat(identityKey.getPrivate()).isNotNull();
         assertThat(identityKey.getPublic()).isNotNull();
@@ -68,9 +68,9 @@ public class IdentityKeyJavaTest {
         for (int i = 0; i < 10; i++) {
             byte[] prf = randBytes(32);
             IdentityKey identityKey = IdentityKey.createFromPrf(prf, /* salt= */null,
-                    IdentityKey.IDENTITYKEY_TYPE_ED25519);
+                    IdentityKey.IDENTITY_KEY_TYPE_ED25519);
             IdentityKey identityKey2 = IdentityKey.createFromPrf(prf, new byte[32],
-                    IdentityKey.IDENTITYKEY_TYPE_ED25519);
+                    IdentityKey.IDENTITY_KEY_TYPE_ED25519);
 
             assertThat(identityKey).isEqualTo(identityKey2);
         }
@@ -96,7 +96,7 @@ public class IdentityKeyJavaTest {
                 "23fa91da0af9edefae9c53c584f933f3d02f934aebddb70511adac91f255afda";
 
         IdentityKey identityKey = IdentityKey.createFromPrf(prfOutput, salt,
-                IdentityKey.IDENTITYKEY_TYPE_ED25519);
+                IdentityKey.IDENTITY_KEY_TYPE_ED25519);
 
         assertThat(prfOutput).isNotNull();
         assertThat(identityKey.getPrivate()).isNotNull();
