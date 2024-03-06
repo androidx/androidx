@@ -192,7 +192,7 @@ internal class Draggable2DElement(
         CanDrag,
         enabled,
         interactionSource,
-        if (startDragImmediately) StartDragImmediately else DoNotStartDragImmediately,
+        startDragImmediately,
         onDragStarted,
         onDragStopped,
         reverseDirection
@@ -204,7 +204,7 @@ internal class Draggable2DElement(
             CanDrag,
             enabled,
             interactionSource,
-            if (startDragImmediately) StartDragImmediately else DoNotStartDragImmediately,
+            startDragImmediately,
             onDragStarted,
             onDragStopped,
             reverseDirection
@@ -252,8 +252,6 @@ internal class Draggable2DElement(
     }
 
     companion object {
-        val StartDragImmediately = { true }
-        val DoNotStartDragImmediately = { false }
         val CanDrag: (PointerInputChange) -> Boolean = { true }
     }
 }
@@ -264,15 +262,14 @@ internal class Draggable2DNode(
     canDrag: (PointerInputChange) -> Boolean,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    startDragImmediately: () -> Boolean,
+    private var startDragImmediately: Boolean,
     private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
     private var reverseDirection: Boolean
 ) : DragGestureNode(
     canDrag,
     enabled,
-    interactionSource,
-    startDragImmediately
+    interactionSource
 ) {
 
     override suspend fun drag(
@@ -293,12 +290,14 @@ internal class Draggable2DNode(
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) =
         this@Draggable2DNode.onDragStopped(this, velocity.reverseIfNeeded())
 
+    override fun startDragImmediately(): Boolean = startDragImmediately
+
     fun update(
         state: Draggable2DState,
         canDrag: (PointerInputChange) -> Boolean,
         enabled: Boolean,
         interactionSource: MutableInteractionSource?,
-        startDragImmediately: () -> Boolean,
+        startDragImmediately: Boolean,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
         onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
         reverseDirection: Boolean
@@ -315,12 +314,12 @@ internal class Draggable2DNode(
 
         this.onDragStarted = onDragStarted
         this.onDragStopped = onDragStopped
+        this.startDragImmediately = startDragImmediately
 
         update(
             canDrag,
             enabled,
             interactionSource,
-            startDragImmediately,
             resetPointerInputHandling
         )
     }

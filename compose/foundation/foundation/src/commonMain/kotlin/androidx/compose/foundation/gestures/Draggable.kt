@@ -298,15 +298,14 @@ internal class DraggableNode(
     private var orientation: Orientation,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    startDragImmediately: () -> Boolean,
+    private var startDragImmediately: () -> Boolean,
     private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     private var onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
     private var reverseDirection: Boolean
 ) : DragGestureNode(
     canDrag,
     enabled,
-    interactionSource,
-    startDragImmediately
+    interactionSource
 ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
@@ -324,6 +323,8 @@ internal class DraggableNode(
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) =
         this@DraggableNode.onDragStopped(this, velocity.reverseIfNeeded().toFloat(orientation))
+
+    override fun startDragImmediately(): Boolean = startDragImmediately.invoke()
 
     fun update(
         state: DraggableState,
@@ -352,12 +353,12 @@ internal class DraggableNode(
 
         this.onDragStarted = onDragStarted
         this.onDragStopped = onDragStopped
+        this.startDragImmediately = startDragImmediately
 
         update(
             canDrag,
             enabled,
             interactionSource,
-            startDragImmediately,
             resetPointerInputHandling
         )
     }
@@ -373,14 +374,12 @@ internal abstract class DragGestureNode(
     private var canDrag: (PointerInputChange) -> Boolean,
     private var enabled: Boolean,
     private var interactionSource: MutableInteractionSource?,
-    private var startDragImmediately: () -> Boolean
 ) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
 
     // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
     // we point to the new reference when we invoke them. startDragImmediately is a lambda since we
     // need the most recent value passed to it from Scrollable.
     private val _canDrag: (PointerInputChange) -> Boolean = { canDrag(it) }
-    private val _startDragImmediately: () -> Boolean = { startDragImmediately() }
     private val velocityTracker = VelocityTracker()
     private var isListeningForEvents = false
 
@@ -409,6 +408,12 @@ internal abstract class DragGestureNode(
      * behavior from other nodes implementing AbstractDraggableNode
      */
     abstract suspend fun CoroutineScope.onDragStopped(velocity: Velocity)
+
+    /**
+     * If touch slop recognition should be skipped. If this is true, this node will start
+     * recognizing drag events immediately without waiting for touch slop.
+     */
+    abstract fun startDragImmediately(): Boolean
 
     private fun startListeningForEvents() {
         isListeningForEvents = true
@@ -453,7 +458,7 @@ internal abstract class DragGestureNode(
                     while (isActive) {
                         awaitDownAndSlop(
                             _canDrag,
-                            _startDragImmediately,
+                            ::startDragImmediately,
                             velocityTracker,
                             pointerDirectionConfig
                         )?.let {
@@ -561,7 +566,6 @@ internal abstract class DragGestureNode(
         canDrag: (PointerInputChange) -> Boolean = this.canDrag,
         enabled: Boolean = this.enabled,
         interactionSource: MutableInteractionSource? = this.interactionSource,
-        startDragImmediately: () -> Boolean = this.startDragImmediately,
         isResetPointerInputHandling: Boolean = false
     ) {
         var resetPointerInputHandling = isResetPointerInputHandling
@@ -577,7 +581,7 @@ internal abstract class DragGestureNode(
             disposeInteractionSource()
             this.interactionSource = interactionSource
         }
-        this.startDragImmediately = startDragImmediately
+
         if (resetPointerInputHandling) {
             pointerInputNode.resetPointerInputHandler()
         }

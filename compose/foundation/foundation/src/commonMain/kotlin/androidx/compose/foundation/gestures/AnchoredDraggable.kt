@@ -306,12 +306,11 @@ private class AnchoredDraggableNode<T>(
     private var reverseDirection: Boolean,
     interactionSource: MutableInteractionSource?,
     private var overscrollEffect: OverscrollEffect?,
-    startDragImmediately: () -> Boolean
+    private var startDragImmediately: () -> Boolean
 ) : DragGestureNode(
     canDrag = AlwaysDrag,
     enabled = enabled,
-    interactionSource = interactionSource,
-    startDragImmediately = startDragImmediately
+    interactionSource = interactionSource
 ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
@@ -360,6 +359,8 @@ private class AnchoredDraggableNode<T>(
         }
     }
 
+    override fun startDragImmediately(): Boolean = startDragImmediately.invoke()
+
     fun update(
         state: AnchoredDraggableState<T>,
         orientation: Orientation,
@@ -386,11 +387,11 @@ private class AnchoredDraggableNode<T>(
         }
 
         this.overscrollEffect = overscrollEffect
+        this.startDragImmediately = startDragImmediately
 
         update(
             enabled = enabled,
             interactionSource = interactionSource,
-            startDragImmediately = startDragImmediately,
             isResetPointerInputHandling = resetPointerInputHandling,
         )
     }
