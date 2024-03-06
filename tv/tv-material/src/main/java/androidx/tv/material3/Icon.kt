@@ -58,7 +58,6 @@ import androidx.compose.ui.unit.dp
  * @param tint tint to be applied to [imageVector]. If [Color.Unspecified] is provided, then no tint
  * is applied.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun Icon(
     imageVector: ImageVector,
@@ -94,7 +93,6 @@ fun Icon(
  * @param tint tint to be applied to [bitmap]. If [Color.Unspecified] is provided, then no tint is
  * applied.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun Icon(
     bitmap: ImageBitmap,
@@ -131,7 +129,6 @@ fun Icon(
  * @param tint tint to be applied to [painter]. If [Color.Unspecified] is provided, then no tint is
  * applied.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun Icon(
     painter: Painter,
