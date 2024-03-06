@@ -242,7 +242,7 @@ public class AdvancedVendorExtender implements VendorExtender {
     }
 
     @Override
-    public boolean isCurrentExtensionTypeAvailable() {
+    public boolean isCurrentExtensionModeAvailable() {
         // EXTENSION_CURRENT_TYPE is supported since API level 34
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
