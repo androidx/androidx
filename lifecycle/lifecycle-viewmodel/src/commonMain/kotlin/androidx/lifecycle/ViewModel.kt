@@ -21,6 +21,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.viewmodel.internal.Lock
 import androidx.lifecycle.viewmodel.internal.VIEW_MODEL_SCOPE_KEY
 import androidx.lifecycle.viewmodel.internal.createViewModelScope
+import androidx.lifecycle.viewmodel.internal.withLock
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
