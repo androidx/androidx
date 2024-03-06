@@ -159,17 +159,44 @@ package androidx.tv.material3 {
     property public final androidx.compose.runtime.saveable.Saver<androidx.tv.material3.CarouselState,?> Saver;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CheckboxColors {
+  @androidx.compose.runtime.Immutable public final class CheckboxColors {
+    ctor public CheckboxColors(long checkedCheckmarkColor, long uncheckedCheckmarkColor, long checkedBoxColor, long uncheckedBoxColor, long disabledCheckedBoxColor, long disabledUncheckedBoxColor, long disabledIndeterminateBoxColor, long checkedBorderColor, long uncheckedBorderColor, long disabledBorderColor, long disabledUncheckedBorderColor, long disabledIndeterminateBorderColor);
+    method public androidx.tv.material3.CheckboxColors copy(optional long checkedCheckmarkColor, optional long uncheckedCheckmarkColor, optional long checkedBoxColor, optional long uncheckedBoxColor, optional long disabledCheckedBoxColor, optional long disabledUncheckedBoxColor, optional long disabledIndeterminateBoxColor, optional long checkedBorderColor, optional long uncheckedBorderColor, optional long disabledBorderColor, optional long disabledUncheckedBorderColor, optional long disabledIndeterminateBorderColor);
+    method public long getCheckedBorderColor();
+    method public long getCheckedBoxColor();
+    method public long getCheckedCheckmarkColor();
+    method public long getDisabledBorderColor();
+    method public long getDisabledCheckedBoxColor();
+    method public long getDisabledIndeterminateBorderColor();
+    method public long getDisabledIndeterminateBoxColor();
+    method public long getDisabledUncheckedBorderColor();
+    method public long getDisabledUncheckedBoxColor();
+    method public long getUncheckedBorderColor();
+    method public long getUncheckedBoxColor();
+    method public long getUncheckedCheckmarkColor();
+    property public final long checkedBorderColor;
+    property public final long checkedBoxColor;
+    property public final long checkedCheckmarkColor;
+    property public final long disabledBorderColor;
+    property public final long disabledCheckedBoxColor;
+    property public final long disabledIndeterminateBorderColor;
+    property public final long disabledIndeterminateBoxColor;
+    property public final long disabledUncheckedBorderColor;
+    property public final long disabledUncheckedBoxColor;
+    property public final long uncheckedBorderColor;
+    property public final long uncheckedBoxColor;
+    property public final long uncheckedCheckmarkColor;
   }
 
-  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CheckboxDefaults {
+  public final class CheckboxDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.CheckboxColors colors();
     method @androidx.compose.runtime.Composable public androidx.tv.material3.CheckboxColors colors(optional long checkedColor, optional long uncheckedColor, optional long checkmarkColor, optional long disabledCheckedColor, optional long disabledUncheckedColor, optional long disabledIndeterminateColor);
     field public static final androidx.tv.material3.CheckboxDefaults INSTANCE;
   }
 
   public final class CheckboxKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Checkbox(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.CheckboxColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void TriStateCheckbox(androidx.compose.ui.state.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.CheckboxColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @androidx.compose.runtime.Composable public static void Checkbox(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.CheckboxColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @androidx.compose.runtime.Composable public static void TriStateCheckbox(androidx.compose.ui.state.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.CheckboxColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
   public final class ChipKt {
