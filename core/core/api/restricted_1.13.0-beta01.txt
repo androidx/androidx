@@ -2261,13 +2261,13 @@ package androidx.core.os {
   }
 
   public final class BundleCompat {
-    method public static android.os.IBinder? getBinder(android.os.Bundle, String?);
+    method @Deprecated public static android.os.IBinder? getBinder(android.os.Bundle, String?);
     method public static <T> T? getParcelable(android.os.Bundle, String?, Class<T!>);
     method public static android.os.Parcelable![]? getParcelableArray(android.os.Bundle, String?, Class<? extends android.os.Parcelable!>);
     method public static <T> java.util.ArrayList<T!>? getParcelableArrayList(android.os.Bundle, String?, Class<? extends T!>);
     method public static <T extends java.io.Serializable> T? getSerializable(android.os.Bundle, String?, Class<T!>);
     method public static <T> android.util.SparseArray<T!>? getSparseParcelableArray(android.os.Bundle, String?, Class<? extends T!>);
-    method public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
+    method @Deprecated public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
   }
 
   @Deprecated public final class CancellationSignal {
@@ -2290,7 +2290,7 @@ package androidx.core.os {
 
   public final class EnvironmentCompat {
     method public static String getStorageState(java.io.File);
-    field public static final String MEDIA_UNKNOWN = "unknown";
+    field @Deprecated public static final String MEDIA_UNKNOWN = "unknown";
   }
 
   public final class ExecutorCompat {

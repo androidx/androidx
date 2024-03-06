@@ -41,7 +41,7 @@ public final class BundleCompat {
      */
     @Nullable
     public static IBinder getBinder(@NonNull Bundle bundle, @Nullable String key) {
-        return androidx.core.os.BundleCompat.getBinder(bundle, key);
+        return bundle.getBinder(key);
     }
 
     /**
@@ -53,6 +53,6 @@ public final class BundleCompat {
      */
     public static void putBinder(@NonNull Bundle bundle, @Nullable String key,
             @Nullable IBinder binder) {
-        androidx.core.os.BundleCompat.putBinder(bundle, key, binder);
+        bundle.putBinder(key, binder);
     }
 }
