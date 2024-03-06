@@ -38,11 +38,13 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -211,6 +213,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private final ValueObserver<Integer> mFastscrollerPositionObserver;
     private Object mFastscrollerPositionObserverKey;
     private FastScrollView mFastScrollView;
+    private ProgressBar mLoadingSpinner;
 
     private boolean mDocumentLoaded = false;
     /**
@@ -326,6 +329,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
         mFastScrollView.setScrollable(this);
         mFastScrollView.setId(getId() * 10);
+
+        mLoadingSpinner = mFastScrollView.findViewById(R.id.progress_indicator);
 
         setUpEditFab();
 
@@ -590,6 +595,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             finishActivity();
         }
 
+        showSpinner();
         fetchFile(fileUri);
         mLocalUri = fileUri;
     }
@@ -921,6 +927,22 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             if (clearViews) {
                 mPaginatedView.removeViewAt(page);
             }
+        }
+    }
+
+    /** Show the loading spinner. */
+    @UiThread
+    public void showSpinner() {
+        if (mLoadingSpinner != null) {
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /** Hide the loading spinner. */
+    @UiThread
+    public void hideSpinner() {
+        if (mLoadingSpinner != null) {
+            mLoadingSpinner.setVisibility(View.GONE);
         }
     }
 
@@ -1325,6 +1347,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
                         mDocumentLoaded = true;
                         PdfViewer.this.mNumPages = numPages;
+
+                        hideSpinner();
+
                         // Assume we see at least the first page
                         mMaxPage = 1;
                         if (viewState().get() != ViewState.NO_VIEW) {
