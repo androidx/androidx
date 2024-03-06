@@ -359,7 +359,7 @@ public final class DrawableCompat {
     public static boolean setLayoutDirection(@NonNull Drawable drawable, int layoutDirection) {
         if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.setLayoutDirection(drawable, layoutDirection);
-        } else if (Build.VERSION.SDK_INT >= 17) {
+        } else {
             if (!sSetLayoutDirectionMethodFetched) {
                 try {
                     sSetLayoutDirectionMethod =
@@ -381,8 +381,6 @@ public final class DrawableCompat {
                 }
             }
             return false;
-        } else {
-            return false;
         }
     }
 
@@ -397,7 +395,7 @@ public final class DrawableCompat {
     public static int getLayoutDirection(@NonNull Drawable drawable) {
         if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.getLayoutDirection(drawable);
-        } else if (Build.VERSION.SDK_INT >= 17) {
+        } else {
             if (!sGetLayoutDirectionMethodFetched) {
                 try {
                     sGetLayoutDirectionMethod =
@@ -417,8 +415,6 @@ public final class DrawableCompat {
                     sGetLayoutDirectionMethod = null;
                 }
             }
-            return View.LAYOUT_DIRECTION_LTR;
-        } else {
             return View.LAYOUT_DIRECTION_LTR;
         }
     }
