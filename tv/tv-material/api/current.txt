@@ -306,7 +306,7 @@ package androidx.tv.material3 {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
   }
 
-  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class DrawerState {
+  public final class DrawerState {
     ctor public DrawerState(optional androidx.tv.material3.DrawerValue initialValue);
     method public androidx.tv.material3.DrawerValue getCurrentValue();
     method public void setValue(androidx.tv.material3.DrawerValue drawerValue);
@@ -319,7 +319,7 @@ package androidx.tv.material3 {
     property public final androidx.compose.runtime.saveable.Saver<androidx.tv.material3.DrawerState,androidx.tv.material3.DrawerValue> Saver;
   }
 
-  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public enum DrawerValue {
+  public enum DrawerValue {
     enum_constant public static final androidx.tv.material3.DrawerValue Closed;
     enum_constant public static final androidx.tv.material3.DrawerValue Open;
   }
@@ -739,12 +739,12 @@ package androidx.tv.material3 {
   }
 
   public final class NavigationDrawerKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ModalNavigationDrawer(kotlin.jvm.functions.Function2<? super androidx.tv.material3.NavigationDrawerScope,? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, optional androidx.compose.ui.graphics.Brush scrimBrush, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void NavigationDrawer(kotlin.jvm.functions.Function2<? super androidx.tv.material3.NavigationDrawerScope,? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.DrawerState rememberDrawerState(androidx.tv.material3.DrawerValue initialValue);
+    method @androidx.compose.runtime.Composable public static void ModalNavigationDrawer(kotlin.jvm.functions.Function2<? super androidx.tv.material3.NavigationDrawerScope,? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, optional androidx.compose.ui.graphics.Brush scrimBrush, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void NavigationDrawer(kotlin.jvm.functions.Function2<? super androidx.tv.material3.NavigationDrawerScope,? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static androidx.tv.material3.DrawerState rememberDrawerState(androidx.tv.material3.DrawerValue initialValue);
   }
 
-  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public interface NavigationDrawerScope {
+  public interface NavigationDrawerScope {
     method public boolean getHasFocus();
     property public abstract boolean hasFocus;
   }

@@ -76,7 +76,6 @@ import androidx.compose.ui.zIndex
  * under the modal navigation drawer. Focusable content that is not part of the background must have
  * start-padding sufficient to prevent it from being drawn under the drawer in the Closed state.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun ModalNavigationDrawer(
     drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
@@ -151,7 +150,6 @@ fun ModalNavigationDrawer(
  * @param drawerState state of the drawer
  * @param content content of the rest of the UI
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun NavigationDrawer(
     drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
@@ -171,7 +169,6 @@ fun NavigationDrawer(
 /**
  * States that the drawer can exist in.
  */
-@ExperimentalTvMaterial3Api
 enum class DrawerValue {
     /**
      * The state of the drawer when it is closed.
@@ -189,7 +186,6 @@ enum class DrawerValue {
  *
  * @param initialValue the initial value ([DrawerValue.Closed] or [DrawerValue.Open]) of the drawer.
  */
-@ExperimentalTvMaterial3Api
 class DrawerState(initialValue: DrawerValue = DrawerValue.Closed) {
     var currentValue by mutableStateOf(initialValue)
         private set
@@ -222,14 +218,12 @@ class DrawerState(initialValue: DrawerValue = DrawerValue.Closed) {
  * @param initialValue The initial value of the state.
  */
 @Composable
-@ExperimentalTvMaterial3Api
 fun rememberDrawerState(initialValue: DrawerValue): DrawerState {
     return rememberSaveable(saver = DrawerState.Saver) {
         DrawerState(initialValue)
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun DrawerSheet(
     modifier: Modifier = Modifier,
