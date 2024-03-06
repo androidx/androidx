@@ -26,6 +26,8 @@ import androidx.benchmark.macro.perfetto.server.PerfettoHttpServer
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import org.intellij.lang.annotations.Language
 import perfetto.protos.QueryResult
 import perfetto.protos.TraceMetrics
@@ -77,6 +79,7 @@ import perfetto.protos.TraceMetrics
 @ExperimentalPerfettoTraceProcessorApi
 class PerfettoTraceProcessor {
     companion object {
+        private val SERVER_START_TIMEOUT_MS = 5.seconds
         internal const val PORT = 9001
 
         /**
@@ -92,16 +95,39 @@ class PerfettoTraceProcessor {
         /**
          * Starts a Perfetto trace processor shell server in http mode, loads a trace and executes
          * the given block. It stops the server after the block is complete
+         *
+         * Uses a default timeout of 5 seconds
+         *
+         * @param block Command to execute using trace processor
          */
         @JvmStatic
         fun <T> runServer(
             block: PerfettoTraceProcessor.() -> T
+        ): T = runServer(SERVER_START_TIMEOUT_MS, block)
+
+        /**
+         * Starts a Perfetto trace processor shell server in http mode, loads a trace and executes
+         * the given block. It stops the server after the block is complete
+         *
+         * @param timeout waiting for the server to start. If less or equal to zero use 5 seconds
+         * @param block Command to execute using trace processor
+         */
+        @JvmStatic
+        fun <T> runServer(
+            timeout: Duration,
+            block: PerfettoTraceProcessor.() -> T
         ): T = inMemoryTrace("PerfettoTraceProcessor#runServer") {
+            var actualTimeout = timeout
+            if (actualTimeout <= Duration.ZERO) {
+                actualTimeout = SERVER_START_TIMEOUT_MS
+            }
+
             var perfettoTraceProcessor: PerfettoTraceProcessor? = null
             try {
 
                 // Initializes the server process
-                perfettoTraceProcessor = PerfettoTraceProcessor().startServer()
+                perfettoTraceProcessor =
+                    PerfettoTraceProcessor().startServer(actualTimeout)
 
                 // Executes the query block
                 return@inMemoryTrace inMemoryTrace("PerfettoTraceProcessor#runServer#block") {
@@ -308,10 +334,10 @@ class PerfettoTraceProcessor {
     private val perfettoHttpServer: PerfettoHttpServer = PerfettoHttpServer()
     private var traceLoaded = false
 
-    private fun startServer(): PerfettoTraceProcessor =
+    private fun startServer(timeout: Duration): PerfettoTraceProcessor =
         inMemoryTrace("PerfettoTraceProcessor#startServer") {
-            println("startserver")
-            perfettoHttpServer.startServer()
+            println("startserver($timeout)")
+            perfettoHttpServer.startServer(timeout)
             return@inMemoryTrace this
         }
 
