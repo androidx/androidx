@@ -1,16 +1,11 @@
-import android.database.Cursor
-import androidx.room.CoroutinesRoom
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
+import androidx.room.coroutines.createFlow
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.getLastInsertedRowId
 import androidx.room.util.getTotalChangedRows
 import androidx.room.util.performSuspending
-import androidx.room.util.query
 import androidx.sqlite.SQLiteStatement
-import java.util.concurrent.Callable
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
@@ -40,43 +35,35 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    val _argCount: Int = 0 + _inputSize
-    val _statement: RoomSQLiteQuery = acquire(_sql, _argCount)
-    var _argIndex: Int = 1
-    for (_item: String? in arg) {
-      if (_item == null) {
-        _statement.bindNull(_argIndex)
-      } else {
-        _statement.bindString(_argIndex, _item)
-      }
-      _argIndex++
-    }
-    return CoroutinesRoom.createFlow(__db, false, arrayOf("MyEntity"), object : Callable<MyEntity> {
-      public override fun call(): MyEntity {
-        val _cursor: Cursor = query(__db, _statement, false, null)
-        try {
-          val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-          val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-          val _result: MyEntity
-          if (_cursor.moveToFirst()) {
-            val _tmpPk: Int
-            _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-            val _tmpOther: String
-            _tmpOther = _cursor.getString(_cursorIndexOfOther)
-            _result = MyEntity(_tmpPk,_tmpOther)
+    return createFlow(__db, false, arrayOf("MyEntity")) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String? in arg) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex)
           } else {
-            error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+            _stmt.bindText(_argIndex, _item)
           }
-          return _result
-        } finally {
-          _cursor.close()
+          _argIndex++
         }
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          _result = MyEntity(_tmpPk,_tmpOther)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-
-      protected fun finalize() {
-        _statement.release()
-      }
-    })
+    }
   }
 
   public override fun getFlowNullable(vararg arg: String?): Flow<MyEntity?> {
@@ -86,44 +73,35 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    val _argCount: Int = 0 + _inputSize
-    val _statement: RoomSQLiteQuery = acquire(_sql, _argCount)
-    var _argIndex: Int = 1
-    for (_item: String? in arg) {
-      if (_item == null) {
-        _statement.bindNull(_argIndex)
-      } else {
-        _statement.bindString(_argIndex, _item)
-      }
-      _argIndex++
-    }
-    return CoroutinesRoom.createFlow(__db, false, arrayOf("MyEntity"), object : Callable<MyEntity?>
-        {
-      public override fun call(): MyEntity? {
-        val _cursor: Cursor = query(__db, _statement, false, null)
-        try {
-          val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-          val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-          val _result: MyEntity?
-          if (_cursor.moveToFirst()) {
-            val _tmpPk: Int
-            _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-            val _tmpOther: String
-            _tmpOther = _cursor.getString(_cursorIndexOfOther)
-            _result = MyEntity(_tmpPk,_tmpOther)
+    return createFlow(__db, false, arrayOf("MyEntity")) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String? in arg) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex)
           } else {
-            _result = null
+            _stmt.bindText(_argIndex, _item)
           }
-          return _result
-        } finally {
-          _cursor.close()
+          _argIndex++
         }
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _result: MyEntity?
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          _result = MyEntity(_tmpPk,_tmpOther)
+        } else {
+          _result = null
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-
-      protected fun finalize() {
-        _statement.release()
-      }
-    })
+    }
   }
 
   public override suspend fun getSuspendList(vararg arg: String?): List<MyEntity> {
