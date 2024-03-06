@@ -149,8 +149,8 @@ class CameraControlAdapter @Inject constructor(
 
     override fun submitStillCaptureRequests(
         captureConfigs: List<CaptureConfig>,
-        captureMode: Int,
-        flashType: Int,
+        @ImageCapture.CaptureMode captureMode: Int,
+        @ImageCapture.FlashType flashType: Int,
     ) = stillCaptureRequestControl.issueCaptureRequests(
         captureConfigs,
         captureMode,
