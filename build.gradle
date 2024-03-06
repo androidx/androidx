@@ -40,3 +40,9 @@ if (project.hasProperty("androidx.update.signatures")) {
     apply plugin: "java-library"
     apply from: "buildSrc/shared-dependencies.gradle"
 }
+
+allprojects {
+    this.tasks.configureEach {
+        if (it.name == "kotlinStoreYarnLock") it.enabled = false
+    }
+}
