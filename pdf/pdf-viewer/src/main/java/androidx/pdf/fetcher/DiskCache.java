@@ -28,7 +28,6 @@ import java.io.File;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DiskCache {
-
     private static final String TAG = DiskCache.class.getSimpleName();
 
     /** The root folder where this cache lives, in the app's cache directory. */

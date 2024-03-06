@@ -134,6 +134,7 @@ public class UiFutureValues {
      *
      * @return The value to be supplied at some point in the future.
      */
+    @SuppressWarnings("deprecation")
     public static <T> FutureValue<T> execute(Supplier<T> supplier) {
         SettableFutureValue<T> future = FutureValues.newSettableValue();
         new FutureAsyncTask<>(supplier, future).executeOnExecutor(sExecutor);
@@ -163,8 +164,8 @@ public class UiFutureValues {
     }
 
     /**
-     * A {@link Callback} wrapper interface around another {@link Callback} that ensures that each
-     * callback call is run on the UI thread.
+     * A {@link FutureValue.Callback} wrapper interface around another {@link FutureValue.Callback}
+     * that ensures that each callback call is run on the UI thread.
      */
     private static <T> FutureValue.Callback<T> runOnUi(
             final FutureValue.Callback<T> targetCallback) {
