@@ -181,7 +181,7 @@ fun OutlinedButton(
     )
 }
 
-@ExperimentalTvMaterial3Api
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ButtonImpl(
     onClick: () -> Unit,

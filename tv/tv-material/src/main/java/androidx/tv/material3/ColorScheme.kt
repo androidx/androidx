@@ -561,7 +561,6 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
  * tokens:
  * ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
     return when (value) {
         ColorSchemeKeyTokens.Background -> background
@@ -614,7 +613,6 @@ internal const val DisabledAlpha = 0.38f
 /** Converts a color token key to the local color scheme provided by the theme */
 @ReadOnlyComposable
 @Composable
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorSchemeKeyTokens.toColor(): Color {
     return MaterialTheme.colorScheme.fromToken(this)
 }

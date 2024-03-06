@@ -345,7 +345,6 @@ fun WideClassicCard(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun CardContent(
     title: @Composable () -> Unit,
