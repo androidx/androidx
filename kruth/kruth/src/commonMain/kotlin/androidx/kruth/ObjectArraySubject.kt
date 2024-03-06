@@ -22,7 +22,7 @@ package androidx.kruth
 class ObjectArraySubject<T> internal constructor(
     actual: Array<out T>?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Array<out T>>(actual, metadata = metadata) {
+) : Subject<Array<out T>>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
     private val helper =
         HelperArraySubject(

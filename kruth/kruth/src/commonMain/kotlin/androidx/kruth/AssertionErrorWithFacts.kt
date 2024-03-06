@@ -27,7 +27,7 @@ internal class AssertionErrorWithFacts(
     messagesToPrepend: List<String>,
     val facts: List<Fact> = emptyList(),
     // TODO: change to AssertionError that takes in a cause when upgraded to 1.9.20
-    @Suppress("UNUSED_PARAMETER") cause: Throwable? = null
+    override val cause: Throwable? = null
 ) : AssertionError(
     makeMessage(messagesToPrepend, facts),
     // TODO: change to AssertionError that takes in a cause when upgraded to 1.9.20

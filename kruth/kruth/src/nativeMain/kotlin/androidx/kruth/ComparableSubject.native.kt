@@ -26,4 +26,4 @@ internal actual interface PlatformComparableSubject<T : Comparable<T>>
 internal actual class PlatformComparableSubjectImpl<T : Comparable<T>> actual constructor(
     actual: T?,
     metadata: FailureMetadata,
-) : Subject<T>(actual, metadata), PlatformComparableSubject<T>
+) : Subject<T>(actual, metadata, typeDescriptionOverride = null), PlatformComparableSubject<T>
