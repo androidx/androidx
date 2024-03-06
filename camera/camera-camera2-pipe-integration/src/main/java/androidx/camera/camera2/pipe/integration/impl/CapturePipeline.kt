@@ -57,6 +57,7 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.shouldStopRepe
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED
 import androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
@@ -92,8 +93,8 @@ interface CapturePipeline {
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
-        captureMode: Int,
-        flashType: Int,
+        @CaptureMode captureMode: Int,
+        @FlashType flashType: Int,
         @FlashMode flashMode: Int,
     ): List<Deferred<Void?>>
 }
@@ -124,8 +125,8 @@ class CapturePipelineImpl @Inject constructor(
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
-        captureMode: Int,
-        flashType: Int,
+        @CaptureMode captureMode: Int,
+        @FlashType flashType: Int,
         @FlashMode flashMode: Int,
     ): List<Deferred<Void?>> = if (isTorchAsFlash(flashType)) {
         torchAsFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode, flashMode)
@@ -137,8 +138,8 @@ class CapturePipelineImpl @Inject constructor(
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
-        captureMode: Int,
-        flashMode: Int,
+        @CaptureMode captureMode: Int,
+        @FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#torchAsFlashCapture" }
         return if (hasFlashUnit && isFlashRequired(flashMode)) {
@@ -158,8 +159,8 @@ class CapturePipelineImpl @Inject constructor(
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
-        captureMode: Int,
-        flashMode: Int,
+        @CaptureMode captureMode: Int,
+        @FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
         return if (hasFlashUnit) {
             val isFlashRequired = isFlashRequired(flashMode)
@@ -180,7 +181,7 @@ class CapturePipelineImpl @Inject constructor(
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
-        captureMode: Int
+        @CaptureMode captureMode: Int
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#defaultNoFlashCapture" }
         val lock3ARequired = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
@@ -213,7 +214,7 @@ class CapturePipelineImpl @Inject constructor(
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
-        captureMode: Int,
+        @CaptureMode captureMode: Int,
         timeLimitNs: Long,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#torchApplyCapture" }

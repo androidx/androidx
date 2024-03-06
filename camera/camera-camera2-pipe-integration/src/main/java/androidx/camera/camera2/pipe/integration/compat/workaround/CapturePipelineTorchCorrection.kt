@@ -63,8 +63,8 @@ class CapturePipelineTorchCorrection @Inject constructor(
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
-        captureMode: Int,
-        flashType: Int,
+        @ImageCapture.CaptureMode captureMode: Int,
+        @ImageCapture.FlashType flashType: Int,
         @ImageCapture.FlashMode flashMode: Int
     ): List<Deferred<Void?>> {
         val needCorrectTorchState = isCorrectionRequired(configs, requestTemplate)

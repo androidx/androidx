@@ -163,8 +163,8 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
 
     override suspend fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
-        captureMode: Int,
-        flashType: Int,
+        @ImageCapture.CaptureMode captureMode: Int,
+        @ImageCapture.FlashType flashType: Int,
         @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
         return captureSequence.map {
