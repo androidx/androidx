@@ -214,14 +214,16 @@ object InstrumentationResults {
                 val nanos = measurements.singleMetrics.single { it.name == "timeNs" }.min
                 val allocs =
                     measurements.singleMetrics.singleOrNull { it.name == "allocationCount" }?.min
+                // add newline (note that multi-line codepath below handles newline separately)
+                val warningPrefix = if (warningMessage == null) "" else warningMessage + "\n"
                 return IdeSummaryPair(
-                    summaryV1 = (warningMessage ?: "") + ideSummaryBasicMicro(
+                    summaryV1 = warningPrefix + ideSummaryBasicMicro(
                         testName,
                         nanos,
                         allocs,
                         emptyList()
                     ),
-                    summaryV2 = (warningMessage ?: "") + ideSummaryBasicMicro(
+                    summaryV2 = warningPrefix + ideSummaryBasicMicro(
                         testName,
                         nanos,
                         allocs,
