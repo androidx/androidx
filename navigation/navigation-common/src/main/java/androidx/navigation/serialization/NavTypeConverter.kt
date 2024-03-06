@@ -62,8 +62,9 @@ private data class Custom(val className: String) : InternalCommonType
  *
  * Returns [UNKNOWN] type if the argument does not belong to any of the above.
  */
-internal fun SerialDescriptor.getNavType(): NavType<*> {
-    return when (this.toInternalType()) {
+@Suppress("UNCHECKED_CAST")
+internal fun SerialDescriptor.getNavType(): NavType<Any?> {
+    val type = when (this.toInternalType()) {
         Native.INT -> NavType.IntType
         Native.BOOL -> NavType.BoolType
         Native.FLOAT -> NavType.FloatType
@@ -75,11 +76,11 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
         Native.LONG_ARRAY -> NavType.LongArrayType
         Native.ARRAY -> {
             val typeParameter = getElementDescriptor(0).toInternalType()
-            if (typeParameter == Native.STRING) return NavType.StringArrayType
-            return UNKNOWN
+            if (typeParameter == Native.STRING) NavType.StringArrayType else UNKNOWN
         }
         else -> UNKNOWN
     }
+    return type as NavType<Any?>
 }
 
 /**

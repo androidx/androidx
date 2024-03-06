@@ -18,7 +18,6 @@
 
 package androidx.navigation.serialization
 
-import androidx.navigation.CollectionNavType
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -32,9 +31,9 @@ import kotlinx.serialization.descriptors.capturedKClass
  * Generates a route pattern for use in Navigation functions such as [::navigate] from
  * a serializer of class T where T is a concrete class or object.
  *
- * The generated route pattern contains the path, path args, and query args. Arguments with
- * default values or arguments of [CollectionNavType] are appended as query. Otherwise, they are
- * appended as path arguments.
+ * The generated route pattern contains the path, path args, and query args.
+ * See [RouteBuilder.Builder.computeParamType] for logic on how parameter type (path or query)
+ * is computed.
  *
  * @param [typeMap] A mapping of KType to the custom NavType<*>. For example given
  * an argument of "val userId: UserId", the map should contain [typeOf<UserId>() to MyNavType].
@@ -50,30 +49,17 @@ internal fun <T> KSerializer<T>.generateRoutePattern(
         )
     }
 
-    val path = descriptor.serialName
-
-    var pathArg = ""
-    var queryArg = ""
-
-    // TODO refactor to use RouteBuilder when implementing route with args to ensure
-    // same logic for both route generation
+    val map = mutableMapOf<String, NavType<Any?>>()
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
         val type = descriptor.getElementDescriptor(i).computeNavType(typeMap)
-        /**
-         * Query args if either conditions met:
-         * 1. has default value
-         * 2. is of [CollectionNavType]
-         */
-        if (type is CollectionNavType || descriptor.isElementOptional(i)) {
-            val symbol = if (queryArg.isEmpty()) "?" else "&"
-            queryArg += "$symbol$argName={$argName}"
-        } else {
-            pathArg += "/{$argName}"
-        }
+        map[argName] = type
     }
-
-    return path + pathArg + queryArg
+    val builder = RouteBuilder.Pattern(this, map)
+    for (elementIndex in 0 until descriptor.elementsCount) {
+        builder.addArg(elementIndex)
+    }
+    return builder.build()
 }
 
 /**
@@ -133,6 +119,19 @@ internal fun <T> KSerializer<T>.generateNavArguments(
     }
 }
 
+/**
+ * Generates a route filled in with argument value for use in Navigation functions such as
+ * [::navigate] from a destination instance of type T.
+ *
+ * The generated route pattern contains the path, path args, and query args.
+ * See [RouteBuilder.Builder.computeParamType] for logic on how parameter type (path or query)
+ * is computed.
+ */
+internal fun <T : Any> KSerializer<T>.generateRouteWithArgs(
+    destination: T,
+    typeMap: Map<String, NavType<Any?>>
+): String = RouteEncoder(this, typeMap).encodeRouteWithArgs(destination)
+
 private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
     // abstract class
     if (this is PolymorphicSerializer) {
@@ -140,11 +139,12 @@ private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 private fun SerialDescriptor.computeNavType(
     typeMap: Map<KType, NavType<*>>? = null
-): NavType<*> {
+): NavType<Any?> {
     val customType = typeMap?.keys
         ?.find { kType -> matchKType(kType) }
-        ?.let { typeMap[it] }
+        ?.let { typeMap[it] } as? NavType<Any?>
     return customType ?: getNavType()
 }
