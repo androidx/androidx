@@ -233,8 +233,8 @@ internal fun TextUndoManager.recordChanges(
                 index = 0,
                 preText = pre.toString(),
                 postText = post.toString(),
-                preSelection = pre.selectionInChars,
-                postSelection = post.selectionInChars,
+                preSelection = pre.selection,
+                postSelection = post.selection,
                 canMerge = false
             )
         )
@@ -247,8 +247,8 @@ internal fun TextUndoManager.recordChanges(
                     index = preRange.min,
                     preText = pre.substring(preRange),
                     postText = post.substring(postRange),
-                    preSelection = pre.selectionInChars,
-                    postSelection = post.selectionInChars,
+                    preSelection = pre.selection,
+                    postSelection = post.selection,
                     canMerge = allowMerge
                 )
             )

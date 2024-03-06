@@ -1655,8 +1655,7 @@ package androidx.compose.foundation.text.input {
   public final class InputTransformationKt {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation allCaps(androidx.compose.foundation.text.input.InputTransformation, androidx.compose.ui.text.intl.Locale locale);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation byValue(androidx.compose.foundation.text.input.InputTransformation, kotlin.jvm.functions.Function2<? super java.lang.CharSequence,? super java.lang.CharSequence,? extends java.lang.CharSequence> transformation);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLengthInChars(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLengthInCodepoints(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLength(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation then(androidx.compose.foundation.text.input.InputTransformation, androidx.compose.foundation.text.input.InputTransformation next);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation? thenOrNull(androidx.compose.foundation.text.input.InputTransformation?, androidx.compose.foundation.text.input.InputTransformation? next);
   }
@@ -1672,25 +1671,18 @@ package androidx.compose.foundation.text.input {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public CharSequence asCharSequence();
     method public char charAt(int index);
     method public androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList getChanges();
-    method public int getCodepointLength();
     method public int getLength();
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public long getSelectionInChars();
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public long getSelectionInCodepoints();
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public long getSelection();
     method public boolean hasSelection();
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void placeCursorAfterCharAt(int index);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void placeCursorAfterCodepointAt(int index);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void placeCursorBeforeCharAt(int index);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void placeCursorBeforeCodepointAt(int index);
     method public void replace(int start, int end, CharSequence text);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void revertAllChanges();
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void selectCharsIn(long range);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void selectCodepointsIn(long range);
+    method public void setSelection(long);
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList changes;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final int codepointLength;
     property public final boolean hasSelection;
     property public final int length;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final long selectionInChars;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final long selectionInCodepoints;
+    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final long selection;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static interface TextFieldBuffer.ChangeList {
@@ -1712,11 +1704,11 @@ package androidx.compose.foundation.text.input {
   public sealed interface TextFieldCharSequence extends java.lang.CharSequence {
     method public boolean contentEquals(CharSequence other);
     method public boolean equals(Object? other);
-    method public androidx.compose.ui.text.TextRange? getCompositionInChars();
-    method public long getSelectionInChars();
+    method public androidx.compose.ui.text.TextRange? getComposition();
+    method public long getSelection();
     method public int hashCode();
-    property public abstract androidx.compose.ui.text.TextRange? compositionInChars;
-    property public abstract long selectionInChars;
+    property public abstract androidx.compose.ui.text.TextRange? composition;
+    property public abstract long selection;
   }
 
   public final class TextFieldCharSequenceKt {
@@ -1749,7 +1741,7 @@ package androidx.compose.foundation.text.input {
   }
 
   @androidx.compose.runtime.Stable public final class TextFieldState {
-    ctor public TextFieldState(optional String initialText, optional long initialSelectionInChars);
+    ctor public TextFieldState(optional String initialText, optional long initialSelection);
     method @kotlin.PublishedApi internal void commitEdit(androidx.compose.foundation.text.input.TextFieldBuffer newValue);
     method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text.input.TextFieldBuffer,kotlin.Unit> block);
     method public androidx.compose.foundation.text.input.TextFieldCharSequence getText();
@@ -1768,7 +1760,7 @@ package androidx.compose.foundation.text.input {
   public final class TextFieldStateKt {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void clearText(androidx.compose.foundation.text.input.TextFieldState);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend Object? forEachTextValue(androidx.compose.foundation.text.input.TextFieldState, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.text.input.TextFieldCharSequence,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<?>);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState(optional String initialText, optional long initialSelectionInChars);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState(optional String initialText, optional long initialSelection);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text.input.TextFieldState, String text);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndSelectAll(androidx.compose.foundation.text.input.TextFieldState, String text);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static kotlinx.coroutines.flow.Flow<androidx.compose.foundation.text.input.TextFieldCharSequence> textAsFlow(androidx.compose.foundation.text.input.TextFieldState);

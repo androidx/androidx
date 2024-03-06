@@ -91,7 +91,7 @@ internal class BasicSecureTextFieldTest {
         inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = remember {
-                    TextFieldState("Hello", initialSelectionInChars = TextRange(0, 1))
+                    TextFieldState("Hello", initialSelection = TextRange(0, 1))
                 },
                 modifier = Modifier.testTag(Tag)
             )
@@ -388,7 +388,7 @@ internal class BasicSecureTextFieldTest {
 
     @Test
     fun inputMethod_doesNotRestart_inResponseToKeyEvents() {
-        val state = TextFieldState("hello", initialSelectionInChars = TextRange(5))
+        val state = TextFieldState("hello", initialSelection = TextRange(5))
         inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = state,

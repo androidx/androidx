@@ -257,11 +257,11 @@ internal class TextFieldCoreModifierNode(
         val value = textFieldState.visualText
         val textLayoutResult = textLayoutState.layoutResult ?: return
 
-        if (value.selectionInChars.collapsed) {
+        if (value.selection.collapsed) {
             drawText(textLayoutResult)
             drawCursor()
         } else {
-            drawSelection(value.selectionInChars, textLayoutResult)
+            drawSelection(value.selection, textLayoutResult)
             drawText(textLayoutResult)
         }
 
@@ -281,7 +281,7 @@ internal class TextFieldCoreModifierNode(
         return layout(placeable.width, height) {
             // we may need to update the scroll state to bring the cursor back into view after
             // layout is completed.
-            val currSelection = textFieldState.visualText.selectionInChars
+            val currSelection = textFieldState.visualText.selection
             val offsetToFollow = calculateOffsetToFollow(currSelection)
 
             updateScrollState(
@@ -311,7 +311,7 @@ internal class TextFieldCoreModifierNode(
         return layout(width, placeable.height) {
             // we may need to update the scroll state to bring the cursor back into view before
             // layout is updated.
-            val currSelection = textFieldState.visualText.selectionInChars
+            val currSelection = textFieldState.visualText.selection
             val offsetToFollow = calculateOffsetToFollow(currSelection)
 
             updateScrollState(

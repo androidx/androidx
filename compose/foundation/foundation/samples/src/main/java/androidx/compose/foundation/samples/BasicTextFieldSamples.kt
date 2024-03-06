@@ -307,7 +307,7 @@ fun BasicTextFieldStateEditSample() {
         replace(0, 5, "goodbye") // "goodbye, Compose"
 
         // Select the new name so the user can change it by just starting to type.
-        selectCharsIn(TextRange(9, 16)) // "goodbye, ̲C̲o̲m̲p̲o̲s̲e"
+        selection = TextRange(9, 16) // "goodbye, ̲C̲o̲m̲p̲o̲s̲e"
     }
 }
 

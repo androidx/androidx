@@ -60,7 +60,7 @@ internal abstract class TextFieldKeyEventHandler {
         focusManager: FocusManager,
         keyboardController: SoftwareKeyboardController
     ): Boolean {
-        val selection = textFieldState.visualText.selectionInChars
+        val selection = textFieldState.visualText.selection
         return if (!selection.collapsed && event.cancelsTextSelection()) {
             textFieldSelectionState.deselect()
             true
@@ -237,7 +237,7 @@ internal abstract class TextFieldKeyEventHandler {
             textPreparedSelectionState = preparedSelectionState
         )
         preparedSelection.block()
-        if (preparedSelection.selection != preparedSelection.initialValue.selectionInChars) {
+        if (preparedSelection.selection != preparedSelection.initialValue.selection) {
             // selection changes are applied atomically at the end of context evaluation
             state.selectCharsIn(preparedSelection.selection)
         }

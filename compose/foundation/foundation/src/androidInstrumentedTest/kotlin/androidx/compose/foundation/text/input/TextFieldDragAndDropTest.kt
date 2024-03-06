@@ -78,9 +78,9 @@ class TextFieldDragAndDropTest {
     @Test
     fun nonTextContent_isNotAccepted() {
         rule.setContentAndTestDragAndDrop {
-            val startSelection = state.text.selectionInChars
+            val startSelection = state.text.selection
             drag(Offset(fontSize.toPx() * 2, 10f), defaultUri)
-            assertThat(state.text.selectionInChars).isEqualTo(startSelection)
+            assertThat(state.text.selection).isEqualTo(startSelection)
         }
     }
 
@@ -93,7 +93,7 @@ class TextFieldDragAndDropTest {
         ) {
             val accepted = drag(Offset(fontSize.toPx() * 2, 10f), defaultUri)
             assertThat(accepted).isTrue()
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+            assertThat(state.text.selection).isEqualTo(TextRange(2))
         }
     }
 
@@ -101,7 +101,7 @@ class TextFieldDragAndDropTest {
     fun textContent_isAccepted() {
         rule.setContentAndTestDragAndDrop {
             drag(Offset(fontSize.toPx() * 2, 10f), "hello")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+            assertThat(state.text.selection).isEqualTo(TextRange(2))
         }
     }
 
@@ -109,11 +109,11 @@ class TextFieldDragAndDropTest {
     fun draggingText_updatesSelection() {
         rule.setContentAndTestDragAndDrop {
             drag(Offset(fontSize.toPx() * 1, 10f), "hello")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
+            assertThat(state.text.selection).isEqualTo(TextRange(1))
             drag(Offset(fontSize.toPx() * 2, 10f), "hello")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+            assertThat(state.text.selection).isEqualTo(TextRange(2))
             drag(Offset(fontSize.toPx() * 3, 10f), "hello")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(3))
+            assertThat(state.text.selection).isEqualTo(TextRange(3))
         }
     }
 
@@ -125,11 +125,11 @@ class TextFieldDragAndDropTest {
             }
         ) {
             drag(Offset(fontSize.toPx() * 1, 10f), defaultUri)
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
+            assertThat(state.text.selection).isEqualTo(TextRange(1))
             drag(Offset(fontSize.toPx() * 2, 10f), defaultUri)
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+            assertThat(state.text.selection).isEqualTo(TextRange(2))
             drag(Offset(fontSize.toPx() * 3, 10f), defaultUri)
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(3))
+            assertThat(state.text.selection).isEqualTo(TextRange(3))
         }
     }
 
@@ -140,9 +140,9 @@ class TextFieldDragAndDropTest {
             modifier = Modifier.width(300.dp)
         ) {
             drag(Offset.Zero, "hello")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
+            assertThat(state.text.selection).isEqualTo(TextRange(0))
             drag(Offset(295.dp.toPx(), 10f), "hello")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4))
+            assertThat(state.text.selection).isEqualTo(TextRange(4))
         }
     }
 
@@ -354,7 +354,7 @@ class TextFieldDragAndDropTest {
                 " Awesome"
             )
             drop()
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange("Hello Awesome".length))
+            assertThat(state.text.selection).isEqualTo(TextRange("Hello Awesome".length))
             assertThat(state.text.toString()).isEqualTo("Hello Awesome World!")
         }
     }
@@ -378,7 +378,7 @@ class TextFieldDragAndDropTest {
             }
             drag(Offset(fontSize.toPx() * 5, 10f), clipData)
             drop()
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange("Hello Awesome".length))
+            assertThat(state.text.selection).isEqualTo(TextRange("Hello Awesome".length))
             assertThat(state.text.toString()).isEqualTo("Hello Awesome World!")
             assertThat(receivedContent.clipEntry.clipData.itemCount).isEqualTo(2)
             assertThat(receivedContent.clipEntry.firstUriOrNull()).isEqualTo(defaultUri)
@@ -402,7 +402,7 @@ class TextFieldDragAndDropTest {
             }
             drag(Offset(fontSize.toPx() * 5, 10f), clipData)
             drop()
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+            assertThat(state.text.selection).isEqualTo(TextRange(5))
             assertThat(state.text.toString()).isEqualTo("Hello World!")
             assertThat(receivedContent.clipEntry.clipData.itemCount).isEqualTo(2)
             assertThat(receivedContent.clipEntry.firstUriOrNull()).isEqualTo(defaultUri)
@@ -482,7 +482,7 @@ class TextFieldDragAndDropTest {
     ) {
         val state = TextFieldState(
             textContent,
-            initialSelectionInChars = TextRange.Zero
+            initialSelection = TextRange.Zero
         )
         var view: View? = null
         val density = Density(1f, 1f)

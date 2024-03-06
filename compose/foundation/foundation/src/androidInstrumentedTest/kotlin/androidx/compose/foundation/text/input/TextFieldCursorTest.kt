@@ -125,7 +125,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     private var textLayoutResult: (() -> TextLayoutResult?)? = null
     private val cursorRect: Rect
         // assume selection is collapsed
-        get() = textLayoutResult?.invoke()?.getCursorRect(state.text.selectionInChars.start)
+        get() = textLayoutResult?.invoke()?.getCursorRect(state.text.selection.start)
             ?: Rect.Zero
 
     private val cursorSize: DpSize by lazy {
@@ -435,7 +435,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorUnsetColor_noCursor() {
-        state = TextFieldState("hello", initialSelectionInChars = TextRange(2))
+        state = TextFieldState("hello", initialSelection = TextRange(2))
         rule.setTestContent {
             BasicTextField(
                 state = state,
@@ -474,7 +474,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorNotBlinking_whileTyping() {
-        state = TextFieldState("test", initialSelectionInChars = TextRange(4))
+        state = TextFieldState("test", initialSelection = TextRange(4))
         rule.setTestContent {
             BasicTextField(
                 state = state,
@@ -505,7 +505,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun selectionChanges_cursorNotBlinking() {
-        state = TextFieldState("test", initialSelectionInChars = TextRange(2))
+        state = TextFieldState("test", initialSelection = TextRange(2))
         rule.setTestContent {
             BasicTextField(
                 state = state,
@@ -537,7 +537,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun togglingInnerTextField_whileFocused_cursorContinuesToDraw() {
-        state = TextFieldState("test", initialSelectionInChars = TextRange(2))
+        state = TextFieldState("test", initialSelection = TextRange(2))
         var toggle by mutableStateOf(true)
         rule.setTestContent {
             BasicTextField(
@@ -639,7 +639,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun selectionNotCollapsed_cursorNotDrawn() {
-        state = TextFieldState("test", initialSelectionInChars = TextRange(2, 3))
+        state = TextFieldState("test", initialSelection = TextRange(2, 3))
         rule.setTestContent {
             // set selection highlight to a known color
             CompositionLocalProvider(
@@ -718,7 +718,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun readOnly_cursorIsNotDrawn() {
-        state = TextFieldState("test", initialSelectionInChars = TextRange(4))
+        state = TextFieldState("test", initialSelection = TextRange(4))
         rule.setTestContent {
             BasicTextField(
                 state = state,
@@ -744,7 +744,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun toggling_readOnly_drawsCursorAgain() {
         var readOnly by mutableStateOf(true)
-        state = TextFieldState("test", initialSelectionInChars = TextRange(4))
+        state = TextFieldState("test", initialSelection = TextRange(4))
         rule.setTestContent {
             BasicTextField(
                 state = state,
@@ -866,7 +866,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_keepsSelection_whenWindowLosesFocus() {
-        state = TextFieldState("hello", initialSelectionInChars = TextRange(0, 5))
+        state = TextFieldState("hello", initialSelection = TextRange(0, 5))
         val selectionColor = Color.Blue
         val focusWindow = mutableStateOf(true)
         val windowInfo = object : WindowInfo {

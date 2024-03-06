@@ -19,8 +19,5 @@ package androidx.compose.foundation.text.input.internal
 internal actual fun CharSequence.codePointAt(index: Int): Int =
     java.lang.Character.codePointAt(this, index)
 
-internal actual fun CharSequence.codePointCount(): Int =
-    java.lang.Character.codePointCount(this, 0, length)
-
 internal actual fun charCount(codePoint: Int): Int =
     java.lang.Character.charCount(codePoint)

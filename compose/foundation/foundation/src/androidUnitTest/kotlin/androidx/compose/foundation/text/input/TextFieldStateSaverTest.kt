@@ -29,7 +29,7 @@ class TextFieldStateSaverTest {
 
     @Test
     fun savesAndRestoresTextAndSelection() {
-        val state = TextFieldState("hello, world", initialSelectionInChars = TextRange(0, 5))
+        val state = TextFieldState("hello, world", initialSelection = TextRange(0, 5))
 
         val saved = with(TextFieldState.Saver) { TestSaverScope.save(state) }
         assertNotNull(saved)
@@ -37,12 +37,12 @@ class TextFieldStateSaverTest {
 
         assertNotNull(restoredState)
         assertThat(restoredState.text.toString()).isEqualTo("hello, world")
-        assertThat(restoredState.text.selectionInChars).isEqualTo(TextRange(0, 5))
+        assertThat(restoredState.text.selection).isEqualTo(TextRange(0, 5))
     }
 
     @Test
     fun savesAndRestoresUndo() {
-        val state = TextFieldState("hello, world", initialSelectionInChars = TextRange(0, 5))
+        val state = TextFieldState("hello, world", initialSelection = TextRange(0, 5))
 
         state.editAsUser(null) {
             commitText("hi", 1)
@@ -57,7 +57,7 @@ class TextFieldStateSaverTest {
         assertThat(restoredState.undoState.canUndo).isTrue()
         restoredState.undoState.undo()
         assertThat(restoredState.text.toString()).isEqualTo("hello, world")
-        assertThat(restoredState.text.selectionInChars).isEqualTo(TextRange(0, 5))
+        assertThat(restoredState.text.selection).isEqualTo(TextRange(0, 5))
     }
 
     private object TestSaverScope : SaverScope {

@@ -222,9 +222,9 @@ internal class BasicTextFieldImmIntegrationTest {
                 modifier = Modifier.testTag(Tag),
                 inputTransformation = { _, new ->
                     // Force the selection not to change.
-                    val initialSelection = new.selectionInChars
+                    val initialSelection = new.selection
                     new.append("world")
-                    new.selectCharsIn(initialSelection)
+                    new.selection = initialSelection
                 }
             )
         }
@@ -253,9 +253,9 @@ internal class BasicTextFieldImmIntegrationTest {
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 inputTransformation = { _, new ->
-                    val initialSelection = new.selectionInChars
+                    val initialSelection = new.selection
                     new.append("world")
-                    new.selectCharsIn(initialSelection)
+                    new.selection = initialSelection
                 }
             )
         }
@@ -317,7 +317,7 @@ internal class BasicTextFieldImmIntegrationTest {
 
     @Test
     fun immUpdated_whenEditChangesSelection() {
-        val state = TextFieldState("hello", initialSelectionInChars = TextRange(0))
+        val state = TextFieldState("hello", initialSelection = TextRange(0))
         inputMethodInterceptor.setContent {
             BasicTextField(state, Modifier.testTag(Tag))
         }

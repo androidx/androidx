@@ -1134,7 +1134,7 @@ internal class BasicTextFieldTest {
         rule.waitForIdle()
 
         assertThat(tfs.text.toString()).isEqualTo(longText)
-        assertThat(tfs.text.selectionInChars).isEqualTo(TextRange(longText.length))
+        assertThat(tfs.text.selection).isEqualTo(TextRange(longText.length))
     }
 
     @Test
@@ -1155,7 +1155,7 @@ internal class BasicTextFieldTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
             assertThat(imm.expectCall("updateSelection(0, 5, -1, -1)"))
         }
     }
@@ -1163,7 +1163,7 @@ internal class BasicTextFieldTest {
     @Test
     fun cut_contextMenuAction_cutsIntoClipboard() {
         val clipboardManager = FakeClipboardManager("World")
-        val state = TextFieldState("Hello", initialSelectionInChars = TextRange(0, 2))
+        val state = TextFieldState("Hello", initialSelection = TextRange(0, 2))
         inputMethodInterceptor.setTextFieldTestContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
                 BasicTextField(
@@ -1188,7 +1188,7 @@ internal class BasicTextFieldTest {
     @Test
     fun copy_contextMenuAction_copiesIntoClipboard() {
         val clipboardManager = FakeClipboardManager("World")
-        val state = TextFieldState("Hello", initialSelectionInChars = TextRange(0, 2))
+        val state = TextFieldState("Hello", initialSelection = TextRange(0, 2))
         inputMethodInterceptor.setTextFieldTestContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
                 BasicTextField(
@@ -1212,7 +1212,7 @@ internal class BasicTextFieldTest {
     @Test
     fun paste_contextMenuAction_pastesFromClipboard() {
         val clipboardManager = FakeClipboardManager("World")
-        val state = TextFieldState("Hello", initialSelectionInChars = TextRange(0, 4))
+        val state = TextFieldState("Hello", initialSelection = TextRange(0, 4))
         inputMethodInterceptor.setTextFieldTestContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
                 BasicTextField(
@@ -1230,7 +1230,7 @@ internal class BasicTextFieldTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Worldo")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+            assertThat(state.text.selection).isEqualTo(TextRange(5))
         }
     }
 

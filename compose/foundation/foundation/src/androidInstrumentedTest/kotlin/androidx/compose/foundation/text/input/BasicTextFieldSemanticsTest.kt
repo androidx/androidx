@@ -164,7 +164,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
     @Test
     fun semantics_performSetTextAction_whenReadOnly() {
-        val state = TextFieldState("", initialSelectionInChars = TextRange(1))
+        val state = TextFieldState("", initialSelection = TextRange(1))
         rule.setContent {
             BasicTextField(
                 state = state,
@@ -207,7 +207,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
     @Test
     fun semantics_performTextInputAction() {
-        val state = TextFieldState("Hello", initialSelectionInChars = TextRange(1))
+        val state = TextFieldState("Hello", initialSelection = TextRange(1))
         rule.setContent {
             BasicTextField(
                 state = state,
@@ -227,7 +227,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
     @Test
     fun semantics_performTextInputAction_whenReadOnly() {
-        val state = TextFieldState("", initialSelectionInChars = TextRange(1))
+        val state = TextFieldState("", initialSelection = TextRange(1))
         rule.setContent {
             BasicTextField(
                 state = state,
@@ -244,7 +244,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
     @Test
     fun semantics_performTextInputAction_appliesFilter() {
-        val state = TextFieldState("Hello", initialSelectionInChars = TextRange(1))
+        val state = TextFieldState("Hello", initialSelection = TextRange(1))
         rule.setContent {
             BasicTextField(
                 state = state,
@@ -329,7 +329,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
     @Test
     fun selectionSemanticsAreSet_inTheFirstComposition() {
-        val state = TextFieldState("hello", initialSelectionInChars = TextRange(2))
+        val state = TextFieldState("hello", initialSelection = TextRange(2))
         rule.setContent {
             BasicTextField(
                 state = state,
@@ -345,7 +345,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
     @Test
     fun selectionSemanticsAreSet_afterRecomposition() {
-        val state = TextFieldState("hello", initialSelectionInChars = TextRange.Zero)
+        val state = TextFieldState("hello", initialSelection = TextRange.Zero)
         rule.setContent {
             BasicTextField(
                 state = state,
@@ -359,7 +359,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         }
 
         state.edit {
-            selectCharsIn(TextRange(2))
+            selection = TextRange(2)
         }
 
         with(rule.onNodeWithTag(Tag)) {
@@ -385,14 +385,14 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
 
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2, 3))
+            assertThat(state.text.selection).isEqualTo(TextRange(2, 3))
         }
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun inputSelection_changesSelectionState_appliesFilter() {
-        val state = TextFieldState("hello", initialSelectionInChars = TextRange(5))
+        val state = TextFieldState("hello", initialSelection = TextRange(5))
         rule.setContent {
             BasicTextField(
                 state = state,
@@ -406,7 +406,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(2))
 
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+            assertThat(state.text.selection).isEqualTo(TextRange(5))
         }
     }
 
@@ -445,8 +445,8 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
     @Test
     fun semanticsAreSet_afterStateObjectChanges() {
-        val state1 = TextFieldState("hello", initialSelectionInChars = TextRange.Zero)
-        val state2 = TextFieldState("world", initialSelectionInChars = TextRange(2))
+        val state1 = TextFieldState("hello", initialSelection = TextRange.Zero)
+        val state2 = TextFieldState("world", initialSelection = TextRange(2))
         var chosenState by mutableStateOf(true)
         rule.setContent {
             BasicTextField(
@@ -470,7 +470,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
     @Test
     fun semantics_paste_notAvailable_whenDisabledOrReadOnly() {
-        val state = TextFieldState("World!", initialSelectionInChars = TextRange(0))
+        val state = TextFieldState("World!", initialSelection = TextRange(0))
         var enabled by mutableStateOf(false)
         var readOnly by mutableStateOf(false)
         rule.setContent {
@@ -517,7 +517,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.PasteText)
 
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+            assertThat(state.text.selection).isEqualTo(TextRange(5))
             assertThat(state.text.toString()).isEqualTo("Hello World!")
         }
     }
@@ -548,7 +548,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.PasteText)
 
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(9))
+            assertThat(state.text.selection).isEqualTo(TextRange(9))
             assertThat(state.text.toString()).isEqualTo("Heo Word!")
         }
     }
@@ -591,7 +591,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_copy_appliesFilter() {
-        val state = TextFieldState("Hello World!", initialSelectionInChars = TextRange(0, 5))
+        val state = TextFieldState("Hello World!", initialSelection = TextRange(0, 5))
         val clipboardManager = FakeClipboardManager()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
@@ -600,7 +600,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
                     modifier = Modifier.testTag(Tag),
                     inputTransformation = { original, changes ->
                         // reject copy action collapsing the selection
-                        if (changes.selectionInChars != original.selectionInChars) {
+                        if (changes.selection != original.selection) {
                             changes.revertAllChanges()
                         }
                     }
@@ -611,14 +611,14 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.CopyText)
 
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
         }
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_cut() {
-        val state = TextFieldState("Hello World!", initialSelectionInChars = TextRange(0, 5))
+        val state = TextFieldState("Hello World!", initialSelection = TextRange(0, 5))
         val clipboardManager = FakeClipboardManager()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
@@ -633,7 +633,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo(" World!")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
+            assertThat(state.text.selection).isEqualTo(TextRange(0))
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("Hello")
         }
     }
@@ -641,7 +641,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_cut_appliesFilter() {
-        val state = TextFieldState("Hello World!", initialSelectionInChars = TextRange(0, 5))
+        val state = TextFieldState("Hello World!", initialSelection = TextRange(0, 5))
         val clipboardManager = FakeClipboardManager()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
@@ -659,14 +659,14 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Hello World!")
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("Hello")
         }
     }
 
     @Test
     fun semantics_cut_notAvailable_whenDisabledOrReadOnly() {
-        val state = TextFieldState("World!", initialSelectionInChars = TextRange(0, 1))
+        val state = TextFieldState("World!", initialSelection = TextRange(0, 1))
         var enabled by mutableStateOf(false)
         var readOnly by mutableStateOf(false)
         rule.setContent {
@@ -787,7 +787,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = InputTransformation.maxLengthInChars(10)
+                inputTransformation = InputTransformation.maxLength(10)
             )
         }
         rule.onNodeWithTag(Tag).assertKey(10, SemanticsProperties.MaxTextLength)

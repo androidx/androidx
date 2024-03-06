@@ -82,15 +82,15 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
 
         with(rule.onNodeWithTag(TAG)) {
             performTouchInput { click(center) }
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
+            assertThat(state.text.selection).isEqualTo(TextRange(0))
             performTouchInput { click(Offset(left + 1f, top + 1f)) } // topLeft
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
+            assertThat(state.text.selection).isEqualTo(TextRange(0))
             performTouchInput { click(Offset(right - 1f, top + 1f)) } // topRight
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
+            assertThat(state.text.selection).isEqualTo(TextRange(0))
             performTouchInput { click(Offset(left + 1f, bottom - 1f)) } // bottomLeft
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
+            assertThat(state.text.selection).isEqualTo(TextRange(0))
             performTouchInput { click(Offset(right - 1f, bottom - 1f)) } // bottomRight
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
+            assertThat(state.text.selection).isEqualTo(TextRange(0))
         }
     }
 
@@ -111,7 +111,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         with(rule.onNodeWithTag(TAG)) {
             performTouchInput { click(Offset((fontSize * 2).toPx(), height / 2f)) }
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(state.text.selection).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -133,7 +133,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         with(rule.onNodeWithTag(TAG)) {
             performTouchInput { click(Offset(right - (fontSize * 2).toPx(), height / 2f)) }
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(state.text.selection).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -155,7 +155,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         with(rule.onNodeWithTag(TAG)) {
             performTouchInput { click(Offset(right - (fontSize * 2).toPx(), height / 2f)) }
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(state.text.selection).isEqualTo(TextRange(1))
     }
 
     @Test
@@ -175,7 +175,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         with(rule.onNodeWithTag(TAG)) {
             performTouchInput { click(Offset((fontSize * 2).toPx(), height / 2f)) }
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
+        assertThat(state.text.selection).isEqualTo(TextRange(1))
     }
 
     @Test
@@ -195,7 +195,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         with(rule.onNodeWithTag(TAG)) {
             performTouchInput { click(Offset((fontSize * 4).toPx(), height / 2f)) }
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(3))
+        assertThat(state.text.selection).isEqualTo(TextRange(3))
     }
 
     @Test
@@ -217,7 +217,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         with(rule.onNodeWithTag(TAG)) {
             performTouchInput { click(Offset(fontSize.toPx(), height / 2f)) }
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(3))
+        assertThat(state.text.selection).isEqualTo(TextRange(3))
     }
 
     @Test
@@ -242,7 +242,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selectionInChars).isEqualTo(TextRange(6))
+            assertThat(state.text.selection).isEqualTo(TextRange(6))
             assertThat(scrollState.value).isGreaterThan(0)
         }
     }
@@ -268,7 +268,7 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
             performTouchInput { click(Offset(fontSize.toPx(), bottom - 1f)) }
         }
         rule.waitForIdle()
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+        assertThat(state.text.selection).isEqualTo(TextRange(5))
         assertThat(scrollState.value).isGreaterThan(0)
     }
 
@@ -300,6 +300,6 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
             performTouchInput { click(Offset(2 * fontSize.toPx(), centerY)) }
         }
         rule.waitForIdle()
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(state.text.selection).isEqualTo(TextRange(2))
     }
 }
