@@ -531,7 +531,7 @@ public final class ProtoLayoutInflater {
 
         private final boolean mAllowLayoutChangingBindsWithoutDefault;
 
-        private final boolean mApplyFontVarianBodyAsDefault;
+        private final boolean mApplyFontVariantBodyAsDefault;
 
         Config(
                 @NonNull Context uiContext,
@@ -547,7 +547,7 @@ public final class ProtoLayoutInflater {
                 @Nullable LoggingUtils loggingUtils,
                 boolean animationEnabled,
                 boolean allowLayoutChangingBindsWithoutDefault,
-                boolean applyFontVarianBodyAsDefault) {
+                boolean applyFontVariantBodyAsDefault) {
             this.mUiContext = uiContext;
             this.mLayout = layout;
             this.mLayoutResourceResolvers = layoutResourceResolvers;
@@ -561,7 +561,7 @@ public final class ProtoLayoutInflater {
             this.mClickableIdExtra = clickableIdExtra;
             this.mLoggingUtils = loggingUtils;
             this.mExtensionViewProvider = extensionViewProvider;
-            this.mApplyFontVarianBodyAsDefault = applyFontVarianBodyAsDefault;
+            this.mApplyFontVariantBodyAsDefault = applyFontVariantBodyAsDefault;
         }
 
         /** A {@link Context} suitable for interacting with UI. */
@@ -658,7 +658,7 @@ public final class ProtoLayoutInflater {
 
         /** Whether to apply FONT_VARIANT_BODY as default variant. */
         public boolean getApplyFontVariantBodyAsDefault() {
-            return mApplyFontVarianBodyAsDefault;
+            return mApplyFontVariantBodyAsDefault;
         }
 
         /** Builder for the Config class. */
