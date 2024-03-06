@@ -22,6 +22,9 @@ dependencies {
     implementation(libs.androidKotlinMultiplatform)
     implementation(libs.kotlinCompilerEmbeddable) // for clang compiler
 
+    // For Room Gradle Plugin
+    implementation(libs.kspGradlePluginz)
+
     // Force jsoup upgrade on spdx (b/309773103)
     implementation(libs.jsoup)
 
@@ -54,7 +57,5 @@ dependencies {
     // root project doesn't need to re-resolve them and their dependencies on every build
     runtimeOnly(libs.hiltAndroidGradlePluginz)
     runtimeOnly(libs.javapoet) // for hiltAndroidGradlePluginz to workaround https://github.com/google/dagger/issues/3068
-    runtimeOnly(libs.kspGradlePluginz)
     runtimeOnly(libs.wireGradlePluginz)
-    runtimeOnly(libs.roomGradlePlugin)
 }

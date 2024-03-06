@@ -146,7 +146,7 @@ open class RoomExtension @Inject constructor(private val providers: ProviderFact
     /**
      * Causes Room annotation processor to generate Kotlin code instead of Java.
      */
-    open var generateKotlin: Boolean = false
+    open var generateKotlin: Boolean? = null
 
     /**
      * Represent a full Android variant name (demoDebug), flavor name (demo), build type
