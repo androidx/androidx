@@ -147,7 +147,10 @@ actual abstract class RoomDatabase {
      *
      * @return The invalidation tracker for the database.
      */
-    actual open val invalidationTracker: InvalidationTracker = createInvalidationTracker()
+    actual open val invalidationTracker: InvalidationTracker
+        get() = internalTracker
+
+    private lateinit var internalTracker: InvalidationTracker
 
     /**
      * A barrier that prevents the database from closing while the [InvalidationTracker] is using
@@ -228,6 +231,7 @@ actual abstract class RoomDatabase {
     @OptIn(ExperimentalCoroutinesApi::class) // For limitedParallelism(1)
     actual open fun init(configuration: DatabaseConfiguration) {
         connectionManager = createConnectionManager(configuration)
+        internalTracker = createInvalidationTracker()
         validateAutoMigrations(configuration)
         validateTypeConverters(configuration)
 
@@ -515,8 +519,9 @@ actual abstract class RoomDatabase {
                 if (hasForeignKeys && !supportsDeferForeignKeys) {
                     connection.execSQL("PRAGMA foreign_keys = FALSE")
                 }
-                // TODO(b/309990302): Commonize Invalidation Tracker
-                invalidationTracker.syncTriggers(openHelper.writableDatabase)
+                if (!connection.inTransaction()) {
+                    invalidationTracker.sync()
+                }
                 connection.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
                     if (hasForeignKeys && supportsDeferForeignKeys) {
                         execSQL("PRAGMA defer_foreign_keys = TRUE")
@@ -531,7 +536,7 @@ actual abstract class RoomDatabase {
                 if (!connection.inTransaction()) {
                     connection.execSQL("PRAGMA wal_checkpoint(FULL)")
                     connection.execSQL("VACUUM")
-                    invalidationTracker.refreshVersionsAsync()
+                    invalidationTracker.refreshAsync()
                 }
             }
         }
@@ -692,7 +697,9 @@ actual abstract class RoomDatabase {
     private fun internalBeginTransaction() {
         assertNotMainThread()
         val database = openHelper.writableDatabase
-        invalidationTracker.syncTriggers(database)
+        if (!database.inTransaction()) {
+            invalidationTracker.syncBlocking()
+        }
         if (database.isWriteAheadLoggingEnabled) {
             database.beginTransactionNonExclusive()
         } else {

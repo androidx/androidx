@@ -20,9 +20,7 @@
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
-import androidx.room.PooledConnection
 import androidx.room.RoomDatabase
-import androidx.room.Transactor
 import androidx.room.coroutines.RawConnectionAccessor
 import androidx.sqlite.SQLiteConnection
 import kotlin.coroutines.CoroutineContext
@@ -68,23 +66,5 @@ actual suspend fun <R> performInTransactionSuspending(
 ): R = withContext(db.getCoroutineContext(inTransaction = true)) {
     db.internalPerform(isReadOnly = false, inTransaction = true) {
         block.invoke()
-    }
-}
-
-private suspend inline fun <R> RoomDatabase.internalPerform(
-    isReadOnly: Boolean,
-    inTransaction: Boolean,
-    crossinline block: suspend (PooledConnection) -> R
-): R = useConnection(isReadOnly) { transactor ->
-    if (inTransaction) {
-        val type = if (isReadOnly) {
-            Transactor.SQLiteTransactionType.DEFERRED
-        } else {
-            Transactor.SQLiteTransactionType.IMMEDIATE
-        }
-        // TODO(b/309990302): Notify Invalidation Tracker before and after transaction block.
-        transactor.withTransaction(type) { block.invoke(this) }
-    } else {
-        block.invoke(transactor)
     }
 }

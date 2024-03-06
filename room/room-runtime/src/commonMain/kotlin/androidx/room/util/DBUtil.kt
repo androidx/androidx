@@ -20,7 +20,9 @@
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
+import androidx.room.PooledConnection
 import androidx.room.RoomDatabase
+import androidx.room.Transactor
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
@@ -40,6 +42,30 @@ expect suspend fun <R> performSuspending(
     inTransaction: Boolean,
     block: (SQLiteConnection) -> R
 ): R
+
+internal suspend inline fun <R> RoomDatabase.internalPerform(
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    crossinline block: suspend (PooledConnection) -> R
+): R = useConnection(isReadOnly) { transactor ->
+    if (inTransaction) {
+        val type = if (isReadOnly) {
+            Transactor.SQLiteTransactionType.DEFERRED
+        } else {
+            Transactor.SQLiteTransactionType.IMMEDIATE
+        }
+        if (!isReadOnly && !transactor.inTransaction()) {
+            invalidationTracker.sync()
+        }
+        val result = transactor.withTransaction(type) { block.invoke(this) }
+        if (!isReadOnly && !transactor.inTransaction()) {
+            invalidationTracker.refreshAsync()
+        }
+        result
+    } else {
+        block.invoke(transactor)
+    }
+}
 
 /**
  * Gets the database [CoroutineContext] to perform database operation on utility functions. Prefer

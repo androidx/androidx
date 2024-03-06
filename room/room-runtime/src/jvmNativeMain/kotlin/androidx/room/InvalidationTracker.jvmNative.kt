@@ -21,8 +21,14 @@ import androidx.room.InvalidationTracker.Observer
 import androidx.sqlite.SQLiteConnection
 
 /**
- * The invalidation tracker keeps track of modified tables by queries and notifies its registered
+ * The invalidation tracker keeps track of tables modified by queries and notifies its subscribed
  * [Observer]s about such modifications.
+ *
+ * [Observer]s contain one or more tables and are added to the tracker via [subscribe]. Once
+ * an observer is subscribed, if a database operation changes one of the tables the observer is
+ * subscribed to, then such table is considered 'invalidated' and [Observer.onInvalidated] will
+ * be invoked on the observer. If an observer is no longer interested in tracking modifications
+ * it can be removed via [unsubscribe].
  */
 actual class InvalidationTracker
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -32,11 +38,73 @@ actual constructor(
     viewTables: Map<String, Set<String>>,
     vararg tableNames: String
 ) {
+    private val implementation =
+        TriggerBasedInvalidationTracker(database, shadowTablesMap, viewTables, tableNames)
+
     /**
      * Internal method to initialize table tracking. Invoked by generated code.
      */
     internal actual fun internalInit(connection: SQLiteConnection) {
+        implementation.configureConnection(connection)
     }
+
+    /**
+     * Subscribes the given [observer] with the tracker such that it is notified if any table it
+     * is interested on changes.
+     *
+     * If the observer is already subscribed, then this function does nothing.
+     *
+     * @param observer The observer that will listen for database changes.
+     * @throws IllegalArgumentException if one of the tables in the observer does not exist.
+     */
+    // TODO(b/329315924): Replace with Flow based API
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun subscribe(observer: Observer) {
+        implementation.addObserver(observer)
+    }
+
+    /**
+     * Unsubscribes the given [observer] from the tracker.
+     *
+     * If the observer was never subscribed in the first place, then this function does nothing.
+     *
+     * @param observer The observer to remove.
+     */
+    // TODO(b/329315924): Replace with Flow based API
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun unsubscribe(observer: Observer) {
+        implementation.removeObserver(observer)
+    }
+
+    /**
+     * Synchronize subscribed observers with their tables.
+     *
+     * This function should be called before any write operation is performed on the database
+     * so that a tracking link is created between observers and its interest tables.
+     *
+     * @see refreshAsync
+     */
+    internal actual suspend fun sync() {
+        implementation.syncTriggers()
+    }
+
+    /**
+     * Refresh subscribed observers asynchronously, invoking [Observer.onInvalidated] on those whose
+     * tables have been invalidated.
+     *
+     * This function should be called after any write operation is performed on the database,
+     * such that tracked tables and its associated observers are notified if invalidated.
+     *
+     * @see sync
+     */
+    internal actual fun refreshAsync() {
+        implementation.refreshInvalidationAsync()
+    }
+
+    /**
+     * Stops invalidation tracker operations.
+     */
+    actual fun stop() {}
 
     /**
      * An observer that can listen for changes in the database by subscribing to an

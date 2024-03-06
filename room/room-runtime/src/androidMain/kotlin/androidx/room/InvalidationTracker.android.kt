@@ -17,107 +17,65 @@ package androidx.room
 
 import android.content.Context
 import android.content.Intent
-import android.database.sqlite.SQLiteException
-import android.util.Log
-import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
-import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.LiveData
 import androidx.room.InvalidationTracker.Observer
-import androidx.room.Room.LOG_TAG
-import androidx.room.concurrent.ifNotClosed
-import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.support.AutoCloser
-import androidx.room.util.useCursor
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.db.SimpleSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.sqlite.db.SupportSQLiteStatement
 import java.lang.ref.WeakReference
 import java.util.concurrent.Callable
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
- * The invalidation tracker keeps track of modified tables by queries and notifies its registered
+ * The invalidation tracker keeps track of tables modified by queries and notifies its subscribed
  * [Observer]s about such modifications.
+ *
+ * [Observer]s contain one or more tables and are added to the tracker via [subscribe]. Once
+ * an observer is subscribed, if a database operation changes one of the tables the observer is
+ * subscribed to, then such table is considered 'invalidated' and [Observer.onInvalidated] will
+ * be invoked on the observer. If an observer is no longer interested in tracking modifications
+ * it can be removed via [unsubscribe].
  */
-// Some details on how the InvalidationTracker works:
-// * An in memory table is created with (table_id, invalidated) table_id is a hardcoded int from
-// initialization, while invalidated is a boolean bit to indicate if the table has been invalidated.
-// * ObservedTableTracker tracks list of tables we should be watching (e.g. adding triggers for).
-// * Before each beginTransaction, RoomDatabase invokes InvalidationTracker to sync trigger states.
-// * After each endTransaction, RoomDatabase invokes InvalidationTracker to refresh invalidated
-// tables.
-// * Each update (write operation) on one of the observed tables triggers an update into the
-// memory table table, flipping the invalidated flag ON.
-// * When multi-instance invalidation is turned on, MultiInstanceInvalidationClient will be created.
-// It works as an Observer, and notifies other instances of table invalidation.
 actual open class InvalidationTracker
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 actual constructor(
     internal val database: RoomDatabase,
     private val shadowTablesMap: Map<String, String>,
     private val viewTables: Map<String, @JvmSuppressWildcards Set<String>>,
-    vararg tableNames: String
+    internal vararg val tableNames: String
 ) {
-    internal val tableIdLookup: Map<String, Int>
-    internal val tablesNames: Array<out String>
+    private val implementation =
+        TriggerBasedInvalidationTracker(database, shadowTablesMap, viewTables, tableNames)
 
     private var autoCloser: AutoCloser? = null
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @field:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val pendingRefresh = AtomicBoolean(false)
+    private val onRefreshScheduled: () -> Unit = {
+        // refreshVersionsAsync() is called with the ref count incremented from
+        // RoomDatabase, so the db can't be closed here, but we need to be sure that our
+        // db isn't closed until refresh is completed. This increment call must be
+        // matched with a corresponding call in refreshRunnable.
+        autoCloser?.incrementCountAndEnsureDbIsOpen()
+    }
 
-    @Volatile
-    private var initialized = false
-
-    @Volatile
-    internal var cleanupStatement: SupportSQLiteStatement? = null
-
-    private val observedTableTracker = ObservedTableStates(tableNames.size)
+    private val onRefreshCompleted: () -> Unit = {
+        autoCloser?.decrementCountAndScheduleClose()
+    }
 
     private val invalidationLiveDataContainer: InvalidationLiveDataContainer =
         InvalidationLiveDataContainer(database)
 
-    @GuardedBy("observerMap")
-    internal val observerMap = SafeIterableMap<Observer, ObserverWrapper>()
-
-    private var multiInstanceInvalidationClient: MultiInstanceInvalidationClient? = null
-
-    private val syncTriggersLock = Any()
-
-    private val trackerLock = Any()
-
     /** The initialization state for restarting invalidation after auto-close. */
     private var multiInstanceClientInitState: MultiInstanceClientInitState? = null
 
-    init {
-        tableIdLookup = mutableMapOf()
-        tablesNames = Array(tableNames.size) { id ->
-            val tableName = tableNames[id].lowercase()
-            tableIdLookup[tableName] = id
-            val shadowTableName = shadowTablesMap[tableNames[id]]?.lowercase()
-            shadowTableName ?: tableName
-        }
+    /** The multi instance invalidation client. */
+    private var multiInstanceInvalidationClient: MultiInstanceInvalidationClient? = null
 
-        // Adjust table id lookup for those tables whose shadow table is another already mapped
-        // table (e.g. external content fts tables).
-        shadowTablesMap.forEach { entry ->
-            val shadowTableName = entry.value.lowercase()
-            if (tableIdLookup.containsKey(shadowTableName)) {
-                val tableName = entry.key.lowercase()
-                tableIdLookup[tableName] = tableIdLookup.getValue(shadowTableName)
-            }
-        }
-    }
+    private val trackerLock = Any()
 
-    /**
-     * Used by the generated code.
-     *
-     */
+    @Deprecated("No longer called by generated implementation")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     constructor(database: RoomDatabase, vararg tableNames: String) :
         this(
@@ -126,6 +84,15 @@ actual constructor(
             viewTables = emptyMap(),
             tableNames = tableNames
         )
+
+    init {
+        // TODO(b/316944352): Figure out auto-close with driver APIs
+        // Setup a callback to disallow invalidation refresh when underlying compat database
+        // is closed. This is done to support auto-close feature.
+        implementation.onAllowRefresh = {
+            !database.inCompatibilityMode() || database.isOpenInternal
+        }
+    }
 
     /**
      * Sets the auto closer for this invalidation tracker so that the invalidation tracker can
@@ -148,51 +115,54 @@ actual constructor(
      * Internal method to initialize table tracking.
      */
     internal actual fun internalInit(connection: SQLiteConnection) {
-        if (connection is SupportSQLiteConnection) {
-            @Suppress("DEPRECATION")
-            internalInit(connection.db)
-        } else {
-            Log.e(LOG_TAG, "Invalidation tracker is disabled due to lack of driver " +
-                "support. - b/309990302")
+        implementation.configureConnection(connection)
+        synchronized(trackerLock) {
+            if (multiInstanceInvalidationClient == null && multiInstanceClientInitState != null) {
+                // Start multi-instance invalidation, based in info from the saved initState.
+                startMultiInstanceInvalidation()
+            }
         }
     }
 
     /**
-     * Internal method to initialize table tracking.
+     * Synchronize subscribed observers with their tables.
+     *
+     * This function should be called before any write operation is performed on the database
+     * so that a tracking link is created between observers and its interest tables.
+     *
+     * @see refreshAsync
      */
-    @Deprecated("No longer called by generated code")
-    internal fun internalInit(database: SupportSQLiteDatabase) {
-        synchronized(trackerLock) {
-            if (initialized) {
-                Log.e(LOG_TAG, "Invalidation tracker is initialized twice :/.")
-                return
-            }
-
-            multiInstanceClientInitState?.let {
-                // Start multi-instance invalidation, based in info from the saved initState.
-                startMultiInstanceInvalidation()
-            }
-
-            // These actions are not in a transaction because temp_store is not allowed to be
-            // performed on a transaction, and recursive_triggers is not affected by transactions.
-            database.execSQL("PRAGMA temp_store = MEMORY;")
-            database.execSQL("PRAGMA recursive_triggers='ON';")
-            database.execSQL(CREATE_TRACKING_TABLE_SQL)
-            syncTriggers(database)
-            cleanupStatement = database.compileStatement(RESET_UPDATED_TABLES_SQL)
-            initialized = true
+    internal actual suspend fun sync() {
+        if (database.inCompatibilityMode() && !database.isOpenInternal) {
+            return
         }
+        implementation.syncTriggers()
+    }
+
+    // TODO(b/309990302): Needed for compatibility with internalBeginTransaction(), not great.
+    internal fun syncBlocking(): Unit = runBlocking { sync() }
+
+    /**
+     * Refresh subscribed observers asynchronously, invoking [Observer.onInvalidated] on those whose
+     * tables have been invalidated.
+     *
+     * This function should be called after any write operation is performed on the database,
+     * such that tracked tables and its associated observers are notified if invalidated.
+     *
+     * @see sync
+     */
+    internal actual fun refreshAsync() {
+        implementation.refreshInvalidationAsync(onRefreshScheduled, onRefreshCompleted)
     }
 
     private fun onAutoCloseCallback() {
         synchronized(trackerLock) {
-            val isObserverMapEmpty = observerMap.filterNot { it.key.isRemote }.isEmpty()
+            val isObserverMapEmpty =
+                implementation.getAllObservers().filterNot { it.isRemote }.isEmpty()
             if (multiInstanceInvalidationClient != null && isObserverMapEmpty) {
                 stopMultiInstanceInvalidation()
             }
-            initialized = false
-            observedTableTracker.resetTriggerState()
-            cleanupStatement?.close()
+            implementation.resetSync()
         }
     }
 
@@ -212,42 +182,19 @@ actual constructor(
         multiInstanceInvalidationClient = null
     }
 
-    private fun stopTrackingTable(db: SupportSQLiteDatabase, tableId: Int) {
-        val tableName = tablesNames[tableId]
-        for (trigger in TRIGGERS) {
-            val sql = buildString {
-                append("DROP TRIGGER IF EXISTS ")
-                append(getTriggerName(tableName, trigger))
-            }
-            db.execSQL(sql)
-        }
-    }
-
-    private fun startTrackingTable(db: SupportSQLiteDatabase, tableId: Int) {
-        db.execSQL(
-            "INSERT OR IGNORE INTO $UPDATE_TABLE_NAME VALUES($tableId, 0)"
-        )
-        val tableName = tablesNames[tableId]
-        for (trigger in TRIGGERS) {
-            val sql = buildString {
-                append("CREATE TEMP TRIGGER IF NOT EXISTS ")
-                append(getTriggerName(tableName, trigger))
-                append(" AFTER ")
-                append(trigger)
-                append(" ON `")
-                append(tableName)
-                append("` BEGIN UPDATE ")
-                append(UPDATE_TABLE_NAME)
-                append(" SET ").append(INVALIDATED_COLUMN_NAME)
-                append(" = 1")
-                append(" WHERE ").append(TABLE_ID_COLUMN_NAME)
-                append(" = ").append(tableId)
-                append(" AND ").append(INVALIDATED_COLUMN_NAME)
-                append(" = 0")
-                append("; END")
-            }
-            db.execSQL(sql)
-        }
+    /**
+     * Subscribes the given [observer] with the tracker such that it is notified if any table it
+     * is interested on changes.
+     *
+     * If the observer is already subscribed, then this function does nothing.
+     *
+     * @param observer The observer that will listen for database changes.
+     * @throws IllegalArgumentException if one of the tables in the observer does not exist.
+     */
+    // TODO(b/329315924): Replace with Flow based API
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun subscribe(observer: Observer) {
+        implementation.addObserver(observer)
     }
 
     /**
@@ -268,53 +215,8 @@ actual constructor(
      * @param observer The observer which listens the database for changes.
      */
     @WorkerThread
-    open fun addObserver(observer: Observer) {
-        val tableNames = resolveViews(observer.tables)
-        val tableIds = tableNames.map { tableName ->
-            tableIdLookup[tableName.lowercase()]
-                ?: throw IllegalArgumentException("There is no table with name $tableName")
-        }.toIntArray()
-
-        val wrapper = ObserverWrapper(
-            observer = observer,
-            tableIds = tableIds,
-            tableNames = tableNames
-        )
-
-        val currentObserver = synchronized(observerMap) {
-            observerMap.putIfAbsent(observer, wrapper)
-        }
-        if (currentObserver == null && observedTableTracker.onObserverAdded(tableIds)) {
-            syncTriggers()
-        }
-    }
-
-    private fun validateAndResolveTableNames(tableNames: Array<out String>): Array<out String> {
-        val resolved = resolveViews(tableNames)
-        resolved.forEach { tableName ->
-            require(tableIdLookup.containsKey(tableName.lowercase())) {
-                "There is no table with name $tableName"
-            }
-        }
-        return resolved
-    }
-
-    /**
-     * Resolves the list of tables and views into a list of unique tables that are underlying them.
-     *
-     * @param names The names of tables or views.
-     * @return The names of the underlying tables.
-     */
-    private fun resolveViews(names: Array<out String>): Array<out String> {
-        return buildSet {
-            names.forEach { name ->
-                if (viewTables.containsKey(name.lowercase())) {
-                    addAll(viewTables[name.lowercase()]!!)
-                } else {
-                    add(name)
-                }
-            }
-        }.toTypedArray()
+    open fun addObserver(observer: Observer): Unit = runBlocking {
+        implementation.addObserver(observer)
     }
 
     /**
@@ -325,9 +227,23 @@ actual constructor(
      *
      * @param observer The observer to which InvalidationTracker will keep a weak reference.
      */
+    @WorkerThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     open fun addWeakObserver(observer: Observer) {
-        addObserver(WeakObserver(this, observer))
+        addObserver(WeakObserver(this, database.getCoroutineScope(), observer))
+    }
+
+    /**
+     * Unsubscribes the given [observer] from the tracker.
+     *
+     * If the observer was never subscribed in the first place, then this function does nothing.
+     *
+     * @param observer The observer to remove.
+     */
+    // TODO(b/329315924): Replace with Flow based API
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun unsubscribe(observer: Observer) {
+        implementation.removeObserver(observer)
     }
 
     /**
@@ -339,137 +255,28 @@ actual constructor(
      * @param observer The observer to remove.
      */
     @WorkerThread
-    open fun removeObserver(observer: Observer) {
-        val wrapper = synchronized(observerMap) {
-            observerMap.remove(observer)
-        }
-        if (wrapper != null && observedTableTracker.onObserverRemoved(wrapper.tableIds)) {
-            syncTriggers()
-        }
-    }
-
-    internal fun ensureInitialization(): Boolean {
-        if (!database.isOpenInternal) {
-            return false
-        }
-        if (!initialized) {
-            // trigger initialization
-            database.openHelper.writableDatabase
-        }
-        if (!initialized) {
-            Log.e(LOG_TAG, "database is not initialized even though it is open")
-            return false
-        }
-        return true
-    }
-
-    @VisibleForTesting
-    @JvmField
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val refreshRunnable: Runnable = object : Runnable {
-        override fun run() = database.closeBarrier.ifNotClosed {
-            val invalidatedTableIds: Set<Int> =
-                try {
-                    if (!ensureInitialization()) {
-                        return
-                    }
-                    if (!pendingRefresh.compareAndSet(true, false)) {
-                        // no pending refresh
-                        return
-                    }
-                    if (database.inTransaction()) {
-                        // current thread is in a transaction. when it ends, it will invoke
-                        // refreshRunnable again. pendingRefresh is left as false on purpose
-                        // so that the last transaction can flip it on again.
-                        return
-                    }
-
-                    // This transaction has to be on the underlying DB rather than the RoomDatabase
-                    // in order to avoid a recursive loop after endTransaction.
-                    val db = database.openHelper.writableDatabase
-                    db.beginTransactionNonExclusive()
-                    val invalidatedTableIds: Set<Int>
-                    try {
-                        invalidatedTableIds = checkUpdatedTable()
-                        db.setTransactionSuccessful()
-                    } finally {
-                        db.endTransaction()
-                    }
-                    invalidatedTableIds
-                } catch (ex: IllegalStateException) {
-                    // may happen if db is closed. just log.
-                    Log.e(
-                        LOG_TAG, "Cannot run invalidation tracker. Is the db closed?",
-                        ex
-                    )
-                    emptySet()
-                } catch (ex: SQLiteException) {
-                    Log.e(
-                        LOG_TAG, "Cannot run invalidation tracker. Is the db closed?",
-                        ex
-                    )
-                    emptySet()
-                } finally {
-                    autoCloser?.decrementCountAndScheduleClose()
-                }
-
-            if (invalidatedTableIds.isNotEmpty()) {
-                synchronized(observerMap) {
-                    observerMap.forEach {
-                        it.value.notifyByTableIds(invalidatedTableIds)
-                    }
-                }
-            }
-        }
-
-        private fun checkUpdatedTable(): Set<Int> {
-            val invalidatedTableIds = buildSet {
-                database.query(SimpleSQLiteQuery(SELECT_UPDATED_TABLES_SQL)).useCursor { cursor ->
-                    while (cursor.moveToNext()) {
-                        add(cursor.getInt(0))
-                    }
-                }
-            }
-            if (invalidatedTableIds.isNotEmpty()) {
-                checkNotNull(cleanupStatement)
-                val statement = cleanupStatement
-                requireNotNull(statement)
-                statement.executeUpdateDelete()
-            }
-            return invalidatedTableIds
-        }
+    open fun removeObserver(observer: Observer): Unit = runBlocking {
+        implementation.removeObserver(observer)
     }
 
     /**
      * Enqueues a task to refresh the list of updated tables.
      *
      * This method is automatically called when [RoomDatabase.endTransaction] is called but
-     * if you have another connection to the database or directly use [ ], you may need to call this
-     * manually.
+     * if you have another connection to the database or directly use
+     * [androidx.sqlite.db.SupportSQLiteDatabase], you may need to call this manually.
      */
     open fun refreshVersionsAsync() {
-        // TODO we should consider doing this sync instead of async.
-        if (pendingRefresh.compareAndSet(false, true)) {
-            // refreshVersionsAsync is called with the ref count incremented from
-            // RoomDatabase, so the db can't be closed here, but we need to be sure that our
-            // db isn't closed until refresh is completed. This increment call must be
-            // matched with a corresponding call in refreshRunnable.
-            autoCloser?.incrementCountAndEnsureDbIsOpen()
-            database.queryExecutor.execute(refreshRunnable)
-        }
+        implementation.refreshInvalidationAsync(onRefreshScheduled, onRefreshCompleted)
     }
 
     /**
      * Check versions for tables, and run observers synchronously if tables have been updated.
-     *
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @WorkerThread
-    open fun refreshVersionsSync() {
-        // This increment call must be matched with a corresponding call in refreshRunnable.
-        autoCloser?.incrementCountAndEnsureDbIsOpen()
-        syncTriggers()
-        refreshRunnable.run()
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    open fun refreshVersionsSync(): Unit = runBlocking {
+        implementation.refreshInvalidation(onRefreshScheduled, onRefreshCompleted)
     }
 
     /**
@@ -481,67 +288,8 @@ actual constructor(
      * @param tables The invalidated tables.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun notifyObserversByTableNames(vararg tables: String) {
-        val tableNames = setOf(*tables)
-        synchronized(observerMap) {
-            observerMap.forEach { (observer, wrapper) ->
-                if (!observer.isRemote) {
-                    wrapper.notifyByTableNames(tableNames)
-                }
-            }
-        }
-    }
-
-    internal fun syncTriggers(database: SupportSQLiteDatabase) {
-        if (database.inTransaction()) {
-            // we won't run this inside another transaction.
-            return
-        }
-        try {
-            this.database.closeBarrier.ifNotClosed {
-                // Serialize adding and removing table trackers, this is specifically important
-                // to avoid missing invalidation before a transaction starts but there are
-                // pending (possibly concurrent) observer changes.
-                synchronized(syncTriggersLock) {
-                    val tablesToSync = observedTableTracker.getTablesToSync() ?: return
-                    beginTransactionInternal(database)
-                    try {
-                        tablesToSync.forEachIndexed { tableId, syncState ->
-                            when (syncState) {
-                                ObservedTableStates.ObserveOp.NO_OP -> {}
-                                ObservedTableStates.ObserveOp.ADD ->
-                                    startTrackingTable(database, tableId)
-                                ObservedTableStates.ObserveOp.REMOVE ->
-                                    stopTrackingTable(database, tableId)
-                            }
-                        }
-                        database.setTransactionSuccessful()
-                    } finally {
-                        database.endTransaction()
-                    }
-                }
-            }
-        } catch (ex: IllegalStateException) {
-            // may happen if db is closed. just log.
-            Log.e(LOG_TAG, "Cannot run invalidation tracker. Is the db closed?", ex)
-        } catch (ex: SQLiteException) {
-            Log.e(LOG_TAG, "Cannot run invalidation tracker. Is the db closed?", ex)
-        }
-    }
-
-    /**
-     * Called by RoomDatabase before each beginTransaction call.
-     *
-     * It is important that pending trigger changes are applied to the database before any query
-     * runs. Otherwise, we may miss some changes.
-     *
-     * This api should eventually be public.
-     */
-    internal fun syncTriggers() {
-        if (!database.isOpenInternal) {
-            return
-        }
-        syncTriggers(database.openHelper.writableDatabase)
+    internal fun notifyObserversByTableNames(vararg tables: String) {
+        implementation.notifyInvalidatedTableNames(setOf(*tables)) { !it.isRemote }
     }
 
     /**
@@ -557,7 +305,10 @@ actual constructor(
      * invalidates.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated("Use [createLiveData(String[], boolean, Callable)]")
+    @Deprecated(
+        message = "Replaced with overload that takes 'inTransaction 'parameter.",
+        replaceWith = ReplaceWith("createLiveData(tableNames, false, computeFunction")
+    )
     open fun <T> createLiveData(
         tableNames: Array<out String>,
         computeFunction: Callable<T?>
@@ -585,9 +336,10 @@ actual constructor(
         inTransaction: Boolean,
         computeFunction: Callable<T?>
     ): LiveData<T> {
-        return invalidationLiveDataContainer.create(
-            validateAndResolveTableNames(tableNames), inTransaction, computeFunction
-        )
+        // Validate names early to fail fast as actual observer subscription is done once LiveData
+        // is observed.
+        implementation.validateTableNames(tableNames)
+        return invalidationLiveDataContainer.create(tableNames, inTransaction, computeFunction)
     }
 
     internal fun initMultiInstanceInvalidation(
@@ -602,7 +354,10 @@ actual constructor(
         )
     }
 
-    internal fun stop() {
+    /**
+     * Stops invalidation tracker operations.
+     */
+    internal actual fun stop() {
         stopMultiInstanceInvalidation()
     }
 
@@ -646,59 +401,31 @@ actual constructor(
      *
      * This class will automatically unsubscribe when the wrapped observer goes out of memory.
      */
-    internal class WeakObserver(
+    private class WeakObserver(
         val tracker: InvalidationTracker,
+        val coroutineScope: CoroutineScope,
         delegate: Observer
     ) : Observer(delegate.tables) {
-        val delegateRef: WeakReference<Observer> = WeakReference(delegate)
+        private val delegateRef: WeakReference<Observer> = WeakReference(delegate)
         override fun onInvalidated(tables: Set<String>) {
             val observer = delegateRef.get()
             if (observer == null) {
-                tracker.removeObserver(this)
+                coroutineScope.launch { tracker.unsubscribe(this@WeakObserver) }
             } else {
                 observer.onInvalidated(tables)
             }
         }
     }
 
-    companion object {
-        private val TRIGGERS = arrayOf("UPDATE", "DELETE", "INSERT")
-        private const val UPDATE_TABLE_NAME = "room_table_modification_log"
-        private const val TABLE_ID_COLUMN_NAME = "table_id"
-        private const val INVALIDATED_COLUMN_NAME = "invalidated"
-        private const val CREATE_TRACKING_TABLE_SQL =
-            "CREATE TEMP TABLE $UPDATE_TABLE_NAME ($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, " +
-                "$INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0)"
+    /**
+     * Stores needed info to restart the invalidation after it was auto-closed.
+     */
+    private data class MultiInstanceClientInitState(
+        val context: Context,
+        val name: String,
+        val serviceIntent: Intent
+    )
 
-        @VisibleForTesting
-        internal const val RESET_UPDATED_TABLES_SQL =
-            "UPDATE $UPDATE_TABLE_NAME SET $INVALIDATED_COLUMN_NAME = 0 " +
-                "WHERE $INVALIDATED_COLUMN_NAME = 1"
-
-        @VisibleForTesting
-        internal const val SELECT_UPDATED_TABLES_SQL =
-            "SELECT * FROM $UPDATE_TABLE_NAME WHERE $INVALIDATED_COLUMN_NAME = 1;"
-
-        internal fun getTriggerName(
-            tableName: String,
-            triggerType: String
-        ) = "`room_table_modification_trigger_${tableName}_$triggerType`"
-
-        internal fun beginTransactionInternal(database: SupportSQLiteDatabase) {
-            if (database.isWriteAheadLoggingEnabled) {
-                database.beginTransactionNonExclusive()
-            } else {
-                database.beginTransaction()
-            }
-        }
-    }
+    // Kept for binary compatibility even if empty. :(
+    companion object
 }
-
-/**
- * Stores needed info to restart the invalidation after it was auto-closed.
- */
-internal data class MultiInstanceClientInitState(
-    val context: Context,
-    val name: String,
-    val serviceIntent: Intent
-)

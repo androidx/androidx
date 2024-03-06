@@ -298,12 +298,12 @@ public class QueryTransactionTest {
     }
 
     private static void incrementTransactionCount() {
-        // When incrementing the transaction count, ignore those coming from the refresh runnable
+        // When incrementing the transaction count, ignore those coming from the refresh
         // in the invalidation tracker.
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
         for (StackTraceElement element : stack) {
             String fileName = element.getFileName();
-            if (fileName != null && fileName.equals("InvalidationTracker.android.kt")) {
+            if (fileName != null && fileName.equals("InvalidationTracker.kt")) {
                 return;
             }
         }
@@ -316,7 +316,7 @@ public class QueryTransactionTest {
 
     private void drain() {
         try {
-            countingTaskExecutorRule.drainTasks(30, TimeUnit.SECONDS);
+            countingTaskExecutorRule.drainTasks(3, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new AssertionError("interrupted", e);
         } catch (TimeoutException e) {
@@ -603,21 +603,21 @@ public class QueryTransactionTest {
         public void beginTransactionWithListener(
                 @NonNull SQLiteTransactionListener transactionListener) {
             mDelegate.beginTransactionWithListener(transactionListener);
-            sStartedTransactionCount.incrementAndGet();
+            incrementTransactionCount();
         }
 
         @Override
         public void beginTransactionWithListenerNonExclusive(
                 @NonNull SQLiteTransactionListener transactionListener) {
             mDelegate.beginTransactionWithListenerNonExclusive(transactionListener);
-            sStartedTransactionCount.incrementAndGet();
+            incrementTransactionCount();
         }
 
         @Override
         public void beginTransactionWithListenerReadOnly(
                 @NonNull SQLiteTransactionListener transactionListener) {
             mDelegate.beginTransactionWithListenerReadOnly(transactionListener);
-            sStartedTransactionCount.incrementAndGet();
+            incrementTransactionCount();
         }
 
         @Override
