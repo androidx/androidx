@@ -21,6 +21,7 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
@@ -28,6 +29,7 @@ import androidx.glance.appwidget.preview.ComposableInvoker.invokeComposable
 import kotlinx.coroutines.runBlocking
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
+private const val ANDROID_NS_URI = "http://schemas.android.com/apk/res/android"
 
 /**
  * View adapter that renders a glance `@Composable`. The `@Composable` is found by reading the
@@ -51,6 +53,7 @@ internal class GlanceAppWidgetViewAdapter : AppWidgetHostView {
     internal fun init(
         className: String,
         methodName: String,
+        size: DpSize,
     ) {
         val content = @Composable {
             val composer = currentComposer
@@ -63,7 +66,7 @@ internal class GlanceAppWidgetViewAdapter : AppWidgetHostView {
         val remoteViews = runBlocking {
             GlanceRemoteViews().compose(
                 context = context,
-                size = DpSize.Unspecified,
+                size = size,
                 content = content).remoteViews
         }
         val view = remoteViews.apply(context, this)
@@ -75,6 +78,13 @@ internal class GlanceAppWidgetViewAdapter : AppWidgetHostView {
         val className = composableName.substringBeforeLast('.')
         val methodName = composableName.substringAfterLast('.')
 
-        init(className, methodName)
+        val width = attrs.getAttributeValue(ANDROID_NS_URI, "layout_width")
+                ?.removeSuffix("dp")?.toFloatOrNull()
+        val height = attrs.getAttributeValue(ANDROID_NS_URI, "layout_height")
+                ?.removeSuffix("dp")?.toFloatOrNull()
+        var size = DpSize.Unspecified
+        if (width != null && height != null) size = DpSize(Dp(width), Dp(height))
+
+        init(className, methodName, size)
     }
 }

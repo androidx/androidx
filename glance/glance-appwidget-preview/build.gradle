@@ -43,8 +43,10 @@ dependencies {
     api(project(":glance:glance-appwidget"))
 
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
 }
 
 android {
