@@ -423,15 +423,15 @@ public fun NavHost(
         }
 
         val transition = if (inPredictiveBack) {
-            val transitionState by remember(backStackEntry) {
+            val transitionState = remember(backStackEntry) {
                 // The state returned here cannot be nullable cause it produces the input of the
                 // transitionSpec passed into the AnimatedContent and that must match the non-nullable
                 // scope exposed by the transitions on the NavHost and composable APIs.
-                mutableStateOf(SeekableTransitionState(backStackEntry))
+                SeekableTransitionState(backStackEntry)
             }
             LaunchedEffect(progress) {
                 val previousEntry = currentBackStack[currentBackStack.size - 2]
-                transitionState.snapTo(previousEntry, progress)
+                transitionState.seekTo(progress, previousEntry)
             }
             rememberTransition(transitionState, label = "entry")
         } else {
