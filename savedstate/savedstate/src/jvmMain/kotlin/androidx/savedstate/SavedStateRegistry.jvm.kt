@@ -17,6 +17,7 @@ package androidx.savedstate
 
 import androidx.annotation.MainThread
 import androidx.arch.core.internal.SafeIterableMap
+import androidx.core.bundle.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 

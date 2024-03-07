@@ -15,6 +15,7 @@
  */
 package androidx.savedstate
 
+import androidx.core.bundle.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner

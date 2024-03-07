@@ -6,7 +6,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -15,11 +14,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
-
-def macEnabled = KmpPlatformsKt.enableMac(project)
-def linuxEnabled = KmpPlatformsKt.enableLinux(project)
-def jsEnabled = KmpPlatformsKt.enableJs(project)
-def wasmEnabled = KmpPlatformsKt.enableWasm(project)
 
 androidXMultiplatform {
     android()
@@ -41,8 +35,9 @@ kotlin {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                api(project(":lifecycle:lifecycle-common"))
                 api(project(":annotation:annotation"))
+                api(project(":core:core-bundle"))
+                api(project(":lifecycle:lifecycle-common"))
             }
         }
         jvmMain {
@@ -67,30 +62,16 @@ kotlin {
             }
         }
 
-        jbMain.dependsOn(commonMain)
-        desktopMain.dependsOn(jbMain)
-
-        if (macEnabled || linuxEnabled || jsEnabled || wasmEnabled) {
-            nonJvmMain.dependsOn(jbMain)
-        }
-        if (macEnabled || linuxEnabled) {
-            nativeMain.dependsOn(nonJvmMain)
-        }
-        if (jsEnabled || wasmEnabled) {
-            webMain.dependsOn(nonJvmMain)
-        }
+        nonJvmMain.dependsOn(commonMain)
 
         targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            } else if (target.platformType in [
-                    KotlinPlatformType.js,
-                    KotlinPlatformType.wasm
+            if (target.platformType !in [
+                    KotlinPlatformType.androidJvm,
+                    KotlinPlatformType.jvm,
+                    KotlinPlatformType.common
             ]) {
                 target.compilations["main"].defaultSourceSet {
-                    dependsOn(webMain)
+                    dependsOn(nonJvmMain)
                 }
             }
         }

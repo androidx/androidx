@@ -16,6 +16,7 @@
 package androidx.savedstate
 
 import androidx.annotation.MainThread
+import androidx.core.bundle.Bundle
 import androidx.lifecycle.Lifecycle
 import kotlin.jvm.JvmStatic
 
