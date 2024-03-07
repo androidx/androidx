@@ -111,11 +111,9 @@ abstract class MetalavaWorkAction @Inject constructor(private val execOperations
 
 fun Project.getMetalavaClasspath(): FileCollection {
     val configuration =
-        configurations.findByName("metalava")
-            ?: configurations.create("metalava") {
-                it.dependencies.add(dependencies.create(getLibraryByName("metalava")))
-                it.isCanBeConsumed = false
-            }
+        configurations.detachedConfiguration(
+                dependencies.create(getLibraryByName("metalava"))
+        )
     return project.files(configuration)
 }
 
