@@ -650,6 +650,11 @@ private fun MeasureScope.placeLabelAndStartIcon(
     }
 }
 
+/*@VisibleForTesting*/
+internal val NavigationItemMinWidth = NavigationRailItemWidth
+/*@VisibleForTesting*/
+internal val NavigationItemMinHeight = NavigationRailItemHeight
+
 private const val IndicatorRippleLayoutIdTag: String = "indicatorRipple"
 private const val IndicatorLayoutIdTag: String = "indicator"
 private const val IconLayoutIdTag: String = "icon"
@@ -657,5 +662,3 @@ private const val LabelLayoutIdTag: String = "label"
 private const val ItemAnimationDurationMillis: Int = 100
 
 private val IndicatorVerticalOffset: Dp = 12.dp
-private val NavigationItemMinWidth = NavigationRailItemWidth
-private val NavigationItemMinHeight = NavigationRailItemHeight
