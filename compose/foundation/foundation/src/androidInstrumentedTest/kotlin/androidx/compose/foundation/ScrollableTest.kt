@@ -2990,6 +2990,80 @@ class ScrollableTest {
         }
     }
 
+    @Test
+    fun scrollableState_checkLastScrollDirection() {
+        val controller = ScrollableState {
+            it
+        }
+
+        setScrollableContent {
+            Modifier.scrollable(
+                orientation = Orientation.Horizontal,
+                state = controller
+            )
+        }
+
+        // Assert both isLastScrollForward and isLastScrollBackward are false before any scroll
+        rule.runOnIdle {
+            assertThat(controller.isLastScrollForward).isFalse()
+            assertThat(controller.isLastScrollBackward).isFalse()
+        }
+
+        lateinit var animateJob: Job
+
+        rule.runOnIdle {
+            animateJob = scope.launch {
+                controller.animateScrollBy(
+                    100f,
+                    tween(1000)
+                )
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(500)
+
+        // Assert isLastScrollForward is true during forward-scroll and isLastScrollBackward is false
+        rule.runOnIdle {
+            assertThat(controller.isLastScrollForward).isTrue()
+            assertThat(controller.isLastScrollBackward).isFalse()
+        }
+
+        // Stop halfway through the animation
+        animateJob.cancel()
+
+        // Assert isLastScrollForward is true after forward-scroll and isLastScrollBackward is false
+        rule.runOnIdle {
+            assertThat(controller.isLastScrollForward).isTrue()
+            assertThat(controller.isLastScrollBackward).isFalse()
+        }
+
+        rule.runOnIdle {
+            animateJob = scope.launch {
+                controller.animateScrollBy(
+                    -100f,
+                    tween(1000)
+                )
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(500)
+
+        // Assert isLastScrollForward is false during backward-scroll and isLastScrollBackward is true
+        rule.runOnIdle {
+            assertThat(controller.isLastScrollForward).isFalse()
+            assertThat(controller.isLastScrollBackward).isTrue()
+        }
+
+        // Stop halfway through the animation
+        animateJob.cancel()
+
+        // Assert isLastScrollForward is false after backward-scroll and isLastScrollBackward is true
+        rule.runOnIdle {
+            assertThat(controller.isLastScrollForward).isFalse()
+            assertThat(controller.isLastScrollBackward).isTrue()
+        }
+    }
+
     private fun setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {
         rule.setContentAndGetScope {
             Box {

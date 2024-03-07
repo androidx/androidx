@@ -263,6 +263,8 @@ package androidx.compose.foundation {
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public final androidx.compose.foundation.interaction.InteractionSource interactionSource;
+    property public boolean isLastScrollBackward;
+    property public boolean isLastScrollForward;
     property public boolean isScrollInProgress;
     property public final int maxValue;
     property public final int value;
@@ -561,10 +563,14 @@ package androidx.compose.foundation.gestures {
     method public float dispatchRawDelta(float delta);
     method public default boolean getCanScrollBackward();
     method public default boolean getCanScrollForward();
+    method public default boolean isLastScrollBackward();
+    method public default boolean isLastScrollForward();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public default boolean canScrollBackward;
     property public default boolean canScrollForward;
+    property public default boolean isLastScrollBackward;
+    property public default boolean isLastScrollForward;
     property public abstract boolean isScrollInProgress;
   }
 
@@ -870,6 +876,8 @@ package androidx.compose.foundation.lazy {
     property public final int firstVisibleItemIndex;
     property public final int firstVisibleItemScrollOffset;
     property public final androidx.compose.foundation.interaction.InteractionSource interactionSource;
+    property public boolean isLastScrollBackward;
+    property public boolean isLastScrollForward;
     property public boolean isScrollInProgress;
     property public final androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo;
     field public static final androidx.compose.foundation.lazy.LazyListState.Companion Companion;
@@ -1012,6 +1020,8 @@ package androidx.compose.foundation.lazy.grid {
     property public final int firstVisibleItemIndex;
     property public final int firstVisibleItemScrollOffset;
     property public final androidx.compose.foundation.interaction.InteractionSource interactionSource;
+    property public boolean isLastScrollBackward;
+    property public boolean isLastScrollForward;
     property public boolean isScrollInProgress;
     property public final androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo layoutInfo;
     field public static final androidx.compose.foundation.lazy.grid.LazyGridState.Companion Companion;
@@ -1214,6 +1224,8 @@ package androidx.compose.foundation.lazy.staggeredgrid {
     property public final int firstVisibleItemIndex;
     property public final int firstVisibleItemScrollOffset;
     property public final androidx.compose.foundation.interaction.InteractionSource interactionSource;
+    property public boolean isLastScrollBackward;
+    property public boolean isLastScrollForward;
     property public boolean isScrollInProgress;
     property public final androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLayoutInfo layoutInfo;
     field public static final androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState.Companion Companion;
@@ -1362,6 +1374,8 @@ package androidx.compose.foundation.pager {
     property public final int currentPage;
     property public final float currentPageOffsetFraction;
     property public final androidx.compose.foundation.interaction.InteractionSource interactionSource;
+    property public boolean isLastScrollBackward;
+    property public boolean isLastScrollForward;
     property public boolean isScrollInProgress;
     property public final androidx.compose.foundation.pager.PagerLayoutInfo layoutInfo;
     property public abstract int pageCount;

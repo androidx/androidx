@@ -171,8 +171,6 @@ abstract class PagerState(
     internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
     private val animatedScrollScope = PagerLazyAnimateScrollScope(this)
 
-    internal var isScrollingForward: Boolean by mutableStateOf(false)
-
     internal val scrollPosition = PagerScrollPosition(currentPage, currentPageOffsetFraction, this)
 
     internal var firstVisiblePage = currentPage
@@ -242,7 +240,8 @@ abstract class PagerState(
         previousPassDelta = scrollDelta.toFloat()
 
         if (scrollDelta.absoluteValue != 0L) {
-            isScrollingForward = scrollDelta > 0.0f
+            isLastScrollForwardState.value = scrollDelta > 0.0f
+            isLastScrollBackwardState.value = scrollDelta < 0.0f
         }
 
         /**
@@ -398,7 +397,7 @@ abstract class PagerState(
         } else {
             // act on scroll only
             if (abs(this.currentPageOffsetFraction) >= abs(positionThresholdFraction)) {
-                if (isScrollingForward) {
+                if (isLastScrollForward) {
                     firstVisiblePage + 1
                 } else {
                     firstVisiblePage
@@ -637,6 +636,15 @@ abstract class PagerState(
         private set
     final override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
+
+    private val isLastScrollForwardState = mutableStateOf(false)
+    private val isLastScrollBackwardState = mutableStateOf(false)
+
+    override val isLastScrollForward: Boolean
+        get() = isLastScrollForwardState.value
+
+    override val isLastScrollBackward: Boolean
+        get() = isLastScrollBackwardState.value
 
     /**
      *  Updates the state with the new calculated scroll position and consumed scroll.
