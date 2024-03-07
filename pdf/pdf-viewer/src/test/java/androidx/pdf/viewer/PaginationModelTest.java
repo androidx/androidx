@@ -113,8 +113,8 @@ public class PaginationModelTest {
 
         // First page not covered by window.
         Range range = mPaginationModel.getPagesInWindow(new Range(205, 500), true);
-        assertThat(range.mFirst).isEqualTo(1);
-        assertThat(range.mLast).isEqualTo(2);
+        assertThat(range.getFirst()).isEqualTo(1);
+        assertThat(range.getLast()).isEqualTo(2);
     }
 
     @Test
@@ -137,8 +137,8 @@ public class PaginationModelTest {
         // Only page is partially in view port - return partial page, even if includePartial =
         // false.
         Range range = mPaginationModel.getPagesInWindow(new Range(204, 500), false);
-        assertThat(range.mFirst).isEqualTo(0);
-        assertThat(range.mLast).isEqualTo(0);
+        assertThat(range.getFirst()).isEqualTo(0);
+        assertThat(range.getLast()).isEqualTo(0);
     }
 
     @Test
@@ -150,13 +150,13 @@ public class PaginationModelTest {
 
         // Include partial = false, don't include partial second page.
         Range range = mPaginationModel.getPagesInWindow(new Range(0, 212), false);
-        assertThat(range.mFirst).isEqualTo(0);
-        assertThat(range.mLast).isEqualTo(0);
+        assertThat(range.getFirst()).isEqualTo(0);
+        assertThat(range.getLast()).isEqualTo(0);
 
         // Include partial = true, include partial second page.
         range = mPaginationModel.getPagesInWindow(new Range(0, 212), true);
-        assertThat(range.mFirst).isEqualTo(0);
-        assertThat(range.mLast).isEqualTo(1);
+        assertThat(range.getFirst()).isEqualTo(0);
+        assertThat(range.getLast()).isEqualTo(1);
     }
 
     /**

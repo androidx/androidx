@@ -39,6 +39,7 @@ import java.util.List;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+@SuppressWarnings("deprecation")
 public class SearchModelTest {
 
     @Mock

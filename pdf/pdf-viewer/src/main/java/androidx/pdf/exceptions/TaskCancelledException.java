@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.fetcher;
+package androidx.pdf.exceptions;
 
 import androidx.annotation.RestrictTo;
 

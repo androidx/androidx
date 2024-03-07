@@ -175,8 +175,8 @@ public class RangeTest {
         Range range = new Range(5, 8);
         Range bounds = new Range(0, 300);
         Range exp = range.expand(1, bounds);
-        assertThat(exp.mFirst).isEqualTo(4);
-        assertThat(exp.mLast).isEqualTo(9);
+        assertThat(exp.getFirst()).isEqualTo(4);
+        assertThat(exp.getLast()).isEqualTo(9);
     }
 
     @Test
@@ -184,8 +184,8 @@ public class RangeTest {
         Range range = new Range(2, 8);
         Range bounds = new Range(0, 300);
         Range exp = range.expand(4, bounds);
-        assertThat(exp.mFirst).isEqualTo(0);
-        assertThat(exp.mLast).isEqualTo(12);
+        assertThat(exp.getFirst()).isEqualTo(0);
+        assertThat(exp.getLast()).isEqualTo(12);
     }
 
     @Test

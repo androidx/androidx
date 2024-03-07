@@ -15,11 +15,21 @@
   -->
 
 <resources>
+    <declare-styleable name="FastScrollView">
+        <attr name="scrollbarMarginTop" format="dimension" />
+        <attr name="scrollbarMarginBottom" format="dimension" />
+    </declare-styleable>
+
     <declare-styleable name="ZoomView">
         <attr name="minZoom" format="float" />
         <attr name="maxZoom" format="float" />
         <attr name="saveState" format="boolean" />
     </declare-styleable>
 
-    <attr name="actionModeSelectAllDrawable" format="reference" />
+    <declare-styleable name="SelectionModeDrawables">
+        <attr name="actionModeSelectAllDrawable" />
+        <attr name="actionModeCutDrawable" />
+        <attr name="actionModeCopyDrawable" />
+        <attr name="actionModePasteDrawable" />
+    </declare-styleable>
 </resources>

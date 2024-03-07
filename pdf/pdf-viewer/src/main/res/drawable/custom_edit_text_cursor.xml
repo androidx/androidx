@@ -14,9 +14,7 @@
   limitations under the License.
   -->
 
-<resources>
-    <color name="google_blue">#ff1a73e8</color>
-    <color name="google_white">#ffffffff</color>
-    <color name="google_grey">#ff3c4043</color>
-    <color name="selection_handles">#00aadd</color>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <size android:width="2dp" />
+    <solid android:color="@color/google_blue" />
+</shape>

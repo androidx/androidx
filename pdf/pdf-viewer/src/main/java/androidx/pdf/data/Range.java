@@ -26,8 +26,8 @@ import java.util.Iterator;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class Range implements Iterable<Integer> {
-    public final int mFirst;
-    public final int mLast;
+    private final int mFirst;
+    private final int mLast;
 
     public Range(int first, int last) {
         this.mFirst = first;
@@ -36,6 +36,14 @@ public final class Range implements Iterable<Integer> {
 
     public Range() {
         this(0, -1);
+    }
+
+    public int getFirst() {
+        return mFirst;
+    }
+
+    public int getLast() {
+        return mLast;
     }
 
     @Override
