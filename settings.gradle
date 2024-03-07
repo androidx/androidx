@@ -909,7 +909,7 @@ includeProject(":room:room-runtime", [BuildType.MAIN, BuildType.COMPOSE, BuildTy
 includeProject(":room:room-runtime-lint", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-rxjava2", [BuildType.MAIN])
 includeProject(":room:room-rxjava3", [BuildType.MAIN])
-includeProject(":room:room-testing", [BuildType.MAIN])
+includeProject(":room:room-testing", [BuildType.MAIN, BuildType.KMP, BuildType.INFRAROGUE])
 includeProject(":safeparcel:safeparcel", [BuildType.MAIN])
 includeProject(":safeparcel:safeparcel-processor", [BuildType.MAIN])
 includeProject(":savedstate:savedstate", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
