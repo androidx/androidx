@@ -55,7 +55,6 @@ import androidx.compose.ui.graphics.Color
  * [Interaction]s for this CardLayout.
  * This interaction source param would also be forwarded to be used with the `imageCard` composable.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun StandardCardLayout(
     imageCard: @Composable (interactionSource: MutableInteractionSource) -> Unit,
@@ -117,7 +116,6 @@ fun StandardCardLayout(
  * [Interaction]s for this CardLayout.
  * This interaction source param would also be forwarded to be used with the `imageCard` composable.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun WideCardLayout(
     imageCard: @Composable (interactionSource: MutableInteractionSource) -> Unit,
@@ -165,7 +163,6 @@ internal fun CardLayoutContent(
     }
 }
 
-@ExperimentalTvMaterial3Api
 object CardLayoutDefaults {
     /**
      * Creates [CardLayoutColors] that represents the default content colors used in a
@@ -243,7 +240,6 @@ object CardLayoutDefaults {
 /**
  * Represents the [Color] of content in a CardLayout for different interaction states.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class CardLayoutColors internal constructor(
     internal val contentColor: Color,
