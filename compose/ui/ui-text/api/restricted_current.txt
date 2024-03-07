@@ -170,6 +170,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect?> getPlaceholderRects();
+    method public androidx.compose.ui.text.TextRange? getRangeForRect(androidx.compose.ui.geometry.Rect rect, int granularity, androidx.compose.ui.text.TextInclusionStrategy inclusionStrategy);
     method public float getWidth();
     method public long getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
@@ -231,6 +232,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect?> getPlaceholderRects();
+    method public androidx.compose.ui.text.TextRange? getRangeForRect(androidx.compose.ui.geometry.Rect rect, int granularity, androidx.compose.ui.text.TextInclusionStrategy inclusionStrategy);
     method public float getWidth();
     method public long getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
@@ -447,6 +449,31 @@ package androidx.compose.ui.text {
     method public static String toLowerCase(String, androidx.compose.ui.text.intl.LocaleList localeList);
     method public static String toUpperCase(String, androidx.compose.ui.text.intl.Locale locale);
     method public static String toUpperCase(String, androidx.compose.ui.text.intl.LocaleList localeList);
+  }
+
+  @kotlin.jvm.JvmInline public final value class TextGranularity {
+    field public static final androidx.compose.ui.text.TextGranularity.Companion Companion;
+  }
+
+  public static final class TextGranularity.Companion {
+    method public int getCharacter();
+    method public int getWord();
+    property public final int Character;
+    property public final int Word;
+  }
+
+  public fun interface TextInclusionStrategy {
+    method public boolean isInside(androidx.compose.ui.geometry.Rect textBounds, androidx.compose.ui.geometry.Rect rect);
+    field public static final androidx.compose.ui.text.TextInclusionStrategy.Companion Companion;
+  }
+
+  public static final class TextInclusionStrategy.Companion {
+    method public androidx.compose.ui.text.TextInclusionStrategy getAnyOverlap();
+    method public androidx.compose.ui.text.TextInclusionStrategy getContainsAll();
+    method public androidx.compose.ui.text.TextInclusionStrategy getContainsCenter();
+    property public final androidx.compose.ui.text.TextInclusionStrategy AnyOverlap;
+    property public final androidx.compose.ui.text.TextInclusionStrategy ContainsAll;
+    property public final androidx.compose.ui.text.TextInclusionStrategy ContainsCenter;
   }
 
   public final class TextLayoutInput {
