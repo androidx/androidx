@@ -20,10 +20,10 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.scrollBy
 import androidx.compose.runtime.Stable
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -32,9 +32,6 @@ import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeWithVelocity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -70,22 +67,6 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
             this.size(crossAxis, mainAxis)
         } else {
             this.size(mainAxis, crossAxis)
-        }
-
-    fun SemanticsNodeInteraction.scrollBy(x: Dp = 0.dp, y: Dp = 0.dp, density: Density) =
-        performTouchInput {
-            with(density) {
-                val touchSlop = TestTouchSlop.toInt()
-                val xPx = x.roundToPx()
-                val yPx = y.roundToPx()
-                val offsetX = if (xPx > 0) xPx + touchSlop else if (xPx < 0) xPx - touchSlop else 0
-                val offsetY = if (yPx > 0) yPx + touchSlop else if (yPx < 0) yPx - touchSlop else 0
-                swipeWithVelocity(
-                    start = center,
-                    end = Offset(center.x - offsetX, center.y - offsetY),
-                    endVelocity = 0f
-                )
-            }
         }
 
     fun SemanticsNodeInteraction.scrollMainAxisBy(distance: Dp) {
