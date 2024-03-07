@@ -55,3 +55,14 @@ internal fun Rect.toDpRect(density: Density): DpRect = with(density) {
         size = size.toDpSize()
     )
 }
+
+/**
+ * Convert a [DpRect] to a [Rect].
+ */
+@Stable
+internal fun DpRect.toRect(density: Density): Rect = with(density) {
+    Rect(
+        offset = DpOffset(left, top).toOffset(density),
+        size = size.toSize()
+    )
+}

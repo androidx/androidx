@@ -17,12 +17,17 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.uikit.systemDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.asCGPoint
+import androidx.compose.ui.unit.asCGRect
 import androidx.compose.ui.unit.asDpOffset
+import androidx.compose.ui.unit.asDpRect
 import androidx.compose.ui.unit.toDpOffset
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toRect
 import kotlinx.cinterop.useContents
 import platform.UIKit.UIView
 
@@ -33,6 +38,9 @@ internal class PlatformWindowContext {
     private val _windowInfo = WindowInfoImpl()
     val windowInfo: WindowInfo get() = _windowInfo
 
+    /**
+     * A container used for additional layers and as reference for window coordinate space.
+     */
     private var _windowContainer: UIView? = null
 
     fun setWindowFocused(focused: Boolean) {
@@ -63,6 +71,33 @@ internal class PlatformWindowContext {
             fromView = windowContainer,
             toView = container
         )
+    }
+
+    /**
+     * Converts the given [boundsInWindow] from the coordinate space of the container window to [toView] space.
+     */
+    fun convertWindowRect(boundsInWindow: Rect, toView: UIView): Rect {
+        val windowContainer = _windowContainer ?: return boundsInWindow
+        return convertRect(
+            rect = boundsInWindow,
+            fromView = windowContainer,
+            toView = toView
+        )
+    }
+
+    private fun convertRect(rect: Rect, fromView: UIView, toView: UIView): Rect {
+        return if (fromView != toView) {
+            val density = fromView.systemDensity
+
+            fromView.convertRect(
+                rect = rect.toDpRect(density).asCGRect(),
+                toView = toView,
+            ).useContents {
+                asDpRect().toRect(density)
+            }
+        } else {
+            rect
+        }
     }
 
     private fun convertPoint(point: Offset, fromView: UIView, toView: UIView): Offset {

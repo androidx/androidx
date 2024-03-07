@@ -29,6 +29,7 @@ internal val UITraitEnvironmentProtocol.systemDensity: Density
         val contentSizeCategory =
             traitCollection.preferredContentSizeCategory ?: UIContentSizeCategoryUnspecified
         return Density(
+            // TODO: refactor to avoid mainScreen scale, window can be attached to different screens
             density = UIScreen.mainScreen.scale.toFloat(),
             fontScale = uiContentSizeCategoryToFontScaleMap[contentSizeCategory] ?: 1.0f
         )
