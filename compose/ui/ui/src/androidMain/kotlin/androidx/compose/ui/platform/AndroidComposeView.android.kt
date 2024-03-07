@@ -108,6 +108,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.setFrom
@@ -415,6 +416,13 @@ internal class AndroidComposeView(
      * Provide accessibility manager to the user. Use the Android version of accessibility manager.
      */
     override val accessibilityManager = AndroidAccessibilityManager(context)
+
+    /**
+     * Provide access to a GraphicsContext instance used to create GraphicsLayers for providing
+     * isolation boundaries for rendering portions of a Composition hierarchy as well as for
+     * achieving certain visual effects like masks and blurs
+     */
+    override val graphicsContext = GraphicsContext(this)
 
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.

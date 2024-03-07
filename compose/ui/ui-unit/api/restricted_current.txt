@@ -322,8 +322,10 @@ package androidx.compose.ui.unit {
   public final class IntSizeKt {
     method @androidx.compose.runtime.Stable public static long IntSize(int width, int height);
     method public static long getCenter(long);
+    method @androidx.compose.runtime.Stable public static long roundToIntSize(long);
     method @androidx.compose.runtime.Stable public static operator long times(int, long size);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect toIntRect(long);
+    method @androidx.compose.runtime.Stable public static long toIntSize(long);
     method @androidx.compose.runtime.Stable public static long toSize(long);
   }
 

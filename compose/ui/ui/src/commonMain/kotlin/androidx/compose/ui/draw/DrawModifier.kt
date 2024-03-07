@@ -16,12 +16,19 @@
 
 package androidx.compose.ui.draw
 
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.draw
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -31,10 +38,13 @@ import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toSize
 
 /**
@@ -170,12 +180,55 @@ sealed interface CacheDrawModifierNode : DrawModifierNode {
     fun invalidateDrawCache()
 }
 
+/**
+ * Wrapper [GraphicsContext] implementation that maintains a list of the [GraphicsLayer]
+ * instances that were created through this instance so it can release only those [GraphicsLayer]s
+ * when it is disposed of within the corresponding Modifier is disposed
+ */
+private class ScopedGraphicsContext : GraphicsContext {
+
+    private var allocatedGraphicsLayers: MutableObjectList<GraphicsLayer>? = null
+
+    var graphicsContext: GraphicsContext? = null
+        set(value) {
+            releaseGraphicsLayers()
+            field = value
+        }
+
+    override fun createGraphicsLayer(): GraphicsLayer {
+        val gContext = graphicsContext
+        checkPrecondition(gContext != null) { "GraphicsContext not provided" }
+        val layer = gContext.createGraphicsLayer()
+        val layers = allocatedGraphicsLayers
+        if (layers == null) {
+            mutableObjectListOf(layer).also { allocatedGraphicsLayers = it }
+        } else {
+            layers.add(layer)
+        }
+
+        return layer
+    }
+
+    override fun releaseGraphicsLayer(layer: GraphicsLayer) {
+        graphicsContext?.releaseGraphicsLayer(layer)
+    }
+
+    fun releaseGraphicsLayers() {
+        allocatedGraphicsLayers?.let { layers ->
+            layers.forEach { layer -> releaseGraphicsLayer(layer) }
+            layers.clear()
+        }
+    }
+}
+
 private class CacheDrawModifierNodeImpl(
     private val cacheDrawScope: CacheDrawScope,
     block: CacheDrawScope.() -> DrawResult
 ) : Modifier.Node(), CacheDrawModifierNode, ObserverModifierNode, BuildDrawCacheParams {
 
     private var isCacheValid = false
+    private var cachedGraphicsContext: ScopedGraphicsContext? = null
+
     var block: CacheDrawScope.() -> DrawResult = block
         set(value) {
             field = value
@@ -184,11 +237,31 @@ private class CacheDrawModifierNodeImpl(
 
     init {
         cacheDrawScope.cacheParams = this
+        cacheDrawScope.graphicsContextProvider = { graphicsContext }
     }
 
     override val density: Density get() = requireDensity()
     override val layoutDirection: LayoutDirection get() = requireLayoutDirection()
     override val size: Size get() = requireCoordinator(Nodes.LayoutAware).size.toSize()
+
+    val graphicsContext: GraphicsContext
+        get() {
+            var localGraphicsContext = cachedGraphicsContext
+            if (localGraphicsContext == null) {
+                localGraphicsContext = ScopedGraphicsContext().also {
+                    cachedGraphicsContext = it
+                }
+            }
+            if (localGraphicsContext.graphicsContext == null) {
+                localGraphicsContext.graphicsContext = requireGraphicsContext()
+            }
+            return localGraphicsContext
+        }
+
+    override fun onDetach() {
+        super.onDetach()
+        cachedGraphicsContext?.releaseGraphicsLayers()
+    }
 
     override fun onMeasureResultChanged() {
         invalidateDrawCache()
@@ -199,15 +272,20 @@ private class CacheDrawModifierNodeImpl(
     }
 
     override fun invalidateDrawCache() {
+        // Release all previously allocated graphics layers to the recycling pool
+        // if a layer is needed in a subsequent draw, it will be obtained from the pool again and
+        // reused
+        cachedGraphicsContext?.releaseGraphicsLayers()
         isCacheValid = false
         cacheDrawScope.drawResult = null
         invalidateDraw()
     }
 
-    private fun getOrBuildCachedDrawBlock(): DrawResult {
+    private fun getOrBuildCachedDrawBlock(contentDrawScope: ContentDrawScope): DrawResult {
         if (!isCacheValid) {
             cacheDrawScope.apply {
                 drawResult = null
+                this.contentDrawScope = contentDrawScope
                 observeReads { block() }
                 checkPreconditionNotNull(drawResult) {
                     "DrawResult not defined, did you forget to call onDraw?"
@@ -219,7 +297,7 @@ private class CacheDrawModifierNodeImpl(
     }
 
     override fun ContentDrawScope.draw() {
-        getOrBuildCachedDrawBlock().block(this)
+        getOrBuildCachedDrawBlock(this).block(this)
     }
 }
 
@@ -234,6 +312,8 @@ private class CacheDrawModifierNodeImpl(
 class CacheDrawScope internal constructor() : Density {
     internal var cacheParams: BuildDrawCacheParams = EmptyBuildDrawCacheParams
     internal var drawResult: DrawResult? = null
+    internal var contentDrawScope: ContentDrawScope? = null
+    internal var graphicsContextProvider: (() -> GraphicsContext)? = null
 
     /**
      * Provides the dimensions of the current drawing environment
@@ -244,6 +324,38 @@ class CacheDrawScope internal constructor() : Density {
      * Provides the [LayoutDirection].
      */
     val layoutDirection: LayoutDirection get() = cacheParams.layoutDirection
+
+    /**
+     * Returns a managed [GraphicsLayer] instance. This [GraphicsLayer] maybe newly created
+     * or return a previously allocated instance. Consumers are not expected to release this
+     * instance as it is automatically recycled upon invalidation of the CacheDrawScope and released
+     * when the [DrawCacheModifier] is detached.
+     */
+    fun obtainGraphicsLayer(): GraphicsLayer =
+        graphicsContextProvider!!.invoke().createGraphicsLayer()
+
+    /**
+     * Create a [GraphicsLayer] with the [Density], [LayoutDirection] and [Size] are given from the
+     * provided [CacheDrawScope]
+     */
+    fun GraphicsLayer.buildLayer(
+        density: Density = this@CacheDrawScope,
+        layoutDirection: LayoutDirection = this@CacheDrawScope.layoutDirection,
+        size: IntSize = this@CacheDrawScope.size.toIntSize(),
+        block: ContentDrawScope.() -> Unit
+    ): GraphicsLayer = buildLayer(density, layoutDirection, size) {
+        val contentDrawScope = this@CacheDrawScope.contentDrawScope!!
+        drawIntoCanvas { canvas ->
+            contentDrawScope.draw(
+                density,
+                layoutDirection,
+                canvas,
+                Size(size.width.toFloat(), size.height.toFloat())
+            ) {
+                block(contentDrawScope)
+            }
+        }
+    }
 
     /**
      * Issue drawing commands to be executed before the layout content is drawn

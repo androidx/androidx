@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -93,6 +94,13 @@ internal interface Owner : PositionCalculator {
      * Provide accessibility manager to the user. Use the Android version of accessibility manager.
      */
     val accessibilityManager: AccessibilityManager
+
+    /**
+     * Provide access to a GraphicsContext instance used to create GraphicsLayers for providing
+     * isolation boundaries for rendering portions of a Composition hierarchy as well as for
+     * achieving certain visual effects like masks and blurs
+     */
+    val graphicsContext: GraphicsContext
 
     /**
      * Provide toolbar for text-related actions, such as copy, paste, cut etc.
