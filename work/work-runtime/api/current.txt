@@ -155,14 +155,14 @@ package androidx.work {
     method public float[]? getFloatArray(String key);
     method public int getInt(String key, int defaultValue);
     method public int[]? getIntArray(String key);
-    method public java.util.Map<java.lang.String,java.lang.Object> getKeyValueMap();
+    method public java.util.Map<java.lang.String,java.lang.Object?> getKeyValueMap();
     method public long getLong(String key, long defaultValue);
     method public long[]? getLongArray(String key);
     method public String? getString(String key);
     method public String[]? getStringArray(String key);
     method public <T> boolean hasKeyWithValueOfType(String key, Class<T> klass);
     method public byte[] toByteArray();
-    property public final java.util.Map<java.lang.String,java.lang.Object> keyValueMap;
+    property public final java.util.Map<java.lang.String,java.lang.Object?> keyValueMap;
     field public static final androidx.work.Data.Companion Companion;
     field public static final androidx.work.Data EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
