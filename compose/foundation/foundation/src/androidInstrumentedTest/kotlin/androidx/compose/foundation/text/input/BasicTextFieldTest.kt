@@ -1134,7 +1134,7 @@ internal class BasicTextFieldTest {
         rule.waitForIdle()
 
         assertThat(tfs.text.toString()).isEqualTo(longText)
-        assertThat(tfs.text.selection).isEqualTo(TextRange(longText.length))
+        assertThat(tfs.selection).isEqualTo(TextRange(longText.length))
     }
 
     @Test
@@ -1155,7 +1155,7 @@ internal class BasicTextFieldTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(imm.expectCall("updateSelection(0, 5, -1, -1)"))
         }
     }
@@ -1230,7 +1230,7 @@ internal class BasicTextFieldTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Worldo")
-            assertThat(state.text.selection).isEqualTo(TextRange(5))
+            assertThat(state.selection).isEqualTo(TextRange(5))
         }
     }
 

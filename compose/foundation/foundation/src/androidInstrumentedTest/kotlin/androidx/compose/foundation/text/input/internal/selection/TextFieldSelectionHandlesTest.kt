@@ -335,13 +335,13 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { swipeLeft() }
         assertHandlesNotExist()
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(1, 2))
+            assertThat(state.selection).isEqualTo(TextRange(1, 2))
         }
 
         rule.onNodeWithTag(TAG).performTouchInput { swipeRight() }
         assertHandlesDisplayed()
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(1, 2))
+            assertThat(state.selection).isEqualTo(TextRange(1, 2))
         }
     }
 
@@ -368,7 +368,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         }
         assertHandlesNotExist()
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(1, 2))
+            assertThat(state.selection).isEqualTo(TextRange(1, 2))
         }
 
         rule.onNodeWithTag(TAG).performTouchInput {
@@ -376,7 +376,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         }
         assertHandlesDisplayed()
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(1, 2))
+            assertThat(state.selection).isEqualTo(TextRange(1, 2))
         }
     }
 
@@ -412,7 +412,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         }
         assertHandlesNotExist()
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(1, 2))
+            assertThat(state.selection).isEqualTo(TextRange(1, 2))
         }
 
         rule.onNodeWithTag(containerTag).performTouchInput {
@@ -420,7 +420,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         }
         assertHandlesDisplayed()
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(1, 2))
+            assertThat(state.selection).isEqualTo(TextRange(1, 2))
         }
     }
 
@@ -456,7 +456,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         }
         assertHandlesNotExist()
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(1, 2))
+            assertThat(state.selection).isEqualTo(TextRange(1, 2))
         }
 
         rule.onNodeWithTag(containerTag).performTouchInput {
@@ -464,7 +464,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         }
         assertHandlesDisplayed()
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(1, 2))
+            assertThat(state.selection).isEqualTo(TextRange(1, 2))
         }
     }
 
@@ -485,7 +485,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
 
         swipeToLeft(Handle.SelectionStart, fontSizePx * 4)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 7))
+            assertThat(state.selection).isEqualTo(TextRange(0, 7))
         }
     }
 
@@ -506,7 +506,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
 
         swipeToRight(Handle.SelectionEnd, fontSizePx * 4)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(4, 11))
+            assertThat(state.selection).isEqualTo(TextRange(4, 11))
         }
     }
 
@@ -529,7 +529,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
             doubleClick(Offset(fontSizePx * 5, fontSizePx / 2)) // middle word
         }
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(4, 7))
+            assertThat(state.selection).isEqualTo(TextRange(4, 7))
         }
     }
 
@@ -554,8 +554,8 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
             doubleClick(Offset(fontSizePx * 3.5f, fontSizePx / 2))
         }
         rule.runOnIdle {
-            assertThat(state.text.selection).isNotEqualTo(TextRange(3, 4))
-            assertThat(state.text.selection.collapsed).isFalse()
+            assertThat(state.selection).isNotEqualTo(TextRange(3, 4))
+            assertThat(state.selection.collapsed).isFalse()
         }
     }
 
@@ -585,7 +585,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
             swipeToLeft(Handle.SelectionStart, fontSizePx)
         }
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 80))
+            assertThat(state.selection).isEqualTo(TextRange(0, 80))
         }
     }
 
@@ -615,7 +615,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         // make sure that we also swipe to start on the first line
         swipeToLeft(Handle.SelectionStart, fontSizePx * 10)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 80))
+            assertThat(state.selection).isEqualTo(TextRange(0, 80))
         }
     }
 
@@ -640,7 +640,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
             swipeToRight(Handle.SelectionEnd, fontSizePx)
         }
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 80))
+            assertThat(state.selection).isEqualTo(TextRange(0, 80))
         }
     }
 
@@ -669,7 +669,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
             swipeToRight(Handle.SelectionEnd, layoutResult.size.width.toFloat())
         }
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 80))
+            assertThat(state.selection).isEqualTo(TextRange(0, 80))
         }
     }
 
@@ -691,7 +691,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         swipeToLeft(Handle.SelectionStart, fontSizePx * 2) // only move by 2 characters
         rule.runOnIdle {
             // selection extends by a word
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 7))
+            assertThat(state.selection).isEqualTo(TextRange(0, 7))
         }
     }
 
@@ -713,7 +713,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         swipeToRight(Handle.SelectionEnd, fontSizePx * 2) // only move by 2 characters
         rule.runOnIdle {
             // selection extends by a word
-            assertThat(state.text.selection).isEqualTo(TextRange(4, 11))
+            assertThat(state.selection).isEqualTo(TextRange(4, 11))
         }
     }
 
@@ -735,7 +735,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         swipeToRight(Handle.SelectionStart, fontSizePx) // only move by a single character
         rule.runOnIdle {
             // selection shrinks by a character
-            assertThat(state.text.selection).isEqualTo(TextRange(5, 7))
+            assertThat(state.selection).isEqualTo(TextRange(5, 7))
         }
     }
 
@@ -757,7 +757,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         swipeToLeft(Handle.SelectionEnd, fontSizePx) // only move by a single character
         rule.runOnIdle {
             // selection shrinks by a character
-            assertThat(state.text.selection).isEqualTo(TextRange(4, 6))
+            assertThat(state.selection).isEqualTo(TextRange(4, 6))
         }
     }
 
@@ -778,7 +778,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
 
         swipeToRight(Handle.SelectionStart, fontSizePx * 7)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(11, 7))
+            assertThat(state.selection).isEqualTo(TextRange(11, 7))
         }
     }
 
@@ -799,7 +799,7 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
 
         swipeToLeft(Handle.SelectionEnd, fontSizePx * 7)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(4, 0))
+            assertThat(state.selection).isEqualTo(TextRange(4, 0))
         }
     }
 

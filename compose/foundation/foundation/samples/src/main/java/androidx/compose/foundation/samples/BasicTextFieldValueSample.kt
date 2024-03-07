@@ -19,7 +19,6 @@ package androidx.compose.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,7 +45,6 @@ fun BasicTextFieldWithValueOnValueChangeSample() {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StringTextField(
     value: String,
@@ -198,20 +196,19 @@ private class StateSyncingModifierNode(
     }
 
     private fun observeTextState(fireOnValueChanged: Boolean = true) {
-        lateinit var text: TextFieldCharSequence
+        lateinit var value: TextFieldValue
         observeReads {
-            text = state.text
+            value = TextFieldValue(
+                state.text.toString(),
+                state.selection,
+                state.composition
+            )
         }
 
         // This code is outside of the observeReads lambda so we don't observe any state reads the
         // callback happens to do.
         if (fireOnValueChanged) {
-            val newValue = TextFieldValue(
-                text = text.toString(),
-                selection = text.selection,
-                composition = text.composition
-            )
-            onValueChanged(newValue)
+            onValueChanged(value)
         }
     }
 }

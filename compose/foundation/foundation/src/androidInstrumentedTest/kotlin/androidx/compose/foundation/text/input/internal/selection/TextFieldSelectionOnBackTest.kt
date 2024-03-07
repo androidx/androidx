@@ -78,7 +78,7 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
         textNode.performKeyInput { pressKey(Key.Back) }
         val expected = TextRange(3, 3)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(expected)
+            assertThat(state.selection).isEqualTo(expected)
         }
     }
 
@@ -106,7 +106,7 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
         textNode.performKeyInput { pressKey(Key.Back) }
         val expected = TextRange(3, 3)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(expected)
+            assertThat(state.selection).isEqualTo(expected)
             assertThat(backPressed).isEqualTo(0)
         }
     }
@@ -129,7 +129,7 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
         // should have no effect
         textNode.performKeyInput { keyDown(Key.Back) }
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(expected)
+            assertThat(state.selection).isEqualTo(expected)
         }
     }
 

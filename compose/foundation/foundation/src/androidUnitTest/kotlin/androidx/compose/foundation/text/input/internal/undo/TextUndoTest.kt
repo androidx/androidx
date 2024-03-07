@@ -76,7 +76,7 @@ class TextUndoTest {
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("ac")
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("")
@@ -160,15 +160,15 @@ class TextUndoTest {
         state.typeAtStart("c") // "|a" -> "c|a"
 
         assertThat(state.text.toString()).isEqualTo("ca")
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("a")
-        assertThat(state.text.selection).isEqualTo(TextRange(0))
+        assertThat(state.selection).isEqualTo(TextRange(0))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("ab")
-        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(state.selection).isEqualTo(TextRange(2))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("")
@@ -182,15 +182,15 @@ class TextUndoTest {
         state.typeAtEnd("g") // "defg|"
 
         assertThat(state.text.toString()).isEqualTo("defg")
-        assertThat(state.text.selection).isEqualTo(TextRange(4))
+        assertThat(state.selection).isEqualTo(TextRange(4))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("def")
-        assertThat(state.text.selection).isEqualTo(TextRange(3))
+        assertThat(state.selection).isEqualTo(TextRange(3))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("abcd")
-        assertThat(state.text.selection).isEqualTo(TextRange(4))
+        assertThat(state.selection).isEqualTo(TextRange(4))
     }
 
     @Test
@@ -202,15 +202,15 @@ class TextUndoTest {
         state.deleteAt(2) // "de|"
 
         assertThat(state.text.toString()).isEqualTo("de")
-        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(state.selection).isEqualTo(TextRange(2))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("def")
-        assertThat(state.text.selection).isEqualTo(TextRange(3))
+        assertThat(state.selection).isEqualTo(TextRange(3))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("ab")
-        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(state.selection).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -222,15 +222,15 @@ class TextUndoTest {
         state.typeAtEnd("c") // "ab\nc|"
 
         assertThat(state.text.toString()).isEqualTo("ab\nc")
-        assertThat(state.text.selection).isEqualTo(TextRange(4))
+        assertThat(state.selection).isEqualTo(TextRange(4))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("ab\n")
-        assertThat(state.text.selection).isEqualTo(TextRange(3))
+        assertThat(state.selection).isEqualTo(TextRange(3))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("ab")
-        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(state.selection).isEqualTo(TextRange(2))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("")
@@ -243,11 +243,11 @@ class TextUndoTest {
         state.type("d") // "d|c"
 
         assertThat(state.text.toString()).isEqualTo("dc")
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
 
         state.undoState.undo()
         assertThat(state.text.toString()).isEqualTo("abc")
-        assertThat(state.text.selection).isEqualTo(TextRange(2, 0))
+        assertThat(state.selection).isEqualTo(TextRange(2, 0))
     }
 
     @Test
@@ -258,14 +258,14 @@ class TextUndoTest {
         state.type("e") // "e|cd"
 
         assertThat(state.text.toString()).isEqualTo("ecd")
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
 
         state.undoState.undo() // "|ab|cd"
         state.undoState.undo() // "|abc"
         state.undoState.redo() // "abcd|"
 
         assertThat(state.text.toString()).isEqualTo("abcd")
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 4))
+        assertThat(state.selection).isEqualTo(TextRange(4, 4))
     }
 
     @Test

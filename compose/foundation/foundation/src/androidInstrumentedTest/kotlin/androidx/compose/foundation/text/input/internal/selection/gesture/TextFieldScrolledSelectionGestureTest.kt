@@ -143,7 +143,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
 
         fun assertSelectionEquals(selectionRange: Pair<Int, Int>) {
             val (start, end) = selectionRange
-            assertThat(textFieldState.text.selection).isEqualTo(TextRange(start, end))
+            assertThat(textFieldState.selection).isEqualTo(TextRange(start, end))
         }
 
         fun assertNoMagnifierExists() {

@@ -193,7 +193,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(5, 2))
+            assertThat(state.selection).isEqualTo(TextRange(5, 2))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
 
@@ -206,7 +206,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
     }
@@ -226,7 +226,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
     }
@@ -243,7 +243,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
     }
@@ -262,7 +262,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
         }
     }
@@ -494,7 +494,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         selectAllOption?.invoke()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+        assertThat(state.selection).isEqualTo(TextRange(0, 5))
         rule.runOnIdle {
             assertThat(selectAllOption).isNull()
         }
@@ -615,7 +615,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Heworldllo")
-            assertThat(state.text.selection).isEqualTo(TextRange(7))
+            assertThat(state.selection).isEqualTo(TextRange(7))
         }
     }
 
@@ -688,7 +688,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("Hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(5))
+            assertThat(state.selection).isEqualTo(TextRange(5))
         }
     }
 
@@ -715,7 +715,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("ello")
             assertThat(state.text.toString()).isEqualTo("H World!")
-            assertThat(state.text.selection).isEqualTo(TextRange(1))
+            assertThat(state.selection).isEqualTo(TextRange(1))
         }
     }
 
@@ -747,7 +747,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("ello")
             assertThat(state.text.toString()).isEqualTo("Hello World!")
-            assertThat(state.text.selection).isEqualTo(TextRange(1))
+            assertThat(state.selection).isEqualTo(TextRange(1))
         }
     }
 

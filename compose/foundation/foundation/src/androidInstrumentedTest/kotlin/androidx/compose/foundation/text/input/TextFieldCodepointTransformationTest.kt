@@ -437,7 +437,7 @@ class TextFieldCodepointTransformationTest {
         listOf(0, 1, 3, 4).forEachIndexed { i, expectedCursor ->
             rule.runOnIdle {
                 assertWithMessage("After pressing right arrow $i times")
-                    .that(state.text.selection).isEqualTo(TextRange(expectedCursor))
+                    .that(state.selection).isEqualTo(TextRange(expectedCursor))
             }
             rule.onNodeWithTag(Tag).performKeyInput {
                 pressKey(Key.DirectionRight)
@@ -477,7 +477,7 @@ class TextFieldCodepointTransformationTest {
         ).forEachIndexed { i, expectedSelection ->
             rule.runOnIdle {
                 assertWithMessage("After pressing shift+right arrow $i times")
-                    .that(state.text.selection).isEqualTo(expectedSelection)
+                    .that(state.selection).isEqualTo(expectedSelection)
             }
             rule.onNodeWithTag(Tag).performKeyInput {
                 withKeyDown(Key.ShiftLeft) {
@@ -519,7 +519,7 @@ class TextFieldCodepointTransformationTest {
         ).forEachIndexed { i, expectedSelection ->
             rule.runOnIdle {
                 assertWithMessage("After pressing shift+left arrow $i times")
-                    .that(state.text.selection).isEqualTo(expectedSelection)
+                    .that(state.selection).isEqualTo(expectedSelection)
             }
             rule.onNodeWithTag(Tag).performKeyInput {
                 withKeyDown(Key.ShiftLeft) {
@@ -815,7 +815,7 @@ class TextFieldCodepointTransformationTest {
                     .that(performSelectionOnVisualText(write)).isTrue()
                 rule.runOnIdle {
                     assertWithMessage("Visual selection $write to mapped")
-                        .that(text.selection).isEqualTo(expected)
+                        .that(selection).isEqualTo(expected)
                 }
             }
         }

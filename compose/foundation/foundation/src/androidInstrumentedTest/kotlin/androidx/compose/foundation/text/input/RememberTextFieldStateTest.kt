@@ -50,7 +50,7 @@ class RememberTextFieldStateTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(2))
+            assertThat(state.selection).isEqualTo(TextRange(2))
         }
     }
 
@@ -78,7 +78,7 @@ class RememberTextFieldStateTest {
 
         rule.runOnIdle {
             assertThat(restoredState.text.toString()).isEqualTo("hello, world")
-            assertThat(restoredState.text.selection).isEqualTo(TextRange(0, 12))
+            assertThat(restoredState.selection).isEqualTo(TextRange(0, 12))
         }
     }
 
@@ -109,7 +109,7 @@ class RememberTextFieldStateTest {
 
         rule.runOnIdle {
             assertThat(restoredState.text.toString()).isEqualTo("hello, world")
-            assertThat(restoredState.text.selection).isEqualTo(TextRange(0, 12))
+            assertThat(restoredState.selection).isEqualTo(TextRange(0, 12))
         }
     }
 }

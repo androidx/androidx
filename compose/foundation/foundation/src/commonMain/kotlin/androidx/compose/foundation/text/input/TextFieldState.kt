@@ -35,7 +35,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 
 internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
     return TextFieldState(
@@ -49,8 +48,11 @@ internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
  * cursor or selection.
  *
  * To change the text field contents programmatically, call [edit], [setTextAndSelectAll],
- * [setTextAndPlaceCursorAtEnd], or [clearText]. To observe the value of the field over time, call
- * [forEachTextValue] or [textAsFlow].
+ * [setTextAndPlaceCursorAtEnd], or [clearText]. Individual parts of the state like [text],
+ * [selection], or [composition] can be read from any snapshot restart scope like Composable
+ * functions. To observe these members from outside a restart scope, use
+ * `snapshotFlow { textFieldState.text }` or `snapshotFlow { textFieldState.selection }`. To
+ * observe the entirety of state including text, selection, and composition, call [valueAsFlow].
  *
  * When instantiating this class from a composable, use [rememberTextFieldState] to automatically
  * save and restore the field state. For more advanced use cases, pass [TextFieldState.Saver] to
@@ -96,27 +98,65 @@ class TextFieldState internal constructor(
     private var isEditing: Boolean by mutableStateOf(false)
 
     /**
-     * The current text and selection. This value will automatically update when the user enters
-     * text or otherwise changes the text field contents. To change it programmatically, call
-     * [edit].
+     * The current text, selection, and composing region. This value will automatically update when
+     * the user enters text or otherwise changes the text field contents. To change it
+     * programmatically, call [edit].
      *
      * This is backed by snapshot state, so reading this property in a restartable function (e.g.
      * a composable function) will cause the function to restart when the text field's value
      * changes.
      *
-     * To observe changes to this property outside a restartable function, see [forEachTextValue]
-     * and [textAsFlow].
+     * To observe changes to this property outside a restartable function, see [valueAsFlow].
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldTextDerivedStateSample
      *
      * @see edit
-     * @see forEachTextValue
-     * @see textAsFlow
+     * @see valueAsFlow
      */
-    var text: TextFieldCharSequence by mutableStateOf(
+    internal var value: TextFieldCharSequence by mutableStateOf(
         TextFieldCharSequence(initialText, initialSelection)
     )
         private set
+
+    /**
+     * The current text content. This value will automatically update when the user enters text or
+     * otherwise changes the text field contents. To change it programmatically, call [edit].
+     *
+     * To observe changes to this property outside a restartable function, use
+     * `snapshotFlow { text }`.
+     *
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTextValuesSample
+     *
+     * @see edit
+     * @see snapshotFlow
+     */
+    val text: CharSequence get() = value.getBackingCharSequence()
+
+    /**
+     * The current selection range. If the selection is collapsed, it represents cursor location.
+     * This value will automatically update when the user enters text or otherwise changes the text
+     * field selection range. To change it programmatically, call [edit].
+     *
+     * To observe changes to this property outside a restartable function, use
+     * `snapshotFlow { selection }`.
+     *
+     * @see edit
+     * @see snapshotFlow
+     * @see TextFieldCharSequence.selection
+     */
+    val selection: TextRange get() = value.selection
+
+    /**
+     * The current composing range dictated by the IME. If null, there is no composing region.
+     *
+     * To observe changes to this property outside a restartable function, use
+     * `snapshotFlow { composition }`.
+     *
+     * @see edit
+     * @see snapshotFlow
+     * @see TextFieldCharSequence.composition
+     */
+    val composition: TextRange? get() = value.composition
 
     /**
      * Runs [block] with a mutable version of the current state. The block can make changes to the
@@ -133,7 +173,7 @@ class TextFieldState internal constructor(
      * @see setTextAndSelectAll
      */
     inline fun edit(block: TextFieldBuffer.() -> Unit) {
-        val mutableValue = startEdit(text)
+        val mutableValue = startEdit()
         try {
             mutableValue.block()
             commitEdit(mutableValue)
@@ -143,7 +183,7 @@ class TextFieldState internal constructor(
     }
 
     override fun toString(): String =
-        "TextFieldState(selection=${text.selection}, text=\"$text\")"
+        "TextFieldState(selection=$selection, text=\"$text\")"
 
     /**
      * Undo history controller for this TextFieldState.
@@ -159,7 +199,7 @@ class TextFieldState internal constructor(
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
-    internal fun startEdit(value: TextFieldCharSequence): TextFieldBuffer {
+    internal fun startEdit(): TextFieldBuffer {
         check(!isEditing) {
             "TextFieldState does not support concurrent or nested editing."
         }
@@ -218,7 +258,7 @@ class TextFieldState internal constructor(
         undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
         block: EditingBuffer.() -> Unit
     ) {
-        val previousValue = text
+        val previousValue = value
 
         mainBuffer.changeTracker.clearChanges()
         mainBuffer.block()
@@ -249,7 +289,7 @@ class TextFieldState internal constructor(
      * a public API.
      */
     internal inline fun editWithNoSideEffects(block: EditingBuffer.() -> Unit) {
-        val previousValue = text
+        val previousValue = value
 
         mainBuffer.changeTracker.clearChanges()
         mainBuffer.block()
@@ -260,7 +300,7 @@ class TextFieldState internal constructor(
             composition = mainBuffer.composition
         )
 
-        text = afterEditValue
+        value = afterEditValue
         sendChangesToIme(
             oldValue = previousValue,
             newValue = afterEditValue,
@@ -281,24 +321,24 @@ class TextFieldState internal constructor(
         )
 
         if (inputTransformation == null) {
-            val oldValue = text
-            text = afterEditValue
+            val oldValue = value
+            value = afterEditValue
             sendChangesToIme(
                 oldValue = oldValue,
                 newValue = afterEditValue,
                 restartImeIfContentChanges = restartImeIfContentChanges
             )
-            recordEditForUndo(previousValue, text, mainBuffer.changeTracker, undoBehavior)
+            recordEditForUndo(previousValue, value, mainBuffer.changeTracker, undoBehavior)
             return
         }
 
-        val oldValue = text
+        val oldValue = value
 
         // if only difference is composition, don't run filter, don't send it to undo manager
         if (afterEditValue.contentEquals(oldValue) &&
             afterEditValue.selection == oldValue.selection
         ) {
-            text = afterEditValue
+            value = afterEditValue
             sendChangesToIme(
                 oldValue = oldValue,
                 newValue = afterEditValue,
@@ -307,22 +347,22 @@ class TextFieldState internal constructor(
             return
         }
 
-        val mutableValue = TextFieldBuffer(
+        val textFieldBuffer = TextFieldBuffer(
             initialValue = afterEditValue,
             sourceValue = oldValue,
             initialChanges = mainBuffer.changeTracker
         )
         inputTransformation.transformInput(
             originalValue = oldValue,
-            valueWithChanges = mutableValue
+            valueWithChanges = textFieldBuffer
         )
         // If neither the text nor the selection changed, we want to preserve the composition.
         // Otherwise, the IME will reset it anyway.
-        val afterFilterValue = mutableValue.toTextFieldCharSequence(
+        val afterFilterValue = textFieldBuffer.toTextFieldCharSequence(
             composition = afterEditValue.composition
         )
         if (afterFilterValue == afterEditValue) {
-            text = afterFilterValue
+            value = afterFilterValue
             sendChangesToIme(
                 oldValue = oldValue,
                 newValue = afterEditValue,
@@ -332,7 +372,7 @@ class TextFieldState internal constructor(
             resetStateAndNotifyIme(afterFilterValue)
         }
         // mutableValue contains all the changes from user and the filter.
-        recordEditForUndo(previousValue, text, mutableValue.changes, undoBehavior)
+        recordEditForUndo(previousValue, value, textFieldBuffer.changes, undoBehavior)
     }
 
     /**
@@ -445,15 +485,15 @@ class TextFieldState internal constructor(
         }
 
         val finalValue = TextFieldCharSequence(
-            if (textChanged) newValue else bufferState,
-            mainBuffer.selection,
-            mainBuffer.composition
+            text = if (textChanged) newValue else bufferState,
+            selection = mainBuffer.selection,
+            composition = mainBuffer.composition
         )
 
         // value must be set before notifyImeListeners are called. Even though we are sending the
         // previous and current values, a system callback may request the latest state e.g. IME
         // restartInput call is handled before notifyImeListeners return.
-        text = finalValue
+        value = finalValue
 
         sendChangesToIme(
             oldValue = bufferState,
@@ -489,8 +529,8 @@ class TextFieldState internal constructor(
         override fun SaverScope.save(value: TextFieldState): Any? {
             return listOf(
                 value.text.toString(),
-                value.text.selection.start,
-                value.text.selection.end,
+                value.selection.start,
+                value.selection.end,
                 with(TextUndoManager.Companion.Saver) {
                     save(value.textUndoManager)
                 }
@@ -514,13 +554,14 @@ class TextFieldState internal constructor(
 }
 
 /**
- * Returns a [Flow] of the values of [TextFieldState.text] as seen from the global snapshot.
+ * Returns a [Flow] of the values of [TextFieldState.text], [TextFieldState.selection], and
+ * [TextFieldState.composition] as seen from the global snapshot.
  * The initial value is emitted immediately when the flow is collected.
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldTextValuesSample
  */
 @ExperimentalFoundationApi
-fun TextFieldState.textAsFlow(): Flow<TextFieldCharSequence> = snapshotFlow { text }
+fun TextFieldState.valueAsFlow(): Flow<TextFieldCharSequence> = snapshotFlow { value }
 
 /**
  * Create and remember a [TextFieldState]. The state is remembered using [rememberSaveable] and so
@@ -608,29 +649,4 @@ fun TextFieldState.clearText() {
         delete(0, length)
         placeCursorAtEnd()
     }
-}
-
-/**
- * Invokes [block] with the value of [TextFieldState.text], and every time the value is changed.
- *
- * The caller will be suspended until its coroutine is cancelled. If the text is changed while
- * [block] is suspended, [block] will be cancelled and re-executed with the new value immediately.
- * [block] will never be executed concurrently with itself.
- *
- * To get access to a [Flow] of [TextFieldState.text] over time, use [textAsFlow].
- *
- * Warning: Do not update the value of the [TextFieldState] from [block]. If you want to perform
- * either a side effect when text is changed, or filter it in some way, use an
- * [InputTransformation].
- *
- * @sample androidx.compose.foundation.samples.BasicTextFieldForEachTextValueSample
- *
- * @see textAsFlow
- */
-@ExperimentalFoundationApi
-suspend fun TextFieldState.forEachTextValue(
-    block: suspend (TextFieldCharSequence) -> Unit
-): Nothing {
-    textAsFlow().collectLatest(block)
-    error("textAsFlow expected not to complete without exception")
 }
