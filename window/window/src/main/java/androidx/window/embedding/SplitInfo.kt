@@ -72,7 +72,7 @@ class SplitInfo private constructor(
         secondaryActivityStack,
         splitAttributes,
         binder,
-        Token.createFromBinder(binder),
+        token = null,
     ) {
         WindowSdkExtensions.getInstance().requireExtensionVersion(3..4)
     }
