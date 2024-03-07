@@ -476,7 +476,6 @@ fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
  */
 @Composable
 @ReadOnlyComposable
-@ExperimentalTvMaterial3Api
 fun contentColorFor(backgroundColor: Color) =
     MaterialTheme.colorScheme.contentColorFor(backgroundColor).takeOrElse {
         LocalContentColor.current
