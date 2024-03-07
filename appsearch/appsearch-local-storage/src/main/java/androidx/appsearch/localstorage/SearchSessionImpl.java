@@ -397,7 +397,7 @@ class SearchSessionImpl implements AppSearchSession {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
 
-            Map<String, List<String>> typePropertyPaths = request.getProjectionsInternal();
+            Map<String, List<String>> typePropertyPaths = request.getProjections();
             for (String id : request.getIds()) {
                 try {
                     GenericDocument document =

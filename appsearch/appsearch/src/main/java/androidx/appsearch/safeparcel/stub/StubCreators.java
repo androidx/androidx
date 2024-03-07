@@ -17,6 +17,7 @@ package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
@@ -174,5 +175,10 @@ public class StubCreators {
 
     /** Stub creator for {@link androidx.appsearch.app.ReportUsageRequest}. */
     public static class ReportUsageRequestCreator extends AbstractCreator<ReportUsageRequest> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.GetByDocumentIdRequest}. */
+    public static class GetByDocumentIdRequestCreator extends
+            AbstractCreator<GetByDocumentIdRequest> {
     }
 }
