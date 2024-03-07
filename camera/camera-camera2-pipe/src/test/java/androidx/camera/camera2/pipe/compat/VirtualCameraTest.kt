@@ -114,6 +114,8 @@ internal class VirtualCameraStateTest {
         virtualCamera.connect(
             cameraState,
             object : Token {
+                override val released: Boolean
+                    get() = true
                 override fun release(): Boolean {
                     return true
                 }
@@ -162,6 +164,8 @@ internal class VirtualCameraStateTest {
         virtualCamera.connect(
             states.asFlow(),
             object : Token {
+                override val released: Boolean
+                    get() = true
                 override fun release(): Boolean {
                     return true
                 }
@@ -201,6 +205,8 @@ internal class VirtualCameraStateTest {
         virtualCamera.connect(
             cameraState,
             object : Token {
+                override val released: Boolean
+                    get() = true
                 override fun release(): Boolean {
                     return true
                 }
@@ -239,6 +245,8 @@ internal class VirtualCameraStateTest {
         virtualCamera.connect(
             cameraState,
             object : Token {
+                override val released: Boolean
+                    get() = true
                 override fun release(): Boolean {
                     return true
                 }
