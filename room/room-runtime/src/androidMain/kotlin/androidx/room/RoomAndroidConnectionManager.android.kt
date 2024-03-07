@@ -191,14 +191,22 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
         }
     }
 
+    /**
+     * An implementation of a connection pool used in compatibility mode. This impl doesn't do
+     * any connection management since the SupportSQLite* APIs already internally do.
+     */
     private class SupportConnectionPool(
         val supportDriver: SupportSQLiteDriver
     ) : ConnectionPool {
+        private val supportConnection by lazy(LazyThreadSafetyMode.NONE) {
+            SupportPooledConnection(supportDriver.open())
+        }
+
         override suspend fun <R> useConnection(
             isReadOnly: Boolean,
             block: suspend (Transactor) -> R
         ): R {
-            return block.invoke(SupportPooledConnection(supportDriver.open()))
+            return block.invoke(supportConnection)
         }
 
         override fun close() {
@@ -206,10 +214,6 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
         }
     }
 
-    /**
-     * An implementation of a connection pool used in compatibility mode. This impl doesn't do
-     * any connection management since the SupportSQLite* APIs already internally do.
-     */
     private class SupportPooledConnection(
         val delegate: SupportSQLiteConnection
     ) : Transactor, RawConnectionAccessor {
