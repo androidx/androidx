@@ -18,6 +18,7 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Build;
 import android.view.DisplayCutout;
@@ -74,13 +75,43 @@ public final class DisplayCutoutCompat {
             @Nullable Rect boundTop, @Nullable Rect boundRight, @Nullable Rect boundBottom,
             @NonNull Insets waterfallInsets) {
         this(constructDisplayCutout(safeInsets, boundLeft, boundTop, boundRight, boundBottom,
-                waterfallInsets));
+                waterfallInsets, null));
+    }
+
+    /**
+     * Creates a DisplayCutout instance.
+     *
+     * @param safeInsets the insets from each edge which avoid the display cutout as returned by
+     *                   {@link #getSafeInsetTop()} etc.
+     * @param boundLeft the left bounding rect of the display cutout in pixels. If null is passed,
+     *                  it's treated as an empty rectangle (0,0)-(0,0).
+     * @param boundTop the top bounding rect of the display cutout in pixels. If null is passed,
+     *                  it's treated as an empty rectangle (0,0)-(0,0).
+     * @param boundRight the right bounding rect of the display cutout in pixels. If null is
+     *                  passed, it's treated as an empty rectangle (0,0)-(0,0).
+     * @param boundBottom the bottom bounding rect of the display cutout in pixels. If null is
+     *                   passed, it's treated as an empty rectangle (0,0)-(0,0).
+     * @param waterfallInsets the insets for the curved areas in waterfall display.
+     * @param cutoutPath the path of the display cutout. Specifying a path with this
+     *                   constructor is only supported on API 33 and above, even though a real
+     *                   DisplayCutout can have a cutout path on API 31 and above. On API 32 and
+     *                   below, this path is ignored.
+     */
+    public DisplayCutoutCompat(@NonNull Insets safeInsets, @Nullable Rect boundLeft,
+            @Nullable Rect boundTop, @Nullable Rect boundRight, @Nullable Rect boundBottom,
+            @NonNull Insets waterfallInsets, @Nullable Path cutoutPath) {
+        this(constructDisplayCutout(safeInsets, boundLeft, boundTop, boundRight, boundBottom,
+                waterfallInsets, cutoutPath));
     }
 
     private static DisplayCutout constructDisplayCutout(@NonNull Insets safeInsets,
             @Nullable Rect boundLeft, @Nullable Rect boundTop, @Nullable Rect boundRight,
-            @Nullable Rect boundBottom, @NonNull Insets waterfallInsets) {
-        if (SDK_INT >= 30) {
+            @Nullable Rect boundBottom, @NonNull Insets waterfallInsets,
+            @Nullable Path cutoutPath) {
+        if (SDK_INT >= 33) {
+            return Api33Impl.createDisplayCutout(safeInsets.toPlatformInsets(), boundLeft, boundTop,
+                    boundRight, boundBottom, waterfallInsets.toPlatformInsets(), cutoutPath);
+        } else if (SDK_INT >= 30) {
             return Api30Impl.createDisplayCutout(safeInsets.toPlatformInsets(), boundLeft, boundTop,
                     boundRight, boundBottom, waterfallInsets.toPlatformInsets());
         } else if (SDK_INT >= Build.VERSION_CODES.Q) {
@@ -185,6 +216,23 @@ public final class DisplayCutoutCompat {
         }
     }
 
+    /**
+     * Returns a Path that contains the cutout paths of all sides on the display.
+     * To get a cutout path for one specific side, apps can intersect the Path with the Rect
+     * obtained from getBoundingRectLeft(), getBoundingRectTop(), getBoundingRectRight() or
+     * getBoundingRectBottom().
+     *
+     * @return the path corresponding to the cutout, or null if there is no cutout on the display.
+     */
+    @Nullable
+    public Path getCutoutPath() {
+        if (SDK_INT >= 31) {
+            return Api31Impl.getCutoutPath(mDisplayCutout);
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -254,6 +302,19 @@ public final class DisplayCutoutCompat {
         }
     }
 
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static DisplayCutout createDisplayCutout(android.graphics.Insets safeInsets, Rect boundLeft,
+                Rect boundTop, Rect boundRight, Rect boundBottom) {
+            return new DisplayCutout(safeInsets, boundLeft, boundTop, boundRight, boundBottom);
+        }
+    }
+
     @RequiresApi(30)
     static class Api30Impl {
         private Api30Impl() {
@@ -274,16 +335,38 @@ public final class DisplayCutoutCompat {
         }
     }
 
-    @RequiresApi(29)
-    static class Api29Impl {
-        private Api29Impl() {
+    @RequiresApi(31)
+    static class Api31Impl {
+        private Api31Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        @Nullable
+        static Path getCutoutPath(DisplayCutout displayCutout) {
+            return displayCutout.getCutoutPath();
+        }
+    }
+
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
             // This class is not instantiable.
         }
 
         @DoNotInline
         static DisplayCutout createDisplayCutout(android.graphics.Insets safeInsets, Rect boundLeft,
-                Rect boundTop, Rect boundRight, Rect boundBottom) {
-            return new DisplayCutout(safeInsets, boundLeft, boundTop, boundRight, boundBottom);
+                Rect boundTop, Rect boundRight, Rect boundBottom,
+                android.graphics.Insets waterfallInsets, Path cutoutPath) {
+            return new DisplayCutout.Builder()
+                    .setSafeInsets(safeInsets)
+                    .setBoundingRectLeft(boundLeft)
+                    .setBoundingRectTop(boundTop)
+                    .setBoundingRectRight(boundRight)
+                    .setBoundingRectBottom(boundBottom)
+                    .setWaterfallInsets(waterfallInsets)
+                    .setCutoutPath(cutoutPath)
+                    .build();
         }
     }
 }
