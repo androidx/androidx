@@ -106,6 +106,22 @@ interface ScrollableState {
      */
     val canScrollBackward: Boolean
         get() = true
+
+    /**
+     * The value of this property is true under the following scenarios, otherwise it's false.
+     * - This [ScrollableState] is currently scrolling forward.
+     * - This [ScrollableState] was scrolling forward in its last scroll action.
+     */
+    val isLastScrollForward: Boolean
+        get() = false
+
+    /**
+     * The value of this property is true under the following scenarios, otherwise it's false.
+     * - This [ScrollableState] is currently scrolling backward.
+     * - This [ScrollableState] was scrolling backward in its last scroll action.
+     */
+    val isLastScrollBackward: Boolean
+        get() = false
 }
 
 /**
@@ -163,13 +179,18 @@ private class DefaultScrollableState(val onDelta: (Float) -> Float) : Scrollable
     private val scrollScope: ScrollScope = object : ScrollScope {
         override fun scrollBy(pixels: Float): Float {
             if (pixels.isNaN()) return 0f
-            return onDelta(pixels)
+            val delta = onDelta(pixels)
+            isLastScrollForwardState.value = delta > 0
+            isLastScrollBackwardState.value = delta < 0
+            return delta
         }
     }
 
     private val scrollMutex = MutatorMutex()
 
     private val isScrollingState = mutableStateOf(false)
+    private val isLastScrollForwardState = mutableStateOf(false)
+    private val isLastScrollBackwardState = mutableStateOf(false)
 
     override suspend fun scroll(
         scrollPriority: MutatePriority,
@@ -191,4 +212,10 @@ private class DefaultScrollableState(val onDelta: (Float) -> Float) : Scrollable
 
     override val isScrollInProgress: Boolean
         get() = isScrollingState.value
+
+    override val isLastScrollForward: Boolean
+        get() = isLastScrollForwardState.value
+
+    override val isLastScrollBackward: Boolean
+        get() = isLastScrollBackwardState.value
 }

@@ -338,6 +338,11 @@ class LazyListState @ExperimentalFoundationApi constructor(
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
+    override val isLastScrollForward: Boolean
+        get() = scrollableState.isLastScrollForward
+    override val isLastScrollBackward: Boolean
+        get() = scrollableState.isLastScrollBackward
+
     internal val placementScopeInvalidator = ObservableScopeInvalidator()
 
     // TODO: Coroutine scrolling APIs will allow this to be private again once we have more
