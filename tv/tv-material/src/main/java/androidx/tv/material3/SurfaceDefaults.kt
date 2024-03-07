@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 /**
  * Contains the default values used by a non-interactive [Surface]
  */
-@ExperimentalTvMaterial3Api
 object NonInteractiveSurfaceDefaults {
     /**
      * Represents the default shape used by a non-interactive [Surface]
@@ -66,7 +65,6 @@ object NonInteractiveSurfaceDefaults {
 /**
  * Contains the default values used by clickable Surface.
  */
-@ExperimentalTvMaterial3Api
 object ClickableSurfaceDefaults {
     internal fun shape(
         enabled: Boolean,
@@ -304,7 +302,6 @@ object ClickableSurfaceDefaults {
 /**
  * Contains the default values used by Toggleable Surface.
  */
-@ExperimentalTvMaterial3Api
 object ToggleableSurfaceDefaults {
     /**
      * Creates a [ToggleableSurfaceShape] that represents the default container shapes used in a
