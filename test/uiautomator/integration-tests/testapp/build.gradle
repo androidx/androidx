@@ -17,11 +17,22 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("kotlin-android")
+    id("AndroidXComposePlugin")
 }
 
 dependencies {
+    implementation(libs.kotlinStdlib)
+
     implementation("androidx.annotation:annotation:1.4.0")
     implementation("androidx.core:core:1.6.0")
+
+    implementation(project(":activity:activity-compose"))
+    implementation(project(":compose:material:material"))
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:foundation:foundation-layout"))
 
     androidTestImplementation(project(":test:uiautomator:uiautomator"))
     androidTestImplementation(libs.testCore)
