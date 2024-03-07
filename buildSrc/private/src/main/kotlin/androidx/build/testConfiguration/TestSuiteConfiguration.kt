@@ -172,6 +172,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
         }
     }
 
+    // Migrate away when b/280680434 is fixed.
     // For tests modules, the instrumentation apk is pulled from the <variant>TestedApks
     // configuration. Note that also the associated test configuration task name is different
     // from the application one.
