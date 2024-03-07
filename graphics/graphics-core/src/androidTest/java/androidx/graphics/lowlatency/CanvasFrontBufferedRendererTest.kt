@@ -1313,6 +1313,7 @@ class CanvasFrontBufferedRendererTest {
                 }
             }
         ) { _, renderer, surfaceView ->
+            commitCount.set(0)
             val latch = CountDownLatch(1)
             commitLatch.set(latch)
             renderer.renderFrontBufferedLayer(Color.RED)
@@ -1321,8 +1322,8 @@ class CanvasFrontBufferedRendererTest {
             renderer.renderFrontBufferedLayer(Color.BLUE)
             renderer.commit()
 
+            pendingCommitLatch.set(CountDownLatch(2))
             latch.countDown()
-            pendingCommitLatch.set(CountDownLatch(1))
 
             assertTrue(pendingCommitLatch.get()!!.await(3000, TimeUnit.MILLISECONDS))
 
