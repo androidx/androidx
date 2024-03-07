@@ -219,7 +219,6 @@ dependencies {
     docs(project(":glance:glance-testing"))
     docs(project(":glance:glance-template"))
     docs(project(":glance:glance-wear-tiles"))
-    docs(project(":glance:glance-wear-tiles-preview"))
     docs(project(":graphics:filters:filters"))
     docs(project(":graphics:graphics-core"))
     samples(project(":graphics:graphics-core:graphics-core-samples"))

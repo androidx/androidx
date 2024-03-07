@@ -198,7 +198,6 @@ dependencies {
     docs("androidx.glance:glance-template:1.0.0-alpha06")
     docs("androidx.glance:glance-testing:1.1.0-alpha01")
     docs("androidx.glance:glance-wear-tiles:1.0.0-alpha06")
-    docs("androidx.glance:glance-wear-tiles-preview:1.0.0-alpha06")
     docs("androidx.graphics:graphics-core:1.0.0-beta01")
     samples("androidx.graphics:graphics-core-samples:1.0.0-beta01")
     docs("androidx.graphics:graphics-path:1.0.0")
