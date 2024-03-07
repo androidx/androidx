@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.hapticfeedback.HapticFeedback
@@ -153,6 +154,8 @@ private class FakeOwner(
     override val clipboardManager: ClipboardManager
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
+        get() = TODO("Not yet implemented")
+    override val graphicsContext: GraphicsContext
         get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")

@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -324,6 +325,11 @@ internal fun DelegatableNode.requireOwner(): Owner =
  * If the node is not attached, this function will throw an [IllegalStateException].
  */
 fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
+
+/**
+ * Returns the current [GraphicsContext] of the [Owner]
+ */
+fun DelegatableNode.requireGraphicsContext(): GraphicsContext = requireOwner().graphicsContext
 
 /**
  * Returns the current [LayoutDirection] of the LayoutNode that this [DelegatableNode] is attached

@@ -39,8 +39,10 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.graphics.layer.GraphicsContext
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.InputModeManagerImpl
@@ -230,6 +232,7 @@ internal class SkiaBasedOwner(
     override val clipboardManager = PlatformClipboardManager()
 
     override val accessibilityManager = DefaultAccessibilityManager()
+    override val graphicsContext: GraphicsContext = GraphicsContext()
 
     override val textToolbar = DefaultTextToolbar()
 

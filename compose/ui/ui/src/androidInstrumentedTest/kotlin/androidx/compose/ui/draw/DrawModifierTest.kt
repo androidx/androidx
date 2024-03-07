@@ -18,6 +18,7 @@ package androidx.compose.ui.draw
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
@@ -36,12 +38,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.LayoutModifierImpl
@@ -51,6 +59,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
@@ -63,8 +72,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -73,6 +84,9 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -93,6 +107,217 @@ class DrawModifierTest {
     @After
     fun after() {
         isDebugInspectorInfoEnabled = false
+    }
+
+    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
+    // with support for lower API levels in subsequent CLs
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testRememberGraphicsLayerReleasedAfterComposableDisposed() {
+        var graphicsLayer: GraphicsLayer? = null
+        val useGraphicsLayerComposable = mutableStateOf(true)
+        rule.setContent {
+            if (useGraphicsLayerComposable.value) {
+                Box(modifier = Modifier.size(100.dp)) {
+                    graphicsLayer = rememberGraphicsLayer()
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertNotNull(graphicsLayer)
+        assertFalse(graphicsLayer!!.isReleased)
+
+        useGraphicsLayerComposable.value = false
+        rule.waitForIdle()
+
+        assertTrue(graphicsLayer!!.isReleased)
+    }
+
+    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
+    // with support for lower API levels in subsequent CLs
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testObtainGraphicsLayerReleasedAfterModifierDetached() {
+        var graphicsLayer: GraphicsLayer? = null
+        val useCacheModifier = mutableStateOf(true)
+        rule.setContent {
+            Box(modifier =
+            Modifier
+                .size(120.dp)
+                .then(
+                    if (useCacheModifier.value) {
+                        Modifier.drawWithCache {
+                            graphicsLayer = obtainGraphicsLayer()
+                            onDrawBehind {
+                                // NO-OP
+                            }
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
+            )
+        }
+        rule.waitForIdle()
+        assertNotNull(graphicsLayer)
+        assertFalse(graphicsLayer!!.isReleased)
+
+        useCacheModifier.value = false
+        rule.waitForIdle()
+
+        assertTrue(graphicsLayer!!.isReleased)
+    }
+
+    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
+    // with support for lower API levels in subsequent CLs
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testBuildLayerWithCache() {
+        var graphicsLayer: GraphicsLayer? = null
+        val testTag = "TestTag"
+        val size = 120.dp
+        var sizePx = 0f
+        val tintColor = Color.Blue
+        rule.setContent {
+            sizePx = with(LocalDensity.current) { size.toPx() }
+            Box(modifier =
+            Modifier
+                .size(size)
+                .testTag(testTag)
+                .then(
+                    Modifier.drawWithCache {
+                        val layer = obtainGraphicsLayer().also { graphicsLayer = it }
+                        layer
+                            .buildLayer {
+                                drawContent()
+                            }
+                            .apply {
+                                this.colorFilter = ColorFilter.tint(tintColor)
+                            }
+                        onDrawWithContent {
+                            drawLayer(layer)
+                        }
+                    }
+                )
+            ) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    drawRect(Color.Red)
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        assertEquals(Size(sizePx, sizePx).toIntSize(), graphicsLayer!!.size)
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply {
+            assertPixelColor(tintColor, 0, 0)
+            assertPixelColor(tintColor, 0, this.width - 1)
+            assertPixelColor(tintColor, this.height - 1, 0)
+            assertPixelColor(tintColor, this.width - 1, this.height - 1)
+            assertPixelColor(tintColor, this.width / 2, this.height / 2)
+        }
+    }
+
+    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
+    // with support for lower API levels in subsequent CLs
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testGraphicsLayerPersistence() {
+        val testTag = "TestTag"
+        val drawGraphicsLayer = mutableStateOf(0)
+        val rectColor = Color.Red
+        val bgColor = Color.Blue
+        var isLayerBuilt = false
+        rule.setContent {
+            val graphicsLayer = rememberGraphicsLayer()
+            assertEquals(IntSize.Zero, graphicsLayer.size)
+            Box(modifier = Modifier
+                .size(120.dp)
+                .testTag(testTag)
+                .then(
+                    Modifier.drawWithCache {
+                        if (!isLayerBuilt) {
+                            graphicsLayer.buildLayer {
+                                drawRect(rectColor)
+                            }
+                            isLayerBuilt = true
+                        }
+                        onDrawWithContent {
+                            drawRect(bgColor)
+                            if (drawGraphicsLayer.value % 4 == 0) {
+                                drawLayer(graphicsLayer)
+                            }
+                        }
+                    }
+                )
+            )
+        }
+
+        fun PixelMap.verifyColor(color: Color) {
+            assertPixelColor(color, 0, 0)
+            assertPixelColor(color, 0, this.width - 1)
+            assertPixelColor(color, this.height - 1, 0)
+            assertPixelColor(color, this.width - 1, this.height - 1)
+            assertPixelColor(color, this.width / 2, this.height / 2)
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply { verifyColor(rectColor) }
+
+        repeat(3) {
+            drawGraphicsLayer.value++
+            rule.waitForIdle()
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply { verifyColor(bgColor) }
+
+        drawGraphicsLayer.value++
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply { verifyColor(rectColor) }
+    }
+
+    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
+    // with support for lower API levels in subsequent CLs
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testBuildLayerDrawContent() {
+        val testTag = "TestTag"
+        val targetColor = Color.Blue
+        rule.setContent {
+            Column(modifier = Modifier.testTag(testTag)) {
+                val layer = rememberGraphicsLayer()
+                Canvas(
+                    Modifier
+                        .size(40.dp)
+                        .background(Color.Green)
+                        .drawWithContent {
+                            layer.buildLayer {
+                                this@drawWithContent.drawContent()
+                            }
+                            drawLayer(layer)
+                        }
+                ) {
+                    drawRect(targetColor)
+                }
+
+                Canvas(Modifier.size(40.dp)) {
+                    drawRect(Color.Red)
+                    drawLayer(layer)
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply {
+            assertPixelColor(targetColor, 0, 0)
+            assertPixelColor(targetColor, 0, this.width - 1)
+            assertPixelColor(targetColor, this.height - 1, 0)
+            assertPixelColor(targetColor, this.width - 1, this.height - 1)
+            assertPixelColor(targetColor, this.width / 2, this.height / 2)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
