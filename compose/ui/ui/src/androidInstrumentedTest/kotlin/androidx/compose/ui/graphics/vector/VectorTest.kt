@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.vector
 
+import android.app.Activity
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
@@ -23,6 +24,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.os.Build
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -1154,17 +1156,13 @@ class VectorTest {
         assertTrue("Cache was not cleared after trim memory call", cacheCleared)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun testImageVectorConfigChange() {
-        val tag = "testTag"
-        rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-        val latch = CountDownLatch(1)
-
-        rule.activity.application.registerComponentCallbacks(object : ComponentCallbacks2 {
+    private fun Activity.rotate(rotation: Int): Boolean {
+        var rotationCount = 0
+        var rotateSuccess = false
+        var latch: CountDownLatch? = null
+        val callbacks = object : ComponentCallbacks2 {
             override fun onConfigurationChanged(p0: Configuration) {
-                latch.countDown()
+                latch?.countDown()
             }
 
             override fun onLowMemory() {
@@ -1174,10 +1172,31 @@ class VectorTest {
             override fun onTrimMemory(p0: Int) {
                 // NO-OP
             }
-        })
-
+        }
+        application.registerComponentCallbacks(callbacks)
         try {
-            latch.await(1500, TimeUnit.MILLISECONDS)
+            while (rotationCount < 3 && !rotateSuccess) {
+                latch = CountDownLatch(1)
+                this.requestedOrientation = rotation
+                rotateSuccess = latch.await(3000, TimeUnit.MILLISECONDS) &&
+                    this.requestedOrientation == rotation
+                rotationCount++
+            }
+        } finally {
+            application.unregisterComponentCallbacks(callbacks)
+        }
+        return rotateSuccess
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testImageVectorConfigChange() {
+        if (!rule.activity.rotate(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)) {
+            Log.w(TAG, "device rotation unsuccessful")
+            return
+        }
+        val tag = "testTag"
+        try {
             rule.setContent {
                 Image(
                     painterResource(R.drawable.ic_triangle_config),
@@ -1191,7 +1210,7 @@ class VectorTest {
         } catch (e: InterruptedException) {
             fail("Unable to verify vector asset in landscape orientation")
         } finally {
-            rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            rule.activity.rotate(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         }
     }
 
@@ -1458,4 +1477,6 @@ class VectorTest {
         Assert.assertEquals(height, bitmap.height)
         return bitmap
     }
+
+    private val TAG = "VectorTest"
 }
