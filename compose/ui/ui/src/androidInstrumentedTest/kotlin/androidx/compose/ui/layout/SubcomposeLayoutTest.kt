@@ -52,6 +52,7 @@ import androidx.compose.ui.background
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.assertColor
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.isExactly
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -2692,6 +2693,81 @@ class SubcomposeLayoutTest {
             val handle = state.precompose(Unit) { Box(Modifier) }
             assertThat(handle.placeablesCount).isEqualTo(0)
         }
+    }
+
+    @Test
+    fun nestedDisposeIsCalledInOrder() {
+        val disposeOrder = mutableListOf<String>()
+        var active by mutableStateOf(true)
+        rule.setContent {
+            if (active) {
+                BoxWithConstraints {
+                    BoxWithConstraints {
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                disposeOrder += "inner 1"
+                            }
+                        }
+                    }
+
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            disposeOrder += "outer"
+                        }
+                    }
+
+                    BoxWithConstraints {
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                disposeOrder += "inner 2"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(disposeOrder).isExactly("inner 2", "outer", "inner 1")
+        }
+    }
+
+    @Test
+    fun measureWidthTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            SubcomposeLayout {
+                try {
+                    layout(1 shl 24, 100) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
+    @Test
+    fun measureHeightTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            SubcomposeLayout {
+                try {
+                    layout(100, 1 shl 24) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
     }
 
     private fun SubcomposeMeasureScope.measure(

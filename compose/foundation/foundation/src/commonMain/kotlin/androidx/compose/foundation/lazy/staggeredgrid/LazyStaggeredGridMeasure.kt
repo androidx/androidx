@@ -444,6 +444,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             -firstItemOffsets[it]
         }
 
+        val minVisibleOffset = minOffset + mainAxisSpacing
         val maxOffset = (mainAxisAvailableSize + afterContentPadding).coerceAtLeast(0)
 
         debugLog {
@@ -473,14 +474,20 @@ private fun LazyStaggeredGridMeasureContext.measure(
             )
 
             laneInfo.setLane(itemIndex, spanRange.laneInfo)
-            val offset = currentItemOffsets.maxInRange(spanRange) + measuredItem.sizeWithSpacings
+            val offset = currentItemOffsets.maxInRange(spanRange)
             spanRange.forEach { lane ->
-                currentItemOffsets[lane] = offset
+                currentItemOffsets[lane] = offset + measuredItem.sizeWithSpacings
                 currentItemIndices[lane] = itemIndex
                 measuredItems[lane].addLast(measuredItem)
             }
 
-            if (currentItemOffsets[spanRange.start] <= minOffset + mainAxisSpacing) {
+            // item is not visible if both start and end bounds are outside of the visible range.
+            if (
+                offset < minVisibleOffset && currentItemOffsets[spanRange.start] <= minVisibleOffset
+            ) {
+                // We scrolled past measuredItem, and it is not visible anymore. We measured it
+                // for correct positioning of other items, but there's no need to place it.
+                // Mark it as not visible and filter below.
                 measuredItem.isVisible = false
                 remeasureNeeded = true
             }
@@ -538,7 +545,10 @@ private fun LazyStaggeredGridMeasureContext.measure(
             }
             laneInfo.setGaps(itemIndex, gaps)
 
-            if (currentItemOffsets[spanRange.start] <= minOffset + mainAxisSpacing) {
+            // item is not visible if both start and end bounds are outside of the visible range.
+            if (
+                offset < minVisibleOffset && currentItemOffsets[spanRange.start] <= minVisibleOffset
+            ) {
                 // We scrolled past measuredItem, and it is not visible anymore. We measured it
                 // for correct positioning of other items, but there's no need to place it.
                 // Mark it as not visible and filter below.
@@ -564,6 +574,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             firstItemIndices[laneIndex] = laneItems.firstOrNull()?.index ?: Unset
         }
 
+        // ensure no spacing for the last item
         if (currentItemIndices.any { it == itemCount - 1 }) {
             currentItemOffsets.offsetBy(-mainAxisSpacing)
         }
@@ -592,13 +603,21 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 // Note that it is different from initial pass up where we selected largest index
                 // instead. The reason is that we already distributed items on downward pass and
                 // gap would be incorrect if those are moved.
-                val laneIndex = firstItemOffsets.indexOfMinValue()
+                var laneIndex = firstItemOffsets.indexOfMinValue()
+                val nextLaneIndex = firstItemIndices.indexOfMaxValue()
 
-                if (laneIndex != firstItemIndices.indexOfMaxValue()) {
-                    // If min offset lane doesn't have largest value, it means items are misaligned.
-                    // The correct thing here is to restart measure. We will measure up to the end
-                    // and restart measure from there after this pass.
-                    gapDetected = true
+                if (laneIndex != nextLaneIndex) {
+                    if (firstItemOffsets[laneIndex] == firstItemOffsets[nextLaneIndex]) {
+                        // If the offsets are the same, it means that there's no gap here.
+                        // In this case, we should choose the lane where item would go normally.
+                        laneIndex = nextLaneIndex
+                    } else {
+                        // If min offset lane doesn't have largest value, it means items are
+                        // misaligned.
+                        // The correct thing here is to restart measure. We will measure up to the
+                        // end and restart measure from there after this pass.
+                        gapDetected = true
+                    }
                 }
 
                 val currentIndex =

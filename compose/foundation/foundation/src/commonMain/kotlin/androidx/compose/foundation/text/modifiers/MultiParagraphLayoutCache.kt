@@ -337,6 +337,8 @@ internal class MultiParagraphLayoutCache(
     private fun markDirty() {
         paragraphIntrinsics = null
         layoutCache = null
+        cachedIntrinsicHeight = -1
+        cachedIntrinsicHeightInputWidth = -1
     }
 
     /**
