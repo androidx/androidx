@@ -46,8 +46,8 @@ import org.gradle.api.tasks.TaskProvider
 internal abstract class AgpPlugin(
     private val project: Project,
     private val supportedAgpPlugins: Set<AgpPluginId>,
-    private val minAgpVersion: AndroidPluginVersion,
-    private val maxAgpVersion: AndroidPluginVersion,
+    private val minAgpVersionInclusive: AndroidPluginVersion,
+    private val maxAgpVersionExclusive: AndroidPluginVersion,
 ) {
 
     protected val logger: Logger
@@ -93,7 +93,7 @@ internal abstract class AgpPlugin(
 
     private fun configureWithAndroidPlugin() {
 
-        checkAgpVersion(min = minAgpVersion, max = maxAgpVersion)
+        checkAgpVersion()
 
         onBeforeFinalizeDsl()
 
@@ -224,22 +224,22 @@ internal abstract class AgpPlugin(
 
     protected fun agpVersion() = project.agpVersion()
 
-    private fun checkAgpVersion(min: AndroidPluginVersion, max: AndroidPluginVersion) {
+    private fun checkAgpVersion() {
         val agpVersion = project.agpVersion()
-        if (agpVersion < min) {
+        if (agpVersion < minAgpVersionInclusive) {
             throw GradleException(
                 """
         This version of the Baseline Profile Gradle Plugin requires the Android Gradle Plugin to be
-        at least version $MIN_AGP_VERSION_REQUIRED. The current version is $agpVersion.
+        at least version $minAgpVersionInclusive. The current version is $agpVersion.
         Please update your project.
             """.trimIndent()
             )
         }
-        if (agpVersion > max) {
+        if (agpVersion >= maxAgpVersionExclusive) {
             logger.warn(
                 """
-        This version of the Baseline Profile Gradle Plugin was tested at most with the Android
-        Gradle Plugin version $MAX_AGP_VERSION_REQUIRED and it may not work as intended.
+        This version of the Baseline Profile Gradle Plugin was tested with versions below Android
+        Gradle Plugin version $maxAgpVersionExclusive and it may not work as intended.
         Current version is $agpVersion.
                 """.trimIndent()
             )
