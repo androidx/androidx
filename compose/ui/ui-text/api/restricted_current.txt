@@ -715,7 +715,7 @@ package androidx.compose.ui.text.font {
   }
 
   public static interface AndroidFont.TypefaceLoader {
-    method public suspend Object? awaitLoad(android.content.Context context, androidx.compose.ui.text.font.AndroidFont font, kotlin.coroutines.Continuation<? super android.graphics.Typeface>);
+    method public suspend Object? awaitLoad(android.content.Context context, androidx.compose.ui.text.font.AndroidFont font, kotlin.coroutines.Continuation<? super android.graphics.Typeface?>);
     method public android.graphics.Typeface? loadBlocking(android.content.Context context, androidx.compose.ui.text.font.AndroidFont font);
   }
 

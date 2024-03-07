@@ -1705,7 +1705,7 @@ package androidx.compose.ui.input.pointer {
     method public long getSize();
     method public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
     method public default suspend <T> Object? withTimeout(long timeMillis, kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.AwaitPointerEventScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
-    method public default suspend <T> Object? withTimeoutOrNull(long timeMillis, kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.AwaitPointerEventScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method public default suspend <T> Object? withTimeoutOrNull(long timeMillis, kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.AwaitPointerEventScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T?>);
     property public abstract androidx.compose.ui.input.pointer.PointerEvent currentEvent;
     property public default long extendedTouchPadding;
     property public abstract long size;
