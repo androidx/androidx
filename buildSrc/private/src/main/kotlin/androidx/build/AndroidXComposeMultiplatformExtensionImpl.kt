@@ -303,31 +303,22 @@ fun enableArtifactRedirectingPublishing(project: Project) {
 
     val ext = project.multiplatformExtension ?: error("expected a multiplatform project")
 
-    val oelGroupId = project.findProperty("artifactRedirecting.androidx.groupId") as? String
-
-    val newRootComponent: CustomRootComponent? = if (oelGroupId != null) {
-        val oelVersion = project.findProperty("artifactRedirecting.androidx.${project.name}.version") as? String
-        requireNotNull(oelVersion) {
-            "Please specify artifactRedirecting.androidx.${project.name}.version property"
-        }
-
+    val redirecting = project.artifactRedirecting()
+    val newRootComponent: CustomRootComponent? = if (redirecting != null) {
         val rootComponent = project
             .components
             .withType(KotlinSoftwareComponentWithCoordinatesAndPublication::class.java)
             .getByName("kotlin")
 
-        val newDependency = project.dependencies.create(oelGroupId, project.name, oelVersion)
+        val newDependency = project.dependencies.create(redirecting.groupId, project.name, redirecting.version)
         CustomRootComponent(rootComponent, newDependency)
     } else {
         null
     }
 
-    val oelTargetNames = (project.findProperty("artifactRedirecting.publication.targetNames") as? String ?: "")
-        .split(",").toSet()
-
     ext.targets.all { target ->
-        // TODO (o.k): support projects where oel publication is required for both android and native
-        if (target.name in oelTargetNames) {
+        // TODO (o.k): support projects where redirecting publication is required for both android and native
+        if (target.name in redirecting?.targetNames.orEmpty()) {
             project.publishAndroidxReference(target as KotlinOnlyTarget<*>, newRootComponent!!)
         } else if (target is KotlinAndroidTarget) {
             // TODO (o.k): try to get rid of this and reuse the same logic as above
@@ -335,6 +326,27 @@ fun enableArtifactRedirectingPublishing(project: Project) {
         }
     }
 }
+
+internal fun Project.artifactRedirecting(): ArtifactRedirecting? {
+    val groupId = findProperty("artifactRedirecting.androidx.groupId") as? String ?: return null
+    val version = findProperty("artifactRedirecting.androidx.$name.version") as? String
+    requireNotNull(version) {
+        "Please specify artifactRedirecting.androidx.$name.version property"
+    }
+    val targetNames = (findProperty("artifactRedirecting.publication.targetNames") as? String ?: "")
+        .split(",").toSet()
+    return ArtifactRedirecting(
+        groupId = groupId,
+        version = version,
+        targetNames = targetNames,
+    )
+}
+
+internal data class ArtifactRedirecting(
+    val groupId: String,
+    val version: String,
+    val targetNames: Set<String>,
+)
 
 private fun Project.publishAndroidxReference(target: KotlinAndroidTarget) {
     afterEvaluate {

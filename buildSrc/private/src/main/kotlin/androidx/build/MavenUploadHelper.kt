@@ -20,6 +20,7 @@ import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
 import com.android.utils.forEach
+import com.android.utils.mapValuesNotNull
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.stream.JsonWriter
@@ -56,7 +57,6 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 
@@ -116,6 +116,15 @@ private fun Project.configureComponentPublishing(
         "${androidxGroup.group.replace('.', '/')}/$name"
     )
     group = androidxGroup.group
+
+    val groupToRedirecting: Provider<Map<String, ArtifactRedirecting>> = provider {
+        project
+            .getProjectsMap()
+            .values
+            .mapNotNull { project.findProject(it) }
+            .associateBy { it.group.toString() }
+            .mapValuesNotNull { it.value.artifactRedirecting() }
+    }
 
     /*
      * Provides a set of maven coordinates (groupId:artifactId) of artifacts in AndroidX
@@ -191,10 +200,10 @@ private fun Project.configureComponentPublishing(
         task.doLast {
             val pomFile = task.destination
             val pom = pomFile.readText()
-            val sortedPom = sortPomDependencies(pom)
+            val modifiedPom = modifyPomDependencies(pom, groupToRedirecting.get())
 
-            if (pom != sortedPom) {
-                pomFile.writeText(sortedPom)
+            if (pom != modifiedPom) {
+                pomFile.writeText(modifiedPom)
             }
         }
     }
@@ -217,7 +226,10 @@ private fun Project.configureComponentPublishing(
 /**
  * Looks for a dependencies XML element within [pom] and sorts its contents.
  */
-fun sortPomDependencies(pom: String): String {
+internal fun modifyPomDependencies(
+    pom: String,
+    groupToRedirecting: Map<String, ArtifactRedirecting>
+): String {
     // Workaround for using the default namespace in dom4j.
     val namespaceUris = mapOf("ns" to "http://maven.apache.org/POM/4.0.0")
     val docFactory = DocumentFactory()
@@ -232,7 +244,9 @@ fun sortPomDependencies(pom: String): String {
         .filterIsInstance<Element>()
         .forEach { element ->
             val deps = element.elements()
-            val sortedDeps = deps.toSortedSet(compareBy { it.stringValue }).toList()
+            val modifiedDeps = deps
+                .map { modifyPomDependency(it, groupToRedirecting) }
+                .toSortedSet(compareBy { it.stringValue }).toList()
 
             // Content contains formatting nodes, so to avoid modifying those we replace
             // each element with the sorted element from its respective index. Note this
@@ -241,7 +255,7 @@ fun sortPomDependencies(pom: String): String {
             element.content().replaceAll {
                 val index = deps.indexOf(it)
                 if (index >= 0) {
-                    sortedDeps[index]
+                    modifiedDeps[index]
                 } else {
                     it
                 }
@@ -258,6 +272,24 @@ fun sortPomDependencies(pom: String): String {
     }
 
     return stringWriter.toString()
+}
+
+internal fun modifyPomDependency(
+    dependency: Element,
+    groupToRedirecting: Map<String, ArtifactRedirecting>
+): Element {
+    val groupId = dependency.selectSingleNode("ns:groupId")
+    val artifactId = dependency.selectSingleNode("ns:artifactId")
+    val version = dependency.selectSingleNode("ns:version")
+
+    val redirecting = groupToRedirecting[groupId.stringValue] ?: return dependency
+    val target = artifactId.stringValue.substringAfterLast("-")
+    val shouldReplace = redirecting.targetNames.contains(target)
+    if (shouldReplace) {
+        groupId.text = redirecting.groupId
+        version.text = redirecting.version
+    }
+    return dependency
 }
 
 // Coped from org.dom4j.DocumentHelper with modifications to allow SAXReader configuration.

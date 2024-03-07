@@ -373,6 +373,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             project.configureSourceJarForMultiplatform()
             project.configureLintForMultiplatform(extension)
         }
+        project.addToProjectMap(extension)
     }
 
     @Suppress("UnstableApiUsage") // AGP DSL APIs
