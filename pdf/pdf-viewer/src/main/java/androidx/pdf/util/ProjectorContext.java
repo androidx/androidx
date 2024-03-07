@@ -17,6 +17,7 @@
 package androidx.pdf.util;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -31,7 +32,6 @@ public class ProjectorContext {
     private static ProjectorContext sInstance;
 
     private final ProjectorGlobals mGlobals;
-    private final Context mCurrentAppContext;
 
     /**
      *
@@ -52,7 +52,7 @@ public class ProjectorContext {
     }
 
     private ProjectorContext(Context appContext, Screen screen) {
-        mCurrentAppContext = appContext;
+        Log.d("ProjectorContext", String.format("appContext: %s", appContext));
         mGlobals = new ProjectorGlobals(screen);
     }
 

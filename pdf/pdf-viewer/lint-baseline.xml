@@ -7,6 +7,15 @@
         errorLine1="import java.util.concurrent.ConcurrentHashMap;"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
+            file="src/main/java/androidx/pdf/fetcher/DiskCache.java"/>
+    </issue>
+
+    <issue
+        id="BanConcurrentHashMap"
+        message="Detected ConcurrentHashMap usage."
+        errorLine1="import java.util.concurrent.ConcurrentHashMap;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
             file="src/main/java/androidx/pdf/util/Timer.java"/>
     </issue>
 
@@ -798,6 +807,33 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public DiskCache(Context context) {"
         errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/fetcher/DiskCache.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getCachedMimeType(Uri uri) {"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/pdf/fetcher/DiskCache.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static File getLongTermCacheDir(Context context) {"
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/androidx/pdf/fetcher/DiskCache.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static File getLongTermCacheDir(Context context) {"
+        errorLine2="                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/pdf/fetcher/DiskCache.java"/>
     </issue>
@@ -2884,6 +2920,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract void sendPassword(EditText textField);"
+        errorLine2="                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/password/PasswordDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setOnConnectInitializer(Runnable onConnect) {"
         errorLine2="                                        ~~~~~~~~">
         <location
@@ -3176,6 +3221,15 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/pdf/viewer/loader/PdfPageLoader.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void sendPassword(EditText textField) {"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/PdfPasswordDialog.java"/>
     </issue>
 
     <issue
@@ -4245,6 +4299,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Point getOffset() {"
         errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/widget/TileView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public TileInfo getTileInfo() {"
+        errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/pdf/widget/TileView.java"/>
     </issue>

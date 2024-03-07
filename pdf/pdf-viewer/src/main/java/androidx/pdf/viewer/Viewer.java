@@ -33,8 +33,6 @@ import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.Observables;
 import androidx.pdf.util.Observables.ExposedValue;
 
-import java.util.Map;
-
 /**
  * A widget that displays the contents of a file in a given PDF format.
  *
@@ -56,7 +54,7 @@ import java.util.Map;
  * themselves - see {@link LoadingViewer} which handles some of this.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings("UnusedVariable")
+@SuppressWarnings("deprecation")
 public abstract class Viewer extends Fragment {
 
     protected abstract String getLogTag();
@@ -124,20 +122,9 @@ public abstract class Viewer extends Fragment {
     // Debug log of lifecycle events that happened on this viewer, helps investigating.
     private final StringBuilder mEventlog = new StringBuilder();
 
-    // Debug counters to track instance allocation.
-    private static final Map<String, Integer> INSTANCE_COUNTS;
-
-    private final int mInstanceCount;
-
-    static {
-        INSTANCE_COUNTS = null;
-    }
-
     {
         // We can call getArguments() from setters and know that it will not be null.
         setArguments(new Bundle());
-
-        mInstanceCount = 0;
     }
 
     /** Reports the {@link ViewState} of this Fragment. */

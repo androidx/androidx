@@ -49,6 +49,7 @@ public class IntentsTest {
     Intent mIntent;
 
     @Before
+    @SuppressWarnings("deprecation")
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         mContext = ((Application) ApplicationProvider.getApplicationContext()).getBaseContext();

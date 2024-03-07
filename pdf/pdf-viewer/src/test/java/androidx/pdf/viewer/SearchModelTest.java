@@ -46,6 +46,7 @@ public class SearchModelTest {
     private PdfLoader mPdfLoader;
 
     @Before
+    @SuppressWarnings("deprecation")
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
     }

@@ -19,6 +19,7 @@ package androidx.pdf.viewer;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +44,7 @@ import java.util.List;
  * children.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings({"deprecation", "UnusedVariable", "NarrowingCompoundAssignment"})
+@SuppressWarnings("deprecation")
 public class PageLinksView extends LinearLayout {
     private static final String TAG = PageLinksView.class.getSimpleName();
 
@@ -51,7 +52,6 @@ public class PageLinksView extends LinearLayout {
 
     @Nullable
     private LinkRects mUrlLinks;
-    private final ObservableValue<ZoomView.ZoomScroll> mZoomScroll;
     private ExploreByTouchHelper mTouchHelper;
 
     public PageLinksView(Context context, ObservableValue<ZoomView.ZoomScroll> zoomScroll) {
@@ -59,7 +59,6 @@ public class PageLinksView extends LinearLayout {
         setLayoutParams(
                 new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
-        this.mZoomScroll = zoomScroll;
         setWillNotDraw(true);
         setFocusableInTouchMode(false);
     }
@@ -121,7 +120,6 @@ public class PageLinksView extends LinearLayout {
 
         @Override
         protected void getVisibleVirtualViews(List<Integer> virtualViewIds) {
-            int linkSize = mUrlLinks != null ? mUrlLinks.size() : 0;
             if (mUrlLinks != null) {
                 for (int i = 0; i < mUrlLinks.size(); i++) {
                     virtualViewIds.add(i);
@@ -160,24 +158,10 @@ public class PageLinksView extends LinearLayout {
 
             node.setContentDescription(getContentDescription(virtualViewId));
             node.setFocusable(true);
-
-            Rect bounds = null;
-
-            if (bounds != null) {
-                // The AccessibilityNodeInfo isn't automatically scaled by the scaling of the View
-                // it is part of, so we have to do that ourselves - in contrast to
-                // #getVirtualViewAt.
-                float zoom = mZoomScroll.get().zoom;
-                bounds.top *= zoom;
-                bounds.bottom *= zoom;
-                bounds.left *= zoom;
-                bounds.right *= zoom;
-
-                node.setBoundsInParent(bounds);
-            }
         }
 
         private boolean isLinkLoaded(int virtualViewId) {
+            Log.d(TAG, String.format("virtualViewId %d", virtualViewId));
             // Links can be deleted as we unload pages as the user scrolls around - if this
             // happens but an event for the link somehow happens afterward, we should ignore it
             // and try not to crash. Also, the accessibility framework sometimes requests links
@@ -186,6 +170,7 @@ public class PageLinksView extends LinearLayout {
         }
 
         private String getContentDescription(int virtualViewId) {
+            Log.d(TAG, String.format("virtualViewId %d", virtualViewId));
             // TODO: Uncomment after resolving gotopagelinks
             return "";
         }

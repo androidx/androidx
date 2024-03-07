@@ -24,7 +24,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,14 +49,10 @@ import androidx.pdf.data.Openable;
 import androidx.pdf.data.PdfStatus;
 import androidx.pdf.data.Range;
 import androidx.pdf.fetcher.Fetcher;
-import androidx.pdf.find.FindInFileListener;
-import androidx.pdf.find.MatchCount;
-import androidx.pdf.util.CycleRange.Direction;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.ExternalLinks;
 import androidx.pdf.util.GestureTracker;
 import androidx.pdf.util.GestureTracker.GestureHandler;
-import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.ProjectorContext;
@@ -135,8 +130,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private static final String KEY_SPACE_RIGHT = "rightSpace";
     private static final String KEY_QUIT_ON_ERROR = "quitOnError";
     private static final String KEY_EXIT_ON_CANCEL = "exitOnCancel";
-    private static final String DOCX_MIME_TYPE =
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
     /** Key to save/retrieve {@link #mEditingAuthorized} from Bundle. */
     private static final String KEY_EDITING_AUTHORIZED = "editingAuthorized";
@@ -192,7 +185,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private final ValueObserver<PageSelection> mSelectionObserver;
     private final ValueObserver<Integer> mFastscrollerPositionObserver;
     private Object mFastscrollerPositionObserverKey;
-    private boolean mRestored;
     private FastScrollView mFastScrollView;
 
     private boolean mDocumentLoaded = false;
@@ -215,7 +207,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private boolean mZoomViewBasePaddingSaved;
 
     private boolean mWaitingOnSelectionToCreateInlineComment;
-    private boolean mWaitingOnTapToCreatePositionalComment;
     private boolean mEditingAuthorized;
 
     /** Only interact with Queue on the main thread. */
@@ -356,7 +347,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mRestored = savedInstanceState != null;
         mZoomView.zoomScroll().addObserver(mZoomScrollObserver);
         if (mPendingScrollPositionObserver != null) {
             mScrollPositionObserverKey = mZoomView.zoomScroll().addObserver(
@@ -908,7 +898,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
      * required.
      */
     private void maybeLoadFormAccessibilityInfo(int pageNum) {
-        PageView pageView = getOrCreatePage(pageNum);
+        getOrCreatePage(pageNum);
     }
 
     /** Computes the range of visible pages in the given position. */
@@ -1038,42 +1028,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         return TAG + "#fastscrollerPositionObserver";
                     }
                 };
-    }
-
-    private FindInFileListener makeFindInFileListener() {
-        return new FindInFileListener() {
-            @Override
-            public boolean onQueryTextChange(@Nullable String query) {
-                if (mSearchModel != null) {
-                    mSearchModel.setQuery(query, getViewingPage());
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onFindNextMatch(String query, boolean backwards) {
-                if (mSearchModel != null) {
-                    Direction direction;
-                    if (backwards) {
-                        direction = Direction.BACKWARDS;
-                        // TODO: Track "find previous" action event.
-                    } else {
-                        direction = Direction.FORWARDS;
-                        // TODO: Track "find next" action event.
-                    }
-                    mSearchModel.selectNextMatch(direction, getViewingPage());
-                    return true;
-                }
-                return false;
-            }
-
-            @Nullable
-            @Override
-            public ObservableValue<MatchCount> matchCount() {
-                return mSearchModel != null ? mSearchModel.matchCount() : null;
-            }
-        };
     }
 
     /** Gesture listener for PageView's handling of tap and long press. */
@@ -1237,12 +1191,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                             Toaster.LONG.popToast(getActivity(), R.string.error_on_page, page + 1);
                             // TODO: Track render error.
                         }
-                    }
-
-
-                    private void setDisplayAwaitingPasswordState() {
-                        // TODO: Get currentPostition from FilesInfoTrackers and track
-                        //  DisplayInfo.
                     }
 
                     @Override
@@ -1438,35 +1386,11 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     /** Create callback to retry password input when user cancels password prompt. */
     public void setPasswordCancelError() {
 
-        Runnable retryCallback = () -> mPdfLoaderCallbacks.requestPassword(false);
-
     }
 
     private void showFastScrollView() {
         if (mFastScrollView != null) {
             mFastScrollView.setVisible();
         }
-    }
-
-    private String getPersistenceKey() {
-        return Uri.encode(mFileData.getUri() + "/" + getAccount());
-    }
-
-    @NonNull
-    private String getAccount() {
-        Activity activity = getActivity();
-        if (activity != null) {
-            try {
-                //TODO: See the use case and either remove or replace appropriately.
-                return "null";
-            } catch (BadParcelableException e) {
-                /* Until Android T, the framework unparcels all intent extras as soon as you ask
-                for one. So if a 3rd party app adds a custom Parcelable for a class we don't have
-                 in our app, we crash. Thankfully, PdfViewerActivity can still render the pdf
-                 without needing extras, so this guard protects against crashing in that case. */
-            }
-        }
-        // Actually return "null" in case this file to converted to Kotlin in the future.
-        return "null";
     }
 }
