@@ -660,9 +660,9 @@ private data class FlowMeasurePolicy(
         val collapseMeasurable = measurables.getOrNull(2)?.firstOrNull()
         overflow.itemCount = list.size
         overflow.setOverflowMeasurables(
+            this@FlowMeasurePolicy,
             seeMoreMeasurable,
             collapseMeasurable,
-            isHorizontal,
             constraints,
         )
         return breakDownItems(
@@ -1182,7 +1182,7 @@ internal fun MeasureScope.breakDownItems(
     val spacing = ceil(mainAxisSpacingDp.toPx()).toInt()
     val crossAxisSpacing = ceil(crossAxisSpacingDp.toPx()).toInt()
     val subsetConstraints = OrientationIndependentConstraints(
-        mainAxisMin,
+        0,
         mainAxisMax,
         0,
         crossAxisMax
@@ -1347,6 +1347,7 @@ internal fun MeasureScope.breakDownItems(
 
     ellipsisWrapInfo?.let {
         measurables.add(it.ellipsis)
+        placeables[measurables.size - 1] = it.placeable
         lineIndex = endBreakLineList.lastIndex
         if (it.placeEllipsisOnLastContentLine) {
             val lastIndex = endBreakLineList.size - 1
@@ -1450,7 +1451,7 @@ internal val CROSS_AXIS_ALIGNMENT_START = CrossAxisAlignment.horizontal(Alignmen
 // For weighted items, we continue to use their intrinsic widths.
 // This is because their fixed sizes are only determined after we determine
 // the number of items that can fit in the row/column it only lies on.
-private fun Measurable.measureAndCache(
+internal fun Measurable.measureAndCache(
     measurePolicy: FlowLineMeasurePolicy,
     constraints: Constraints,
     storePlaceable: (Placeable?) -> Unit

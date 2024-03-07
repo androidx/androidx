@@ -455,7 +455,7 @@ private data class FlowMeasureLazyPolicy(
         }
         overflow.itemCount = itemCount
         overflow.setOverflowMeasurables(
-            isHorizontal,
+            this@FlowMeasureLazyPolicy,
             constraints
         ) { canExpand, noOfItemsShown ->
             val composableIndex = if (canExpand) 0 else 1
