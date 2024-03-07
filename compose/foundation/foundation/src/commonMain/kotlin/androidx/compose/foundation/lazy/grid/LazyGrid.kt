@@ -102,7 +102,6 @@ internal fun LazyGrid(
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
                 reverseScrolling = reverseLayout,
-                coroutineScope = coroutineScope
             )
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberLazyGridBeyondBoundsState(state = state),
