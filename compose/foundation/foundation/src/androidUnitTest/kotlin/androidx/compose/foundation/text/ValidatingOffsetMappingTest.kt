@@ -91,6 +91,26 @@ class ValidatingOffsetMappingTest {
     }
 
     @Test
+    fun filterWithValidation_allowsInvalidTransformation_whenOffsetIsInvalid() {
+        val transformation = VisualTransformation { original ->
+            // Transformation is not important, returning invalid index should not matter if the
+            // supplied offset itself is invalid in its space.
+            TransformedText(original, object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int = offset
+                override fun transformedToOriginal(offset: Int): Int = offset
+            })
+        }
+
+        val transformed = transformation.filterWithValidation(AnnotatedString(text))
+
+        assertThat(transformed.offsetMapping.transformedToOriginal(invalidIndex))
+            .isEqualTo(invalidIndex)
+
+        assertThat(transformed.offsetMapping.originalToTransformed(invalidIndex))
+            .isEqualTo(invalidIndex)
+    }
+
+    @Test
     fun filterWithValidation_throws_whenInvalidOriginalToTransformed() {
         val transformation = VisualTransformation { original ->
             TransformedText(original, object : OffsetMapping {
