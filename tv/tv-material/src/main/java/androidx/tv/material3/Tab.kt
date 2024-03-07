@@ -56,7 +56,6 @@ import androidx.compose.ui.semantics.semantics
  * still happen internally.
  * @param content content of the [Tab]
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun TabRowScope.Tab(
     selected: Boolean,
@@ -106,7 +105,6 @@ fun TabRowScope.Tab(
  * - See [TabDefaults.underlinedIndicatorTabColors] for the default colors used in a [Tab] when
  * using an Underlined indicator
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 class TabColors
 internal constructor(
     internal val contentColor: Color,
@@ -147,7 +145,6 @@ internal constructor(
     }
 }
 
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 object TabDefaults {
     /**
      * [Tab]'s content colors to in conjunction with underlined indicator
@@ -163,7 +160,6 @@ object TabDefaults {
      * focused
      * @param disabledSelectedContentColor applied when the current tab is disabled and selected
      */
-    @OptIn(ExperimentalTvMaterial3Api::class)
     @Composable
     fun underlinedIndicatorTabColors(
         contentColor: Color = LocalContentColor.current,
@@ -200,7 +196,6 @@ object TabDefaults {
      * focused
      * @param disabledSelectedContentColor applied when the current tab is disabled and selected
      */
-    @OptIn(ExperimentalTvMaterial3Api::class)
     @Composable
     fun pillIndicatorTabColors(
         contentColor: Color = LocalContentColor.current,
@@ -224,7 +219,6 @@ object TabDefaults {
         )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun TabColors.toToggleableSurfaceColors(
     doesTabRowHaveFocus: Boolean,
