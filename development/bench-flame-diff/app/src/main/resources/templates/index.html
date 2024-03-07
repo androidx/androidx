@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Diff</title>
+
+    <link
+      href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <style>
+      .spacer {
+        margin: 10px;
+        display: inline;
+      }
+      .top-nav-title {
+        font-family: 'Courier New', monospace;
+        font-size: small;
+        margin-left: 2px;
+      }
+      .svg {
+        margin-top: 7px
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div>
+        <span class="top-nav-title">bench-flame-diff</span>
+        <div class="spacer"></div>
+        <button class="button" onclick="openTab('%before_raw_name%')">%before_raw_name%</button>
+        <button class="button" onclick="openTab('%before_diff_name%')">%before_diff_name%</button>
+        <div class="spacer">|</div>
+        <button class="button" onclick="openTab('%after_raw_name%')">%after_raw_name%</button>
+        <button class="button" onclick="openTab('%after_diff_name%')">%after_diff_name%</button>
+        <div class="spacer">|</div>
+        <button class="button" onclick="window.open('http://go/bench-flame-diff-readme')">help</button>
+      </div>
+      <div id="%before_raw_name%" class="svg">
+        <object type="image/svg+xml" data="%before_raw_file%">Failed to display the file: %before_raw_file%</object>
+      </div>
+      <div id="%before_diff_name%" class="svg">
+        <object type="image/svg+xml" data="%before_diff_file%">Failed to display the file: %before_diff_file%</object>
+      </div>
+      <div id="%after_raw_name%" class="svg">
+        <object type="image/svg+xml" data="%after_raw_file%">Failed to display the file: %after_raw_file%</object>
+      </div>
+      <div id="%after_diff_name%" class="svg">
+        <object type="image/svg+xml" data="%after_diff_file%">Failed to display the file: %after_diff_file%</object>
+      </div>
+    </div>
+
+    <script>
+      mdc.ripple.MDCRipple.attachTo(document.querySelector(".button"));
+
+      function openTab(tabName) {
+        let tab = document.getElementsByClassName("svg");
+        for (let i = 0; i < tab.length; i++) tab[i].style.display = "none";
+        document.getElementById(tabName).style.display = "block";
+      }
+
+      openTab("%after_diff_name%");
+    </script>
+  </body>
+</html>
