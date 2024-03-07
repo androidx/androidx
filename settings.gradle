@@ -504,6 +504,7 @@ includeProject(":compose:foundation:foundation-layout:integration-tests:foundati
 includeProject(":compose:foundation:foundation-layout:foundation-layout-samples", "compose/foundation/foundation-layout/samples", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation-lint", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation:integration-tests:foundation-demos", [BuildType.COMPOSE])
+includeProject(":compose:foundation:foundation:integration-tests:lazy-tests", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation:foundation-samples", "compose/foundation/foundation/samples", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:demos", [BuildType.COMPOSE])
