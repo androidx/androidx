@@ -29,12 +29,16 @@ import androidx.compose.ui.input.pointer.BrowserCursor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.JSTextInputService
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import kotlin.coroutines.coroutineContext
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -123,7 +127,7 @@ private class ComposeWindow(
     private val canvas: HTMLCanvasElement,
     content: @Composable () -> Unit,
     private val state: ComposeWindowState
-)  {
+) : LifecycleOwner {
     private val density: Density = Density(
         density = actualDensity.toFloat(),
         fontScale = 1f
@@ -156,6 +160,8 @@ private class ComposeWindow(
     )
     private val systemThemeObserver = getSystemThemeObserver()
 
+    private val lifecycleOwner = LifecycleRegistry(this)
+    override val lifecycle: Lifecycle get() = lifecycleOwner
 
     private fun <T : Event> addTypedEvent(
         type: String,
@@ -231,6 +237,16 @@ private class ComposeWindow(
             val processed = layer.view.onKeyboardEventWithResult(event.toSkikoEvent(SkikoKeyboardEventKind.UP))
             if (processed) event.preventDefault()
         }
+
+        window.addEventListener("focus", {
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        })
+
+        window.addEventListener("blur", {
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        })
+
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
     init {
@@ -243,6 +259,7 @@ private class ComposeWindow(
         layer.setContent {
             CompositionLocalProvider(
                 LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
+                LocalLifecycleOwner provides this,
                 content = {
                     content()
                     rememberCoroutineScope().launch {
@@ -253,6 +270,8 @@ private class ComposeWindow(
                 }
             )
         }
+
+        lifecycleOwner.handleLifecycleEvent(if (document.hasFocus()) Lifecycle.Event.ON_RESUME else Lifecycle.Event.ON_START)
     }
 
     fun resize(boxSize: IntSize) {
@@ -278,6 +297,7 @@ private class ComposeWindow(
 
     // TODO: need to call .dispose() on window close.
     fun dispose() {
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         layer.dispose()
         systemThemeObserver.dispose()
     }
