@@ -226,9 +226,10 @@ constructor(
         _graphState.value = GraphStateStopping
     }
 
-    override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+    override fun onGraphStopped(requestProcessor: GraphRequestProcessor?) {
         debug { "$this onGraphStopped" }
         _graphState.value = GraphStateStopped
+        if (requestProcessor == null) return
         var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {

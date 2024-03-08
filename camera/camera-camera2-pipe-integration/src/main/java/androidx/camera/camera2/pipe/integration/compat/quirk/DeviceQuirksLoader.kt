@@ -46,6 +46,9 @@ object DeviceQuirksLoader {
         if (ControlZoomRatioRangeAssertionErrorQuirk.isEnabled()) {
             quirks.add(ControlZoomRatioRangeAssertionErrorQuirk())
         }
+        if (DisableAbortCapturesOnStopWithSessionProcessorQuirk.isEnabled()) {
+            quirks.add(DisableAbortCapturesOnStopWithSessionProcessorQuirk())
+        }
         if (FlashAvailabilityBufferUnderflowQuirk.isEnabled()) {
             quirks.add(FlashAvailabilityBufferUnderflowQuirk())
         }

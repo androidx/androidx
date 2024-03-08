@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -42,7 +43,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 internal val useCaseCameraIds = atomic(0)
@@ -99,6 +100,7 @@ class UseCaseCameraImpl @Inject constructor(
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
+    private lateinit var stateCollectJob: Job
 
     override var runningUseCases = setOf<UseCase>()
         set(value) {
@@ -129,12 +131,20 @@ class UseCaseCameraImpl @Inject constructor(
         useCaseGraphConfig.apply {
             cameraStateAdapter.onGraphUpdated(graph)
         }
-        threads.scope.launch {
+        stateCollectJob = threads.scope.launch {
             useCaseGraphConfig.apply {
                 graph.graphState.collect {
                     cameraStateAdapter.onGraphStateUpdated(graph, it)
-                    if (closed.value && it is GraphStateStopped) {
-                        cancel()
+
+                    // Even if the UseCaseCamera is closed, we should still update the GraphState
+                    // before cancelling the job, because it could be the last UseCaseCamera created
+                    // (i.e., no new UseCaseCamera to update CameraStateAdapter that this one as
+                    // stopped/closed).
+                    if (closed.value &&
+                        it is GraphStateStopped ||
+                        it is GraphStateError
+                    ) {
+                        stateCollectJob.cancel()
                     }
 
                     // TODO: b/323614735: Technically our RequestProcessor implementation could be
@@ -168,9 +178,14 @@ class UseCaseCameraImpl @Inject constructor(
             threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 debug { "Closing $this" }
                 requestControl.close()
-                sessionProcessorManager?.onCaptureSessionEnd()
+                sessionProcessorManager?.prepareClose()
                 useCaseGraphConfig.graph.close()
-                sessionProcessorManager?.close()
+                if (sessionProcessorManager != null) {
+                    useCaseGraphConfig.graph.graphState.first {
+                        it is GraphStateStopped || it is GraphStateError
+                    }
+                    sessionProcessorManager.close()
+                }
                 useCaseSurfaceManager.stopAsync().await()
             }
         } else {
