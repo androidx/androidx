@@ -40,6 +40,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.pageDown
 import androidx.compose.ui.semantics.pageLeft
 import androidx.compose.ui.semantics.pageRight
@@ -300,12 +301,14 @@ object PagerDefaults {
                 "You've specified $snapPositionalThreshold"
         }
         val density = LocalDensity.current
+        val layoutDirection = LocalLayoutDirection.current
         return remember(
             state,
             decayAnimationSpec,
             snapAnimationSpec,
             pagerSnapDistance,
-            density
+            density,
+            layoutDirection
         ) {
             val snapLayoutInfoProvider =
                 SnapLayoutInfoProvider(
@@ -315,6 +318,7 @@ object PagerDefaults {
                 ) { flingVelocity, lowerBound, upperBound ->
                     calculateFinalSnappingBound(
                         pagerState = state,
+                        layoutDirection = layoutDirection,
                         snapPositionalThreshold = snapPositionalThreshold,
                         flingVelocity = flingVelocity,
                         lowerBoundOffset = lowerBound,
