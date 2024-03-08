@@ -382,8 +382,11 @@ internal fun <T> OldOrNewScrollbar(
     val adapter = remember(oldOrNewAdapter, containerSize){
         newScrollbarAdapterFactory(oldOrNewAdapter, containerSize)
     }
-    val sliderAdapter = remember(adapter, containerSize, minimalHeight, reverseLayout, isVertical) {
-        SliderAdapter(adapter, containerSize, minimalHeight, reverseLayout, isVertical)
+    val coroutineScope = rememberCoroutineScope()
+    val sliderAdapter = remember(
+        adapter, containerSize, minimalHeight, reverseLayout, isVertical, coroutineScope
+    ) {
+        SliderAdapter(adapter, containerSize, minimalHeight, reverseLayout, isVertical, coroutineScope)
     }
 
     val scrollThickness = style.thickness.roundToPx()
