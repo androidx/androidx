@@ -1960,10 +1960,10 @@ package androidx.compose.ui.input.pointer {
   }
 
   public sealed interface SuspendingPointerInputModifierNode extends androidx.compose.ui.node.PointerInputModifierNode {
-    method public kotlin.jvm.functions.Function2<androidx.compose.ui.input.pointer.PointerInputScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,java.lang.Object> getPointerInputHandler();
+    method public kotlin.jvm.functions.Function2<androidx.compose.ui.input.pointer.PointerInputScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,java.lang.Object?> getPointerInputHandler();
     method public void resetPointerInputHandler();
     method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.PointerInputScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>);
-    property public abstract kotlin.jvm.functions.Function2<androidx.compose.ui.input.pointer.PointerInputScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,java.lang.Object> pointerInputHandler;
+    property public abstract kotlin.jvm.functions.Function2<androidx.compose.ui.input.pointer.PointerInputScope,kotlin.coroutines.Continuation<? super kotlin.Unit>,java.lang.Object?> pointerInputHandler;
   }
 
 }
