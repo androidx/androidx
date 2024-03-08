@@ -33,7 +33,6 @@ import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +48,6 @@ class FragmentTransitionSeekingTest {
         FragmentTransitionTestActivity::class.java
     )
 
-    @Ignore // b/324309532
     @Test
     fun replaceOperationWithTransitionsThenGestureBack() {
         val fm1 = activityRule.activity.supportFragmentManager
@@ -126,78 +124,83 @@ class FragmentTransitionSeekingTest {
 
     @Test
     fun replaceOperationWithTransitionsThenBackCancelled() {
-        val fm1 = activityRule.activity.supportFragmentManager
-
-        var startedEnter = false
-        val fragment1 = TransitionFragment(R.layout.scene1)
-        fragment1.setReenterTransition(Fade().apply {
-            duration = 300
-            addListener(object : TransitionListenerAdapter() {
-                override fun onTransitionStart(transition: Transition) {
-                    startedEnter = true
-                }
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity {
+                supportFragmentManager
+            }
+            var startedEnter = false
+            val fragment1 = TransitionFragment(R.layout.scene1)
+            fragment1.setReenterTransition(Fade().apply {
+                duration = 300
+                addListener(object : TransitionListenerAdapter() {
+                    override fun onTransitionStart(transition: Transition) {
+                        startedEnter = true
+                    }
+                })
             })
-        })
 
-        fm1.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment1, "1")
-            .setReorderingAllowed(true)
-            .addToBackStack(null)
-            .commit()
-        activityRule.waitForExecution()
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
 
-        val startedExitCountDownLatch = CountDownLatch(1)
-        val fragment2 = TransitionFragment()
-        fragment2.setReturnTransition(Fade().apply {
-            duration = 300
-            addListener(object : TransitionListenerAdapter() {
-                override fun onTransitionStart(transition: Transition) {
-                    startedExitCountDownLatch.countDown()
-                }
+            val startedExitCountDownLatch = CountDownLatch(1)
+            val fragment2 = TransitionFragment()
+            fragment2.setReturnTransition(Fade().apply {
+                duration = 300
+                addListener(object : TransitionListenerAdapter() {
+                    override fun onTransitionStart(transition: Transition) {
+                        startedExitCountDownLatch.countDown()
+                    }
+                })
             })
-        })
 
-        fm1.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment2, "2")
-            .setReorderingAllowed(true)
-            .addToBackStack(null)
-            .commit()
-        activityRule.executePendingTransactions()
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
 
-        fragment1.waitForTransition()
-        fragment2.waitForTransition()
+            fragment1.waitForTransition()
+            fragment2.waitForTransition()
 
-        val dispatcher = activityRule.activity.onBackPressedDispatcher
-        activityRule.runOnUiThread {
-            dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
+            val dispatcher = activityRule.activity.onBackPressedDispatcher
+            activityRule.runOnUiThread {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+            }
+            executePendingTransactions(fm1)
+
+            activityRule.runOnUiThread {
+                dispatcher.dispatchOnBackProgressed(
+                    BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+                )
+            }
+            executePendingTransactions(fm1)
+
+            assertThat(startedEnter).isTrue()
+            assertThat(startedExitCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
+            activityRule.runOnUiThread {
+                dispatcher.dispatchOnBackCancelled()
+            }
+            executePendingTransactions(fm1)
+
+            // The executePendingTransaction will end the transition so we should not wait here.
+            fragment1.waitForNoTransition()
+
+            assertThat(fragment2.isAdded).isTrue()
+            assertThat(fm1.findFragmentByTag("2")).isEqualTo(fragment2)
+
+            // Make sure the original fragment was correctly readded to the container
+            assertThat(fragment2.requireView()).isNotNull()
         }
-        activityRule.executePendingTransactions(fm1)
-
-        activityRule.runOnUiThread {
-            dispatcher.dispatchOnBackProgressed(
-                BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
-            )
-        }
-        activityRule.executePendingTransactions(fm1)
-
-        assertThat(startedEnter).isTrue()
-        assertThat(startedExitCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-
-        activityRule.runOnUiThread {
-            dispatcher.dispatchOnBackCancelled()
-        }
-        activityRule.executePendingTransactions(fm1)
-
-        fragment1.waitForTransition()
-
-        assertThat(fragment2.isAdded).isTrue()
-        assertThat(fm1.findFragmentByTag("2")).isEqualTo(fragment2)
-
-        // Make sure the original fragment was correctly readded to the container
-        assertThat(fragment2.requireView()).isNotNull()
     }
 
-    @Ignore // b/324309532
     @Test
     fun replaceOperationWithTransitionsThenGestureBackTwice() {
         val fm1 = activityRule.activity.supportFragmentManager
@@ -339,7 +342,6 @@ class FragmentTransitionSeekingTest {
         assertThat(fragment1.requireView().parent).isNotNull()
     }
 
-    @Ignore // b/300694860
     @Test
     fun replaceOperationWithTransitionsThenOnBackPressedTwice() {
         val fm1 = activityRule.activity.supportFragmentManager

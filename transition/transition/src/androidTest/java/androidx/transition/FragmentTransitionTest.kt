@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -77,7 +76,6 @@ class FragmentTransitionTest(
         fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener)
     }
 
-    @Ignore // b/326237469
     // Test that normal view transitions (enter, exit, reenter, return) run with
     // a single fragment.
     @Test
@@ -122,7 +120,6 @@ class FragmentTransitionTest(
         assertThat(onBackStackChangedTimes).isEqualTo(4)
     }
 
-    @Ignore // b/326237469
     // Test removing a Fragment with a Transition and adding it back before the Transition
     // finishes is handled correctly.
     @Test
@@ -159,7 +156,6 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment)
     }
 
-    @Ignore // b/326237469
     @Test
     fun testTimedPostponeImmediateStartNotCanceled() {
         val fm = activityRule.activity.supportFragmentManager
@@ -198,7 +194,6 @@ class FragmentTransitionTest(
         assertThat(cancelCount).isEqualTo(0)
     }
 
-    @Ignore // b/326237469
     @Test
     fun ensureTransitionsFinishBeforeViewDestroyed() {
         // enter transition
@@ -235,7 +230,6 @@ class FragmentTransitionTest(
         assertThat(fragment.transitionCountInOnDestroyView).isEqualTo(0)
     }
 
-    @Ignore // b/326237469
     // Test that shared elements transition from one fragment to the next
     // and back during pop.
     @Test
@@ -251,7 +245,6 @@ class FragmentTransitionTest(
         verifyPopTransition(1, fragment2, fragment1)
     }
 
-    @Ignore // b/326237469
     @Test
     fun sharedElementNoOtherTransition() {
         val fragment1 = setupInitialFragment()
@@ -293,7 +286,6 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment2)
     }
 
-    @Ignore // b/326237469
     @Test
     fun sharedElementAddNoOtherTransition() {
         val fragment1 = setupInitialFragment()
@@ -328,7 +320,6 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment2)
     }
 
-    @Ignore // b/326237469
     // Test that shared elements transition from one fragment to the next
     // and back during pop.
     @Suppress("DEPRECATION")
@@ -346,7 +337,6 @@ class FragmentTransitionTest(
         verifyPopTransition(1, fragment2, fragment1)
     }
 
-    @Ignore // b/326237469
     // Test that shared element transitions through multiple fragments work together
     @Test
     fun intermediateFragment() {
@@ -364,7 +354,6 @@ class FragmentTransitionTest(
         verifyPopTransition(2, fragment3, fragment1, fragment2)
     }
 
-    @Ignore // b/326237469
     // Adding/removing the same fragment multiple times shouldn't mess anything up
     @Test
     fun removeAdded() {
@@ -418,7 +407,6 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment2)
     }
 
-    @Ignore // b/326237469
     // Make sure that shared elements on two different fragment containers don't interact
     @Test
     fun crossContainer() {
@@ -458,7 +446,6 @@ class FragmentTransitionTest(
         verifyCrossTransition(true, fragment1, fragment2)
     }
 
-    @Ignore // b/326237469
     // Make sure that onSharedElementStart and onSharedElementEnd are called
     @Suppress("UNCHECKED_CAST")
     @Test
@@ -519,7 +506,6 @@ class FragmentTransitionTest(
         assertThat(snapshots.value).isNull()
     }
 
-    @Ignore // b/326237469
     // Make sure that onMapSharedElement works to change the shared element going out
     @Test
     fun onMapSharedElementOut() {
@@ -592,7 +578,6 @@ class FragmentTransitionTest(
         }
     }
 
-    @Ignore // b/326237469
     // Make sure that onMapSharedElement works to change the shared element target
     @Test
     fun onMapSharedElementIn() {
@@ -664,7 +649,6 @@ class FragmentTransitionTest(
         }
     }
 
-    @Ignore // b/326237469
     // Ensure that shared element transitions that have targets properly target the views
     @Test
     fun complexSharedElementTransition() {
@@ -727,7 +711,6 @@ class FragmentTransitionTest(
         }
     }
 
-    @Ignore // b/326237469
     // Ensure that after transitions have executed that they don't have any targets or other
     // unfortunate modifications.
     @Test
@@ -756,7 +739,6 @@ class FragmentTransitionTest(
         assertThat(fragment2.reenterTransition.epicenterCallback).isNull()
     }
 
-    @Ignore // b/326237469
     // Ensure that transitions are done when a fragment is shown and hidden
     @Test
     fun showHideTransition() {
@@ -825,7 +807,6 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment2)
     }
 
-    @Ignore // b/326237469
     // Test that setting allowEnterTransitionOverlap to false correctly delays
     // the enter transition until after the exit transition finishes
     @Test
@@ -877,7 +858,6 @@ class FragmentTransitionTest(
             .isFalse()
     }
 
-    @Ignore // b/326237469
     // Ensure that transitions are done when a fragment is attached and detached
     @Test
     fun attachDetachTransition() {
@@ -927,7 +907,6 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment2)
     }
 
-    @Ignore // b/326237469
     // Ensure that shared element without matching transition name doesn't error out
     @Test
     fun sharedElementMismatch() {
@@ -964,7 +943,6 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment2)
     }
 
-    @Ignore // b/326237469
     // Ensure that using the same source or target shared element results in an exception.
     @Test
     fun sharedDuplicateTargetNames() {
@@ -998,7 +976,6 @@ class FragmentTransitionTest(
         }
     }
 
-    @Ignore // b/326237469
     // Test that invisible fragment views don't participate in transitions
     @Test
     fun invisibleNoTransitions() {
@@ -1037,7 +1014,6 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment)
     }
 
-    @Ignore // b/326237469
     // No crash when transitioning a shared element and there is no shared element transition.
     @Test
     fun noSharedElementTransition() {
@@ -1120,7 +1096,6 @@ class FragmentTransitionTest(
         }
     }
 
-    @Ignore // b/326237469
     // No crash when there is no shared element transition and transitioning a shared element after
     // a pop
     @Test
@@ -1185,7 +1160,6 @@ class FragmentTransitionTest(
         }
     }
 
-    @Ignore // b/326237469
     // When there is no matching shared element, the transition name should not be changed
     @Test
     fun noMatchingSharedElementRetainName() {
@@ -1233,7 +1207,6 @@ class FragmentTransitionTest(
         assertThat(endGreen.transitionName).isEqualTo("greenSquare")
     }
 
-    @Ignore // b/326237469
     @Test
     fun ignoreWhenViewNotAttached() {
         with(ActivityScenario.launch(AddTransitionFragmentInActivity::class.java)) {
