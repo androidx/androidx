@@ -102,6 +102,29 @@ package androidx.kruth {
     method public void fail(AssertionError failure);
   }
 
+  public final class FloatSubject extends androidx.kruth.ComparableSubject<java.lang.Float> {
+    method public void isAtLeast(int other);
+    method public void isAtMost(int other);
+    method @Deprecated public void isEquivalentAccordingToCompareTo(Float? other);
+    method public void isFinite();
+    method public void isGreaterThan(int other);
+    method public void isLessThan(int other);
+    method public void isNaN();
+    method public void isNegativeInfinity();
+    method public void isNonZero();
+    method public void isNotNaN();
+    method public androidx.kruth.FloatSubject.TolerantFloatComparison isNotWithin(float tolerance);
+    method public void isPositiveInfinity();
+    method public androidx.kruth.FloatSubject.TolerantFloatComparison isWithin(float tolerance);
+    method public void isZero();
+  }
+
+  public abstract static class FloatSubject.TolerantFloatComparison {
+    method @Deprecated public boolean equals(Object? other);
+    method @Deprecated public int hashCode();
+    method public abstract void of(float expected);
+  }
+
   public final class GuavaOptionalSubject<T> extends androidx.kruth.Subject<com.google.common.base.Optional<? extends T>> {
     method public void hasValue(Object? expected);
     method public void isAbsent();
@@ -152,6 +175,7 @@ package androidx.kruth {
     method public static androidx.kruth.PrimitiveIntArraySubject assertThat(int[]? actual);
     method public static androidx.kruth.BooleanSubject assertThat(Boolean? actual);
     method public static androidx.kruth.DoubleSubject assertThat(Double? actual);
+    method public static androidx.kruth.FloatSubject assertThat(Float? actual);
     method public static <T> androidx.kruth.IterableSubject<T> assertThat(Iterable<? extends T>? actual);
     method public static androidx.kruth.StringSubject assertThat(String? actual);
     method public static <K, V> androidx.kruth.MapSubject<K,V> assertThat(java.util.Map<K,? extends V>? actual);
@@ -315,6 +339,7 @@ package androidx.kruth {
     method public final androidx.kruth.PrimitiveIntArraySubject that(int[]? actual);
     method public final androidx.kruth.BooleanSubject that(Boolean? actual);
     method public final androidx.kruth.DoubleSubject that(Double? actual);
+    method public final androidx.kruth.FloatSubject that(Float? actual);
     method public final <T> androidx.kruth.IterableSubject<T> that(Iterable<? extends T>? actual);
     method public final androidx.kruth.StringSubject that(String? actual);
     method public final <K, V> androidx.kruth.MapSubject<K,V> that(java.util.Map<K,? extends V>? actual);

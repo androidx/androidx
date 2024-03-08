@@ -63,8 +63,6 @@ RemovedClass: androidx.kruth.Correspondence:
     Removed class androidx.kruth.Correspondence
 RemovedClass: androidx.kruth.CustomSubjectBuilder:
     Removed class androidx.kruth.CustomSubjectBuilder
-RemovedClass: androidx.kruth.FloatSubject:
-    Removed class androidx.kruth.FloatSubject
 RemovedClass: androidx.kruth.IterableSubject.UsingCorrespondence:
     Removed class androidx.kruth.IterableSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.MapSubject.UsingCorrespondence:
@@ -139,8 +137,6 @@ RemovedMethod: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Custom
     Removed method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Class<?>):
     Removed method androidx.kruth.StandardSubjectBuilder.that(Class<?>)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Float):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(Float)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.base.Optional<?>):
     Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.base.Optional<?>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multimap<?,?>):
