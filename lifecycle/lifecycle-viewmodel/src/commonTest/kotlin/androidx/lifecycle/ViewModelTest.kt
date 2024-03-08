@@ -76,4 +76,42 @@ class ViewModelTest {
         vm.clear()
         assertThat(impl.wasClosed).isTrue()
     }
+
+    @Test
+    fun constructor_withDuplicatedCloseables_onClear_closesResources() {
+        val closeable = CloseableImpl()
+        val viewModel = CloseableTestViewModel(closeable)
+        viewModel.addCloseable(closeable)
+
+        viewModel.clear()
+
+        assertThat(closeable.wasClosed).isTrue()
+    }
+
+    @Test
+    fun addCloseable_withDuplicatedKey_replacesPrevious() {
+        val viewModel = TestViewModel()
+        val closeable1 = CloseableImpl()
+        val closeable2 = CloseableImpl()
+
+        viewModel.addCloseable(key = "key", closeable1)
+        viewModel.addCloseable(key = "key", closeable2)
+
+        val actualCloseable = viewModel.getCloseable<CloseableImpl>(key = "key")
+        assertThat(actualCloseable).isNotEqualTo(closeable1)
+        assertThat(actualCloseable).isEqualTo(closeable2)
+    }
+
+    @Test
+    fun addCloseable_withDuplicatedKey_closesPrevious() {
+        val viewModel = TestViewModel()
+        val closeable1 = CloseableImpl()
+        val closeable2 = CloseableImpl()
+
+        viewModel.addCloseable(key = "key", closeable1)
+        viewModel.addCloseable(key = "key", closeable2)
+
+        assertThat(closeable1.wasClosed).isTrue()
+        assertThat(closeable2.wasClosed).isFalse()
+    }
 }

@@ -92,18 +92,7 @@ internal class ViewModelImpl {
         closeables.clear()
     }
 
-    /**
-     * Add a new [AutoCloseable] object that will be closed directly before
-     * [ViewModel.onCleared] is called.
-     *
-     * If `onCleared()` has already been called, the closeable will not be added,
-     * and will instead be closed immediately.
-     *
-     * @param key A key that allows you to retrieve the closeable passed in by using the same
-     *            key with [ViewModel.getCloseable]
-     * @param closeable The object that should be [AutoCloseable.close] directly before
-     *                  [ViewModel.onCleared] is called.
-     */
+    /** @see [ViewModel.addCloseable] */
     fun addCloseable(key: String, closeable: AutoCloseable) {
         // Although no logic should be done after user calls onCleared(), we will
         // ensure that if it has already been called, the closeable attempting to
@@ -113,19 +102,11 @@ internal class ViewModelImpl {
             return
         }
 
-        lock.withLock { bagOfTags.put(key, closeable) }
+        val oldCloseable = lock.withLock { bagOfTags.put(key, closeable) }
+        closeWithRuntimeException(oldCloseable)
     }
 
-    /**
-     * Add a new [AutoCloseable] object that will be closed directly before
-     * [ViewModel.onCleared] is called.
-     *
-     * If `onCleared()` has already been called, the closeable will not be added,
-     * and will instead be closed immediately.
-     *
-     * @param closeable The object that should be [closed][AutoCloseable.close] directly before
-     *                  [ViewModel.onCleared] is called.
-     */
+    /** @see [ViewModel.addCloseable] */
     fun addCloseable(closeable: AutoCloseable) {
         // Although no logic should be done after user calls onCleared(), we will
         // ensure that if it has already been called, the closeable attempting to
@@ -138,22 +119,16 @@ internal class ViewModelImpl {
         lock.withLock { this.closeables += closeable }
     }
 
-    /**
-     * Returns the closeable previously added with [ViewModel.addCloseable] with the given [key].
-     *
-     * @param key The key that was used to add the Closeable.
-     */
+    /** @see [ViewModel.getCloseable] */
     fun <T : AutoCloseable> getCloseable(key: String): T? =
         @Suppress("UNCHECKED_CAST")
         lock.withLock { bagOfTags[key] as T? }
 
-    private fun closeWithRuntimeException(instance: Any) {
-        if (instance is AutoCloseable) {
-            try {
-                instance.close()
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
+    private fun closeWithRuntimeException(closeable: AutoCloseable?) {
+        try {
+            closeable?.close()
+        } catch (e: Exception) {
+            throw RuntimeException(e)
         }
     }
 }

@@ -149,33 +149,34 @@ public expect abstract class ViewModel {
     internal fun clear()
 
     /**
-     * Add a new [AutoCloseable] object that will be closed directly before
-     * [ViewModel.onCleared] is called.
+     * Adds an [AutoCloseable] resource with an associated [key] to this [ViewModel]. The resource
+     * will be closed right before this [ViewModel.onCleared] is called.
      *
-     * If `onCleared()` has already been called, the closeable will not be added,
-     * and will instead be closed immediately.
+     * If the [key] already has a resource associated with it, the old resource will be replaced
+     * and closed immediately.
      *
-     * @param key A key that allows you to retrieve the closeable passed in by using the same
-     *            key with [ViewModel.getCloseable]
-     * @param closeable The object that should be [AutoCloseable.close] directly before
-     *                  [ViewModel.onCleared] is called.
+     * If [ViewModel.onCleared] has already been called, the provided resource will not be added
+     * and will be closed immediately.
+     *
+     * @param key The [String] to associate with the resource, for retrieval with [getCloseable].
+     * @param closeable The [AutoCloseable] resource to be managed.
      */
     public fun addCloseable(key: String, closeable: AutoCloseable)
 
     /**
-     * Add a new [AutoCloseable] object that will be closed directly before
-     * [ViewModel.onCleared] is called.
+     * Adds an [AutoCloseable] resource to this [ViewModel]. The resource will be closed right
+     * before this [ViewModel.onCleared] is called.
      *
-     * If `onCleared()` has already been called, the closeable will not be added,
-     * and will instead be closed immediately.
+     * If [ViewModel.onCleared] has already been called, the provided resource will not be added
+     * and will be closed immediately.
      *
-     * @param closeable The object that should be [closed][AutoCloseable.close] directly before
-     *                  [ViewModel.onCleared] is called.
+     * @param closeable The [AutoCloseable] resource to be managed.
      */
     public open fun addCloseable(closeable: AutoCloseable)
 
     /**
-     * Returns the closeable previously added with [ViewModel.addCloseable] with the given [key].
+     * Returns the [AutoCloseable] resource associated to the given [key], or `null` if such a
+     * [key] is not present in this [ViewModel].
      *
      * @param key The key that was used to add the Closeable.
      */
