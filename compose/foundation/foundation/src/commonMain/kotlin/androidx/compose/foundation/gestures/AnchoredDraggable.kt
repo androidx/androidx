@@ -305,26 +305,24 @@ private class AnchoredDraggableNode<T>(
     private var state: AnchoredDraggableState<T>,
     private var orientation: Orientation,
     enabled: Boolean,
-    reverseDirection: Boolean,
+    private var reverseDirection: Boolean,
     interactionSource: MutableInteractionSource?,
     private var overscrollEffect: OverscrollEffect?,
-    startDragImmediately: () -> Boolean
-) : AbstractDraggableNode(
+    private var startDragImmediately: () -> Boolean
+) : DragGestureNode(
     canDrag = AlwaysDrag,
     enabled = enabled,
-    interactionSource = interactionSource,
-    startDragImmediately = startDragImmediately,
-    reverseDirection = reverseDirection
+    interactionSource = interactionSource
 ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
         state.anchoredDrag(MutatePriority.Default) {
             forEachDelta { dragDelta ->
                 if (overscrollEffect == null) {
-                    dragTo(state.newOffsetForDelta(dragDelta.delta.toFloat()))
+                    dragTo(state.newOffsetForDelta(dragDelta.delta.reverseIfNeeded().toFloat()))
                 } else {
                     overscrollEffect!!.applyToScroll(
-                        delta = dragDelta.delta,
+                        delta = dragDelta.delta.reverseIfNeeded(),
                         source = NestedScrollSource.Drag
                     ) { deltaForDrag ->
                         val dragOffset = state.newOffsetForDelta(deltaForDrag.toFloat())
@@ -344,10 +342,10 @@ private class AnchoredDraggableNode<T>(
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
         if (overscrollEffect == null) {
-            state.settle(velocity.toFloat()).toVelocity()
+            state.settle(velocity.reverseIfNeeded().toFloat()).toVelocity()
         } else {
             overscrollEffect!!.applyToFling(
-                velocity = velocity
+                velocity = velocity.reverseIfNeeded()
             ) { availableVelocity ->
                 val consumed = state.settle(availableVelocity.toFloat()).toVelocity()
                 val currentOffset = state.requireOffset()
@@ -362,6 +360,8 @@ private class AnchoredDraggableNode<T>(
             }
         }
     }
+
+    override fun startDragImmediately(): Boolean = startDragImmediately.invoke()
 
     fun update(
         state: AnchoredDraggableState<T>,
@@ -383,13 +383,17 @@ private class AnchoredDraggableNode<T>(
             resetPointerInputHandling = true
         }
 
+        if (this.reverseDirection != reverseDirection) {
+            this.reverseDirection = reverseDirection
+            resetPointerInputHandling = true
+        }
+
         this.overscrollEffect = overscrollEffect
+        this.startDragImmediately = startDragImmediately
 
         update(
             enabled = enabled,
             interactionSource = interactionSource,
-            startDragImmediately = startDragImmediately,
-            reverseDirection = reverseDirection,
             isResetPointerInputHandling = resetPointerInputHandling,
         )
     }
@@ -409,6 +413,9 @@ private class AnchoredDraggableNode<T>(
 
     private fun Offset.toFloat() =
         if (orientation == Orientation.Vertical) this.y else this.x
+
+    private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+    private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
 }
 
 private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
