@@ -18,6 +18,7 @@ package androidx.compose.ui.unit
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.Constraints.Companion.Infinity
 import kotlin.math.min
 
@@ -272,15 +273,37 @@ value class Constraints(
             )
         }
 
+        // This should be removed before the next release
+        @ExperimentalComposeUiApi
+        @Deprecated(
+            "Replace with fitPrioritizingWidth", replaceWith = ReplaceWith(
+                "Constraints.fitPrioritizingWidth(minWidth, maxWidth, minHeight, maxHeight)"
+            )
+        )
+        @Stable
+        fun restrictConstraints(
+            minWidth: Int,
+            maxWidth: Int,
+            minHeight: Int,
+            maxHeight: Int,
+            prioritizeWidth: Boolean = true
+        ): Constraints {
+            return if (prioritizeWidth) {
+                fitPrioritizingWidth(minWidth, maxWidth, minHeight, maxHeight)
+            } else {
+                fitPrioritizingHeight(minWidth, maxWidth, minHeight, maxHeight)
+            }
+        }
+
         /**
          * Returns [Constraints] that match as close as possible to the values passed.
          * If the dimensions are outside of those that can be represented, the constraints
          * are limited to those that can be represented.
          *
-         * When [prioritizeWidth] is `true`, [minWidth] and [maxWidth] are given priority
-         * in what can be represented, allowing them up to 18 bits of size, if needed.
-         * If [prioritizeWidth] is `false`, [minHeight] and [maxHeight] are given priority,
-         * allowing for up to 18 bits if needed.
+         * [Constraints] is a `value class` based on a [Long] and 4 integers must be limited
+         * to fit within its size. The larger dimension has up to 18 bits (262,143) and the
+         * smaller as few as 13 bits (8191). The width is granted as much space as it needs
+         * or caps the size to 18 bits. The height is given the remaining space.
          *
          * This can be useful when layout constraints are possible to be extremely large,
          * but not everything is possible to display on the device. For example a text
@@ -288,28 +311,48 @@ value class Constraints(
          * possible to break up the content to show in a `LazyColumn`.
          */
         @Stable
-        fun restrictedConstraints(
+        fun fitPrioritizingWidth(
             minWidth: Int,
             maxWidth: Int,
             minHeight: Int,
             maxHeight: Int,
-            prioritizeWidth: Boolean = true
         ): Constraints {
-            if (prioritizeWidth) {
-                val minW = min(minWidth, MaxFocusMask - 1)
-                val maxW = if (maxWidth == Infinity) {
-                    Infinity
-                } else {
-                    min(maxWidth, MaxFocusMask - 1)
-                }
-                val consumed = if (maxW == Infinity) minW else maxW
-                val maxAllowed = maxAllowedForSize(consumed)
-                val maxH =
-                    if (maxHeight == Infinity) Infinity else min(maxAllowed, maxHeight)
-                val minH = min(maxAllowed, minHeight)
-                return Constraints(minW, maxW, minH, maxH)
+            val minW = min(minWidth, MaxFocusMask - 1)
+            val maxW = if (maxWidth == Infinity) {
+                Infinity
+            } else {
+                min(maxWidth, MaxFocusMask - 1)
             }
+            val consumed = if (maxW == Infinity) minW else maxW
+            val maxAllowed = maxAllowedForSize(consumed)
+            val maxH =
+                if (maxHeight == Infinity) Infinity else min(maxAllowed, maxHeight)
+            val minH = min(maxAllowed, minHeight)
+            return Constraints(minW, maxW, minH, maxH)
+        }
 
+        /**
+         * Returns [Constraints] that match as close as possible to the values passed.
+         * If the dimensions are outside of those that can be represented, the constraints
+         * are limited to those that can be represented.
+         *
+         * [Constraints] is a `value class` based on a [Long] and 4 integers must be limited
+         * to fit within its size. The larger dimension has up to 18 bits (262,143) and the
+         * smaller as few as 13 bits (8191). The height is granted as much space as it needs
+         * or caps the size to 18 bits. The width is given the remaining space.
+         *
+         * This can be useful when layout constraints are possible to be extremely large,
+         * but not everything is possible to display on the device. For example a text
+         * layout where an entire chapter of a book is measured in one Layout and it isn't
+         * possible to break up the content to show in a `LazyColumn`.
+         */
+        @Stable
+        fun fitPrioritizingHeight(
+            minWidth: Int,
+            maxWidth: Int,
+            minHeight: Int,
+            maxHeight: Int,
+        ): Constraints {
             val minH = min(minHeight, MaxFocusMask - 1)
             val maxH = if (maxHeight == Infinity) {
                 Infinity
