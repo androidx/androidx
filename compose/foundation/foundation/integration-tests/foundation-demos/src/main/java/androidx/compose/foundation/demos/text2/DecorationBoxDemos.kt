@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@file:OptIn(ExperimentalMaterialApi::class)
 
 package androidx.compose.foundation.demos.text2
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalContentColor
@@ -39,10 +43,14 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun DecorationBoxDemos() {
@@ -57,6 +65,9 @@ fun DecorationBoxDemos() {
 
         TagLine(tag = "OutlinedTextField")
         OutlinedBasicTextField()
+
+        TagLine(tag = "No inner text field")
+        NoInnerTextField()
     }
 }
 
@@ -103,6 +114,25 @@ fun OutlinedBasicTextField(modifier: Modifier = Modifier) {
                 interactionSource = remember { MutableInteractionSource() },
                 colors = TextFieldDefaults.outlinedTextFieldColors()
             )
+        }
+    )
+}
+
+@Composable
+fun NoInnerTextField(modifier: Modifier = Modifier) {
+    val state = rememberTextFieldState()
+    BasicTextField(
+        state = state,
+        modifier = modifier,
+        textStyle = TextStyle(fontSize = 24.sp),
+        decorator = {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color.Blue, RoundedCornerShape(8.dp))
+                    .padding(8.dp)) {
+                Text("${state.text}", Modifier.align(Alignment.Center))
+            }
         }
     )
 }
