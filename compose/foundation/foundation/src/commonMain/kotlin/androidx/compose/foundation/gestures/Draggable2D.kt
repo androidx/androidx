@@ -192,7 +192,7 @@ internal class Draggable2DElement(
         CanDrag,
         enabled,
         interactionSource,
-        if (startDragImmediately) StartDragImmediately else DoNotStartDragImmediately,
+        startDragImmediately,
         onDragStarted,
         onDragStopped,
         reverseDirection
@@ -204,7 +204,7 @@ internal class Draggable2DElement(
             CanDrag,
             enabled,
             interactionSource,
-            if (startDragImmediately) StartDragImmediately else DoNotStartDragImmediately,
+            startDragImmediately,
             onDragStarted,
             onDragStopped,
             reverseDirection
@@ -252,8 +252,6 @@ internal class Draggable2DElement(
     }
 
     companion object {
-        val StartDragImmediately = { true }
-        val DoNotStartDragImmediately = { false }
         val CanDrag: (PointerInputChange) -> Boolean = { true }
     }
 }
@@ -264,16 +262,14 @@ internal class Draggable2DNode(
     canDrag: (PointerInputChange) -> Boolean,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    startDragImmediately: () -> Boolean,
+    private var startDragImmediately: Boolean,
     private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
-    reverseDirection: Boolean
-) : AbstractDraggableNode(
+    private var reverseDirection: Boolean
+) : DragGestureNode(
     canDrag,
     enabled,
-    interactionSource,
-    startDragImmediately,
-    reverseDirection
+    interactionSource
 ) {
 
     override suspend fun drag(
@@ -281,7 +277,7 @@ internal class Draggable2DNode(
     ) {
         state.drag(MutatePriority.UserInput) {
             forEachDelta { dragDelta ->
-                dragBy(dragDelta.delta)
+                dragBy(dragDelta.delta.reverseIfNeeded())
             }
         }
     }
@@ -292,14 +288,16 @@ internal class Draggable2DNode(
         this@Draggable2DNode.onDragStarted(this, startedPosition)
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) =
-        this@Draggable2DNode.onDragStopped(this, velocity)
+        this@Draggable2DNode.onDragStopped(this, velocity.reverseIfNeeded())
+
+    override fun startDragImmediately(): Boolean = startDragImmediately
 
     fun update(
         state: Draggable2DState,
         canDrag: (PointerInputChange) -> Boolean,
         enabled: Boolean,
         interactionSource: MutableInteractionSource?,
-        startDragImmediately: () -> Boolean,
+        startDragImmediately: Boolean,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
         onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
         reverseDirection: Boolean
@@ -309,18 +307,25 @@ internal class Draggable2DNode(
             this.state = state
             resetPointerInputHandling = true
         }
+        if (this.reverseDirection != reverseDirection) {
+            this.reverseDirection = reverseDirection
+            resetPointerInputHandling = true
+        }
+
         this.onDragStarted = onDragStarted
         this.onDragStopped = onDragStopped
+        this.startDragImmediately = startDragImmediately
 
         update(
             canDrag,
             enabled,
             interactionSource,
-            startDragImmediately,
-            reverseDirection,
             resetPointerInputHandling
         )
     }
+
+    private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+    private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
 }
 
 @OptIn(ExperimentalFoundationApi::class)
