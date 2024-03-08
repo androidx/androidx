@@ -10,7 +10,6 @@ import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -86,8 +85,12 @@ androidXMultiplatform {
             }
         }
 
-        nativeMain {
+        nonJvmMain {
             dependsOn(commonMain)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
 
             // Required for WeakReference usage
             languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
@@ -96,30 +99,11 @@ androidXMultiplatform {
         nativeTest {
             dependsOn(commonTest)
         }
-        darwinMain {
-            dependsOn(nativeMain)
-
-            // Required for WeakReference usage
-            languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
-        }
-        linuxMain {
-            dependsOn(nativeMain)
-
-            // Required for WeakReference usage
-            languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
-        }
 
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
-                        dependsOn(darwinMain)
-                    } else if (konanTargetFamily == Family.LINUX) {
-                        dependsOn(linuxMain)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
+                    dependsOn(nativeMain)
 
                     // Required for WeakReference usage
                     languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
