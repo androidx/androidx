@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -24,6 +25,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeWithVelocity
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -40,7 +43,7 @@ class PagerScrollingTest : SingleParamBasePagerTest() {
     }
 
     @Test
-    fun swipeWithLowVelocity_positionalThresholdLessThanDefaultThreshold_shouldBounceBack() =
+    fun swipeWithLowVelocity_positionalThresholdLessThanDefaultThreshold_shouldBounceBack_ltr() =
         with(rule) {
             // Arrange
             setContent {
@@ -79,6 +82,57 @@ class PagerScrollingTest : SingleParamBasePagerTest() {
                             delta * -1
                         )
                     }
+                }
+                waitForIdle()
+
+                // Assert
+                onNodeWithTag("5").assertIsDisplayed()
+                param.confirmPageIsInCorrectPosition(5)
+                resetTestCase(5)
+            }
+        }
+
+    @Test
+    fun swipeWithLowVelocity_positionalThresholdLessThanDefaultThreshold_shouldBounceBack_rtl() =
+        with(rule) {
+            // Arrange
+            setContent {
+                ParameterizedPager(
+                    initialPage = 5,
+                    modifier = Modifier.fillMaxSize(),
+                    orientation = it.orientation,
+                    pageSpacing = it.pageSpacing,
+                    layoutDirection = it.layoutDirection
+                )
+            }
+            val ParamsWithRtl = ParamsToTest.map { it.copy(layoutDirection = LayoutDirection.Rtl) }
+            forEachParameter(ParamsWithRtl) { param ->
+                val swipeValue = 0.4f
+                val delta = pagerSize * swipeValue
+
+                // Act - forward
+                onPager().performTouchInput {
+                    val (start, end) = if (param.orientation == Orientation.Vertical) {
+                        topCenter to topCenter.copy(y = topCenter.y + delta)
+                    } else {
+                        centerRight to centerRight.copy(x = centerRight.x - delta)
+                    }
+                    swipeWithVelocity(start, end, 0.5f * MinFlingVelocityDp.toPx())
+                }
+                waitForIdle()
+
+                // Assert
+                onNodeWithTag("5").assertIsDisplayed()
+                param.confirmPageIsInCorrectPosition(5)
+
+                // Act - backward
+                onPager().performTouchInput {
+                    val (start, end) = if (param.orientation == Orientation.Vertical) {
+                        topCenter to topCenter.copy(y = topCenter.y - delta)
+                    } else {
+                        centerRight to centerRight.copy(x = centerRight.x + delta)
+                    }
+                    swipeWithVelocity(start, end, 0.5f * MinFlingVelocityDp.toPx())
                 }
                 waitForIdle()
 
