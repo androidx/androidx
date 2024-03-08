@@ -115,12 +115,7 @@ fun Project.createTestConfigurationGenerationTask(
             task.outputJson.set(getFileInTestConfigDirectory(jsonName))
             task.presubmit.set(isPresubmitBuild())
             task.instrumentationArgs.putAll(instrumentationRunnerArgs)
-            // Disable work tests on < API 18: b/178127496
-            if (path.startsWith(":work:")) {
-                task.minSdk.set(maxOf(18, minSdk))
-            } else {
-                task.minSdk.set(minSdk)
-            }
+            task.minSdk.set(minSdk)
             val hasBenchmarkPlugin = hasBenchmarkPlugin()
             task.hasBenchmarkPlugin.set(hasBenchmarkPlugin)
             task.testRunner.set(testRunner)
