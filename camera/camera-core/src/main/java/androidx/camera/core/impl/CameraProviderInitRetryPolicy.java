@@ -28,7 +28,7 @@ import androidx.camera.core.RetryPolicy;
  * Basic retry policy that automatically retries most failures with a standard delay.
  *
  * <p>This policy will initiate a retry with the
- * {@link RetryResponse#DEFAULT_DELAY_RETRY} delay for any failure status except
+ * {@link RetryConfig#DEFAULT_DELAY_RETRY} delay for any failure status except
  * {@link ExecutionState#STATUS_CONFIGURATION_FAIL}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -41,12 +41,12 @@ public final class CameraProviderInitRetryPolicy implements RetryPolicyInternal 
         mDelegatePolicy = new TimeoutRetryPolicy(timeoutInMillis, new RetryPolicy() {
             @NonNull
             @Override
-            public RetryResponse shouldRetry(@NonNull ExecutionState executionState) {
+            public RetryConfig onRetryDecisionRequested(@NonNull ExecutionState executionState) {
                 if (executionState.getStatus() == ExecutionState.STATUS_CONFIGURATION_FAIL) {
-                    return RetryResponse.NOT_RETRY;
+                    return RetryConfig.NOT_RETRY;
                 }
 
-                return RetryResponse.DEFAULT_DELAY_RETRY;
+                return RetryConfig.DEFAULT_DELAY_RETRY;
             }
 
             @Override
@@ -58,8 +58,8 @@ public final class CameraProviderInitRetryPolicy implements RetryPolicyInternal 
 
     @NonNull
     @Override
-    public RetryResponse shouldRetry(@NonNull ExecutionState executionState) {
-        return mDelegatePolicy.shouldRetry(executionState);
+    public RetryConfig onRetryDecisionRequested(@NonNull ExecutionState executionState) {
+        return mDelegatePolicy.onRetryDecisionRequested(executionState);
     }
 
     @Override
@@ -99,8 +99,8 @@ public final class CameraProviderInitRetryPolicy implements RetryPolicyInternal 
 
         @NonNull
         @Override
-        public RetryResponse shouldRetry(@NonNull ExecutionState executionState) {
-            if (!mBasePolicy.shouldRetry(executionState).shouldRetry()) {
+        public RetryConfig onRetryDecisionRequested(@NonNull ExecutionState executionState) {
+            if (!mBasePolicy.onRetryDecisionRequested(executionState).shouldRetry()) {
                 Throwable cause = executionState.getCause();
                 if (cause instanceof CameraIdListIncorrectException) {
                     Logger.e("CameraX", "The device might underreport the amount of the "
@@ -110,12 +110,12 @@ public final class CameraProviderInitRetryPolicy implements RetryPolicyInternal 
                         // If the initialization task execution time exceeds the timeout
                         // threshold and the error type is CameraIdListIncorrectException,
                         // consider the initialization complete without retrying.
-                        return RetryResponse.COMPLETE_WITHOUT_FAILURE;
+                        return RetryConfig.COMPLETE_WITHOUT_FAILURE;
                     }
                 }
-                return RetryResponse.NOT_RETRY;
+                return RetryConfig.NOT_RETRY;
             }
-            return RetryResponse.DEFAULT_DELAY_RETRY;
+            return RetryConfig.DEFAULT_DELAY_RETRY;
         }
 
         @Override
