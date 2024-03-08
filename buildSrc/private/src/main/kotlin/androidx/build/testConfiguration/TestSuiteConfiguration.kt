@@ -30,10 +30,9 @@ import androidx.build.multiplatformExtension
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasDeviceTests
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.TestAndroidComponentsExtension
@@ -64,8 +63,8 @@ fun Project.createTestConfigurationGenerationTask(
     variantName: String,
     artifacts: Artifacts,
     minSdk: Int,
-    testRunner: String,
-    instrumentationRunnerArgs: Map<String, String>
+    testRunner: Provider<String>,
+    instrumentationRunnerArgs: Provider<Map<String, String>>
 ) {
     val xmlName = "${path.asFilenamePrefix()}$variantName.xml"
     val jsonName = "_${path.asFilenamePrefix()}$variantName.json"
@@ -290,7 +289,7 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
     variantName: String,
     artifacts: Artifacts,
     minSdk: Int,
-    testRunner: String,
+    testRunner: Provider<String>,
 ) {
     val mediaTask = getOrCreateMediaTestConfigTask(this)
 
@@ -404,40 +403,44 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
     }
 }
 
+@Suppress("UnstableApiUsage") // usage of HasDeviceTests
 fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
     extensions.getByType(AndroidComponentsExtension::class.java).apply {
         onVariants { variant ->
-            var name: String? = null
-            var artifacts: Artifacts? = null
             when {
-                variant is HasAndroidTest -> {
-                    name = variant.androidTest?.name
-                    artifacts = variant.androidTest?.artifacts
+                variant is HasDeviceTests -> {
+                    variant.deviceTests.forEach { deviceTest ->
+                        when {
+                            path.contains("media:version-compat-tests:") -> {
+                                createOrUpdateMediaTestConfigurationGenerationTask(
+                                    deviceTest.name,
+                                    deviceTest.artifacts,
+                                    // replace minSdk after b/328495232 is fixed
+                                    baseExtension.defaultConfig.minSdk!!,
+                                    deviceTest.instrumentationRunner,
+                                )
+                            }
+                            else -> {
+                                createTestConfigurationGenerationTask(
+                                    deviceTest.name,
+                                    deviceTest.artifacts,
+                                    // replace minSdk after b/328495232 is fixed
+                                    baseExtension.defaultConfig.minSdk!!,
+                                    deviceTest.instrumentationRunner,
+                                    deviceTest.instrumentationRunnerArguments
+                                )
+                            }
+                        }
+                    }
                 }
                 project.plugins.hasPlugin("com.android.test") -> {
-                    name = variant.name
-                    artifacts = variant.artifacts
-                }
-            }
-            if (name == null || artifacts == null) {
-                return@onVariants
-            }
-            when {
-                path.contains("media:version-compat-tests:") -> {
-                    createOrUpdateMediaTestConfigurationGenerationTask(
-                        name,
-                        artifacts,
-                        baseExtension.defaultConfig.minSdk!!,
-                        baseExtension.defaultConfig.testInstrumentationRunner!!,
-                    )
-                }
-                else -> {
                     createTestConfigurationGenerationTask(
-                        name,
-                        artifacts,
+                        variant.name,
+                        variant.artifacts,
+                        // replace minSdk after b/328495232 is fixed
                         baseExtension.defaultConfig.minSdk!!,
-                        baseExtension.defaultConfig.testInstrumentationRunner!!,
-                        baseExtension.defaultConfig.testInstrumentationRunnerArguments
+                        provider { baseExtension.defaultConfig.testInstrumentationRunner!! },
+                        provider { baseExtension.defaultConfig.testInstrumentationRunnerArguments }
                     )
                 }
             }
@@ -450,17 +453,15 @@ fun Project.configureTestConfigGeneration(
     componentsExtension: KotlinMultiplatformAndroidComponentsExtension
 ) {
     componentsExtension.onVariant { variant ->
-            val name = variant.androidTest?.name ?: return@onVariant
-            val artifacts = variant.androidTest?.artifacts ?: return@onVariant
-        kotlinMultiplatformAndroidTarget.compilations.withType(
-            KotlinMultiplatformAndroidTestOnDeviceCompilation::class.java
-        ) {
+        @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+        variant.deviceTests.forEach { deviceTest ->
             createTestConfigurationGenerationTask(
-                name,
-                artifacts,
+                deviceTest.name,
+                deviceTest.artifacts,
+                // replace minSdk after b/328495232 is fixed
                 kotlinMultiplatformAndroidTarget.minSdk!!,
-                it.instrumentationRunner!!,
-                mapOf()
+                deviceTest.instrumentationRunner,
+                deviceTest.instrumentationRunnerArguments,
             )
         }
     }
