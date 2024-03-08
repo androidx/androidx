@@ -17,7 +17,8 @@
 package androidx.build.clang
 
 import androidx.build.androidExtension
-import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasDeviceTests
+import com.android.build.api.variant.SourceDirectories
 import com.android.utils.appendCapitalized
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.get
@@ -84,35 +85,43 @@ class NativeLibraryBundler(
                 variantBuildType
             )
         ) { variant ->
-            val jniLibsSources = if (forTest) {
-                check(variant is HasAndroidTest) {
-                    "Variant $variant does not have a test target"
+            fun setup(name: String, jniLibsSources: SourceDirectories.Layered?) {
+                checkNotNull(jniLibsSources) {
+                    "Cannot find jni libs sources for variant: " +
+                        "$variant($variantBuildType / $forTest)"
                 }
-                variant.androidTest?.sources?.jniLibs
-            } else {
-                variant.sources.jniLibs
-            }
-            checkNotNull(jniLibsSources) {
-                "Cannot find jni libs sources for variant: $variant($variantBuildType / $forTest)"
-            }
-            val combineTask = project.tasks.register(
-                "createJniLibsDirectoryFor".appendCapitalized(
-                    nativeCompilation.archiveName,
-                    if (forTest) "forTest" else "forMain",
-                    androidTarget.name
-                ),
-                CombineObjectFilesTask::class.java
-            )
-            combineTask.configureFrom(nativeCompilation) {
-                it.family == Family.ANDROID
+                val combineTask = project.tasks.register(
+                    "createJniLibsDirectoryFor".appendCapitalized(
+                        nativeCompilation.archiveName,
+                        "for",
+                        name,
+                        androidTarget.name
+                    ),
+                    CombineObjectFilesTask::class.java
+                )
+                combineTask.configureFrom(nativeCompilation) {
+                    it.family == Family.ANDROID
+                }
+
+                jniLibsSources.addGeneratedSourceDirectory(
+                    taskProvider = combineTask,
+                    wiredWith = {
+                        it.outputDirectory
+                    }
+                )
             }
 
-            jniLibsSources.addGeneratedSourceDirectory(
-                taskProvider = combineTask,
-                wiredWith = {
-                    it.outputDirectory
+            @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+            if (forTest) {
+                check(variant is HasDeviceTests) {
+                    "Variant $variant does not have a test target"
                 }
-            )
+                variant.deviceTests.forEach { deviceTest ->
+                    setup(deviceTest.name, deviceTest.sources.jniLibs)
+                }
+            } else {
+                setup(variant.name, variant.sources.jniLibs)
+            }
         }
     }
 }

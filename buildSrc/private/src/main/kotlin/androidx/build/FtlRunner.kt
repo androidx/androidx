@@ -21,7 +21,7 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.BuiltArtifactsLoader
-import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasDeviceTests
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
@@ -200,33 +200,33 @@ private val devicesToRunOn =
         "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
     )
 
+internal fun Project.registerRunner(
+    name: String,
+    artifacts: Artifacts,
+    namespace: Provider<String>
+) {
+    devicesToRunOn.forEach { (taskPrefix, model) ->
+        tasks.register("$taskPrefix$name", FtlRunner::class.java) { task ->
+            task.device.set(model)
+            task.apkPackageName.set(namespace)
+            task.testFolder.set(artifacts.get(SingleArtifact.APK))
+            task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+        }
+    }
+}
+
 fun Project.configureFtlRunner(androidComponentsExtension: AndroidComponentsExtension<*, *, *>) {
     androidComponentsExtension.apply {
         onVariants { variant ->
-            var name: String? = null
-            var artifacts: Artifacts? = null
-            var apkPackageName: Provider<String>? = null
+            @Suppress("UnstableApiUsage") // usage of HasDeviceTests
             when {
-                variant is HasAndroidTest -> {
-                    name = variant.androidTest?.name
-                    artifacts = variant.androidTest?.artifacts
-                    apkPackageName = variant.androidTest?.namespace
+                variant is HasDeviceTests -> {
+                    variant.deviceTests.forEach { deviceTest ->
+                        registerRunner(deviceTest.name, deviceTest.artifacts, deviceTest.namespace)
+                    }
                 }
                 project.plugins.hasPlugin("com.android.test") -> {
-                    name = variant.name
-                    artifacts = variant.artifacts
-                    apkPackageName = variant.namespace
-                }
-            }
-            if (name == null || artifacts == null || apkPackageName == null) {
-                return@onVariants
-            }
-            devicesToRunOn.forEach { (taskPrefix, model) ->
-                tasks.register("$taskPrefix$name", FtlRunner::class.java) { task ->
-                    task.device.set(model)
-                    task.apkPackageName.set(apkPackageName)
-                    task.testFolder.set(artifacts.get(SingleArtifact.APK))
-                    task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+                    registerRunner(variant.name, variant.artifacts, variant.namespace)
                 }
             }
         }
@@ -235,16 +235,9 @@ fun Project.configureFtlRunner(androidComponentsExtension: AndroidComponentsExte
 
 fun Project.configureFtlRunner(componentsExtension: KotlinMultiplatformAndroidComponentsExtension) {
     componentsExtension.onVariant { variant ->
-        val name = variant.androidTest?.name ?: return@onVariant
-        val artifacts = variant.androidTest?.artifacts ?: return@onVariant
-        val apkPackageName = variant.androidTest?.namespace ?: return@onVariant
-        devicesToRunOn.forEach { (taskPrefix, model) ->
-            tasks.register("$taskPrefix$name", FtlRunner::class.java) { task ->
-                task.device.set(model)
-                task.apkPackageName.set(apkPackageName)
-                task.testFolder.set(artifacts.get(SingleArtifact.APK))
-                task.testLoader.set(artifacts.getBuiltArtifactsLoader())
-            }
+        @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+        variant.deviceTests.forEach { deviceTest ->
+            registerRunner(deviceTest.name, deviceTest.artifacts, deviceTest.namespace)
         }
     }
 }
