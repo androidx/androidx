@@ -103,7 +103,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
          */
         val finalizeConfigsTask =
             project.tasks.register(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK, Copy::class.java) {
-                it.from(project.getPrivacySandboxApksDirectory())
+                it.from(project.getPrivacySandboxFilesDirectory())
                 it.into(project.getTestConfigDirectory())
                 it.eachFile { f -> f.relativePath = RelativePath(true, f.name) }
                 it.includeEmptyDirs = false
