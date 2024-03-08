@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.lifecycle
 
-internal actual fun isMainThread(): Boolean =
-    MainDispatcherChecker.isMainDispatcherThread()
+internal actual class WeakReference<T : Any> actual constructor(
+    reference: T
+) {
+    private val kotlinNativeReference = kotlin.native.ref.WeakReference(reference)
+    actual fun get(): T? = kotlinNativeReference.get()
+}
