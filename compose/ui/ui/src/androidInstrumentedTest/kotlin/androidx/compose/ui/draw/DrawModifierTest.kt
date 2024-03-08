@@ -109,11 +109,16 @@ class DrawModifierTest {
         isDebugInspectorInfoEnabled = false
     }
 
-    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
+    // Temporarily restrict test to Android M+ as minimum API requirements are loosened
     // with support for lower API levels in subsequent CLs
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     fun testRememberGraphicsLayerReleasedAfterComposableDisposed() {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            // Android P does not support RenderNode stubs, ignore test
+            // This will be updated in the subsequent CL that introduces View based GraphicsLayers
+            return
+        }
         var graphicsLayer: GraphicsLayer? = null
         val useGraphicsLayerComposable = mutableStateOf(true)
         rule.setContent {
@@ -133,11 +138,14 @@ class DrawModifierTest {
         assertTrue(graphicsLayer!!.isReleased)
     }
 
-    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
+    // Temporarily restrict test to Android M+ as minimum API requirements are loosened
     // with support for lower API levels in subsequent CLs
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     fun testObtainGraphicsLayerReleasedAfterModifierDetached() {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            return
+        }
         var graphicsLayer: GraphicsLayer? = null
         val useCacheModifier = mutableStateOf(true)
         rule.setContent {
@@ -168,11 +176,12 @@ class DrawModifierTest {
         assertTrue(graphicsLayer!!.isReleased)
     }
 
-    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
-    // with support for lower API levels in subsequent CLs
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testBuildLayerWithCache() {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            return
+        }
         var graphicsLayer: GraphicsLayer? = null
         val testTag = "TestTag"
         val size = 120.dp
@@ -218,11 +227,12 @@ class DrawModifierTest {
         }
     }
 
-    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
-    // with support for lower API levels in subsequent CLs
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testGraphicsLayerPersistence() {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            return
+        }
         val testTag = "TestTag"
         val drawGraphicsLayer = mutableStateOf(0)
         val rectColor = Color.Red
@@ -279,11 +289,12 @@ class DrawModifierTest {
         rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply { verifyColor(rectColor) }
     }
 
-    // Temporarily restrict test to Android Q+ as minimum API requirements are loosened
-    // with support for lower API levels in subsequent CLs
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testBuildLayerDrawContent() {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            return
+        }
         val testTag = "TestTag"
         val targetColor = Color.Blue
         rule.setContent {

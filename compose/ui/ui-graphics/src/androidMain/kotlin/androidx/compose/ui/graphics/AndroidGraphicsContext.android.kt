@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayerImpl
+import androidx.compose.ui.graphics.layer.GraphicsLayerV23
 import androidx.compose.ui.graphics.layer.GraphicsLayerV29
 import androidx.compose.ui.graphics.layer.LayerManager
 import androidx.compose.ui.unit.IntSize
@@ -47,23 +48,37 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
             val ownerId = getUniqueDrawingId(ownerView)
             val layerImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 GraphicsLayerV29(ownerId)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    GraphicsLayerV23(ownerView, ownerId)
+                } catch (_: Throwable) {
+                    // TODO GraphicsLayerView fallback in subsequent CL
+                    throw UnsupportedOperationException()
+                }
             } else {
-                // Temporarily throw unsupported exceptions for API levels < Q as the GraphicsLayer
+                // Temporarily throw unsupported exceptions for API levels < M as the GraphicsLayer
                 // implementations for lower API levels are checked in
                 throw UnsupportedOperationException(
-                    "GraphicsLayer is currently only supported on Android Q"
+                    "GraphicsLayer is currently only supported on Android M+"
                 )
             }
             return GraphicsLayer(layerImpl).also { layer ->
                 // Do a placeholder recording of drawing instructions to avoid errors when doing a
                 // persistence render.
                 // This will be overridden by the consumer of the created GraphicsLayer
-                layer.buildLayer(
-                    DefaultDensity,
-                    LayoutDirection.Ltr,
-                    IntSize(1, 1),
-                    GraphicsLayerImpl.DefaultDrawBlock
-                )
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    // Only API levels earlier than P require a placeholder displaylist for
+                    // persistence rendering. On some API levels like (ex. API 28) actually doing
+                    // a placeholder render before the activity is setup (ex in unit tests) causes
+                    // the emulator to crash with an NPE in native code on the HWUI canvas
+                    // implementation
+                    layer.buildLayer(
+                        DefaultDensity,
+                        LayoutDirection.Ltr,
+                        IntSize(1, 1),
+                        GraphicsLayerImpl.DefaultDrawBlock
+                    )
+                }
                 layerManager.persist(layer)
                 // Reset the size to zero so that immediately after GraphicsLayer creation
                 // we do not advertise a size of 1 x 1
