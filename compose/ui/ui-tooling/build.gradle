@@ -71,7 +71,7 @@ androidXMultiplatform {
                 api("androidx.annotation:annotation:1.1.0")
                 implementation(project(":compose:animation:animation"))
                 implementation("androidx.savedstate:savedstate-ktx:1.2.1")
-                implementation("androidx.compose.material:material:1.0.0")
+                implementation(project(":compose:material:material"))
                 implementation("androidx.activity:activity-compose:1.7.0")
                 implementation("androidx.lifecycle:lifecycle-common:2.6.1")
 

@@ -62,9 +62,8 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-// Temporarily restrict the minSdkVersion to Android Q as the minimum API requirement will
-// be reduced in subsequent CLs
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+// Relies on View.captureToImage which is Android O+ only
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class AndroidGraphicsLayerTest {
 
     companion object {
