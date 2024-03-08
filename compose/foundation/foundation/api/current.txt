@@ -1070,9 +1070,9 @@ package androidx.compose.foundation.lazy.layout {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static interface LazyLayoutIntervalContent.Interval {
     method public default kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object>? getKey();
-    method public default kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object> getType();
+    method public default kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object?> getType();
     property public default kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object>? key;
-    property public default kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object> type;
+    property public default kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object?> type;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface LazyLayoutItemProvider {
