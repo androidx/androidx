@@ -589,6 +589,15 @@ public class WebViewFeature {
     public static final String MUTE_AUDIO = "MUTE_AUDIO";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
+     * {@link androidx.webkit.WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String WEB_AUTHENTICATION = "WEB_AUTHENTICATION";
+
+    /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
      * android.os.Build.VERSION_CODES#LOLLIPOP} and higher, this will check whether a feature is
      * supported, depending on the combination of the desired feature, the Android version of
