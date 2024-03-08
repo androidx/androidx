@@ -313,6 +313,12 @@ internal class CaptureSessionState(
                 }
             }
             Debug.traceStop()
+        } else {
+            // We still need to indicate the stop signal because the graph state would transition to
+            // GraphStateStarting when the graph is being started.
+            Debug.traceStart { "$graphListener#onGraphStopped" }
+            graphListener.onGraphStopped(null)
+            Debug.traceStop()
         }
 
         var shouldFinalizeSession = false
