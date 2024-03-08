@@ -70,13 +70,22 @@ package androidx.compose.ui {
   @androidx.compose.runtime.Immutable public final class BiasAbsoluteAlignment implements androidx.compose.ui.Alignment {
     ctor public BiasAbsoluteAlignment(float horizontalBias, float verticalBias);
     method public long align(long size, long space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public float component1();
+    method public float component2();
     method public androidx.compose.ui.BiasAbsoluteAlignment copy(float horizontalBias, float verticalBias);
+    method public float getHorizontalBias();
+    method public float getVerticalBias();
+    property public final float horizontalBias;
+    property public final float verticalBias;
   }
 
   @androidx.compose.runtime.Immutable public static final class BiasAbsoluteAlignment.Horizontal implements androidx.compose.ui.Alignment.Horizontal {
     ctor public BiasAbsoluteAlignment.Horizontal(float bias);
     method public int align(int size, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public float component1();
     method public androidx.compose.ui.BiasAbsoluteAlignment.Horizontal copy(float bias);
+    method public float getBias();
+    property public final float bias;
   }
 
   @androidx.compose.runtime.Immutable public final class BiasAlignment implements androidx.compose.ui.Alignment {
@@ -94,13 +103,19 @@ package androidx.compose.ui {
   @androidx.compose.runtime.Immutable public static final class BiasAlignment.Horizontal implements androidx.compose.ui.Alignment.Horizontal {
     ctor public BiasAlignment.Horizontal(float bias);
     method public int align(int size, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public float component1();
     method public androidx.compose.ui.BiasAlignment.Horizontal copy(float bias);
+    method public float getBias();
+    property public final float bias;
   }
 
   @androidx.compose.runtime.Immutable public static final class BiasAlignment.Vertical implements androidx.compose.ui.Alignment.Vertical {
     ctor public BiasAlignment.Vertical(float bias);
     method public int align(int size, int space);
+    method public float component1();
     method public androidx.compose.ui.BiasAlignment.Vertical copy(float bias);
+    method public float getBias();
+    property public final float bias;
   }
 
   public final class CombinedModifier implements androidx.compose.ui.Modifier {

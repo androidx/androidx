@@ -185,7 +185,7 @@ data class BiasAlignment(
      * @see Vertical
      */
     @Immutable
-    data class Horizontal(private val bias: Float) : Alignment.Horizontal {
+    data class Horizontal(val bias: Float) : Alignment.Horizontal {
         override fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
@@ -205,7 +205,7 @@ data class BiasAlignment(
      * @see Horizontal
      */
     @Immutable
-    data class Vertical(private val bias: Float) : Alignment.Vertical {
+    data class Vertical(val bias: Float) : Alignment.Vertical {
         override fun align(size: Int, space: Int): Int {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
@@ -227,8 +227,8 @@ data class BiasAlignment(
  */
 @Immutable
 data class BiasAbsoluteAlignment(
-    private val horizontalBias: Float,
-    private val verticalBias: Float
+    val horizontalBias: Float,
+    val verticalBias: Float
 ) : Alignment {
     /**
      * Returns the position of a 2D point in a container of a given size, according to this
@@ -256,7 +256,7 @@ data class BiasAbsoluteAlignment(
      * @see BiasAlignment.Horizontal
      */
     @Immutable
-    data class Horizontal(private val bias: Float) : Alignment.Horizontal {
+    data class Horizontal(val bias: Float) : Alignment.Horizontal {
         /**
          * Returns the position of a 2D point in a container of a given size,
          * according to this [BiasAbsoluteAlignment.Horizontal]. This position will not be
