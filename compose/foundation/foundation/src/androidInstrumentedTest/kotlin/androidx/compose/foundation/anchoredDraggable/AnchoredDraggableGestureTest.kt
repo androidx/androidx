@@ -92,8 +92,8 @@ class AnchoredDraggableGestureTest {
         )
         val anchors = DraggableAnchors {
             A at 0f
-            B at 250f
-            C at 500f
+            B at AnchoredDraggableBoxSize.value / 2f
+            C at AnchoredDraggableBoxSize.value
         }
         state.updateAnchors(anchors)
 
@@ -164,8 +164,8 @@ class AnchoredDraggableGestureTest {
         )
         val anchors = DraggableAnchors {
             A at 0f
-            B at 250f
-            C at 500f
+            B at AnchoredDraggableBoxSize.value / 2f
+            C at AnchoredDraggableBoxSize.value
         }
         state.updateAnchors(anchors)
 
@@ -870,7 +870,7 @@ class AnchoredDraggableGestureTest {
         val velocityThreshold = 100.dp
         val state = AnchoredDraggableState(
             initialValue = A,
-            velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
+            velocityThreshold = { 0f },
             positionalThreshold = { Float.POSITIVE_INFINITY },
             snapAnimationSpec = tween(),
             decayAnimationSpec = DefaultDecayAnimationSpec
@@ -909,13 +909,13 @@ class AnchoredDraggableGestureTest {
             .performTouchInput {
                 swipeWithVelocity(
                     start = Offset(left, 0f),
-                    end = Offset(right / 2, 0f),
+                    end = Offset(right / 4, 0f),
                     endVelocity = with(rule.density) { velocityThreshold.toPx() } * 0.9f
                 )
             }
 
         rule.waitForIdle()
-        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.settledValue).isEqualTo(A)
     }
 
     @Test
