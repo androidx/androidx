@@ -73,6 +73,9 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
+                // This has stub APIs for access to legacy Android APIs, so we don't want
+                // any dependency on this module.
+                compileOnly(project(":compose:ui:ui-android-stubs"))
                 implementation("androidx.graphics:graphics-path:1.0.0-beta02")
                 api("androidx.annotation:annotation-experimental:1.4.0")
             }
