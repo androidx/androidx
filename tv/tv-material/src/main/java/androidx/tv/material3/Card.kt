@@ -66,7 +66,6 @@ import androidx.compose.ui.unit.dp
  * still happen internally.
  * @param content defines the [Composable] content inside the Card.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun Card(
     onClick: () -> Unit,
@@ -129,7 +128,6 @@ fun Card(
  * or preview the card in different states. Note that if `null` is provided, interactions will
  * still happen internally.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun ClassicCard(
     onClick: () -> Unit,
@@ -212,7 +210,6 @@ fun ClassicCard(
  * or preview the card in different states. Note that if `null` is provided, interactions will
  * still happen internally.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun CompactCard(
     onClick: () -> Unit,
@@ -298,7 +295,6 @@ fun CompactCard(
  * or preview the card in different states. Note that if `null` is provided, interactions will
  * still happen internally.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun WideClassicCard(
     onClick: () -> Unit,
@@ -369,7 +365,6 @@ internal fun CardContent(
 /**
  * Contains the default values used by all card types.
  */
-@ExperimentalTvMaterial3Api
 object CardDefaults {
     internal val ContentImageAlignment = Alignment.Center
 
@@ -547,7 +542,6 @@ object CardDefaults {
 private const val SubtitleAlpha = 0.6f
 private const val DescriptionAlpha = 0.8f
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 private fun CardColors.toClickableSurfaceColors() =
     ClickableSurfaceColors(
         containerColor = containerColor,
@@ -560,7 +554,6 @@ private fun CardColors.toClickableSurfaceColors() =
         disabledContentColor = contentColor
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 private fun CardShape.toClickableSurfaceShape() =
     ClickableSurfaceShape(
         shape = shape,
@@ -570,7 +563,6 @@ private fun CardShape.toClickableSurfaceShape() =
         focusedDisabledShape = shape
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 private fun CardScale.toClickableSurfaceScale() =
     ClickableSurfaceScale(
         scale = scale,
@@ -580,7 +572,6 @@ private fun CardScale.toClickableSurfaceScale() =
         focusedDisabledScale = scale
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 private fun CardBorder.toClickableSurfaceBorder() =
     ClickableSurfaceBorder(
         border = border,
@@ -590,7 +581,6 @@ private fun CardBorder.toClickableSurfaceBorder() =
         focusedDisabledBorder = border
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 private fun CardGlow.toClickableSurfaceGlow() =
     ClickableSurfaceGlow(
         glow = glow,
