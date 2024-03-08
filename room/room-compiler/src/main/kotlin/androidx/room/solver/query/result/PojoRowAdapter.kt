@@ -124,13 +124,15 @@ class PojoRowAdapter(
         if (relationCollectors.isNotEmpty()) {
             relationCollectors.forEach { it.writeInitCode(scope) }
             scope.builder.apply {
-                beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
+                val stepName = if (scope.useDriverApi) "step" else "moveToNext"
+                beginControlFlow("while (%L.$stepName())", cursorVarName).apply {
                     relationCollectors.forEach {
                         it.writeReadParentKeyCode(cursorVarName, fieldsWithIndices, scope)
                     }
                 }
                 endControlFlow()
-                addStatement("%L.moveToPosition(-1)", cursorVarName)
+                val resetName = if (scope.useDriverApi) "reset()" else "moveToPosition(-1)"
+                addStatement("%L.$resetName", cursorVarName)
             }
             relationCollectors.forEach { it.writeFetchRelationCall(scope) }
         }
