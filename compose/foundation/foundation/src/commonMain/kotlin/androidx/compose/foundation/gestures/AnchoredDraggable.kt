@@ -49,6 +49,8 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Velocity
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sign
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -488,8 +490,19 @@ class AnchoredDraggableState<T>(
 
     /**
      * The current value of the [AnchoredDraggableState].
+     *
+     * That is the closest anchor point that the state has passed through.
      */
     var currentValue: T by mutableStateOf(initialValue)
+        private set
+
+    /**
+     * The value the [AnchoredDraggableState] is currently settled at.
+     *
+     * When progressing through multiple anchors, e.g. `A -> B -> C`, [settledValue] will stay the
+     * same until settled at an anchor, while [currentValue] will update to the closest anchor.
+     */
+    var settledValue: T by mutableStateOf(initialValue)
         private set
 
     /**
@@ -502,20 +515,6 @@ class AnchoredDraggableState<T>(
             val currentOffset = offset
             if (!currentOffset.isNaN()) {
                 computeTarget(currentOffset, currentValue, velocity = 0f)
-            } else currentValue
-        }
-    }
-
-    /**
-     * The closest value in the swipe direction from the current offset, not considering thresholds.
-     * If an [anchoredDrag] is in progress, this will be the target of that anchoredDrag (if
-     * specified).
-     */
-    internal val closestValue: T by derivedStateOf {
-        dragTarget ?: run {
-            val currentOffset = offset
-            if (!currentOffset.isNaN()) {
-                computeTargetWithoutThresholds(currentOffset, currentValue)
             } else currentValue
         }
     }
@@ -552,13 +551,39 @@ class AnchoredDraggableState<T>(
     val isAnimationRunning: Boolean get() = dragTarget != null
 
     /**
-     * The fraction of the progress going from [currentValue] to [closestValue], within [0f..1f]
+     * The fraction of the offset between [from] and [to], as a fraction between [0f..1f], or 1f if
+     * [from] is equal to [to].
+     *
+     * @param from The starting value used to calculate the distance
+     * @param to The end value used to calculate the distance
+     */
+    @FloatRange(from = 0.0, to = 1.0)
+    fun progress(from: T, to: T): Float {
+        val fromOffset = anchors.positionOf(from)
+        val toOffset = anchors.positionOf(to)
+        val currentOffset = offset.coerceIn(
+            min(fromOffset, toOffset), // fromOffset might be > toOffset
+            max(fromOffset, toOffset)
+        )
+        val fraction = (currentOffset - fromOffset) / (toOffset - fromOffset)
+        return if (!fraction.isNaN()) {
+            // If we are very close to 0f or 1f, we round to the closest
+            if (fraction < 1e-6f) 0f else if (fraction > 1 - 1e-6f) 1f else abs(fraction)
+        } else 1f
+    }
+
+    /**
+     * The fraction of the progress going from [settledValue] to [targetValue], within [0f..1f]
      * bounds, or 1f if the [AnchoredDraggableState] is in a settled state.
      */
+    @Deprecated(
+        message = "Use the progress function to query the progress between two specified " +
+            "anchors.",
+        replaceWith = ReplaceWith("progress(state.settledValue, state.targetValue)"))
     @get:FloatRange(from = 0.0, to = 1.0)
     val progress: Float by derivedStateOf(structuralEqualityPolicy()) {
-        val a = anchors.positionOf(currentValue)
-        val b = anchors.positionOf(closestValue)
+        val a = anchors.positionOf(settledValue)
+        val b = anchors.positionOf(targetValue)
         val distance = abs(b - a)
         if (!distance.isNaN() && distance > 1e-6f) {
             val progress = (this.requireOffset() - a) / (b - a)
@@ -674,26 +699,55 @@ class AnchoredDraggableState<T>(
         }
     }
 
-    private fun computeTargetWithoutThresholds(
-        offset: Float,
-        currentValue: T,
-    ): T {
-        val currentAnchors = anchors
-        val currentAnchor = currentAnchors.positionOf(currentValue)
-        return if (currentAnchor == offset || currentAnchor.isNaN()) {
-            currentValue
-        } else {
-            currentAnchors.closestAnchor(
-                offset,
-                offset - currentAnchor > 0
-            ) ?: currentValue
-        }
-    }
+    private var nextValue: T by mutableStateOf(initialValue)
 
     private val anchoredDragScope: AnchoredDragScope = object : AnchoredDragScope {
+        var initialized = false
+        var absoluteThresholdToCross: Float = Float.NaN
+        var min = Float.NaN
+        var max = Float.NaN
+
         override fun dragTo(newOffset: Float, lastKnownVelocity: Float) {
+            val previousOffset = offset
             offset = newOffset
             lastVelocity = lastKnownVelocity
+            val isMovingForward = newOffset >= previousOffset
+            if (initialized) {
+                val crossedThresholdTowardsNextAnchor = if (isMovingForward) {
+                    newOffset >= absoluteThresholdToCross
+                } else {
+                    newOffset <= absoluteThresholdToCross
+                }
+                if (crossedThresholdTowardsNextAnchor) {
+                    update(isMovingForward)
+                }
+            } else if (!previousOffset.isNaN()) {
+                // In the first invocation, we do not have a direction. The previous offset will be
+                // NaN in the first invocation of dragTo; so we will only initialize in the second
+                // invocation when we have a direction to calculate the thresholds with
+                update(isMovingForward)
+                initialized = true
+            }
+        }
+
+        fun update(isMovingForward: Boolean) {
+            val currentAnchorPosition = anchors.positionOf(currentValue)
+            min = anchors.minAnchor()
+            max = anchors.maxAnchor()
+            val lookUpwards = when (currentAnchorPosition) {
+                min -> true
+                max -> false
+                else -> isMovingForward
+            }
+            val closestAnchor = anchors.closestAnchor(offset, lookUpwards)
+            val nextAnchor = closestAnchor ?: currentValue
+            val nextAnchorPosition = anchors.positionOf(nextAnchor!!)
+            if (confirmValueChange(nextAnchor)) {
+                currentValue = nextAnchor
+            }
+            val relativeThreshold = (nextAnchorPosition - currentAnchorPosition) / 2f
+            absoluteThresholdToCross = currentAnchorPosition + relativeThreshold
+            nextValue = nextAnchor
         }
     }
 
@@ -719,18 +773,15 @@ class AnchoredDraggableState<T>(
         dragPriority: MutatePriority = MutatePriority.Default,
         block: suspend AnchoredDragScope.(anchors: DraggableAnchors<T>) -> Unit
     ) {
-        try {
-            dragMutex.mutate(dragPriority) {
-                restartable(inputs = { anchors }) { latestAnchors ->
-                    anchoredDragScope.block(latestAnchors)
-                }
+        dragMutex.mutate(dragPriority) {
+            restartable(inputs = { anchors }) { latestAnchors ->
+                anchoredDragScope.block(latestAnchors)
             }
-        } finally {
             val closest = anchors.closestAnchor(offset)
-            if (closest != null &&
-                abs(offset - anchors.positionOf(closest)) <= 0.5f &&
-                confirmValueChange.invoke(closest)
-            ) {
+            if (closest != null && confirmValueChange.invoke(closest)) {
+                val closestAnchorOffset = anchors.positionOf(closest)
+                anchoredDragScope.dragTo(closestAnchorOffset, lastVelocity)
+                settledValue = closest
                 currentValue = closest
             }
         }
@@ -762,7 +813,7 @@ class AnchoredDraggableState<T>(
     suspend fun anchoredDrag(
         targetValue: T,
         dragPriority: MutatePriority = MutatePriority.Default,
-        block: suspend AnchoredDragScope.(anchors: DraggableAnchors<T>, targetValue: T) -> Unit
+        block: suspend AnchoredDragScope.(anchor: DraggableAnchors<T>, targetValue: T) -> Unit
     ) {
         if (anchors.hasAnchorFor(targetValue)) {
             try {
@@ -770,23 +821,24 @@ class AnchoredDraggableState<T>(
                     dragTarget = targetValue
                     restartable(
                         inputs = { anchors to this@AnchoredDraggableState.targetValue }
-                    ) { (latestAnchors, latestTarget) ->
-                        anchoredDragScope.block(latestAnchors, latestTarget)
+                    ) { (anchors, latestTarget) ->
+                        anchoredDragScope.block(anchors, latestTarget)
+                    }
+                    if (confirmValueChange(targetValue)) {
+                        val latestTargetOffset = anchors.positionOf(targetValue)
+                        anchoredDragScope.dragTo(latestTargetOffset, lastVelocity)
+                        settledValue = targetValue
+                        currentValue = targetValue
                     }
                 }
             } finally {
                 dragTarget = null
-                val closest = anchors.closestAnchor(offset)
-                if (closest != null &&
-                    abs(offset - anchors.positionOf(closest)) <= 0.5f &&
-                    confirmValueChange.invoke(closest)
-                ) {
-                    currentValue = closest
-                }
             }
         } else {
-            // Todo: b/283467401, revisit this behavior
-            currentValue = targetValue
+            if (confirmValueChange(targetValue)) {
+                settledValue = targetValue
+                currentValue = targetValue
+            }
         }
     }
 
@@ -821,6 +873,7 @@ class AnchoredDraggableState<T>(
                 dragTarget = null
             }
             currentValue = targetValue
+            settledValue = targetValue
         }
     }
 
