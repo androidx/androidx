@@ -35,7 +35,8 @@ import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.readValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
@@ -83,6 +84,21 @@ interface AccessibilityDebugLogger {
      * Logs the given [message].
      */
     fun log(message: Any?)
+}
+
+/**
+ * Enum class representing different kinds of accessibility invalidation.
+ */
+private enum class SemanticsTreeInvalidationKind {
+    /**
+     * The tree was changed, need to recompute the whole tree.
+     */
+    COMPLETE,
+
+    /**
+     * Only bounds of the nodes were changed, need to recompute the bounds of the affected subtrees.
+     */
+    BOUNDS
 }
 
 private class CachedAccessibilityPropertyKey<V>
@@ -226,9 +242,26 @@ private class AccessibilityElement(
         return null
     }
 
-    fun discardCache() {
-        _cachedConfig = null
-        cachedProperties.clear()
+    fun discardCache(invalidationKind: SemanticsTreeInvalidationKind) {
+        when (invalidationKind) {
+            SemanticsTreeInvalidationKind.COMPLETE -> {
+                _cachedConfig = null
+                cachedProperties.clear()
+            }
+
+            SemanticsTreeInvalidationKind.BOUNDS -> {
+                discardCachedAccessibilityFrameRecursively()
+            }
+        }
+    }
+    private fun discardCachedAccessibilityFrameRecursively() {
+        if (cachedProperties.remove(CachedAccessibilityPropertyKeys.accessibilityFrame) != null) {
+            for (child in children) {
+                child.discardCachedAccessibilityFrameRecursively()
+            }
+        } else {
+            // Not calculated yet, or the subtree was already discarded. Do nothing.
+        }
     }
 
     fun dispose() {
@@ -816,10 +849,9 @@ private class AccessibilityContainer(
     }
 }
 
-private sealed interface NodesSyncResult {
-    object NoChanges : NodesSyncResult
-    data class Success(val newElementToFocus: Any?) : NodesSyncResult
-}
+private class NodesSyncResult(
+    val newElementToFocus: Any?
+)
 
 /**
  * A sealed class that represents the options for syncing the Compose SemanticsNode tree with the iOS UIAccessibility tree.
@@ -896,6 +928,22 @@ internal class AccessibilityMediator(
     private var isAlive = true
 
     /**
+     * The kind of invalidation that determines what kind of logic will be executed in the next sync.
+     * `COMPLETE` invalidation means that the whole tree should be recomputed, `BOUNDS` means that only
+     * the bounds of the nodes should be recomputed. A list of changed performed by `BOUNDS` path
+     * is a strict subset of `COMPLETE`, so in the end of sync it will be reset to `BOUNDS`.
+     * Executing sync assumes that at least one kind of invalidation happened, if it was triggered
+     * by [onSemanticsChange] it will be automatically promoted to `COMPLETE`.
+     */
+    private var invalidationKind = SemanticsTreeInvalidationKind.COMPLETE
+
+    /**
+     * A set of node ids that had their bounds invalidated after the last sync.
+     */
+    private var invalidatedBoundsNodeIds = mutableSetOf<Int>()
+    private val invalidationChannel = Channel<Unit>(1, onBufferOverflow = BufferOverflow.DROP_LATEST)
+
+    /**
      * Remembered [AccessibilityDebugLogger] after last sync, if logging is enabled according to
      * [AccessibilitySyncOptions].
      */
@@ -903,12 +951,6 @@ internal class AccessibilityMediator(
         private set
 
     var rootSemanticsNodeId: Int = -1
-
-    /**
-     * A value of true indicates that the Compose accessible tree is dirty, meaning that compose
-     * semantics tree was modified since last sync, false otherwise.
-     */
-    private var isCurrentComposeAccessibleTreeDirty = false
 
     /**
      * Job to cancel tree syncing when the mediator is disposed.
@@ -929,13 +971,17 @@ internal class AccessibilityMediator(
     init {
         getAccessibilitySyncOptions().debugLoggerIfEnabled?.log("AccessibilityMediator for ${view} created")
 
-        val updateIntervalMillis = 50L
-        // TODO: this approach was copied from desktop implementation, obviously it has a [updateIntervalMillis] lag
-        //  between the actual change in the semantics tree and the change in the accessibility tree.
-        //  should we use some other approach?
         coroutineScope.launch {
-            while (isAlive) {
-                var result: NodesSyncResult
+            // The main loop that listens for invalidations and performs the tree syncing
+            // Will exit on CancellationException from within await on `invalidationChannel.receive()`
+            // when [job] is cancelled
+            while (true) {
+                invalidationChannel.receive()
+
+                while (invalidationChannel.tryReceive().isSuccess) {
+                    // Do nothing, just consume the channel
+                    // Workaround for the channel buffering two invalidations despite the capacity of 1
+                }
 
                 val syncOptions = getAccessibilitySyncOptions()
 
@@ -948,24 +994,19 @@ internal class AccessibilityMediator(
                 }
 
                 if (shouldPerformSync) {
+                    var result: NodesSyncResult
+
                     val time = measureTime {
-                        result = sync()
+                        result = sync(invalidationKind)
                     }
 
-                    when (val immutableResult = result) {
-                        is NodesSyncResult.NoChanges -> {
-                            // Do nothing
-                        }
+                    debugLogger?.log("AccessibilityMediator.sync took $time")
 
-                        is NodesSyncResult.Success -> {
-                            debugLogger?.log("AccessibilityMediator.sync took $time")
-
-                            UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, immutableResult.newElementToFocus)
-                        }
-                    }
+                    UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, result.newElementToFocus)
                 }
 
-                delay(updateIntervalMillis)
+                invalidationKind = SemanticsTreeInvalidationKind.BOUNDS
+                invalidatedBoundsNodeIds.clear()
             }
         }
     }
@@ -979,15 +1020,17 @@ internal class AccessibilityMediator(
     fun onSemanticsChange() {
         debugLogger?.log("onSemanticsChange")
 
-        isCurrentComposeAccessibleTreeDirty = true
+        invalidationKind = SemanticsTreeInvalidationKind.COMPLETE
+        invalidationChannel.trySend(Unit)
     }
 
     fun onLayoutChange(nodeId: Int) {
         debugLogger?.log("onLayoutChange (nodeId=$nodeId)")
 
-        // TODO: Only recompute the layout-related properties of the node
-        isCurrentComposeAccessibleTreeDirty = true
+        invalidatedBoundsNodeIds.add(nodeId)
 
+        // unprocessedInvalidationKind will be set to BOUNDS in sync(), it's a strict subset of COMPLETE
+        invalidationChannel.trySend(Unit)
     }
 
     fun dispose() {
@@ -1065,7 +1108,7 @@ internal class AccessibilityMediator(
         }
 
         for (element in accessibilityElementsMap.values) {
-            element.discardCache()
+            element.discardCache(SemanticsTreeInvalidationKind.COMPLETE)
         }
 
         return checkNotNull(rootAccessibilityElement.resolveAccessibilityContainer()) {
@@ -1075,21 +1118,36 @@ internal class AccessibilityMediator(
 
     /**
      * Syncs the accessibility tree with the current semantics tree.
+     */
+    private fun sync(invalidationKind: SemanticsTreeInvalidationKind): NodesSyncResult {
+        when (invalidationKind) {
+            SemanticsTreeInvalidationKind.COMPLETE -> {
+                return completeSync()
+            }
+
+            SemanticsTreeInvalidationKind.BOUNDS -> {
+                for (id in invalidatedBoundsNodeIds) {
+                    val element = accessibilityElementsMap[id]
+                    element?.discardCache(SemanticsTreeInvalidationKind.BOUNDS)
+                }
+
+                return NodesSyncResult(null)
+            }
+        }
+    }
+
+    /**
+     * Performs a complete sync of the accessibility tree with the current semantics tree.
+     *
      * TODO: Does a full tree traversal on every sync, expect changes from Google, they are also aware
      *  of the issue and associated performance overhead.
      */
-    private fun sync(): NodesSyncResult {
+
+    private fun completeSync(): NodesSyncResult {
         // TODO: investigate what needs to be done to reflect that this hierarchy is probably covered
-        //   by sibling overlay
-
-        if (!isCurrentComposeAccessibleTreeDirty) {
-            return NodesSyncResult.NoChanges
-        }
-
+        //   by sibling overlay or another UIView hierarchy represented by other mediator
         val rootSemanticsNode = owner.rootSemanticsNode
         rootSemanticsNodeId = rootSemanticsNode.id
-
-        isCurrentComposeAccessibleTreeDirty = false
 
         check(!view.isAccessibilityElement) {
             "Root view must not be an accessibility element"
@@ -1108,10 +1166,12 @@ internal class AccessibilityMediator(
         // TODO: in future the focused element could be the interop UIView that is detached from the
         //  hierarchy, but still maintains the focus until the GC collects it, or AX services detect
         //  that it's not reachable anymore through containment chain
-        val isFocusedElementDead = focusedElement?.let {
+        val isFocusedElementAlive = focusedElement?.let {
             val accessibilityElement = it as? AccessibilityElement
             accessibilityElement?.isAlive ?: false
         } ?: false
+
+        val isFocusedElementDead = !isFocusedElementAlive
 
         val needsRefocusing = needsInitialRefocusing || isFocusedElementDead
 
@@ -1132,7 +1192,7 @@ internal class AccessibilityMediator(
             null
         }
 
-        return NodesSyncResult.Success(newElementToFocus)
+        return NodesSyncResult(newElementToFocus)
     }
 }
 
