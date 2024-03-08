@@ -173,6 +173,7 @@ abstract class Placeable : Measured {
          * Returns the value for this [Ruler] or [defaultValue] if it wasn't
          * [provided][RulerScope.provides]. [Ruler] values are unavailable while calculating
          * [AlignmentLine]s.
+         * @sample androidx.compose.ui.samples.RulerConsumerUsage
          */
         open fun Ruler.current(defaultValue: Float): Float = defaultValue
 
