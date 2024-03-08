@@ -16,6 +16,7 @@
 
 package androidx.room.util
 
+import androidx.room.migration.bundle.BaseEntityBundle
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.DatabaseViewBundle
 import androidx.room.migration.bundle.EntityBundle
@@ -80,7 +81,7 @@ class SchemaDiffer(
     private val potentiallyDeletedTables = mutableSetOf<String>()
     // Maps FTS tables in the to version to the name of their content tables in the from version
     // for easy lookup.
-    private val contentTableToFtsEntities = mutableMapOf<String, MutableList<EntityBundle>>()
+    private val contentTableToFtsEntities = mutableMapOf<String, MutableList<BaseEntityBundle>>()
 
     private val addedTables = mutableSetOf<AutoMigration.AddedTable>()
     // Any table that has been renamed, but also does not contain any complex changes.
@@ -196,8 +197,8 @@ class SchemaDiffer(
      * null object will be returned.
      */
     private fun detectTableLevelChanges(
-        fromTable: EntityBundle
-    ): EntityBundle? {
+        fromTable: BaseEntityBundle
+    ): BaseEntityBundle? {
         // Check if the table was renamed. If so, check for other complex changes that could
         // be found on the table level. Save the end result to the complex changed tables map.
         val renamedTable = isTableRenamed(fromTable.tableName)
@@ -283,8 +284,8 @@ class SchemaDiffer(
      * value if the column was deleted.
      */
     private fun detectColumnLevelChanges(
-        fromTable: EntityBundle,
-        toTable: EntityBundle,
+        fromTable: BaseEntityBundle,
+        toTable: BaseEntityBundle,
         fromColumn: FieldBundle,
     ): String? {
         // Check if this column was renamed. If so, no need to check further, we can mark this
@@ -368,39 +369,37 @@ class SchemaDiffer(
      * @return A ComplexChangedTable object, null if complex schema change has not been found
      */
     private fun tableContainsComplexChanges(
-        fromTable: EntityBundle,
-        toTable: EntityBundle
+        fromTable: BaseEntityBundle,
+        toTable: BaseEntityBundle
     ): Boolean {
-        // If we have an FTS table, check if options have changed
-        if (fromTable is FtsEntityBundle &&
-            toTable is FtsEntityBundle &&
-            !fromTable.ftsOptions.isSchemaEqual(toTable.ftsOptions)
-        ) {
-            return true
-        }
-        // Check if the to table or the from table is an FTS table while the other is not.
-        if (fromTable is FtsEntityBundle && toTable !is FtsEntityBundle ||
-            toTable is FtsEntityBundle && fromTable !is FtsEntityBundle
-        ) {
-            return true
-        }
-
-        if (!isForeignKeyBundlesListEqual(fromTable.foreignKeys, toTable.foreignKeys)) {
-            return true
-        }
-        if (!isIndexBundlesListEqual(fromTable.indices, toTable.indices)) {
-            return true
-        }
-
         if (!fromTable.primaryKey.isSchemaEqual(toTable.primaryKey)) {
             return true
         }
-        // Check if any foreign keys are referencing a renamed table.
-        return fromTable.foreignKeys.any { foreignKey ->
-            renameTableEntries.any {
-                it.originalTableName == foreignKey.table
+
+        // If both are FTS tables, only check if options have changed
+        if (fromTable is FtsEntityBundle && toTable is FtsEntityBundle) {
+            return !fromTable.ftsOptions.isSchemaEqual(toTable.ftsOptions)
+        }
+
+        // If both are normal tables, check foreign keys and indices
+        if (fromTable is EntityBundle && toTable is EntityBundle) {
+            if (!isForeignKeyBundlesListEqual(fromTable.foreignKeys, toTable.foreignKeys)) {
+                return true
+            }
+            if (!isIndexBundlesListEqual(fromTable.indices, toTable.indices)) {
+                return true
+            }
+            // Check if any foreign keys are referencing a renamed table.
+            return fromTable.foreignKeys.any { foreignKey ->
+                renameTableEntries.any {
+                    it.originalTableName == foreignKey.table
+                }
             }
         }
+
+        // If we reach this check then from and to tables are not of the same type, a change of
+        // table type is complex
+        return true
     }
 
     /**
@@ -525,7 +524,7 @@ class SchemaDiffer(
      * database that have been already processed
      */
     private fun processAddedTableAndColumns(
-        toTable: EntityBundle,
+        toTable: BaseEntityBundle,
         processedTablesAndColumnsInNewVersion: MutableMap<String, List<String>>
     ) {
         // Old table bundle will be found even if table is renamed.

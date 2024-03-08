@@ -16,14 +16,11 @@
 
 package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo
-
 /**
  * Utility class to run schema equality on collections.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public object SchemaEqualityUtil {
-    public fun <T, K : SchemaEquality<K>> checkSchemaEquality(
+internal object SchemaEqualityUtil {
+    fun <T, K : SchemaEquality<K>> checkSchemaEquality(
         map1: Map<T, K>?,
         map2: Map<T, K>?
     ): Boolean {
@@ -37,7 +34,7 @@ public object SchemaEqualityUtil {
         }
     }
 
-    public fun <K : SchemaEquality<K>> checkSchemaEquality(
+    fun <K : SchemaEquality<K>> checkSchemaEquality(
         list1: List<K>?,
         list2: List<K>?
     ): Boolean {
@@ -53,8 +50,7 @@ public object SchemaEqualityUtil {
         }
     }
 
-    @SuppressWarnings("SimplifiableIfStatement")
-    public fun <K : SchemaEquality<K>> checkSchemaEquality(
+    fun <K : SchemaEquality<K>> checkSchemaEquality(
         item1: K?,
         item2: K?
     ): Boolean {
@@ -63,5 +59,9 @@ public object SchemaEqualityUtil {
             item2 == null -> false
             else -> item1.isSchemaEqual(item2)
         }
+    }
+
+    inline fun <K, reified R> Map<K, *>.filterValuesInstance(): Map<K, R> = buildMap {
+        this@filterValuesInstance.forEach { (key, value) -> if (value is R) put(key, value) }
     }
 }

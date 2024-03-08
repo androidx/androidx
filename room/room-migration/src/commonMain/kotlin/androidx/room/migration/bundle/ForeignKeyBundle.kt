@@ -17,36 +17,27 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds the information about a foreign key reference, i.e.
  * [androidx.room.ForeignKey].
- *
- * @property table             The target table
- * @property onDelete          OnDelete action
- * @property onUpdate          OnUpdate action
- * @property columns           The list of columns in the current table
- * @property referencedColumns The list of columns in the referenced table
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class ForeignKeyBundle(
-    @field:SerializedName("table")
-    public open val table: String,
-    @field:SerializedName("onDelete")
-    public open val onDelete: String,
-    @field:SerializedName("onUpdate")
-    public open val onUpdate: String,
-    @field:SerializedName("columns")
-    public open val columns: List<String>,
-    @field:SerializedName("referencedColumns")
-    public open val referencedColumns: List<String>
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class ForeignKeyBundle(
+    @SerialName("table")
+    val table: String,
+    @SerialName("onDelete")
+    val onDelete: String,
+    @SerialName("onUpdate")
+    val onUpdate: String,
+    @SerialName("columns")
+    val columns: List<String>,
+    @SerialName("referencedColumns")
+    val referencedColumns: List<String>
 ) : SchemaEquality<ForeignKeyBundle> {
-
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    private constructor() : this("", "", "", emptyList(), emptyList())
 
     override fun isSchemaEqual(other: ForeignKeyBundle): Boolean {
         if (table != other.table) return false

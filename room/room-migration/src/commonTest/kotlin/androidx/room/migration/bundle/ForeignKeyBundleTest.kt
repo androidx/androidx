@@ -16,78 +16,98 @@
 
 package androidx.room.migration.bundle
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class ForeignKeyBundleTest {
     @Test
     fun schemaEquality_same_equal() {
-        val bundle = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-                listOf("target1", "target2")
+        val bundle = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
         )
-        val other = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        assertThat(bundle.isSchemaEqual(other), `is`(true))
+        val other = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+
+        assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
 
     @Test
     fun schemaEquality_diffTable_notEqual() {
-        val bundle = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        val other = ForeignKeyBundle("table2", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        assertThat(bundle.isSchemaEqual(other), `is`(false))
+        val bundle = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        val other = ForeignKeyBundle(
+            table = "table2", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffOnDelete_notEqual() {
-        val bundle = ForeignKeyBundle("table", "onDelete2",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        val other = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        assertThat(bundle.isSchemaEqual(other), `is`(false))
+        val bundle = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete2",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        val other = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffOnUpdate_notEqual() {
-        val bundle = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        val other = ForeignKeyBundle("table", "onDelete",
-                "onUpdate2", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        assertThat(bundle.isSchemaEqual(other), `is`(false))
+        val bundle = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        val other = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate2", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffSrcOrder_notEqual() {
-        val bundle = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col2", "col1"),
-            listOf("target1", "target2"))
-        val other = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        assertThat(bundle.isSchemaEqual(other), `is`(false))
+        val bundle = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col2", "col1"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        val other = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffTargetOrder_notEqual() {
-        val bundle = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target1", "target2"))
-        val other = ForeignKeyBundle("table", "onDelete",
-                "onUpdate", listOf("col1", "col2"),
-            listOf("target2", "target1"))
-        assertThat(bundle.isSchemaEqual(other), `is`(false))
+        val bundle = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target1", "target2")
+        )
+        val other = ForeignKeyBundle(
+            table = "table", onDelete = "onDelete",
+            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
+            referencedColumns = listOf("target2", "target1")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,26 +20,17 @@ import androidx.annotation.RestrictTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data class that holds the schema information about a [androidx.room.DatabaseView].
- */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class DatabaseViewBundle(
-    @SerialName("viewName")
-    val viewName: String,
-    @SerialName("createSql")
-    val createSql: String
-) : SchemaEquality<DatabaseViewBundle> {
+actual class SchemaBundle actual constructor(
+    @SerialName("formatVersion")
+    actual val formatVersion: Int,
+    @SerialName("database")
+    actual val database: DatabaseBundle
+) : SchemaEquality<SchemaBundle> {
 
-    /**
-     * CREATE VIEW SQL query that uses the actual view name.
-     */
-    fun createView(): String {
-        return replaceViewName(createSql, viewName)
-    }
-
-    override fun isSchemaEqual(other: DatabaseViewBundle): Boolean {
-        return viewName == other.viewName && createSql == other.createSql
+    actual override fun isSchemaEqual(other: SchemaBundle): Boolean {
+        return formatVersion == other.formatVersion &&
+            SchemaEqualityUtil.checkSchemaEquality(database, other.database)
     }
 }

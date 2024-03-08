@@ -18,86 +18,34 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds the schema information about an [androidx.room.Entity].
  *
- * @property tableName The table name.
- * @property createSql Create query with the table name placeholder.
- * @property fields The list of fields.
- * @property primaryKey The primary key.
- * @property indices The list of indices
- * @property foreignKeys The list of foreign keys
- *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class EntityBundle(
-    @SerializedName("tableName")
-    public open val tableName: String,
-    @SerializedName("createSql")
-    public open val createSql: String,
-    @SerializedName("fields")
-    public open val fields: List<FieldBundle>,
-    @SerializedName("primaryKey")
-    public open val primaryKey: PrimaryKeyBundle,
-    @SerializedName("indices")
-    public open val indices: List<IndexBundle>,
-    @SerializedName("foreignKeys")
-    public open val foreignKeys: List<ForeignKeyBundle>
-) : SchemaEquality<EntityBundle> {
-
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    private constructor() : this(
-        "",
-        "",
-        emptyList(),
-        PrimaryKeyBundle(false, emptyList()),
-        emptyList(),
-        emptyList()
-    )
-
-    public companion object {
-        public const val NEW_TABLE_PREFIX: String = "_new_"
-    }
-
-    public open val newTableName: String
-        get() {
-            return NEW_TABLE_PREFIX + tableName
-        }
-
-    @delegate:Transient
-    public open val fieldsByColumnName: Map<String, FieldBundle> by lazy {
-        fields.associateBy { it.columnName }
-    }
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+open class EntityBundle(
+    @SerialName("tableName")
+    override val tableName: String,
+    @SerialName("createSql")
+    override val createSql: String,
+    @SerialName("fields")
+    override val fields: List<FieldBundle>,
+    @SerialName("primaryKey")
+    override val primaryKey: PrimaryKeyBundle,
+    @SerialName("indices")
+    override val indices: List<IndexBundle> = emptyList(),
+    @SerialName("foreignKeys")
+    override val foreignKeys: List<ForeignKeyBundle> = emptyList()
+) : BaseEntityBundle(), SchemaEquality<EntityBundle> {
 
     /**
-     * @return Create table SQL query that uses the actual table name.
+     * Creates the list of SQL queries that are necessary to create this entity.
      */
-    public open fun createTable(): String {
-        return replaceTableName(createSql, tableName)
-    }
-
-    /**
-     * @return Create table SQL query that uses the table name with "new" prefix.
-     */
-    public open fun createNewTable(): String {
-        return replaceTableName(createSql, newTableName)
-    }
-
-    /**
-     * @return Renames the table with [newTableName] to [tableName].
-     */
-    public open fun renameToOriginal(): String {
-        return "ALTER TABLE $newTableName RENAME TO $tableName"
-    }
-
-    /**
-     * @return Creates the list of SQL queries that are necessary to create this entity.
-     */
-    public open fun buildCreateQueries(): Collection<String> {
+    override fun buildCreateQueries(): List<String> {
         return buildList {
             add(createTable())
             this@EntityBundle.indices.forEach { indexBundle ->
@@ -110,10 +58,7 @@ public open class EntityBundle(
         if (tableName != other.tableName) {
             return false
         }
-        return checkSchemaEquality(
-            fieldsByColumnName,
-            other.fieldsByColumnName
-        ) &&
+        return checkSchemaEquality(fieldsByColumnName, other.fieldsByColumnName) &&
             checkSchemaEquality(primaryKey, other.primaryKey) &&
             checkSchemaEquality(indices, other.indices) &&
             checkSchemaEquality(foreignKeys, other.foreignKeys)

@@ -21,6 +21,7 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.DatabaseBundle
+import androidx.room.migration.bundle.SCHEMA_LATEST_FORMAT_VERSION
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.util.SchemaFileResolver
 import java.io.IOException
@@ -107,7 +108,7 @@ data class Database(
     // Writes schema file to output path, using the input path to check if the schema has changed
     // otherwise it is not written.
     fun exportSchema(inputPath: Path, outputPath: Path) {
-        val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
+        val schemaBundle = SchemaBundle(SCHEMA_LATEST_FORMAT_VERSION, bundle)
         val inputStream = try {
             SchemaFileResolver.RESOLVER.readPath(inputPath)
         } catch (e: IOException) {
@@ -136,7 +137,7 @@ data class Database(
     // existing schema equality, otherwise use the version of `exportSchema` that takes input and
     // output paths.
     fun exportSchemaOnly(outputStream: OutputStream) {
-        val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
+        val schemaBundle = SchemaBundle(SCHEMA_LATEST_FORMAT_VERSION, bundle)
         SchemaBundle.serialize(schemaBundle, outputStream)
     }
 }

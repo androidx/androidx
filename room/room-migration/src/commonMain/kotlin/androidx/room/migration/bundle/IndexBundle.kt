@@ -18,58 +18,40 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import androidx.room.Index
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds the schema information about a table [androidx.room.Index]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class IndexBundle(
-    @SerializedName("name")
-    public open val name: String,
-    @SerializedName("unique")
-    public open val isUnique: Boolean,
-    @SerializedName("columnNames")
-    public open val columnNames: List<String>?,
-    @SerializedName("orders")
-    public open val orders: List<String>?,
-    @SerializedName("createSql")
-    public open val createSql: String
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class IndexBundle(
+    @SerialName("name")
+    val name: String,
+    @SerialName("unique")
+    val isUnique: Boolean,
+    @SerialName("columnNames")
+    val columnNames: List<String>? = null,
+    @SerialName("orders")
+    val orders: List<String>? = null,
+    @SerialName("createSql")
+    val createSql: String
 
 ) : SchemaEquality<IndexBundle> {
-    public companion object {
+    companion object {
         // should match Index.kt
-        public const val DEFAULT_PREFIX: String = "index_"
+        const val DEFAULT_PREFIX: String = "index_"
     }
 
-    /**
-     * @deprecated Use {@link #IndexBundle(String, boolean, List, List, String)}
-     */
-    @Deprecated("Use {@link #IndexBundle(String, boolean, List, List, String)}")
-    public constructor(
-        name: String,
-        unique: Boolean,
-        columnNames: List<String>,
-        createSql: String
-    ) : this(name, unique, columnNames, null, createSql)
-
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    private constructor() : this("", false, emptyList(), emptyList(), "")
-
-    /**
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public open fun create(tableName: String): String {
+    fun create(tableName: String): String {
         return replaceTableName(createSql, tableName)
     }
 
     /**
-     * @param tableName The table name.
-     * @return Create index SQL query that uses the given table name.
+     * Gets the CREATE INDEX SQL query that uses the given table name.
      */
-    public open fun getCreateSql(tableName: String): String {
+    fun getCreateSql(tableName: String): String {
         return replaceTableName(createSql, tableName)
     }
 
@@ -81,7 +63,7 @@ public open class IndexBundle(
             }
         } else if (other.name.startsWith(DEFAULT_PREFIX)) {
             return false
-        } else if (!name.equals(other.name)) {
+        } else if (name != other.name) {
             return false
         }
 

@@ -24,9 +24,11 @@
 
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
@@ -44,6 +46,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 implementation(project(":room:room-common"))
+                implementation(libs.kotlinSerializationJson)
             }
         }
         commonTest {
@@ -54,17 +57,21 @@ androidXMultiplatform {
         }
         jvmMain {
             dependsOn(commonMain)
-            dependencies {
-                implementation(libs.gson)
-            }
         }
         jvmTest {
             dependsOn(commonTest)
             dependencies {
-                implementation(libs.guava)
                 implementation(libs.kotlinTestJunit)
-                implementation(libs.intellijAnnotations)
-                implementation(libs.mockitoCore4)
+            }
+        }
+        nativeMain {
+            dependsOn(commonMain)
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
             }
         }
     }
@@ -75,5 +82,6 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room Migration"
+    legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
 }

@@ -1006,7 +1006,7 @@ public class MigrationTest {
                 Context testContext = InstrumentationRegistry.getInstrumentation().getContext();
                 InputStream input = testContext.getAssets().open(MigrationDb.class.getCanonicalName()
                         + "/" + MigrationDb.LATEST_VERSION + ".json");
-                SchemaBundle schemaBundle = SchemaBundle.deserialize(input);
+                SchemaBundle schemaBundle = SchemaBundle.Companion.deserialize(input);
                 for (String query : schemaBundle.getDatabase().buildCreateQueries()) {
                     db.execSQL(query);
                 }

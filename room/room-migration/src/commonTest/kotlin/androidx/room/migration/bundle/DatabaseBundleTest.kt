@@ -16,111 +16,147 @@
 
 package androidx.room.migration.bundle
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class DatabaseBundleTest {
 
     @Test
     fun buildCreateQueries_noFts() {
-        val entity1 = EntityBundle("e1", "sq1",
-                listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
-                PrimaryKeyBundle(false, listOf("foo1")),
-                emptyList(),
-                emptyList())
-        val entity2 = EntityBundle("e2", "sq2",
-            listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
-                PrimaryKeyBundle(false, listOf("foo2")),
-                emptyList(),
-                emptyList())
-        val bundle = DatabaseBundle(1, "hash",
-            listOf(entity1, entity2), emptyList(),
-                emptyList())
+        val entity1 = EntityBundle(
+            tableName = "e1", createSql = "sq1",
+            fields = listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo1")),
+            indices = emptyList(),
+            foreignKeys = emptyList()
+        )
+        val entity2 = EntityBundle(
+            tableName = "e2", createSql = "sq2",
+            fields = listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo2")),
+            indices = emptyList(),
+            foreignKeys = emptyList()
+        )
+        val bundle = DatabaseBundle(
+            version = 1, identityHash = "hash",
+            entities = listOf(entity1, entity2), views = emptyList(),
+            setupQueries = emptyList()
+        )
 
-        assertThat(bundle.buildCreateQueries(), `is`(listOf("sq1", "sq2")))
+        assertThat(bundle.buildCreateQueries()).containsExactly("sq1", "sq2")
     }
 
     @Test
     fun buildCreateQueries_withFts() {
-        val entity1 = EntityBundle("e1", "sq1",
-            listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
-                PrimaryKeyBundle(false, listOf("foo1")),
-                emptyList(),
-                emptyList())
-        val entity2 = FtsEntityBundle("e2", "sq2",
-            listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
-                PrimaryKeyBundle(false, listOf("foo2")),
-                "FTS4",
-                createFtsOptionsBundle(""),
-                emptyList())
-        val entity3 = EntityBundle("e3", "sq3",
-            listOf(createFieldBundle("foo3"), createFieldBundle("bar")),
-                PrimaryKeyBundle(false, listOf("foo3")),
-                emptyList(),
-                emptyList())
-        val bundle = DatabaseBundle(1, "hash",
-            listOf(entity1, entity2, entity3), emptyList(),
-                emptyList())
+        val entity1 = EntityBundle(
+            tableName = "e1", createSql = "sq1",
+            fields = listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo1")),
+            indices = emptyList(),
+            foreignKeys = emptyList()
+        )
+        val entity2 = FtsEntityBundle(
+            tableName = "e2", createSql = "sq2",
+            fields = listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo2")),
+            ftsVersion = "FTS4",
+            ftsOptions = createFtsOptionsBundle(""),
+            contentSyncSqlTriggers = emptyList()
+        )
+        val entity3 = EntityBundle(
+            tableName = "e3", createSql = "sq3",
+            fields = listOf(createFieldBundle("foo3"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo3")),
+            indices = emptyList(),
+            foreignKeys = emptyList()
+        )
+        val bundle = DatabaseBundle(
+            version = 1, identityHash = "hash",
+            entities = listOf(entity1, entity2, entity3), views = emptyList(),
+            setupQueries = emptyList()
+        )
 
-        assertThat(bundle.buildCreateQueries(), `is`(listOf("sq1", "sq2", "sq3")))
+        assertThat(bundle.buildCreateQueries()).containsExactly("sq1", "sq2", "sq3")
     }
 
     @Test
     fun buildCreateQueries_withExternalContentFts() {
-        val entity1 = EntityBundle("e1", "sq1",
-            listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
-                PrimaryKeyBundle(false, listOf("foo1")),
-                emptyList(),
-                emptyList())
-        val entity2 = FtsEntityBundle("e2", "sq2",
-            listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
-                PrimaryKeyBundle(false, listOf("foo2")),
-                "FTS4",
-                createFtsOptionsBundle("e3"),
-            listOf("e2_trig"))
-        val entity3 = EntityBundle("e3", "sq3",
-        listOf(createFieldBundle("foo3"), createFieldBundle("bar")),
-                PrimaryKeyBundle(false, listOf("foo3")),
-                emptyList(),
-                emptyList())
+        val entity1 = EntityBundle(
+            tableName = "e1", createSql = "sq1",
+            fields = listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo1")),
+            indices = emptyList(),
+            foreignKeys = emptyList()
+        )
+        val entity2 = FtsEntityBundle(
+            tableName = "e2", createSql = "sq2",
+            fields = listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo2")),
+            ftsVersion = "FTS4",
+            ftsOptions = createFtsOptionsBundle("e3"),
+            contentSyncSqlTriggers = listOf("e2_trig")
+        )
+        val entity3 = EntityBundle(
+            tableName = "e3", createSql = "sq3",
+            fields = listOf(createFieldBundle("foo3"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo3")),
+            indices = emptyList(),
+            foreignKeys = emptyList()
+        )
         val bundle = DatabaseBundle(
-            1,
-            "hash",
-            listOf(entity1, entity2, entity3),
-            emptyList(),
-            emptyList()
+            version = 1,
+            identityHash = "hash",
+            entities = listOf(entity1, entity2, entity3),
+            views = emptyList(),
+            setupQueries = emptyList()
         )
 
-        assertThat(bundle.buildCreateQueries(), `is`(listOf("sq1", "sq3", "sq2", "e2_trig")))
+        assertThat(bundle.buildCreateQueries()).containsExactly("sq1", "sq3", "sq2", "e2_trig")
     }
 
     @Test
     fun schemaEquality_missingView_notEqual() {
-        val entity = EntityBundle("e", "sq",
-            listOf(createFieldBundle("foo"), createFieldBundle("bar")),
-            PrimaryKeyBundle(false, listOf("foo")),
-            emptyList(),
-            emptyList())
-        val view = DatabaseViewBundle("bar", "sq")
-        val bundle1 = DatabaseBundle(1, "hash",
-            listOf(entity), emptyList(),
-            emptyList())
-        val bundle2 = DatabaseBundle(1, "hash",
-            listOf(entity), listOf(view),
-            emptyList())
-        assertThat(bundle1.isSchemaEqual(bundle2), `is`(false))
+        val entity = EntityBundle(
+            tableName = "e", createSql = "sq",
+            fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
+            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+            indices = emptyList(),
+            foreignKeys = emptyList()
+        )
+        val view = DatabaseViewBundle(viewName = "bar", createSql = "sq")
+        val bundle1 = DatabaseBundle(
+            version = 1, identityHash = "hash",
+            entities = listOf(entity), views = emptyList(),
+            setupQueries = emptyList()
+        )
+        val bundle2 = DatabaseBundle(
+            version = 1, identityHash = "hash",
+            entities = listOf(entity), views = listOf(view),
+            setupQueries = emptyList()
+        )
+        assertThat(bundle1.isSchemaEqual(bundle2)).isFalse()
     }
 
     private fun createFieldBundle(name: String): FieldBundle {
-        return FieldBundle("foo", name, "text", false, null)
+        return FieldBundle(
+            fieldPath = "foo",
+            columnName = name,
+            affinity = "text",
+            isNonNull = false,
+            defaultValue = null
+        )
     }
 
     private fun createFtsOptionsBundle(contentTableName: String): FtsOptionsBundle {
-        return FtsOptionsBundle("", emptyList(), contentTableName,
-                "", "", emptyList(), emptyList(), "")
+        return FtsOptionsBundle(
+            tokenizer = "",
+            tokenizerArgs = emptyList(),
+            contentTable = contentTableName,
+            languageIdColumnName = "",
+            matchInfo = "",
+            notIndexedColumns = emptyList(),
+            prefixSizes = emptyList(),
+            preferredOrder = ""
+        )
     }
 }

@@ -18,6 +18,7 @@ package androidx.room.vo
 
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.BaseEntityBundle
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 
@@ -87,7 +88,7 @@ open class Entity(
         }
     }
 
-    open fun toBundle(): EntityBundle = EntityBundle(
+    open fun toBundle(): BaseEntityBundle = EntityBundle(
         tableName,
         createTableQuery(TABLE_NAME_PLACEHOLDER),
         fields.map { it.toBundle() },

@@ -18,49 +18,40 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
-import com.google.gson.annotations.SerializedName
+import androidx.room.migration.bundle.SchemaEqualityUtil.filterValuesInstance
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds the schema information for a [androidx.room.Database].
- *
- * @property version Version
- * @property identityHash Identity hash
- * @property entities List of entities
- * @property views List of views
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class DatabaseBundle(
-    @field:SerializedName("version")
-    public open val version: Int,
-    @field:SerializedName("identityHash")
-    public open val identityHash: String,
-    @field:SerializedName("entities")
-    public open val entities: List<EntityBundle>,
-    @field:SerializedName("views")
-    public open val views: List<DatabaseViewBundle>,
-    @field:SerializedName("setupQueries")
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class DatabaseBundle(
+    @SerialName("version")
+    val version: Int,
+    @SerialName("identityHash")
+    val identityHash: String,
+    @SerialName("entities")
+    val entities: List<BaseEntityBundle>,
+    @SerialName("views")
+    val views: List<DatabaseViewBundle> = emptyList(),
+    @SerialName("setupQueries")
     private val setupQueries: List<String>,
 ) : SchemaEquality<DatabaseBundle> {
 
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    public constructor() : this(0, "", emptyList(), emptyList(), emptyList())
-
-    @delegate:Transient
-    public open val entitiesByTableName: Map<String, EntityBundle> by lazy {
+    val entitiesByTableName: Map<String, BaseEntityBundle> by lazy {
         entities.associateBy { it.tableName }
     }
 
-    @delegate:Transient
-    public val viewsByName: Map<String, DatabaseViewBundle> by lazy {
+    val viewsByName: Map<String, DatabaseViewBundle> by lazy {
         views.associateBy { it.viewName }
     }
 
     /**
-     * @return List of SQL queries to build this database from scratch.
+     * Builds the list of SQL queries to build this database from scratch.
      */
-    public open fun buildCreateQueries(): List<String> {
+    fun buildCreateQueries(): List<String> {
         return buildList {
             entities.sortedWith(FtsEntityCreateComparator()).forEach { entityBundle ->
                 addAll(entityBundle.buildCreateQueries())
@@ -72,24 +63,28 @@ public open class DatabaseBundle(
         }
     }
 
-    @Override
     override fun isSchemaEqual(other: DatabaseBundle): Boolean {
-        return checkSchemaEquality(entitiesByTableName, other.entitiesByTableName) &&
-            checkSchemaEquality(viewsByName, other.viewsByName)
+        return checkSchemaEquality(
+            entitiesByTableName.filterValuesInstance<String, EntityBundle>(),
+            other.entitiesByTableName.filterValuesInstance<String, EntityBundle>()
+        ) && checkSchemaEquality(
+            entitiesByTableName.filterValuesInstance<String, FtsEntityBundle>(),
+            other.entitiesByTableName.filterValuesInstance<String, FtsEntityBundle>()
+        ) && checkSchemaEquality(viewsByName, other.viewsByName)
     }
 
     // Comparator to sort FTS entities after their declared external content entity so that the
     // content entity table gets created first.
-    public class FtsEntityCreateComparator : Comparator<EntityBundle> {
-        override fun compare(firstEntity: EntityBundle, secondEntity: EntityBundle): Int {
-            if (firstEntity is FtsEntityBundle) {
-                val contentTable = firstEntity.ftsOptions.contentTable
-                if (contentTable == secondEntity.tableName) {
+    private class FtsEntityCreateComparator : Comparator<BaseEntityBundle> {
+        override fun compare(a: BaseEntityBundle, b: BaseEntityBundle): Int {
+            if (a is FtsEntityBundle) {
+                val contentTable = a.ftsOptions.contentTable
+                if (contentTable == b.tableName) {
                     return 1
                 }
-            } else if (secondEntity is FtsEntityBundle) {
-                val contentTable = secondEntity.ftsOptions.contentTable
-                if (contentTable == firstEntity.tableName) {
+            } else if (b is FtsEntityBundle) {
+                val contentTable = b.ftsOptions.contentTable
+                if (contentTable == a.tableName) {
                     return -1
                 }
             }

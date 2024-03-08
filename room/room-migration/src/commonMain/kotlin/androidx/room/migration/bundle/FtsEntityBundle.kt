@@ -18,85 +18,78 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds the schema information about an [androidx.room.Fts3] or
  * [androidx.room.Fts4] entity.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class FtsEntityBundle(
-    tableName: String,
-    createSql: String,
-    fields: List<FieldBundle>,
-    primaryKey: PrimaryKeyBundle,
-    @field:SerializedName("ftsVersion")
-    public open val ftsVersion: String,
-    @field:SerializedName("ftsOptions")
-    public open val ftsOptions: FtsOptionsBundle,
-    @SerializedName("contentSyncTriggers")
-    public open val contentSyncSqlTriggers: List<String>
-) : EntityBundle(
-    tableName,
-    createSql,
-    fields,
-    primaryKey,
-    emptyList(),
-    emptyList()
-) {
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    private constructor() : this(
-        "",
-        "",
-        emptyList(),
-        PrimaryKeyBundle(false, emptyList()),
-        "",
-        FtsOptionsBundle("", emptyList(), "", "", "", emptyList(), emptyList(), ""),
-        emptyList()
-    )
-
-    @Transient
-    private val SHADOW_TABLE_NAME_SUFFIXES = listOf(
-        "_content",
-        "_segdir",
-        "_segments",
-        "_stat",
-        "_docsize"
-    )
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class FtsEntityBundle(
+    @SerialName("tableName")
+    override val tableName: String,
+    @SerialName("createSql")
+    override val createSql: String,
+    @SerialName("fields")
+    override val fields: List<FieldBundle>,
+    @SerialName("primaryKey")
+    override val primaryKey: PrimaryKeyBundle,
+    @SerialName("indices")
+    override val indices: List<IndexBundle> = emptyList(),
+    @SerialName("foreignKeys")
+    override val foreignKeys: List<ForeignKeyBundle> = emptyList(),
+    @SerialName("ftsVersion")
+    val ftsVersion: String,
+    @SerialName("ftsOptions")
+    val ftsOptions: FtsOptionsBundle,
+    @SerialName("contentSyncTriggers")
+    val contentSyncSqlTriggers: List<String>
+) : BaseEntityBundle(), SchemaEquality<FtsEntityBundle> {
 
     /**
-     * @return Creates the list of SQL queries that are necessary to create this entity.
+     * Creates the list of SQL queries that are necessary to create this entity.
      */
-   override fun buildCreateQueries(): Collection<String> {
+    override fun buildCreateQueries(): List<String> {
         return buildList {
             add(createTable())
             addAll(contentSyncSqlTriggers)
         }
     }
 
-    override fun isSchemaEqual(other: EntityBundle): Boolean {
-        val isSuperSchemaEqual = super.isSchemaEqual(other)
-        return if (other is FtsEntityBundle) {
-            isSuperSchemaEqual && ftsVersion == other.ftsVersion &&
-                checkSchemaEquality(ftsOptions, other.ftsOptions)
-        } else {
-            isSuperSchemaEqual
+    override fun isSchemaEqual(other: FtsEntityBundle): Boolean {
+        if (tableName != other.tableName) {
+            return false
         }
+        return checkSchemaEquality(fieldsByColumnName, other.fieldsByColumnName) &&
+            checkSchemaEquality(primaryKey, other.primaryKey) &&
+            checkSchemaEquality(indices, other.indices) &&
+            checkSchemaEquality(foreignKeys, other.foreignKeys) &&
+            ftsVersion == other.ftsVersion &&
+            checkSchemaEquality(ftsOptions, other.ftsOptions)
     }
 
     /**
      * Gets the list of shadow table names corresponding to the FTS virtual table.
-     * @return the list of names.
      */
-    @delegate:Transient
-    public open val shadowTableNames: List<String> by lazy {
+    val shadowTableNames: List<String> by lazy {
         val currentTable = this@FtsEntityBundle.tableName
         buildList {
             SHADOW_TABLE_NAME_SUFFIXES.forEach { suffix ->
                 add(currentTable + suffix)
             }
         }
+    }
+
+    companion object {
+        private val SHADOW_TABLE_NAME_SUFFIXES =
+            listOf(
+                "_content",
+                "_segdir",
+                "_segments",
+                "_stat",
+                "_docsize"
+            )
     }
 }

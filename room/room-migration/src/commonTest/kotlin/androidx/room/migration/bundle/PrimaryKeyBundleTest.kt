@@ -16,48 +16,59 @@
 
 package androidx.room.migration.bundle
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class PrimaryKeyBundleTest {
     @Test
     fun schemaEquality_same_equal() {
-        val bundle = PrimaryKeyBundle(true,
-                listOf("foo", "bar")
+        val bundle = PrimaryKeyBundle(
+            isAutoGenerate = true,
+            columnNames = listOf("foo", "bar")
         )
-        val other = PrimaryKeyBundle(true,
-            listOf("foo", "bar"))
-        assertThat(bundle.isSchemaEqual(other), `is`(true))
+        val other = PrimaryKeyBundle(
+            isAutoGenerate = true,
+            columnNames = listOf("foo", "bar")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
 
     @Test
     fun schemaEquality_diffAutoGen_notEqual() {
-        val bundle = PrimaryKeyBundle(true,
-            listOf("foo", "bar"))
-        val other = PrimaryKeyBundle(false,
-            listOf("foo", "bar"))
-        assertThat(bundle.isSchemaEqual(other), `is`(false))
+        val bundle = PrimaryKeyBundle(
+            isAutoGenerate = true,
+            columnNames = listOf("foo", "bar")
+        )
+        val other = PrimaryKeyBundle(
+            isAutoGenerate = false,
+            columnNames = listOf("foo", "bar")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffColumns_notEqual() {
-        val bundle = PrimaryKeyBundle(true,
-            listOf("foo", "baz"))
-        val other = PrimaryKeyBundle(true,
-            listOf("foo", "bar"))
-        assertThat(bundle.isSchemaEqual(other), `is`(false))
+        val bundle = PrimaryKeyBundle(
+            isAutoGenerate = true,
+            columnNames = listOf("foo", "baz")
+        )
+        val other = PrimaryKeyBundle(
+            isAutoGenerate = true,
+            columnNames = listOf("foo", "bar")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
-   @Test
-   fun schemaEquality_diffColumnOrder_notEqual() {
-        val bundle = PrimaryKeyBundle(true,
-            listOf("foo", "bar"))
-        val other = PrimaryKeyBundle(true,
-            listOf("bar", "foo"))
-        assertThat(bundle.isSchemaEqual(other), `is`(false))
+    @Test
+    fun schemaEquality_diffColumnOrder_notEqual() {
+        val bundle = PrimaryKeyBundle(
+            isAutoGenerate = true,
+            columnNames = listOf("foo", "bar")
+        )
+        val other = PrimaryKeyBundle(
+            isAutoGenerate = true,
+            columnNames = listOf("bar", "foo")
+        )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 }

@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 @file:JvmName("BundleUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmName
 
 /**
  * Placeholder for table names in queries.
  */
-public const val TABLE_NAME_PLACEHOLDER: String = "\${TABLE_NAME}"
+const val TABLE_NAME_PLACEHOLDER: String = "\${TABLE_NAME}"
 
 /**
  * Placeholder for view names in queries.
  */
-public const val VIEW_NAME_PLACEHOLDER: String = "\${VIEW_NAME}"
+const val VIEW_NAME_PLACEHOLDER: String = "\${VIEW_NAME}"
 
-public fun replaceTableName(contents: String, tableName: String): String {
+fun replaceTableName(contents: String, tableName: String): String {
     return contents.replace(TABLE_NAME_PLACEHOLDER, tableName)
 }
 
-public fun replaceViewName(contents: String, viewName: String): String {
+fun replaceViewName(contents: String, viewName: String): String {
     return contents.replace(VIEW_NAME_PLACEHOLDER, viewName)
 }

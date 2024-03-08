@@ -26,6 +26,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.room.migration.bundle.DatabaseBundle
+import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.migration.bundle.SchemaBundle.Companion.deserialize
@@ -474,13 +475,14 @@ open class MigrationTestHelper : TestWatcher {
         ): androidx.room.RoomOpenHelper.ValidationResult {
             val tables = mDatabaseBundle.entitiesByTableName
             tables.values.forEach { entity ->
-                if (entity is FtsEntityBundle) {
-                    val expected = entity.toFtsTableInfo()
-                    val found = FtsTableInfo.read(db, entity.tableName)
-                    if (expected != found) {
-                        return androidx.room.RoomOpenHelper.ValidationResult(
-                            false,
-                            """ ${expected.name.trimEnd()}
+                when (entity) {
+                    is EntityBundle -> {
+                        val expected = entity.toTableInfo()
+                        val found = TableInfo.read(db, entity.tableName)
+                        if (expected != found) {
+                            return androidx.room.RoomOpenHelper.ValidationResult(
+                                false,
+                                """ ${expected.name.trimEnd()}
                                 |
                                 |Expected:
                                 |
@@ -490,15 +492,16 @@ open class MigrationTestHelper : TestWatcher {
                                 |
                                 |$found
                             """.trimMargin()
-                        )
+                            )
+                        }
                     }
-                } else {
-                    val expected = entity.toTableInfo()
-                    val found = TableInfo.read(db, entity.tableName)
-                    if (expected != found) {
-                        return androidx.room.RoomOpenHelper.ValidationResult(
-                            false,
-                            """ ${expected.name.trimEnd()}
+                    is FtsEntityBundle -> {
+                        val expected = entity.toFtsTableInfo()
+                        val found = FtsTableInfo.read(db, entity.tableName)
+                        if (expected != found) {
+                            return androidx.room.RoomOpenHelper.ValidationResult(
+                                false,
+                                """ ${expected.name.trimEnd()}
                                 |
                                 |Expected:
                                 |
@@ -508,7 +511,8 @@ open class MigrationTestHelper : TestWatcher {
                                 |
                                 |$found
                             """.trimMargin()
-                        )
+                            )
+                        }
                     }
                 }
             }

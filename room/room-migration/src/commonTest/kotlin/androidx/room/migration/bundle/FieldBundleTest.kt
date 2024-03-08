@@ -16,53 +16,121 @@
 
 package androidx.room.migration.bundle
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class FieldBundleTest {
     @Test
     fun schemaEquality_same_equal() {
-        val bundle = FieldBundle("foo", "foo", "text", false, null)
-        val copy = FieldBundle("foo", "foo", "text", false, null)
-        assertThat(bundle.isSchemaEqual(copy), `is`(true))
+        val bundle = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = false,
+            defaultValue = null
+        )
+        val copy = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = false,
+            defaultValue = null
+        )
+        assertThat(bundle.isSchemaEqual(copy)).isTrue()
     }
 
     @Test
     fun schemaEquality_diffNonNull_notEqual() {
-        val bundle = FieldBundle("foo", "foo", "text", false, null)
-        val copy = FieldBundle("foo", "foo", "text", true, null)
-        assertThat(bundle.isSchemaEqual(copy), `is`(false))
+        val bundle = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = false,
+            defaultValue = null
+        )
+        val copy = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = true,
+            defaultValue = null
+        )
+        assertThat(bundle.isSchemaEqual(copy)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffColumnName_notEqual() {
-        val bundle = FieldBundle("foo", "foo", "text", false, null)
-        val copy = FieldBundle("foo", "foo2", "text", true, null)
-        assertThat(bundle.isSchemaEqual(copy), `is`(false))
+        val bundle = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = false,
+            defaultValue = null
+        )
+        val copy = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo2",
+            affinity = "text",
+            isNonNull = true,
+            defaultValue = null
+        )
+        assertThat(bundle.isSchemaEqual(copy)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffAffinity_notEqual() {
-        val bundle = FieldBundle("foo", "foo", "text", false, null)
-        val copy = FieldBundle("foo", "foo2", "int", false, null)
-        assertThat(bundle.isSchemaEqual(copy), `is`(false))
+        val bundle = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = false,
+            defaultValue = null
+        )
+        val copy = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo2",
+            affinity = "int",
+            isNonNull = false,
+            defaultValue = null
+        )
+        assertThat(bundle.isSchemaEqual(copy)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffPath_equal() {
-        val bundle = FieldBundle("foo", "foo", "text", false, null)
-        val copy = FieldBundle("foo>bar", "foo", "text", false, null)
-        assertThat(bundle.isSchemaEqual(copy), `is`(true))
+        val bundle = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = false,
+            defaultValue = null
+        )
+        val copy = FieldBundle(
+            fieldPath = "foo>bar",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = false,
+            defaultValue = null
+        )
+        assertThat(bundle.isSchemaEqual(copy)).isTrue()
     }
 
     @Test
     fun schemeEquality_diffDefaultValue_notEqual() {
-        val bundle = FieldBundle("foo", "foo", "text", true, null)
-        val copy = FieldBundle("foo", "foo", "text", true, "bar")
-        assertThat(bundle.isSchemaEqual(copy), `is`(false))
+        val bundle = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = true,
+            defaultValue = null
+        )
+        val copy = FieldBundle(
+            fieldPath = "foo",
+            columnName = "foo",
+            affinity = "text",
+            isNonNull = true,
+            defaultValue = "bar"
+        )
+        assertThat(bundle.isSchemaEqual(copy)).isFalse()
     }
 }

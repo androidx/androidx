@@ -16,20 +16,16 @@
 
 package androidx.room.migration.bundle
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class DatabaseViewBundleTest {
     @Test
     fun basic() {
-        val bundle = DatabaseViewBundle("abc", "def")
-        val other = DatabaseViewBundle("abc", "def")
-        assertThat(bundle.isSchemaEqual(other), `is`(true))
-        assertThat(bundle.viewName, `is`("abc"))
-        assertThat(bundle.createSql, `is`("def"))
+        val bundle = DatabaseViewBundle(viewName = "abc", createSql = "def")
+        val other = DatabaseViewBundle(viewName = "abc", createSql = "def")
+        assertThat(bundle.isSchemaEqual(other)).isTrue()
+        assertThat(bundle.viewName).isEqualTo("abc")
+        assertThat(bundle.createSql).isEqualTo("def")
     }
 }

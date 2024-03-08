@@ -28,7 +28,6 @@ import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
 import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_SCHEMA_IN_FOLDER_NULL
-import androidx.room.processor.ProcessorErrors.autoMigrationSchemaIsEmpty
 import androidx.room.processor.ProcessorErrors.invalidAutoMigrationSchema
 import androidx.room.util.SchemaFileResolver
 import androidx.room.verifier.DatabaseVerificationErrors
@@ -42,6 +41,7 @@ import androidx.room.vo.FtsEntity
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
 import java.util.Locale
@@ -230,24 +230,25 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             schemaStream.use {
                 SchemaBundle.deserialize(schemaStream)
             }
+        } catch (ex: FileNotFoundException) {
+            context.logger.e(
+                element,
+                ProcessorErrors.autoMigrationSchemasNotFound(
+                    version,
+                    schemaFolderPath.toString()
+                ),
+            )
+            null
         } catch (th: Throwable) {
-            if (th is SchemaBundle.EmptySchemaException) {
-                context.logger.e(
-                    element,
-                    autoMigrationSchemaIsEmpty(
-                        version,
-                        schemaFolderPath.toString()
-                    ),
+            // For debugging support include exception message in a WARN message.
+            context.logger.w("Unable to read schema file: ${th.message ?: ""}")
+            context.logger.e(
+                element,
+                invalidAutoMigrationSchema(
+                    version,
+                    schemaFolderPath.toString()
                 )
-            } else {
-                context.logger.e(
-                    element,
-                    invalidAutoMigrationSchema(
-                        version,
-                        schemaFolderPath.toString()
-                    )
-                )
-            }
+            )
             null
         }
         return bundle?.database
