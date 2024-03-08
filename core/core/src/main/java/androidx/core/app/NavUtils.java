@@ -106,23 +106,20 @@ public final class NavUtils {
     /**
      * Obtain an {@link Intent} that will launch an explicit target activity
      * specified by sourceActivity's {@link #PARENT_ACTIVITY} &lt;meta-data&gt;
-     * element in the application's manifest. If the device is running
-     * Jellybean or newer, the android:parentActivityName attribute will be preferred
-     * if it is present.
+     * element in the application's manifest. The android:parentActivityName
+     * attribute will be preferred if it is present.
      *
      * @param sourceActivity Activity to fetch a parent intent for
      * @return a new Intent targeting the defined parent activity of sourceActivity
      */
     @Nullable
     public static Intent getParentActivityIntent(@NonNull Activity sourceActivity) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            // Prefer the "real" JB definition if available,
-            // else fall back to the meta-data element.
-            Intent result = sourceActivity.getParentActivityIntent();
-            if (result != null) {
-                return result;
-            }
+        // Prefer the "real" JB definition, else fall back to the meta-data element.
+        Intent result = sourceActivity.getParentActivityIntent();
+        if (result != null) {
+            return result;
         }
+
         String parentName = NavUtils.getParentActivityName(sourceActivity);
         if (parentName == null) return null;
 

@@ -2511,13 +2511,13 @@ package androidx.core.view {
     method public boolean onDragStart(android.view.View, androidx.core.view.DragStartHelper);
   }
 
-  public final class GestureDetectorCompat {
-    ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener);
-    ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler?);
-    method public boolean isLongpressEnabled();
-    method public boolean onTouchEvent(android.view.MotionEvent);
-    method public void setIsLongpressEnabled(boolean);
-    method public void setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener?);
+  @Deprecated public final class GestureDetectorCompat {
+    ctor @Deprecated public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener);
+    ctor @Deprecated public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler?);
+    method @Deprecated public boolean isLongpressEnabled();
+    method @Deprecated public boolean onTouchEvent(android.view.MotionEvent);
+    method @Deprecated public void setIsLongpressEnabled(boolean);
+    method @Deprecated public void setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener?);
   }
 
   public final class GravityCompat {

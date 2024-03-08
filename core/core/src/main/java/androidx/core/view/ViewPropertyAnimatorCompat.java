@@ -35,86 +35,8 @@ import java.lang.ref.WeakReference;
 public final class ViewPropertyAnimatorCompat {
     private final WeakReference<View> mView;
 
-    Runnable mStartAction = null;
-    Runnable mEndAction = null;
-    int mOldLayerType = -1;
-    // HACK ALERT! Choosing this id knowing that the framework does not use it anywhere
-    // internally and apps should use ids higher than it
-    static final int LISTENER_TAG_ID = 0x7e000000;
-
     ViewPropertyAnimatorCompat(View view) {
         mView = new WeakReference<>(view);
-    }
-
-    static class ViewPropertyAnimatorListenerApi14 implements ViewPropertyAnimatorListener {
-        ViewPropertyAnimatorCompat mVpa;
-        boolean mAnimEndCalled;
-
-        ViewPropertyAnimatorListenerApi14(ViewPropertyAnimatorCompat vpa) {
-            mVpa = vpa;
-        }
-
-        @Override
-        public void onAnimationStart(@NonNull View view) {
-            // Reset our end called flag, since this is a new animation...
-            mAnimEndCalled = false;
-
-            if (mVpa.mOldLayerType > -1) {
-                view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            }
-            if (mVpa.mStartAction != null) {
-                Runnable startAction = mVpa.mStartAction;
-                mVpa.mStartAction = null;
-                startAction.run();
-            }
-            Object listenerTag = view.getTag(LISTENER_TAG_ID);
-            ViewPropertyAnimatorListener listener = null;
-            if (listenerTag instanceof ViewPropertyAnimatorListener) {
-                listener = (ViewPropertyAnimatorListener) listenerTag;
-            }
-            if (listener != null) {
-                listener.onAnimationStart(view);
-            }
-        }
-
-        @Override
-        @SuppressLint("WrongConstant")
-        public void onAnimationEnd(@NonNull View view) {
-            if (mVpa.mOldLayerType > -1) {
-                view.setLayerType(mVpa.mOldLayerType, null);
-                mVpa.mOldLayerType = -1;
-            }
-            if (Build.VERSION.SDK_INT >= 16 || !mAnimEndCalled) {
-                // Pre-v16 seems to have a bug where onAnimationEnd is called
-                // twice, therefore we only dispatch on the first call
-                if (mVpa.mEndAction != null) {
-                    Runnable endAction = mVpa.mEndAction;
-                    mVpa.mEndAction = null;
-                    endAction.run();
-                }
-                Object listenerTag = view.getTag(LISTENER_TAG_ID);
-                ViewPropertyAnimatorListener listener = null;
-                if (listenerTag instanceof ViewPropertyAnimatorListener) {
-                    listener = (ViewPropertyAnimatorListener) listenerTag;
-                }
-                if (listener != null) {
-                    listener.onAnimationEnd(view);
-                }
-                mAnimEndCalled = true;
-            }
-        }
-
-        @Override
-        public void onAnimationCancel(@NonNull View view) {
-            Object listenerTag = view.getTag(LISTENER_TAG_ID);
-            ViewPropertyAnimatorListener listener = null;
-            if (listenerTag instanceof ViewPropertyAnimatorListener) {
-                listener = (ViewPropertyAnimatorListener) listenerTag;
-            }
-            if (listener != null) {
-                listener.onAnimationCancel(view);
-            }
-        }
     }
 
     /**
@@ -701,12 +623,6 @@ public final class ViewPropertyAnimatorCompat {
      * inconsistency, including having the layer type restored to its pre-withLayer()
      * value when the animation ends.</p>
      *
-     * <p>For API 14 and 15, this method will run by setting
-     * a listener on the ViewPropertyAnimatorCompat object, setting a hardware layer in
-     * the listener's {@link ViewPropertyAnimatorListener#onAnimationStart(View)} method,
-     * and then restoring the orignal layer type in the listener's
-     * {@link ViewPropertyAnimatorListener#onAnimationEnd(View)} method.</p>
-     *
      * @see View#setLayerType(int, Paint)
      * @return This object, allowing calls to methods in this class to be chained.
      */
@@ -728,10 +644,6 @@ public final class ViewPropertyAnimatorCompat {
      * This method, along with {@link #withEndAction(Runnable)}, is intended to help facilitate
      * choreographing ViewPropertyAnimator animations with other animations or actions
      * in the application.
-     *
-     * <p>For API 14 and 15, this method will run by setting
-     * a listener on the ViewPropertyAnimatorCompat object and running the action
-     * in that listener's {@link ViewPropertyAnimatorListener#onAnimationStart(View)} method.</p>
      *
      * @param runnable The action to run when the next animation starts.
      * @return This object, allowing calls to methods in this class to be chained.
@@ -790,8 +702,6 @@ public final class ViewPropertyAnimatorCompat {
     /**
      * Sets a listener for update events in the underlying Animator that runs
      * the property animations.
-     *
-     * <p>Prior to API 19, this method will do nothing.</p>
      *
      * @param listener The listener to be called with update events. A value of
      * <code>null</code> removes any existing listener.

@@ -1,7 +1,15 @@
 // Baseline format: 1.0
-ChangedDeprecated: androidx.core.os.BundleCompat#getBinder(android.os.Bundle, String):
-    Method androidx.core.os.BundleCompat.getBinder has changed deprecation state false --> true
-ChangedDeprecated: androidx.core.os.BundleCompat#putBinder(android.os.Bundle, String, android.os.IBinder):
-    Method androidx.core.os.BundleCompat.putBinder has changed deprecation state false --> true
-ChangedDeprecated: androidx.core.os.EnvironmentCompat#MEDIA_UNKNOWN:
-    Field androidx.core.os.EnvironmentCompat.MEDIA_UNKNOWN has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat:
+    Class androidx.core.view.GestureDetectorCompat has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener):
+    Constructor androidx.core.view.GestureDetectorCompat has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler):
+    Constructor androidx.core.view.GestureDetectorCompat has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#isLongpressEnabled():
+    Method androidx.core.view.GestureDetectorCompat.isLongpressEnabled has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#onTouchEvent(android.view.MotionEvent):
+    Method androidx.core.view.GestureDetectorCompat.onTouchEvent has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#setIsLongpressEnabled(boolean):
+    Method androidx.core.view.GestureDetectorCompat.setIsLongpressEnabled has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener):
+    Method androidx.core.view.GestureDetectorCompat.setOnDoubleTapListener has changed deprecation state false --> true
