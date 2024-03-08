@@ -711,13 +711,25 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Returns how the property is indexed. */
         @IndexingType
         public int getIndexingType() {
-            return mPropertyConfigParcel.getStringIndexingConfigParcel().getIndexingType();
+            StringIndexingConfigParcel indexingConfigParcel =
+                    mPropertyConfigParcel.getStringIndexingConfigParcel();
+            if (indexingConfigParcel == null) {
+                return INDEXING_TYPE_NONE;
+            }
+
+            return indexingConfigParcel.getIndexingType();
         }
 
         /** Returns how this property is tokenized (split into words). */
         @TokenizerType
         public int getTokenizerType() {
-            return mPropertyConfigParcel.getStringIndexingConfigParcel().getTokenizerType();
+            StringIndexingConfigParcel indexingConfigParcel =
+                    mPropertyConfigParcel.getStringIndexingConfigParcel();
+            if (indexingConfigParcel == null) {
+                return TOKENIZER_TYPE_NONE;
+            }
+
+            return indexingConfigParcel.getTokenizerType();
         }
 
         /**
@@ -725,7 +737,13 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          */
         @JoinableValueType
         public int getJoinableValueType() {
-            return mPropertyConfigParcel.getJoinableConfigParcel().getJoinableValueType();
+            JoinableConfigParcel joinableConfigParcel = mPropertyConfigParcel
+                    .getJoinableConfigParcel();
+            if (joinableConfigParcel == null) {
+                return JOINABLE_VALUE_TYPE_NONE;
+            }
+
+            return joinableConfigParcel.getJoinableValueType();
         }
 
         /** Builder for {@link StringPropertyConfig}. */
@@ -942,7 +960,12 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Returns how the property is indexed. */
         @IndexingType
         public int getIndexingType() {
-            return mPropertyConfigParcel.getIntegerIndexingConfigParcel().getIndexingType();
+            PropertyConfigParcel.IntegerIndexingConfigParcel indexingConfigParcel =
+                    mPropertyConfigParcel.getIntegerIndexingConfigParcel();
+            if (indexingConfigParcel == null) {
+                return INDEXING_TYPE_NONE;
+            }
+            return indexingConfigParcel.getIndexingType();
         }
 
         /** Builder for {@link LongPropertyConfig}. */
@@ -1175,8 +1198,13 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          * indexing a subset of properties from the nested document.
          */
         public boolean shouldIndexNestedProperties() {
-            return mPropertyConfigParcel.getDocumentIndexingConfigParcel()
-                    .shouldIndexNestedProperties();
+            DocumentIndexingConfigParcel indexingConfigParcel =
+                    mPropertyConfigParcel.getDocumentIndexingConfigParcel();
+            if (indexingConfigParcel == null) {
+                return false;
+            }
+
+            return indexingConfigParcel.shouldIndexNestedProperties();
         }
 
         /**
@@ -1189,12 +1217,18 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          */
         @NonNull
         public List<String> getIndexableNestedProperties() {
+            DocumentIndexingConfigParcel indexingConfigParcel =
+                    mPropertyConfigParcel.getDocumentIndexingConfigParcel();
+            if (indexingConfigParcel == null) {
+                return Collections.emptyList();
+            }
+
             List<String> indexableNestedPropertiesList =
-                    mPropertyConfigParcel.getDocumentIndexingConfigParcel()
-                            .getIndexableNestedPropertiesList();
+                    indexingConfigParcel.getIndexableNestedPropertiesList();
             if (indexableNestedPropertiesList == null) {
                 return Collections.emptyList();
             }
+
             return Collections.unmodifiableList(indexableNestedPropertiesList);
         }
 

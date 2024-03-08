@@ -174,9 +174,16 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof InternalVisibilityConfig)) return false;
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof InternalVisibilityConfig)) {
+            return false;
+        }
         InternalVisibilityConfig that = (InternalVisibilityConfig) o;
         return mIsNotDisplayedBySystem == that.mIsNotDisplayedBySystem
                 && Objects.equals(mSchemaType, that.mSchemaType)
@@ -316,6 +323,7 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
          *
          * @see SchemaVisibilityConfig.Builder#setPubliclyVisibleTargetPackage
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setPubliclyVisibleTargetPackage(
                 @Nullable PackageIdentifier packageIdentifier) {
@@ -335,8 +343,8 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
          * @param schemaVisibilityConfig The {@link SchemaVisibilityConfig} hold all requirements
          *                               that a call must match to access the schema.
          */
-        @NonNull
         @CanIgnoreReturnValue
+        @NonNull
         public Builder addVisibleToConfig(@NonNull SchemaVisibilityConfig schemaVisibilityConfig) {
             Objects.requireNonNull(schemaVisibilityConfig);
             resetIfBuilt();
@@ -345,8 +353,8 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
         }
 
         /** Clears the set of {@link SchemaVisibilityConfig} which have access to this schema. */
-        @NonNull
         @CanIgnoreReturnValue
+        @NonNull
         public Builder clearVisibleToConfig() {
             resetIfBuilt();
             mVisibleToConfigs.clear();

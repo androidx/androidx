@@ -334,7 +334,7 @@ public final class SetSchemaResponse extends AbstractSafeParcelable {
         @Field(id = 3, getter = "getSchemaType")
         private final String mSchemaType;
         @Field(id = 4)
-        final String mErrorMessage;
+        @Nullable final String mErrorMessage;
         @Field(id = 5)
         final int mResultCode;
 
@@ -343,7 +343,7 @@ public final class SetSchemaResponse extends AbstractSafeParcelable {
                 @Param(id = 1) @NonNull String namespace,
                 @Param(id = 2) @NonNull String documentId,
                 @Param(id = 3) @NonNull String schemaType,
-                @Param(id = 4) @NonNull String errorMessage,
+                @Param(id = 4) @Nullable String errorMessage,
                 @Param(id = 5) int resultCode) {
             mNamespace = namespace;
             mDocumentId = documentId;

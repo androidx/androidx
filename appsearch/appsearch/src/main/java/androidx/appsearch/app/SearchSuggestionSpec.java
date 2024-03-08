@@ -399,6 +399,7 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
          *                      sequence of property names indicating which property in the
          *                      document these snippets correspond to.
          */
+        @CanIgnoreReturnValue
         @NonNull
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
