@@ -176,12 +176,22 @@ class CapturePipelineTest {
             return CompletableDeferred(Result3A(Result3A.Status.OK))
         }
 
+        override suspend fun lock3AForCapture(
+            triggerAf: Boolean,
+            waitForAwb: Boolean,
+            frameLimit: Int,
+            timeLimitNs: Long
+        ): Deferred<Result3A> {
+            lock3AForCaptureSemaphore.release()
+            return CompletableDeferred(Result3A(Result3A.Status.OK))
+        }
+
         override fun submit(requests: List<Request>) {
             requestHandler(requests)
             submitSemaphore.release()
         }
 
-        override suspend fun unlock3APostCapture(): Deferred<Result3A> {
+        override suspend fun unlock3APostCapture(cancelAf: Boolean): Deferred<Result3A> {
             unlock3APostCaptureSemaphore.release()
             return CompletableDeferred(Result3A(Result3A.Status.OK))
         }

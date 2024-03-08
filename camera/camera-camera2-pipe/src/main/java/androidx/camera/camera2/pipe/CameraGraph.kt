@@ -507,6 +507,7 @@ interface CameraGraph : AutoCloseable {
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
          *   this operation to complete.
+         *
          * @return [Result3A], which will contain the latest frame number at which the locks were
          *   applied or the frame number at which the method returned early because either frame
          *   limit or time limit was reached.
@@ -514,7 +515,33 @@ interface CameraGraph : AutoCloseable {
         suspend fun lock3AForCapture(
             lockedCondition: ((FrameMetadata) -> Boolean)? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
-            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
+        ): Deferred<Result3A>
+
+        /**
+         * This methods does pre-capture metering sequence and locks auto-focus. Once the operation
+         * completes, we can proceed to take high-quality pictures.
+         *
+         * Note: Flash will be used during pre-capture metering and during image capture if the AE
+         * mode was set to [AeMode.ON_AUTO_FLASH] or [AeMode.ON_ALWAYS_FLASH], thus firing it for
+         * low light captures or for every capture, respectively.
+         *
+         * @param triggerAf Whether to trigger AF, enabled by default.
+         * @param waitForAwb Whether to wait for AWB to converge/lock, disabled by default.
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for this
+         *   operation to complete.
+         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
+         *   this operation to complete.
+         *
+         * @return [Result3A], which will contain the latest frame number at which the locks were
+         *   applied or the frame number at which the method returned early because either frame
+         *   limit or time limit was reached.
+         */
+        suspend fun lock3AForCapture(
+            triggerAf: Boolean = true,
+            waitForAwb: Boolean = false,
+            frameLimit: Int = DEFAULT_FRAME_LIMIT,
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
         ): Deferred<Result3A>
 
         /**
@@ -523,8 +550,10 @@ interface CameraGraph : AutoCloseable {
          * capture, and if not image capture request is submitted the auto-exposure may not resume
          * it's normal scan. This method brings focus and exposure back to normal after high quality
          * image captures using [lock3AForCapture] method.
+         *
+         * @param cancelAf  Whether to trigger AF cancel, enabled by default.
          */
-        suspend fun unlock3APostCapture(): Deferred<Result3A>
+        suspend fun unlock3APostCapture(cancelAf: Boolean = true): Deferred<Result3A>
     }
 }
 
