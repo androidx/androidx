@@ -36,7 +36,9 @@ class StrategyTest {
 
         val strategy = Strategy { _, _ -> defaultKeylineList }.apply(
             availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
 
         assertThat(strategy.getKeylineListForScrollOffset(0f, maxScrollOffset))
@@ -67,7 +69,9 @@ class StrategyTest {
 
         val strategy = Strategy { _, _ -> defaultKeylineList }.apply(
             availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
         val endKeylineList = strategy.getEndKeylines()
 
@@ -89,7 +93,9 @@ class StrategyTest {
 
         val strategy = Strategy { _, _ -> defaultKeylineList }.apply(
             availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
         val startKeylineList = strategy.getStartKeylines()
 
@@ -112,7 +118,9 @@ class StrategyTest {
 
         val strategy = Strategy { _, _ -> defaultKeylines }.apply(
             availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
 
         val startSteps = listOf(
@@ -219,7 +227,9 @@ class StrategyTest {
 
         val strategy = Strategy { _, _ -> defaultKeylines }.apply(
             availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
 
         val endSteps = listOf(
@@ -354,8 +364,18 @@ class StrategyTest {
         val strategy2 = Strategy { availableSpace, itemSpacingPx ->
             multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacingPx, itemCount)
         }
-        strategy1.apply(availableSpace = 500f, itemSpacing = itemSpacing)
-        strategy2.apply(availableSpace = 500f, itemSpacing = itemSpacing)
+        strategy1.apply(
+            availableSpace = 500f,
+            itemSpacing = itemSpacing,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
+        strategy2.apply(
+            availableSpace = 500f,
+            itemSpacing = itemSpacing,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
 
         assertThat(strategy1 == strategy2).isTrue()
         assertThat(strategy1.hashCode()).isEqualTo(strategy2.hashCode())
@@ -372,8 +392,18 @@ class StrategyTest {
         val strategy2 = Strategy { availableSpace, itemSpacingPx ->
             multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacingPx, itemCount)
         }
-        strategy1.apply(availableSpace = 500f, itemSpacing = itemSpacing)
-        strategy2.apply(availableSpace = 500f + 1f, itemSpacing = itemSpacing)
+        strategy1.apply(
+            availableSpace = 500f,
+            itemSpacing = itemSpacing,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
+        strategy2.apply(
+            availableSpace = 500f + 1f,
+            itemSpacing = itemSpacing,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
 
         assertThat(strategy1 == strategy2).isFalse()
         assertThat(strategy1.hashCode()).isNotEqualTo(strategy2.hashCode())
@@ -390,7 +420,12 @@ class StrategyTest {
         val strategy2 = Strategy { availableSpace, itemSpacingPx ->
             multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacingPx, itemCount)
         }
-        strategy1.apply(availableSpace = 500f, itemSpacing = itemSpacing)
+        strategy1.apply(
+            availableSpace = 500f,
+            itemSpacing = itemSpacing,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
 
         assertThat(strategy1 == strategy2).isFalse()
         assertThat(strategy1.hashCode()).isNotEqualTo(strategy2.hashCode())
@@ -403,7 +438,12 @@ class StrategyTest {
         val maxScrollOffset = (itemCount * large) - carouselMainAxisSize
         val defaultKeylineList = createStartAlignedKeylineList()
 
-        val strategy = Strategy { _, _ -> defaultKeylineList }.apply(carouselMainAxisSize, 0f)
+        val strategy = Strategy { _, _ -> defaultKeylineList }.apply(
+            availableSpace = carouselMainAxisSize,
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
 
         assertThat(strategy.getKeylineListForScrollOffset(0f, maxScrollOffset))
             .isEqualTo(defaultKeylineList)
@@ -419,7 +459,12 @@ class StrategyTest {
                 add(56f)
                 add(10f, isAnchor = true)
             }
-        }.apply(availableSpace = 380f, itemSpacing = 8f)
+        }.apply(
+            availableSpace = 380f,
+            itemSpacing = 8f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
 
         val middleStep = strategy.endKeylineSteps[1]
         val actualMiddleOffsets = middleStep.map { it.offset }.toFloatArray()
@@ -453,7 +498,12 @@ class StrategyTest {
                 add(56f)
                 add(10f, isAnchor = true)
             }
-        }.apply(availableSpace = 768f, itemSpacing = 8f)
+        }.apply(
+            availableSpace = 768f,
+            itemSpacing = 8f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
 
         assertThat(strategy.startKeylineSteps).hasSize(3)
         assertThat(strategy.endKeylineSteps).hasSize(3)
@@ -505,6 +555,38 @@ class StrategyTest {
             -489f, -295f, -101f, 93f, 287f, 481f, 675f, 869f
         )
         assertThat(e2ActualUnadjustedOffsets).isEqualTo(e2ExpectedUnadjustedOffsets)
+    }
+
+    @Test
+    fun testCenterStrategy_stepsShouldAccountForContentPadding() {
+        val strategy = Strategy { availableSpace, itemSpacing ->
+            keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Center) {
+                add(10f, isAnchor = true)
+                add(50f)
+                add(100f)
+                add(200f)
+                add(100f)
+                add(50f)
+                add(10f, isAnchor = true)
+            }
+        }.apply(500f, 0f, 16f, 24f)
+
+        val lastStartStep = strategy.startKeylineSteps.last()
+
+        val firstFocalLeft = lastStartStep.firstFocal.offset -
+            (lastStartStep.firstFocal.size / 2f)
+        val lastNonAnchorRight = lastStartStep.lastNonAnchor.offset +
+            (lastStartStep.lastNonAnchor.size / 2f)
+        val lastEndStep = strategy.endKeylineSteps.last()
+        val lastFocalRight = lastEndStep.lastFocal.offset +
+            (lastEndStep.lastFocal.size / 2f)
+        val firstNonAnchorLeft = lastEndStep.firstNonAnchor.offset -
+            (lastEndStep.firstNonAnchor.size / 2f)
+
+        assertThat(firstFocalLeft).isEqualTo(16f)
+        assertThat(lastNonAnchorRight).isEqualTo(500f)
+        assertThat(lastFocalRight).isEqualTo(500f - 24f)
+        assertThat(firstNonAnchorLeft).isWithin(.01f).of(0f)
     }
 
     private fun assertEqualWithFloatTolerance(

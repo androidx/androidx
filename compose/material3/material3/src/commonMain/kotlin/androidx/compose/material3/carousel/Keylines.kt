@@ -65,10 +65,7 @@ internal fun multiBrowseKeylineList(
     // of the large item and medium items are sized between large and small items. Clamp the
     // small target size within our min-max range and as close to 1/3 of the target large item
     // size as possible.
-    val targetSmallSize: Float = (targetLargeSize / 3f + itemSpacing).coerceIn(
-        minSmallItemSize + itemSpacing,
-        maxSmallItemSize + itemSpacing
-    )
+    val targetSmallSize: Float = (targetLargeSize / 3f).coerceIn(minSmallItemSize, maxSmallItemSize)
     val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
 
     if (carouselMainAxisSize < minSmallItemSize * 2) {
@@ -108,15 +105,15 @@ internal fun multiBrowseKeylineList(
         var mediumCount = arrangement.mediumCount
         while (keylineSurplus > 0) {
             if (smallCount > 0) {
-                smallCount -= 1;
+                smallCount -= 1
             } else if (mediumCount > 1) {
                 // Keep at least 1 medium so the large items don't fill the entire carousel in new
                 // strategy.
-                mediumCount -= 1;
+                mediumCount -= 1
             }
             // large items don't need to be removed even if they are a surplus because large items
             // are already fully unmasked.
-            keylineSurplus -= 1;
+            keylineSurplus -= 1
         }
         arrangement = Arrangement.findLowestCostArrangement(
             availableSpace = carouselMainAxisSize,
