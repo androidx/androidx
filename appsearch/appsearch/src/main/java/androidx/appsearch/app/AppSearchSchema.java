@@ -727,16 +727,6 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             return mPropertyConfigParcel.getJoinableConfigParcel().getJoinableValueType();
         }
 
-        /**
-         * Returns whether or not documents in this schema should be deleted when the document
-         * referenced by this field is deleted.
-         *
-         * @<!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()hide-->
-         */
-        public boolean getDeletionPropagation() {
-            return mPropertyConfigParcel.getJoinableConfigParcel().getDeletionPropagation();
-        }
-
         /** Builder for {@link StringPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
@@ -825,23 +815,6 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                         JOINABLE_VALUE_TYPE_QUALIFIED_ID,
                         "joinableValueType");
                 mJoinableValueType = joinableValueType;
-                return this;
-            }
-
-            /**
-             * Configures whether or not documents in this schema will be removed when the document
-             * referred to by this property is deleted.
-             *
-             * <p> Requires that a joinable value type is set.
-             * @<!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()hide-->
-             */
-            @SuppressWarnings("MissingGetterMatchingBuilder")  // getDeletionPropagation
-            @NonNull
-            @RequiresFeature(
-                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                    name = Features.SCHEMA_SET_DELETION_PROPAGATION)
-            public Builder setDeletionPropagation(boolean deletionPropagation) {
-                mDeletionPropagation = deletionPropagation;
                 return this;
             }
 

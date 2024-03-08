@@ -62,8 +62,6 @@ public class AlwaysSupportedFeatures implements Features {
                 // fall through
             case Features.SEARCH_SUGGESTION:
                 // fall through
-            case Features.SCHEMA_SET_DELETION_PROPAGATION:
-                // fall through
             case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
                 // fall through
             case Features.SCHEMA_ADD_PARENT_TYPE:

@@ -85,9 +85,6 @@ final class FeaturesImpl implements Features {
                 // TODO(b/258715421) : Update to reflect support in Android U+ once this feature has
                 // an extservices sdk that includes it.
                 // fall through
-            case Features.SCHEMA_SET_DELETION_PROPAGATION:
-                // TODO(b/268521214) : Update when feature is ready in service-appsearch.
-                // fall through
             case Features.SCHEMA_ADD_PARENT_TYPE:
                 // TODO(b/269295094) : Update when feature is ready in service-appsearch.
                 // fall through
