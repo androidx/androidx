@@ -165,7 +165,7 @@
     <string name="gas_station" msgid="1203313937444666161">"SPBU"</string>
     <string name="short_route" msgid="4831864276538141265">"Rute pendek"</string>
     <string name="less_busy" msgid="310625272281710983">"Tidak terlalu sibuk"</string>
-    <string name="hov_friendly" msgid="6956152104754594971">"Cocok untuk Kendaraan Padat Penumpang"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"Sesuai untuk kendaraan multi-penumpang"</string>
     <string name="long_route" msgid="4737969235741057506">"Rute panjang"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"Lanjutkan untuk memulai navigasi"</string>
     <string name="continue_route" msgid="5172258139245088080">"Lanjutkan ke rute"</string>
