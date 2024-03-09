@@ -1008,6 +1008,7 @@ includeProject(":wear:compose:integration-tests:demos:common", [BuildType.COMPOS
 includeProject(":wear:compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:navigation", [BuildType.COMPOSE])
+includeProject(":wear:wear-core", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-input", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-input-samples", "wear/wear-input/samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-input-testing", [BuildType.MAIN, BuildType.WEAR])
