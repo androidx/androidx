@@ -26,6 +26,8 @@ import androidx.build.metalava.MetalavaTasks
 import androidx.build.resources.ResourceTasks
 import androidx.build.stableaidl.setupWithStableAidlPlugin
 import androidx.build.version
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.LibraryVariant
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.tasks.ProcessLibraryManifest
 import org.gradle.api.GradleException
@@ -35,7 +37,10 @@ import org.gradle.kotlin.dsl.getByType
 
 sealed class ApiTaskConfig
 
-data class LibraryApiTaskConfig(val library: LibraryExtension) : ApiTaskConfig()
+data class LibraryApiTaskConfig(
+    val library: LibraryExtension,
+    val variant: LibraryVariant
+) : ApiTaskConfig()
 
 object JavaApiTaskConfig : ApiTaskConfig()
 
@@ -208,7 +213,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
         if (config is LibraryApiTaskConfig) {
             ResourceTasks.setupProject(
                 project,
-                Release.DEFAULT_PUBLISH_CONFIG,
+                config.variant.artifacts.get(SingleArtifact.PUBLIC_ANDROID_RESOURCES_LIST),
                 builtApiLocation,
                 outputApiLocations
             )
