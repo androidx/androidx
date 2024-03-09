@@ -29,10 +29,11 @@ import androidx.build.version
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.LibraryVariant
 import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.tasks.ProcessLibraryManifest
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByType
 
 sealed class ApiTaskConfig
@@ -158,7 +159,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
             }
 
         val javaInputs: JavaCompileInputs
-        val processManifest: ProcessLibraryManifest?
+        val androidManifest: Provider<RegularFile>?
         when (config) {
             is LibraryApiTaskConfig -> {
                 val variant =
@@ -174,25 +175,21 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                         // from android { useLibrary "android.foo" } block.
                         files(config.library.bootClasspath)
                     )
-                processManifest =
-                    config.library.buildOutputs
-                        .getByName(variant.name)
-                        .processManifestProvider
-                        .get() as ProcessLibraryManifest
+                androidManifest = config.variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
             }
             is AndroidMultiplatformApiTaskConfig -> {
                 javaInputs = JavaCompileInputs.fromKmpAndroidTarget(project)
-                processManifest = null
+                androidManifest = null
             }
             is KmpApiTaskConfig -> {
                 javaInputs = JavaCompileInputs.fromKmpJvmTarget(project)
-                processManifest = null
+                androidManifest = null
             }
             is JavaApiTaskConfig -> {
                 val javaExtension = extensions.getByType<JavaPluginExtension>()
                 val mainSourceSet = javaExtension.sourceSets.getByName("main")
                 javaInputs = JavaCompileInputs.fromSourceSet(mainSourceSet, this)
-                processManifest = null
+                androidManifest = null
             }
         }
 
@@ -202,7 +199,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
             project,
             javaInputs,
             extension,
-            processManifest,
+            androidManifest,
             baselinesApiLocation,
             builtApiLocation,
             outputApiLocations
