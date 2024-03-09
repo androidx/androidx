@@ -414,6 +414,26 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
         )
     }
 
+    @Test
+    fun hiddenVariableInDeconstruction() {
+        // Regression test from b/328122546
+        lint().files(
+            kotlin(
+                """
+                        package androidx.compose.lint
+
+                        fun foo(value: Any) {
+                            val list = value as List<Any>
+                            val (first, second, third) = (list as List<$type>)
+                            println(first)
+                            println(second)
+                            println(third)
+                        }
+                """
+            )
+        ).run().expectClean()
+    }
+
     data class Parameters(
         val type: String,
         val value: String,
