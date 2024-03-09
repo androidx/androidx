@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.graphics.layer.view;
 
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.R
+import androidx.compose.ui.graphics.layer.ViewLayer
 import androidx.compose.ui.graphics.nativeCanvas
 
 /**
- * The container we will use for [ViewLayer]s.
+ * The container we will use for [GraphicsViewLayer]s.
  */
 internal class ViewLayerContainer(context: Context) : DrawChildContainer(context) {
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
@@ -48,6 +49,7 @@ internal open class DrawChildContainer(context: Context) : ViewGroup(context) {
 
     init {
         clipChildren = false
+        clipToPadding = false
 
         // Hide this view and its children in tools:
         setTag(R.id.hide_in_inspector_tag, true)
@@ -60,11 +62,6 @@ internal open class DrawChildContainer(context: Context) : ViewGroup(context) {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // we don't measure our children
         setMeasuredDimension(0, 0)
-    }
-
-    @Suppress("MissingSuperCall")
-    override fun requestLayout() {
-        // we don't layout our children
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {

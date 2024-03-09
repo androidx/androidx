@@ -25,7 +25,10 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayerImpl
 import androidx.compose.ui.graphics.layer.GraphicsLayerV23
 import androidx.compose.ui.graphics.layer.GraphicsLayerV29
+import androidx.compose.ui.graphics.layer.GraphicsViewLayer
 import androidx.compose.ui.graphics.layer.LayerManager
+import androidx.compose.ui.graphics.layer.view.DrawChildContainer
+import androidx.compose.ui.graphics.layer.view.ViewLayerContainer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -42,36 +45,44 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
 
     private val lock = Any()
     private val layerManager = LayerManager(CanvasHolder())
+    private var viewLayerContainer: DrawChildContainer? = null
 
     override fun createGraphicsLayer(): GraphicsLayer {
         synchronized(lock) {
             val ownerId = getUniqueDrawingId(ownerView)
             val layerImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 GraphicsLayerV29(ownerId)
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            } else if (isRenderNodeCompatible && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 try {
                     GraphicsLayerV23(ownerView, ownerId)
                 } catch (_: Throwable) {
-                    // TODO GraphicsLayerView fallback in subsequent CL
-                    throw UnsupportedOperationException()
+                    // If we ever failed to create an instance of the RenderNode stub based
+                    // GraphicsLayer, always fallback to creation of View based layers as it is
+                    // unlikely that subsequent attempts to create a GraphicsLayer with RenderNode
+                    // stubs would be successful.
+                    isRenderNodeCompatible = false
+                    GraphicsViewLayer(
+                        obtainViewLayerContainer(ownerView),
+                        ownerId
+                    )
                 }
             } else {
-                // Temporarily throw unsupported exceptions for API levels < M as the GraphicsLayer
-                // implementations for lower API levels are checked in
-                throw UnsupportedOperationException(
-                    "GraphicsLayer is currently only supported on Android M+"
+                GraphicsViewLayer(
+                    obtainViewLayerContainer(ownerView),
+                    ownerId
                 )
             }
             return GraphicsLayer(layerImpl).also { layer ->
                 // Do a placeholder recording of drawing instructions to avoid errors when doing a
                 // persistence render.
                 // This will be overridden by the consumer of the created GraphicsLayer
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                    // Only API levels earlier than P require a placeholder displaylist for
-                    // persistence rendering. On some API levels like (ex. API 28) actually doing
-                    // a placeholder render before the activity is setup (ex in unit tests) causes
-                    // the emulator to crash with an NPE in native code on the HWUI canvas
-                    // implementation
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    // Only API levels between M (inclusive) and P (exclusive) require a placeholder
+                    // displaylist for persistence rendering. On some API levels like (ex. API 28)
+                    // actually doing a placeholder render before the activity is setup
+                    // (ex in unit tests) causes the emulator to crash with an NPE in native code
+                    // on the HWUI canvas implementation
                     layer.buildLayer(
                         DefaultDensity,
                         LayoutDirection.Ltr,
@@ -93,12 +104,28 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
         }
     }
 
+    private fun obtainViewLayerContainer(ownerView: ViewGroup): DrawChildContainer {
+        var container = viewLayerContainer
+        if (container == null) {
+            val context = ownerView.context
+
+            container = ViewLayerContainer(context)
+            ownerView.addView(container)
+            viewLayerContainer = container
+        }
+        return container
+    }
+
     private fun getUniqueDrawingId(view: View): Long =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             UniqueDrawingIdApi29.getUniqueDrawingId(view)
         } else {
             -1
         }
+
+    internal companion object {
+        var isRenderNodeCompatible: Boolean = true
+    }
 
     @RequiresApi(29)
     private object UniqueDrawingIdApi29 {

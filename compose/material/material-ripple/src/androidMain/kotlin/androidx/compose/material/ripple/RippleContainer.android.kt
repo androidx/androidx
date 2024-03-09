@@ -18,7 +18,7 @@ package androidx.compose.material.ripple
 
 import android.content.Context
 import android.view.ViewGroup
-import androidx.compose.ui.R
+import androidx.compose.ui.graphics.R
 
 internal interface RippleHostKey {
     /**

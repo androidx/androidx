@@ -21,7 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.collection.LongList
 import androidx.collection.mutableLongListOf
-import androidx.compose.ui.R
+import androidx.compose.ui.graphics.R
 import androidx.compose.ui.inspection.framework.ancestors
 import androidx.compose.ui.inspection.framework.getChildren
 import androidx.compose.ui.inspection.framework.isAndroidComposeView
