@@ -162,12 +162,20 @@ const val SUPPRESS_COMPATIBILITY_OPT_IN = "androidx.suppress.compatibility.optin
  */
 const val INCLUDE_OPTIONAL_PROJECTS = "androidx.includeOptionalProjects"
 
+/**
+ * If true, build compose compiler from source.
+ * Should be kept to "false" unless we are upgrading the Kotlin version in order to release a new
+ * stable Compose Compiler.
+ */
+const val UNPIN_COMPOSE_COMPILER = "androidx.unpinComposeCompiler"
+
 val ALL_ANDROIDX_PROPERTIES =
     setOf(
         ADD_GROUP_CONSTRAINTS,
         ALTERNATIVE_PROJECT_URL,
         VERSION_EXTRA_CHECK_ENABLED,
         VALIDATE_PROJECT_STRUCTURE,
+        UNPIN_COMPOSE_COMPILER,
         ENABLE_COMPOSE_COMPILER_METRICS,
         ENABLE_COMPOSE_COMPILER_REPORTS,
         DISPLAY_TEST_OUTPUT,
@@ -292,6 +300,12 @@ fun Project.usingMaxDepVersions(): Boolean {
  */
 fun Project.enableComposeCompilerMetrics() =
     findBooleanProperty(ENABLE_COMPOSE_COMPILER_METRICS) ?: false
+
+/**
+ * Returns whether we export compose compiler metrics
+ */
+fun Project.isComposeCompilerUnpinned() =
+    findBooleanProperty(UNPIN_COMPOSE_COMPILER) ?: false
 
 /**
  * Returns whether we export compose compiler reports
