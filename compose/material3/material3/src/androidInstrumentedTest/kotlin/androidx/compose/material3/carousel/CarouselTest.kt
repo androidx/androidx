@@ -130,6 +130,30 @@ class CarouselTest {
         }
     }
 
+    @Test
+    fun carousel_calculateOutOfBoundsPageCount() {
+        val xSmallSize = 5f
+        val smallSize = 100f
+        val mediumSize = 200f
+        val largeSize = 400f
+        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, CarouselAlignment.Start) {
+            add(xSmallSize, isAnchor = true)
+            add(largeSize)
+            add(mediumSize)
+            add(mediumSize)
+            add(smallSize)
+            add(smallSize)
+            add(xSmallSize, isAnchor = true)
+        }
+        val strategy = Strategy { keylineList }.apply(1000f)
+        val outOfBoundsNum = calculateOutOfBounds(strategy)
+        // With this strategy, we expect 3 loaded items
+        val loadedItems = 3
+
+        assertThat(outOfBoundsNum).isEqualTo(
+            (keylineList.filter { !it.isAnchor }.size - loadedItems) + 1)
+    }
+
     @Composable
     internal fun Item(index: Int) {
         Box(
@@ -147,7 +171,9 @@ class CarouselTest {
     private fun createCarousel(
         initialItem: Int = 0,
         itemCount: () -> Int = { DefaultItemCount },
-        modifier: Modifier = Modifier.width(412.dp).height(221.dp),
+        modifier: Modifier = Modifier
+            .width(412.dp)
+            .height(221.dp),
         orientation: Orientation = Orientation.Horizontal,
         content: @Composable CarouselScope.(item: Int) -> Unit = { Item(index = it) }
     ) {
@@ -178,7 +204,9 @@ class CarouselTest {
     private fun createUncontainedCarousel(
         initialItem: Int = 0,
         itemCount: () -> Int = { DefaultItemCount },
-        modifier: Modifier = Modifier.width(412.dp).height(221.dp),
+        modifier: Modifier = Modifier
+            .width(412.dp)
+            .height(221.dp),
         content: @Composable CarouselScope.(item: Int) -> Unit = { Item(index = it) }
     ) {
         rule.setMaterialContent(lightColorScheme()) {

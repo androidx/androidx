@@ -44,6 +44,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /**
@@ -187,8 +190,9 @@ internal fun Carousel(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val pageSize = remember(keylineList) { CarouselPageSize(keylineList) }
 
-    // TODO: Update beyond bounds numbers according to Strategy
-    val outOfBoundsPageCount = 2
+    val outOfBoundsPageCount = remember(pageSize.strategy.itemMainAxisSize) {
+        calculateOutOfBounds(pageSize.strategy)
+    }
     val carouselScope = CarouselScopeImpl
 
     val snapPositionMap = remember(pageSize.strategy.itemMainAxisSize) {
@@ -250,6 +254,23 @@ internal fun Carousel(
             }
         }
     }
+}
+
+internal fun calculateOutOfBounds(strategy: Strategy): Int {
+    if (!strategy.isValid()) {
+        return PagerDefaults.OutOfBoundsPageCount
+    }
+    var totalKeylineSpace = 0f
+    var totalNonAnchorKeylines = 0
+    strategy.defaultKeylines.fastFilter { !it.isAnchor }.fastForEach {
+        totalKeylineSpace += it.size
+        totalNonAnchorKeylines += 1
+    }
+    val itemsLoaded = ceil(totalKeylineSpace / strategy.itemMainAxisSize).toInt()
+    val itemsToLoad = totalNonAnchorKeylines - itemsLoaded
+
+    // We must also load the next item when scrolling
+    return itemsToLoad + 1
 }
 
 /**
