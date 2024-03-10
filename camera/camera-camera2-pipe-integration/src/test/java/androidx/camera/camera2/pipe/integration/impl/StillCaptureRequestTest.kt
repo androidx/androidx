@@ -92,6 +92,7 @@ class StillCaptureRequestTest {
     private lateinit var fakeUseCaseCamera: UseCaseCamera
 
     private val flashControl = FlashControl(
+        fakeCameraProperties,
         fakeState3AControl,
         fakeUseCaseThreads,
     )
@@ -454,6 +455,7 @@ class StillCaptureRequestTest {
                 useTorchAsFlash = NotUseTorchAsFlash,
                 sessionProcessorManager = null,
                 flashControl = FlashControl(
+                    cameraProperties = fakeCameraProperties,
                     state3AControl = fakeState3AControl,
                     threads = fakeUseCaseThreads,
                 ),
