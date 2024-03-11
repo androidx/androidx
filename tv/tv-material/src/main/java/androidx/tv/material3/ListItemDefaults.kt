@@ -31,7 +31,6 @@ import androidx.tv.material3.tokens.Elevation
 /**
  * Contains the default values used by list items.
  */
-@ExperimentalTvMaterial3Api
 object ListItemDefaults {
     /**
      * The default Icon size used by [ListItem].

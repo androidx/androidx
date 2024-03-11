@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.Shape
  * @param focusedDisabledShape the shape used when the ListItem is not enabled and focused.
  * @param pressedSelectedShape the shape used when the ListItem is enabled, pressed and selected.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ListItemShape constructor(
     val shape: Shape,
@@ -117,7 +116,6 @@ class ListItemShape constructor(
  * @param pressedSelectedContentColor the content color used when the ListItem is enabled,
  * pressed and selected.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ListItemColors constructor(
     val containerColor: Color,
@@ -214,7 +212,6 @@ class ListItemColors constructor(
  * @param pressedSelectedScale the scale used when the ListItem is enabled, pressed and
  * selected.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ListItemScale constructor(
     @FloatRange(from = 0.0) val scale: Float,
@@ -302,7 +299,6 @@ class ListItemScale constructor(
  * @param pressedSelectedBorder the [Border] used when the ListItem is enabled, pressed and
  * selected.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ListItemBorder constructor(
     val border: Border,
@@ -370,7 +366,6 @@ class ListItemBorder constructor(
  * @param focusedSelectedGlow the [Glow] used when the ListItem is enabled, focused and selected.
  * @param pressedSelectedGlow the [Glow] used when the ListItem is enabled, pressed and selected.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class ListItemGlow constructor(
     val glow: Glow,
