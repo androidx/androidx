@@ -67,6 +67,9 @@ android {
             version libs.versions.cmake.get()
         }
     }
+    sourceSets {
+        test.assets.srcDirs += ["src/test/assets"]
+    }
 }
 
 androidx {

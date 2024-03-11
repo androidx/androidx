@@ -34,8 +34,8 @@ public class AppInfo {
     private static final String NO_VERSION = "no-version";
 
     private static AppInfo sAppInfo = new AppInfo();
-    public final String mAppVersion;
-    public final String mPackageName;
+    private final String mAppVersion;
+    private final String mPackageName;
 
     /** Bootstrap {@link AppInfo} from any {@link Context}. Can be called multiple times. */
     public static synchronized void bootstrap(@NonNull Context context) {
@@ -59,6 +59,14 @@ public class AppInfo {
     private AppInfo() {
         mPackageName = NO_PACKAGE_NAME;
         mAppVersion = NO_VERSION;
+    }
+
+    public String getAppVersion() {
+        return mAppVersion;
+    }
+
+    public String getPackageName() {
+        return mPackageName;
     }
 
     private static PackageInfo getPackageInfo(PackageManager pkgManager, String pkg) {
