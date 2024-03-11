@@ -16,11 +16,12 @@
 
 package androidx.kruth
 
+import androidx.kruth.Subject.Factory
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.asserter
 
-class ChainingTest {
+class ChainingKruthTest {
 
     @Test
     fun singleChain() {
@@ -53,9 +54,10 @@ class ChainingTest {
         actual: Any?,
     ) : Subject<Any>(actual = actual, metadata = metadata) {
         companion object {
-            val FACTORY: Factory<ObjectSubject, Any> = Factory<ObjectSubject, Any> {
-                    metadata, actual -> ObjectSubject(metadata, actual)
-            }
+            val FACTORY: Factory<ObjectSubject, Any> =
+                Factory<ObjectSubject, Any> { metadata, actual ->
+                    ObjectSubject(metadata, actual)
+                }
 
             // entry point
             fun assertThat(obj: Any): ObjectSubject {

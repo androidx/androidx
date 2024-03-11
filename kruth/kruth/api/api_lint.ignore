@@ -7,14 +7,18 @@ ArrayReturn: androidx.kruth.IterableSubject#containsExactlyElementsIn(Object[]) 
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 ArrayReturn: androidx.kruth.IterableSubject#containsNoneIn(Object[]) parameter #0:
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.kruth.Kruth#assertThat(T[]) parameter #0:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.kruth.StandardSubjectBuilder#that(T[]) parameter #0:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
 
 
-AutoBoxing: androidx.kruth.KruthKt#assertThat(Boolean) parameter #0:
-    Must avoid boxed primitives (`java.lang.Boolean`)
-AutoBoxing: androidx.kruth.KruthKt#assertThat(Double) parameter #0:
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.kruth.KruthKt#assertThat(Integer) parameter #0:
+AutoBoxing: androidx.kruth.IntegerSubject#IntegerSubject(androidx.kruth.FailureMetadata, Integer) parameter #1:
     Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.kruth.Kruth#assertThat(Boolean) parameter #0:
+    Must avoid boxed primitives (`java.lang.Boolean`)
+AutoBoxing: androidx.kruth.Kruth#assertThat(Double) parameter #0:
+    Must avoid boxed primitives (`java.lang.Double`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Double) parameter #0:
@@ -39,10 +43,62 @@ BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(String)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(T):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(T)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(T[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(T[])
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(boolean[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(boolean[])
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(byte[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(byte[])
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(char):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(char)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(char[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(char[])
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(double[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(double[])
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(float[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(float[])
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(int):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(int)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(int[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(int[])
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(java.util.Map<K,? extends V>)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(long):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(long)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(long[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(long[])
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(short[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(short[])
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#withMessage(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.withMessage(String)
+
+
+CallbackMethodName: androidx.kruth.ExpectFailure.SimpleSubjectBuilderCallback#invokeAssertion(androidx.kruth.SimpleSubjectBuilder<? extends S,A>):
+    Callback method names must follow the on<Something> style: invokeAssertion
+CallbackMethodName: androidx.kruth.ExpectFailure.StandardSubjectBuilderCallback#invokeAssertion(androidx.kruth.StandardSubjectBuilder):
+    Callback method names must follow the on<Something> style: invokeAssertion
+
+
+DocumentExceptions: androidx.kruth.ExpectFailure#getFailure():
+    Method ExpectFailure.getFailure appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.kruth.ExpectFailure#whenTesting():
+    Method ExpectFailure.whenTesting appears to be throwing androidx.kruth.AssertionErrorWithFacts; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+ExecutorRegistration: androidx.kruth.ExpectFailure#expectFailure(androidx.kruth.ExpectFailure.StandardSubjectBuilderCallback):
+    Registration methods should have overload that accepts delivery Executor: `expectFailure`
+ExecutorRegistration: androidx.kruth.ExpectFailure.Companion#expectFailure(androidx.kruth.ExpectFailure.StandardSubjectBuilderCallback):
+    Registration methods should have overload that accepts delivery Executor: `expectFailure`
+
+
+InvalidNullabilityOverride: androidx.kruth.Expect#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
+    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.kruth.Expect#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
+    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.kruth.ExpectFailure#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
+    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.kruth.ExpectFailure#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
+    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
 MissingBuildMethod: androidx.kruth.SimpleSubjectBuilder:
