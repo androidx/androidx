@@ -952,6 +952,17 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
         StrictMode.allowThreadDiskWrites()
     }
 
+    @Test
+    fun testWriteSameValueSkipDisk() = runTest {
+        // write a non-default value to force a disk write
+        store.updateData { 10 }
+        assertThat(serializerConfig.writeCount).isEqualTo(1)
+
+        // write same value again
+        store.updateData { 10 }
+        assertThat(serializerConfig.writeCount).isEqualTo(1)
+    }
+
     // Mutable wrapper around a byte
     data class ByteWrapper(var byte: Byte) {
         internal class ByteWrapperSerializer() : Serializer<ByteWrapper> {
