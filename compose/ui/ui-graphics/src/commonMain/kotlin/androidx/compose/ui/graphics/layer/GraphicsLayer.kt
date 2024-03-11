@@ -28,10 +28,13 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.layer.GraphicsLayer.Companion.UnsetOffset
+import androidx.compose.ui.graphics.layer.GraphicsLayer.Companion.UnsetSize
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Draw the provided [GraphicsLayer] into the current [DrawScope].
@@ -246,7 +249,7 @@ expect class GraphicsLayer {
      * Configures a rounded rect outline for this [GraphicsLayer]. By default, both [topLeft] and
      * [size] are set to [UnsetOffset] and [UnsetSize] indicating that the outline should match the
      * bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow is produced
-     * using with an [Outline] created from the round rect parameters provided. Additionally if
+     * using an [Outline] created from the round rect parameters provided. Additionally if
      * [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
@@ -265,7 +268,7 @@ expect class GraphicsLayer {
      * Configures a rectangular outline for this [GraphicsLayer]. By default, both [topLeft] and
      * [size] are set to [UnsetOffset] and [UnsetSize] indicating that the outline should match the
      * bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow is produced
-     * using with an [Outline] created from the rect parameters provided. Additionally if
+     * using an [Outline] created from the rect parameters provided. Additionally if
      * [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
@@ -396,5 +399,40 @@ expect class GraphicsLayer {
          * [GraphicsLayer.size] for positioning
          */
         val UnsetSize: IntSize
+    }
+}
+
+/**
+ * Configures an outline for this [GraphicsLayer] based on the provided [Outline] object.
+ *
+ * When [GraphicsLayer.shadowElevation] is non-zero a shadow is produced using a provided [Outline].
+ * Additionally if [GraphicsLayer.clip] is true, the contents of this [GraphicsLayer] will be
+ * clipped to this geometry.
+ *
+ * @param outline an [Outline] to apply for the layer.
+ */
+fun GraphicsLayer.setOutline(outline: Outline) {
+    when (outline) {
+        is Outline.Rectangle -> setRectOutline(
+            IntOffset(outline.rect.top.fastRoundToInt(), outline.rect.left.fastRoundToInt()),
+            IntSize(outline.rect.width.fastRoundToInt(), outline.rect.height.fastRoundToInt())
+        )
+        is Outline.Generic -> setPathOutline(outline.path)
+        is Outline.Rounded -> {
+            // If the rounded rect has a path, then the corner radii are not the same across
+            // each of the corners, so we set the outline as a Path.
+            // If there is no path available, then the corner radii are identical so we can
+            // use setRoundRectOutline directly.
+            if (outline.roundRectPath != null) {
+                setPathOutline(outline.roundRectPath)
+            } else {
+                val rr = outline.roundRect
+                setRoundRectOutline(
+                    IntOffset(rr.top.fastRoundToInt(), rr.left.fastRoundToInt()),
+                    IntSize(rr.width.fastRoundToInt(), rr.height.fastRoundToInt()),
+                    rr.bottomLeftCornerRadius.x
+                )
+            }
+        }
     }
 }
