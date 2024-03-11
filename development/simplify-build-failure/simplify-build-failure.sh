@@ -128,6 +128,9 @@ while [ "$1" != "" ]; do
     grepCommand=""
     if echo "$testCommand" | grep -v OUT_DIR 2>/dev/null; then
       testCommand="export OUT_DIR=out; $testCommand"
+    else
+      echo "Sorry, customizing OUT_DIR is not supported at the moment because we want impl/join.sh to be able to detect it and skip deleting it"
+      exit 1
     fi
     continue
   fi

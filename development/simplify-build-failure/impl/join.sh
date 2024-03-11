@@ -52,7 +52,10 @@ function joinPath() {
 
 
 function main() {
-  rm "$sourcePath" -rf
+  # Remove most files and directories under $sourcePath other than build caches (out)
+  mkdir -p "$sourcePath"
+  cd "$sourcePath"
+  echo * .* | sed 's/ /\n/g' | grep -v "^out$" | xargs --no-run-if-empty rm -rf
 
   cd $explodedDir
   echo finding everything in $explodedDir
