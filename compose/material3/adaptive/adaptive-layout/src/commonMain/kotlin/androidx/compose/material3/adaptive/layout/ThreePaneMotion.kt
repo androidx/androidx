@@ -32,6 +32,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 
 /**
  * Holds the transitions that can be applied to the different panes.
@@ -39,7 +40,8 @@ import androidx.compose.ui.unit.IntOffset
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 internal open class ThreePaneMotion internal constructor(
-    internal val animationSpec: FiniteAnimationSpec<IntOffset> = snap(),
+    internal val positionAnimationSpec: FiniteAnimationSpec<IntOffset> = snap(),
+    internal val sizeAnimationSpec: FiniteAnimationSpec<IntSize> = snap(),
     private val firstPaneEnterTransition: EnterTransition = EnterTransition.None,
     private val firstPaneExitTransition: ExitTransition = ExitTransition.None,
     private val secondPaneEnterTransition: EnterTransition = EnterTransition.None,
@@ -87,7 +89,8 @@ internal open class ThreePaneMotion internal constructor(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneMotion) return false
-        if (this.animationSpec != other.animationSpec) return false
+        if (this.positionAnimationSpec != other.positionAnimationSpec) return false
+        if (this.sizeAnimationSpec != other.sizeAnimationSpec) return false
         if (this.firstPaneEnterTransition != other.firstPaneEnterTransition) return false
         if (this.firstPaneExitTransition != other.firstPaneExitTransition) return false
         if (this.secondPaneEnterTransition != other.secondPaneEnterTransition) return false
@@ -98,7 +101,8 @@ internal open class ThreePaneMotion internal constructor(
     }
 
     override fun hashCode(): Int {
-        var result = animationSpec.hashCode()
+        var result = positionAnimationSpec.hashCode()
+        result = 31 * result + sizeAnimationSpec.hashCode()
         result = 31 * result + firstPaneEnterTransition.hashCode()
         result = 31 * result + firstPaneExitTransition.hashCode()
         result = 31 * result + secondPaneEnterTransition.hashCode()
@@ -117,27 +121,39 @@ internal open class ThreePaneMotion internal constructor(
 
         @JvmStatic
         protected fun slideInFromLeft(spacerSize: Int) =
-            slideInHorizontally(ThreePaneMotionDefaults.PaneSpringSpec) { -it - spacerSize }
+            slideInHorizontally(ThreePaneMotionDefaults.PanePositionAnimationSpec) {
+                -it - spacerSize
+            }
 
         @JvmStatic
         protected fun slideInFromLeftDelayed(spacerSize: Int) =
-            slideInHorizontally(ThreePaneMotionDefaults.PaneSpringSpecDelayed) { -it - spacerSize }
+            slideInHorizontally(ThreePaneMotionDefaults.PanePositionAnimationSpecDelayed) {
+                -it - spacerSize
+            }
 
         @JvmStatic
         protected fun slideInFromRight(spacerSize: Int) =
-            slideInHorizontally(ThreePaneMotionDefaults.PaneSpringSpec) { it + spacerSize }
+            slideInHorizontally(ThreePaneMotionDefaults.PanePositionAnimationSpec) {
+                it + spacerSize
+            }
 
         @JvmStatic
         protected fun slideInFromRightDelayed(spacerSize: Int) =
-            slideInHorizontally(ThreePaneMotionDefaults.PaneSpringSpecDelayed) { it + spacerSize }
+            slideInHorizontally(ThreePaneMotionDefaults.PanePositionAnimationSpecDelayed) {
+                it + spacerSize
+            }
 
         @JvmStatic
         protected fun slideOutToLeft(spacerSize: Int) =
-            slideOutHorizontally(ThreePaneMotionDefaults.PaneSpringSpec) { -it - spacerSize }
+            slideOutHorizontally(ThreePaneMotionDefaults.PanePositionAnimationSpec) {
+                -it - spacerSize
+            }
 
         @JvmStatic
         protected fun slideOutToRight(spacerSize: Int) =
-            slideOutHorizontally(ThreePaneMotionDefaults.PaneSpringSpec) { it + spacerSize }
+            slideOutHorizontally(ThreePaneMotionDefaults.PanePositionAnimationSpec) {
+                it + spacerSize
+            }
     }
 }
 
@@ -146,7 +162,8 @@ internal open class ThreePaneMotion internal constructor(
 internal class MovePanesToLeftMotion(
     private val spacerSize: Int
 ) : ThreePaneMotion(
-    ThreePaneMotionDefaults.PaneSpringSpec,
+    ThreePaneMotionDefaults.PanePositionAnimationSpec,
+    ThreePaneMotionDefaults.PaneSizeAnimationSpec,
     slideInFromRight(spacerSize),
     slideOutToLeft(spacerSize),
     slideInFromRight(spacerSize),
@@ -171,7 +188,8 @@ internal class MovePanesToLeftMotion(
 internal class MovePanesToRightMotion(
     private val spacerSize: Int
 ) : ThreePaneMotion(
-    ThreePaneMotionDefaults.PaneSpringSpec,
+    ThreePaneMotionDefaults.PanePositionAnimationSpec,
+    ThreePaneMotionDefaults.PaneSizeAnimationSpec,
     slideInFromLeft(spacerSize),
     slideOutToRight(spacerSize),
     slideInFromLeft(spacerSize),
@@ -196,7 +214,8 @@ internal class MovePanesToRightMotion(
 internal class SwitchLeftTwoPanesMotion(
     private val spacerSize: Int
 ) : ThreePaneMotion(
-    ThreePaneMotionDefaults.PaneSpringSpec,
+    ThreePaneMotionDefaults.PanePositionAnimationSpec,
+    ThreePaneMotionDefaults.PaneSizeAnimationSpec,
     slideInFromLeftDelayed(spacerSize),
     slideOutToLeft(spacerSize),
     slideInFromLeftDelayed(spacerSize),
@@ -221,7 +240,8 @@ internal class SwitchLeftTwoPanesMotion(
 internal class SwitchRightTwoPanesMotion(
     private val spacerSize: Int
 ) : ThreePaneMotion(
-    ThreePaneMotionDefaults.PaneSpringSpec,
+    ThreePaneMotionDefaults.PanePositionAnimationSpec,
+    ThreePaneMotionDefaults.PaneSizeAnimationSpec,
     EnterTransition.None,
     ExitTransition.None,
     slideInFromRightDelayed(spacerSize),
@@ -394,22 +414,28 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
 
 @ExperimentalMaterial3AdaptiveApi
 internal object ThreePaneMotionDefaults {
-    /**
-     * A default [SpringSpec] for the panes motion.
-     */
     // TODO(conradchen): open this to public when we support motion customization
-    val PaneSpringSpec: SpringSpec<IntOffset> =
+    val PanePositionAnimationSpec: SpringSpec<IntOffset> =
         spring(
             dampingRatio = 0.8f,
             stiffness = 600f,
             visibilityThreshold = IntOffset.VisibilityThreshold
         )
 
-    val PaneSpringSpecDelayed: DelayedSpringSpec<IntOffset> =
+    // TODO(conradchen): open this to public when we support motion customization
+    val PanePositionAnimationSpecDelayed: DelayedSpringSpec<IntOffset> =
         DelayedSpringSpec(
             dampingRatio = 0.8f,
             stiffness = 600f,
             delayedRatio = 0.1f,
             visibilityThreshold = IntOffset.VisibilityThreshold
+        )
+
+    // TODO(conradchen): open this to public when we support motion customization
+    val PaneSizeAnimationSpec: SpringSpec<IntSize> =
+        spring(
+            dampingRatio = 0.8f,
+            stiffness = 600f,
+            visibilityThreshold = IntSize.VisibilityThreshold
         )
 }

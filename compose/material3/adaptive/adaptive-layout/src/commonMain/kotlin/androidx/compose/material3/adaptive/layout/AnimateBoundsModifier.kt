@@ -16,182 +16,133 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.spring
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.intermediateLayout
+import androidx.compose.ui.layout.approachLayout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.round
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun Modifier.animateBounds(
-    modifier: Modifier = Modifier,
-    sizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(
-        Spring.DampingRatioNoBouncy,
-        Spring.StiffnessMediumLow
-    ),
-    positionAnimationSpec: FiniteAnimationSpec<IntOffset> = spring(
-        Spring.DampingRatioNoBouncy,
-        Spring.StiffnessMediumLow
-    ),
-    debug: Boolean = false,
-    lookaheadScope: (closestLookaheadScope: LookaheadScope) -> LookaheadScope = { it }
+    animateFraction: Float,
+    sizeAnimationSpec: FiniteAnimationSpec<IntSize>,
+    positionAnimationSpec: FiniteAnimationSpec<IntOffset>,
+    lookaheadScope: LookaheadScope,
+    enabled: Boolean
 ) = composed {
-
-    val outerOffsetAnimation = remember { DeferredAnimation(IntOffset.VectorConverter) }
-    val outerSizeAnimation = remember { DeferredAnimation(IntSize.VectorConverter) }
-
-    val offsetAnimation = remember { DeferredAnimation(IntOffset.VectorConverter) }
-    val sizeAnimation = remember { DeferredAnimation(IntSize.VectorConverter) }
-
-    // The measure logic in `intermediateLayout` is skipped in the lookahead pass, as
-    // intermediateLayout is expected to produce intermediate stages of a layout transform.
-    // When the measure block is invoked after lookahead pass, the lookahead size of the
-    // child will be accessible as a parameter to the measure block.
-    @Suppress("DEPRECATION") // TODO: Update intermediateLayout usage to approachLayout
-    this
-        .drawWithContent {
-            drawContent()
-            if (debug) {
-                val offset = outerOffsetAnimation.target!! - outerOffsetAnimation.value!!
-                translate(
-                    offset.x.toFloat(), offset.y.toFloat()
-                ) {
-                    drawRect(Color.Black.copy(alpha = 0.5f), style = Stroke(10f))
-                }
-            }
-        }
-        .intermediateLayout { measurable, constraints ->
-            val (w, h) = outerSizeAnimation.updateTarget(
-                lookaheadSize,
-                sizeAnimationSpec,
-            )
-            measurable
-                .measure(constraints)
-                .run {
-                    layout(w, h) {
-                        val (x, y) = outerOffsetAnimation.updateTargetBasedOnCoordinates(
-                            positionAnimationSpec
-                        )
-                        place(x, y)
+    val sizeTracker = remember { SizeTracker(sizeAnimationSpec) }.apply {
+        this.animationSpec = sizeAnimationSpec
+    }
+    val positionTracker = remember { PositionTracker(positionAnimationSpec) }.apply {
+        this.animationSpec = positionAnimationSpec
+    }
+    if (!enabled) {
+        return@composed this
+    }
+    this.approachLayout(
+        isMeasurementApproachComplete = {
+            animateFraction == 1f
+        },
+        isPlacementApproachComplete = {
+            animateFraction == 1f
+        },
+    ) { measurable, _ ->
+        // When layout changes, the lookahead pass will calculate a new final size for the
+        // child modifier. This lookahead size can be used to animate the size
+        // change, such that the animation starts from the current size and gradually
+        // change towards `lookaheadSize`.
+        sizeTracker.updateTargetSize(lookaheadSize)
+        val (width, height) = sizeTracker.updateAndGetCurrentSize(animateFraction)
+        // Creates a fixed set of constraints using the animated size
+        val animatedConstraints = Constraints.fixed(width, height)
+        // Measure child/children with animated constraints.
+        val placeable = measurable.measure(animatedConstraints)
+        layout(placeable.width, placeable.height) {
+            coordinates?.let {
+                positionTracker.updateTargetOffset(
+                    with(lookaheadScope) {
+                        lookaheadScopeCoordinates.localLookaheadPositionOf(it).toIntOffset()
                     }
-                }
-        }
-        .then(modifier)
-        .drawWithContent {
-            drawContent()
-            if (debug) {
-                val offset = offsetAnimation.target!! - offsetAnimation.value!!
-                translate(
-                    offset.x.toFloat(), offset.y.toFloat()
-                ) {
-                    drawRect(Color.Green.copy(alpha = 0.5f), style = Stroke(10f))
-                }
+                )
+                placeable.place(
+                    with(lookaheadScope) {
+                        positionTracker.updateAndGetCurrentOffset(animateFraction) -
+                            lookaheadScopeCoordinates.localPositionOf(it, Offset.Zero).toIntOffset()
+                    }
+                )
             }
-        }
-        .intermediateLayout { measurable, _ ->
-            // When layout changes, the lookahead pass will calculate a new final size for the
-            // child modifier. This lookahead size can be used to animate the size
-            // change, such that the animation starts from the current size and gradually
-            // change towards `lookaheadSize`.
-            val (width, height) = sizeAnimation.updateTarget(
-                lookaheadSize,
-                sizeAnimationSpec,
-            )
-            // Creates a fixed set of constraints using the animated size
-            val animatedConstraints = Constraints.fixed(width, height)
-            // Measure child/children with animated constraints.
-            val placeable = measurable.measure(animatedConstraints)
-            layout(placeable.width, placeable.height) {
-                val (x, y) = with(lookaheadScope(this@intermediateLayout)) {
-                    offsetAnimation.updateTargetBasedOnCoordinates(
-                        positionAnimationSpec,
-                    )
-                }
-                placeable.place(x, y)
-            }
-        }
-}
-
-context(LookaheadScope, Placeable.PlacementScope, CoroutineScope)
-@OptIn(ExperimentalComposeUiApi::class)
-internal fun DeferredAnimation<IntOffset, AnimationVector2D>.updateTargetBasedOnCoordinates(
-    animationSpec: FiniteAnimationSpec<IntOffset>,
-): IntOffset {
-    coordinates?.let { coordinates ->
-        with(this@PlacementScope) {
-            val targetOffset = lookaheadScopeCoordinates.localLookaheadPositionOf(coordinates)
-            val animOffset = updateTarget(
-                targetOffset.round(),
-                animationSpec,
-            )
-            val current = lookaheadScopeCoordinates.localPositionOf(
-                coordinates,
-                Offset.Zero
-            ).round()
-            return (animOffset - current)
         }
     }
-
-    return IntOffset.Zero
 }
 
-// Experimenting with a way to initialize animation during measurement && only take the last target
-// change in a frame (if the target was changed multiple times in the same frame) as the
-// animation target.
-internal class DeferredAnimation<T, V : AnimationVector>(
-    private val vectorConverter: TwoWayConverter<T, V>
-) {
-    val value: T?
-        get() = animatable?.value ?: target
-    var target: T? by mutableStateOf(null)
-        private set
-    private var animatable: Animatable<T, V>? = null
+private class SizeTracker(var animationSpec: FiniteAnimationSpec<IntSize>) {
+    private var originalSize: IntSize = IntSize.Zero
+    private var targetSize: IntSize = IntSize.Zero
+    private var currentSize = IntSize.Zero
+    private lateinit var animation: TargetBasedAnimation<IntSize, AnimationVector2D>
 
-    internal val isActive: Boolean
-        get() = target != animatable?.targetValue || animatable?.isRunning == true
-
-    context (CoroutineScope)
-    fun updateTarget(
-        targetValue: T,
-        animationSpec: FiniteAnimationSpec<T>,
-    ): T {
-        target = targetValue
-        if (target != null && target != animatable?.targetValue) {
-            animatable?.run {
-                launch {
-                    animateTo(
-                        targetValue,
-                        animationSpec
-                    )
-                }
-            } ?: Animatable(targetValue, vectorConverter).let {
-                animatable = it
-            }
+    fun updateTargetSize(newSize: IntSize) {
+        if (targetSize == newSize) {
+            return
         }
-        return animatable?.value ?: targetValue
+        // TODO(conradchen): Handle the interruption better when the target size changes during
+        //                   the animation
+        originalSize = currentSize
+        targetSize = newSize
+        animation = TargetBasedAnimation(
+            animationSpec,
+            IntSize.VectorConverter,
+            originalSize,
+            targetSize
+        )
+    }
+
+    fun updateAndGetCurrentSize(fraction: Float): IntSize {
+        currentSize = animation.getValueFromNanos((animation.durationNanos * fraction).toLong())
+        return currentSize
     }
 }
+
+private class PositionTracker(var animationSpec: FiniteAnimationSpec<IntOffset>) {
+    private var originalOffset: IntOffset? = null
+    private var targetOffset: IntOffset? = null
+    private var currentOffset: IntOffset? = null
+    private lateinit var animation: TargetBasedAnimation<IntOffset, AnimationVector2D>
+
+    fun updateTargetOffset(newOffset: IntOffset) {
+        if (targetOffset == newOffset) {
+            return
+        }
+        // TODO(conradchen): Handle the interruption better when the target position changes during
+        //                   the animation
+        originalOffset = if (currentOffset != null) {
+            currentOffset
+        } else {
+            newOffset
+        }
+        targetOffset = newOffset
+        animation = TargetBasedAnimation(
+            animationSpec,
+            IntOffset.VectorConverter,
+            originalOffset!!,
+            targetOffset!!
+        )
+    }
+
+    fun updateAndGetCurrentOffset(fraction: Float): IntOffset {
+        currentOffset = animation.getValueFromNanos((animation.durationNanos * fraction).toLong())
+        return currentOffset!!
+    }
+}
+
+private fun Offset.toIntOffset() = IntOffset(x.roundToInt(), y.roundToInt())
