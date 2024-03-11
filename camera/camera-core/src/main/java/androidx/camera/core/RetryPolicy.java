@@ -71,22 +71,22 @@ import java.lang.annotation.RetentionPolicy;
  *             if (executionState.getExecutedTimeInMillis() > 10000L
  *                     || executionState.getNumOfAttempts() > 10
  *                     || executionState.getStatus() == ExecutionState.STATUS_CONFIGURATION_FAIL) {
- *                 return RetryResponse.NOT_RETRY;
+ *                 return RetryConfig.NOT_RETRY;
  *             } else if (executionState.getStatus() == ExecutionState.STATUS_CAMERA_UNAVAILABLE) {
- *                 return RetryResponse.DEFAULT_DELAY_RETRY;
+ *                 return RetryConfig.DEFAULT_DELAY_RETRY;
  *             } else {
  *                 Log.d("CameraX", "Unknown error occur: " + executionState.getCause());
- *                 return RetryResponse.MINI_DELAY_RETRY;
+ *                 return RetryConfig.MINI_DELAY_RETRY;
  *             }
  *         }).build());
  * ...
  * }</pre>
  * In the second example, the custom retry policy retries the initialization up to 10 times or
  * for a maximum of 10 seconds. If an unknown error occurs, the retry policy delays the next
- * retry after a delay defined by {@link RetryResponse#MINI_DELAY_RETRY}. The retry process
+ * retry after a delay defined by {@link RetryConfig#MINI_DELAY_RETRY}. The retry process
  * stops if the status is {@link ExecutionState#STATUS_CONFIGURATION_FAIL}. For
  * {@link ExecutionState#STATUS_CAMERA_UNAVAILABLE}, the retry policy applies
- * {@link RetryResponse#DEFAULT_DELAY_RETRY}.
+ * {@link RetryConfig#DEFAULT_DELAY_RETRY}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalRetryPolicy
@@ -103,7 +103,7 @@ public interface RetryPolicy {
      * immediately halts the initialization upon encountering an error.
      */
     @NonNull
-    RetryPolicy NEVER = executionState -> RetryResponse.NOT_RETRY;
+    RetryPolicy NEVER = executionState -> RetryConfig.NOT_RETRY;
 
     /**
      * This retry policy increases initialization success by automatically retrying upon
@@ -154,13 +154,14 @@ public interface RetryPolicy {
     }
 
     /**
-     * Determines whether to retry the initialization.
+     * Called to request a decision on whether to retry the initialization process.
      *
-     * @param executionState The information about the execution state of the camera initialization.
-     * @return A RetryResponse indicating whether to retry the initialization.
+     * @param executionState Information about the current execution state of the camera
+     *                       initialization.
+     * @return A RetryConfig indicating whether to retry, along with any associated delay.
      */
     @NonNull
-    RetryResponse shouldRetry(@NonNull ExecutionState executionState);
+    RetryConfig onRetryDecisionRequested(@NonNull ExecutionState executionState);
 
     /**
      * Returns the maximum allowed retry duration in milliseconds. Initialization will
@@ -208,7 +209,7 @@ public interface RetryPolicy {
 
         /**
          * Sets a timeout in milliseconds. If retries exceed this duration, they will be
-         * terminated with {@link RetryPolicy.RetryResponse#NOT_RETRY}.
+         * terminated with {@link RetryConfig#NOT_RETRY}.
          *
          * @param timeoutInMillis The maximum duration for retries in milliseconds. A value of 0
          *                        indicates no timeout.
@@ -332,26 +333,26 @@ public interface RetryPolicy {
      * Represents the outcome of a {@link RetryPolicy} decision.
      */
     @ExperimentalRetryPolicy
-    final class RetryResponse {
+    final class RetryConfig {
 
         private static final long MINI_DELAY_MILLIS = 100L;
         private static final long DEFAULT_DELAY_MILLIS = 500L;
 
-        /** A RetryResponse indicating that no further retries should be attempted. */
+        /** A RetryConfig indicating that no further retries should be attempted. */
         @NonNull
-        public static final RetryResponse NOT_RETRY = new RetryResponse(false, 0L);
+        public static final RetryConfig NOT_RETRY = new RetryConfig(false, 0L);
 
         /**
-         * A RetryResponse indicating that the initialization should be retried after the default
+         * A RetryConfig indicating that the initialization should be retried after the default
          * delay (determined by {@link #getDefaultRetryDelayInMillis()}). This delay provides
          * sufficient time for typical device recovery processes, balancing retry efficiency
          * and minimizing user wait time.
          */
         @NonNull
-        public static final RetryResponse DEFAULT_DELAY_RETRY = new RetryResponse(true);
+        public static final RetryConfig DEFAULT_DELAY_RETRY = new RetryConfig(true);
 
         /**
-         * A RetryResponse indicating that the initialization should be retried after a minimum
+         * A RetryConfig indicating that the initialization should be retried after a minimum
          * delay of 100 milliseconds.
          *
          * This short delay serves two purposes:
@@ -365,18 +366,17 @@ public interface RetryPolicy {
          * fastest possible camera restoration.
          */
         @NonNull
-        public static final RetryResponse MINI_DELAY_RETRY = new RetryResponse(true,
-                MINI_DELAY_MILLIS);
+        public static final RetryConfig MINI_DELAY_RETRY = new RetryConfig(true, MINI_DELAY_MILLIS);
 
         /**
-         * A RetryResponse indicating that the initialization should be considered complete
-         * without retrying. This response is intended for internal use and is not intended to
+         * A RetryConfig indicating that the initialization should be considered complete
+         * without retrying. This config is intended for internal use and is not intended to
          * trigger further retries. It represents the legacy behavior of not failing the
          * initialization task for minor issues.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
-        public static RetryResponse COMPLETE_WITHOUT_FAILURE = new RetryResponse(false, 0, true);
+        public static RetryConfig COMPLETE_WITHOUT_FAILURE = new RetryConfig(false, 0, true);
 
         /**
          * Returns the recommended default delay to optimize retry attempts and camera recovery.
@@ -400,11 +400,11 @@ public interface RetryPolicy {
         private final boolean mShouldRetry;
         private final boolean mCompleteWithoutFailure;
 
-        private RetryResponse(boolean shouldRetry) {
-            this(shouldRetry, RetryResponse.getDefaultRetryDelayInMillis());
+        private RetryConfig(boolean shouldRetry) {
+            this(shouldRetry, RetryConfig.getDefaultRetryDelayInMillis());
         }
 
-        private RetryResponse(boolean shouldRetry, long delayInMillis) {
+        private RetryConfig(boolean shouldRetry, long delayInMillis) {
             this(shouldRetry, delayInMillis, false);
         }
 
@@ -420,7 +420,7 @@ public interface RetryPolicy {
          *                               When this flag is set to true, `shouldRetry` must be
          *                               false.
          */
-        private RetryResponse(boolean shouldRetry, long delayInMillis,
+        private RetryConfig(boolean shouldRetry, long delayInMillis,
                 boolean completeWithoutFailure) {
             mShouldRetry = shouldRetry;
             mDelayInMillis = delayInMillis;
@@ -452,7 +452,7 @@ public interface RetryPolicy {
         /**
          * Signals to treat initialization errors as successful for legacy behavior compatibility.
          *
-         * <p>This response is intended for internal use and is not intended to trigger further
+         * <p>This config is intended for internal use and is not intended to trigger further
          * retries.
          *
          * @return true if initialization should be deemed complete without additional retries,
@@ -464,9 +464,9 @@ public interface RetryPolicy {
         }
 
         /**
-         * A builder class for creating and customizing {@link RetryResponse} objects.
+         * A builder class for creating and customizing {@link RetryConfig} objects.
          *
-         * <p>While predefined responses like {@link RetryResponse#DEFAULT_DELAY_RETRY} are
+         * <p>While predefined configs like {@link RetryConfig#DEFAULT_DELAY_RETRY} are
          * recommended for typical recovery scenarios, this builder allows for fine-tuned control
          * when specific requirements necessitate a different approach.
          */
@@ -474,7 +474,7 @@ public interface RetryPolicy {
         public static final class Builder {
 
             private boolean mShouldRetry = true;
-            private long mTimeoutInMillis = RetryResponse.getDefaultRetryDelayInMillis();
+            private long mTimeoutInMillis = RetryConfig.getDefaultRetryDelayInMillis();
 
             /**
              * Specifies whether a retry should be attempted.
@@ -508,13 +508,13 @@ public interface RetryPolicy {
             }
 
             /**
-             * Builds the customized {@link RetryResponse} object.
+             * Builds the customized {@link RetryConfig} object.
              *
-             * @return The configured RetryResponse.
+             * @return The configured RetryConfig.
              */
             @NonNull
-            public RetryResponse build() {
-                return new RetryResponse(mShouldRetry, mTimeoutInMillis);
+            public RetryConfig build() {
+                return new RetryConfig(mShouldRetry, mTimeoutInMillis);
             }
         }
     }
