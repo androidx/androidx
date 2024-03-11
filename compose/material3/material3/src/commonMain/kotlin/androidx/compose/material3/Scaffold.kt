@@ -25,13 +25,11 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -256,10 +254,7 @@ private fun ScaffoldLayoutWithMeasureFix(
         }
 
         val bottomBarPlaceables = subcompose(ScaffoldLayoutContent.BottomBar) {
-            CompositionLocalProvider(
-                LocalFabPlacement provides fabPlacement,
-                content = bottomBar
-            )
+            bottomBar()
         }.fastMap { it.measure(looseConstraints) }
 
         val bottomBarHeight = bottomBarPlaceables.fastMaxBy { it.height }?.height
@@ -427,10 +422,7 @@ private fun LegacyScaffoldLayout(
             }
 
             val bottomBarPlaceables = subcompose(ScaffoldLayoutContent.BottomBar) {
-                CompositionLocalProvider(
-                    LocalFabPlacement provides fabPlacement,
-                    content = bottomBar
-                )
+                bottomBar()
             }.fastMap { it.measure(looseConstraints) }
 
             val bottomBarHeight = bottomBarPlaceables.fastMaxBy { it.height }?.height
@@ -585,11 +577,6 @@ internal class FabPlacement(
     val width: Int,
     val height: Int
 )
-
-/**
- * CompositionLocal containing a [FabPlacement] that is used to calculate the FAB bottom offset.
- */
-internal val LocalFabPlacement = staticCompositionLocalOf<FabPlacement?> { null }
 
 // FAB spacing above the bottom bar / bottom of the Scaffold
 private val FabSpacing = 16.dp
