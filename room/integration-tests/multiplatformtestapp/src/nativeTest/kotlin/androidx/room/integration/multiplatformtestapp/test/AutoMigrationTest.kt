@@ -17,6 +17,7 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.room.Room
+import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlin.random.Random
@@ -26,7 +27,16 @@ import platform.posix.remove
 
 class AutoMigrationTest : BaseAutoMigrationTest() {
     private val filename = "/tmp/test-${Random.nextInt()}.db"
-    override val driver: SQLiteDriver = BundledSQLiteDriver(filename)
+    private val driver: SQLiteDriver = BundledSQLiteDriver(filename)
+
+    private val migrationTestHelper = MigrationTestHelper(
+        schemaDirectoryPath = getSchemaDirectoryPath(),
+        driver = driver,
+        databaseClass = AutoMigrationDatabase::class,
+        databaseFactory = { AutoMigrationDatabase::class.instantiateImpl() }
+    )
+
+    override fun getTestHelper() = migrationTestHelper
 
     override fun getRoomDatabase(): AutoMigrationDatabase {
         return Room.databaseBuilder(filename) { AutoMigrationDatabase::class.instantiateImpl() }
@@ -40,6 +50,7 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
 
     @AfterTest
     fun after() {
+        migrationTestHelper.finished()
         deleteDatabaseFile()
     }
 

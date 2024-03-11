@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.room.testing
-// empty file to trigger klib creation
-// see: https://youtrack.jetbrains.com/issue/KT-52344
+package androidx.room.integration.multiplatformtestapp.test
+
+import platform.Foundation.NSBundle
+
+/**
+ * Gets the schema directory path for tests with [androidx.room.testing.MigrationTestHelper].
+ *
+ * For iOS, it will be the main resource directory in the bundle.
+ */
+internal actual fun getSchemaDirectoryPath(): String {
+    return checkNotNull(NSBundle.mainBundle().resourcePath) + "/schemas-ksp"
+}

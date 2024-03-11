@@ -60,7 +60,7 @@ internal fun DatabaseConfiguration.isMigrationRequired(
  * @param endVersion End version of the migration
  * @return True if it contains a migration with the same start-end version, false otherwise.
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose and only in Android source set.
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose in non-common platforms source sets.
 internal fun MigrationContainer.contains(startVersion: Int, endVersion: Int): Boolean {
     val migrations = getMigrations()
     if (migrations.containsKey(startVersion)) {
