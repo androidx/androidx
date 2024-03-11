@@ -101,76 +101,95 @@ public expect abstract class ViewModel {
     /**
      * Creates a new [ViewModel].
      *
-     * You should **never** manually create a [ViewModel] outside of a
-     * [ViewModelProvider.Factory].
+     * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      */
     public constructor()
 
     /**
      * Creates a new [ViewModel].
      *
-     * You should **never** manually create a [ViewModel] outside of a
-     * [ViewModelProvider.Factory].
+     * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      *
-     * @param viewModelScope a [CoroutineScope] to be cancelled when the [ViewModel] is cleared.
+     * @param viewModelScope a [CoroutineScope] to be cancelled when the [ViewModel] is cleared,
+     *  right **before** the [onCleared] method is called.
      */
     public constructor(viewModelScope: CoroutineScope)
 
     /**
      * Creates a new [ViewModel].
      *
-     * You should **never** manually create a [ViewModel] outside of a
-     * [ViewModelProvider.Factory].
+     * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      *
-     * @param closeables the resources to be closed when the [ViewModel] is cleared.
+     * @param closeables the resources to be closed when the [ViewModel] is cleared,
+     *  right **before** the [onCleared] method is called.
      */
     public constructor(vararg closeables: AutoCloseable)
 
     /**
      * Creates a new [ViewModel].
      *
-     * You should **never** manually create a [ViewModel] outside of a
-     * [ViewModelProvider.Factory].
+     * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      *
-     * @param viewModelScope a [CoroutineScope] to be cancelled when the [ViewModel] is cleared.
-     * @param closeables the resources to be closed when the [ViewModel] is cleared.
+     * @param viewModelScope a [CoroutineScope] to be cancelled when the [ViewModel] is cleared,
+     *  right **before** the [onCleared] method is called.
+     * @param closeables the resources to be closed when the [ViewModel] is cleared,
+     *  right **before** the [onCleared] method is called.
      */
     public constructor(viewModelScope: CoroutineScope, vararg closeables: AutoCloseable)
 
     /**
-     * This method will be called when this ViewModel is no longer used and will be destroyed.
+     * This method will be called when this [ViewModel] is no longer used and will be destroyed.
      *
-     * It is useful when ViewModel observes some data and you need to clear this subscription to
-     * prevent a leak of this ViewModel.
+     * It is useful when the [ViewModel] observes data and you need to clear the subscriptions to
+     * prevent a memory leak, as the subscriptions might hold a reference to the [ViewModel] even
+     * after it is no longer needed.
+     *
+     * **Clearing Sequence:**
+     * 1. [AutoCloseable.close] resources added **without** a key via [addCloseable].
+     * 2. [AutoCloseable.close] resources added **with** a key via [addCloseable].
+     * 3. Invoke the [onCleared] callback.
      */
     protected open fun onCleared()
 
+    /**
+     * Clears all resources associated with this [ViewModel] and marks it as cleared.
+     *
+     * A cleared [ViewModel] should no longer be used, and any newly associated resources will be
+     * immediately closed.
+     *
+     * **Clearing Sequence:**
+     * 1. [AutoCloseable.close] resources added **without** a key via [addCloseable].
+     * 2. [AutoCloseable.close] resources added **with** a key via [addCloseable].
+     * 3. Invoke the [onCleared] callback.
+     */
     @MainThread
     internal fun clear()
 
     /**
      * Adds an [AutoCloseable] resource with an associated [key] to this [ViewModel]. The resource
-     * will be closed right before this [ViewModel.onCleared] is called.
+     * will be closed right **before** the [onCleared] method is called.
      *
      * If the [key] already has a resource associated with it, the old resource will be replaced
      * and closed immediately.
      *
-     * If [ViewModel.onCleared] has already been called, the provided resource will not be added
-     * and will be closed immediately.
+     * If [onCleared] has already been called, the provided resource will not be added and will be
+     * closed immediately.
      *
-     * @param key The [String] to associate with the resource, for retrieval with [getCloseable].
-     * @param closeable The [AutoCloseable] resource to be managed.
+     * @param key the key to associate with the resource, for retrieval with [getCloseable].
+     * @param closeable the resource to be closed when the [ViewModel] is cleared,
+     *  right **before** the [onCleared] method is called.
      */
     public fun addCloseable(key: String, closeable: AutoCloseable)
 
     /**
      * Adds an [AutoCloseable] resource to this [ViewModel]. The resource will be closed right
-     * before this [ViewModel.onCleared] is called.
+     * **before** the [onCleared] method is called.
      *
-     * If [ViewModel.onCleared] has already been called, the provided resource will not be added
-     * and will be closed immediately.
+     * If [onCleared] has already been called, the provided resource will not be added and will be
+     * closed immediately.
      *
-     * @param closeable The [AutoCloseable] resource to be managed.
+     * @param closeable the resource to be closed when the [ViewModel] is cleared,
+     *  right **before** the [onCleared] method is called.
      */
     public open fun addCloseable(closeable: AutoCloseable)
 
@@ -178,7 +197,7 @@ public expect abstract class ViewModel {
      * Returns the [AutoCloseable] resource associated to the given [key], or `null` if such a
      * [key] is not present in this [ViewModel].
      *
-     * @param key The key that was used to add the Closeable.
+     * @param key the key associated with a resource via [addCloseable].
      */
     public fun <T : AutoCloseable> getCloseable(key: String): T?
 }

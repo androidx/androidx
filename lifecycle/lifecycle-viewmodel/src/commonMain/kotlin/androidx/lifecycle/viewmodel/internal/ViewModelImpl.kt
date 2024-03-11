@@ -52,10 +52,10 @@ internal class ViewModelImpl {
      *
      * @see <a href="https://issuetracker.google.com/37042460">b/37042460</a>
      */
-    private val bagOfTags = mutableMapOf<String, AutoCloseable>()
+    private val keyToCloseables = mutableMapOf<String, AutoCloseable>()
 
     /**
-     * @see [bagOfTags]
+     * @see [keyToCloseables]
      */
     private val closeables = mutableSetOf<AutoCloseable>()
 
@@ -77,19 +77,22 @@ internal class ViewModelImpl {
         this.closeables += closeables
     }
 
+    /** @see [ViewModel.clear] */
     @MainThread
     fun clear() {
+        if (isCleared) return
+
         isCleared = true
         lock.withLock {
-            for (value in bagOfTags.values) {
-                // see comment for the similar call in `setTagIfAbsent`
-                closeWithRuntimeException(value)
-            }
-            for (closeable in closeables) {
+            // 1. Closes resources added without a key.
+            // 2. Closes resources added with a key.
+            for (closeable in closeables + keyToCloseables.values) {
                 closeWithRuntimeException(closeable)
             }
+            // Clear only resources without keys to prevent accidental recreation of resources.
+            // For example, `viewModelScope` would be recreated leading to unexpected behaviour.
+            closeables.clear()
         }
-        closeables.clear()
     }
 
     /** @see [ViewModel.addCloseable] */
@@ -102,7 +105,7 @@ internal class ViewModelImpl {
             return
         }
 
-        val oldCloseable = lock.withLock { bagOfTags.put(key, closeable) }
+        val oldCloseable = lock.withLock { keyToCloseables.put(key, closeable) }
         closeWithRuntimeException(oldCloseable)
     }
 
@@ -116,13 +119,13 @@ internal class ViewModelImpl {
             return
         }
 
-        lock.withLock { this.closeables += closeable }
+        lock.withLock { closeables += closeable }
     }
 
     /** @see [ViewModel.getCloseable] */
     fun <T : AutoCloseable> getCloseable(key: String): T? =
         @Suppress("UNCHECKED_CAST")
-        lock.withLock { bagOfTags[key] as T? }
+        lock.withLock { keyToCloseables[key] as T? }
 
     private fun closeWithRuntimeException(closeable: AutoCloseable?) {
         try {
