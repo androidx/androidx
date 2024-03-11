@@ -4551,6 +4551,37 @@ class CompositionTests {
         assertEquals(stackSizes, (composition as CompositionImpl).composerStacksSizes())
     }
 
+    @Test
+    fun movableContentNoopInDeactivatedComposition() = compositionTest {
+        val state = mutableStateOf(false)
+        val movableContent = movableContentOf {
+            Text("Test")
+        }
+
+        var composition: Composition? = null
+        var context: CompositionContext? = null
+        compose {
+            context = rememberCompositionContext()
+
+            // read state to force recomposition
+            state.value
+            SideEffect {
+                if (state.value) (composition as CompositionImpl).deactivate()
+            }
+        }
+
+        composition = CompositionImpl(context!!, ViewApplier(root)).apply {
+            setContent {
+                if (state.value) {
+                    movableContent()
+                }
+            }
+        }
+
+        state.value = true
+        advance()
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
