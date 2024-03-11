@@ -16,14 +16,17 @@
 
 package androidx.wear.protolayout.material;
 
+import static androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_ICON_SIZE;
+import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_MIN_WIDTH;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
 import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.staticString;
 
 import android.content.Context;
 
@@ -35,6 +38,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -79,14 +83,15 @@ public class CompactChip implements LayoutElement {
     /** Builder class for {@link androidx.wear.protolayout.material.CompactChip}. */
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final Context mContext;
-        @NonNull private final String mText;
+        @Nullable private String mText;
         @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = COMPACT_PRIMARY_COLORS;
         @Nullable private String mIconResourceId = null;
+        @Nullable private StringProp mContentDescription = null;
 
         /**
-         * Creates a builder for the {@link CompactChip} with associated action and the given text
+         * Creates a builder for the {@link CompactChip} with associated action and the given text.
          *
          * @param context The application's context.
          * @param text The text to be displayed in this compact chip.
@@ -103,6 +108,32 @@ public class CompactChip implements LayoutElement {
             this.mText = text;
             this.mClickable = clickable;
             this.mDeviceParameters = deviceParameters;
+        }
+
+        /**
+         * Creates a builder for the {@link CompactChip} with associated action. Please add text,
+         * icon or both content with {@link #setTextContent} and {@link #setIconContent}.
+         *
+         * @param context The application's context.
+         * @param clickable Associated {@link Clickable} for click events. When the CompactChip is
+         *     clicked it will fire the associated action.
+         * @param deviceParameters The device parameters used for styling text.
+         */
+        public Builder(
+                @NonNull Context context,
+                @NonNull Clickable clickable,
+                @NonNull DeviceParameters deviceParameters) {
+            this.mContext = context;
+            this.mClickable = clickable;
+            this.mDeviceParameters = deviceParameters;
+        }
+
+        /** Sets the text for the {@link CompactChip}. */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // Exists as getText
+        @NonNull
+        public Builder setTextContent(@NonNull String text) {
+            this.mText = text;
+            return this;
         }
 
         /**
@@ -128,33 +159,82 @@ public class CompactChip implements LayoutElement {
             return this;
         }
 
+        /**
+         * Sets the static content description for the {@link CompactChip}. It is highly recommended
+         * to provide this for chip containing an icon.
+         */
+        @NonNull
+        public Builder setContentDescription(@NonNull CharSequence contentDescription) {
+            return setContentDescription(staticString(contentDescription.toString()));
+        }
+
+        /**
+         * Sets the content description for the {@link CompactChip}. It is highly recommended to
+         * provide this for chip containing an icon.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         */
+        @NonNull
+        public Builder setContentDescription(@NonNull StringProp contentDescription) {
+            this.mContentDescription = contentDescription;
+            return this;
+        }
+
+
         /** Constructs and returns {@link CompactChip} with the provided content and look. */
         @NonNull
         @Override
         @OptIn(markerClass = ProtoLayoutExperimental.class)
         public CompactChip build() {
+            if (mText == null && mIconResourceId == null) {
+                throw new IllegalArgumentException("At least one of text or icon must be set.");
+            }
+
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
                             .setChipColors(mChipColors)
-                            .setContentDescription(mText)
+                            .setContentDescription(
+                                    mContentDescription == null
+                                            ? staticString(mText == null ? "" : mText)
+                                            : mContentDescription)
                             .setHorizontalAlignment(getCorrectHorizontalAlignment())
-                            .setWidth(wrap())
+                            .setWidth(resolveWidth())
                             .setHeight(COMPACT_HEIGHT)
                             .setMaxLines(1)
-                            .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
-                            .setPrimaryLabelContent(mText)
-                            .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
-                            .setIsPrimaryLabelScalable(false);
+                            .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING);
+
+            if (mText != null) {
+                chipBuilder
+                        .setPrimaryLabelContent(mText)
+                        .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
+                        .setIsPrimaryLabelScalable(false);
+            }
 
             if (mIconResourceId != null) {
-                chipBuilder.setIconContent(mIconResourceId).setIconSize(COMPACT_ICON_SIZE);
+                if (mText != null) {
+                    chipBuilder.setIconContent(mIconResourceId);
+                } else {
+                    chipBuilder.setIconOnlyContent(mIconResourceId);
+                }
+                chipBuilder.setIconSize(COMPACT_ICON_SIZE);
             }
 
             return new CompactChip(chipBuilder.build());
         }
 
+        private WrappedDimensionProp resolveWidth() {
+            // Min width applies to icon only CompactChip.
+            return mText == null
+                    // Icon only CompactChip.
+                    ? new WrappedDimensionProp.Builder().setMinimumSize(COMPACT_MIN_WIDTH).build()
+                    : wrap();
+        }
+
         private int getCorrectHorizontalAlignment() {
-            return mIconResourceId == null ? HORIZONTAL_ALIGN_CENTER : HORIZONTAL_ALIGN_START;
+            return mIconResourceId == null || mText == null
+                    ? HORIZONTAL_ALIGN_CENTER
+                    : HORIZONTAL_ALIGN_START;
         }
     }
 
@@ -170,7 +250,12 @@ public class CompactChip implements LayoutElement {
         return mElement.getChipColors();
     }
 
-    /** Returns text content of this Chip. */
+    /**
+     * Returns text content of this Chip if it was set. If the text content wasn't set (either with
+     * {@link Builder#setTextContent} or constructor, this method will throw.
+     *
+     * @throws NullPointerException when no text content was set to the chip.
+     */
     @NonNull
     public String getText() {
         return checkNotNull(mElement.getPrimaryLabelContent());
@@ -201,6 +286,12 @@ public class CompactChip implements LayoutElement {
         androidx.wear.protolayout.materialcore.Chip coreChip =
                 androidx.wear.protolayout.materialcore.Chip.fromLayoutElement(element);
         return coreChip == null ? null : new CompactChip(new Chip(coreChip));
+    }
+
+    /** Returns content description of this CompactChip. */
+    @Nullable
+    public StringProp getContentDescription() {
+        return mElement.getContentDescription();
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
