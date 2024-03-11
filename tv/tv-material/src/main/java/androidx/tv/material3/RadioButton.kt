@@ -29,6 +29,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -85,7 +86,8 @@ fun RadioButton(
                 onClick = onClick,
                 enabled = enabled,
                 role = Role.RadioButton,
-                interactionSource = interactionSource,
+                // TODO: remove the optional argument once we update to compose 1.7.x
+                interactionSource = interactionSource ?: remember { MutableInteractionSource() },
                 indication = null
             )
         } else {
