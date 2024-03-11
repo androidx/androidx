@@ -17,15 +17,13 @@
 package androidx.work.multiprocess
 
 import android.content.Context
+import androidx.concurrent.futures.SuspendToFutureAdapter.launchFuture
 import androidx.concurrent.futures.await
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 /**
  * An implementation of [RemoteListenableWorker] that can bind to a remote process.
@@ -43,20 +41,6 @@ import kotlinx.coroutines.launch
 public abstract class RemoteCoroutineWorker(context: Context, parameters: WorkerParameters) :
     RemoteListenableWorker(context, parameters) {
 
-    private val job = Job()
-    private val future: SettableFuture<Result> = SettableFuture.create()
-
-    init {
-        future.addListener(
-            Runnable {
-                if (future.isCancelled) {
-                    job.cancel()
-                }
-            },
-            taskExecutor.serialTaskExecutor
-        )
-    }
-
     /**
      * Override this method to define the work that needs to run in the remote process.
      * [Dispatchers.Default] is the coroutine dispatcher being used when this method is called.
@@ -69,16 +53,9 @@ public abstract class RemoteCoroutineWorker(context: Context, parameters: Worker
     public abstract suspend fun doRemoteWork(): Result
 
     override fun startRemoteWork(): ListenableFuture<Result> {
-        val scope = CoroutineScope(Dispatchers.Default + job)
-        scope.launch {
-            try {
-                val result = doRemoteWork()
-                future.set(result)
-            } catch (exception: Throwable) {
-                future.setException(exception)
-            }
+        return launchFuture(Dispatchers.Default + Job(), launchUndispatched = false) {
+            doRemoteWork()
         }
-        return future
     }
 
     /**
@@ -93,6 +70,5 @@ public abstract class RemoteCoroutineWorker(context: Context, parameters: Worker
 
     public final override fun onStopped() {
         super.onStopped()
-        future.cancel(true)
     }
 }

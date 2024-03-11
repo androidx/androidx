@@ -16,6 +16,8 @@
 
 package androidx.work.multiprocess;
 
+import static androidx.work.multiprocess.RemoteClientUtilsKt.map;
+
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
@@ -142,7 +144,7 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
                     }
                 });
 
-        return RemoteClientUtils.map(result, new Function<byte[], Result>() {
+        return map(result, new Function<byte[], Result>() {
             @Override
             public Result apply(byte[] input) {
                 ParcelableResult parcelableResult = ParcelConverters.unmarshall(input,
