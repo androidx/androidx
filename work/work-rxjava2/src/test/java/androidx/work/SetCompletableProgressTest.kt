@@ -17,9 +17,9 @@
 package androidx.work
 
 import android.content.Context
+import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.work.ListenableWorker.Result
 import androidx.work.impl.utils.SynchronousExecutor
-import androidx.work.impl.utils.futures.SettableFuture
 import java.util.UUID
 import java.util.concurrent.Executor
 import kotlin.coroutines.EmptyCoroutineContext
@@ -43,9 +43,7 @@ class SetCompletableProgressTest {
     @Test
     fun testSetProgressCompletable() {
         val progressUpdater = ProgressUpdater { _, _, _ ->
-            val future = SettableFuture.create<Void>()
-            future.set(null)
-            future
+            getFuture { it.set(null) }
         }
         val worker =
             TestRxWorker(context, createWorkerParams(progressUpdater = progressUpdater))
