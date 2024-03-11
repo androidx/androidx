@@ -350,20 +350,20 @@ public final class CameraX {
                 completer.set(null);
             } catch (CameraIdListIncorrectException | InitializationException
                      | RuntimeException e) {
-                RetryPolicy.RetryResponse response = mRetryPolicy.shouldRetry(
+                RetryPolicy.RetryConfig retryConfig = mRetryPolicy.onRetryDecisionRequested(
                         new CameraProviderExecutionState(startMs, attemptCount, e));
-                if (response.shouldRetry() && attemptCount < Integer.MAX_VALUE) {
+                if (retryConfig.shouldRetry() && attemptCount < Integer.MAX_VALUE) {
                     Logger.w(TAG, "Retry init. Start time " + startMs + " current time "
                             + SystemClock.elapsedRealtime(), e);
                     HandlerCompat.postDelayed(mSchedulerHandler, () -> initAndRetryRecursively(
                             cameraExecutor, startMs, attemptCount + 1, mAppContext,
-                            completer), RETRY_TOKEN, response.getRetryDelayInMillis());
+                            completer), RETRY_TOKEN, retryConfig.getRetryDelayInMillis());
 
                 } else {
                     synchronized (mInitializeLock) {
                         mInitState = InternalInitState.INITIALIZING_ERROR;
                     }
-                    if (response.shouldCompleteWithoutFailure()) {
+                    if (retryConfig.shouldCompleteWithoutFailure()) {
                         // Ignoring camera failure for compatibility reasons. Initialization will
                         // be marked as complete, but some camera features might be unavailable.
                         setStateToInitialized();

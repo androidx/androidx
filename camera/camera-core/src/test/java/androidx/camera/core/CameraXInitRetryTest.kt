@@ -27,7 +27,7 @@ import androidx.camera.core.RetryPolicy.DEFAULT_RETRY_TIMEOUT_IN_MILLIS
 import androidx.camera.core.RetryPolicy.ExecutionState
 import androidx.camera.core.RetryPolicy.NEVER
 import androidx.camera.core.RetryPolicy.RETRY_UNAVAILABLE_CAMERA
-import androidx.camera.core.RetryPolicy.RetryResponse
+import androidx.camera.core.RetryPolicy.RetryConfig
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.CameraFactory
@@ -101,7 +101,7 @@ class CameraXInitRetryTest {
         val executionStateMutableList = mutableListOf<ExecutionState>()
         val policy = RetryPolicy { executionState: ExecutionState ->
             executionStateMutableList.add(executionState)
-            return@RetryPolicy DEFAULT.shouldRetry(executionState)
+            return@RetryPolicy DEFAULT.onRetryDecisionRequested(executionState)
         }
         val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
             createCameraXConfig(
@@ -196,7 +196,7 @@ class CameraXInitRetryTest {
             setSchedulerHandler(handler)
             setCameraProviderInitRetryPolicy { executionState ->
                 callCount++
-                NEVER.shouldRetry(executionState)
+                NEVER.onRetryDecisionRequested(executionState)
             }
         }
 
@@ -215,7 +215,7 @@ class CameraXInitRetryTest {
     }
 
     @Test
-    fun verifyImmediateFailureWithOptionResponseNotRetry() = runTest {
+    fun verifyImmediateFailureWithOptionRetryConfigNotRetry() = runTest {
         // Arrange. Set up a simulated environment that no accessible cameras.
         var callCount = 0
         val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
@@ -230,7 +230,7 @@ class CameraXInitRetryTest {
             setSchedulerHandler(handler)
             setCameraProviderInitRetryPolicy {
                 callCount++
-                RetryResponse.Builder().setShouldRetry(false).build()
+                RetryConfig.Builder().setShouldRetry(false).build()
             }
         }
 
@@ -283,7 +283,7 @@ class CameraXInitRetryTest {
             setCameraExecutor(handlerExecutor)
             setSchedulerHandler(handler)
             setCameraProviderInitRetryPolicy { executionState: ExecutionState ->
-                RETRY_UNAVAILABLE_CAMERA.shouldRetry(executionState).also {
+                RETRY_UNAVAILABLE_CAMERA.onRetryDecisionRequested(executionState).also {
                     executedTime = executionState.executedTimeInMillis
                 }
             }
@@ -302,7 +302,7 @@ class CameraXInitRetryTest {
         throwableSubject.hasCauseThat().isInstanceOf(CameraUnavailableException::class.java)
         assertThat(cameraX.isInitialized).isFalse()
         assertThat(abs(DEFAULT_RETRY_TIMEOUT_IN_MILLIS - executedTime)).isLessThan(
-            RetryResponse.DEFAULT_DELAY_RETRY.retryDelayInMillis + 100
+            RetryConfig.DEFAULT_DELAY_RETRY.retryDelayInMillis + 100
             // Allow the tolerance for retry delay + 100ms potential processing time variations.
         )
     }
@@ -320,7 +320,7 @@ class CameraXInitRetryTest {
     @Test
     fun testTimeoutAdjustment_CustomRetryPolicyMode() = runTest {
         // Arrange. Set up a RetryPolicy that persistently retries initialization attempts.
-        val customAlwaysRetryPolicy = RetryPolicy { RetryResponse.MINI_DELAY_RETRY }
+        val customAlwaysRetryPolicy = RetryPolicy { RetryConfig.MINI_DELAY_RETRY }
 
         // Act. & Assert. Confirm that retries cease if the total execution time surpasses the
         // defined timeout, preventing indefinite loops.
@@ -339,7 +339,7 @@ class CameraXInitRetryTest {
             setCameraExecutor(handlerExecutor)
             setSchedulerHandler(handler)
             setCameraProviderInitRetryPolicy { executionState ->
-                customTimeoutPolicy.shouldRetry(executionState).also {
+                customTimeoutPolicy.onRetryDecisionRequested(executionState).also {
                     executedTime = executionState.executedTimeInMillis
                 }
             }
@@ -357,7 +357,7 @@ class CameraXInitRetryTest {
         // Assert. Verify that initialization persists with retries until the total execution
         // time exhausts the allotted timeout.
         assertThat(abs(testCustomTimeout - executedTime)).isLessThan(
-            RetryResponse.DEFAULT_DELAY_RETRY.retryDelayInMillis + 100
+            RetryConfig.DEFAULT_DELAY_RETRY.retryDelayInMillis + 100
             // Allow the tolerance for retry delay + 100ms potential processing time variations.
         )
     }
@@ -367,7 +367,7 @@ class CameraXInitRetryTest {
         val desiredDelayTime = 900L
 
         assertThat(
-            RetryResponse.Builder().setRetryDelayInMillis(desiredDelayTime)
+            RetryConfig.Builder().setRetryDelayInMillis(desiredDelayTime)
                 .build().retryDelayInMillis
         ).isEqualTo(
             desiredDelayTime
@@ -381,12 +381,12 @@ class CameraXInitRetryTest {
         val timeoutInMs = 10000L
         val executionStateMutableList = mutableListOf<ExecutionState>()
         val policy = object : RetryPolicy {
-            override fun shouldRetry(executionState: ExecutionState): RetryResponse {
+            override fun onRetryDecisionRequested(executionState: ExecutionState): RetryConfig {
                 if (executionState.getExecutedTimeInMillis() < timeoutInMillis) {
                     executionStateMutableList.add(executionState)
                 }
 
-                return RetryResponse.DEFAULT_DELAY_RETRY
+                return RetryConfig.DEFAULT_DELAY_RETRY
             }
 
             override fun getTimeoutInMillis(): Long {
@@ -437,10 +437,10 @@ class CameraXInitRetryTest {
         val policy = RetryPolicy { executionState ->
             if (executionState.getExecutedTimeInMillis() < timeoutInMs) {
                 executionStateMutableList.add(executionState)
-                return@RetryPolicy RetryResponse.DEFAULT_DELAY_RETRY;
+                return@RetryPolicy RetryConfig.DEFAULT_DELAY_RETRY;
             }
 
-            return@RetryPolicy RetryResponse.NOT_RETRY
+            return@RetryPolicy RetryConfig.NOT_RETRY
         }
         val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
             createCameraXConfig()
@@ -486,10 +486,10 @@ class CameraXInitRetryTest {
         val policy = RetryPolicy { executionState: ExecutionState ->
             executionStateMutableList.add(executionState)
             if (executionState.numOfAttempts < maxAttempts) {
-                return@RetryPolicy RetryResponse.DEFAULT_DELAY_RETRY;
+                return@RetryPolicy RetryConfig.DEFAULT_DELAY_RETRY;
             }
 
-            return@RetryPolicy RetryResponse.NOT_RETRY
+            return@RetryPolicy RetryConfig.NOT_RETRY
         }
         val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
             createCameraXConfig()
@@ -520,7 +520,7 @@ class CameraXInitRetryTest {
         val resultList = mutableListOf<ExecutionState>()
         val policy = RetryPolicy { executionState: ExecutionState ->
             resultList.add(executionState)
-            RETRY_UNAVAILABLE_CAMERA.shouldRetry(executionState)
+            RETRY_UNAVAILABLE_CAMERA.onRetryDecisionRequested(executionState)
         }
         val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
             createCameraXConfig(surfaceManager = null, useCaseConfigFactory = null)
@@ -573,7 +573,7 @@ class CameraXInitRetryTest {
             setSchedulerHandler(handler)
             setCameraProviderInitRetryPolicy { executionState: ExecutionState ->
                 executionStateMutableList.add(executionState)
-                RetryResponse.NOT_RETRY
+                RetryConfig.NOT_RETRY
             }
         }
 

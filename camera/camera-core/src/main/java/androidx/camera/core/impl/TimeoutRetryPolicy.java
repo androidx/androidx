@@ -27,7 +27,7 @@ import androidx.core.util.Preconditions;
  *
  * <p>This retry policy monitors the total execution time of a task. If the time surpasses the
  * configured timeout threshold, it immediately stops any further retries by returning
- * {@link RetryPolicy.RetryResponse#NOT_RETRY}.
+ * {@link RetryConfig#NOT_RETRY}.
  *
  * <p>If the task total execution within the timeout, this policy delegates the retry decision to
  * the underlying {@link RetryPolicy}, allowing for normal retry behavior based on other factors.
@@ -56,11 +56,11 @@ public final class TimeoutRetryPolicy implements RetryPolicy {
 
     @NonNull
     @Override
-    public RetryResponse shouldRetry(@NonNull ExecutionState executionState) {
-        RetryResponse response = mDelegatePolicy.shouldRetry(executionState);
+    public RetryConfig onRetryDecisionRequested(@NonNull ExecutionState executionState) {
+        RetryConfig retryConfig = mDelegatePolicy.onRetryDecisionRequested(executionState);
         return getTimeoutInMillis() > 0 && executionState.getExecutedTimeInMillis()
-                >= getTimeoutInMillis() - response.getRetryDelayInMillis() ? RetryResponse.NOT_RETRY
-                : response;
+                >= getTimeoutInMillis() - retryConfig.getRetryDelayInMillis()
+                ? RetryConfig.NOT_RETRY : retryConfig;
     }
 
     @Override

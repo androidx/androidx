@@ -520,7 +520,7 @@ package androidx.camera.core {
   @SuppressCompatibility @RequiresApi(21) @androidx.camera.core.ExperimentalRetryPolicy public interface RetryPolicy {
     method public static long getDefaultRetryTimeoutInMillis();
     method public default long getTimeoutInMillis();
-    method public androidx.camera.core.RetryPolicy.RetryResponse shouldRetry(androidx.camera.core.RetryPolicy.ExecutionState);
+    method public androidx.camera.core.RetryPolicy.RetryConfig onRetryDecisionRequested(androidx.camera.core.RetryPolicy.ExecutionState);
     field public static final androidx.camera.core.RetryPolicy DEFAULT;
     field public static final androidx.camera.core.RetryPolicy NEVER;
     field public static final androidx.camera.core.RetryPolicy RETRY_UNAVAILABLE_CAMERA;
@@ -542,20 +542,20 @@ package androidx.camera.core {
     field public static final int STATUS_UNKNOWN_ERROR = 0; // 0x0
   }
 
-  @SuppressCompatibility @androidx.camera.core.ExperimentalRetryPolicy public static final class RetryPolicy.RetryResponse {
+  @SuppressCompatibility @androidx.camera.core.ExperimentalRetryPolicy public static final class RetryPolicy.RetryConfig {
     method public static long getDefaultRetryDelayInMillis();
     method public long getRetryDelayInMillis();
     method public boolean shouldRetry();
-    field public static final androidx.camera.core.RetryPolicy.RetryResponse DEFAULT_DELAY_RETRY;
-    field public static final androidx.camera.core.RetryPolicy.RetryResponse MINI_DELAY_RETRY;
-    field public static final androidx.camera.core.RetryPolicy.RetryResponse NOT_RETRY;
+    field public static final androidx.camera.core.RetryPolicy.RetryConfig DEFAULT_DELAY_RETRY;
+    field public static final androidx.camera.core.RetryPolicy.RetryConfig MINI_DELAY_RETRY;
+    field public static final androidx.camera.core.RetryPolicy.RetryConfig NOT_RETRY;
   }
 
-  @SuppressCompatibility @androidx.camera.core.ExperimentalRetryPolicy public static final class RetryPolicy.RetryResponse.Builder {
-    ctor public RetryPolicy.RetryResponse.Builder();
-    method public androidx.camera.core.RetryPolicy.RetryResponse build();
-    method public androidx.camera.core.RetryPolicy.RetryResponse.Builder setRetryDelayInMillis(@IntRange(from=100, to=2000) long);
-    method public androidx.camera.core.RetryPolicy.RetryResponse.Builder setShouldRetry(boolean);
+  @SuppressCompatibility @androidx.camera.core.ExperimentalRetryPolicy public static final class RetryPolicy.RetryConfig.Builder {
+    ctor public RetryPolicy.RetryConfig.Builder();
+    method public androidx.camera.core.RetryPolicy.RetryConfig build();
+    method public androidx.camera.core.RetryPolicy.RetryConfig.Builder setRetryDelayInMillis(@IntRange(from=100, to=2000) long);
+    method public androidx.camera.core.RetryPolicy.RetryConfig.Builder setShouldRetry(boolean);
   }
 
   @RequiresApi(21) public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
