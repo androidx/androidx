@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
-import androidx.build.RunApiTasks
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -27,12 +26,12 @@ plugins {
 dependencies {
 
     implementation(libs.kotlinStdlib)
-    implementation("androidx.compose.foundation:foundation-layout:1.5.1")
-    api("androidx.activity:activity-compose:1.7.0")
-    api("androidx.compose.animation:animation:1.5.1")
-    api("androidx.compose.runtime:runtime:1.5.1")
-    api("androidx.compose.runtime:runtime-saveable:1.5.1")
-    api("androidx.compose.ui:ui:1.5.1")
+    implementation(project(":compose:foundation:foundation-layout"))
+    api("androidx.activity:activity-compose:1.8.0")
+    api(project(":compose:animation:animation"))
+    api(project(":compose:runtime:runtime"))
+    api(project(":compose:runtime:runtime-saveable"))
+    api(project(":compose:ui:ui"))
     api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
 
@@ -57,17 +56,15 @@ dependencies {
 
     lintChecks(projectOrArtifact(":navigation:navigation-compose-lint"))
     lintPublish(projectOrArtifact(":navigation:navigation-compose-lint"))
-
-    samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 androidx {
     name = "Compose Navigation"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
-    runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+    samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 android {

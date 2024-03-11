@@ -1435,6 +1435,46 @@ class NavHostTest {
         }
     }
 
+    @Test
+    fun nestedNavHostRestore() {
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            val innerNavController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) {
+                    NavHost(innerNavController, "nested1") {
+                        composable("nested1") { }
+                        composable("nested2") { }
+                    }
+                }
+                composable(second) { }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second) {
+                popUpTo(first) {
+                    inclusive = true
+                    saveState = true
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(first) {
+                restoreState = true
+                popUpTo(second) {
+                    inclusive = true
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(first)
+        }
+    }
+
     private fun createNavController(context: Context): TestNavHostController {
         val navController = TestNavHostController(context)
         val navigator = TestNavigator()

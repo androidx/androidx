@@ -25,6 +25,8 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavDestination.Companion.createRoute
@@ -44,11 +46,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.BundleSubject.assertThat
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
@@ -263,6 +266,135 @@ class NavControllerRouteTest {
         val foundArgs = navigator.current.arguments
         assertThat(foundArgs).isNotNull()
         assertThat(foundArgs?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationWithPathArg() {
+        val navController = createNavController()
+        val graph = navController.createGraph(route = "graph", startDestination = "start/myArg") {
+            test("start/{arg}") {
+                argument("arg") {
+                    type = NavType.StringType
+                    nullable = false
+                    defaultValue = "defaultArg"
+                }
+            }
+        }
+        navController.setGraph(graph, null)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}")
+        val entry = navController.currentBackStackEntry!!
+        val actual = entry.arguments!!.getString("arg")
+        val expected = "myArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNestedStartDestinationWithPathArg() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            route = "graph", startDestination = "start"
+        ) {
+            test("start")
+            navigation(route = "nestedGraph", startDestination = "nestedStart/myArg") {
+                test("nestedStart/{arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg"
+                    }
+                }
+            }
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        navController.navigate("nestedGraph")
+        assertThat(navController.currentDestination?.route).isEqualTo("nestedStart/{arg}")
+        val entry = navController.currentBackStackEntry
+        val actual = entry!!.arguments!!.getString("arg")
+        val expected = "myArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationWithArgAndPathArgs() {
+        val navController = createNavController()
+        val args = Bundle().apply {
+            putString("arg", "startArg")
+        }
+        val graph = navController.createGraph(
+            route = "graph", startDestination = "start/myArg"
+        ) {
+            test("start/{arg}") {
+                argument("arg") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            }
+        }
+        navController.setGraph(graph, args)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}")
+        val entry = navController.currentBackStackEntry
+        val actual = entry!!.arguments!!.getString("arg")
+        // explicitly passed in args should be prioritized
+        val expected = "startArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationWithArgAndMultiplePathArgs() {
+        val navController = createNavController()
+        val args = Bundle().apply {
+            putString("arg", "startArg")
+        }
+        val graph = navController.createGraph(
+            route = "graph", startDestination = "start/myArg/myArg2"
+        ) {
+            test("start/{arg}/{arg2}") {
+                argument("arg") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+                argument("arg2") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            }
+        }
+        navController.setGraph(graph, args)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}/{arg2}")
+        val entry = navController.currentBackStackEntry
+        val actual1 = entry!!.arguments!!.getString("arg")
+        // explicitly passed in arg should be prioritized
+        val expected1 = "startArg"
+        assertThat(actual1).isEqualTo(expected1)
+        // no explicitly passed arg2, arg2 value should be the one from the route
+        val actual2 = entry.arguments!!.getString("arg2")
+        val expected2 = "myArg2"
+        assertThat(actual2).isEqualTo(expected2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationWithQueryArgs() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            route = "graph", startDestination = "start?arg=myArg"
+        ) {
+            test("start?arg={arg}") {
+                argument("arg") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            }
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start?arg={arg}")
+        val entry = navController.currentBackStackEntry
+        val actual = entry!!.arguments!!.getString("arg")
+        val expected = "myArg"
+        assertThat(actual).isEqualTo(expected)
     }
 
     @UiThreadTest
@@ -575,7 +707,7 @@ class NavControllerRouteTest {
             ) {
                 test("start_test?opt={arg}") {
                     argument("arg") {
-                        type = NavType.StringType
+                        type = NavType.IntArrayType
                         nullable = true
                         defaultValue = null
                     }
@@ -584,28 +716,6 @@ class NavControllerRouteTest {
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         // getBackStack with a route with null args
         val entry1 = navController.getBackStackEntry("start_test?opt=null")
-        assertThat(entry1).isEqualTo(navigator.backStack.first())
-    }
-
-    @UiThreadTest
-    @Test
-    fun testGetBackStackEntryWithPartialExactRoute_nullNullableArgs() {
-        val navController = createNavController()
-        navController.graph =
-            createNavController().createGraph(
-                route = "nav_root", startDestination = "start_test/{arg}"
-            ) {
-                test("start_test/{arg}") {
-                    argument("arg") {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    }
-                }
-            }
-        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        // getBackStack with a route with null args
-        val entry1 = navController.getBackStackEntry("start_test/null")
         assertThat(entry1).isEqualTo(navigator.backStack.first())
     }
 
@@ -633,6 +743,8 @@ class NavControllerRouteTest {
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertThat(navigator.backStack.size).isEqualTo(2)
 
+        // fails because this is a StringType arg and `null` is considered a string
+        // with the word "null" rather than a null value
         val route = "second_test?opt=null"
         val exception = assertFailsWith<IllegalArgumentException> {
             navController.getBackStackEntry(route)
@@ -822,6 +934,85 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testGetBackStackEntryWithArrayArg() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start"
+            ) {
+                test("start")
+                test("second?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.IntArrayType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        navController.navigate("second?arg=15&arg=24")
+        val currentEntry = navController.currentBackStackEntry
+        assertThat(currentEntry?.destination?.route).isEqualTo("second?arg={arg}")
+        val expected = navController.getBackStackEntry("second?arg=15&arg=24")
+        assertThat(expected).isEqualTo(currentEntry)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithDifferingArrayArg() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start"
+            ) {
+                test("start")
+                test("second?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.IntArrayType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        navController.navigate("second?arg=15&arg=24")
+        val currentEntry = navController.currentBackStackEntry
+        assertThat(currentEntry?.destination?.route).isEqualTo("second?arg={arg}")
+        val route = "second?arg=15"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${currentEntry?.destination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithMissingArrayArg() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start"
+            ) {
+                test("start")
+                test("second?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.IntArrayType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        navController.navigate("second?arg=15&arg=24")
+        val currentEntry = navController.currentBackStackEntry
+        assertThat(currentEntry?.destination?.route).isEqualTo("second?arg={arg}")
+        // would still match if missing some of the original args
+        val expected = navController.getBackStackEntry("second?")
+        assertThat(expected).isEqualTo(currentEntry)
+    }
+
+    @UiThreadTest
+    @Test
     fun testPopBackStack() {
         val navController = createNavController()
         navController.graph = nav_singleArg_graph
@@ -943,7 +1134,7 @@ class NavControllerRouteTest {
                 test("start_test")
                 test("second_test?opt={arg}") {
                     argument("arg") {
-                        type = NavType.StringType
+                        type = NavType.IntArrayType
                         nullable = true
                         defaultValue = null
                     }
@@ -1269,7 +1460,7 @@ class NavControllerRouteTest {
                 test("start_test")
                 test("second_test?opt={arg}") {
                     argument("arg") {
-                        type = NavType.StringType
+                        type = NavType.IntArrayType
                         nullable = true
                         defaultValue = null
                     }
@@ -1605,7 +1796,6 @@ class NavControllerRouteTest {
 
     @LargeTest
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testNavigateViaImplicitDeepLink() {
         val intent = Intent(
             Intent.ACTION_VIEW,
@@ -1615,6 +1805,8 @@ class NavControllerRouteTest {
         )
 
         Intents.init()
+
+        val destroyActivityLatch = CountDownLatch(1)
 
         with(ActivityScenario.launchActivityForResult<TestActivity>(intent)) {
             moveToState(Lifecycle.State.CREATED)
@@ -1634,8 +1826,17 @@ class NavControllerRouteTest {
                     // The parent will be constructed in a new Activity after navigateUp()
                     navController.navigateUp()
                 }
+
+                activity.lifecycle.addObserver(object : LifecycleEventObserver {
+                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                        if (event.targetState == Lifecycle.State.DESTROYED) {
+                            destroyActivityLatch.countDown()
+                        }
+                    }
+                })
             }
 
+            assertThat(destroyActivityLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(this.state).isEqualTo(Lifecycle.State.DESTROYED)
         }
 

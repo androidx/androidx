@@ -172,7 +172,7 @@ package androidx.navigation {
     method public androidx.core.app.TaskStackBuilder createTaskStackBuilder();
     method public androidx.navigation.NavDeepLinkBuilder setArguments(android.os.Bundle? args);
     method public androidx.navigation.NavDeepLinkBuilder setComponentName(android.content.ComponentName componentName);
-    method public androidx.navigation.NavDeepLinkBuilder setComponentName(Class<? extends android.app.Activity> activityClass);
+    method public androidx.navigation.NavDeepLinkBuilder setComponentName(Class<? extends android.app.Activity?> activityClass);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int destId);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int destId, optional android.os.Bundle? args);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(String destRoute);
@@ -181,7 +181,7 @@ package androidx.navigation {
     method public androidx.navigation.NavDeepLinkBuilder setGraph(@NavigationRes int navGraphId);
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface NavDeepLinkSaveStateControl {
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface NavDeepLinkSaveStateControl {
   }
 
   public interface NavHost {

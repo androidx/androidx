@@ -338,7 +338,14 @@ public open class FragmentNavigator(
             addPendingOps(incomingEntry.id)
         }
         // add pending ops here before any animation (if present) starts
-        poppedList.filter { it.id != initialEntry.id }.forEach { entry ->
+        poppedList.filter { entry ->
+            // normally we don't add initialEntry to pending ops because the adding/popping
+            // of an isolated fragment does not trigger onBackStackCommitted. But if initial
+            // entry was already added to pendingOps, it was likely an incomingEntry that now
+            // needs to be popped, so we need to overwrite isPop to true here.
+            pendingOps.asSequence().map { it.first }.contains(entry.id) ||
+                entry.id != initialEntry.id
+        }.forEach { entry ->
             addPendingOps(entry.id, isPop = true)
         }
 

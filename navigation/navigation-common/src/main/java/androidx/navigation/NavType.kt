@@ -144,9 +144,20 @@ public abstract class NavType<T>(
      */
     public open val name: String = "nav_type"
 
+    /**
+     * Compares two values of type [T] and returns true if values are equal.
+     *
+     * @param value the first value for comparison
+     * @param other the second value for comparison
+     */
+    public open fun valueEquals(value: T, other: T): Boolean = value == other
+
     override fun toString(): String {
         return name
     }
+
+    internal fun isPrimitive() = this == IntType || this == BoolType ||
+        this == FloatType || this == LongType || this == StringType
 
     public companion object {
         /**
@@ -184,40 +195,46 @@ public abstract class NavType<T>(
                         } else {
                             type
                         }
-                        if (type.endsWith("[]")) {
-                            className = className.substring(0, className.length - 2)
-                            val clazz = Class.forName(className)
-                            when {
-                                Parcelable::class.java.isAssignableFrom(clazz) -> {
-                                    return ParcelableArrayType(clazz as Class<Parcelable>)
-                                }
-                                Serializable::class.java.isAssignableFrom(clazz) -> {
-                                    return SerializableArrayType(clazz as Class<Serializable>)
-                                }
-                            }
-                        } else {
-                            val clazz = Class.forName(className)
-                            when {
-                                Parcelable::class.java.isAssignableFrom(clazz) -> {
-                                    return ParcelableType(clazz as Class<Any?>)
-                                }
-                                Enum::class.java.isAssignableFrom(clazz) -> {
-                                    return EnumType(clazz as Class<Enum<*>>)
-                                }
-                                Serializable::class.java.isAssignableFrom(clazz) -> {
-                                    return SerializableType(clazz as Class<Serializable>)
-                                }
-                            }
-                        }
-                        throw IllegalArgumentException(
+                        val isArray = type.endsWith("[]")
+                        if (isArray) className = className.substring(0, className.length - 2)
+                        return requireNotNull(
+                            parseSerializableOrParcelableType(className, isArray)
+                        ) {
                             "$className is not Serializable or Parcelable."
-                        )
+                        }
                     } catch (e: ClassNotFoundException) {
                         throw RuntimeException(e)
                     }
                 }
             }
             return StringType
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        internal fun parseSerializableOrParcelableType(
+            className: String,
+            isArray: Boolean
+        ): NavType<*>? {
+            val clazz = Class.forName(className)
+            return when {
+                Parcelable::class.java.isAssignableFrom(clazz) -> {
+                    if (isArray) {
+                        ParcelableArrayType(clazz as Class<Parcelable>)
+                    } else {
+                        ParcelableType(clazz as Class<Any?>)
+                    }
+                }
+                Enum::class.java.isAssignableFrom(clazz) && !isArray ->
+                    EnumType(clazz as Class<Enum<*>>)
+                Serializable::class.java.isAssignableFrom(clazz) -> {
+                    if (isArray) {
+                        SerializableArrayType(clazz as Class<Serializable>)
+                    } else {
+                        return SerializableType(clazz as Class<Serializable>)
+                    }
+                }
+                else -> null
+            }
         }
 
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
@@ -383,6 +400,12 @@ public abstract class NavType<T>(
             override fun parseValue(value: String, previousValue: IntArray?): IntArray {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: IntArray?, other: IntArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
         }
 
         /**
@@ -451,6 +474,12 @@ public abstract class NavType<T>(
             override fun parseValue(value: String, previousValue: LongArray?): LongArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: LongArray?, other: LongArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
         }
 
         /**
@@ -505,6 +534,12 @@ public abstract class NavType<T>(
 
             override fun parseValue(value: String, previousValue: FloatArray?): FloatArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: FloatArray?, other: FloatArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
             }
         }
 
@@ -568,6 +603,12 @@ public abstract class NavType<T>(
 
             override fun parseValue(value: String, previousValue: BooleanArray?): BooleanArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: BooleanArray?, other: BooleanArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
             }
         }
 
@@ -643,6 +684,9 @@ public abstract class NavType<T>(
             override fun parseValue(value: String, previousValue: Array<String>?): Array<String>? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: Array<String>?, other: Array<String>?) =
+                value.contentDeepEquals(other)
         }
     }
 
@@ -746,6 +790,11 @@ public abstract class NavType<T>(
         public override fun hashCode(): Int {
             return arrayType.hashCode()
         }
+
+        override fun valueEquals(
+            @Suppress("ArrayReturn") value: Array<D>?,
+            @Suppress("ArrayReturn") other: Array<D>?
+        ) = value.contentDeepEquals(other)
 
         /**
          * Constructs a NavType that supports arrays of a given Parcelable type.
@@ -911,6 +960,11 @@ public abstract class NavType<T>(
         public override fun hashCode(): Int {
             return arrayType.hashCode()
         }
+
+        override fun valueEquals(
+            @Suppress("ArrayReturn") value: Array<D>?,
+            @Suppress("ArrayReturn") other: Array<D>?
+        ) = value.contentDeepEquals(other)
 
         /**
          * Constructs a NavType that supports arrays of a given Serializable type.

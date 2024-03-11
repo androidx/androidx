@@ -59,11 +59,11 @@ package androidx.navigation {
 
   @androidx.navigation.NavDestinationDsl public final class NavActionBuilder {
     ctor public NavActionBuilder();
-    method public java.util.Map<java.lang.String,java.lang.Object> getDefaultArguments();
+    method public java.util.Map<java.lang.String,java.lang.Object?> getDefaultArguments();
     method public int getDestinationId();
     method public void navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> optionsBuilder);
     method public void setDestinationId(int);
-    property public final java.util.Map<java.lang.String,java.lang.Object> defaultArguments;
+    property public final java.util.Map<java.lang.String,java.lang.Object?> defaultArguments;
     property public final int destinationId;
   }
 
@@ -79,13 +79,13 @@ package androidx.navigation {
 
   public final class NavArgument {
     method public Object? getDefaultValue();
-    method public androidx.navigation.NavType<java.lang.Object> getType();
+    method public androidx.navigation.NavType<java.lang.Object?> getType();
     method public boolean isDefaultValuePresent();
     method public boolean isNullable();
     property public final Object? defaultValue;
     property public final boolean isDefaultValuePresent;
     property public final boolean isNullable;
-    property public final androidx.navigation.NavType<java.lang.Object> type;
+    property public final androidx.navigation.NavType<java.lang.Object?> type;
   }
 
   public static final class NavArgument.Builder {
@@ -116,7 +116,7 @@ package androidx.navigation {
     method public androidx.navigation.NavDestination getDestination();
     method public String getId();
     method public androidx.lifecycle.Lifecycle getLifecycle();
-    method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
+    method @MainThread public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     property public final android.os.Bundle? arguments;
@@ -125,7 +125,7 @@ package androidx.navigation {
     property public final androidx.navigation.NavDestination destination;
     property public final String id;
     property public androidx.lifecycle.Lifecycle lifecycle;
-    property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
+    property @MainThread public final androidx.lifecycle.SavedStateHandle savedStateHandle;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
     property public androidx.lifecycle.ViewModelStore viewModelStore;
     field public static final androidx.navigation.NavBackStackEntry.Companion Companion;
@@ -217,7 +217,7 @@ package androidx.navigation {
     method public boolean hasDeepLink(android.net.Uri deepLink);
     method public boolean hasDeepLink(androidx.navigation.NavDeepLinkRequest deepLinkRequest);
     method @CallSuper public void onInflate(android.content.Context context, android.util.AttributeSet attrs);
-    method protected static final <C> Class<? extends C> parseClassFromName(android.content.Context context, String name, Class<? extends C> expectedClassType);
+    method protected static final <C> Class<? extends C?> parseClassFromName(android.content.Context context, String name, Class<? extends C?> expectedClassType);
     method public final void putAction(@IdRes int actionId, androidx.navigation.NavAction action);
     method public final void putAction(@IdRes int actionId, @IdRes int destId);
     method public final void removeAction(@IdRes int actionId);
@@ -241,7 +241,7 @@ package androidx.navigation {
 
   public static final class NavDestination.Companion {
     method public kotlin.sequences.Sequence<androidx.navigation.NavDestination> getHierarchy(androidx.navigation.NavDestination);
-    method protected <C> Class<? extends C> parseClassFromName(android.content.Context context, String name, Class<? extends C> expectedClassType);
+    method protected <C> Class<? extends C?> parseClassFromName(android.content.Context context, String name, Class<? extends C?> expectedClassType);
   }
 
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
@@ -278,7 +278,7 @@ package androidx.navigation {
     method public final void addAll(androidx.navigation.NavGraph other);
     method public final void addDestination(androidx.navigation.NavDestination node);
     method public final void addDestinations(androidx.navigation.NavDestination... nodes);
-    method public final void addDestinations(java.util.Collection<? extends androidx.navigation.NavDestination> nodes);
+    method public final void addDestinations(java.util.Collection<? extends androidx.navigation.NavDestination?> nodes);
     method public final void clear();
     method public final androidx.navigation.NavDestination? findNode(@IdRes int resId);
     method public final androidx.navigation.NavDestination? findNode(String? route);
@@ -406,20 +406,21 @@ package androidx.navigation {
     method public T parseValue(String value, T previousValue);
     method public abstract void put(android.os.Bundle bundle, String key, T value);
     method public String serializeAsValue(T value);
+    method public boolean valueEquals(T value, T other);
     property public boolean isNullableAllowed;
     property public String name;
-    field public static final androidx.navigation.NavType<boolean[]> BoolArrayType;
+    field public static final androidx.navigation.NavType<boolean[]?> BoolArrayType;
     field public static final androidx.navigation.NavType<java.lang.Boolean> BoolType;
     field public static final androidx.navigation.NavType.Companion Companion;
-    field public static final androidx.navigation.NavType<float[]> FloatArrayType;
+    field public static final androidx.navigation.NavType<float[]?> FloatArrayType;
     field public static final androidx.navigation.NavType<java.lang.Float> FloatType;
-    field public static final androidx.navigation.NavType<int[]> IntArrayType;
+    field public static final androidx.navigation.NavType<int[]?> IntArrayType;
     field public static final androidx.navigation.NavType<java.lang.Integer> IntType;
-    field public static final androidx.navigation.NavType<long[]> LongArrayType;
+    field public static final androidx.navigation.NavType<long[]?> LongArrayType;
     field public static final androidx.navigation.NavType<java.lang.Long> LongType;
     field public static final androidx.navigation.NavType<java.lang.Integer> ReferenceType;
-    field public static final androidx.navigation.NavType<java.lang.String[]> StringArrayType;
-    field public static final androidx.navigation.NavType<java.lang.String> StringType;
+    field public static final androidx.navigation.NavType<java.lang.String[]?> StringArrayType;
+    field public static final androidx.navigation.NavType<java.lang.String?> StringType;
   }
 
   public static final class NavType.Companion {
@@ -433,9 +434,10 @@ package androidx.navigation {
 
   public static final class NavType.ParcelableArrayType<D extends android.os.Parcelable> extends androidx.navigation.NavType<D[]> {
     ctor public NavType.ParcelableArrayType(Class<D> type);
-    method public D![]? get(android.os.Bundle bundle, String key);
-    method public D![] parseValue(String value);
-    method public void put(android.os.Bundle bundle, String key, D![]? value);
+    method public D[]? get(android.os.Bundle bundle, String key);
+    method public D[] parseValue(String value);
+    method public void put(android.os.Bundle bundle, String key, D[]? value);
+    method public boolean valueEquals(D[]? value, D[]? other);
     property public String name;
   }
 
@@ -449,9 +451,10 @@ package androidx.navigation {
 
   public static final class NavType.SerializableArrayType<D extends java.io.Serializable> extends androidx.navigation.NavType<D[]> {
     ctor public NavType.SerializableArrayType(Class<D> type);
-    method public D![]? get(android.os.Bundle bundle, String key);
-    method public D![] parseValue(String value);
-    method public void put(android.os.Bundle bundle, String key, D![]? value);
+    method public D[]? get(android.os.Bundle bundle, String key);
+    method public D[] parseValue(String value);
+    method public void put(android.os.Bundle bundle, String key, D[]? value);
+    method public boolean valueEquals(D[]? value, D[]? other);
     property public String name;
   }
 

@@ -17,7 +17,15 @@
 package androidx.navigation.compose
 
 import android.os.Build
+import android.window.BackEvent
+import androidx.activity.BackEventCompat
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -32,11 +40,15 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -104,8 +116,135 @@ class NavHostScreenShotTest {
                 "testNavHostAnimationsZIndex"
             )
     }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testNavHostPredictiveBackAnimations() {
+        lateinit var navController: NavHostController
+        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            backPressedDispatcher =
+                LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            NavHost(
+                navController = navController,
+                startDestination = FIRST,
+                route = "start",
+                enterTransition = { slideInHorizontally { it / 2 } },
+                exitTransition = { slideOutHorizontally { - it / 2 } }
+            ) {
+                composable(FIRST) { BasicText(FIRST) }
+                composable(SECOND) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(Color.Blue)) {
+                        BasicText(SECOND, Modifier.size(50.dp))
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(SECOND)
+        }
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+            )
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
+            assertThat(navController.previousBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(SECOND).onParent()
+            .captureToImage().assertAgainstGolden(
+                screenshotRule,
+                "testNavHostPredictiveBackAnimations"
+            )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun testNavHostSizeTransform() {
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            Box {
+                NavHost(navController, startDestination = FIRST) {
+                    composable(FIRST,
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
+                        sizeTransform = {
+                            SizeTransform { initialSize, targetSize ->
+                                keyframes {
+                                    durationMillis = 500
+                                    IntSize(initialSize.width,
+                                        (initialSize.height + targetSize.height) / 2) at 150
+                                }
+                            }
+                        }) {
+                        Box(Modifier.size(40.dp).background(Green)) {
+                            BasicText(FIRST)
+                        }
+                    }
+                    composable(SECOND,
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
+                        sizeTransform = {
+                            SizeTransform { initialSize, targetSize ->
+                                keyframes {
+                                    durationMillis = 500
+                                    IntSize(targetSize.width, initialSize.height + 400) at 150
+                                }
+                            }
+                        }) {
+                        Box(Modifier.size(500.dp).background(Blue)) {
+                            BasicText(SECOND)
+                        }
+                    }
+                }
+            }
+        }
+
+        // don't start drawing second yet
+        composeTestRule.runOnIdle {
+            composeTestRule.mainClock.autoAdvance = false
+            navController.navigate(SECOND)
+        }
+
+        composeTestRule.waitForIdle()
+        // the image should show a blue square of the second destination half way
+        // down the screen.
+        composeTestRule.mainClock.advanceTimeBy(75)
+
+        composeTestRule.onNodeWithText(SECOND).onParent()
+            .captureToImage().assertAgainstGolden(
+                screenshotRule,
+                "testNavHostSizeTransform"
+            )
+    }
 }
 
 private const val FIRST = "first"
 private const val SECOND = "second"
 private const val THIRD = "third"
+
+private val Blue = Color(0xFF2196F3)
+private val Green = Color(0xFF4CAF50)
