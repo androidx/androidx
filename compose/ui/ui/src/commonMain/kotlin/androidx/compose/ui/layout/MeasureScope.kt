@@ -110,6 +110,7 @@ private class SimplePlacementScope(
 /**
  * A scope used in [MeasureScope.layout] for the `rulers` parameter to allow a layout to
  * define [Ruler] values for children.
+ * @sample androidx.compose.ui.samples.RulerProducerUsage
  */
 @MeasureScopeMarker
 interface RulerScope : Density {
