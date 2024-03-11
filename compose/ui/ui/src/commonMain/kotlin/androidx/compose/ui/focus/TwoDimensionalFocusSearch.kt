@@ -173,7 +173,8 @@ private fun FocusTargetNode.searchChildren(
 ): Boolean {
     val children = MutableVector<FocusTargetNode>().apply {
         visitChildren(Nodes.FocusTarget) {
-            this.add(it)
+            // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
+            if (it.isAttached) this.add(it)
         }
     }
     while (children.isNotEmpty()) {
