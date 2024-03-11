@@ -277,7 +277,6 @@ class SliderScreenshotTest {
                         activeTickColor = Color.Yellow,
                         inactiveTickColor = Color.Magenta
                     )
-
                 )
             }
         }
@@ -301,11 +300,23 @@ class SliderScreenshotTest {
                         disabledActiveTickColor = Color.Magenta,
                         disabledInactiveTickColor = Color.Cyan
                     )
-
                 )
             }
         }
         assertSliderAgainstGolden("slider_customColors_disabled")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sliderTest_min_corner() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(
+                    remember { SliderState(0.91f) }
+                )
+            }
+        }
+        assertSliderAgainstGolden("slider_min_corner")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
