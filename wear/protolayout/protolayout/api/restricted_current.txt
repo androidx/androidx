@@ -432,9 +432,8 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.ArcDirectionProp.Builder {
-    ctor public LayoutElementBuilders.ArcDirectionProp.Builder();
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public LayoutElementBuilders.ArcDirectionProp.Builder(int);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp build();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp.Builder setValue(int);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static interface LayoutElementBuilders.ArcLayoutElement {

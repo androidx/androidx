@@ -3761,10 +3761,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets defines the direction in which child elements are laid out. If not set, defaults to
-         * ARC_DIRECTION_NORMAL.
-         */
+        /** Gets defines the direction in which child elements are laid out. */
         @Nullable
         public ArcDirectionProp getArcDirection() {
             if (mImpl.hasArcDirection()) {
@@ -4007,10 +4004,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets defines the direction in which text is drawn. If not set, defaults to
-         * ARC_DIRECTION_CLOCKWISE.
-         */
+        /** Gets defines the direction in which text is drawn.*/
         @Nullable
         public ArcDirectionProp getArcDirection() {
             if (mImpl.hasArcDirection()) {
@@ -4247,10 +4241,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets defines the direction in which line drawn. If not set, defaults to
-         * ARC_DIRECTION_CLOCKWISE.
-         */
+        /** Gets defines the direction in which line drawn. */
         @Nullable
         public ArcDirectionProp getArcDirection() {
             if (mImpl.hasArcDirection()) {
@@ -4456,6 +4447,7 @@ public final class LayoutElementBuilders {
                         8, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the direction in which this line is drawn. If not set, defaults to
              * ARC_DIRECTION_CLOCKWISE.
@@ -4980,13 +4972,19 @@ public final class LayoutElementBuilders {
                     LayoutElementProto.ArcDirectionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-855955608);
 
-            /** Creates an instance of {@link Builder}. */
-            public Builder() {}
+            /** Creates an instance of {@link Builder} from the given value. */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            public Builder(@ArcDirection int value) {
+                setValue(value);
+            }
+
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            Builder() {}
 
             /** Sets the value. */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            public Builder setValue(@ArcDirection int value) {
+            Builder setValue(@ArcDirection int value) {
                 mImpl.setValue(LayoutElementProto.ArcDirection.forNumber(value));
                 mFingerprint.recordPropertyUpdate(1, value);
                 return this;
