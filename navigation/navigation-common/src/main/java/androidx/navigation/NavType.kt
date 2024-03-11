@@ -380,7 +380,9 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val IntArrayType: NavType<IntArray?> = object : NavType<IntArray?>(true) {
+        public val IntArrayType: NavType<IntArray?> = object : CollectionNavType<IntArray?>(
+            true
+        ) {
             override val name: String
                 get() = "integer[]"
 
@@ -406,6 +408,9 @@ public abstract class NavType<T>(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+
+            override fun serializeAsValues(value: IntArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
         }
 
         /**
@@ -454,7 +459,9 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val LongArrayType: NavType<LongArray?> = object : NavType<LongArray?>(true) {
+        public val LongArrayType: NavType<LongArray?> = object : CollectionNavType<LongArray?>(
+            true
+        ) {
             override val name: String
                 get() = "long[]"
 
@@ -480,6 +487,9 @@ public abstract class NavType<T>(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+
+            override fun serializeAsValues(value: LongArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
         }
 
         /**
@@ -515,7 +525,9 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val FloatArrayType: NavType<FloatArray?> = object : NavType<FloatArray?>(true) {
+        public val FloatArrayType: NavType<FloatArray?> = object : CollectionNavType<FloatArray?>(
+            true
+        ) {
             override val name: String
                 get() = "float[]"
 
@@ -541,6 +553,9 @@ public abstract class NavType<T>(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+
+            override fun serializeAsValues(value: FloatArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
         }
 
         /**
@@ -584,7 +599,8 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val BoolArrayType: NavType<BooleanArray?> = object : NavType<BooleanArray?>(true) {
+        public val BoolArrayType: NavType<BooleanArray?> =
+            object : CollectionNavType<BooleanArray?>(true) {
             override val name: String
                 get() = "boolean[]"
 
@@ -610,6 +626,9 @@ public abstract class NavType<T>(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+
+            override fun serializeAsValues(value: BooleanArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
         }
 
         /**
@@ -662,9 +681,8 @@ public abstract class NavType<T>(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val StringArrayType: NavType<Array<String>?> = object : NavType<Array<String>?>(
-            true
-        ) {
+        public val StringArrayType: NavType<Array<String>?> =
+            object : CollectionNavType<Array<String>?>(true) {
             override val name: String
                 get() = "string[]"
 
@@ -687,6 +705,9 @@ public abstract class NavType<T>(
 
             override fun valueEquals(value: Array<String>?, other: Array<String>?) =
                 value.contentDeepEquals(other)
+
+            override fun serializeAsValues(value: Array<String>?): List<String> =
+                value?.toList() ?: emptyList()
         }
     }
 

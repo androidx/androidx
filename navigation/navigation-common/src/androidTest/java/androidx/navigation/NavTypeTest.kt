@@ -53,6 +53,7 @@ class NavTypeTest {
         private val en = Bitmap.Config.ALPHA_8
         private val enString = "ALPHA_8"
         private val enStringCasing = "alpha_8"
+        private val referenceString = "2131034161"
         private val serializable = Person()
         private val serializables = arrayOf(Bitmap.Config.ALPHA_8)
         private val parcelableNavType = NavType.ParcelableType(ActivityInfo::class.java)
@@ -294,6 +295,25 @@ class NavTypeTest {
         val array3 = intArrayOf(2, 1)
         val array4 = intArrayOf(1, 2)
         assertThat(type.valueEquals(array3, array4)).isFalse()
+    }
+
+    @Test
+    fun serializeAsValues() {
+        assertThat((NavType.IntArrayType as CollectionNavType).serializeAsValues(
+            intArrayOf(0, 1))
+        ).containsExactly("0", "1").inOrder()
+        assertThat((NavType.BoolArrayType as CollectionNavType).serializeAsValues(
+            booleanArrayOf(true, false))
+        ).containsExactly("true", "false").inOrder()
+        assertThat((NavType.StringArrayType as CollectionNavType).serializeAsValues(
+            arrayOf("test", "test2"))
+        ).containsExactly("test", "test2").inOrder()
+        assertThat((NavType.FloatArrayType as CollectionNavType).serializeAsValues(
+            floatArrayOf(1F, 2F))
+        ).containsExactly("1.0", "2.0").inOrder()
+        assertThat((NavType.LongArrayType as CollectionNavType).serializeAsValues(
+            longArrayOf(1L, 2L))
+        ).containsExactly("1", "2").inOrder()
     }
 
     @Test
