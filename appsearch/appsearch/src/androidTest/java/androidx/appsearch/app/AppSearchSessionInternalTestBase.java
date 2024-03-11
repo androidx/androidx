@@ -21,8 +21,6 @@ import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResult
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 import androidx.annotation.NonNull;
@@ -81,7 +79,6 @@ public abstract class AppSearchSessionInternalTestBase {
     @Test
     public void testGetSchema_joinableValueType() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
-        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_SET_DELETION_PROPAGATION));
         AppSearchSchema inSchema =
                 new AppSearchSchema.Builder("Test")
                         .addProperty(
@@ -101,11 +98,6 @@ public abstract class AppSearchSessionInternalTestBase {
                                         .setJoinableValueType(
                                                 StringPropertyConfig
                                                         .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
-                                        // TODO(b/274157614): Export this to framework when we
-                                        //  can access hidden APIs.
-                                        // @exportToFramework:startStrip()
-                                        .setDeletionPropagation(true)
-                                        // @exportToFramework:endStrip()
                                         .build())
                         .build();
 
@@ -116,34 +108,6 @@ public abstract class AppSearchSessionInternalTestBase {
         Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
         assertThat(actual).hasSize(1);
         assertThat(actual).containsExactlyElementsIn(request.getSchemas());
-    }
-
-    // TODO(b/268521214): Move test to cts once deletion propagation is available in framework.
-    @Test
-    public void testGetSchema_deletionPropagation_unsupported() {
-        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
-        assumeFalse(
-                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_SET_DELETION_PROPAGATION));
-        AppSearchSchema schema =
-                new AppSearchSchema.Builder("Test")
-                        .addProperty(
-                                new StringPropertyConfig.Builder("qualifiedIdDeletionPropagation")
-                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
-                                        .setJoinableValueType(
-                                                StringPropertyConfig
-                                                        .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
-                                        .setDeletionPropagation(true)
-                                        .build())
-                        .build();
-        SetSchemaRequest request = new SetSchemaRequest.Builder().addSchemas(schema).build();
-        Exception e =
-                assertThrows(
-                        UnsupportedOperationException.class,
-                        () -> mDb1.setSchemaAsync(request).get());
-        assertThat(e.getMessage())
-                .isEqualTo(
-                        "Setting deletion propagation is not supported "
-                                + "on this AppSearch implementation.");
     }
 
     @Test

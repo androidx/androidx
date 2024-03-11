@@ -110,12 +110,6 @@ public final class SchemaToPlatformConverter {
                         TOKENIZER_TYPE_NONE, TOKENIZER_TYPE_PLAIN, "tokenizerType");
             }
 
-            if (stringProperty.getDeletionPropagation()) {
-                // TODO(b/268521214): Update once deletion propagation is available.
-                throw new UnsupportedOperationException("Setting deletion propagation is not "
-                        + "supported on this AppSearch implementation.");
-            }
-
             if (stringProperty.getJoinableValueType()
                     == AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

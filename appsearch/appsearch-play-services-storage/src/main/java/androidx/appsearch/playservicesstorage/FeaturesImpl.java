@@ -84,10 +84,6 @@ final class FeaturesImpl implements Features {
                 // TODO(b/227356108) : Update to reflect support in Android U+ once this feature is
                 //  synced over into service-appsearch.
                 // fall through
-            case Features.SCHEMA_SET_DELETION_PROPAGATION:
-                // TODO(b/268521214) : Update to reflect support in Android U+ once this feature is
-                //  synced over into service-appsearch.
-                // fall through
             case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
                 // TODO(b/280698121) : Update to reflect support in Android U+ once this feature is
                 //  synced over into service-appsearch.
