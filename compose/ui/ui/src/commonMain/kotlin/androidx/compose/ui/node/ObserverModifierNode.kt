@@ -49,7 +49,8 @@ internal class ObserverNodeOwnerScope(
 
 /**
  * Use this function to observe snapshot reads for any target within the specified [block].
- * [onDrawCacheReadsChanged] is called when any of the observed values within the snapshot change.
+ * [ObserverModifierNode.onObservedReadsChanged] is called when any of the observed values within
+ * the snapshot change.
  */
 fun <T> T.observeReads(block: () -> Unit) where T : Modifier.Node, T : ObserverModifierNode {
     val target = ownerScope ?: ObserverNodeOwnerScope(this).also { ownerScope = it }
