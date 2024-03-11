@@ -16,21 +16,19 @@
 
 package androidx.work.multiprocess;
 
-import static android.content.Context.BIND_AUTO_CREATE;
+import static androidx.work.multiprocess.ServiceBindingKt.bindToService;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
-import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -52,7 +50,7 @@ public class ListenableWorkerImplClient {
     final Executor mExecutor;
 
     private final Object mLock;
-    private Connection mConnection;
+    private Session<IListenableWorkerImpl> mConnection;
 
     public ListenableWorkerImplClient(
             @NonNull Context context,
@@ -73,22 +71,14 @@ public class ListenableWorkerImplClient {
         synchronized (mLock) {
             if (mConnection == null) {
                 Logger.get().debug(TAG,
-                        "Binding to " + component.getPackageName() + ", " + component.getClassName());
-
-                mConnection = new Connection();
-                try {
-                    Intent intent = new Intent();
-                    intent.setComponent(component);
-                    boolean bound = mContext.bindService(intent, mConnection, BIND_AUTO_CREATE);
-                    if (!bound) {
-                        unableToBind(mConnection,
-                                new RuntimeException("Unable to bind to service"));
-                    }
-                } catch (Throwable throwable) {
-                    unableToBind(mConnection, throwable);
-                }
+                        "Binding to " + component.getPackageName() + ", "
+                                + component.getClassName());
+                Intent intent = new Intent();
+                intent.setComponent(component);
+                mConnection = bindToService(mContext, intent,
+                        IListenableWorkerImpl.Stub::asInterface, TAG);
             }
-            return mConnection.mFuture;
+            return mConnection.getConnectedFuture();
         }
     }
 
@@ -134,56 +124,7 @@ public class ListenableWorkerImplClient {
      */
     @Nullable
     @VisibleForTesting
-    public Connection getConnection() {
+    Session<IListenableWorkerImpl> getConnection() {
         return mConnection;
-    }
-
-    /**
-     * The implementation of {@link ServiceConnection} that handles changes in the connection.
-     *
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static class Connection implements ServiceConnection {
-        private static final String TAG = Logger.tagWithPrefix("ListenableWorkerImplSession");
-
-        final SettableFuture<IListenableWorkerImpl> mFuture;
-
-        public Connection() {
-            mFuture = SettableFuture.create();
-        }
-
-        @Override
-        public void onServiceConnected(
-                @NonNull ComponentName componentName,
-                @NonNull IBinder iBinder) {
-            Logger.get().debug(TAG, "Service connected");
-            IListenableWorkerImpl iListenableWorkerImpl =
-                    IListenableWorkerImpl.Stub.asInterface(iBinder);
-            mFuture.set(iListenableWorkerImpl);
-        }
-
-        @Override
-        public void onServiceDisconnected(@NonNull ComponentName componentName) {
-            Logger.get().warning(TAG, "Service disconnected");
-            mFuture.setException(new RuntimeException("Service disconnected"));
-        }
-
-        @Override
-        public void onBindingDied(@NonNull ComponentName name) {
-            Logger.get().warning(TAG, "Binding died");
-            mFuture.setException(new RuntimeException("Binding died"));
-        }
-
-        @Override
-        public void onNullBinding(@NonNull ComponentName name) {
-            Logger.get().error(TAG, "Unable to bind to service");
-            mFuture.setException(
-                    new RuntimeException("Cannot bind to service " + name));
-        }
-    }
-
-    private static void unableToBind(@NonNull Connection session, @NonNull Throwable throwable) {
-        Logger.get().error(TAG, "Unable to bind to service", throwable);
-        session.mFuture.setException(throwable);
     }
 }
