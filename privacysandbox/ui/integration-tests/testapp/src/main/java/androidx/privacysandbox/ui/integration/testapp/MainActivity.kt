@@ -41,9 +41,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mSdkSandboxManager: SdkSandboxManagerCompat
+    private lateinit var sdkSandboxManager: SdkSandboxManagerCompat
 
-    private var mSdkLoaded = false
     private lateinit var sdkApi: ISdkApi
 
     private lateinit var webViewBannerView: SandboxedSdkView
@@ -62,33 +61,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mSdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
+        sdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
 
-        if (!mSdkLoaded) {
-            Log.i(TAG, "Loading SDK")
-            CoroutineScope(Dispatchers.Default).launch {
-                try {
-                    mSdkSandboxManager.loadSdk(MEDIATEE_SDK_NAME, Bundle())
-                    val loadedSdk = mSdkSandboxManager.loadSdk(SDK_NAME, Bundle())
-                    mSdkSandboxManager.registerAppOwnedSdkSandboxInterface(
+        Log.i(TAG, "Loading SDK")
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                val loadedSdks = sdkSandboxManager.getSandboxedSdks()
+                var loadedSdk = loadedSdks.firstOrNull { it.getSdkInfo()?.name == SDK_NAME }
+                if (loadedSdk == null) {
+                    loadedSdk = sdkSandboxManager.loadSdk(SDK_NAME, Bundle())
+                    sdkSandboxManager.loadSdk(MEDIATEE_SDK_NAME, Bundle())
+                    sdkSandboxManager.registerAppOwnedSdkSandboxInterface(
                         AppOwnedSdkSandboxInterfaceCompat(
                             MEDIATEE_SDK_NAME,
                             /*version=*/ 0,
                             AppOwnedMediateeSdkApi(applicationContext)
                         )
                     )
-                    onLoadedSdk(loadedSdk)
-                } catch (e: LoadSdkCompatException) {
-                    Log.i(TAG, "loadSdk failed with errorCode: " + e.loadSdkErrorCode +
-                        " and errorMsg: " + e.message)
                 }
+                onLoadedSdk(loadedSdk)
+            } catch (e: LoadSdkCompatException) {
+                Log.i(TAG, "loadSdk failed with errorCode: " + e.loadSdkErrorCode +
+                    " and errorMsg: " + e.message)
             }
         }
     }
 
     private fun onLoadedSdk(sandboxedSdk: SandboxedSdkCompat) {
         Log.i(TAG, "Loaded successfully")
-        mSdkLoaded = true
         sdkApi = ISdkApi.Stub.asInterface(sandboxedSdk.getInterface())
 
         webViewBannerView = findViewById(R.id.webview_ad_view)
