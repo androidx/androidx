@@ -515,8 +515,8 @@ internal fun CoreTextField(
                 false
             } else if (start == value.selection.start && end == value.selection.end) {
                 false
-            } else if (start.coerceAtMost(end) >= 0 &&
-                start.coerceAtLeast(end) <= value.annotatedString.length
+            } else if (minOf(start, end) >= 0 &&
+                maxOf(start, end) <= value.annotatedString.length
             ) {
                 // Do not show toolbar if it's a traversal mode (with the volume keys), or
                 // if the cursor just moved to beginning or end.

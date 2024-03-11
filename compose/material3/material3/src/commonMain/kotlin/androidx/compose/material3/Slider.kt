@@ -54,6 +54,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -264,14 +265,15 @@ fun Slider(
     },
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f
 ) {
+    val onValueChangeFinishedState = rememberUpdatedState(onValueChangeFinished)
     val state = remember(
         steps,
-        valueRange,
+        valueRange
     ) {
         SliderState(
             value,
             steps,
-            onValueChangeFinished,
+            { onValueChangeFinishedState.value?.invoke() },
             valueRange
         )
     }
@@ -541,16 +543,16 @@ fun RangeSlider(
     @IntRange(from = 0)
     steps: Int = 0
 ) {
+    val onValueChangeFinishedState = rememberUpdatedState(onValueChangeFinished)
     val state = remember(
         steps,
-        valueRange,
-        onValueChangeFinished
+        valueRange
     ) {
         RangeSliderState(
             value.start,
             value.endInclusive,
             steps,
-            onValueChangeFinished,
+            { onValueChangeFinishedState.value?.invoke() },
             valueRange
         )
     }
