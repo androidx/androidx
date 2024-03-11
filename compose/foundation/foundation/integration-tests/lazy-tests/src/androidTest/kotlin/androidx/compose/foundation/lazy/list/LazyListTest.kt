@@ -749,13 +749,15 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
 
         rule.runOnIdle {
+            counter = 0
+
             runBlocking {
                 state.scrollToItem(1)
                 state.scrollToItem(0)
             }
         }
 
-        assertThat(counter).isEqualTo(1)
+        assertThat(counter).isEqualTo(0)
     }
 
     @Test
