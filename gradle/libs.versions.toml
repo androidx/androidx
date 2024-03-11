@@ -46,7 +46,7 @@ kotlinBenchmark = "0.4.8"
 kotlinNative = "1.9.22"
 kotlinCompileTesting = "1.4.9"
 kotlinCoroutines = "1.7.3"
-kotlinSerialization = "1.3.3"
+kotlinSerialization = "1.6.3"
 ksp = "1.9.22-1.0.17"
 ktfmt = "0.45"
 ktlint = "0.49.1"
@@ -185,6 +185,7 @@ kotlinDaemonEmbeddable = { module = "org.jetbrains.kotlin:kotlin-daemon-embeddab
 kotlinKlibCommonizer = { module = "org.jetbrains.kotlin:kotlin-klib-commonizer" }
 kotlinMetadataJvm = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version = "0.9.0" }
 kotlinSerializationCore = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinSerialization" }
+kotlinSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 kotlinSerializationProtobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinSerialization" }
 kotlinGradlePluginz = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
