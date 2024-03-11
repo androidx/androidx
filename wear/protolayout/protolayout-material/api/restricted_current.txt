@@ -203,6 +203,7 @@ package androidx.wear.protolayout.material {
     method public static androidx.wear.protolayout.material.TitleChip? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.ChipColors getChipColors();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
     method public int getHorizontalAlignment();
     method public String? getIconContent();
     method public String getText();
@@ -213,6 +214,8 @@ package androidx.wear.protolayout.material {
     ctor public TitleChip.Builder(android.content.Context, String, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.TitleChip build();
     method public androidx.wear.protolayout.material.TitleChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
+    method public androidx.wear.protolayout.material.TitleChip.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+    method public androidx.wear.protolayout.material.TitleChip.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.TitleChip.Builder setHorizontalAlignment(int);
     method public androidx.wear.protolayout.material.TitleChip.Builder setIconContent(String);
     method public androidx.wear.protolayout.material.TitleChip.Builder setWidth(androidx.wear.protolayout.DimensionBuilders.ContainerDimension);
