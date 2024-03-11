@@ -36,7 +36,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
@@ -175,14 +174,13 @@ internal class AccessibilityController(
      */
     fun notifyIsInUse() {
         lastUseTimeNanos = System.nanoTime()
-        syncNodesChannel.trySend(Unit)
+        scheduleNodeSync()
     }
 
     /**
      * A channel that triggers the syncing of [ComposeAccessible]s with the semantics node tree.
      */
-    private val syncNodesChannel =
-        Channel<Unit>(capacity = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    private val nodeSyncChannel = Channel<Unit>(Channel.RENDEZVOUS)
 
     /**
      * An [ArrayDeque] used in the BFS algorithm that syncs [ComposeAccessible]s with the semantics
@@ -242,7 +240,7 @@ internal class AccessibilityController(
 
         syncingJob = CoroutineScope(context).launch {
             while (true) {
-                syncNodesChannel.receive()
+                nodeSyncChannel.receive()
                 if (accessibilityRecentlyUsed && !nodeMappingIsValid) {
                     syncNodes()
                 }
@@ -308,11 +306,18 @@ internal class AccessibilityController(
     }
 
     /**
+     * Schedules [syncNodes] to be called later.
+     */
+    private fun scheduleNodeSync() {
+        nodeSyncChannel.trySend(Unit)
+    }
+
+    /**
      * Invoked when the semantics node tree changes.
      */
     fun onSemanticsChange() {
         nodeMappingIsValid = false
-        syncNodesChannel.trySend(Unit)
+        scheduleNodeSync()
     }
 
     /**
@@ -322,7 +327,7 @@ internal class AccessibilityController(
     fun onLayoutChanged(@Suppress("UNUSED_PARAMETER") nodeId: Int) {
         // TODO: Only recompute the layout-related properties of the node
         nodeMappingIsValid = false
-        syncNodesChannel.trySend(Unit)
+        scheduleNodeSync()
     }
 
     /**
