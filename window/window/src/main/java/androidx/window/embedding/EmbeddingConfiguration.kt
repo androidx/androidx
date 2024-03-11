@@ -62,10 +62,6 @@ class EmbeddingConfiguration @JvmOverloads constructor(
              * If the [ActivityStack] is split and displayed side-by-side with another
              * [ActivityStack], the dim effect is applying only on the [ActivityStack] of the
              * requested Activity.
-             *
-             * This is the default dim area configuration of the Activity Embedding environment,
-             * before the [DimAreaBehavior] is explicitly set by
-             * [ActivityEmbeddingController.setEmbeddingConfiguration].
              */
             @JvmField
             @ExperimentalWindowApi
@@ -76,6 +72,10 @@ class EmbeddingConfiguration @JvmOverloads constructor(
              * embedded transparent activity is split and displayed side-by-side with another
              * activity, the dim effect is applying on the Task, which across over the two
              * [ActivityStack]s.
+             *
+             * This is the default dim area configuration of the Activity Embedding environment,
+             * before the [DimAreaBehavior] is explicitly set by
+             * [ActivityEmbeddingController.setEmbeddingConfiguration].
              */
             @JvmField
             @ExperimentalWindowApi

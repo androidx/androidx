@@ -30,7 +30,7 @@ import androidx.window.WindowSdkExtensions
 import androidx.window.core.Bounds
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
-import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_TASK
+import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_ACTIVITY_STACK
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
@@ -295,8 +295,8 @@ internal class EmbeddingAdapter(
 
         OEMWindowAttributes(
             when (embeddingConfiguration?.dimAreaBehavior) {
-                ON_TASK -> OEMWindowAttributes.DIM_AREA_ON_TASK
-                else -> OEMWindowAttributes.DIM_AREA_ON_ACTIVITY_STACK
+                ON_ACTIVITY_STACK -> OEMWindowAttributes.DIM_AREA_ON_ACTIVITY_STACK
+                else -> OEMWindowAttributes.DIM_AREA_ON_TASK
             }
         )
     }
