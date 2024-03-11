@@ -17,6 +17,7 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -37,6 +38,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
@@ -47,6 +49,7 @@ import platform.UIKit.UIAccessibilityCustomAction
 import platform.UIKit.UIAccessibilityFocusedElement
 import platform.UIKit.UIAccessibilityIsVoiceOverRunning
 import platform.UIKit.UIAccessibilityLayoutChangedNotification
+import platform.UIKit.UIAccessibilityPageScrolledNotification
 import platform.UIKit.UIAccessibilityPostNotification
 import platform.UIKit.UIAccessibilityScreenChangedNotification
 import platform.UIKit.UIAccessibilityScrollDirection
@@ -341,21 +344,35 @@ private class AccessibilityElement(
             log("Focused on:")
             log(cachedConfig)
         }
+    }
 
+    override fun accessibilityScrollToVisible(): Boolean {
         if (!isAlive) {
-            return
+            return false
         }
 
         scrollToIfPossible()
+
+        return true
+    }
+
+    override fun accessibilityScrollToVisibleWithChild(child: Any): Boolean {
+        if (!isAlive) {
+            return false
+        }
+
+        if (child is AccessibilityElement && child.isAlive) {
+            child.scrollToIfPossible()
+            return true
+        }
+
+        return false
     }
 
     /**
      * Try to perform a scroll on any ancestor of this element if the element is not fully visible.
      */
     private fun scrollToIfPossible() {
-        // TODO: extremely clunky and unreliable, temporarily disabled
-        return
-
         val scrollableAncestor = semanticsNode.scrollableByAncestor ?: return
         val scrollableAncestorRect = scrollableAncestor.boundsInWindow
 
@@ -370,20 +387,28 @@ private class AccessibilityElement(
         // TODO: is RTL working properly?
         if (unclippedRect.top < scrollableAncestorRect.top) {
             // The element is above the screen, scroll up
-            parent?.scrollByIfPossible(0f, unclippedRect.top - scrollableAncestorRect.top)
-            return
+            parent?.scrollByIfPossible(
+                0f,
+                unclippedRect.top - scrollableAncestorRect.top - scrollableAncestor.size.height / 2
+            )
         } else if (unclippedRect.bottom > scrollableAncestorRect.bottom) {
             // The element is below the screen, scroll down
-            parent?.scrollByIfPossible(0f, unclippedRect.bottom - scrollableAncestorRect.bottom)
-            return
+            parent?.scrollByIfPossible(
+                0f,
+                unclippedRect.bottom - scrollableAncestorRect.bottom + scrollableAncestor.size.height / 2
+            )
         } else if (unclippedRect.left < scrollableAncestorRect.left) {
             // The element is to the left of the screen, scroll left
-            parent?.scrollByIfPossible(unclippedRect.left - scrollableAncestorRect.left, 0f)
-            return
+            parent?.scrollByIfPossible(
+                unclippedRect.left - scrollableAncestorRect.left - scrollableAncestor.size.width / 2,
+                0f
+            )
         } else if (unclippedRect.right > scrollableAncestorRect.right) {
             // The element is to the right of the screen, scroll right
-            parent?.scrollByIfPossible(unclippedRect.right - scrollableAncestorRect.right, 0f)
-            return
+            parent?.scrollByIfPossible(
+                unclippedRect.right - scrollableAncestorRect.right + scrollableAncestor.size.width / 2,
+                0f
+            )
         }
     }
 
@@ -402,30 +427,26 @@ private class AccessibilityElement(
         }
     }
 
-    private fun scrollIfPossible(direction: UIAccessibilityScrollDirection): Boolean {
+    private fun scrollIfPossible(direction: UIAccessibilityScrollDirection): AccessibilityElement? {
         val config = cachedConfig
 
-        val (width, height) = semanticsNode.size
+        //val (width, height) = semanticsNode.size
 
-        // TODO: reverse engineer proper dimension scale
-        val dimensionScale = 0.5f
-
-        // TODO: post notification about the scroll
         when (direction) {
             UIAccessibilityScrollDirectionUp -> {
                 var result = config.getOrNull(SemanticsActions.PageUp)?.action?.invoke()
 
                 if (result != null) {
-                    return result
+                    return if (result) this else null
                 }
 
                 result = config.getOrNull(SemanticsActions.ScrollBy)?.action?.invoke(
-                    0F,
-                    -height.toFloat() * dimensionScale
+                    0f,
+                    -semanticsNode.size.height.toFloat()
                 )
 
                 if (result != null) {
-                    return result
+                    return if (result) this else null
                 }
             }
 
@@ -433,16 +454,16 @@ private class AccessibilityElement(
                 var result = config.getOrNull(SemanticsActions.PageDown)?.action?.invoke()
 
                 if (result != null) {
-                    return result
+                    return if (result) this else null
                 }
 
                 result = config.getOrNull(SemanticsActions.ScrollBy)?.action?.invoke(
                     0f,
-                    height.toFloat() * dimensionScale
+                    semanticsNode.size.height.toFloat()
                 )
 
                 if (result != null) {
-                    return result
+                    return if (result) this else null
                 }
             }
 
@@ -450,17 +471,17 @@ private class AccessibilityElement(
                 var result = config.getOrNull(SemanticsActions.PageLeft)?.action?.invoke()
 
                 if (result != null) {
-                    return result
+                    return if (result) this else null
                 }
 
                 // TODO: check RTL support
                 result = config.getOrNull(SemanticsActions.ScrollBy)?.action?.invoke(
-                    -width.toFloat() * dimensionScale,
+                    -semanticsNode.size.width.toFloat(),
                     0f,
                 )
 
                 if (result != null) {
-                    return result
+                    return if (result) this else null
                 }
             }
 
@@ -468,17 +489,17 @@ private class AccessibilityElement(
                 var result = config.getOrNull(SemanticsActions.PageRight)?.action?.invoke()
 
                 if (result != null) {
-                    return result
+                    return if (result) this else null
                 }
 
                 // TODO: check RTL support
                 result = config.getOrNull(SemanticsActions.ScrollBy)?.action?.invoke(
-                    width.toFloat() * dimensionScale,
+                    semanticsNode.size.width.toFloat(),
                     0f,
                 )
 
                 if (result != null) {
-                    return result
+                    return if (result) this else null
                 }
             }
 
@@ -491,7 +512,7 @@ private class AccessibilityElement(
             return it.scrollIfPossible(direction)
         }
 
-        return false
+        return null
     }
 
     override fun accessibilityScroll(direction: UIAccessibilityScrollDirection): Boolean {
@@ -499,7 +520,20 @@ private class AccessibilityElement(
             return false
         }
 
-        return scrollIfPossible(direction)
+        val frame = semanticsNode.boundsInWindow
+        val approximateScrollAnimationDuration = 350L
+
+        val scrollableElement = scrollIfPossible(direction)
+        return if (scrollableElement != null) {
+            mediator.notifyScrollCompleted(
+                delay = approximateScrollAnimationDuration,
+                focusedNode = semanticsNode,
+                focusedRectInWindow = frame
+            )
+            true
+        } else {
+            false
+        }
     }
 
     override fun isAccessibilityElement(): Boolean =
@@ -714,6 +748,24 @@ private class AccessibilityElement(
             log("$indent  accessibilityIdentifier: $accessibilityIdentifier")
             log("$indent  accessibilityCustomActions: $accessibilityCustomActions")
         }
+    }
+
+    fun hitTest(offsetInWindow: Offset): AccessibilityElement? {
+        if (!isAlive) {
+            return null
+        }
+
+        val containsPoint = semanticsNode.boundsInWindow.contains(offsetInWindow)
+        if (containsPoint && isAccessibilityElement) {
+            return this
+        }
+
+        children.forEach { child ->
+            child.hitTest(offsetInWindow)?.let {
+                return it
+            }
+        }
+        return this.takeIf { containsPoint }
     }
 }
 
@@ -1017,6 +1069,30 @@ internal class AccessibilityMediator(
         return convertToAppWindowCGRect(rect, window)
     }
 
+    fun notifyScrollCompleted(
+        delay: Long,
+        focusedNode: SemanticsNode,
+        focusedRectInWindow: Rect
+    ) {
+        coroutineScope.launch {
+            delay(delay)
+
+            UIAccessibilityPostNotification(
+                UIAccessibilityPageScrolledNotification,
+                null
+            )
+
+            if (accessibilityElementsMap[focusedNode.id] == null) {
+                findElementInRect(rect = focusedRectInWindow)?.let {
+                    UIAccessibilityPostNotification(
+                        UIAccessibilityLayoutChangedNotification,
+                        it
+                    )
+                }
+            }
+        }
+    }
+
     fun onSemanticsChange() {
         debugLogger?.log("onSemanticsChange")
 
@@ -1161,15 +1237,12 @@ internal class AccessibilityMediator(
             debugTraverse(it, view)
         }
 
-        val focusedElement = UIAccessibilityFocusedElement(null)
+        val focusedElement = UIAccessibilityFocusedElement(null) as? AccessibilityElement
 
         // TODO: in future the focused element could be the interop UIView that is detached from the
         //  hierarchy, but still maintains the focus until the GC collects it, or AX services detect
         //  that it's not reachable anymore through containment chain
-        val isFocusedElementAlive = focusedElement?.let {
-            val accessibilityElement = it as? AccessibilityElement
-            accessibilityElement?.isAlive ?: false
-        } ?: false
+        val isFocusedElementAlive = focusedElement?.isAlive ?: false
 
         val isFocusedElementDead = !isFocusedElementAlive
 
@@ -1189,10 +1262,20 @@ internal class AccessibilityMediator(
 
             refocusedElement
         } else {
-            null
+            focusedElement?.semanticsNodeId?.let {
+                accessibilityElementsMap[it]
+            }
         }
 
         return NodesSyncResult(newElementToFocus)
+    }
+
+    private fun findElementInRect(rect: Rect): AccessibilityElement? {
+        val offsetInWindow = Offset(
+            x = (rect.right + rect.left) / 2,
+            y = (rect.bottom + rect.top) / 2
+        )
+        return accessibilityElementsMap[rootSemanticsNodeId]?.hitTest(offsetInWindow)
     }
 }
 

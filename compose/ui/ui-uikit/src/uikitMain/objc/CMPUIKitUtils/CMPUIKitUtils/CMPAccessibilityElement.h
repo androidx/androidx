@@ -47,7 +47,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)accessibilityActivate CMP_MUST_BE_OVERRIDED;
 
+// Private SDK method. Calls when the item is swipe-to-focused in VoiceOver.
+- (BOOL)accessibilityScrollToVisible;
+
+// Private SDK method. Calls when the item is swipe-to-focused in VoiceOver.
+- (BOOL)accessibilityScrollToVisibleWithChild:(id)child;
+
 - (void)accessibilityElementDidBecomeFocused;
+
+- (void)accessibilityElementDidLoseFocus;
 
 - (BOOL)accessibilityScroll:(UIAccessibilityScrollDirection)direction CMP_MUST_BE_OVERRIDED;
 

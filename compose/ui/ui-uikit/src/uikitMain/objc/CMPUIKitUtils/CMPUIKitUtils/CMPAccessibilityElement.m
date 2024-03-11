@@ -104,8 +104,20 @@ NS_ASSUME_NONNULL_BEGIN
     return [super accessibilityPerformEscape];
 }
 
+- (BOOL)accessibilityScrollToVisible {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+- (BOOL)accessibilityScrollToVisibleWithChild:(id)child {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
 - (void)accessibilityElementDidBecomeFocused {
     [super accessibilityElementDidBecomeFocused];
+}
+
+- (void)accessibilityElementDidLoseFocus {
+    [super accessibilityElementDidLoseFocus];
 }
 
 @end
