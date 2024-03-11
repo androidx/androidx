@@ -949,22 +949,20 @@ object SliderDefaults {
             return defaultSliderColorsCached ?: SliderColors(
                 thumbColor = fromToken(SliderTokens.HandleColor),
                 activeTrackColor = fromToken(SliderTokens.ActiveTrackColor),
-                activeTickColor = fromToken(SliderTokens.TickMarksActiveContainerColor)
-                    .copy(alpha = SliderTokens.TickMarksActiveContainerOpacity),
+                activeTickColor = fromToken(SliderTokens.InactiveTrackColor),
                 inactiveTrackColor = fromToken(SliderTokens.InactiveTrackColor),
-                inactiveTickColor = fromToken(SliderTokens.TickMarksInactiveContainerColor)
-                    .copy(alpha = SliderTokens.TickMarksInactiveContainerOpacity),
+                inactiveTickColor = fromToken(SliderTokens.ActiveTrackColor),
                 disabledThumbColor = fromToken(SliderTokens.DisabledHandleColor)
                     .copy(alpha = SliderTokens.DisabledHandleOpacity)
                     .compositeOver(surface),
                 disabledActiveTrackColor = fromToken(SliderTokens.DisabledActiveTrackColor)
                     .copy(alpha = SliderTokens.DisabledActiveTrackOpacity),
-                disabledActiveTickColor = fromToken(SliderTokens.TickMarksDisabledContainerColor)
-                    .copy(alpha = SliderTokens.TickMarksDisabledContainerOpacity),
+                disabledActiveTickColor = fromToken(SliderTokens.DisabledInactiveTrackColor)
+                    .copy(alpha = SliderTokens.DisabledInactiveTrackOpacity),
                 disabledInactiveTrackColor = fromToken(SliderTokens.DisabledInactiveTrackColor)
                     .copy(alpha = SliderTokens.DisabledInactiveTrackOpacity),
-                disabledInactiveTickColor = fromToken(SliderTokens.TickMarksDisabledContainerColor)
-                    .copy(alpha = SliderTokens.TickMarksDisabledContainerOpacity)
+                disabledInactiveTickColor = fromToken(SliderTokens.DisabledActiveTrackColor)
+                    .copy(alpha = SliderTokens.DisabledActiveTrackOpacity)
             ).also {
                 defaultSliderColorsCached = it
             }
@@ -1907,10 +1905,10 @@ internal val TrackHeight = SliderTokens.InactiveTrackHeight
 internal val ThumbWidth = SliderTokens.HandleWidth
 private val ThumbHeight = SliderTokens.HandleHeight
 private val ThumbSize = DpSize(ThumbWidth, ThumbHeight)
-private val TickSize = SliderTokens.TickMarksContainerSize
-private val ThumbTrackGapSize: Dp = 6.dp
+private val TickSize: Dp = 2.dp
+private val ThumbTrackGapSize: Dp = SliderTokens.ActiveHandleLeadingSpace
 private val TrackInsideCornerSize: Dp = 2.dp
-private val TrackStopIndicatorSize: Dp = 4.dp
+private val TrackStopIndicatorSize: Dp = SliderTokens.StopIndicatorSize
 private const val SliderRangeTolerance = 0.0001
 
 private enum class SliderComponents {
