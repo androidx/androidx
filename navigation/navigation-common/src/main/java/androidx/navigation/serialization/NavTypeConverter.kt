@@ -20,7 +20,6 @@ package androidx.navigation.serialization
 
 import android.os.Bundle
 import androidx.navigation.NavType
-import androidx.navigation.NavType.Companion.parseSerializableOrParcelableType
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -64,7 +63,7 @@ private data class Custom(val className: String) : InternalCommonType
  * Returns [UNKNOWN] type if the argument does not belong to any of the above.
  */
 internal fun SerialDescriptor.getNavType(): NavType<*> {
-    return when (val internalType = this.toInternalType()) {
+    return when (this.toInternalType()) {
         Native.INT -> NavType.IntType
         Native.BOOL -> NavType.BoolType
         Native.FLOAT -> NavType.FloatType
@@ -77,37 +76,9 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
         Native.ARRAY -> {
             val typeParameter = getElementDescriptor(0).toInternalType()
             if (typeParameter == Native.STRING) return NavType.StringArrayType
-            if (typeParameter is Custom) {
-                return convertCustomToNavType(typeParameter.className, true) ?: UNKNOWN
-            }
             return UNKNOWN
         }
-        is Custom -> {
-            return convertCustomToNavType(internalType.className, false) ?: UNKNOWN
-        }
         else -> UNKNOWN
-    }
-}
-
-private fun convertCustomToNavType(className: String, isArray: Boolean): NavType<*>? {
-    // To convert name to a Class<*>, subclasses need to be delimited with `$`. So we need to
-    // replace the `.` delimiters in serial names to `$` for subclasses.
-    val sequence = className.splitToSequence(".")
-    var finalClassName = ""
-    sequence.fold(false) { isSubclass, current ->
-        if (isSubclass) {
-            finalClassName += "$"
-        } else {
-            if (finalClassName.isNotEmpty()) finalClassName += "."
-        }
-        finalClassName += current
-        if (isSubclass) true else current.toCharArray().first().isUpperCase()
-    }
-    // then try to parse it to a Serializable or Parcelable
-    return try {
-        parseSerializableOrParcelableType(finalClassName, isArray)
-    } catch (e: ClassNotFoundException) {
-        null
     }
 }
 
