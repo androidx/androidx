@@ -166,7 +166,7 @@ internal class EmbeddingCompat(
         windowSdkExtensions.requireExtensionVersion(5)
 
         embeddingExtension.finishActivityStacksWithTokens(
-            activityStacks.mapTo(mutableSetOf()) { it.token }
+            activityStacks.mapTo(mutableSetOf()) { it.getToken() }
         )
     }
 
@@ -236,7 +236,7 @@ internal class EmbeddingCompat(
     ): Bundle {
         windowSdkExtensions.requireExtensionVersion(5)
 
-        ActivityEmbeddingOptionsImpl.setActivityStackToken(options, activityStack.token)
+        ActivityEmbeddingOptionsImpl.setActivityStackToken(options, activityStack.getToken())
         return options
     }
 

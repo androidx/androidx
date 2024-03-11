@@ -17,13 +17,15 @@ package androidx.window.embedding
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
+import androidx.window.RequiresWindowSdkExtension
+import androidx.window.WindowSdkExtensions
 import androidx.window.extensions.embedding.ActivityStack.Token
 
 /**
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
  */
-class ActivityStack @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmOverloads constructor(
+class ActivityStack internal constructor(
     /**
      * The [Activity] list in this application's process that belongs to this [ActivityStack].
      *
@@ -44,8 +46,27 @@ class ActivityStack @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmOverloads co
     /**
      * A token uniquely identifying this `ActivityStack`.
      */
-    internal val token: Token = Token.INVALID_ACTIVITY_STACK_TOKEN,
+    private val token: Token?,
 ) {
+
+    /**
+     * Creates ActivityStack ONLY for testing.
+     *
+     * @param activitiesInProcess the [Activity] list in this application's process that belongs to
+     * this [ActivityStack].
+     * @param isEmpty whether there is no [Activity] running in this [ActivityStack].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    constructor(
+        activitiesInProcess: List<Activity>,
+        isEmpty: Boolean
+    ) : this(activitiesInProcess, isEmpty, token = null)
+
+    @RequiresWindowSdkExtension(5)
+    internal fun getToken(): Token = let {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        token!!
+    }
 
     /**
      * Whether this [ActivityStack] contains the [activity].
