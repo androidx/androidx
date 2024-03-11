@@ -2836,24 +2836,22 @@ public class NotificationCompat {
             if (platformTemplateClass == null) {
                 return null;
             }
-            if (Build.VERSION.SDK_INT >= 16) {
-                if (platformTemplateClass.equals(Notification.BigPictureStyle.class.getName())) {
-                    return new BigPictureStyle();
+            if (platformTemplateClass.equals(Notification.BigPictureStyle.class.getName())) {
+                return new BigPictureStyle();
+            }
+            if (platformTemplateClass.equals(Notification.BigTextStyle.class.getName())) {
+                return new BigTextStyle();
+            }
+            if (platformTemplateClass.equals(Notification.InboxStyle.class.getName())) {
+                return new InboxStyle();
+            }
+            if (Build.VERSION.SDK_INT >= 24) {
+                if (platformTemplateClass.equals(Notification.MessagingStyle.class.getName())) {
+                    return new MessagingStyle();
                 }
-                if (platformTemplateClass.equals(Notification.BigTextStyle.class.getName())) {
-                    return new BigTextStyle();
-                }
-                if (platformTemplateClass.equals(Notification.InboxStyle.class.getName())) {
-                    return new InboxStyle();
-                }
-                if (Build.VERSION.SDK_INT >= 24) {
-                    if (platformTemplateClass.equals(Notification.MessagingStyle.class.getName())) {
-                        return new MessagingStyle();
-                    }
-                    if (platformTemplateClass.equals(
-                            Notification.DecoratedCustomViewStyle.class.getName())) {
-                        return new DecoratedCustomViewStyle();
-                    }
+                if (platformTemplateClass.equals(
+                        Notification.DecoratedCustomViewStyle.class.getName())) {
+                    return new DecoratedCustomViewStyle();
                 }
             }
             return null;
@@ -2934,7 +2932,7 @@ public class NotificationCompat {
             boolean showLine2 = false;
 
             boolean minPriority = mBuilder.getPriority() < NotificationCompat.PRIORITY_LOW;
-            if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 21) {
+            if (Build.VERSION.SDK_INT < 21) {
                 // lets color the backgrounds
                 if (minPriority) {
                     contentView.setInt(R.id.notification_background,
@@ -2952,13 +2950,9 @@ public class NotificationCompat {
             if (mBuilder.mLargeIcon != null) {
                 // On versions before Jellybean, the large icon was shown by SystemUI, so we need
                 // to hide it here.
-                if (Build.VERSION.SDK_INT >= 16) {
-                    contentView.setViewVisibility(R.id.icon, View.VISIBLE);
-                    contentView.setImageViewBitmap(R.id.icon,
+                contentView.setViewVisibility(R.id.icon, View.VISIBLE);
+                contentView.setImageViewBitmap(R.id.icon,
                             createColoredBitmap(mBuilder.mLargeIcon, Color.TRANSPARENT));
-                } else {
-                    contentView.setViewVisibility(R.id.icon, View.GONE);
-                }
                 if (showSmallIcon && mBuilder.mNotification.icon != 0) {
                     int backgroundSize = res.getDimensionPixelSize(
                             R.dimen.notification_right_icon_size);
@@ -3028,8 +3022,8 @@ public class NotificationCompat {
                 contentView.setViewVisibility(R.id.info, View.GONE);
             }
 
-            // Need to show three lines? Only allow on Jellybean+
-            if (mBuilder.mSubText != null && Build.VERSION.SDK_INT >= 16) {
+            // Need to show three lines?
+            if (mBuilder.mSubText != null) {
                 contentView.setTextViewText(R.id.text, mBuilder.mSubText);
                 if (mBuilder.mContentText != null) {
                     contentView.setTextViewText(R.id.text2, mBuilder.mContentText);

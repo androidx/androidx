@@ -343,7 +343,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         } else if (mBuilderCompat.mContentView != null) {
             n.contentView = mBuilderCompat.mContentView;
         }
-        if (Build.VERSION.SDK_INT >= 16 && style != null) {
+        if (style != null) {
             RemoteViews styleBigContentView = style.makeBigContentView(this);
             if (styleBigContentView != null) {
                 n.bigContentView = styleBigContentView;
@@ -357,7 +357,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             }
         }
 
-        if (Build.VERSION.SDK_INT >= 16 && style != null) {
+        if (style != null) {
             Bundle extras = NotificationCompat.getExtras(n);
             if (extras != null) {
                 style.addCompatExtras(extras);
