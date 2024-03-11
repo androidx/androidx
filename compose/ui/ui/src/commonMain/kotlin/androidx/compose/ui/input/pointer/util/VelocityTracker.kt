@@ -645,7 +645,6 @@ private fun calculateImpulseVelocity(
     sampleCount: Int,
     isDataDifferential: Boolean
 ): Float {
-    println(sampleCount)
     var work = 0f
     val start = sampleCount - 1
     var nextTime = time[start]
