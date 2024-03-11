@@ -86,7 +86,8 @@ class SystemForegroundDispatcherTest {
             .build()
         val scheduler = mock(Scheduler::class.java)
         workDatabase = WorkDatabase.create(
-            context, taskExecutor.serialTaskExecutor, config.clock, true)
+            context, taskExecutor.serialTaskExecutor, config.clock, true
+        )
         processor = spy(Processor(context, config, taskExecutor, workDatabase))
         workManager = spy(
             WorkManagerImpl(
@@ -100,11 +101,13 @@ class SystemForegroundDispatcherTest {
         )
         workDatabase = workManager.workDatabase
         // Initialize WorkConstraintsTracker
-        tracker = WorkConstraintsTracker(Trackers(
-            context = context,
-            taskExecutor = taskExecutor,
-            batteryChargingTracker = fakeChargingTracker
-        ))
+        tracker = WorkConstraintsTracker(
+            Trackers(
+                context = context,
+                taskExecutor = taskExecutor,
+                batteryChargingTracker = fakeChargingTracker
+            )
+        )
         // Initialize dispatcher
         dispatcherCallback = mock(SystemForegroundDispatcher.Callback::class.java)
         dispatcher = spy(SystemForegroundDispatcher(context, workManager, tracker))
@@ -118,8 +121,10 @@ class SystemForegroundDispatcherTest {
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
-        val intent = createStartForegroundIntent(context,
-            WorkGenerationalId(request.stringId, 0), metadata)
+        val intent = createStartForegroundIntent(
+            context,
+            WorkGenerationalId(request.stringId, 0), metadata
+        )
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
             .startForeground(eq(notificationId), eq(0), any<Notification>())
@@ -136,8 +141,10 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context,
-            WorkGenerationalId(request.stringId, 0), metadata)
+        val intent = createStartForegroundIntent(
+            context,
+            WorkGenerationalId(request.stringId, 0), metadata
+        )
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
             .startForeground(eq(notificationId), eq(0), any<Notification>())
@@ -172,6 +179,8 @@ class SystemForegroundDispatcherTest {
         val metadata = ForegroundInfo(notificationId, notification)
         val intent = createNotifyIntent(context, workSpecId, metadata)
         dispatcher.mCurrentForegroundId = WorkGenerationalId("anotherWorkSpecId", 0)
+        dispatcher.mForegroundInfoById[dispatcher.mCurrentForegroundId] =
+            ForegroundInfo(10, mock(Notification::class.java))
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
             .notify(eq(notificationId), any<Notification>())
@@ -385,14 +394,18 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context,
-            WorkGenerationalId(request.stringId, 0), metadata)
+        val intent = createStartForegroundIntent(
+            context,
+            WorkGenerationalId(request.stringId, 0), metadata
+        )
         dispatcher.onStartCommand(intent)
         assertThat(fakeChargingTracker.isTracking, `is`(true))
         fakeChargingTracker.state = false
-        verify(workManager, times(1)).stopForegroundWork(eq(
-            WorkGenerationalId(request.workSpec.id, 0)
-        ))
+        verify(workManager, times(1)).stopForegroundWork(
+            eq(
+                WorkGenerationalId(request.workSpec.id, 0)
+            )
+        )
     }
 
     @Test
@@ -406,8 +419,10 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context,
-            WorkGenerationalId(request.workSpec.id, 0), metadata)
+        val intent = createStartForegroundIntent(
+            context,
+            WorkGenerationalId(request.workSpec.id, 0), metadata
+        )
         dispatcher.onStartCommand(intent)
         assertThat(fakeChargingTracker.isTracking, `is`(true))
         val stopIntent = createCancelWorkIntent(context, request.stringId)
@@ -426,8 +441,10 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context,
-            WorkGenerationalId(request.stringId, 0), metadata)
+        val intent = createStartForegroundIntent(
+            context,
+            WorkGenerationalId(request.stringId, 0), metadata
+        )
         dispatcher.onStartCommand(intent)
         processor.stopWork(StartStopToken(WorkGenerationalId(request.stringId, 0)), 0)
         val state = workDatabase.workSpecDao().getState(request.stringId)
@@ -452,8 +469,10 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context,
-            WorkGenerationalId(request.stringId, 0), metadata)
+        val intent = createStartForegroundIntent(
+            context,
+            WorkGenerationalId(request.stringId, 0), metadata
+        )
         dispatcher.onStartCommand(intent)
         assertThat(fakeChargingTracker.isTracking, `is`(true))
     }
