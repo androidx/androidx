@@ -18,23 +18,30 @@
 
 package androidx.navigation.serialization
 
+import androidx.navigation.CollectionNavType
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.navigation.serialization.UNKNOWN.isPrimitive
 import kotlin.reflect.KType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.capturedKClass
 
 /**
  * Generates a route pattern for use in Navigation functions such as [::navigate] from
  * a serializer of class T where T is a concrete class or object.
  *
- * The generated route pattern contains the path, path args, and query args. Non-nullable arg types
- * are appended as path args, while nullable arg types are appended as query args.
+ * The generated route pattern contains the path, path args, and query args. Arguments with
+ * default values or arguments of [CollectionNavType] are appended as query. Otherwise, they are
+ * appended as path arguments.
+ *
+ * @param [typeMap] A mapping of KType to the custom NavType<*>. For example given
+ * an argument of "val userId: UserId", the map should contain [typeOf<UserId>() to MyNavType].
  */
-internal fun <T> KSerializer<T>.generateRoutePattern(): String {
+internal fun <T> KSerializer<T>.generateRoutePattern(
+    typeMap: Map<KType, NavType<*>>? = null
+): String {
     assertNotAbstractClass {
         throw IllegalArgumentException(
             "Cannot generate route pattern from polymorphic class " +
@@ -52,19 +59,17 @@ internal fun <T> KSerializer<T>.generateRoutePattern(): String {
     // same logic for both route generation
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
-        val type = descriptor.getElementDescriptor(i).getNavType()
+        val type = descriptor.getElementDescriptor(i).computeNavType(typeMap)
         /**
-         * Path args if all conditions met:
-         * 1. is primitive - arrays need repeated arg names & custom classes need to be parsed to
-         * json string
-         * 2. not optional (has no default value) - from perspective of DeepLinking, args with
-         * default values are not a core arg
+         * Query args if either conditions met:
+         * 1. has default value
+         * 2. is of [CollectionNavType]
          */
-        if (type.isPrimitive() && !descriptor.isElementOptional(i)) {
-            pathArg += "/{$argName}"
-        } else {
+        if (type is CollectionNavType || descriptor.isElementOptional(i)) {
             val symbol = if (queryArg.isEmpty()) "?" else "&"
             queryArg += "$symbol$argName={$argName}"
+        } else {
+            pathArg += "/{$argName}"
         }
     }
 
@@ -109,10 +114,7 @@ internal fun <T> KSerializer<T>.generateNavArguments(
         navArgument(name) {
             val element = descriptor.getElementDescriptor(index)
             val isNullable = element.isNullable
-            val customType = typeMap?.keys
-                ?.find { kType -> element.matchKType(kType) }
-                ?.let { typeMap[it] }
-            type = customType ?: element.getNavType()
+            type = element.computeNavType(typeMap)
             if (type == UNKNOWN) {
                 throw IllegalArgumentException(
                     "Cannot cast $name of type ${element.serialName} to a NavType. Make sure " +
@@ -136,4 +138,13 @@ private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
     if (this is PolymorphicSerializer) {
         handler()
     }
+}
+
+private fun SerialDescriptor.computeNavType(
+    typeMap: Map<KType, NavType<*>>? = null
+): NavType<*> {
+    val customType = typeMap?.keys
+        ?.find { kType -> matchKType(kType) }
+        ?.let { typeMap[it] }
+    return customType ?: getNavType()
 }
