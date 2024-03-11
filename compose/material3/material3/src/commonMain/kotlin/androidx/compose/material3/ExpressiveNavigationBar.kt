@@ -119,19 +119,17 @@ internal fun ExpressiveNavigationBarItem(
  *
  * TODO: Remove internal.
  */
-@ExperimentalMaterial3Api
 internal object ExpressiveNavigationBarItemDefaults {
     /**
      * Creates a [NavigationItemColors] with the provided colors according to the Material
      * specification.
      */
     @Composable
-    fun colors() = MaterialTheme.colorScheme.expressiveNavigationBarItemColors
+    fun colors() = MaterialTheme.colorScheme.defaultExpressiveNavigationBarItemColors
 
-    // TODO: Add a cached expressiveNavigationBarItemColors.
-    internal val ColorScheme.expressiveNavigationBarItemColors: NavigationItemColors
+    internal val ColorScheme.defaultExpressiveNavigationBarItemColors: NavigationItemColors
         get() {
-            return NavigationItemColors(
+            return defaultExpressiveNavigationBarItemColorsCached ?: NavigationItemColors(
                 selectedIconColor = fromToken(ActiveIconColor),
                 selectedTextColor = fromToken(ActiveLabelTextColor),
                 selectedIndicatorColor = fromToken(ActiveIndicatorColor),
@@ -139,7 +137,9 @@ internal object ExpressiveNavigationBarItemDefaults {
                 unselectedTextColor = fromToken(InactiveLabelTextColor),
                 disabledIconColor = fromToken(InactiveIconColor).copy(alpha = DisabledAlpha),
                 disabledTextColor = fromToken(InactiveLabelTextColor).copy(alpha = DisabledAlpha),
-            )
+            ).also {
+                defaultExpressiveNavigationBarItemColorsCached = it
+            }
         }
 }
 
