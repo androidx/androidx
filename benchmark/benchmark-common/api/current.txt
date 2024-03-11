@@ -59,6 +59,7 @@ package androidx.benchmark {
 
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class TimeCapture extends androidx.benchmark.MetricCapture {
     ctor public TimeCapture();
+    ctor public TimeCapture(optional String name);
     method public void capturePaused();
     method public void captureResumed();
     method public void captureStart(long timeNs);
