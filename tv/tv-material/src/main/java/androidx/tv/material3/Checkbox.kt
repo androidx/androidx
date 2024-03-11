@@ -146,7 +146,8 @@ fun TriStateCheckbox(
                 onClick = onClick,
                 enabled = enabled,
                 role = Role.Checkbox,
-                interactionSource = interactionSource,
+                // TODO: remove the optional argument once we update to compose 1.7.x
+                interactionSource = interactionSource ?: remember { MutableInteractionSource() },
                 indication = null
             )
         } else {
