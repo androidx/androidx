@@ -21,13 +21,11 @@ package androidx.lifecycle {
   }
 
   public enum Lifecycle.Event {
-    method public static final androidx.lifecycle.Lifecycle.Event? downFrom(androidx.lifecycle.Lifecycle.State state);
-    method public static final androidx.lifecycle.Lifecycle.Event? downTo(androidx.lifecycle.Lifecycle.State state);
-    method public final androidx.lifecycle.Lifecycle.State getTargetState();
-    method public static final androidx.lifecycle.Lifecycle.Event? upFrom(androidx.lifecycle.Lifecycle.State state);
-    method public static final androidx.lifecycle.Lifecycle.Event? upTo(androidx.lifecycle.Lifecycle.State state);
-    method public static androidx.lifecycle.Lifecycle.Event valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.lifecycle.Lifecycle.Event[] values();
+    method public static androidx.lifecycle.Lifecycle.Event? downFrom(androidx.lifecycle.Lifecycle.State state);
+    method public static androidx.lifecycle.Lifecycle.Event? downTo(androidx.lifecycle.Lifecycle.State state);
+    method public androidx.lifecycle.Lifecycle.State getTargetState();
+    method public static androidx.lifecycle.Lifecycle.Event? upFrom(androidx.lifecycle.Lifecycle.State state);
+    method public static androidx.lifecycle.Lifecycle.Event? upTo(androidx.lifecycle.Lifecycle.State state);
     property public final androidx.lifecycle.Lifecycle.State targetState;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_ANY;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_CREATE;
@@ -47,9 +45,7 @@ package androidx.lifecycle {
   }
 
   public enum Lifecycle.State {
-    method public final boolean isAtLeast(androidx.lifecycle.Lifecycle.State state);
-    method public static androidx.lifecycle.Lifecycle.State valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.lifecycle.Lifecycle.State[] values();
+    method public boolean isAtLeast(androidx.lifecycle.Lifecycle.State state);
     enum_constant public static final androidx.lifecycle.Lifecycle.State CREATED;
     enum_constant public static final androidx.lifecycle.Lifecycle.State DESTROYED;
     enum_constant public static final androidx.lifecycle.Lifecycle.State INITIALIZED;
@@ -85,7 +81,7 @@ package androidx.lifecycle {
   }
 
   @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
-    method @Deprecated public abstract androidx.lifecycle.Lifecycle.Event! value();
+    method @Deprecated public abstract androidx.lifecycle.Lifecycle.Event value();
   }
 
   public final class PausingDispatcherKt {

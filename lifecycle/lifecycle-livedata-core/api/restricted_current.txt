@@ -8,14 +8,18 @@ package androidx.lifecycle {
     method public boolean hasActiveObservers();
     method public boolean hasObservers();
     method public boolean isInitialized();
-    method @MainThread public void observe(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Observer<? super T>);
-    method @MainThread public void observeForever(androidx.lifecycle.Observer<? super T>);
+    method @MainThread public void observe(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Observer<? super T!>);
+    method @MainThread public void observeForever(androidx.lifecycle.Observer<? super T!>);
     method protected void onActive();
     method protected void onInactive();
     method protected void postValue(T!);
-    method @MainThread public void removeObserver(androidx.lifecycle.Observer<? super T>);
+    method @MainThread public void removeObserver(androidx.lifecycle.Observer<? super T!>);
     method @MainThread public void removeObservers(androidx.lifecycle.LifecycleOwner);
     method @MainThread protected void setValue(T!);
+  }
+
+  public final class LiveDataKt {
+    method @Deprecated @MainThread public static inline <T> androidx.lifecycle.Observer<T> observe(androidx.lifecycle.LiveData<T>, androidx.lifecycle.LifecycleOwner owner, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onChanged);
   }
 
   public class MutableLiveData<T> extends androidx.lifecycle.LiveData<T> {

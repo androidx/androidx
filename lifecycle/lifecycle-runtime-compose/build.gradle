@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
-import androidx.build.RunApiTasks
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -27,7 +32,7 @@ plugins {
 
 dependencies {
     api projectOrArtifact(":lifecycle:lifecycle-runtime-ktx")
-    api("androidx.annotation:annotation-experimental:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.4.0")
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.ui:ui:1.0.1")
 
@@ -40,17 +45,15 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
-
-    samples(projectOrArtifact(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
 }
 
 androidx {
     name = "Lifecycle Runtime Compose"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle"
-    runApiTasks = new RunApiTasks.Yes()
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
 }
 
 android {

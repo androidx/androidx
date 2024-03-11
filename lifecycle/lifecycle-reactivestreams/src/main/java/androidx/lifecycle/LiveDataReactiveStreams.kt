@@ -39,6 +39,13 @@ import org.reactivestreams.Subscription
  * other items emitted during the time there was no backpressure requested will be dropped.
  */
 @SuppressLint("LambdaLast")
+@Deprecated(
+    message = "Use the extension method `liveData.toPublisher(lifecycleOwner)` instead.",
+    replaceWith = ReplaceWith(
+        expression = "liveData.toPublisher(lifecycleOwner)",
+        imports = arrayOf("androidx.lifecycle.toPublisher"),
+    )
+)
 fun <T> toPublisher(lifecycle: LifecycleOwner, liveData: LiveData<T>): Publisher<T> {
     return LiveDataPublisher(lifecycle, liveData)
 }

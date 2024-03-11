@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -27,14 +33,6 @@ plugins {
 dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(libs.kotlinStdlib)
-    testImplementation(project(":lifecycle:lifecycle-runtime"))
-    testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-
-    lintPublish(project(":lifecycle:lifecycle-livedata-core-ktx-lint"))
 }
 
 androidx {

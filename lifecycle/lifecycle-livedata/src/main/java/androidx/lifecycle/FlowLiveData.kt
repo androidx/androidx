@@ -18,22 +18,19 @@
 
 package androidx.lifecycle
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.arch.core.executor.ArchTaskExecutor
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -84,7 +81,6 @@ public fun <T> Flow<T>.asLiveData(
 }.also { liveData ->
     val flow = this
     if (flow is StateFlow<T>) {
-        @SuppressLint("RestrictedApi")
         if (ArchTaskExecutor.getInstance().isMainThread) {
             liveData.value = flow.value
         } else {
@@ -104,7 +100,6 @@ public fun <T> Flow<T>.asLiveData(
  * BackPressure: the returned flow is conflated. There is no mechanism to suspend an emission by
  * LiveData due to a slow collector, so collector always gets the most recent value emitted.
  */
-@OptIn(DelicateCoroutinesApi::class)
 public fun <T> LiveData<T>.asFlow(): Flow<T> = callbackFlow {
     val observer = Observer<T> {
         trySend(it)
@@ -113,8 +108,10 @@ public fun <T> LiveData<T>.asFlow(): Flow<T> = callbackFlow {
         observeForever(observer)
     }
 
-    awaitClose {
-        GlobalScope.launch(Dispatchers.Main.immediate) {
+    try {
+        awaitCancellation()
+    } finally {
+        withContext(Dispatchers.Main.immediate + NonCancellable) {
             removeObserver(observer)
         }
     }

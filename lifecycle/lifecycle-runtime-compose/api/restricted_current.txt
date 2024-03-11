@@ -1,6 +1,11 @@
 // Signature format: 4.0
 package androidx.lifecycle.compose {
 
+  public final class DropUnlessLifecycleKt {
+    method @CheckResult @androidx.compose.runtime.Composable public static kotlin.jvm.functions.Function0<kotlin.Unit> dropUnlessResumed(optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @CheckResult @androidx.compose.runtime.Composable public static kotlin.jvm.functions.Function0<kotlin.Unit> dropUnlessStarted(optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
   public final class FlowExtKt {
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> collectAsStateWithLifecycle(kotlinx.coroutines.flow.Flow<? extends T>, T initialValue, androidx.lifecycle.Lifecycle lifecycle, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context);
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> collectAsStateWithLifecycle(kotlinx.coroutines.flow.Flow<? extends T>, T initialValue, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context);
@@ -10,14 +15,16 @@ package androidx.lifecycle.compose {
 
   public final class LifecycleEffectKt {
     method @androidx.compose.runtime.Composable public static void LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event event, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function0<kotlin.Unit> onEvent);
+    method @Deprecated @androidx.compose.runtime.Composable public static void LifecycleResumeEffect(optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleResumePauseEffectScope,? extends androidx.lifecycle.compose.LifecyclePauseOrDisposeEffectResult> effects);
     method @androidx.compose.runtime.Composable public static void LifecycleResumeEffect(Object? key1, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleResumePauseEffectScope,? extends androidx.lifecycle.compose.LifecyclePauseOrDisposeEffectResult> effects);
     method @androidx.compose.runtime.Composable public static void LifecycleResumeEffect(Object? key1, Object? key2, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleResumePauseEffectScope,? extends androidx.lifecycle.compose.LifecyclePauseOrDisposeEffectResult> effects);
     method @androidx.compose.runtime.Composable public static void LifecycleResumeEffect(Object? key1, Object? key2, Object? key3, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleResumePauseEffectScope,? extends androidx.lifecycle.compose.LifecyclePauseOrDisposeEffectResult> effects);
-    method @androidx.compose.runtime.Composable public static void LifecycleResumeEffect(Object![]? keys, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleResumePauseEffectScope,? extends androidx.lifecycle.compose.LifecyclePauseOrDisposeEffectResult> effects);
+    method @androidx.compose.runtime.Composable public static void LifecycleResumeEffect(Object?[] keys, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleResumePauseEffectScope,? extends androidx.lifecycle.compose.LifecyclePauseOrDisposeEffectResult> effects);
+    method @Deprecated @androidx.compose.runtime.Composable public static void LifecycleStartEffect(optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopOrDisposeEffectResult> effects);
     method @androidx.compose.runtime.Composable public static void LifecycleStartEffect(Object? key1, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopOrDisposeEffectResult> effects);
     method @androidx.compose.runtime.Composable public static void LifecycleStartEffect(Object? key1, Object? key2, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopOrDisposeEffectResult> effects);
     method @androidx.compose.runtime.Composable public static void LifecycleStartEffect(Object? key1, Object? key2, Object? key3, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopOrDisposeEffectResult> effects);
-    method @androidx.compose.runtime.Composable public static void LifecycleStartEffect(Object![]? keys, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopOrDisposeEffectResult> effects);
+    method @androidx.compose.runtime.Composable public static void LifecycleStartEffect(Object?[] keys, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopOrDisposeEffectResult> effects);
   }
 
   public final class LifecycleExtKt {

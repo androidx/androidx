@@ -14,14 +14,134 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+}
+
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
+
+androidXMultiplatform {
+    android()
+    desktop()
+    mac()
+    linux()
+    ios()
+
+    kotlin {
+        explicitApi = ExplicitApiMode.Strict
+    }
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(project(":annotation:annotation"))
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+            }
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api(libs.kotlinCoroutinesAndroid)
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.mockitoCore4)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation("androidx.core:core-ktx:1.2.0")
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+            }
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+        }
+
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+
+            nativeTest {
+                dependsOn(commonTest)
+            }
+        }
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
+        }
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
+        }
+    }
 }
 
 android {
@@ -29,22 +149,6 @@ android {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.lifecycle.viewmodel"
-}
-
-dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    api(libs.kotlinStdlib)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.truth)
-
-    androidTestImplementation("androidx.core:core-ktx:1.2.0")
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
 }
 
 androidx {
