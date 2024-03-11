@@ -63,6 +63,13 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name=".ComposeTestActivity"
+            android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".DragTestActivity"
             android:exported="true">
             <intent-filter>
