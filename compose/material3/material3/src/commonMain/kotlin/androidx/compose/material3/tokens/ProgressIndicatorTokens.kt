@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// Version: v2_3_5
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 import androidx.compose.ui.unit.dp
 
-internal object CircularProgressIndicatorTokens {
+internal object ProgressIndicatorTokens {
     val ActiveIndicatorColor = ColorSchemeKeyTokens.Primary
-    val ActiveShape = ShapeKeyTokens.CornerNone
-    val ActiveIndicatorWidth = 4.0.dp
-    val FourColorActiveIndicatorFourColor = ColorSchemeKeyTokens.TertiaryContainer
-    val FourColorActiveIndicatorOneColor = ColorSchemeKeyTokens.Primary
-    val FourColorActiveIndicatorThreeColor = ColorSchemeKeyTokens.Tertiary
-    val FourColorActiveIndicatorTwoColor = ColorSchemeKeyTokens.PrimaryContainer
+    val ActiveShape = ShapeKeyTokens.CornerFull
+    val ActiveThickness = 4.0.dp
+    val ActiveTrackSpace = 4.0.dp
+    val StopColor = ColorSchemeKeyTokens.Primary
+    val StopShape = 4.0.dp
+    val StopSize = 4.0.dp
+    val TrackColor = ColorSchemeKeyTokens.SecondaryContainer
+    val TrackShape = ShapeKeyTokens.CornerFull
+    val TrackThickness = 4.0.dp
     val Size = 48.0.dp
 }

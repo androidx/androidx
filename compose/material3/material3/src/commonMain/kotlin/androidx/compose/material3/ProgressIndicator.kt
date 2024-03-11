@@ -31,8 +31,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
-import androidx.compose.material3.tokens.CircularProgressIndicatorTokens
-import androidx.compose.material3.tokens.LinearProgressIndicatorTokens
+import androidx.compose.material3.tokens.ProgressIndicatorTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -856,16 +855,16 @@ object ProgressIndicatorDefaults {
     /** Default color for a linear progress indicator. */
     val linearColor: Color
         @Composable get() =
-            LinearProgressIndicatorTokens.ActiveIndicatorColor.value
+            ProgressIndicatorTokens.ActiveIndicatorColor.value
 
     /** Default color for a circular progress indicator. */
     val circularColor: Color
         @Composable get() =
-            CircularProgressIndicatorTokens.ActiveIndicatorColor.value
+            ProgressIndicatorTokens.ActiveIndicatorColor.value
 
     /** Default track color for a linear progress indicator. */
     val linearTrackColor: Color
-        @Composable get() = LinearProgressIndicatorTokens.TrackColor.value
+        @Composable get() = ProgressIndicatorTokens.TrackColor.value
 
     /** Default track color for a circular progress indicator. */
     @Deprecated(
@@ -878,14 +877,14 @@ object ProgressIndicatorDefaults {
 
     /** Default track color for a circular determinate progress indicator. */
     val circularDeterminateTrackColor: Color
-        @Composable get() = LinearProgressIndicatorTokens.TrackColor.value
+        @Composable get() = ProgressIndicatorTokens.TrackColor.value
 
     /** Default track color for a circular indeterminate progress indicator. */
     val circularIndeterminateTrackColor: Color
         @Composable get() = Color.Transparent
 
     /** Default stroke width for a circular progress indicator. */
-    val CircularStrokeWidth: Dp = CircularProgressIndicatorTokens.ActiveIndicatorWidth
+    val CircularStrokeWidth: Dp = ProgressIndicatorTokens.TrackThickness
 
     /** Default stroke cap for a linear progress indicator. */
     val LinearStrokeCap: StrokeCap = StrokeCap.Round
@@ -900,19 +899,19 @@ object ProgressIndicatorDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val LinearTrackStopIndicatorSize: Dp = 4.dp
+    val LinearTrackStopIndicatorSize: Dp = ProgressIndicatorTokens.StopSize
 
     /** Default indicator track gap size for a linear progress indicator. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val LinearIndicatorTrackGapSize: Dp = 4.dp
+    val LinearIndicatorTrackGapSize: Dp = ProgressIndicatorTokens.ActiveTrackSpace
 
     /** Default indicator track gap size for a circular progress indicator. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val CircularIndicatorTrackGapSize: Dp = 4.dp
+    val CircularIndicatorTrackGapSize: Dp = ProgressIndicatorTokens.ActiveTrackSpace
 
     /**
      * The default [AnimationSpec] that should be used when animating between progress in a
@@ -934,13 +933,13 @@ object ProgressIndicatorDefaults {
 internal val LinearIndicatorWidth = 240.dp
 
 /*@VisibleForTesting*/
-internal val LinearIndicatorHeight = LinearProgressIndicatorTokens.TrackHeight
+internal val LinearIndicatorHeight = ProgressIndicatorTokens.TrackThickness
 
 // CircularProgressIndicator Material specs
 // Diameter of the indicator circle
 /*@VisibleForTesting*/
 internal val CircularIndicatorDiameter =
-    CircularProgressIndicatorTokens.Size - CircularProgressIndicatorTokens.ActiveIndicatorWidth * 2
+    ProgressIndicatorTokens.Size - ProgressIndicatorTokens.TrackThickness * 2
 
 // Indeterminate linear indicator transition specs
 
