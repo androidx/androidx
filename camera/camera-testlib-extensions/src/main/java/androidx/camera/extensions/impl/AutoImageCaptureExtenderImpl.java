@@ -216,19 +216,47 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
                         "Unable to process since images does not contain all stages.");
                 return;
             } else {
-                Image image = mImageWriter.dequeueInputImage();
+                Image outputImage = mImageWriter.dequeueInputImage();
+                Image image = result.first;
 
-                // Do processing here
-                ByteBuffer yByteBuffer = image.getPlanes()[0].getBuffer();
-                ByteBuffer uByteBuffer = image.getPlanes()[2].getBuffer();
-                ByteBuffer vByteBuffer = image.getPlanes()[1].getBuffer();
+                // copy y plane
+                Image.Plane inYPlane = image.getPlanes()[0];
+                Image.Plane outYPlane = outputImage.getPlanes()[0];
+                ByteBuffer inYBuffer = inYPlane.getBuffer();
+                ByteBuffer outYBuffer = outYPlane.getBuffer();
+                int inYPixelStride = inYPlane.getPixelStride();
+                int inYRowStride = inYPlane.getRowStride();
+                int outYPixelStride = outYPlane.getPixelStride();
+                int outYRowStride = outYPlane.getRowStride();
+                for (int x = 0; x < outputImage.getHeight(); x++) {
+                    for (int y = 0; y < outputImage.getWidth(); y++) {
+                        int inIndex = x * inYRowStride + y * inYPixelStride;
+                        int outIndex = x * outYRowStride + y * outYPixelStride;
+                        outYBuffer.put(outIndex, inYBuffer.get(inIndex));
+                    }
+                }
 
-                // Sample here just simply copy/paste the capture image result
-                yByteBuffer.put(result.first.getPlanes()[0].getBuffer());
-                uByteBuffer.put(result.first.getPlanes()[2].getBuffer());
-                vByteBuffer.put(result.first.getPlanes()[1].getBuffer());
-
-                mImageWriter.queueInputImage(image);
+                // Copy UV
+                for (int i = 1; i < 3; i++) {
+                    Image.Plane inPlane = image.getPlanes()[i];
+                    Image.Plane outPlane = outputImage.getPlanes()[i];
+                    ByteBuffer inBuffer = inPlane.getBuffer();
+                    ByteBuffer outBuffer = outPlane.getBuffer();
+                    int inPixelStride = inPlane.getPixelStride();
+                    int inRowStride = inPlane.getRowStride();
+                    int outPixelStride = outPlane.getPixelStride();
+                    int outRowStride = outPlane.getRowStride();
+                    // UV are half width compared to Y
+                    for (int x = 0; x < outputImage.getHeight() / 2; x++) {
+                        for (int y = 0; y < outputImage.getWidth() / 2; y++) {
+                            int inIndex = x * inRowStride + y * inPixelStride;
+                            int outIndex = x * outRowStride + y * outPixelStride;
+                            byte b = inBuffer.get(inIndex);
+                            outBuffer.put(outIndex, b);
+                        }
+                    }
+                }
+                mImageWriter.queueInputImage(outputImage);
             }
 
             Log.d(TAG, "Completed auto CaptureProcessor");
