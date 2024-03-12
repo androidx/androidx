@@ -1250,26 +1250,29 @@ internal class CompositionImpl(
     }
 
     override fun deactivate() {
-        val nonEmptySlotTable = slotTable.groupsSize > 0
-        if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
-            trace("Compose:deactivate") {
-                val manager = RememberEventDispatcher(abandonSet)
-                if (nonEmptySlotTable) {
-                    applier.onBeginChanges()
-                    slotTable.write { writer ->
-                        writer.deactivateCurrentGroup(manager)
+        synchronized(lock) {
+            val nonEmptySlotTable = slotTable.groupsSize > 0
+            if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
+                trace("Compose:deactivate") {
+                    val manager = RememberEventDispatcher(abandonSet)
+                    if (nonEmptySlotTable) {
+                        applier.onBeginChanges()
+                        slotTable.write { writer ->
+                            writer.deactivateCurrentGroup(manager)
+                        }
+                        applier.onEndChanges()
+                        manager.dispatchRememberObservers()
                     }
-                    applier.onEndChanges()
-                    manager.dispatchRememberObservers()
+                    manager.dispatchAbandons()
                 }
-                manager.dispatchAbandons()
             }
+            observations.clear()
+            derivedStates.clear()
+            invalidations.clear()
+            changes.clear()
+            lateChanges.clear()
+            composer.deactivate()
         }
-        observations.clear()
-        derivedStates.clear()
-        invalidations.clear()
-        changes.clear()
-        composer.deactivate()
     }
 
     // This is only used in tests to ensure the stacks do not silently leak.
