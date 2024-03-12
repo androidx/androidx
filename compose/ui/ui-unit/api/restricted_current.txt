@@ -31,10 +31,12 @@ package androidx.compose.ui.unit {
   }
 
   public static final class Constraints.Companion {
+    method @androidx.compose.runtime.Stable public long fitPrioritizingHeight(int minWidth, int maxWidth, int minHeight, int maxHeight);
+    method @androidx.compose.runtime.Stable public long fitPrioritizingWidth(int minWidth, int maxWidth, int minHeight, int maxHeight);
     method @androidx.compose.runtime.Stable public long fixed(int width, int height);
     method @androidx.compose.runtime.Stable public long fixedHeight(int height);
     method @androidx.compose.runtime.Stable public long fixedWidth(int width);
-    method @androidx.compose.runtime.Stable public long restrictedConstraints(int minWidth, int maxWidth, int minHeight, int maxHeight, optional boolean prioritizeWidth);
+    method @Deprecated @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.compose.ui.ExperimentalComposeUiApi public long restrictConstraints(int minWidth, int maxWidth, int minHeight, int maxHeight, optional boolean prioritizeWidth);
   }
 
   public final class ConstraintsKt {
