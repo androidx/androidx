@@ -27,8 +27,8 @@ import androidx.build.checkapi.getRequiredCompatibilityApiLocation
 import androidx.build.java.JavaCompileInputs
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
-import com.android.build.gradle.tasks.ProcessLibraryManifest
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -39,7 +39,7 @@ object MetalavaTasks {
         project: Project,
         javaCompileInputs: JavaCompileInputs,
         extension: AndroidXExtension,
-        processManifest: ProcessLibraryManifest? = null,
+        androidManifest: Provider<RegularFile>?,
         baselinesApiLocation: ApiBaselinesLocation,
         builtApiLocation: ApiLocation,
         outputApiLocations: List<ApiLocation>
@@ -71,7 +71,7 @@ object MetalavaTasks {
                 task.projectApiDirectory = project.layout.projectDirectory.dir("api")
                 task.currentVersion.set(version)
 
-                processManifest?.let { task.manifestPath.set(processManifest.manifestOutputFile) }
+                androidManifest?.let { task.manifestPath.set(it) }
                 applyInputs(javaCompileInputs, task)
                 // If we will be updating the api lint baselines, then we should do that before
                 // using it to validate the generated api
@@ -127,7 +127,7 @@ object MetalavaTasks {
                 task.targetsJavaConsumers.set(targetsJavaConsumers)
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
-                processManifest?.let { task.manifestPath.set(processManifest.manifestOutputFile) }
+                androidManifest?.let { task.manifestPath.set(it) }
                 applyInputs(javaCompileInputs, task)
             }
 

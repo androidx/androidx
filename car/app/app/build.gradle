@@ -482,5 +482,7 @@ afterEvaluate {
     }
     EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApi)
     EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApiCompat)
-    checkApi.dependsOn(checkProtocolApi)
+    afterEvaluate {
+        checkApi.dependsOn(checkProtocolApi)
+    }
 }
