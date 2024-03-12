@@ -21,7 +21,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.util.LogUtil;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -54,6 +56,7 @@ public final class AppSearchResult<ValueType> {
             RESULT_SECURITY_ERROR,
             RESULT_DENIED,
             RESULT_RATE_LIMITED,
+            RESULT_TIMED_OUT
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -113,6 +116,10 @@ public final class AppSearchResult<ValueType> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     // TODO(b/279047435): unhide this the next time we can make API changes
     public static final int RESULT_RATE_LIMITED = 10;
+
+    /** The operation was timed out. */
+    @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+    public static final int RESULT_TIMED_OUT = 11;
 
     private final @ResultCode int mResultCode;
     @Nullable private final ValueType mResultValue;

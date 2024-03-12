@@ -94,6 +94,12 @@ public final class Flags {
     public static final String FLAG_ENABLE_ENTERPRISE_GLOBAL_SEARCH_SESSION =
             FLAG_PREFIX + "enable_enterprise_global_search_session";
 
+    /**
+     * Enables {@link android.app.appsearch.functions.AppFunctionManager} and app functions related
+     * stuff.
+     */
+    public static final String FLAG_ENABLE_APP_FUNCTIONS = FLAG_PREFIX + "enable_app_functions";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
