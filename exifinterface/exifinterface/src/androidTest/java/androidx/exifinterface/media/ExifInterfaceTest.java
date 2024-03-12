@@ -41,6 +41,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.primitives.Ints;
@@ -1310,9 +1311,15 @@ public class ExifInterfaceTest {
                 ByteStreams.skipFully(in, makeRange[0]);
                 byte[] makeBytes = new byte[Ints.checkedCast(makeRange[1])];
                 ByteStreams.readFully(in, makeBytes);
-                String makeString = new String(makeBytes);
-                // Remove null bytes
-                makeString = makeString.replaceAll("\u0000.*", "");
+                int nullIndex = -1;
+                for (int i = 0; i < makeBytes.length; i++) {
+                    if (makeBytes[i] == 0) {
+                        nullIndex = i;
+                        break;
+                    }
+                }
+                assertThat(nullIndex).isAtLeast(0);
+                String makeString = new String(makeBytes, 0, nullIndex, Charsets.US_ASCII);
                 expect.that(makeString).isEqualTo(expectedAttributes.make);
             }
         } else {
