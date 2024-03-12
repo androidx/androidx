@@ -45,8 +45,7 @@ abstract class LinkAnnotation private constructor() {
 
     /**
      * An annotation that contains a clickable marked with [tag]. When clicking on the text to
-     * which this annotation is attached, the app will trigger a
-     * [androidx.compose.foundation.TextLinkClickHandler.onClick] callback.
+     * which this annotation is attached, the app will trigger a corresponding click handler.
      */
     class Clickable(val tag: String) : LinkAnnotation() {
         override fun equals(other: Any?): Boolean {
