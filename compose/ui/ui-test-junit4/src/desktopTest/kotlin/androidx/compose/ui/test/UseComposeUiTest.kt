@@ -39,17 +39,18 @@ class UseComposeUiTest {
                 drawRect(Color.Blue, size = Size(10f, 10f))
             }
         }
-        val img: Image = Image.makeFromBitmap(captureToImage().asSkiaBitmap())
-        val actualPng = Files.createTempFile("test-draw-square", ".png")
-        val actualImage =
-            img.encodeToData(EncodedImageFormat.PNG) ?: error("Could not encode image as png")
-        actualPng.writeBytes(actualImage.bytes)
+        Image.makeFromBitmap(captureToImage().asSkiaBitmap()).use { img: Image ->
+            val actualPng = Files.createTempFile("test-draw-square", ".png")
+            val actualImage = img.encodeToData(EncodedImageFormat.PNG)
+                ?: error("Could not encode image as png")
+            actualPng.writeBytes(actualImage.bytes)
 
-        val expectedPng =
-            ClassLoader.getSystemResource("androidx/compose/ui/test/draw-square.png")
+            val expectedPng =
+                ClassLoader.getSystemResource("androidx/compose/ui/test/draw-square.png")
 
-        assert(actualPng.readBytes().contentEquals(expectedPng.readBytes())) {
-            "The actual image '$actualPng' does not match the expected image '$expectedPng'"
+            assert(actualPng.readBytes().contentEquals(expectedPng.readBytes())) {
+                "The actual image '$actualPng' does not match the expected image '$expectedPng'"
+            }
         }
     }
 }
