@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
+import androidx.camera.camera2.pipe.integration.compat.workaround.UseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
@@ -51,6 +52,8 @@ class FlashControl @Inject constructor(
     private val cameraProperties: CameraProperties,
     private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
+    private val torchControl: TorchControl,
+    private val useFlashModeTorchFor3aUpdate: UseFlashModeTorchFor3aUpdate,
 ) : UseCaseCameraControl {
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera: UseCaseCamera?
@@ -149,33 +152,17 @@ class FlashControl @Inject constructor(
         val pendingTasks = mutableListOf<Deferred<Unit>>()
 
         // Invoke ScreenFlash#apply and wait later for its listener to be completed
-        applyScreenFlash(
-            TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS)
-        ).let {
-            pendingTasks.add(it)
-        }
+        pendingTasks.add(
+            applyScreenFlash(
+                TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS)
+            )
+        )
 
-        // Enable external flash AE mode if possible
-        val isExternalFlashAeModeSupported =
-            cameraProperties.metadata.isExternalFlashAeModeSupported()
-        debug {
-            "startScreenFlashCaptureTasks: isExternalFlashAeModeSupported = " +
-                "$isExternalFlashAeModeSupported"
-        }
-        if (isExternalFlashAeModeSupported) {
-            state3AControl.tryExternalFlashAeMode = true
-            state3AControl.updateSignal?.let {
-                debug {
-                    "startScreenFlashCaptureTasks: need to wait for state3AControl.updateSignal"
-                }
-                pendingTasks.add(it)
-                it.invokeOnCompletion {
-                    debug { "startScreenFlashCaptureTasks: state3AControl.updateSignal completed" }
-                }
-            }
-        }
+        // Try to set external flash AE mode if possible
+        setExternalFlashAeModeAsync()?.let { pendingTasks.add(it) }
 
-        // TODO: b/326170400 - Enable torch mode if TorchFlashRequiredFor3aUpdateQuirk added
+        // Set FLASH_MODE_TORCH for quirks
+        setTorchForScreenFlash()?.let { pendingTasks.add(it) }
 
         pendingTasks.awaitAll()
     }
@@ -217,6 +204,63 @@ class FlashControl @Inject constructor(
         }
     }
 
+    /**
+     * Tries to set external flash AE mode if possible.
+     *
+     * @return A [Deferred] that reports the completion of the operation, `null` if not supported.
+     */
+    private fun setExternalFlashAeModeAsync(): Deferred<Unit>? {
+        val isExternalFlashAeModeSupported =
+            cameraProperties.metadata.isExternalFlashAeModeSupported()
+        debug {
+            "setExternalFlashAeModeAsync: isExternalFlashAeModeSupported = " +
+                "$isExternalFlashAeModeSupported"
+        }
+
+        if (!isExternalFlashAeModeSupported) {
+            return null
+        }
+
+        state3AControl.tryExternalFlashAeMode = true
+        return state3AControl.updateSignal?.also {
+            debug {
+                "setExternalFlashAeModeAsync: need to wait for state3AControl.updateSignal"
+            }
+            it.invokeOnCompletion {
+                debug { "setExternalFlashAeModeAsync: state3AControl.updateSignal completed" }
+            }
+        }
+    }
+
+    /**
+     * Enables the torch mode for screen flash capture when required.
+     *
+     * Since this is required due to a device quirk despite lacking physical flash unit, the
+     * `ignoreFlashUnitAvailability` parameter is set to `true` while invoking
+     * [TorchControl.setTorchAsync].
+     *
+     * @return A [Deferred] that reports the completion of the operation, `null` if not required.
+     */
+    private fun setTorchForScreenFlash(): Deferred<Unit>? {
+        val shouldUseFlashModeTorch = useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()
+        debug {
+            "setTorchIfRequired: shouldUseFlashModeTorch = $shouldUseFlashModeTorch"
+        }
+
+        if (!shouldUseFlashModeTorch) {
+            return null
+        }
+
+        return torchControl.setTorchAsync(torch = true, ignoreFlashUnitAvailability = true).also {
+            debug {
+                "setTorchIfRequired: need to wait for torch control to be completed"
+            }
+            it.invokeOnCompletion {
+                debug { "setTorchIfRequired: torch control completed" }
+            }
+        }
+    }
+
     suspend fun stopScreenFlashCaptureTasks() {
         withContext(Dispatchers.Main) {
             screenFlash?.clear()
@@ -228,7 +272,9 @@ class FlashControl @Inject constructor(
             state3AControl.tryExternalFlashAeMode = false
         }
 
-        // TODO: b/326170400 - Disable torch mode if TorchFlashRequiredFor3aUpdateQuirk added
+        if (useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
+            torchControl.setTorchAsync(torch = false, ignoreFlashUnitAvailability = true)
+        }
     }
 
     @Module
