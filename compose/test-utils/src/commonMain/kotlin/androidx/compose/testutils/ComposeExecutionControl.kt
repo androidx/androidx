@@ -89,6 +89,17 @@ interface ComposeExecutionControl {
     fun hasPendingChanges(): Boolean
 
     /**
+     * Whether there are pending layout changes.
+     */
+    fun hasPendingMeasureOrLayout(): Boolean
+
+    /**
+     * Whether there are pending draw changes.
+     */
+
+    fun hasPendingDraw(): Boolean = false
+
+    /**
      * Performs recomposition if needed.
      *
      * Note this is also called as part of [doFrame]

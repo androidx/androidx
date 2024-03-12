@@ -146,10 +146,6 @@ private fun ComposeExecutionControl.assertNoPendingRecompositionMeasureOrLayout(
     }
 }
 
-private fun ComposeExecutionControl.hasPendingMeasureOrLayout(): Boolean {
-    return getViewRoot().hasPendingMeasureOrLayout
-}
-
 private fun ComposeExecutionControl.getViewRoot(): ViewRootForTest =
     getHostView() as ViewRootForTest
 

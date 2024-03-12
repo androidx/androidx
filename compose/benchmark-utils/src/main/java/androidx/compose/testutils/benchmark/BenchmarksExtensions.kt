@@ -17,7 +17,6 @@
 package androidx.compose.testutils.benchmark
 
 import android.view.View
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +32,6 @@ import androidx.compose.testutils.setupContent
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
-import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.abs
 
@@ -509,9 +507,4 @@ class SubcomposeLayoutReuseTestCase(
     fun initContent() {
         active = true
     }
-}
-
-@VisibleForTesting
-private fun ComposeExecutionControl.hasPendingMeasureOrLayout(): Boolean {
-    return (getHostView() as ViewRootForTest).hasPendingMeasureOrLayout
 }
