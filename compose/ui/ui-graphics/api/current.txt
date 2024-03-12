@@ -1500,6 +1500,7 @@ package androidx.compose.ui.graphics.layer {
 
   public final class GraphicsLayerKt {
     method public static void drawLayer(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.layer.GraphicsLayer graphicsLayer);
+    method public static void setOutline(androidx.compose.ui.graphics.layer.GraphicsLayer, androidx.compose.ui.graphics.Outline outline);
     field public static final float DefaultCameraDistance = 8.0f;
   }
 
