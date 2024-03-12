@@ -19,9 +19,11 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
 import android.util.Range
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
@@ -95,12 +97,14 @@ class State3AControl @Inject constructor(
         private set
     var flashMode by updateOnPropertyChange(DEFAULT_FLASH_MODE)
     var template by updateOnPropertyChange(DEFAULT_REQUEST_TEMPLATE)
+    var tryExternalFlashAeMode: Boolean by updateOnPropertyChange(false)
     var preferredAeMode: Int? by updateOnPropertyChange(null)
     var preferredFocusMode: Int? by updateOnPropertyChange(null)
     var preferredAeFpsRange: Range<Int>? by updateOnPropertyChange(aeFpsRange.getTargetAeFpsRange())
 
     override fun reset() {
         synchronized(lock) { updateSignals.toList() }.cancelAll()
+        tryExternalFlashAeMode = false
         preferredAeMode = null
         preferredAeFpsRange = null
         preferredFocusMode = null
@@ -118,10 +122,8 @@ class State3AControl @Inject constructor(
         }
     }
 
-    fun invalidate() {
-        // TODO(b/276779600): Refactor and move the setting of these parameter to
-        //  CameraGraph.Config(requiredParameters = mapOf(....)).
-        val preferAeMode = preferredAeMode ?: when (flashMode) {
+    private fun getFinalPreferredAeMode(): Int {
+        var preferAeMode = preferredAeMode ?: when (flashMode) {
             ImageCapture.FLASH_MODE_OFF -> CaptureRequest.CONTROL_AE_MODE_ON
             ImageCapture.FLASH_MODE_ON -> CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
             ImageCapture.FLASH_MODE_AUTO -> aeModeDisabler.getCorrectedAeMode(
@@ -130,6 +132,25 @@ class State3AControl @Inject constructor(
             else -> CaptureRequest.CONTROL_AE_MODE_ON
         }
 
+        // Overwrite AE mode to ON_EXTERNAL_FLASH only if required and explicitly supported
+        if (tryExternalFlashAeMode) {
+            val isSupported = isExternalFlashAeModeSupported()
+            debug { "State3AControl.invalidate: trying external flash AE mode" +
+                ", supported = $isSupported" }
+            if (isSupported) {
+                preferAeMode = CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH
+            }
+        }
+
+        debug { "State3AControl.getFinalPreferredAeMode: preferAeMode = $preferAeMode" }
+
+        return preferAeMode
+    }
+
+    fun invalidate() {
+        // TODO(b/276779600): Refactor and move the setting of these parameter to
+        //  CameraGraph.Config(requiredParameters = mapOf(....)).
+        val preferAeMode = getFinalPreferredAeMode()
         val preferAfMode = preferredFocusMode ?: getDefaultAfMode()
 
         val parameters: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
@@ -204,6 +225,12 @@ class State3AControl @Inject constructor(
             CaptureRequest.CONTROL_AE_MODE_OFF
         }
     }
+
+    private fun isAeModeSupported(aeMode: Int) = getSupportedAeMode(aeMode) == aeMode
+
+    fun isExternalFlashAeModeSupported() =
+        Build.VERSION.SDK_INT >= 28 &&
+            isAeModeSupported(CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
 
     /**
      * If preferredMode not available, priority is AWB_AUTO > AWB_OFF

@@ -29,6 +29,7 @@ import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_ULTRA_HDR;
 import static androidx.camera.core.ImageCapture.getImageCaptureCapabilities;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+import static androidx.camera.integration.core.CameraXViewModel.getConfiguredCameraXCameraImplementation;
 import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
 import static androidx.camera.testing.impl.FileUtil.createFolder;
 import static androidx.camera.testing.impl.FileUtil.createParentFolder;
@@ -2680,12 +2681,30 @@ public class CameraXActivity extends AppCompatActivity {
         return lensFacing == null ? CameraCharacteristics.LENS_FACING_BACK : lensFacing;
     }
 
+    private static boolean isLegacyDevice(@NonNull CameraInfo cameraInfo) {
+        if (CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION.equals(
+                getConfiguredCameraXCameraImplementation())) {
+            return isCameraPipeLegacyDevice(cameraInfo);
+        }
+        return isCamera2LegacyDevice(cameraInfo);
+    }
+
     @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    private static boolean isLegacyDevice(@NonNull CameraInfo cameraInfo) {
+    private static boolean isCamera2LegacyDevice(@NonNull CameraInfo cameraInfo) {
         return Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
         ) == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+    }
+
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(markerClass =
+            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class)
+    private static boolean isCameraPipeLegacyDevice(@NonNull CameraInfo cameraInfo) {
+        return androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(cameraInfo)
+                .getCameraCharacteristic(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
+                ) == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     @NonNull

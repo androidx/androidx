@@ -353,10 +353,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canCaptureImageWithFlashModeScreen_frontCamera() {
-        assumeTrue(
-            "TODO: b/325899701 -  Enable when camera-pipe has extensions support",
-            implName != CameraPipeConfig::class.simpleName
-        )
         // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
         // Otherwise, physical flash will be used. But capture should be successful either way.
         canTakeImages(
@@ -370,10 +366,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canCaptureImageWithFlashModeScreenAndUseTorch_frontCamera() {
-        assumeTrue(
-            "TODO: b/325899701 -  Enable when camera-pipe has extensions support",
-            implName != CameraPipeConfig::class.simpleName
-        )
         // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
         // Otherwise, physical flash will be used as torch. Either way, capture should be successful
         canTakeImages(
