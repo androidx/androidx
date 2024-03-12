@@ -75,7 +75,6 @@ import androidx.compose.ui.unit.Dp
  * still happen internally.
  * @param headlineContent the [Composable] headline content of the list item
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun ListItem(
     selected: Boolean,
@@ -167,7 +166,6 @@ fun ListItem(
  * still happen internally.
  * @param headlineContent the [Composable] headline content of the list item
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun DenseListItem(
     selected: Boolean,
@@ -255,7 +253,6 @@ fun DenseListItem(
  * or preview the list item in different states. Note that if `null` is provided, interactions will
  * still happen internally.
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun BaseListItem(
     selected: Boolean,
@@ -395,7 +392,6 @@ private fun BaseListItem(
  * @return The minimum container height for the given list item (to be used with
  * [Modifier.defaultMinSize]).
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 private fun listItemMinHeight(
     hasLeadingContent: Boolean,
     hasSupportingContent: Boolean,
@@ -425,7 +421,6 @@ private fun listItemMinHeight(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ListItemShape.toToggleableSurfaceShape() =
     ToggleableSurfaceShape(
         shape = shape,
@@ -440,7 +435,6 @@ internal fun ListItemShape.toToggleableSurfaceShape() =
         focusedSelectedDisabledShape = focusedDisabledShape
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ListItemColors.toToggleableSurfaceColors() =
     ToggleableSurfaceColors(
         containerColor = containerColor,
@@ -459,7 +453,6 @@ internal fun ListItemColors.toToggleableSurfaceColors() =
         pressedSelectedContentColor = pressedSelectedContentColor
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ListItemScale.toToggleableSurfaceScale() =
     ToggleableSurfaceScale(
         scale = scale,
@@ -474,7 +467,6 @@ internal fun ListItemScale.toToggleableSurfaceScale() =
         focusedSelectedDisabledScale = focusedDisabledScale
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ListItemBorder.toToggleableSurfaceBorder() =
     ToggleableSurfaceBorder(
         border = border,
@@ -489,7 +481,6 @@ internal fun ListItemBorder.toToggleableSurfaceBorder() =
         focusedSelectedDisabledBorder = focusedDisabledBorder
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ListItemGlow.toToggleableSurfaceGlow() =
     ToggleableSurfaceGlow(
         glow = glow,
