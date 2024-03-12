@@ -212,6 +212,103 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     }
 }
 
+// This task updates the translations of the localizable strings in this module.
+// It obtains them from Android's base repository.
+tasks.register("updateTranslations", UpdateTranslationsTask.class) {
+    group = "localization"
+    gitRepo = "https://github.com/androidx/androidx"
+    repoResDirectories = [
+            "compose/ui/ui/src/androidMain/res",
+            "compose/material3/material3/src/androidMain/res"
+    ]
+    targetDirectory = project.file("src/skikoMain/kotlin/androidx/compose/material3/l10n")
+    targetPackageName = "androidx.compose.material3.l10n"
+    kotlinStringsPackageName = "androidx.compose.material3"
+    stringByResourceName = [
+            // These come are from the ui module resources
+            "navigation_menu": "NavigationMenu",
+            "close_drawer": "CloseDrawer",
+            "close_sheet": "CloseSheet",
+            "default_error_message": "DefaultErrorMessage",
+            "dropdown_menu": "ExposedDropdownMenu",
+            "range_start": "SliderRangeStart",
+            "range_end": "SliderRangeEnd",
+
+            // These come from the material3 module resources
+            "m3c_dialog": "Dialog",
+            "m3c_dropdown_menu_expanded": "MenuExpanded",
+            "m3c_dropdown_menu_collapsed": "MenuCollapsed",
+            "m3c_snackbar_dismiss": "SnackbarDismiss",
+            "m3c_search_bar_search": "SearchBarSearch",
+            "m3c_suggestions_available": "SuggestionsAvailable",
+            "m3c_date_picker_title": "DatePickerTitle",
+            "m3c_date_picker_headline": "DatePickerHeadline",
+            "m3c_date_picker_year_picker_pane_title": "DatePickerYearPickerPaneTitle",
+            "m3c_date_picker_switch_to_year_selection": "DatePickerSwitchToYearSelection",
+            "m3c_date_picker_switch_to_day_selection": "DatePickerSwitchToDaySelection",
+            "m3c_date_picker_switch_to_next_month": "DatePickerSwitchToNextMonth",
+            "m3c_date_picker_switch_to_previous_month": "DatePickerSwitchToPreviousMonth",
+            "m3c_date_picker_navigate_to_year_description": "DatePickerNavigateToYearDescription",
+            "m3c_date_picker_headline_description": "DatePickerHeadlineDescription",
+            "m3c_date_picker_no_selection_description": "DatePickerNoSelectionDescription",
+            "m3c_date_picker_today_description": "DatePickerTodayDescription",
+            "m3c_date_picker_scroll_to_later_years": "DatePickerScrollToShowLaterYears",
+            "m3c_date_picker_scroll_to_earlier_years": "DatePickerScrollToShowEarlierYears",
+            "m3c_date_input_title": "DateInputTitle",
+            "m3c_date_input_headline": "DateInputHeadline",
+            "m3c_date_input_label": "DateInputLabel",
+            "m3c_date_input_headline_description": "DateInputHeadlineDescription",
+            "m3c_date_input_no_input_description": "DateInputNoInputDescription",
+            "m3c_date_input_invalid_not_allowed": "DateInputInvalidNotAllowed",
+            "m3c_date_input_invalid_for_pattern": "DateInputInvalidForPattern",
+            "m3c_date_input_invalid_year_range": "DateInputInvalidYearRange",
+            "m3c_date_picker_switch_to_calendar_mode": "DatePickerSwitchToCalendarMode",
+            "m3c_date_picker_switch_to_input_mode": "DatePickerSwitchToInputMode",
+            "m3c_date_range_picker_title": "DateRangePickerTitle",
+            "m3c_date_range_picker_start_headline": "DateRangePickerStartHeadline",
+            "m3c_date_range_picker_end_headline": "DateRangePickerEndHeadline",
+            "m3c_date_range_picker_scroll_to_next_month": "DateRangePickerScrollToShowNextMonth",
+            "m3c_date_range_picker_scroll_to_previous_month": "DateRangePickerScrollToShowPreviousMonth",
+            "m3c_date_range_picker_day_in_range": "DateRangePickerDayInRange",
+            "m3c_date_range_input_title": "DateRangeInputTitle",
+            "m3c_date_range_input_invalid_range_input": "DateRangeInputInvalidRangeInput",
+            "m3c_bottom_sheet_pane_title": "BottomSheetPaneTitle",
+            "m3c_bottom_sheet_drag_handle_description": "BottomSheetDragHandleDescription",
+            "m3c_bottom_sheet_collapse_description": "BottomSheetPartialExpandDescription",
+            "m3c_bottom_sheet_dismiss_description": "BottomSheetDismissDescription",
+            "m3c_bottom_sheet_expand_description": "BottomSheetExpandDescription",
+            "m3c_tooltip_long_press_label": "TooltipLongPressLabel",
+            "m3c_time_picker_am": "TimePickerAM",
+            "m3c_time_picker_pm": "TimePickerPM",
+            "m3c_time_picker_period_toggle_description": "TimePickerPeriodToggle",
+            "m3c_time_picker_minute_selection": "TimePickerMinuteSelection",
+            "m3c_time_picker_hour_selection": "TimePickerHourSelection",
+            "m3c_time_picker_hour_suffix": "TimePickerHourSuffix",
+            "m3c_time_picker_minute_suffix": "TimePickerMinuteSuffix",
+            "m3c_time_picker_hour_24h_suffix": "TimePicker24HourSuffix",
+            "m3c_time_picker_hour": "TimePickerHour",
+            "m3c_time_picker_minute": "TimePickerMinute",
+            "m3c_time_picker_hour_text_field": "TimePickerHourTextField",
+            "m3c_time_picker_minute_text_field": "TimePickerMinuteTextField",
+            "m3c_tooltip_pane_description": "TooltipPaneDescription",
+    ]
+    // This is all the locales translated by Compose on Android in the ui module:
+    // https://github.com/androidx/androidx/tree/androidx-main/compose/ui/ui/src/androidMain/res
+    // with the exception of
+    // - b+sr+Latn which doesn't appear to be supported by Java
+    // - en_XC which has weird invisible LRM characters, and the visible text is the same as for
+    //   en anyway.
+    locales = [
+            "en", "af", "am", "ar", "as", "az", "be", "bg", "bn", "bs", "ca", "cs", "da", "de",
+            "el", "en_AU", "en_CA", "en_GB", "en_IN", "es", "es_US", "et", "eu", "fa",
+            "fi", "fr", "fr_CA", "gl", "gu", "hi", "hr", "hu", "hy", "in", "is", "it", "iw",
+            "ja", "ka", "kk", "km", "kn", "ko", "ky", "lo", "lt", "lv", "mk", "ml", "mn", "mr",
+            "ms", "my", "nb", "ne", "nl", "or", "pa", "pl", "pt", "pt_BR", "pt_PT", "ro", "ru",
+            "si", "sk", "sl", "sq", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur",
+            "uz", "vi", "zh_CN", "zh_HK", "zh_TW", "zu"
+    ]
+}
+
 androidx {
     name = "Compose Material3 Components"
     type = LibraryType.PUBLISHED_LIBRARY

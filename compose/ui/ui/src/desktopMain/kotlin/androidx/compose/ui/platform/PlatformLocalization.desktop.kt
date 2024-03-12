@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
@@ -26,13 +27,20 @@ interface PlatformLocalization {
     val selectAll: String
 }
 
-internal val defaultPlatformLocalization = object : PlatformLocalization {
-    override val copy = "Copy"
-    override val cut = "Cut"
-    override val paste = "Paste"
-    override val selectAll = "Select All"
+@Composable
+internal fun defaultPlatformLocalization(): PlatformLocalization {
+    val copy = getString(Strings.Copy)
+    val cut = getString(Strings.Cut)
+    val paste = getString(Strings.Paste)
+    val selectAll = getString(Strings.SelectAll)
+    return object : PlatformLocalization {
+        override val copy = copy
+        override val cut = cut
+        override val paste = paste
+        override val selectAll = selectAll
+    }
 }
 
 val LocalLocalization: ProvidableCompositionLocal<PlatformLocalization> = staticCompositionLocalOf {
-    defaultPlatformLocalization
+    error("CompositionLocal PlatformLocalization not present")
 }

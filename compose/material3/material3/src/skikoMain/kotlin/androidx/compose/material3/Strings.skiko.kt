@@ -17,83 +17,16 @@
 package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.material3.l10n.TranslationProviderByLocaleTag
+import androidx.compose.material3.l10n.en
 import kotlin.jvm.JvmInline
 
-// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3360) Support localization
-@Composable
-@ReadOnlyComposable
-internal actual fun getString(string: Strings): String {
-    return when (string) {
-        Strings.NavigationMenu -> "Navigation menu"
-        Strings.CloseDrawer -> "Close navigation menu"
-        Strings.CloseSheet -> "Close sheet"
-        Strings.DefaultErrorMessage -> "Invalid input"
-        Strings.SliderRangeStart -> "Range Start"
-        Strings.SliderRangeEnd -> "Range End"
-        Strings.Dialog -> "Dialog"
-        Strings.MenuExpanded -> "Expanded"
-        Strings.MenuCollapsed -> "Collapsed"
-        Strings.SnackbarDismiss -> "Dismiss"
-        Strings.SearchBarSearch -> "Search"
-        Strings.SuggestionsAvailable -> "Suggestions below"
-        Strings.DatePickerTitle -> "Select date"
-        Strings.DatePickerHeadline -> "Selected date"
-        Strings.DatePickerYearPickerPaneTitle -> "Year picker visible"
-        Strings.DatePickerSwitchToYearSelection -> "Switch to selecting a year"
-        Strings.DatePickerSwitchToDaySelection -> "Swipe to select a year, or tap to switch " +
-            "back to selecting a day"
-        Strings.DatePickerSwitchToNextMonth -> "Change to next month"
-        Strings.DatePickerSwitchToPreviousMonth -> "Change to previous month"
-        Strings.DatePickerNavigateToYearDescription -> "Navigate to year %1$"
-        Strings.DatePickerHeadlineDescription -> "Current selection: %1$"
-        Strings.DatePickerNoSelectionDescription -> "None"
-        Strings.DatePickerTodayDescription -> "Today"
-        Strings.DatePickerScrollToShowLaterYears -> "Scroll to show later years"
-        Strings.DatePickerScrollToShowEarlierYears -> "Scroll to show earlier years"
-        Strings.DateInputTitle -> "Select date"
-        Strings.DateInputHeadline -> "Entered date"
-        Strings.DateInputLabel -> "Date"
-        Strings.DateInputHeadlineDescription -> "Entered date: %1$"
-        Strings.DateInputNoInputDescription -> "None"
-        Strings.DateInputInvalidNotAllowed -> "Date not allowed: %1$"
-        Strings.DateInputInvalidForPattern -> "Date does not match expected pattern: %1$"
-        Strings.DateInputInvalidYearRange -> "Date out of expected year range %1$ - %2$"
-        Strings.DatePickerSwitchToCalendarMode -> "Switch to calendar input mode"
-        Strings.DatePickerSwitchToInputMode -> "Switch to text input mode"
-        Strings.DateRangePickerTitle -> "Select dates"
-        Strings.DateRangePickerStartHeadline -> "Start date"
-        Strings.DateRangePickerEndHeadline -> "End date"
-        Strings.DateRangePickerScrollToShowNextMonth -> "Scroll to show the next month"
-        Strings.DateRangePickerScrollToShowPreviousMonth -> "Scroll to show the previous month"
-        Strings.DateRangePickerDayInRange -> "In range"
-        Strings.DateRangeInputTitle -> "Enter dates"
-        Strings.DateRangeInputInvalidRangeInput -> "Invalid date range input"
-        Strings.BottomSheetPaneTitle -> "Bottom Sheet"
-        Strings.BottomSheetDragHandleDescription -> "Drag Handle"
-        Strings.BottomSheetPartialExpandDescription -> "Collapse bottom sheet"
-        Strings.BottomSheetDismissDescription -> "Dismiss bottom sheet"
-        Strings.BottomSheetExpandDescription -> "Expand bottom sheet"
-        Strings.TooltipLongPressLabel -> "Show tooltip"
-        Strings.TimePickerAM -> "AM"
-        Strings.TimePickerPM -> "PM"
-        Strings.TimePickerPeriodToggle -> "Select AM or PM"
-        Strings.TimePickerMinuteSelection -> "Select minutes"
-        Strings.TimePickerHourSelection -> "Select hour"
-        Strings.TimePickerHourSuffix -> "%1$ o'clock" // ' should be escaped if moved to strings.xml
-        Strings.TimePickerMinuteSuffix -> "%1$ minutes"
-        Strings.TimePicker24HourSuffix -> "%1$ hours"
-        Strings.TimePickerMinute -> "Minute"
-        Strings.TimePickerHour -> "Hour"
-        Strings.TimePickerMinuteTextField -> "for minutes"
-        Strings.TimePickerHourTextField -> "for hour"
-        Strings.TooltipPaneDescription -> "Tooltip"
-        else -> ""
-    }
-}
-
+@Immutable
 @JvmInline
-internal actual value class Strings constructor(val value: Int) {
+internal actual value class Strings(val value: Int) {
     actual companion object {
         actual val NavigationMenu = Strings(0)
         actual val CloseDrawer = Strings(1)
@@ -168,7 +101,77 @@ internal actual value class Strings constructor(val value: Int) {
 internal actual fun String.format(vararg formatArgs: Any?): String {
     var result = this
     formatArgs.forEachIndexed { index, arg ->
-        result = result.replace("%${index+1}$", arg.toString())
+        result = result
+            .replace("%${index+1}\$d", arg.toString())
+            .replace("%${index+1}\$s", arg.toString())
     }
     return result
 }
+
+@Composable
+@ReadOnlyComposable
+internal actual fun getString(string: Strings): String {
+    val locale = Locale.current
+    val tag = localeTag(language = locale.language, region = locale.region)
+    val translation = translationByLocaleTag.getOrPut(tag) {
+        findTranslation(locale)
+    }
+    return translation[string] ?: error("Missing translation for $string")
+}
+
+/**
+ * A single translation; should contain all the [Strings].
+ */
+internal typealias Translation = Map<Strings, String>
+
+/**
+ * Translations we've already loaded, mapped by the locale tag (see [localeTag]).
+ */
+private val translationByLocaleTag = mutableMapOf<String, Translation>()
+
+/**
+ * Returns the tag for the given locale.
+ *
+ * Note that this is our internal format; this isn't the same as [Locale.toLanguageTag].
+ */
+private fun localeTag(language: String, region: String) = when {
+    language == "" -> ""
+    region == "" -> language
+    else -> "${language}_$region"
+}
+
+/**
+ * Returns a sequence of locale tags to use as keys to look up the translation for the given locale.
+ *
+ * Note that we don't need to check children (e.g. use `fr_FR` if `fr` is missing) because the
+ * translations should never have a missing parent.
+ */
+private fun localeTagChain(locale: Locale) = sequence {
+    if (locale.region != "") {
+        yield(localeTag(language = locale.language, region = locale.region))
+    }
+    if (locale.language != "") {
+        yield(localeTag(language = locale.language, region = ""))
+    }
+    yield(localeTag("", ""))
+}
+
+/**
+ * Finds a [Translation] for the given locale.
+ */
+private fun findTranslation(locale: Locale): Translation {
+    for (tag in localeTagChain(locale)) {
+        // We don't need to merge translations because each one should contain all the strings.
+        val translation = TranslationProviderByLocaleTag[tag]?.invoke()
+        if (translation != null) {
+            return translation
+        }
+    }
+    error("Root translation must be present")
+}
+
+/**
+ * This object is only needed to provide a namespace for the [Translation] provider functions
+ * (e.g. [Translations.en]), to avoid polluting the global namespace.
+ */
+internal object Translations

@@ -28,28 +28,46 @@ class StringFormatTest {
     }
 
     @Test
-    fun one_arg() {
-        val result = "str %1\$".format(1)
+    fun one_number_arg() {
+        val result = "str %1\$d".format(1)
         assertEquals("str 1", result)
     }
 
     @Test
-    fun two_args() {
-        val result = "str %1\$ %2\$".format(1, 2)
+    fun one_string_arg() {
+        val result = "str %1\$s".format("1")
+        assertEquals("str 1", result)
+    }
+
+    @Test
+    fun two_number_args() {
+        val result = "str %1\$d %2\$d".format(1, 2)
+        assertEquals("str 1 2", result)
+    }
+
+    @Test
+    fun two_string_args() {
+        val result = "str %1\$s %2\$s".format("1", "2")
+        assertEquals("str 1 2", result)
+    }
+
+    @Test
+    fun string_and_number_args() {
+        val result = "str %1\$s %2\$d".format("1", 2)
         assertEquals("str 1 2", result)
     }
 
     @Test
     fun too_many_args() {
-        val result = "str %1\$".format(1, 2)
+        val result = "str %1\$d".format(1, 2)
         assertEquals("str 1", result)
     }
 
     @Test
     fun not_enough_args() {
         // Behavior is not specified. We can consider different variants.
-        val result = "str %1\$".format()
-        assertEquals("str %1\$", result)
+        val result = "str %1\$d".format()
+        assertEquals("str %1\$d", result)
     }
 
 }

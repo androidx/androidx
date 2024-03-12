@@ -20,12 +20,10 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReusableComposition
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.RootNodeOwner
 
 /**
@@ -49,8 +47,11 @@ internal fun RootNodeOwner.setContent(
             ProvideCommonCompositionLocals(
                 owner = owner,
                 uriHandler = remember { PlatformUriHandler() },
-                content = content
-            )
+            ) {
+                ProvidePlatformCompositionLocals(
+                    content = content
+                )
+            }
         }
     }
     return composition

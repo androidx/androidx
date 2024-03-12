@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.material
+package androidx.compose.ui.platform.l10n
 
-import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.Strings
+import androidx.compose.ui.platform.Translations
 
-@Composable
-internal actual fun getString(string: Strings): String {
-    return when (string) {
-        Strings.NavigationMenu -> "Navigation menu"
-        Strings.CloseDrawer -> "Close navigation menu"
-        Strings.CloseSheet -> "Close sheet"
-        Strings.DefaultErrorMessage -> "Invalid input"
-        else -> ""
-    }
-}
+@Suppress("UnusedReceiverParameter", "DuplicatedCode")
+internal fun Translations.ro() = mapOf(
+    Strings.SelectAll to "Selectează-le pe toate",
+    Strings.Cut to "Decupează",
+    Strings.Copy to "Copiază",
+    Strings.Paste to "Inserează",
+)

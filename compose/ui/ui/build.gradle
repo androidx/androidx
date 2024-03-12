@@ -341,6 +341,38 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     }
 }
 
+// This task updates the translations of the localizable strings in this module.
+// It obtains them from Android's base repository.
+tasks.register("updateTranslations", UpdateTranslationsTask.class) {
+    group = "localization"
+    gitRepo = "https://android.googlesource.com/platform/frameworks/base"
+    repoResDirectories = ["core/res/res"]
+    targetDirectory = project.file("src/desktopMain/kotlin/androidx/compose/ui/platform/l10n")
+    targetPackageName = "androidx.compose.ui.platform.l10n"
+    kotlinStringsPackageName = "androidx.compose.ui.platform"
+    stringByResourceName = [
+            "copy": "Copy",
+            "paste": "Paste",
+            "cut": "Cut",
+            "selectAll": "SelectAll"
+    ]
+    // This is all the locales translated by Compose on Android in the ui module:
+    // https://github.com/androidx/androidx/tree/androidx-main/compose/ui/ui/src/androidMain/res
+    // with the exception of
+    // - b+sr+Latn which doesn't appear to be supported by Java
+    // - en_XC which has weird invisible LRM characters, and the visible text is the same as for
+    //   en anyway.
+    locales = [
+            "en", "af", "am", "ar", "as", "az", "be", "bg", "bn", "bs", "ca", "cs", "da", "de",
+            "el", "en_AU", "en_CA", "en_GB", "en_IN", "es", "es_US", "et", "eu", "fa",
+            "fi", "fr", "fr_CA", "gl", "gu", "hi", "hr", "hu", "hy", "in", "is", "it", "iw",
+            "ja", "ka", "kk", "km", "kn", "ko", "ky", "lo", "lt", "lv", "mk", "ml", "mn", "mr",
+            "ms", "my", "nb", "ne", "nl", "or", "pa", "pl", "pt", "pt_BR", "pt_PT", "ro", "ru",
+            "si", "sk", "sl", "sq", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur",
+            "uz", "vi", "zh_CN", "zh_HK", "zh_TW", "zu"
+    ]
+}
+
 androidx {
     name = "Compose UI primitives"
     type = LibraryType.PUBLISHED_LIBRARY
