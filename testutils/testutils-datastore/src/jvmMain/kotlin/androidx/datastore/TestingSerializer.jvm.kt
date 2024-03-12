@@ -51,6 +51,7 @@ class TestingSerializer(
     }
 
     override suspend fun writeTo(t: Byte, output: OutputStream) {
+        config.writeCount++
         if (config.failingWrite) {
             throw IOException("I was asked to fail on writes")
         }

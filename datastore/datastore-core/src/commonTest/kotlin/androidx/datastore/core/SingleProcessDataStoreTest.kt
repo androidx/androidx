@@ -1142,6 +1142,17 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         }
     }
 
+    @Test
+    fun testWriteSameValueSkipDisk() = runTest {
+        // write a non-default value to force a disk write
+        store.updateData { 10 }
+        assertThat(serializerConfig.writeCount).isEqualTo(1)
+
+        // write same value again
+        store.updateData { 10 }
+        assertThat(serializerConfig.writeCount).isEqualTo(1)
+    }
+
     private class TestingCorruptionHandler(
         private val replaceWith: Byte? = null
     ) : CorruptionHandler<Byte> {

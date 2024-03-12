@@ -341,7 +341,7 @@ internal class DataStoreImpl<T>(
         // Check that curData has not changed...
         curData.checkHashCode()
 
-        if (curData != newData) {
+        if (curData.value != newData) {
             writeData(newData, updateCache = true)
         }
         newData
