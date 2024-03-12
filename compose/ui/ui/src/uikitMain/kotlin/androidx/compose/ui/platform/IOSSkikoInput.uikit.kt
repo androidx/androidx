@@ -16,9 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import platform.UIKit.UITextDirection
-import platform.UIKit.UITextGranularity
-
 internal interface IOSSkikoInput {
 
     /**
@@ -107,52 +104,9 @@ internal interface IOSSkikoInput {
 
     /**
      * Returns the text position at a specified offset from another text position.
+     * Returned value must be in range between 0 and length of text (inclusive).
      */
     fun positionFromPosition(position: Long, offset: Long): Long
-
-    /**
-     * Return the range for the text enclosing a text position in a text unit of a given granularity in a given direction.
-     * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614464-rangeenclosingposition?language=objc
-     * @param position
-     * A text-position object that represents a location in a document.
-     * @param granularity
-     * A constant that indicates a certain granularity of text unit.
-     * @param direction
-     * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
-     * @return
-     * A text-range representing a text unit of the given granularity in the given direction, or nil if there is no such enclosing unit.
-     * Whether a boundary position is enclosed depends on the given direction, using the same rule as the isPosition:withinTextUnit:inDirection: method.
-     */
-    fun rangeEnclosingPosition(position: Int, withGranularity: UITextGranularity, inDirection: UITextDirection): IntRange?
-
-    /**
-     * Return whether a text position is at a boundary of a text unit of a specified granularity in a specified direction.
-     * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614553-isposition?language=objc
-     * @param position
-     * A text-position object that represents a location in a document.
-     * @param granularity
-     * A constant that indicates a certain granularity of text unit.
-     * @param direction
-     * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
-     * @return
-     * TRUE if the text position is at the given text-unit boundary in the given direction; FALSE if it is not at the boundary.
-     */
-    fun isPositionAtBoundary(position: Int, atBoundary: UITextGranularity, inDirection: UITextDirection): Boolean
-
-    /**
-     * Return whether a text position is within a text unit of a specified granularity in a specified direction.
-     * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614491-isposition?language=objc
-     * @param position
-     * A text-position object that represents a location in a document.
-     * @param granularity
-     * A constant that indicates a certain granularity of text unit.
-     * @param direction
-     * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
-     * @return
-     * TRUE if the text position is within a text unit of the specified granularity in the specified direction; otherwise, return FALSE.
-     * If the text position is at a boundary, return TRUE only if the boundary is part of the text unit in the given direction.
-     */
-    fun isPositionWithingTextUnit(position: Int, withinTextUnit: UITextGranularity, inDirection: UITextDirection): Boolean
 
     object Empty : IOSSkikoInput {
         override fun hasText(): Boolean = false
@@ -168,22 +122,5 @@ internal interface IOSSkikoInput {
         override fun markedTextRange(): IntRange? = null
         override fun unmarkText() = Unit
         override fun positionFromPosition(position: Long, offset: Long): Long = 0
-        override fun rangeEnclosingPosition(
-            position: Int,
-            withGranularity: UITextGranularity,
-            inDirection: UITextDirection
-        ): IntRange? = null
-
-        override fun isPositionAtBoundary(
-            position: Int,
-            atBoundary: UITextGranularity,
-            inDirection: UITextDirection
-        ): Boolean = false
-
-        override fun isPositionWithingTextUnit(
-            position: Int,
-            withinTextUnit: UITextGranularity,
-            inDirection: UITextDirection
-        ): Boolean = false
     }
 }
