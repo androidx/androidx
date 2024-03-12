@@ -36,6 +36,7 @@ import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoun
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.TestVertical.OVERLAP_BELONGS_TO_FIRST
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.TestVertical.OVERLAP_BELONGS_TO_SECOND
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.TestVertical.OVERLAP_EQUIDISTANT
+import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -87,22 +88,30 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
      */
     private val touchTargetDpLen = dpLen + 12.dp * 2
 
-    enum class TestHorizontal(val x: Float) {
-        LEFT(-6f),
-        CENTER(10f),
-        RIGHT(26f)
+    enum class TestHorizontal(
+        val x: Float,
+        /** The x-value we would coerce to in order to get the x coordinate onto a box. */
+        val coercedX: Float,
+    ) {
+        LEFT(x = -6f, coercedX = 1f),
+        CENTER(x = 10f, coercedX = 10f),
+        RIGHT(x = 26f, coercedX = 19f)
     }
 
-    enum class TestVertical(val y: Float) {
-        ABOVE(-6f),
-        ON_FIRST(10f),
-        NO_OVERLAP_BELONGS_TO_FIRST(25f),
-        OVERLAP_BELONGS_TO_FIRST(29f),
-        OVERLAP_EQUIDISTANT(30f),
-        OVERLAP_BELONGS_TO_SECOND(31f),
-        NO_OVERLAP_BELONGS_TO_SECOND(35f),
-        ON_SECOND(50f),
-        BELOW(66f),
+    enum class TestVertical(
+        val y: Float,
+        /** The y-value we would coerce to in order to get the y coordinate onto a box. */
+        val coercedY: Float,
+    ) {
+        ABOVE(y = -6f, coercedY = 1f),
+        ON_FIRST(y = 10f, coercedY = 10f),
+        NO_OVERLAP_BELONGS_TO_FIRST(y = 25f, coercedY = 19f),
+        OVERLAP_BELONGS_TO_FIRST(y = 29f, coercedY = 19f),
+        OVERLAP_EQUIDISTANT(y = 30f, coercedY = 19f),
+        OVERLAP_BELONGS_TO_SECOND(y = 31f, coercedY = 41f),
+        NO_OVERLAP_BELONGS_TO_SECOND(y = 35f, coercedY = 41f),
+        ON_SECOND(y = 50f, coercedY = 50f),
+        BELOW(y = 66f, coercedY = 59f);
     }
 
     enum class ExpectedText(val selectableId: Long?) {
@@ -170,8 +179,24 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
     }
 
     @Test
-    fun minTouchTargetSelectionGestureTest() {
+    fun minTouchTargetSelectionGestureTest() = runTest {
         performTouchGesture { longClick(Offset(horizontal.x, vertical.y)) }
+    }
+
+    // Regression test for b/325307463
+    @Test
+    fun dragIntoMinTouchTargetSelectionGestureTest() = runTest {
+        performTouchGesture {
+            longPress(Offset(horizontal.coercedX, vertical.coercedY))
+            // The crash involved a quick drag from on the text to off the text
+            // causing a race of some state not being set before the drag is executed,
+            // so we want to force the moveTo immediately after the long press finishes.
+            moveTo(Offset(horizontal.x, vertical.y), delayMillis = 0L)
+        }
+    }
+
+    fun runTest(block: () -> Unit) {
+        block()
 
         val expectedSelectableId = expectedText.selectableId
         if (expectedSelectableId == null) {
