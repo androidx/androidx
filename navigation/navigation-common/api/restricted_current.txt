@@ -27,6 +27,11 @@ package androidx.navigation {
     property public final int popExit;
   }
 
+  public abstract class CollectionNavType<T> extends androidx.navigation.NavType<T> {
+    ctor public CollectionNavType(boolean isNullableAllowed);
+    method public abstract java.util.List<java.lang.String> serializeAsValues(T value);
+  }
+
   public interface FloatingWindow {
   }
 
