@@ -21,21 +21,53 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
 }
 
-dependencies {
-    implementation(project(":room:room-common"))
-    implementation(libs.kotlinStdlib)
-    implementation(libs.gson)
-    testImplementation(libs.junit)
-    testImplementation(libs.intellijAnnotations)
-    testImplementation(libs.mockitoCore4)
+androidXMultiplatform {
+    jvm() {
+        withJava()
+    }
+    mac()
+    linux()
+    ios()
+
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                implementation(project(":room:room-common"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.gson)
+            }
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.guava)
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.intellijAnnotations)
+                implementation(libs.mockitoCore4)
+            }
+        }
+    }
 }
 
 androidx {

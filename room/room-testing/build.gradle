@@ -21,44 +21,67 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
-    id("com.google.devtools.ksp")
+}
+
+androidXMultiplatform {
+    android()
+    ios()
+    jvm()
+    linux()
+    mac()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":room:room-common"))
+                api(project(":room:room-runtime"))
+                api(project(":room:room-migration"))
+                api(project(":sqlite:sqlite"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+        }
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.junit)
+                api(project(":sqlite:sqlite-framework"))
+                implementation("androidx.arch.core:core-runtime:2.2.0")
+            }
+        }
+        nativeMain {
+            dependsOn(commonMain)
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
+        }
+    }
 }
 
 android {
     namespace "androidx.room.testing"
-    sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
-    }
-}
-
-dependencies {
-    api(project(":room:room-common"))
-    api(project(":room:room-runtime"))
-    api(project(":sqlite:sqlite"))
-    api(project(":sqlite:sqlite-framework"))
-    api(project(":room:room-migration"))
-    api(libs.junit)
-    implementation("androidx.arch.core:core-runtime:2.2.0")
-    androidTestImplementation(libs.truth) // Kruth currently lacks StringSubject#containsMatch
-    androidTestImplementation(project(":kruth:kruth"))
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
-    kspAndroidTest(
-            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
-    )
-}
-
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas".toString())
 }
 
 androidx {
