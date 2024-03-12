@@ -1624,8 +1624,7 @@ public class ExifInterfaceTest {
     }
 
     private File clone(File original) throws IOException {
-        File cloned =
-                File.createTempFile("tmp_", System.nanoTime() + "_" + original.getName());
+        File cloned = tempFolder.newFile(System.nanoTime() + "_" + original.getName());
         Files.copy(original, cloned);
         return cloned;
     }
