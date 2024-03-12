@@ -34,6 +34,7 @@ dependencies {
     api projectOrArtifact(":lifecycle:lifecycle-runtime-ktx")
     api("androidx.annotation:annotation-experimental:1.4.0")
     api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.ui:ui:1.0.1")
 
     implementation(libs.kotlinStdlib)
 
