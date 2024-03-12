@@ -22,18 +22,16 @@
  * modifying its settings.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
-
-def macEnabled = KmpPlatformsKt.enableMac(project)
-def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
 androidXMultiplatform {
     android()
@@ -100,44 +98,23 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
-            dependsOn(jvmMain)
-        }
-
-        if (macEnabled || linuxEnabled) {
-            nativeMain {
-                dependsOn(commonMain)
-            }
-
-            nativeTest {
-                dependsOn(commonTest)
-            }
-        }
-        if (macEnabled) {
-            darwinMain {
-                dependsOn(nativeMain)
-            }
-        }
-        if (linuxEnabled) {
-            linuxMain {
-                dependsOn(nativeMain)
-            }
-        }
+        desktopMain.dependsOn(jvmMain)
+        nonJvmMain.dependsOn(commonMain)
+        nativeMain.dependsOn(nonJvmMain)
+        darwinMain.dependsOn(nativeMain)
+        linuxMain.dependsOn(nativeMain)
 
         targets.all { target ->
-            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+            if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
                         dependsOn(darwinMain)
-                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                    } else if (konanTargetFamily == Family.LINUX) {
                         dependsOn(linuxMain)
                     } else {
                         throw new GradleException("unknown native target ${target}")
                     }
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
                 }
             }
         }
