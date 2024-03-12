@@ -84,7 +84,7 @@ actual class GraphicsLayer internal constructor() {
 
     actual var clip: Boolean = false
 
-    actual fun draw(canvas: Canvas) {
+    internal actual fun draw(canvas: Canvas, parentLayer: GraphicsLayer?) {
         // TODO
     }
 

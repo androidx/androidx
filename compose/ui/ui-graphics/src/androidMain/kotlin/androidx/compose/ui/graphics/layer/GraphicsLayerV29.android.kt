@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toAndroidBlendMode
 import androidx.compose.ui.graphics.toArgb
@@ -208,6 +209,7 @@ internal class GraphicsLayerV29(
     override fun buildLayer(
         density: Density,
         layoutDirection: LayoutDirection,
+        layer: GraphicsLayer,
         block: DrawScope.() -> Unit
     ) {
         val recordingCanvas = renderNode.beginRecording()
@@ -217,6 +219,7 @@ internal class GraphicsLayerV29(
                 layoutDirection,
                 this,
                 size.toSize(),
+                layer,
                 block
             )
         }
@@ -226,10 +229,6 @@ internal class GraphicsLayerV29(
 
     override fun draw(canvas: Canvas) {
         canvas.nativeCanvas.drawRenderNode(renderNode)
-    }
-
-    override fun release() {
-        renderNode.discardDisplayList()
     }
 
     override fun discardDisplayList() {

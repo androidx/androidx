@@ -72,7 +72,7 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
                     ownerId
                 )
             }
-            return GraphicsLayer(layerImpl).also { layer ->
+            return GraphicsLayer(layerImpl, layerManager).also { layer ->
                 // Do a placeholder recording of drawing instructions to avoid errors when doing a
                 // persistence render.
                 // This will be overridden by the consumer of the created GraphicsLayer
@@ -100,7 +100,7 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
 
     override fun releaseGraphicsLayer(layer: GraphicsLayer) {
         synchronized(lock) {
-            layerManager.release(layer)
+            layer.release()
         }
     }
 
