@@ -453,6 +453,10 @@ class StillCaptureRequestTest {
                 useCaseCameraState = fakeUseCaseCameraState,
                 useTorchAsFlash = NotUseTorchAsFlash,
                 sessionProcessorManager = null,
+                flashControl = FlashControl(
+                    state3AControl = fakeState3AControl,
+                    threads = fakeUseCaseThreads,
+                ),
             ),
             state = fakeUseCaseCameraState,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
