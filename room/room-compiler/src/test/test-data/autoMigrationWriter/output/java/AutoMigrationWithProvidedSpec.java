@@ -3,7 +3,8 @@ package foo.bar;
 import androidx.annotation.NonNull;
 import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.SQLiteConnection;
+import androidx.sqlite.SQLiteKt;
 import java.lang.Override;
 import java.lang.SuppressWarnings;
 import javax.annotation.processing.Generated;
@@ -19,8 +20,8 @@ final class MyDatabase_AutoMigration_1_2_Impl extends Migration {
     }
 
     @Override
-    public void migrate(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL");
-        callback.onPostMigrate(db);
+    public void migrate(@NonNull final SQLiteConnection connection) {
+        SQLiteKt.execSQL(connection, "ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL");
+        callback.onPostMigrate(connection);
     }
 }
