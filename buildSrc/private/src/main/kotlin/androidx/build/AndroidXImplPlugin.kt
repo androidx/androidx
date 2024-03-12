@@ -821,6 +821,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         val prebuiltLibraries = listOf("libtracing_perfetto.so", "libc++_shared.so")
         libraryAndroidComponentsExtension.onVariants { variant ->
+            if (variant.buildType == Release.DEFAULT_PUBLISH_CONFIG) {
+                // Standard docs, resource API, and Metalava configuration for AndroidX projects.
+                project.configureProjectForApiTasks(
+                    LibraryApiTaskConfig(libraryExtension, variant),
+                    androidXExtension
+                )
+            }
             val verifyELFRegionAlignmentTaskProvider = project.tasks.register(
                 variant.name + "VerifyELFRegionAlignment",
                 VerifyELFRegionAlignmentTask::class.java
@@ -839,11 +846,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             project.addToBuildOnServer(verifyELFRegionAlignmentTaskProvider)
         }
 
-        // Standard docs, resource API, and Metalava configuration for AndroidX projects.
-        project.configureProjectForApiTasks(
-            LibraryApiTaskConfig(libraryExtension),
-            androidXExtension
-        )
         project.setUpCheckDocsTask(androidXExtension)
 
         project.addToProjectMap(androidXExtension)
