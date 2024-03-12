@@ -336,42 +336,6 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="    private static final boolean sCanApplyOverrideConfiguration = Build.VERSION.SDK_INT >= 17;"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                (Build.VERSION.SDK_INT >= 15 &amp;&amp; !ViewCompat.hasOnClickListeners(view))) {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
         message="This folder configuration (`v16`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v16"/>
