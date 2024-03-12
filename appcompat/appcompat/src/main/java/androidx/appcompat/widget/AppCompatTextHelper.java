@@ -113,16 +113,13 @@ class AppCompatTextHelper {
             mDrawableBottomTint = createTintInfo(context, drawableManager,
                     a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableBottom, 0));
         }
-
-        if (Build.VERSION.SDK_INT >= 17) {
-            if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableStart)) {
-                mDrawableStartTint = createTintInfo(context, drawableManager,
-                        a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableStart, 0));
-            }
-            if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableEnd)) {
-                mDrawableEndTint = createTintInfo(context, drawableManager,
-                        a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableEnd, 0));
-            }
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableStart)) {
+            mDrawableStartTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableStart, 0));
+        }
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableEnd)) {
+            mDrawableEndTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableEnd, 0));
         }
 
         a.recycle();
