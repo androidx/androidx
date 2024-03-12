@@ -83,8 +83,8 @@ fun Project.getTestConfigDirectory(): Provider<Directory> =
 /**
  * Directory for PrivacySandbox related APKs (SDKs, compat splits) used in device tests.
  */
-fun Project.getPrivacySandboxApksDirectory(): Provider<Directory> =
-    rootProject.layout.buildDirectory.dir("privacysandbox-apks")
+fun Project.getPrivacySandboxFilesDirectory(): Provider<Directory> =
+    rootProject.layout.buildDirectory.dir("privacysandbox-files")
 
 /** A file within [getTestConfigDirectory] */
 fun Project.getFileInTestConfigDirectory(name: String): Provider<RegularFile> =

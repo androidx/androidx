@@ -78,6 +78,15 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val privacySandboxSdkApks: ConfigurableFileCollection
 
+    /**
+     * Extracted split with manifest containing <uses-sdk-library> tag.
+     * Produced by AGP.
+     */
+    @get:InputFiles
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val privacySandboxUsesSdkSplit: ConfigurableFileCollection
+
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val testFolder: DirectoryProperty
@@ -118,10 +127,10 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
     abstract val outputPrivacySandboxFilenamesPrefix: Property<String>
 
     /**
-     * Output directory for PrivacySandbox SDKs APKs.
+     * Output directory for PrivacySandbox files (SDKs APKs, splits, etc).
      */
     @get:[OutputDirectory Optional]
-    abstract val outputPrivacySandboxSdkApks: DirectoryProperty
+    abstract val outputPrivacySandboxFiles: DirectoryProperty
 
     @TaskAction
     fun generateAndroidTestZip() {
@@ -164,6 +173,7 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
             configBuilder
                 .appApkName(destinationApk.name)
                 .appApkSha256(sha256(File(appApkBuiltArtifact.outputFile)))
+            configurePrivacySandbox(configBuilder)
         }
         configBuilder.additionalApkKeys(additionalApkKeys.get())
         val isPresubmit = presubmit.get()
@@ -205,7 +215,6 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
             .minSdk(minSdk.get().toString())
             .testRunner(testRunner.get())
             .testApkSha256(sha256(File(testApkBuiltArtifact.outputFile)))
-        configurePrivacySandbox(configBuilder)
         createOrFail(outputXml).writeText(configBuilder.buildXml())
         if (!outputJson.asFile.get().name.startsWith("_")) {
             // Prefixing json file names with _ allows us to collocate these files
@@ -235,12 +244,22 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
             // TODO (b/309610890): Remove after supporting unique filenames on bundletool side.
             val sdkProjectName = sdkApk.parentFile?.name
             val outputFileName = "$prefix-$sdkProjectName-${sdkApk.name}"
-            val outputFile = outputPrivacySandboxSdkApks.get().file(outputFileName)
+            val outputFile = outputPrivacySandboxFiles.get().file(outputFileName)
             sdkApk.copyTo(outputFile.asFile, overwrite = true)
             outputFileName
         }
-
         configBuilder.initialSetupApks(sdkApkFileNames)
+
+        val usesSdkSplitArtifact = appLoader.get().load(privacySandboxUsesSdkSplit)
+            ?.elements
+            ?.single()
+        if (usesSdkSplitArtifact != null) {
+            val splitApk = File(usesSdkSplitArtifact.outputFile)
+            val outputFileName = "$prefix-${splitApk.name}"
+            val outputFile = outputPrivacySandboxFiles.get().file(outputFileName)
+            splitApk.copyTo(outputFile.asFile, overwrite = true)
+            configBuilder.appSplits(listOf(outputFileName))
+        }
 
         if (minSdk.get() < PRIVACY_SANDBOX_MIN_API_LEVEL) {
             /*
