@@ -19,6 +19,8 @@ package androidx.compose.ui.scene
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalContext
+import androidx.compose.ui.awt.getTransparentWindowBackground
+import androidx.compose.ui.awt.setTransparent
 import androidx.compose.ui.awt.toAwtColor
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
@@ -70,7 +72,10 @@ internal class WindowComposeSceneLayer(
     ).also {
         it.isAlwaysOnTop = true
         it.isUndecorated = true
-        it.background = Color.Transparent.toAwtColor()
+        it.background = getTransparentWindowBackground(
+            isWindowTransparent = true,
+            renderApi = composeContainer.renderApi
+        )
     }
     private val container = object : JLayeredPane() {
         override fun addNotify() {
@@ -79,7 +84,7 @@ internal class WindowComposeSceneLayer(
         }
     }.also {
         it.layout = null
-        it.isOpaque = false
+        it.setTransparent(true)
 
         dialog.contentPane = it
     }

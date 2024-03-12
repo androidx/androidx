@@ -89,39 +89,10 @@ internal class ComposeWindowPanel(
                 }
                 field = value
                 composeContainer.onChangeWindowTransparency(value)
-
-                /*
-                 * Windows makes clicks on transparent pixels fall through, but it doesn't work
-                 * with GPU accelerated rendering since this check requires having access to pixels from CPU.
-                 *
-                 * JVM doesn't allow override this behaviour with low-level windows methods, so hack this in this way.
-                 * Based on tests, it doesn't affect resulting pixel color.
-                 *
-                 * Note: Do not set isOpaque = false for this container
-                 */
-                if (value && hostOs == OS.Windows) {
-                    background = Color(0, 0, 0, 1)
-                    isOpaque = true
-                } else {
-                    background = null
-                    isOpaque = false
-                }
-
-                window.background = if (value && !skikoTransparentWindowHack) Color(0, 0, 0, 0) else null
+                setTransparent(value)
+                window.background = getTransparentWindowBackground(value, renderApi)
             }
         }
-
-    /**
-     * There is a hack inside skiko OpenGL and Software redrawers for Windows that makes current
-     * window transparent without setting `background` to JDK's window. It's done by getting native
-     * component parent and calling `DwmEnableBlurBehindWindow`.
-     *
-     * FIXME: Make OpenGL work inside transparent window (background == Color(0, 0, 0, 0)) without this hack.
-     *
-     * See `enableTransparentWindow` (skiko/src/awtMain/cpp/windows/window_util.cc)
-     */
-    private val skikoTransparentWindowHack: Boolean
-        get() = hostOs == OS.Windows && renderApi != GraphicsApi.DIRECT3D
 
     init {
         layout = null
