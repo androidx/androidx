@@ -18,7 +18,6 @@ package androidx.lifecycle.compose
 
 import androidx.annotation.CheckResult
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
