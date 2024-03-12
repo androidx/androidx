@@ -43,6 +43,7 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
+import com.android.build.api.dsl.PrivacySandboxSdkExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasDeviceTests
@@ -59,6 +60,7 @@ import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
+import com.android.build.gradle.api.PrivacySandboxSdkPlugin
 import com.android.build.gradle.tasks.factory.AndroidUnitTest
 import java.io.File
 import java.time.Duration
@@ -138,6 +140,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         // Perform different actions based on which plugins have been applied to the project.
         // Many of the actions overlap, ex. API tracking.
         project.plugins.all { plugin ->
+            @Suppress("UnstableApiUsage") // PrivacySandboxSdkPlugin, KMPAndroidPlugin
             when (plugin) {
                 is JavaGradlePluginPlugin -> configureGradlePluginPlugin(project)
                 is JavaPlugin -> configureWithJavaPlugin(project, androidXExtension)
@@ -156,6 +159,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     plugin,
                     androidXKmpExtension
                 )
+                is PrivacySandboxSdkPlugin -> configureWithPrivacySandboxSdkPlugin(project)
             }
         }
 
@@ -545,6 +549,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             onVariants {
                 it.configureTests()
                 it.artRewritingWorkaround()
+                it.configureLocalAsbSigning(project.getKeystore())
             }
         }
 
@@ -624,6 +629,23 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
         project.setUpCheckDocsTask(androidXExtension)
     }
+
+    @Suppress("UnstableApiUsage") // usage of PrivacySandboxSdkExtension
+    private fun configureWithPrivacySandboxSdkPlugin(project: Project) {
+        project.extensions.getByType<PrivacySandboxSdkExtension>().apply {
+            configureLocalAsbSigning(experimentalProperties, project.getKeystore())
+        }
+    }
+
+    private fun configureLocalAsbSigning(
+        experimentalProperties: MutableMap<String, Any>,
+        keyStore: File
+    ) {
+        experimentalProperties[ASB_SIGNING_CONFIG_PROPERTY_NAME] = keyStore.absolutePath
+    }
+
+    private val ASB_SIGNING_CONFIG_PROPERTY_NAME =
+        "android.privacy_sandbox.local_deployment_signing_store_file"
 
     /**
      * Temporary diagnostics for b/321949384
@@ -717,6 +739,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             @Suppress("UnstableApiUsage") // usage of experimentalProperties
             experimentalProperties.put("android.experimental.force-aot-compilation", true)
         }
+    }
+
+    @Suppress("UnstableApiUsage") // usage of experimentalProperties
+    private fun Variant.configureLocalAsbSigning(keyStore: File) {
+        experimentalProperties.put(ASB_SIGNING_CONFIG_PROPERTY_NAME, keyStore.absolutePath)
     }
 
     @Suppress("DEPRECATION") // AGP DSL APIs
