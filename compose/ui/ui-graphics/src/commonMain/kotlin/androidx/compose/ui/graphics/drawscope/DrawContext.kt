@@ -18,6 +18,7 @@ package androidx.compose.ui.graphics.drawscope
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -71,5 +72,13 @@ interface DrawContext {
      */
     var density: Density
         get() = DefaultDensity
+        set(_) {}
+
+    /**
+     * Current [GraphicsLayer] we are drawing into. Might be null if the [canvas] is not provided
+     * by a [GraphicsLayer], for example in the case of a software-accelerated drawing.
+     */
+    var graphicsLayer: GraphicsLayer?
+        get() = null
         set(_) {}
 }

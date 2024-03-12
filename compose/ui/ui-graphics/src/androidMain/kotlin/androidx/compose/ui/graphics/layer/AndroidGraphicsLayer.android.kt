@@ -42,7 +42,8 @@ import androidx.compose.ui.unit.LayoutDirection
 
 @Suppress("NotCloseable")
 actual class GraphicsLayer internal constructor(
-    private val impl: GraphicsLayerImpl
+    private val impl: GraphicsLayerImpl,
+    private val layerManager: LayerManager
 ) {
     private var density = DefaultDensity
     private var layoutDirection = LayoutDirection.Ltr
@@ -57,6 +58,16 @@ actual class GraphicsLayer internal constructor(
     private var internalOutline: Outline? = null
     private var outlinePath: Path? = null
     private var usePathForClip = false
+
+    /**
+     * Tracks the amount of the parent layers currently drawing this layer as a child.
+     */
+    private var parentLayerUsages = 0
+
+    /**
+     * Keeps track of the child layers we currently draw into this layer.
+     */
+    private val childDependenciesTracker = ChildLayerDependenciesTracker()
 
     init {
         impl.clip = false
@@ -393,17 +404,28 @@ actual class GraphicsLayer internal constructor(
         this.drawBlock = block
         impl.isInvalidated = true
 
-        impl.buildLayer(density, layoutDirection, drawBlock)
+        childDependenciesTracker.withTracking(
+            onDependencyRemoved = { it.onRemovedFromParentLayer() }
+        ) {
+            impl.buildLayer(density, layoutDirection, this, drawBlock)
+        }
 
         return this
     }
 
+    private fun addSubLayer(graphicsLayer: GraphicsLayer) {
+        if (childDependenciesTracker.onDependencyAdded(graphicsLayer)) {
+            graphicsLayer.onAddedToParentLayer()
+        }
+    }
+
     /**
      * Draw the contents of this [GraphicsLayer] into the specified [Canvas]
-     *
-     * @sample androidx.compose.ui.graphics.samples.GraphicsLayerDrawLayerIntoCanvas
      */
-    actual fun draw(canvas: Canvas) {
+    internal actual fun draw(canvas: Canvas, parentLayer: GraphicsLayer?) {
+        if (isReleased) {
+            return
+        }
         if (pivotOffset.isUnspecified) {
             impl.pivotOffset = Offset(size.width / 2f, size.height / 2f)
         }
@@ -418,6 +440,9 @@ actual class GraphicsLayer internal constructor(
             canvas.save()
             canvas.clipPath(clipPath)
         }
+
+        parentLayer?.addSubLayer(this)
+
         impl.draw(canvas)
         if (willClipPath) {
             canvas.restore()
@@ -425,6 +450,15 @@ actual class GraphicsLayer internal constructor(
         if (useZ) {
             canvas.disableZ()
         }
+    }
+
+    private fun onAddedToParentLayer() {
+        parentLayerUsages++
+    }
+
+    private fun onRemovedFromParentLayer() {
+        parentLayerUsages--
+        discardContentIfReleasedAndHaveNoParentLayerUsages()
     }
 
     private fun configureOutline() {
@@ -508,8 +542,14 @@ actual class GraphicsLayer internal constructor(
      */
     internal fun release() {
         if (!isReleased) {
-            impl.release()
             isReleased = true
+            discardContentIfReleasedAndHaveNoParentLayerUsages()
+        }
+    }
+
+    private fun discardContentIfReleasedAndHaveNoParentLayerUsages() {
+        if (isReleased && parentLayerUsages == 0) {
+            layerManager.release(this)
         }
     }
 
@@ -518,6 +558,10 @@ actual class GraphicsLayer internal constructor(
      * for management of GraphicsLayer resources
      */
     internal fun discardDisplayList() {
+        // discarding means we don't draw children layer anymore and need to remove dependencies:
+        childDependenciesTracker.removeDependencies {
+            it.onRemovedFromParentLayer()
+        }
         impl.discardDisplayList()
     }
 
@@ -804,6 +848,7 @@ internal interface GraphicsLayerImpl {
     fun buildLayer(
         density: Density,
         layoutDirection: LayoutDirection,
+        layer: GraphicsLayer,
         block: DrawScope.() -> Unit
     )
 
@@ -811,11 +856,6 @@ internal interface GraphicsLayerImpl {
      * @see GraphicsLayer.discardDisplayList
      */
     fun discardDisplayList()
-
-    /**
-     * @see GraphicsLayer.release
-     */
-    fun release()
 
     companion object {
         val DefaultDrawBlock: DrawScope.() -> Unit = { drawRect(Color.Transparent) }

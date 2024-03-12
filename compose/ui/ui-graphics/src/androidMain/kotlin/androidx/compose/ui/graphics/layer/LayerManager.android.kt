@@ -53,7 +53,7 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
 
     fun release(layer: GraphicsLayer) {
         if (layerList.remove(layer)) {
-            layer.release()
+            layer.discardDisplayList()
         }
     }
 
@@ -75,7 +75,7 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
             canvasHolder.drawInto(canvas) {
-                layers.forEach { layer -> layer.draw(this) }
+                layers.forEach { layer -> layer.draw(this, null) }
             }
             surface.unlockCanvasAndPost(canvas)
         }

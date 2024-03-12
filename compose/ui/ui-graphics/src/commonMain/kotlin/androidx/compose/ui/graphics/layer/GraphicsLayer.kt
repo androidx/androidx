@@ -51,7 +51,7 @@ import androidx.compose.ui.util.fastRoundToInt
  */
 fun DrawScope.drawLayer(graphicsLayer: GraphicsLayer) {
     drawIntoCanvas { canvas ->
-        graphicsLayer.draw(canvas)
+        graphicsLayer.draw(canvas, drawContext.graphicsLayer)
     }
 }
 
@@ -381,10 +381,8 @@ expect class GraphicsLayer {
 
     /**
      * Draw the contents of this [GraphicsLayer] into the specified [Canvas]
-     *
-     * @sample androidx.compose.ui.graphics.samples.GraphicsLayerDrawLayerIntoCanvas
      */
-    fun draw(canvas: Canvas)
+    internal fun draw(canvas: Canvas, parentLayer: GraphicsLayer?)
 
     companion object {
 

@@ -22,7 +22,6 @@ import androidx.annotation.Sampled
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.BlurEffect
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TileMode
@@ -30,10 +29,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 
 @Sampled
 fun DrawScope.GraphicsLayerTopLeftSample(layer: GraphicsLayer) {
@@ -48,19 +45,6 @@ fun DrawScope.GraphicsLayerTopLeftSample(layer: GraphicsLayer) {
 
     // Draw the layer into the provided DrawScope
     drawLayer(layer)
-}
-
-@Sampled
-fun GraphicsLayerDrawLayerIntoCanvas(layer: GraphicsLayer, canvas: Canvas) {
-    layer.buildLayer(
-        Density(1f),
-        LayoutDirection.Ltr,
-        IntSize(100, 100)
-    ) {
-        drawCircle(Color.Cyan)
-    }
-
-    layer.draw(canvas)
 }
 
 @Sampled

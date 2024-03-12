@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPorterDuffMode
@@ -268,6 +269,7 @@ internal class GraphicsLayerV23(
     override fun buildLayer(
         density: Density,
         layoutDirection: LayoutDirection,
+        layer: GraphicsLayer,
         block: DrawScope.() -> Unit
     ) {
         val recordingCanvas = renderNode.start(size.width, size.height)
@@ -277,6 +279,7 @@ internal class GraphicsLayerV23(
                 layoutDirection,
                 this,
                 size.toSize(),
+                layer,
                 block
             )
         }
@@ -286,10 +289,6 @@ internal class GraphicsLayerV23(
 
     override fun draw(canvas: androidx.compose.ui.graphics.Canvas) {
         (canvas.nativeCanvas as DisplayListCanvas).drawRenderNode(renderNode)
-    }
-
-    override fun release() {
-        discardDisplayListInternal()
     }
 
     override fun discardDisplayList() {

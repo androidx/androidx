@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toIntSize
-import androidx.compose.ui.unit.toSize
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify
@@ -285,6 +284,20 @@ inline fun DrawScope.withTransform(
     }
 }
 
+@Deprecated(
+    message = "Please use a new overload accepting nullable GraphicsLayer",
+    level = DeprecationLevel.HIDDEN
+)
+inline fun DrawScope.draw(
+    density: Density,
+    layoutDirection: LayoutDirection,
+    canvas: Canvas,
+    size: Size,
+    block: DrawScope.() -> Unit
+) {
+    draw(density, layoutDirection, canvas, size, null, block)
+}
+
 /**
  * Draws into the provided [Canvas] with the commands specified in the lambda with this
  * [DrawScope] as a receiver
@@ -297,6 +310,8 @@ inline fun DrawScope.withTransform(
  * @param canvas target canvas to render into
  * @param size bounds relative to the current canvas translation in which the [DrawScope]
  * should draw within
+ * @param graphicsLayer Current [GraphicsLayer] we are drawing into. Might be null if the [canvas]
+ * is not provided by a [GraphicsLayer], for example in the case of a software-accelerated drawing
  * @param block lambda that is called to issue drawing commands on this [DrawScope]
  */
 inline fun DrawScope.draw(
@@ -304,6 +319,7 @@ inline fun DrawScope.draw(
     layoutDirection: LayoutDirection,
     canvas: Canvas,
     size: Size,
+    graphicsLayer: GraphicsLayer? = null,
     block: DrawScope.() -> Unit
 ) {
     // Remember the previous drawing parameters in case we are temporarily re-directing our
@@ -314,11 +330,13 @@ inline fun DrawScope.draw(
     val prevLayoutDirection = drawContext.layoutDirection
     val prevCanvas = drawContext.canvas
     val prevSize = drawContext.size
+    val prevLayer = drawContext.graphicsLayer
     drawContext.apply {
         this.density = density
         this.layoutDirection = layoutDirection
         this.canvas = canvas
         this.size = size
+        this.graphicsLayer = graphicsLayer
     }
     canvas.save()
     try {
@@ -330,6 +348,7 @@ inline fun DrawScope.draw(
             this.layoutDirection = prevLayoutDirection
             this.canvas = prevCanvas
             this.size = prevSize
+            this.graphicsLayer = prevLayer
         }
     }
 }
@@ -924,16 +943,16 @@ interface DrawScope : Density {
         this@DrawScope.layoutDirection,
         size
     ) {
-        val currentDrawScope = this@DrawScope
-        drawIntoCanvas { canvas ->
-            currentDrawScope.draw(
-                currentDrawScope,
-                currentDrawScope.layoutDirection,
-                canvas,
-                size.toSize(),
-                block
-            )
-        }
+        this@DrawScope.draw(
+            // we can use this@buildLayer.drawContext directly as the values in this@DrawScope
+            // and this@buildLayer are the same
+            drawContext.density,
+            drawContext.layoutDirection,
+            drawContext.canvas,
+            drawContext.size,
+            drawContext.graphicsLayer,
+            block
+        )
     }
 
     /**

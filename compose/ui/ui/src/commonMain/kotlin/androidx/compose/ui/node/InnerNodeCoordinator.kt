@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -176,11 +177,11 @@ internal class InnerNodeCoordinator(
             ?: AlignmentLine.Unspecified
     }
 
-    override fun performDraw(canvas: Canvas) {
+    override fun performDraw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
         val owner = layoutNode.requireOwner()
         layoutNode.zSortedChildren.forEach { child ->
             if (child.isPlaced) {
-                child.draw(canvas)
+                child.draw(canvas, graphicsLayer)
             }
         }
         if (owner.showLayoutBounds) {
