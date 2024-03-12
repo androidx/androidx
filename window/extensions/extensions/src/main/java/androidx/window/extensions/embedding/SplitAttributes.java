@@ -21,7 +21,7 @@ import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirecti
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.LOCALE;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.RIGHT_TO_LEFT;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM;
-import static androidx.window.extensions.embedding.WindowAttributes.DIM_AREA_ON_ACTIVITY_STACK;
+import static androidx.window.extensions.embedding.WindowAttributes.DIM_AREA_ON_TASK;
 
 import android.annotation.SuppressLint;
 
@@ -485,7 +485,7 @@ public final class SplitAttributes {
 
         @NonNull
         private WindowAttributes mWindowAttributes =
-                new WindowAttributes(DIM_AREA_ON_ACTIVITY_STACK);
+                new WindowAttributes(DIM_AREA_ON_TASK);
 
         @Nullable
         private DividerAttributes mDividerAttributes;

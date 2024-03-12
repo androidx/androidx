@@ -34,7 +34,7 @@ import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.EmbeddingConfiguration
-import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_ACTIVITY_STACK
+import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_TASK
 import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
@@ -68,7 +68,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         ActivityEmbeddingController.getInstance(context).apply {
             if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
                 setEmbeddingConfiguration(
-                    EmbeddingConfiguration.Builder().setDimAreaBehavior(ON_ACTIVITY_STACK).build()
+                    EmbeddingConfiguration.Builder().setDimAreaBehavior(ON_TASK).build()
                 )
             }
         }
