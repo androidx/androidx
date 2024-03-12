@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavHostKt")
+
 package androidx.navigation
 
 import androidx.annotation.IdRes

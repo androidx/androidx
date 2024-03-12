@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:JvmName("ActivityNavigatorDestinationBuilderKt")
 @file:Suppress("NOTHING_TO_INLINE")
 
 package androidx.navigation

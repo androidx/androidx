@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.navigation.test;
+@file:JvmName("ViewKt")
 
-public enum TestEnum {
-    VALUE_ONE, VALUE_TWO
-}
+package androidx.navigation
+
+import android.view.View
+
+/**
+ * Find a [NavController] associated with a [View].
+ *
+ * Calling this on a View not within a [NavHost] will result in an
+ * [IllegalStateException]
+ */
+public fun View.findNavController(): NavController =
+    Navigation.findNavController(this)

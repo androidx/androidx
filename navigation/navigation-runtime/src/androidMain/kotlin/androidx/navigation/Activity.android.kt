@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ActivityKt")
+
 package androidx.navigation
 
 import android.app.Activity

@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.navigation
+package androidx.navigation.test
 
-import android.view.View
-
-/**
- * Find a [NavController] associated with a [View].
- *
- * Calling this on a View not within a [NavHost] will result in an
- * [IllegalStateException]
- */
-public fun View.findNavController(): NavController =
-    Navigation.findNavController(this)
+enum class TestEnum {
+    VALUE_ONE, VALUE_TWO
+}
