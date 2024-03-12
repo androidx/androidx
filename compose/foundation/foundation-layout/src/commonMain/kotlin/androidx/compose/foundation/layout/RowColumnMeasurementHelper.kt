@@ -184,7 +184,7 @@ internal class RowColumnMeasurementHelper(
                         0,
                         (weightUnitSpace * weight).fastRoundToInt() + remainderUnit
                     )
-                    val restrictedConstraints = Constraints.restrictedConstraints(
+                    val restrictedConstraints = Constraints.fitPrioritizingWidth(
                         minWidth = if (parentData.fill &&
                             childMainAxisSize != Constraints.Infinity
                         ) {
