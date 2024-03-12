@@ -96,13 +96,13 @@ internal class SwingComposeSceneLayer(
     override var density: Density = density
         set(value) {
             field = value
-            // TODO: Pass it to mediator/scene
+            _mediator?.onChangeDensity(value)
         }
 
     override var layoutDirection: LayoutDirection = layoutDirection
         set(value) {
             field = value
-            // TODO: Pass it to mediator/scene
+            _mediator?.onChangeLayoutDirection(value)
         }
 
     override var focusable: Boolean = focusable
@@ -186,7 +186,11 @@ internal class SwingComposeSceneLayer(
     }
 
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
-        return SwingSkiaLayerComponent(mediator, skiaLayerAnalytics)
+        return SwingSkiaLayerComponent(
+            mediator = mediator,
+            skikoView = mediator,
+            skiaLayerAnalytics = skiaLayerAnalytics
+        )
     }
 
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {

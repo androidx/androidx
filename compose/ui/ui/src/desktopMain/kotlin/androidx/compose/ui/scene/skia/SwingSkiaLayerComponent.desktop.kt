@@ -23,6 +23,7 @@ import javax.accessibility.Accessible
 import javax.accessibility.AccessibleContext
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
+import org.jetbrains.skiko.SkikoView
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
 /**
@@ -35,6 +36,7 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
 @OptIn(ExperimentalSkikoApi::class)
 internal class SwingSkiaLayerComponent(
     private val mediator: ComposeSceneMediator,
+    skikoView: SkikoView,
     skiaLayerAnalytics: SkiaLayerAnalytics,
 ) : SkiaLayerComponent {
     /**
@@ -42,11 +44,11 @@ internal class SwingSkiaLayerComponent(
      */
     override val contentComponent: SkiaSwingLayer =
         object : SkiaSwingLayer(
-            skikoView = mediator.skikoView,
+            skikoView = skikoView,
             analytics = skiaLayerAnalytics
         ) {
             override fun paint(g: Graphics) {
-                mediator.onChangeComponentDensity()
+                mediator.onChangeDensity()
                 super.paint(g)
             }
 

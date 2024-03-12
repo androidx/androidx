@@ -16,10 +16,41 @@
 
 package androidx.compose.ui.scene
 
+import org.jetbrains.skia.Canvas
+
+/**
+ * Represents an abstract class for a desktop Compose scene layer.
+ *
+ * @see SwingComposeSceneLayer
+ * @see WindowComposeSceneLayer
+ */
 internal abstract class DesktopComposeSceneLayer : ComposeSceneLayer {
+
+    /**
+     * Called when the focus of the window containing main Compose view has changed.
+     */
     open fun onChangeWindowFocus() {
     }
 
+    /**
+     * Called when position of the window containing main Compose view has changed.
+     */
+    open fun onChangeWindowPosition() {
+    }
+
+    /**
+     * Called when size of the window containing main Compose view has changed.
+     */
     open fun onChangeWindowSize() {
+    }
+
+    /**
+     * Renders the overlay on the main Compose view canvas.
+     *
+     * @param canvas the canvas of the main Compose view
+     * @param width the width of the canvas
+     * @param height the height of the canvas
+     */
+    open fun onRenderOverlay(canvas: Canvas, width: Int, height: Int) {
     }
 }

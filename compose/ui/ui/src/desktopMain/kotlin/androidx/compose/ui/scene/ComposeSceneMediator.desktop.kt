@@ -33,8 +33,6 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.platform.a11y.AccessibilityController
-import androidx.compose.ui.platform.a11y.ComposeSceneAccessible
 import androidx.compose.ui.platform.DelegateRootForTestListener
 import androidx.compose.ui.platform.DesktopTextInputService
 import androidx.compose.ui.platform.EmptyViewConfiguration
@@ -43,6 +41,8 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.a11y.AccessibilityController
+import androidx.compose.ui.platform.a11y.ComposeSceneAccessible
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.PlatformTextInputService
@@ -80,7 +80,6 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.SkikoInput
 import org.jetbrains.skiko.SkikoView
 import org.jetbrains.skiko.hostOs
 import org.jetbrains.skiko.swing.SkiaSwingLayer
@@ -103,11 +102,9 @@ internal class ComposeSceneMediator(
 
     skiaLayerComponentFactory: (ComposeSceneMediator) -> SkiaLayerComponent,
     composeSceneFactory: (ComposeSceneMediator) -> ComposeScene,
-) {
+) : SkikoView {
     private var isDisposed = false
     private val invisibleComponent = InvisibleComponent()
-
-    val skikoView: SkikoView = DesktopSkikoView()
 
     private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
     var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
@@ -366,7 +363,6 @@ internal class ComposeSceneMediator(
 
     // Decides which AWT events should be delivered, and which should be filtered out
     private val awtEventFilter = object {
-
         var isPrimaryButtonPressed = false
 
         fun shouldSendMouseEvent(event: MouseEvent): Boolean {
@@ -463,7 +459,7 @@ internal class ComposeSceneMediator(
     }
 
     fun onComponentAttached() {
-        onChangeComponentDensity()
+        onChangeDensity()
 
         _onComponentAttached?.invoke()
         _onComponentAttached = null
@@ -526,9 +522,7 @@ internal class ComposeSceneMediator(
         )
     }
 
-    fun onChangeComponentDensity() = catchExceptions {
-        if (!container.isDisplayable) return
-        val density = container.density
+    fun onChangeDensity(density: Density = container.density) = catchExceptions {
         if (scene.density != density) {
             scene.density = density
             onChangeComponentSize()
@@ -543,30 +537,33 @@ internal class ComposeSceneMediator(
         scene.layoutDirection = layoutDirection
     }
 
+    override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) = catchExceptions {
+        canvas.withSceneOffset {
+            scene.render(asComposeCanvas(), nanoTime)
+        }
+    }
+
+    private inline fun Canvas.withSceneOffset(block: Canvas.() -> Unit) {
+        // Offset of scene relative to [container]
+        val sceneBoundsOffset = sceneBoundsInPx?.topLeft ?: Offset.Zero
+        // Offset of canvas relative to [container]
+        val contentOffset = with(contentComponent) {
+            val scale = density.density
+            Offset(x * scale, y * scale)
+        }
+        val sceneOffset = sceneBoundsOffset - contentOffset
+        save()
+        translate(sceneOffset.x, sceneOffset.y)
+        block()
+        restore()
+    }
+
     fun onRenderApiChanged(action: () -> Unit) {
         skiaLayerComponent.onRenderApiChanged(action)
     }
 
     fun onChangeWindowFocus() {
         keyboardModifiersRequireUpdate = true
-    }
-
-    private inner class DesktopSkikoView : SkikoView {
-        override val input: SkikoInput
-            get() = SkikoInput.Empty
-
-        override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
-            catchExceptions {
-                val composeCanvas = canvas.asComposeCanvas()
-                val offset = sceneBoundsInPx?.topLeft ?: Offset.Zero
-                val scale = contentComponent.density.density
-                val dx = contentComponent.x * scale - offset.x
-                val dy = contentComponent.y * scale - offset.y
-                composeCanvas.translate(-dx, -dy)
-                scene.render(composeCanvas, nanoTime)
-                composeCanvas.translate(dx, dy)
-            }
-        }
     }
 
     private inner class DesktopViewConfiguration : ViewConfiguration by EmptyViewConfiguration {

@@ -24,6 +24,7 @@ import javax.accessibility.Accessible
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkiaLayerAnalytics
+import org.jetbrains.skiko.SkikoView
 
 /**
  * Provides a heavyweight AWT [contentComponent] used to render content (provided by client.skikoView) on-screen with Skia.
@@ -33,7 +34,8 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
 internal class WindowSkiaLayerComponent(
     private val mediator: ComposeSceneMediator,
     private val windowContext: PlatformWindowContext,
-    skiaLayerAnalytics: SkiaLayerAnalytics,
+    skikoView: SkikoView,
+    skiaLayerAnalytics: SkiaLayerAnalytics
 ) : SkiaLayerComponent {
     /**
      * See also backend layer for swing interop in [SwingSkiaLayerComponent]
@@ -47,7 +49,7 @@ internal class WindowSkiaLayerComponent(
         analytics = skiaLayerAnalytics
     ) {
         override fun paint(g: Graphics) {
-            mediator.onChangeComponentDensity()
+            mediator.onChangeDensity()
             super.paint(g)
         }
 
@@ -96,7 +98,7 @@ internal class WindowSkiaLayerComponent(
     override val windowHandle by contentComponent::windowHandle
 
     init {
-        contentComponent.skikoView = mediator.skikoView
+        contentComponent.skikoView = skikoView
     }
 
     override fun dispose() {

@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.SwingSkiaLayerComponent
 import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
+import androidx.compose.ui.skiko.OverlaySkikoViewDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
@@ -47,6 +48,7 @@ import javax.swing.SwingUtilities
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
+import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.MainUIDispatcher
 import org.jetbrains.skiko.SkiaLayerAnalytics
 
@@ -171,6 +173,7 @@ internal class ComposeContainer(
         if (!container.isDisplayable) return
 
         mediator.onChangeComponentPosition()
+        layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowPosition)
     }
 
     private fun onChangeWindowSize() {
@@ -179,6 +182,13 @@ internal class ComposeContainer(
         windowContext.setContainerSize(windowContainer.sizeInPx)
         mediator.onChangeComponentSize()
         layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowSize)
+    }
+
+    /**
+     * Callback to let layers draw overlay on main [mediator].
+     */
+    private fun onRenderOverlay(canvas: Canvas, width: Int, height: Int) {
+        layers.fastForEach { it.onRenderOverlay(canvas, width, height) }
     }
 
     fun onChangeWindowTransparency(value: Boolean) {
@@ -246,10 +256,15 @@ internal class ComposeContainer(
     }
 
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
+        val skikoView = when (layerType) {
+            // Use overlay decorator to allow window layers draw scrim on the main window
+            LayerType.OnWindow -> OverlaySkikoViewDecorator(mediator, ::onRenderOverlay)
+            else -> mediator
+        }
         return if (useSwingGraphics) {
-            SwingSkiaLayerComponent(mediator, skiaLayerAnalytics)
+            SwingSkiaLayerComponent(mediator, skikoView, skiaLayerAnalytics)
         } else {
-            WindowSkiaLayerComponent(mediator, windowContext, skiaLayerAnalytics)
+            WindowSkiaLayerComponent(mediator, windowContext, skikoView, skiaLayerAnalytics)
         }
     }
 
