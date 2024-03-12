@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import android.graphics.RectF
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toAndroidRectF
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_CENTER
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_LEFT
@@ -61,8 +63,12 @@ import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_STYLE_NORMAL
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_STYLE_STRICT
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_WORD_STYLE_NONE
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_WORD_STYLE_PHRASE
+import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_CHARACTER
+import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_WORD
 import androidx.compose.ui.text.android.TextLayout
-import androidx.compose.ui.text.android.selection.WordBoundary
+import androidx.compose.ui.text.android.selection.WordIterator
+import androidx.compose.ui.text.android.selection.getWordEnd
+import androidx.compose.ui.text.android.selection.getWordStart
 import androidx.compose.ui.text.android.style.IndentationFixSpan
 import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.compose.ui.text.font.FontFamily
@@ -309,6 +315,21 @@ internal class AndroidParagraph(
         return layout.getOffsetForHorizontal(line, position.x)
     }
 
+    override fun getRangeForRect(
+        rect: Rect,
+        granularity: TextGranularity,
+        inclusionStrategy: TextInclusionStrategy
+    ): TextRange? {
+        val range = layout.getRangeForRect(
+            rect = rect.toAndroidRectF(),
+            granularity = granularity.toLayoutTextGranularity(),
+            inclusionStrategy = { segmentBounds: RectF, area: RectF ->
+                inclusionStrategy.isInside(segmentBounds.toRect(), area.toRect())
+            }
+        ) ?: return null
+        return TextRange(range[0], range[1])
+    }
+
     /**
      * Returns the bounding box as Rect of the character for given character offset. Rect includes
      * the top, bottom, left and right of a character.
@@ -381,16 +402,11 @@ internal class AndroidParagraph(
         )
     }
 
-    private var backingWordBoundary: WordBoundary? = null
-    private val wordBoundary: WordBoundary
-        get() {
-            val finalWordBoundary = backingWordBoundary
-            if (finalWordBoundary != null) return finalWordBoundary
-            return WordBoundary(textLocale, layout.text).also { backingWordBoundary = it }
-        }
+    private val wordIterator: WordIterator = layout.wordIterator
 
     override fun getWordBoundary(offset: Int): TextRange {
-        return TextRange(wordBoundary.getWordStart(offset), wordBoundary.getWordEnd(offset))
+        val wordIterator = layout.wordIterator
+        return TextRange(wordIterator.getWordStart(offset), wordIterator.getWordEnd(offset))
     }
 
     override fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
@@ -631,3 +647,13 @@ private fun CharSequence.attachIndentationFixSpan(): CharSequence {
     spannable.setSpan(IndentationFixSpan(), spannable.length - 1, spannable.length - 1)
     return spannable
 }
+
+private fun TextGranularity.toLayoutTextGranularity(): Int {
+    return when (this) {
+        TextGranularity.Character -> TEXT_GRANULARITY_CHARACTER
+        TextGranularity.Word -> TEXT_GRANULARITY_WORD
+        else -> TEXT_GRANULARITY_CHARACTER
+    }
+}
+
+private fun RectF.toRect(): Rect = Rect(left, top, right, bottom)

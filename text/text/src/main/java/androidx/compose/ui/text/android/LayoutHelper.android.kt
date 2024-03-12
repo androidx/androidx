@@ -374,7 +374,7 @@ internal class LayoutHelper(val layout: Layout) {
         }
     }
 
-    private data class BidiRun(val start: Int, val end: Int, val isRtl: Boolean)
+    internal data class BidiRun(val start: Int, val end: Int, val isRtl: Boolean)
 
     /**
      * Convert line end offset to the offset that is the last visible character. Last visible
@@ -390,6 +390,27 @@ internal class LayoutHelper(val layout: Layout) {
             }
         }
         return visibleEnd
+    }
+
+    internal fun getLineBidiRuns(lineIndex: Int): Array<BidiRun> {
+        val lineStart = layout.getLineStart(lineIndex)
+        val lineEnd = layout.getLineEnd(lineIndex)
+
+        val paragraphIndex = getParagraphForOffset(lineStart)
+        val paragraphStart = getParagraphStart(paragraphIndex)
+
+        val bidiStart = lineStart - paragraphStart
+        val bidiEnd = lineEnd - paragraphStart
+        val lineBidi = analyzeBidi(paragraphIndex)?.createLineBidi(bidiStart, bidiEnd)
+            ?: return arrayOf(BidiRun(lineStart, lineEnd, layout.isRtlCharAt(lineStart)))
+
+        return Array(lineBidi.runCount) {
+            BidiRun(
+                start = lineStart + lineBidi.getRunStart(it),
+                end = lineStart + lineBidi.getRunLimit(it),
+                isRtl = lineBidi.getRunLevel(it) % 2 == 1
+            )
+        }
     }
 
     // The spaces that will not be rendered if they are placed at the line end. In most case, it is
