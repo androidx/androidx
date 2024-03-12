@@ -457,6 +457,7 @@ internal class UIKitTextInputService(
 
         /**
          * Returns the text position at a specified offset from another text position.
+         * Returned value must be in range between 0 and length of text (inclusive).
          */
         override fun positionFromPosition(position: Long, offset: Long): Long {
             val text = getState()?.text ?: return 0
@@ -472,149 +473,23 @@ internal class UIKitTextInputService(
             iterator.setText(text)
 
             repeat(offset.absoluteValue.toInt()) {
-                resultPosition = if (offset > 0) {
+                val iteratorResult = if (offset > 0) {
                     iterator.following(resultPosition)
                 } else {
                     iterator.preceding(resultPosition)
+                }
+
+                if (iteratorResult == BreakIterator.DONE) {
+                    return resultPosition.toLong()
+                } else {
+                    resultPosition = iteratorResult
                 }
             }
 
             return resultPosition.toLong()
         }
-
-        /**
-         * Return the range for the text enclosing a text position in a text unit of a given granularity in a given direction.
-         * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614464-rangeenclosingposition?language=objc
-         * @param position
-         * A text-position object that represents a location in a document.
-         * @param withGranularity
-         * A constant that indicates a certain granularity of text unit.
-         * @param inDirection
-         * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
-         * @return
-         * A text-range representing a text unit of the given granularity in the given direction, or nil if there is no such enclosing unit.
-         * Whether a boundary position is enclosed depends on the given direction, using the same rule as the isPosition:withinTextUnit:inDirection: method.
-         */
-        override fun rangeEnclosingPosition(
-            position: Int,
-            withGranularity: UITextGranularity,
-            inDirection: UITextDirection
-        ): IntRange? {
-            val text = getState()?.text ?: return null
-            assert(position >= 0) { "rangeEnclosingPosition position >= 0" }
-
-            fun String.isMeaningless(): Boolean {
-                return when (withGranularity) {
-                    UITextGranularity.UITextGranularityWord -> {
-                        this.all { it in arrayOf(' ', ',') }
-                    }
-
-                    else -> false
-                }
-            }
-
-            val iterator: BreakIterator = withGranularity.toTextIterator()
-            iterator.setText(text)
-
-            if (inDirection == UITextStorageDirectionForward) {
-                return null
-            } else if (inDirection == UITextStorageDirectionBackward) {
-                var current: Int = position
-
-                fun currentRange() = IntRange(current, position)
-                fun nextAddition() =
-                    IntRange(iterator.preceding(current).coerceAtLeast(0), current)
-
-                fun IntRange.text() = text.substring(start, endInclusive)
-
-                while (
-                    current == position
-                    || currentRange().text().isMeaningless()
-                    || nextAddition().text().isMeaningless()
-                ) {
-                    current = iterator.preceding(current)
-                    if (current <= 0) {
-                        current = 0
-                        break
-                    }
-                }
-
-                return IntRange(current, position)
-            } else {
-                error("Unknown inDirection: $inDirection")
-            }
-        }
-
-        /**
-         * Return whether a text position is at a boundary of a text unit of a specified granularity in a specified direction.
-         * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614553-isposition?language=objc
-         * @param position
-         * A text-position object that represents a location in a document.
-         * @param atBoundary
-         * A constant that indicates a certain granularity of text unit.
-         * @param inDirection
-         * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
-         * @return
-         * TRUE if the text position is at the given text-unit boundary in the given direction; FALSE if it is not at the boundary.
-         */
-        override fun isPositionAtBoundary(
-            position: Int,
-            atBoundary: UITextGranularity,
-            inDirection: UITextDirection
-        ): Boolean {
-            val text = getState()?.text ?: return false
-            assert(position >= 0) { "isPositionAtBoundary position >= 0" }
-
-            val iterator = atBoundary.toTextIterator()
-            iterator.setText(text)
-            return iterator.isBoundary(position)
-        }
-
-        /**
-         * Return whether a text position is within a text unit of a specified granularity in a specified direction.
-         * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614491-isposition?language=objc
-         * @param position
-         * A text-position object that represents a location in a document.
-         * @param withinTextUnit
-         * A constant that indicates a certain granularity of text unit.
-         * @param inDirection
-         * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
-         * @return
-         * TRUE if the text position is within a text unit of the specified granularity in the specified direction; otherwise, return FALSE.
-         * If the text position is at a boundary, return TRUE only if the boundary is part of the text unit in the given direction.
-         */
-        override fun isPositionWithingTextUnit(
-            position: Int,
-            withinTextUnit: UITextGranularity,
-            inDirection: UITextDirection
-        ): Boolean {
-            val text = getState()?.text ?: return false
-            assert(position >= 0) { "isPositionWithingTextUnit position >= 0" }
-
-            val iterator = withinTextUnit.toTextIterator()
-            iterator.setText(text)
-
-            if (inDirection == UITextStorageDirectionForward) {
-
-            } else if (inDirection == UITextStorageDirectionBackward) {
-
-            }
-            return false // TODO: Write implementation
-        }
     }
-
 }
-
-private fun UITextGranularity.toTextIterator() =
-    when (this) {
-        UITextGranularity.UITextGranularitySentence -> BreakIterator.makeSentenceInstance()
-        UITextGranularity.UITextGranularityLine -> BreakIterator.makeLineInstance()
-        UITextGranularity.UITextGranularityWord -> BreakIterator.makeWordInstance()
-        UITextGranularity.UITextGranularityCharacter -> BreakIterator.makeCharacterInstance()
-        UITextGranularity.UITextGranularityParagraph -> TODO("UITextGranularityParagraph iterator")
-        UITextGranularity.UITextGranularityDocument -> TODO("UITextGranularityDocument iterator")
-        else -> error("Unknown granularity")
-    }
 
 private data class CurrentInput(
     var value: TextFieldValue,
