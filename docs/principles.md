@@ -85,6 +85,9 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 
 -   Guide developers toward using existing Jetpack best-practice libraries,
     including Architecture Components
+-   Libraries that involve user interfaces, e.g. any reference to `View`
+    classes, must provide non-`View` interoperability with the Compose UI
+    toolkit
 
 ### 9. Designed for tooling and testability
 
