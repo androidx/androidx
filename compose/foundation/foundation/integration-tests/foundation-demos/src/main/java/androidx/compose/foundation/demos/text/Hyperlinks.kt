@@ -17,7 +17,6 @@
 package androidx.compose.foundation.demos.text
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,13 +31,11 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.LocalTextLinkStyle
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,7 +57,6 @@ private const val LongWebLink =
 private const val PhoneUri = "tel:+123456789"
 
 @SuppressLint("NullAnnotationGroup")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Hyperlinks() {
     Column(
@@ -89,19 +85,6 @@ fun Hyperlinks() {
                 append(" with a custom style.")
             }
             Text(text = stringWithLink)
-        }
-        Sample("Link styling via composition local") {
-            CompositionLocalProvider(
-                LocalTextLinkStyle provides LocalTextLinkStyle.current.copy(
-                    color = Color(139, 195, 74, 255)
-                )
-            ) {
-                Text(buildAnnotatedString {
-                    append("Text with ")
-                    withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
-                    append(" link wrapped in green theming.")
-                })
-            }
         }
         Sample("BasicText styling") {
             BasicText(buildAnnotatedString {

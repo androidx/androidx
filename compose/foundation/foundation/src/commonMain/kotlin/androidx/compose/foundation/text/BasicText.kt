@@ -535,19 +535,9 @@ private fun LayoutWithLinksAndInlineContent(
     color: ColorProducer?,
     onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)?
 ) {
-    // only adds additional span styles to the existing link annotations, doesn't semantically
-    // change the text
-    val styledText = if (text.hasLinks()) {
-        val linkStyle = LocalTextLinkStyle.current
-        remember(text, linkStyle) {
-            text.withLinkStyle(linkStyle)
-        }
-    } else {
-        text
-    }
 
     val textScope = if (text.hasLinks()) {
-        remember(text) { TextLinkScope(styledText) }
+        remember(text) { TextLinkScope(text) }
     } else null
 
     // do the inline content allocs
@@ -576,7 +566,7 @@ private fun LayoutWithLinksAndInlineContent(
             // TODO(b/274781644): Remove this graphicsLayer
             .graphicsLayer()
             .textModifier(
-                text = styledText,
+                text = text,
                 style = style,
                 onTextLayout = {
                     textScope?.textLayoutResult = it
