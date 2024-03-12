@@ -50,7 +50,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -157,7 +156,6 @@ public class RemoteListenableWorkerTest {
 
     @Test
     @MediumTest
-    @Ignore("b/294851567")
     public fun testRemoteStopWorker() = runBlocking {
         if (Build.VERSION.SDK_INT <= 27) {
             // Exclude <= API 27, from tests because it causes a SIGSEGV.

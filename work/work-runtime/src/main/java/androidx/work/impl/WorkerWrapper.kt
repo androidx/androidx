@@ -500,7 +500,8 @@ private val TAG = Logger.tagWithPrefix("WorkerWrapper")
 // copy of await() function but with specific cancellation propagation.
 // it is needed that we specifically want to call .stop() on worker itself before
 // calling cancel() of the future.
-internal suspend fun <T> ListenableFuture<T>.awaitWithin(worker: ListenableWorker): T {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+suspend fun <T> ListenableFuture<T>.awaitWithin(worker: ListenableWorker): T {
     try {
         if (isDone) return getUninterruptibly(this)
     } catch (e: ExecutionException) {
@@ -526,7 +527,8 @@ internal suspend fun <T> ListenableFuture<T>.awaitWithin(worker: ListenableWorke
     }
 }
 
-private class WorkerStoppedException(val reason: Int) : CancellationException()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class WorkerStoppedException(val reason: Int) : CancellationException()
 
 private class ToContinuation<T>(
     val futureToObserve: ListenableFuture<T>,
