@@ -143,7 +143,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
     private final List<String> mEnabledFeatures;
 
     @Field(id = 19, getter = "getSearchSourceLogTag")
-    private final String mSearchSourceLogTag;
+    @Nullable private final String mSearchSourceLogTag;
 
     /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -477,11 +477,14 @@ public final class SearchSpec extends AbstractSafeParcelable {
         for (String schema : schemas) {
             ArrayList<String> propertyPathList = mProjectionTypePropertyMasks.getStringArrayList(
                     schema);
-            List<PropertyPath> copy = new ArrayList<>(propertyPathList.size());
-            for (String p : propertyPathList) {
-                copy.add(new PropertyPath(p));
+            if (propertyPathList != null) {
+                List<PropertyPath> copy = new ArrayList<>(propertyPathList.size());
+                for (int i = 0; i < propertyPathList.size(); i++) {
+                    String p = propertyPathList.get(i);
+                    copy.add(new PropertyPath(p));
+                }
+                typePropertyPathsMap.put(schema, copy);
             }
-            typePropertyPathsMap.put(schema, copy);
         }
         return typePropertyPathsMap;
     }
@@ -502,12 +505,15 @@ public final class SearchSpec extends AbstractSafeParcelable {
                 schemaTypes.size());
         for (String schemaType : schemaTypes) {
             Bundle propertyPathBundle = mTypePropertyWeightsField.getBundle(schemaType);
-            Set<String> propertyPaths = propertyPathBundle.keySet();
-            Map<String, Double> propertyPathWeights = new ArrayMap<>(propertyPaths.size());
-            for (String propertyPath : propertyPaths) {
-                propertyPathWeights.put(propertyPath, propertyPathBundle.getDouble(propertyPath));
+            if (propertyPathBundle != null) {
+                Set<String> propertyPaths = propertyPathBundle.keySet();
+                Map<String, Double> propertyPathWeights = new ArrayMap<>(propertyPaths.size());
+                for (String propertyPath : propertyPaths) {
+                    propertyPathWeights.put(propertyPath,
+                            propertyPathBundle.getDouble(propertyPath));
+                }
+                typePropertyWeightsMap.put(schemaType, propertyPathWeights);
             }
-            typePropertyWeightsMap.put(schemaType, propertyPathWeights);
         }
         return typePropertyWeightsMap;
     }
@@ -528,13 +534,17 @@ public final class SearchSpec extends AbstractSafeParcelable {
                 schemaTypes.size());
         for (String schemaType : schemaTypes) {
             Bundle propertyPathBundle = mTypePropertyWeightsField.getBundle(schemaType);
-            Set<String> propertyPaths = propertyPathBundle.keySet();
-            Map<PropertyPath, Double> propertyPathWeights = new ArrayMap<>(propertyPaths.size());
-            for (String propertyPath : propertyPaths) {
-                propertyPathWeights.put(new PropertyPath(propertyPath),
-                        propertyPathBundle.getDouble(propertyPath));
+            if (propertyPathBundle != null) {
+                Set<String> propertyPaths = propertyPathBundle.keySet();
+                Map<PropertyPath, Double> propertyPathWeights =
+                        new ArrayMap<>(propertyPaths.size());
+                for (String propertyPath : propertyPaths) {
+                    propertyPathWeights.put(
+                            new PropertyPath(propertyPath),
+                            propertyPathBundle.getDouble(propertyPath));
+                }
+                typePropertyWeightsMap.put(schemaType, propertyPathWeights);
             }
-            typePropertyWeightsMap.put(schemaType, propertyPathWeights);
         }
         return typePropertyWeightsMap;
     }
@@ -663,7 +673,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
         @Order private int mOrder = ORDER_DESCENDING;
         @GroupingType private int mGroupingTypeFlags = 0;
         private int mGroupingLimit = 0;
-        private JoinSpec mJoinSpec;
+        @Nullable private JoinSpec mJoinSpec;
         private String mAdvancedRankingExpression = "";
         @Nullable private String mSearchSourceLogTag;
         private boolean mBuilt = false;
@@ -827,6 +837,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
          *                      sequence of property names.
          */
+        @CanIgnoreReturnValue
         @NonNull
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",

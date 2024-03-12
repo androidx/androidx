@@ -491,6 +491,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
          * @see SetSchemaRequest.Builder#setPubliclyVisibleSchema
          */
         // Merged list available from getPubliclyVisibleSchemas
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @FlaggedApi(Flags.FLAG_ENABLE_SET_PUBLICLY_VISIBLE_SCHEMA)
         @NonNull
@@ -532,6 +533,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
          *                           a call must to match to access the schema.
          */
         // Merged map available from getSchemasVisibleToConfigs
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
         @NonNull
@@ -592,6 +594,10 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         @NonNull
         private InternalVisibilityConfig.Builder getOrCreateVisibilityConfigBuilder(
                 @NonNull String schemaType) {
+            if (mVisibilityConfigBuilders == null) {
+                throw new IllegalStateException("GetSchemaResponse is not configured with"
+                        + "visibility setting support");
+            }
             InternalVisibilityConfig.Builder builder = mVisibilityConfigBuilders.get(schemaType);
             if (builder == null) {
                 builder = new InternalVisibilityConfig.Builder(schemaType);

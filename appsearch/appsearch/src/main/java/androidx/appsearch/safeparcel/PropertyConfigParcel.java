@@ -66,19 +66,19 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     private final int mCardinality;
 
     @Field(id = 4, getter = "getSchemaType")
-    private final String mSchemaType;
+    @Nullable private final String mSchemaType;
 
     @Field(id = 5, getter = "getStringIndexingConfigParcel")
-    private final StringIndexingConfigParcel mStringIndexingConfigParcel;
+    @Nullable private final StringIndexingConfigParcel mStringIndexingConfigParcel;
 
     @Field(id = 6, getter = "getDocumentIndexingConfigParcel")
-    private final DocumentIndexingConfigParcel mDocumentIndexingConfigParcel;
+    @Nullable private final DocumentIndexingConfigParcel mDocumentIndexingConfigParcel;
 
     @Field(id = 7, getter = "getIntegerIndexingConfigParcel")
-    private final IntegerIndexingConfigParcel mIntegerIndexingConfigParcel;
+    @Nullable private final IntegerIndexingConfigParcel mIntegerIndexingConfigParcel;
 
     @Field(id = 8, getter = "getJoinableConfigParcel")
-    private final JoinableConfigParcel mJoinableConfigParcel;
+    @Nullable private final JoinableConfigParcel mJoinableConfigParcel;
 
     @Nullable
     private Integer mHashCode;

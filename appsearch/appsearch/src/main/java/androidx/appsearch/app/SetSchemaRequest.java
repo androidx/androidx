@@ -647,6 +647,7 @@ public final class SetSchemaRequest {
          *                          documents of type {@code schema}.
          */
         // Merged list available from getPubliclyVisibleSchemas
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
@@ -680,6 +681,7 @@ public final class SetSchemaRequest {
          * @see SetSchemaRequest.Builder#setPubliclyVisibleSchema
          */
         // Merged list available from getPubliclyVisibleSchemas
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
@@ -713,6 +715,7 @@ public final class SetSchemaRequest {
          *                                that a call must to match to access the schema.
          */
         // Merged list available from getSchemasVisibleToConfigs
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
         @RequiresFeature(
@@ -734,6 +737,7 @@ public final class SetSchemaRequest {
         }
 
         /**  Clears all visible to {@link SchemaVisibilityConfig} for the given schema type. */
+        @CanIgnoreReturnValue
         @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",

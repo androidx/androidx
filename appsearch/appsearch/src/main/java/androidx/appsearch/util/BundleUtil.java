@@ -248,7 +248,7 @@ public final class BundleUtil {
             // Read bundle from bytes
             parcel.unmarshall(serializedMessage, 0, serializedMessage.length);
             parcel.setDataPosition(0);
-            return parcel.readBundle();
+            return parcel.readBundle(BundleUtil.class.getClassLoader());
         } finally {
             parcel.recycle();
         }

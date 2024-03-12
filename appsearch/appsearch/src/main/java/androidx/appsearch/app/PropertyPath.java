@@ -210,7 +210,7 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null) return false;
         if (!(o instanceof PropertyPath)) return false;
@@ -319,7 +319,7 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null) return false;
             if (!(o instanceof PathSegment)) return false;
