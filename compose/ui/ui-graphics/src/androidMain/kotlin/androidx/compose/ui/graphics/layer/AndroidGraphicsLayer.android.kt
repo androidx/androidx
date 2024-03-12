@@ -520,6 +520,7 @@ actual class GraphicsLayer internal constructor(
             } else {
                 resultOutline.setConvexPath(path.asAndroidPath())
             }
+            usePathForClip = !resultOutline.canClip()
         } else { // Concave outlines are not supported on older API levels
             androidOutline?.setEmpty()
             usePathForClip = true
