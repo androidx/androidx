@@ -38,6 +38,7 @@ internal class UIKitTextInputService(
     private val updateView: () -> Unit,
     private val rootViewProvider: () -> UIView,
     private val densityProvider: () -> Density,
+    private val viewConfiguration: ViewConfiguration,
     private val focusStack: FocusStack<UIView>?,
     private val keyboardEventHandler: KeyboardEventHandler,
 ) : PlatformTextInputService, TextToolbar {
@@ -112,6 +113,7 @@ internal class UIKitTextInputService(
         textUIView?.removeFromSuperview()
         textUIView = IntermediateTextInputUIView(
             keyboardEventHandler = keyboardEventHandler,
+            viewConfiguration = viewConfiguration
         ).also {
             rootView.addSubview(it)
             it.translatesAutoresizingMaskIntoConstraints = false

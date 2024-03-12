@@ -20,10 +20,16 @@ import androidx.compose.ui.platform.EmptyInputTraits
 import androidx.compose.ui.platform.IOSSkikoInput
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextActions
+import androidx.compose.ui.platform.ViewConfiguration
 import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectIntersectsRect
@@ -74,10 +80,19 @@ import platform.darwin.NSInteger
 @Suppress("CONFLICTING_OVERLOADS")
 internal class IntermediateTextInputUIView(
     private val keyboardEventHandler: KeyboardEventHandler,
+    private val viewConfiguration: ViewConfiguration
 ) : UIView(frame = CGRectZero.readValue()),
     UIKeyInputProtocol, UITextInputProtocol {
+    private var menuMonitoringJob = Job()
     private var _inputDelegate: UITextInputDelegateProtocol? = null
     var input: IOSSkikoInput? = null
+        set(value) {
+            field = value
+            if (value == null) {
+                cancelContextMenuUpdate()
+            }
+        }
+
     private var _currentTextMenuActions: TextActions? = null
     var inputTraits: SkikoUITextInputTraits = EmptyInputTraits
 
@@ -403,7 +418,7 @@ internal class IntermediateTextInputUIView(
     override fun keyboardType(): UIKeyboardType = inputTraits.keyboardType()
     override fun keyboardAppearance(): UIKeyboardAppearance = inputTraits.keyboardAppearance()
     override fun returnKeyType(): UIReturnKeyType = inputTraits.returnKeyType()
-    override fun textContentType(): UITextContentType? = inputTraits.textContentType()
+    override fun textContentType(): UITextContentType = inputTraits.textContentType()
     override fun isSecureTextEntry(): Boolean = inputTraits.isSecureTextEntry()
     override fun enablesReturnKeyAutomatically(): Boolean =
         inputTraits.enablesReturnKeyAutomatically()
@@ -469,14 +484,24 @@ internal class IntermediateTextInputUIView(
         }
     }
 
+    private fun shouldReloadContextMenuItems(actions: TextActions): Boolean {
+        return (_currentTextMenuActions?.copy == null) != (actions.copy == null) ||
+            (_currentTextMenuActions?.paste == null) != (actions.paste == null) ||
+            (_currentTextMenuActions?.cut == null) != (actions.cut == null) ||
+            (_currentTextMenuActions?.selectAll == null) != (actions.selectAll == null)
+    }
+
+    private fun cancelContextMenuUpdate() {
+        menuMonitoringJob.cancel()
+        menuMonitoringJob = Job()
+    }
+
     /**
      * Show copy/paste text menu
      * @param targetRect - rectangle of selected text area
      * @param textActions - available (not null) actions in text menu
      */
     fun showTextMenu(targetRect: org.jetbrains.skia.Rect, textActions: TextActions) {
-        _currentTextMenuActions = textActions
-        val menu: UIMenuController = UIMenuController.sharedMenuController()
         val cgRect = CGRectMake(
             x = targetRect.left.toDouble(),
             y = targetRect.top.toDouble(),
@@ -484,24 +509,27 @@ internal class IntermediateTextInputUIView(
             height = targetRect.height.toDouble()
         )
         val isTargetVisible = CGRectIntersectsRect(bounds, cgRect)
+
         if (isTargetVisible) {
-            if (menu.isMenuVisible()) {
-                menu.setTargetRect(cgRect, this)
-            } else {
-                //TODO: UIMenuController.showMenuFromView is Deprecated since iOS 17
-                // and not available on iOS 12
-                menu.showMenuFromView(this, cgRect)
-            }
-        } else {
-            if (menu.isMenuVisible()) {
-                //TODO: UIMenuController.hideMenu is Deprecated since iOS 17
-                // and not available on iOS 12
+            // TODO: UIMenuController is deprecated since iOS 17 and not available on iOS 12
+            val menu: UIMenuController = UIMenuController.sharedMenuController()
+            if (shouldReloadContextMenuItems(textActions)) {
                 menu.hideMenu()
             }
+            cancelContextMenuUpdate()
+            CoroutineScope(Dispatchers.Main + menuMonitoringJob).launch {
+                delay(viewConfiguration.doubleTapTimeoutMillis)
+                menu.showMenuFromView(targetView = this@IntermediateTextInputUIView, cgRect)
+            }
+            _currentTextMenuActions = textActions
+        } else {
+            hideTextMenu()
         }
     }
 
     fun hideTextMenu() {
+        cancelContextMenuUpdate()
+
         _currentTextMenuActions = null
         val menu: UIMenuController = UIMenuController.sharedMenuController()
         menu.hideMenu()

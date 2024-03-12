@@ -33,8 +33,10 @@ import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.interop.LocalUIKitInteropContainer
 import androidx.compose.ui.interop.LocalUIKitInteropContext
+import androidx.compose.ui.interop.UIKitInteropContainer
 import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropTransaction
+import androidx.compose.ui.node.TrackInteropContainer
 import androidx.compose.ui.platform.AccessibilityMediator
 import androidx.compose.ui.platform.AccessibilitySyncOptions
 import androidx.compose.ui.platform.DefaultInputModeManager
@@ -51,23 +53,21 @@ import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.LocalKeyboardOverlapHeight
 import androidx.compose.ui.uikit.systemDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.asCGRect
 import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.asDpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.InteractionUIView
-import androidx.compose.ui.interop.UIKitInteropContainer
-import androidx.compose.ui.node.TrackInteropContainer
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.asCGRect
-import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.window.KeyboardEventHandler
 import androidx.compose.ui.window.KeyboardVisibilityListenerImpl
 import androidx.compose.ui.window.RenderingUIView
@@ -245,6 +245,15 @@ internal class ComposeSceneMediator(
             NSLayoutConstraint.activateConstraints(value)
         }
 
+    private val viewConfiguration: ViewConfiguration =
+        object : ViewConfiguration by EmptyViewConfiguration {
+            override val touchSlop: Float
+                get() = with(density) {
+                    // this value is originating from iOS 16 drag behavior reverse engineering
+                    10.dp.toPx()
+                }
+        }
+
     private val scene: ComposeScene by lazy {
         composeSceneFactory(
             ::onComposeSceneInvalidate,
@@ -360,6 +369,7 @@ internal class ComposeSceneMediator(
             },
             rootViewProvider = { container },
             densityProvider = { container.systemDensity },
+            viewConfiguration = viewConfiguration,
             focusStack = focusStack,
             keyboardEventHandler = keyboardEventHandler
         )
@@ -698,13 +708,7 @@ internal class ComposeSceneMediator(
         override fun calculateLocalPosition(positionInWindow: Offset): Offset =
             windowContext.calculateLocalPosition(container, positionInWindow)
 
-        override val viewConfiguration = object : ViewConfiguration by EmptyViewConfiguration {
-            override val touchSlop: Float
-                get() = with(density) {
-                    // this value is originating from iOS 16 drag behavior reverse engineering
-                    10.dp.toPx()
-                }
-        }
+        override val viewConfiguration = this@ComposeSceneMediator.viewConfiguration
         override val inputModeManager = DefaultInputModeManager(InputMode.Touch)
         override val textInputService = this@ComposeSceneMediator.uiKitTextInputService
         override val textToolbar = this@ComposeSceneMediator.uiKitTextInputService
