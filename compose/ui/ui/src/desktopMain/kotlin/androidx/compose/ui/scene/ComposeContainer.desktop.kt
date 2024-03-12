@@ -16,11 +16,16 @@
 
 package androidx.compose.ui.scene
 
+import java.awt.event.MouseEvent as AwtMouseEvent
+import java.awt.event.KeyEvent as AwtKeyEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.LayerType
+import androidx.compose.ui.awt.AwtEventFilter
+import androidx.compose.ui.awt.AwtEventFilters
+import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -116,6 +121,10 @@ internal class ComposeContainer(
         exceptionHandler = {
             exceptionHandler?.onException(it) ?: throw it
         },
+        eventFilter = AwtEventFilters(
+            OnlyValidPrimaryMouseButtonFilter,
+            FocusableLayerEventFilter()
+        ),
         coroutineContext = coroutineContext,
         skiaLayerComponentFactory = ::createSkiaLayerComponent,
         composeSceneFactory = ::createComposeScene,
@@ -352,6 +361,13 @@ internal class ComposeContainer(
         override fun handleException(context: CoroutineContext, exception: Throwable) {
             exceptionHandler?.onException(exception) ?: throw exception
         }
+    }
+
+    private inner class FocusableLayerEventFilter : AwtEventFilter {
+        private val noFocusableLayers get() = layers.all { !it.focusable }
+
+        override fun shouldSendMouseEvent(event: AwtMouseEvent): Boolean = noFocusableLayers
+        override fun shouldSendKeyEvent(event: AwtKeyEvent): Boolean = noFocusableLayers
     }
 }
 

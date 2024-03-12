@@ -34,6 +34,7 @@ import androidx.compose.ui.window.density
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Rectangle
+import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import javax.swing.JLayeredPane
@@ -49,8 +50,14 @@ internal class SwingComposeSceneLayer(
     layoutDirection: LayoutDirection,
     focusable: Boolean,
     compositionContext: CompositionContext
-) : DesktopComposeSceneLayer(), MouseListener {
+) : DesktopComposeSceneLayer() {
     private val windowContainer get() = composeContainer.windowContainer
+
+    private val backgroundMouseListener = object : MouseAdapter() {
+        override fun mousePressed(event: MouseEvent) = onMouseEventOutside(event)
+        override fun mouseReleased(event: MouseEvent) = onMouseEventOutside(event)
+    }
+
     private val container = object : JLayeredPane() {
         override fun addNotify() {
             super.addNotify()
@@ -72,7 +79,7 @@ internal class SwingComposeSceneLayer(
         it.isOpaque = false
         it.background = Color.Transparent.toAwtColor()
         it.size = Dimension(windowContainer.width, windowContainer.height)
-        it.addMouseListener(this)
+        it.addMouseListener(backgroundMouseListener)
 
         // TODO: Currently it works only with offscreen rendering
         // TODO: Do not clip this from main scene if layersContainer == main container
@@ -181,6 +188,23 @@ internal class SwingComposeSceneLayer(
         outsidePointerCallback = onOutsidePointerEvent
     }
 
+    override fun onChangeWindowSize() {
+        containerSize = IntSize(windowContainer.width, windowContainer.height)
+    }
+
+    private fun onMouseEventOutside(event: MouseEvent) {
+        // TODO: Filter/consume based on [focused] flag
+        if (!event.isMainAction()) {
+            return
+        }
+        val eventType = when (event.id) {
+            MouseEvent.MOUSE_PRESSED -> PointerEventType.Press
+            MouseEvent.MOUSE_RELEASED -> PointerEventType.Release
+            else -> return
+        }
+        outsidePointerCallback?.invoke(eventType)
+    }
+
     override fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset {
         return positionInWindow
     }
@@ -204,33 +228,6 @@ internal class SwingComposeSceneLayer(
                 platformContext = mediator.platformContext
             ),
         )
-    }
-
-    override fun onChangeWindowSize() {
-        containerSize = IntSize(windowContainer.width, windowContainer.height)
-    }
-
-    // region MouseListener
-
-    override fun mouseClicked(event: MouseEvent) = Unit
-    override fun mousePressed(event: MouseEvent) = onMouseEvent(event)
-    override fun mouseReleased(event: MouseEvent) = onMouseEvent(event)
-    override fun mouseEntered(event: MouseEvent) = Unit
-    override fun mouseExited(event: MouseEvent) = Unit
-
-    // endregion
-
-    private fun onMouseEvent(event: MouseEvent) {
-        // TODO: Filter/consume based on [focused] flag
-        if (!event.isMainAction()) {
-            return
-        }
-        val eventType = when (event.id) {
-            MouseEvent.MOUSE_PRESSED -> PointerEventType.Press
-            MouseEvent.MOUSE_RELEASED -> PointerEventType.Release
-            else -> return
-        }
-        outsidePointerCallback?.invoke(eventType)
     }
 }
 
