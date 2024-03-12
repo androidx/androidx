@@ -17,6 +17,7 @@
 package androidx.lifecycle.compose
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.testing.TestLifecycleOwner
