@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.HandlePopup
-import androidx.compose.foundation.text.selection.HandleReferencePoint
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.createHandleImage
 import androidx.compose.runtime.Composable
@@ -48,7 +47,7 @@ internal actual fun CursorHandle(
 ) {
     HandlePopup(
         positionProvider = { handlePosition },
-        handleReferencePoint = HandleReferencePoint.TopMiddle
+        handleReferencePoint = Alignment.TopCenter
     ) {
         if (minTouchTargetSize.isSpecified) {
             Box(
