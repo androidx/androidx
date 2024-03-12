@@ -19,6 +19,7 @@ package androidx.navigation.serialization
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.navigation.CollectionNavType
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavArgument
 import androidx.navigation.NavType
@@ -296,9 +297,17 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: TestParcelable)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<TestParcelable>(false) {
+            override fun put(bundle: Bundle, key: String, value: TestParcelable) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = TestParcelable()
+        }
+
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<TestParcelable>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.ParcelableType(TestParcelable::class.java)
+            type = navType
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -316,9 +325,17 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: TestParcelable?)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<TestParcelable?>(true) {
+            override fun put(bundle: Bundle, key: String, value: TestParcelable?) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = TestParcelable()
+        }
+
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<TestParcelable?>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.ParcelableType(TestParcelable::class.java)
+            type = navType
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -336,9 +353,16 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: Array<TestParcelable>)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<Array<TestParcelable>>(false) {
+            override fun put(bundle: Bundle, key: String, value: Array<TestParcelable>) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = emptyArray<TestParcelable>()
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<Array<TestParcelable>>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.ParcelableArrayType(TestParcelable::class.java)
+            type = navType
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -356,9 +380,16 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: Array<TestParcelable>?)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<Array<TestParcelable>>(true) {
+            override fun put(bundle: Bundle, key: String, value: Array<TestParcelable>) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = emptyArray<TestParcelable>()
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<Array<TestParcelable>?>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.ParcelableArrayType(TestParcelable::class.java)
+            type = navType
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -373,9 +404,16 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: TestSerializable)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<TestSerializable>(false) {
+            override fun put(bundle: Bundle, key: String, value: TestSerializable) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = TestSerializable()
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<TestSerializable>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.SerializableType(TestSerializable::class.java)
+            type = navType
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -390,9 +428,16 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: TestSerializable?)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<TestSerializable>(true) {
+            override fun put(bundle: Bundle, key: String, value: TestSerializable) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = TestSerializable()
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<TestSerializable?>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.SerializableType(TestSerializable::class.java)
+            type = navType
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -407,9 +452,16 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: Array<TestSerializable>)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<Array<TestSerializable>>(false) {
+            override fun put(bundle: Bundle, key: String, value: Array<TestSerializable>) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = emptyArray<TestSerializable>()
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<Array<TestSerializable>>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.SerializableArrayType(TestSerializable::class.java)
+            type = navType
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -424,9 +476,16 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: Array<TestSerializable>?)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<Array<TestSerializable>>(true) {
+            override fun put(bundle: Bundle, key: String, value: Array<TestSerializable>) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = emptyArray<TestSerializable>()
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<Array<TestSerializable>?>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.SerializableArrayType(TestSerializable::class.java)
+            type = navType
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -438,35 +497,60 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(val arg: TestEnum)
 
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : NavType<TestEnum>(false) {
+            override fun put(bundle: Bundle, key: String, value: TestEnum) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = TestEnum.TEST
+        }
         val expected = navArgument("arg") {
-            type = NavType.EnumType(TestEnum::class.java)
+            type = navType
             nullable = false
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<TestEnum>() to navType)
+        )
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+    }
+
+    @Test
+    fun convertToEnumNullable() {
+        @Serializable
+        class TestClass(val arg: TestEnum?)
+
+        val navType = object : NavType<TestEnum?>(true) {
+            override val name: String
+                get() = "TestEnum"
+            override fun put(bundle: Bundle, key: String, value: TestEnum?) {}
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = TestEnum.TEST
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<TestEnum?>() to navType)
+        )
+        val expected = navArgument("arg") {
+            type = navType
+            nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
         assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
     }
 
     @Test
-    fun convertToEnumNullableIllegal() {
-        @Serializable
-        class TestClass(val arg: TestEnum?)
-
-        val exception = assertFailsWith<IllegalArgumentException> {
-            serializer<TestClass>().generateNavArguments()
-        }
-        assertThat(exception.message).isEqualTo("androidx.navigation.serialization." +
-            "NavArgumentGeneratorTest\$TestEnum does not allow nullable values")
-    }
-
-    @Test
     fun convertToEnumArray() {
         @Serializable
         class TestClass(val arg: Array<TestEnum>)
-
-        val converted = serializer<TestClass>().generateNavArguments()
+        val navType = object : CollectionNavType<Array<TestEnum>>(false) {
+            override fun put(bundle: Bundle, key: String, value: Array<TestEnum>) {}
+            override fun serializeAsValues(value: Array<TestEnum>) = emptyList<String>()
+            override fun get(bundle: Bundle, key: String) = null
+            override fun parseValue(value: String) = emptyArray<TestEnum>()
+        }
+        val converted = serializer<TestClass>().generateNavArguments(
+            mapOf(typeOf<Array<TestEnum>>() to navType)
+        )
         val expected = navArgument("arg") {
-            type = NavType.SerializableArrayType(TestEnum::class.java)
+            type = navType
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -907,5 +991,7 @@ class NavArgumentGeneratorTest {
     }
 
     @Serializable
-    enum class TestEnum
+    enum class TestEnum {
+        TEST
+    }
 }
