@@ -1418,7 +1418,7 @@ public final class DimensionBuilders {
         return extensionDimensionFromProto(proto, null);
     }
 
-    /** Provide a length measurement proportional to the element's bounding box. */
+    /** Provide a position representation proportional to the bounding box width/height. */
     @RequiresSchemaVersion(major = 1, minor = 400)
     public static final class BoundingBoxRatio implements PivotDimension {
         private final DimensionProto.BoundingBoxRatio mImpl;
@@ -1430,9 +1430,10 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the ratio relative to the bounding box width/height, with the bounding box
-         * top / start as 0 and bottom / end as 1. Values outside [0, 1] are also valid.
-         * Dynamic value is supported. If not set, defaults to the middle of the element.
+         * Gets the ratio proportional to the bounding box width/height. value 0 represents the
+         * location at the top / left of the bounding box and value 1 represents the location at the
+         * bottom / end of the bounding box. Its default value 0.5 represents the middle of the
+         * bounding box. Values outside [0, 1] are also valid. Dynamic value is supported.
          */
         @NonNull
         public FloatProp getRatio() {
@@ -1491,9 +1492,11 @@ public final class DimensionBuilders {
 
             /**
              * Creates an instance of {@link Builder}.
-             * @param ratio the ratio relative to the bounding box width/height, with the bounding
-             *      box top / start as 0 and bottom / end as 1. Values outside [0, 1] are also
-             *      valid. Dynamic value is supported.
+             * @param ratio the ratio proportional to the bounding box width/height. value 0
+             *     represents the location at the top / left of the bounding box and value 1
+             *     represents the location at the bottom / end of the bounding box. Its default
+             *     value 0.5 represents the middle of the bounding box. Values outside [0, 1]
+             *     are also valid. Dynamic value is supported.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             public Builder(@NonNull FloatProp ratio) {
@@ -1501,9 +1504,11 @@ public final class DimensionBuilders {
             }
 
             /**
-             * Sets the ratio relative to the bounding box width/height, with the bounding box
-             * top / start as 0 and bottom / end as 1. Values outside [0, 1] are also valid. Dynamic
-             * value is supported. If not set, defaults to the middle of the element.
+             * Gets the ratio proportional to the bounding box width/height. value 0 represents the
+             * location at the top / left of the bounding box and value 1 represents the location at
+             * the bottom / end of the bounding box. Its default value 0.5 represents the middle
+             * of the bounding box. Values outside [0, 1] are also valid. Dynamic value is
+             * supported.
              */
             @NonNull
             private Builder setRatio(@NonNull FloatProp ratio) {

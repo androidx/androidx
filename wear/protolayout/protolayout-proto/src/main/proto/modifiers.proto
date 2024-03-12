@@ -163,27 +163,28 @@ message ElementMetadata {
 // by setting dynamic values. This modifier is not layout affecting.
 message Transformation {
   // The horizontal offset of this element relative to the location where the element's layout
-  // placed it.
+  // placed it. If not set, defaults to zero.
   DpProp translation_x = 1;
   // The vertical offset of this element in addition to the location where the element's layout
-  // placed it.
+  // placed it. If not set, defaults to zero.
   DpProp translation_y = 2;
   // The scale of this element in the x direction around the pivot point, as a proportion of the
-  // element's unscaled width .
+  // element's unscaled width. If not set, defaults to one.
   FloatProp scale_x = 3;
   // The scale of this element in the y direction around the pivot point, as a proportion of the
-  // element's unscaled height.
+  // element's unscaled height. If not set, defaults to one.
   FloatProp scale_y = 4;
-  // The clockwise Degrees that the element is rotated around the pivot point.
+  // The clockwise Degrees that the element is rotated around the pivot point. If not set, defaults
+  // to zero.
   DegreesProp rotation = 5;
   // The x offset of the point around which the element is rotated
-  // and scaled. Dynamic value is supported. By default, the pivot is centered
-  // on the element. Note that, for ArcText or ArcLine, the element inscribes the
+  // and scaled. Dynamic value is supported. If not set, defaults to the element center.
+  // Note that, for ArcText or ArcLine, the element inscribes the
   // entire circle and the default pivot is located at the center of the circle.
   PivotDimension pivot_x = 6;
   // The y offset of the point around which the element is rotated
-  // and scaled. Dynamic value is supported. By default, the pivot is centered
-  // on the element. Note that, for ArcText or ArcLine, the element inscribes the
+  // and scaled. Dynamic value is supported. If not set, defaults to the element center.
+  // Note that, for ArcText or ArcLine, the element inscribes the
   // entire circle and the default pivot is located at the center of the circle.
   PivotDimension pivot_y = 7;
 }
