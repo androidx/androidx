@@ -912,8 +912,9 @@ object OutlinedTextFieldDefaults {
                 focusedSupportingTextColor =
                 fromToken(OutlinedTextFieldTokens.FocusSupportingColor),
                 unfocusedSupportingTextColor = fromToken(OutlinedTextFieldTokens.SupportingColor),
-                disabledSupportingTextColor = OutlinedTextFieldTokens.DisabledSupportingColor
-                    .value.copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
+                disabledSupportingTextColor =
+                fromToken(OutlinedTextFieldTokens.DisabledSupportingColor)
+                    .copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
                 errorSupportingTextColor = fromToken(OutlinedTextFieldTokens.ErrorSupportingColor),
                 focusedPrefixColor = fromToken(OutlinedTextFieldTokens.InputPrefixColor),
                 unfocusedPrefixColor = fromToken(OutlinedTextFieldTokens.InputPrefixColor),
