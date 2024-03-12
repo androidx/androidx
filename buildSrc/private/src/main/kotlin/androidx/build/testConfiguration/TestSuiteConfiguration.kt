@@ -22,13 +22,14 @@ import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_AP
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.getFileInTestConfigDirectory
-import androidx.build.getPrivacySandboxApksDirectory
+import androidx.build.getPrivacySandboxFilesDirectory
 import androidx.build.getSupportRootFolder
 import androidx.build.hasBenchmarkPlugin
 import androidx.build.isPresubmitBuild
 import androidx.build.multiplatformExtension
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
@@ -82,8 +83,7 @@ fun Project.createTestConfigurationGenerationTask(
             GenerateTestConfigurationTask::class.java
         ) { task ->
             val androidXExtension = extensions.getByType<AndroidXExtension>()
-
-            if (androidXExtension.deviceTests.includePrivacySandboxSdks) {
+            if (isPrivacySandboxEnabled()) {
                 // TODO (b/309610890): Replace for dependency on AGP artifact.
                 val extractedPrivacySandboxSdkApksDir = layout.buildDirectory.dir(
                     "intermediates/extracted_apks_from_privacy_sandbox_sdks"
@@ -93,12 +93,21 @@ fun Project.createTestConfigurationGenerationTask(
                         it.builtBy("buildPrivacySandboxSdkApksForDebug")
                     }
                 )
+                // TODO (b/309610890): Replace for dependency on AGP artifact.
+                val usesSdkSplitDir = layout.buildDirectory.dir(
+                    "intermediates/uses_sdk_library_split_for_local_deployment"
+                )
+                task.privacySandboxUsesSdkSplit.from(
+                    files(usesSdkSplitDir) {
+                        it.builtBy("generateDebugAdditionalSplitForPrivacySandboxDeployment")
+                    }
+                )
                 task.outputPrivacySandboxFilenamesPrefix.set(
                     "${path.asFilenamePrefix()}-$variantName"
                 )
-                task.outputPrivacySandboxSdkApks.set(
-                    getPrivacySandboxApksDirectory().map {
-                        it.dir("${path.asFilenamePrefix()}-$variantName-sdks")
+                task.outputPrivacySandboxFiles.set(
+                    getPrivacySandboxFilesDirectory().map {
+                        it.dir("${path.asFilenamePrefix()}-$variantName")
                     }
                 )
             }
@@ -504,3 +513,9 @@ private fun Project.getTestSourceSetsForAndroid(): List<FileCollection> {
         ?.mapTo(testSourceFileCollections) { it.kotlin.sourceDirectories }
     return testSourceFileCollections
 }
+
+fun Project.isPrivacySandboxEnabled(): Boolean =
+    extensions.findByType(ApplicationExtension::class.java)
+        ?.privacySandbox
+        ?.enable
+        ?: false

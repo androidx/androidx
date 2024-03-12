@@ -22,6 +22,7 @@ class ConfigBuilder {
     lateinit var configName: String
     var appApkName: String? = null
     var appApkSha256: String? = null
+    val appSplits = mutableListOf<String>()
     lateinit var applicationId: String
     var isMicrobenchmark: Boolean = false
     var isMacrobenchmark: Boolean = false
@@ -40,6 +41,8 @@ class ConfigBuilder {
     fun appApkName(appApkName: String) = apply { this.appApkName = appApkName }
 
     fun appApkSha256(appApkSha256: String) = apply { this.appApkSha256 = appApkSha256 }
+
+    fun appSplits(appSplits: List<String>) = apply { this.appSplits.addAll(appSplits) }
 
     fun applicationId(applicationId: String) = apply { this.applicationId = applicationId }
 
@@ -129,8 +132,14 @@ class ConfigBuilder {
             sb.append(APK_INSTALL_OPTION.replace("APK_NAME", apk))
         }
         sb.append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
-        if (!appApkName.isNullOrEmpty())
-            sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
+        if (!appApkName.isNullOrEmpty()) {
+            if (appSplits.isEmpty()) {
+                sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
+            } else {
+                val apkList = appApkName + "," + appSplits.joinToString(",")
+                sb.append(APK_WITH_SPLITS_INSTALL_OPTION.replace("APK_LIST", apkList))
+            }
+        }
         sb.append(TARGET_PREPARER_CLOSE)
         // Post install commands after SuiteApkInstaller is declared
         if (isMicrobenchmark) {
@@ -310,6 +319,13 @@ private val TARGET_PREPARER_CLOSE =
 private val APK_INSTALL_OPTION =
     """
     <option name="test-file-name" value="APK_NAME" />
+
+"""
+        .trimIndent()
+
+private val APK_WITH_SPLITS_INSTALL_OPTION =
+    """
+    <option name="split-apk-file-names" value="APK_LIST" />
 
 """
         .trimIndent()
