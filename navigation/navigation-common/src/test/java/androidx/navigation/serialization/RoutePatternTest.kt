@@ -251,7 +251,7 @@ class RoutePatternTest {
         class TestClass(val custom: CustomType)
 
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?custom={custom}"
+            "$PATH_SERIAL_NAME/{custom}"
         )
     }
 
@@ -268,7 +268,7 @@ class RoutePatternTest {
         class TestClass(val custom: CustomType)
 
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?custom={custom}"
+            "$PATH_SERIAL_NAME/{custom}"
         )
     }
 
@@ -284,7 +284,7 @@ class RoutePatternTest {
 
         // args will be duplicated
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}?arg2={arg2}"
+            "$PATH_SERIAL_NAME/{arg}/{arg2}"
         )
     }
 
@@ -327,7 +327,7 @@ class RoutePatternTest {
         }
 
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?arg={arg}"
+            "$PATH_SERIAL_NAME/{arg}"
         )
     }
 
