@@ -200,6 +200,7 @@ internal fun SampleThreePaneScaffold(
     scaffoldDirective: PaneScaffoldDirective,
     scaffoldValue: ThreePaneScaffoldValue,
     paneOrder: ThreePaneScaffoldHorizontalOrder,
+    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     paneExpansionState: PaneExpansionState = PaneExpansionState(),
     windowInsets: WindowInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
 ) {
@@ -209,6 +210,7 @@ internal fun SampleThreePaneScaffold(
         scaffoldValue = scaffoldValue,
         paneOrder = paneOrder,
         paneExpansionState = paneExpansionState,
+        paneExpansionDragHandle = paneExpansionDragHandle,
         windowInsets = windowInsets,
         secondaryPane = {
             AnimatedPane(

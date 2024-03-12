@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxOfOrNull
 import kotlin.math.max
 import kotlin.math.min
 
@@ -92,6 +94,7 @@ internal fun ThreePaneScaffold(
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     paneExpansionState: PaneExpansionState = PaneExpansionState(),
+    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
     val scaffoldState = remember {
@@ -109,6 +112,7 @@ internal fun ThreePaneScaffold(
         secondaryPane = secondaryPane,
         tertiaryPane = tertiaryPane,
         paneExpansionState = paneExpansionState,
+        paneExpansionDragHandle = paneExpansionDragHandle,
         primaryPane = primaryPane
     )
 }
@@ -124,6 +128,7 @@ internal fun ThreePaneScaffold(
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     paneExpansionState: PaneExpansionState = PaneExpansionState(),
+    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
@@ -221,6 +226,11 @@ internal fun ThreePaneScaffold(
                     }.tertiaryPane()
                 }
             },
+            {
+                if (paneExpansionDragHandle != null) {
+                    paneExpansionDragHandle(paneExpansionState)
+                }
+            }
         )
 
         val measurePolicy = remember(paneExpansionState) {
@@ -266,7 +276,7 @@ private class ThreePaneContentMeasurePolicy(
      * Data class that is used to store the position and width of an expanded pane to be reused when
      * the pane is being hidden.
      */
-    private data class PanePlacement(var positionX: Int = 0, var measuredWidth: Int = 0)
+    data class PanePlacement(var positionX: Int = 0, var measuredWidth: Int = 0)
 
     private val placementsCache = mapOf(
         ThreePaneScaffoldRole.Primary to PanePlacement(),
@@ -281,6 +291,7 @@ private class ThreePaneContentMeasurePolicy(
         val primaryMeasurables = measurables[0]
         val secondaryMeasurables = measurables[1]
         val tertiaryMeasurables = measurables[2]
+        val dragHandleMeasurables = measurables[3]
         return layout(constraints.maxWidth, constraints.maxHeight) {
             if (coordinates == null) {
                 return@layout
@@ -468,6 +479,16 @@ private class ThreePaneContentMeasurePolicy(
                 )
             }
 
+            if (visiblePanes.size == 2 && dragHandleMeasurables.isNotEmpty()) {
+                measureAndPlaceDragHandleIfNeeded(
+                    dragHandleMeasurables,
+                    constraints,
+                    outerBounds,
+                    verticalSpacerSize,
+                    getSpacerMiddleOffsetX(visiblePanes[0], visiblePanes[1]),
+                )
+            }
+
             // Place the hidden panes to ensure a proper motion at the AnimatedVisibility,
             // otherwise the pane will be gone immediately when it's hidden.
             // The placement is done using the outerBounds, as the placementsCache holds
@@ -555,17 +576,14 @@ private class ThreePaneContentMeasurePolicy(
         measurable: PaneMeasurable,
         isLookingAhead: Boolean
     ) {
-        measurable.measuredWidth = localBounds.width
-        measurable.apply {
-            measure(Constraints.fixed(measuredWidth, localBounds.height))
-                .place(localBounds.left, localBounds.top)
-        }
-        if (isLookingAhead) {
-            // Cache the values to be used when this measurable role is being hidden.
-            // See placeHiddenPanes.
-            val cachedPanePlacement = placementsCache[measurable.role]!!
-            cachedPanePlacement.measuredWidth = measurable.measuredWidth
-            cachedPanePlacement.positionX = localBounds.left
+        with(measurable) {
+            measureAndPlace(
+                localBounds.width,
+                localBounds.height,
+                localBounds.left,
+                localBounds.top,
+                if (isLookingAhead) placementsCache else null
+            )
         }
     }
 
@@ -609,14 +627,14 @@ private class ThreePaneContentMeasurePolicy(
         }
         var positionX = partitionBounds.left
         measurables.fastForEach {
-            it.measure(Constraints.fixed(it.measuredWidth, partitionBounds.height))
-                .place(positionX, partitionBounds.top)
-            if (isLookingAhead) {
-                // Cache the values to be used when this measurable's role is being hidden.
-                // See placeHiddenPanes.
-                val cachedPanePlacement = placementsCache[it.role]!!
-                cachedPanePlacement.measuredWidth = it.measuredWidth
-                cachedPanePlacement.positionX = positionX
+            with(it) {
+                measureAndPlace(
+                    it.measuredWidth,
+                    partitionBounds.height,
+                    positionX,
+                    partitionBounds.top,
+                    if (isLookingAhead) placementsCache else null
+                )
             }
             positionX += it.measuredWidth + spacerSize
         }
@@ -636,21 +654,65 @@ private class ThreePaneContentMeasurePolicy(
                 return
             }
             val cachedPanePlacement = placementsCache[it.role]!!
-            it.measure(
-                Constraints.fixed(
-                    width = cachedPanePlacement.measuredWidth,
-                    height = partitionHeight
+            with(it) {
+                measureAndPlace(
+                    cachedPanePlacement.measuredWidth,
+                    partitionHeight,
+                    cachedPanePlacement.positionX,
+                    partitionTop,
+                    null,
+                    ThreePaneScaffoldDefaults.HiddenPaneZIndex
                 )
-            ).place(
-                cachedPanePlacement.positionX,
-                partitionTop,
-                ThreePaneScaffoldDefaults.HiddenPaneZIndex
-            )
+            }
         }
     }
 
     private fun Placeable.PlacementScope.getLocalBounds(bounds: Rect): IntRect {
         return bounds.translate(coordinates!!.windowToLocal(Offset.Zero)).roundToIntRect()
+    }
+
+    private fun Placeable.PlacementScope.measureAndPlaceDragHandleIfNeeded(
+        measurables: List<Measurable>,
+        constraints: Constraints,
+        contentBounds: IntRect,
+        maxHandleWidth: Int,
+        offsetX: Int
+    ) {
+        if (offsetX == Int.MIN_VALUE) {
+            return
+        }
+        val placeables = measurables.fastMap {
+            it.measure(
+                Constraints(
+                    maxWidth = maxHandleWidth,
+                    maxHeight = contentBounds.height
+                )
+            )
+        }
+        val halfMaxWidth = placeables.fastMaxOfOrNull {
+            it.width
+        }!! / 2
+        val clampedOffsetX =
+            offsetX.coerceIn(
+                contentBounds.left + halfMaxWidth,
+                contentBounds.right - halfMaxWidth
+            )
+        placeables.fastForEach {
+            it.place(
+                clampedOffsetX - it.width / 2,
+                (constraints.maxHeight - it.height) / 2
+            )
+        }
+    }
+
+    private fun getSpacerMiddleOffsetX(paneLeft: PaneMeasurable, paneRight: PaneMeasurable): Int {
+        return when {
+            paneLeft.measuredAndPlaced && paneRight.measuredAndPlaced ->
+                (paneLeft.placedPositionX + paneLeft.measuredWidth + paneRight.placedPositionX) / 2
+            paneLeft.measuredAndPlaced -> paneLeft.placedPositionX + paneLeft.measuredWidth
+            paneRight.measuredAndPlaced -> 0
+            else -> Int.MIN_VALUE
+        }
     }
 }
 
@@ -699,8 +761,9 @@ private class PaneMeasurable(
     val priority: Int,
     val role: ThreePaneScaffoldRole,
     defaultPreferredWidth: Int
-) : Measurable by measurable {
-    private val data = ((parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData())
+) {
+    private val data =
+        ((measurable.parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData())
 
     var measuredWidth = if (data.preferredWidth == null || data.preferredWidth!!.isNaN()) {
         defaultPreferredWidth
@@ -709,6 +772,35 @@ private class PaneMeasurable(
     }
 
     val isAnimatedPane = data.isAnimatedPane
+
+    var measuredHeight = 0
+    var placedPositionX = 0
+    var placedPositionY = 0
+    var measuredAndPlaced = false
+
+    fun Placeable.PlacementScope.measureAndPlace(
+        width: Int,
+        height: Int,
+        positionX: Int,
+        positionY: Int,
+        placementsCache: Map<ThreePaneScaffoldRole, ThreePaneContentMeasurePolicy.PanePlacement>?,
+        zIndex: Float = 0f
+    ) {
+        measuredWidth = width
+        measuredHeight = height
+        placedPositionX = positionX
+        placedPositionY = positionY
+        measurable.measure(Constraints.fixed(width, height)).place(positionX, positionY, zIndex)
+        measuredAndPlaced = true
+
+        // Cache the values to be used when this measurable's role is being hidden.
+        // See placeHiddenPanes.
+        if (placementsCache != null) {
+            val cachedPanePlacement = placementsCache[role]!!
+            cachedPanePlacement.measuredWidth = width
+            cachedPanePlacement.positionX = positionX
+        }
+    }
 }
 
 /**
