@@ -276,6 +276,27 @@ class MigrationKotlinTest {
         assertThat<String>(throwable!!.message, containsString("Migration didn't properly handle"))
     }
 
+    @Test
+    @Throws(IOException::class)
+    fun compatModeWithNoOverrideError() {
+        class NoOverrideMigration(startVersion: Int, endVersion: Int) :
+            Migration(startVersion, endVersion)
+
+        val db = helper.createDatabase(TEST_DB, 2)
+        db.close()
+        try {
+            helper.runMigrationsAndValidate(
+                TEST_DB, 3, true,
+                NoOverrideMigration(2, 3)
+            )
+        } catch (ex: NotImplementedError) {
+            assertThat(
+                ex,
+                instanceOf(NotImplementedError::class.java)
+            )
+        }
+    }
+
     internal val MIGRATION_1_2: Migration = object : Migration(1, 2) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL(
@@ -347,7 +368,6 @@ class MigrationKotlinTest {
 
     internal class EmptyMigration(startVersion: Int, endVersion: Int) :
         Migration(startVersion, endVersion) {
-
         override fun migrate(db: SupportSQLiteDatabase) {
             // do nothing
         }

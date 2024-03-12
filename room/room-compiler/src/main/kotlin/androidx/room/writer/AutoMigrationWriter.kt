@@ -27,7 +27,8 @@ import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginating
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addProperty
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.SQLiteDriverMemberNames
+import androidx.room.ext.SQLiteDriverTypeNames.CONNECTION
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.vo.AutoMigration
@@ -108,12 +109,12 @@ class AutoMigrationWriter(
             isOverride = true,
         ).apply {
             addParameter(
-                typeName = SupportDbTypeNames.DB,
-                name = "db",
+                typeName = CONNECTION,
+                name = "connection",
             )
             addMigrationStatements(this)
             if (autoMigration.specClassName != null) {
-                addStatement("callback.onPostMigrate(db)")
+                addStatement("callback.onPostMigrate(connection)")
             }
         }
         return migrateFunctionBuilder.build()
@@ -376,7 +377,7 @@ class AutoMigrationWriter(
         migrateBuilder: XFunSpec.Builder
     ) {
         migrateBuilder.addStatement(
-            "%M(db, %S)",
+            "%M(connection, %S)",
             RoomTypeNames.DB_UTIL.packageMember("foreignKeyCheck"),
             tableName
         )
@@ -478,8 +479,13 @@ class AutoMigrationWriter(
         sql: String
     ) {
         migrateBuilder.addStatement(
-            "db.execSQL(%S)",
-            sql
+            "%L",
+            XCodeBlock.ofExtensionCall(
+                language = codeLanguage,
+                memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
+                receiverVarName = "connection",
+                args = XCodeBlock.of(codeLanguage, "%S", sql)
+            )
         )
     }
 }

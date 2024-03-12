@@ -208,7 +208,7 @@ package androidx.room.migration {
 
   public abstract class Migration {
     ctor public Migration(int startVersion, int endVersion);
-    method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void migrate(androidx.sqlite.db.SupportSQLiteDatabase db);
     method public void migrate(androidx.sqlite.SQLiteConnection connection);
     field public final int endVersion;
     field public final int startVersion;

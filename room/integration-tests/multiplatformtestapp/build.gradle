@@ -20,6 +20,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("com.google.devtools.ksp")
+    id("androidx.room")
 }
 
 // Disabled due to https://youtrack.jetbrains.com/issue/KT-65761
@@ -83,10 +84,13 @@ dependencies {
     }
 }
 
-ksp {
-    arg("room.generateKotlin", "true")
-}
-
 android {
     namespace "androidx.room.integration.multiplatformtestapp"
+}
+
+room {
+    schemaDirectory(
+            provider { layout.projectDirectory.dir("schemas-ksp").getAsFile().getAbsolutePath() }
+    )
+    generateKotlin = true
 }

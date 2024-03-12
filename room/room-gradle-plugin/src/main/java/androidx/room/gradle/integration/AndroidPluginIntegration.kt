@@ -65,6 +65,8 @@ internal class AndroidPluginIntegration(
                     "Use the `room { schemaDirectory(...) }` DSL to specify one."
             }
             configureAndroidVariant(project, roomExtension, variant)
+            @Suppress("DEPRECATION")
+            // TODO(b/328835662): Remove usage of deprecated API
             variant.unitTest?.let { configureAndroidVariant(project, roomExtension, it) }
             if (variant is HasAndroidTest) {
                 variant.androidTest?.let { configureAndroidVariant(project, roomExtension, it) }

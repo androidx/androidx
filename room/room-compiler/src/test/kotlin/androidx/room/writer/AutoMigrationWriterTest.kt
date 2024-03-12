@@ -21,7 +21,6 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runJavaProcessorTest
 import androidx.room.compiler.processing.util.runKspTest
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.processor.Context
 import androidx.room.util.SchemaDiffResult
