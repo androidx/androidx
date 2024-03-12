@@ -58,8 +58,9 @@ import androidx.compose.ui.util.fastMap
  * and the default implementation to get better understanding and address the intricacies of
  * navigation in an adaptive scenario.
  *
- * @param T the type representing the content (or id of the content) for a navigation destination.
- * This type must be storable in a Bundle.
+ * @param T the type representing the content, or id of the content, for a navigation destination.
+ *   This type must be storable in a Bundle. Used to customize navigation behavior (for example,
+ *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Nothing].
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
@@ -95,9 +96,11 @@ interface ThreePaneScaffoldNavigator<T> {
 
     /**
      * Navigates to a new destination. The new destination is supposed to have the highest
-     * priority when calculating the new [scaffoldValue]. When implementing this method, please
-     * ensure the new destination pane will be expanded or adapted in a reasonable way so it
-     * provides users the sense that the new destination is the pane under current usage.
+     * priority when calculating the new [scaffoldValue].
+     *
+     * Implementors of this interface should ensure the new destination pane will be expanded or
+     * adapted in a reasonable way so it provides users the sense that the new destination is the
+     * pane currently being used.
      *
      * @param pane the new destination pane.
      * @param content the optional content, or an id representing the content of the new
@@ -121,8 +124,7 @@ interface ThreePaneScaffoldNavigator<T> {
 
     /**
      * Navigates to the previous destination. Returns `true` if there is a previous destination to
-     * navigate back to. When implementing this function, please make sure the logic is consistent
-     * with [canNavigateBack].
+     * navigate back to.
      *
      * Implementors of this interface should ensure the logic of this function is consistent with
      * [canNavigateBack].
@@ -140,17 +142,21 @@ interface ThreePaneScaffoldNavigator<T> {
  * Returns a remembered default implementation of [ThreePaneScaffoldNavigator] for
  * [ListDetailPaneScaffold], which will be updated automatically when the input values change.
  * The default navigator is supposed to be used independently from any navigation frameworks and
- * it will address the navigation purely inside the [ListDetailPaneScaffold].
+ * handles the navigation purely inside the [ListDetailPaneScaffold].
  *
+ * @param T the type representing the content, or id of the content, for a navigation destination.
+ *   This type must be storable in a Bundle. Used to customize navigation behavior (for example,
+ *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Nothing].
  * @param scaffoldDirective the current layout directives to follow. The default value will be
- *        calculated with [calculateStandardPaneScaffoldDirective] using [WindowAdaptiveInfo]
- *        retrieved from the current context.
+ *   calculated with [calculateStandardPaneScaffoldDirective] using
+ *   [WindowAdaptiveInfo][androidx.compose.material3.adaptive.WindowAdaptiveInfo] retrieved from
+ *   the current context.
  * @param adaptStrategies adaptation strategies of each pane.
  * @param isDestinationHistoryAware `true` if the scaffold value calculation should be aware of the
- *        full destination history, instead of just the current destination. See
- *        [calculateThreePaneScaffoldValue] for more relevant details.
+ *   full destination history, instead of just the current destination. See
+ *   [calculateThreePaneScaffoldValue] for more relevant details.
  * @param initialDestinationHistory the initial pane destination history of the scaffold, by default
- *        it will be just the list pane.
+ *   it will be just the list pane.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -174,17 +180,21 @@ fun <T> rememberListDetailPaneScaffoldNavigator(
  * Returns a remembered default implementation of [ThreePaneScaffoldNavigator] for
  * [SupportingPaneScaffold], which will be updated automatically when the input values change.
  * The default navigator is supposed to be used independently from any navigation frameworks and
- * it will address the navigation purely inside the [SupportingPaneScaffold].
+ * handles the navigation purely inside the [SupportingPaneScaffold].
  *
+ * @param T the type representing the content, or id of the content, for a navigation destination.
+ *   This type must be storable in a Bundle. Used to customize navigation behavior (for example,
+ *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Nothing].
  * @param scaffoldDirective the current layout directives to follow. The default value will be
- *        calculated with [calculateStandardPaneScaffoldDirective] using [WindowAdaptiveInfo]
- *        retrieved from the current context.
+ *   calculated with [calculateStandardPaneScaffoldDirective] using
+ *   [WindowAdaptiveInfo][androidx.compose.material3.adaptive.WindowAdaptiveInfo] retrieved from
+ *   the current context.
  * @param adaptStrategies adaptation strategies of each pane.
  * @param isDestinationHistoryAware `true` if the scaffold value calculation should be aware of the
- *        full destination history, instead of just the current destination. See
- *        [calculateThreePaneScaffoldValue] for more relevant details.
+ *   full destination history, instead of just the current destination. See
+ *   [calculateThreePaneScaffoldValue] for more relevant details.
  * @param initialDestinationHistory the initial destination history of the scaffold, by default it
- *        will be just the main pane.
+ *   will be just the main pane.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
