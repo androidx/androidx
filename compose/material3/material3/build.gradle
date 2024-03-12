@@ -78,11 +78,6 @@ androidXMultiplatform {
                 api("androidx.annotation:annotation-experimental:1.4.0")
                 implementation("androidx.activity:activity-compose:1.8.2")
 
-                // TODO: remove next 3 dependencies when b/202810604 is fixed
-                implementation("androidx.savedstate:savedstate-ktx:1.2.1")
-                implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
-                implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
-
                 implementation("androidx.lifecycle:lifecycle-common-java8:2.6.1")
             }
         }
