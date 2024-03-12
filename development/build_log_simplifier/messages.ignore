@@ -607,3 +607,5 @@ docs-tip-of-tree:docs completing
 # Investigate more b/325465332
 # > Task :room:integration-tests:room-testapp-multiplatform:ksp.*
 i: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]
+# buildPrivacySandboxSdkApksForDebug (b/329101823)
+Extracted sandbox SDK APK for.*
