@@ -100,7 +100,7 @@ public class InputConnectionCompatTest {
     private static final int TEST_FLAGS = 0;
 
     @Test
-    @SdkSuppress(minSdkVersion = 25)
+    @SdkSuppress(minSdkVersion = 25, excludedSdks = { 30 }) // Excluded due to flakes (b/324889554)
     public void commitContentPlatformApi() {
         EditorInfo editorInfo = new EditorInfo();
         EditorInfoCompat.setContentMimeTypes(editorInfo, TEST_MIME_TYPES);
