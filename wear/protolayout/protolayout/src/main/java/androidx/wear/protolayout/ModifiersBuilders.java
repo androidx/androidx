@@ -1401,11 +1401,7 @@ public final class ModifiersBuilders {
 
         /**
          * Sets the x offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported. If not set, defaults to the element center. Note that, for
-         * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
-         * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
-         * inscribes the entire circle and the default pivot is located at the center of the
-         * circle.
+         * Dynamic value is supported. If not set, defaults to the element center.
          */
         @Nullable
         public PivotDimension getPivotX() {
@@ -1418,11 +1414,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the y offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported. If not set, defaults to the element center. Note that, for
-         * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
-         * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
-         * inscribes the entire circle and the default pivot is located at the center of the
-         * circle.
+         * Dynamic value is supported. If not set, defaults to the element center.
          */
         @Nullable
         public PivotDimension getPivotY() {
@@ -1558,11 +1550,7 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the x offset of the point around which the element is rotated and scaled.
-             * Dynamic value is supported. If not set, defaults to the element center. Note that,
-             * for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
-             * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
-             * inscribes the entire circle and the default pivot is located at the center of the
-             * circle.
+             * Dynamic value is supported. If not set, defaults to the element center.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1575,11 +1563,7 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the y offset of the point around which the element is rotated and scaled.
-             * Dynamic value is supported. If not set, defaults to the element center. Note that,
-             * for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
-             * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
-             * inscribes the entire circle and the default pivot is located at the center of the
-             * circle.
+             * Dynamic value is supported. If not set, defaults to the element center.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -2979,17 +2963,6 @@ public final class ModifiersBuilders {
             }
         }
 
-
-        /** Gets the transformation applied to the element post-layout. */
-        @Nullable
-        public Transformation getTransformation() {
-            if (mImpl.hasTransformation()) {
-                return Transformation.fromProto(mImpl.getTransformation());
-            } else {
-                return null;
-            }
-        }
-
         /**
          * Gets the opacity of the element with a value from 0 to 1, where 0 means the element
          * is completely transparent and 1 means the element is completely opaque. Dynamic value
@@ -3039,8 +3012,6 @@ public final class ModifiersBuilders {
                     + getClickable()
                     + ", semantics="
                     + getSemantics()
-                    + ", transformation="
-                    + getTransformation()
                     + ", opacity="
                     + getOpacity()
                     + "}";
@@ -3078,16 +3049,6 @@ public final class ModifiersBuilders {
                 mImpl.setSemantics(semantics.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(semantics.getFingerprint()).aggregateValueAsInt());
-                return this;
-            }
-
-            /** Sets the transformation applied to the element post-layout. */
-            @RequiresSchemaVersion(major = 1, minor = 400)
-            @NonNull
-            public Builder setTransformation(@NonNull Transformation transformation) {
-                mImpl.setTransformation(transformation.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        3, checkNotNull(transformation.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
