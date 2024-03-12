@@ -26,6 +26,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.invokeGlobalAssertions
+import androidx.compose.ui.test.tryPerformAccessibilityChecks
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
@@ -189,6 +190,7 @@ private fun SemanticsNodeInteraction.performStylusInput(
     block: TouchInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
     @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
+    tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode("Failed to inject stylus input.")
     val stylusInjectionScope = HandwritingTestStylusInjectScope(node)
     block.invoke(stylusInjectionScope)

@@ -50,4 +50,8 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     actual fun unregisterIdlingResource(idlingResource: IdlingResource)
 
     actual fun setContent(composable: @Composable () -> Unit)
+
+    actual fun enableAccessibilityChecks()
+
+    actual fun disableAccessibilityChecks()
 }
