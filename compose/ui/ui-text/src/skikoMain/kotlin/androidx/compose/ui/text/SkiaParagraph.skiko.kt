@@ -278,6 +278,14 @@ internal class SkiaParagraph(
         return para.getGlyphPositionAtCoordinate(position.x, position.y).position
     }
 
+    override fun getRangeForRect(
+        rect: Rect,
+        granularity: TextGranularity,
+        inclusionStrategy: TextInclusionStrategy
+    ): TextRange? {
+        return null
+    }
+
     override fun getBoundingBox(offset: Int): Rect {
         val box = getBoxForwardByOffset(offset) ?: getBoxBackwardByOffset(offset, text.length)!!
         return box.rect.toComposeRect()

@@ -20,8 +20,10 @@ import android.graphics.Paint.FontMetricsInt
 import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
+import android.os.Build
 import android.os.Trace
 import android.text.BoringLayout
+import android.text.GraphemeClusterSegmentFinder
 import android.text.Layout
 import android.text.SpannableString
 import android.text.Spanned
@@ -30,7 +32,9 @@ import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.TextUtils
+import androidx.annotation.DoNotInline
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_CENTER
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_LEFT
@@ -58,8 +62,13 @@ import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_LOCALE
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_RTL
+import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_WORD
 import androidx.compose.ui.text.android.LayoutCompat.TextDirection
+import androidx.compose.ui.text.android.LayoutCompat.TextGranularity
 import androidx.compose.ui.text.android.LayoutCompat.TextLayoutAlignment
+import androidx.compose.ui.text.android.selection.Api34SegmentFinder.toAndroidSegmentFinder
+import androidx.compose.ui.text.android.selection.WordIterator
+import androidx.compose.ui.text.android.selection.WordSegmentFinder
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.compose.ui.text.android.style.getEllipsizedLeftPadding
@@ -113,7 +122,7 @@ private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
 internal class TextLayout constructor(
     charSequence: CharSequence,
     width: Float,
-    textPaint: TextPaint,
+    val textPaint: TextPaint,
     @TextLayoutAlignment alignment: Int = DEFAULT_ALIGNMENT,
     ellipsize: TextUtils.TruncateAt? = null,
     @TextDirection textDirectionHeuristic: Int = DEFAULT_TEXT_DIRECTION,
@@ -142,6 +151,21 @@ internal class TextLayout constructor(
         get() = layoutIntrinsics.minIntrinsicWidth
 
     val didExceedMaxLines: Boolean
+
+    private var backingWordIterator: WordIterator? = null
+    val wordIterator: WordIterator
+        get() {
+            val finalWordIterator = backingWordIterator
+            if (finalWordIterator != null) return finalWordIterator
+            return WordIterator(
+                layout.text,
+                0,
+                layout.text.length,
+                textPaint.textLocale
+            ).also {
+                backingWordIterator = it
+            }
+        }
 
     /**
      * Please do not access this object directly from runtime code.
@@ -569,6 +593,77 @@ internal class TextLayout constructor(
         layout.getSelectionPath(start, end, dest)
         if (topPadding != 0 && !dest.isEmpty) {
             dest.offset(0f /* dx */, topPadding.toFloat() /* dy */)
+        }
+    }
+
+    fun getRangeForRect(
+        rect: RectF,
+        @TextGranularity granularity: Int,
+        inclusionStrategy: (RectF, RectF) -> Boolean
+    ): IntArray? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return AndroidLayoutApi34.getRangeForRect(
+                this,
+                rect,
+                granularity,
+                inclusionStrategy
+            )
+        }
+        return getRangeForRect(layout, layoutHelper, rect, granularity, inclusionStrategy)
+    }
+
+    /**
+     * A lightweight version of fillBoundingBoxes that only fills the horizontal bounds of
+     * characters in the line referred by the given [lineIndex]. The result will be filled into
+     * the given [array] where the left or right bounds i-th character in the line is stored as
+     * the (i * 2)-th or (i * 2 + 1)-th element respectively.
+     */
+    internal fun fillLineHorizontalBounds(
+        lineIndex: Int,
+        array: FloatArray,
+    ) {
+        val lineStartOffset = getLineStart(lineIndex)
+        val lineEndOffset = getLineEnd(lineIndex)
+
+        val range = lineEndOffset - lineStartOffset
+        val minArraySize = range * 2
+
+        require(array.size >= minArraySize) {
+            "array.size - arrayStart must be greater or equal than (endOffset - startOffset) * 2"
+        }
+
+        val cache = HorizontalPositionCache(this)
+
+        val isLtrLine = getParagraphDirection(lineIndex) == Layout.DIR_LEFT_TO_RIGHT
+
+        var arrayOffset = 0
+        for (offset in lineStartOffset until lineEndOffset) {
+            val isRtlChar = isRtlCharAt(offset)
+
+            val left: Float
+            val right: Float
+
+            when {
+                isLtrLine && !isRtlChar -> {
+                    left = cache.getPrimaryDownstream(offset)
+                    right = cache.getPrimaryUpstream(offset + 1)
+                }
+                isLtrLine && isRtlChar -> {
+                    right = cache.getSecondaryDownstream(offset)
+                    left = cache.getSecondaryUpstream(offset + 1)
+                }
+                isRtlChar -> {
+                    right = cache.getPrimaryDownstream(offset)
+                    left = cache.getPrimaryUpstream(offset + 1)
+                }
+                else -> {
+                    left = cache.getSecondaryDownstream(offset)
+                    right = cache.getSecondaryUpstream(offset + 1)
+                }
+            }
+            array[arrayOffset] = left
+            array[arrayOffset + 1] = right
+            arrayOffset += 2
         }
     }
 
@@ -1037,3 +1132,23 @@ private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan>? {
 }
 
 internal fun Layout.isLineEllipsized(lineIndex: Int) = this.getEllipsisCount(lineIndex) > 0
+
+@RequiresApi(34)
+internal object AndroidLayoutApi34 {
+    @DoNotInline
+    internal fun getRangeForRect(
+        layout: TextLayout,
+        rectF: RectF,
+        @TextGranularity granularity: Int,
+        inclusionStrategy: (RectF, RectF) -> Boolean
+    ): IntArray? {
+
+        val segmentFinder = when (granularity) {
+            TEXT_GRANULARITY_WORD ->
+                WordSegmentFinder(layout.text, layout.wordIterator).toAndroidSegmentFinder()
+            else -> GraphemeClusterSegmentFinder(layout.text, layout.textPaint)
+        }
+
+        return layout.layout.getRangeForRect(rectF, segmentFinder, inclusionStrategy)
+    }
+}
