@@ -27,7 +27,6 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.SubcomposeLayoutReuseTestCase
 import androidx.compose.testutils.benchmark.benchmarkReuseFor
 import androidx.compose.testutils.setupContent
-import androidx.compose.ui.platform.ViewRootForTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.FixMethodOrder
@@ -145,10 +144,6 @@ internal fun ComposeExecutionControl.doFramesUntilIdle() {
     do {
         doFrame()
     } while (hasPendingChanges() || hasPendingMeasureOrLayout())
-}
-
-private fun ComposeExecutionControl.hasPendingMeasureOrLayout(): Boolean {
-    return (getHostView() as ViewRootForTest).hasPendingMeasureOrLayout
 }
 
 private fun ComposeBenchmarkRule.benchmarkCreateFor(content: @Composable () -> Unit) {

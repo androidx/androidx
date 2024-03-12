@@ -66,6 +66,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
     internal var view: View? = null
         private set
+
     override fun getHostView(): View = view!!
 
     override var didLastRecomposeHaveChanges = false
@@ -103,6 +104,9 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
     private var testCase: T? = null
 
+    private val owner: ViewRootForTest?
+        get() = findViewRootForTest(activity)
+
     init {
         val displayMetrics = DisplayMetrics()
         @Suppress("DEPRECATION") /* defaultDisplay + getMetrics() */
@@ -128,7 +132,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         }
 
         activity.setContent(recomposer) { testCase!!.Content() }
-        view = findViewRootForTest(activity)!!.view
+        view = owner!!.view
         Snapshot.notifyObjectsInitialized()
         simulationState = SimulationState.EmitContentDone
     }
@@ -140,6 +144,14 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         }
 
         return recomposer.hasPendingWork
+    }
+
+    override fun hasPendingMeasureOrLayout(): Boolean {
+        return owner?.hasPendingMeasureOrLayout ?: false
+    }
+
+    override fun hasPendingDraw(): Boolean {
+        return view?.isDirty ?: false
     }
 
     /**
