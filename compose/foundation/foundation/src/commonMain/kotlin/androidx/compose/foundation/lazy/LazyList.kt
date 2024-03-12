@@ -299,41 +299,43 @@ private fun rememberLazyListMeasurePolicy(
             state.scrollDeltaBetweenPasses
         }
 
-        measureLazyList(
-            itemsCount = itemsCount,
-            measuredItemProvider = measuredItemProvider,
-            mainAxisAvailableSize = mainAxisAvailableSize,
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
-            spaceBetweenItems = spaceBetweenItems,
-            firstVisibleItemIndex = firstVisibleItemIndex,
-            firstVisibleItemScrollOffset = firstVisibleScrollOffset,
-            scrollToBeConsumed = scrollToBeConsumed,
-            constraints = contentConstraints,
-            isVertical = isVertical,
-            headerIndexes = itemProvider.headerIndexes,
-            verticalArrangement = verticalArrangement,
-            horizontalArrangement = horizontalArrangement,
-            reverseLayout = reverseLayout,
-            density = this,
-            itemAnimator = state.itemAnimator,
-            beyondBoundsItemCount = beyondBoundsItemCount,
-            pinnedItems = pinnedItems,
-            hasLookaheadPassOccurred = hasLookaheadPassOccurred,
-            isLookingAhead = isLookingAhead,
-            postLookaheadLayoutInfo = state.postLookaheadLayoutInfo,
-            coroutineScope = coroutineScope,
-            placementScopeInvalidator = state.placementScopeInvalidator,
-            layout = { width, height, placement ->
-                layout(
-                    containerConstraints.constrainWidth(width + totalHorizontalPadding),
-                    containerConstraints.constrainHeight(height + totalVerticalPadding),
-                    emptyMap(),
-                    placement
-                )
-            }
-        ).also {
-            state.applyMeasureResult(it, isLookingAhead)
+        val measureResult = Snapshot.withMutableSnapshot {
+            measureLazyList(
+                itemsCount = itemsCount,
+                measuredItemProvider = measuredItemProvider,
+                mainAxisAvailableSize = mainAxisAvailableSize,
+                beforeContentPadding = beforeContentPadding,
+                afterContentPadding = afterContentPadding,
+                spaceBetweenItems = spaceBetweenItems,
+                firstVisibleItemIndex = firstVisibleItemIndex,
+                firstVisibleItemScrollOffset = firstVisibleScrollOffset,
+                scrollToBeConsumed = scrollToBeConsumed,
+                constraints = contentConstraints,
+                isVertical = isVertical,
+                headerIndexes = itemProvider.headerIndexes,
+                verticalArrangement = verticalArrangement,
+                horizontalArrangement = horizontalArrangement,
+                reverseLayout = reverseLayout,
+                density = this,
+                itemAnimator = state.itemAnimator,
+                beyondBoundsItemCount = beyondBoundsItemCount,
+                pinnedItems = pinnedItems,
+                hasLookaheadPassOccurred = hasLookaheadPassOccurred,
+                isLookingAhead = isLookingAhead,
+                postLookaheadLayoutInfo = state.postLookaheadLayoutInfo,
+                coroutineScope = coroutineScope,
+                placementScopeInvalidator = state.placementScopeInvalidator,
+                layout = { width, height, placement ->
+                    layout(
+                        containerConstraints.constrainWidth(width + totalHorizontalPadding),
+                        containerConstraints.constrainHeight(height + totalVerticalPadding),
+                        emptyMap(),
+                        placement
+                    )
+                }
+            )
         }
+        state.applyMeasureResult(measureResult, isLookingAhead)
+        measureResult
     }
 }

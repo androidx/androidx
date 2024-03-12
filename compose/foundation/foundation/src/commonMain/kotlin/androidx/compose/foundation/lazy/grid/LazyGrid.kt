@@ -322,39 +322,41 @@ private fun rememberLazyGridMeasurePolicy(
             state.beyondBoundsInfo
         )
 
-        measureLazyGrid(
-            itemsCount = itemsCount,
-            measuredLineProvider = measuredLineProvider,
-            measuredItemProvider = measuredItemProvider,
-            mainAxisAvailableSize = mainAxisAvailableSize,
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
-            spaceBetweenLines = spaceBetweenLines,
-            firstVisibleLineIndex = firstVisibleLineIndex,
-            firstVisibleLineScrollOffset = firstVisibleLineScrollOffset,
-            scrollToBeConsumed = state.scrollToBeConsumed,
-            constraints = contentConstraints,
-            isVertical = isVertical,
-            verticalArrangement = verticalArrangement,
-            horizontalArrangement = horizontalArrangement,
-            reverseLayout = reverseLayout,
-            density = this,
-            placementAnimator = state.placementAnimator,
-            spanLayoutProvider = spanLayoutProvider,
-            pinnedItems = pinnedItems,
-            coroutineScope = coroutineScope,
-            placementScopeInvalidator = state.placementScopeInvalidator,
-            prefetchInfoRetriever = prefetchInfoRetriever,
-            layout = { width, height, placement ->
-                layout(
-                    containerConstraints.constrainWidth(width + totalHorizontalPadding),
-                    containerConstraints.constrainHeight(height + totalVerticalPadding),
-                    emptyMap(),
-                    placement
-                )
-            }
-        ).also {
-            state.applyMeasureResult(it)
+        val measureResult = Snapshot.withMutableSnapshot {
+            measureLazyGrid(
+                itemsCount = itemsCount,
+                measuredLineProvider = measuredLineProvider,
+                measuredItemProvider = measuredItemProvider,
+                mainAxisAvailableSize = mainAxisAvailableSize,
+                beforeContentPadding = beforeContentPadding,
+                afterContentPadding = afterContentPadding,
+                spaceBetweenLines = spaceBetweenLines,
+                firstVisibleLineIndex = firstVisibleLineIndex,
+                firstVisibleLineScrollOffset = firstVisibleLineScrollOffset,
+                scrollToBeConsumed = state.scrollToBeConsumed,
+                constraints = contentConstraints,
+                isVertical = isVertical,
+                verticalArrangement = verticalArrangement,
+                horizontalArrangement = horizontalArrangement,
+                reverseLayout = reverseLayout,
+                density = this,
+                placementAnimator = state.placementAnimator,
+                spanLayoutProvider = spanLayoutProvider,
+                pinnedItems = pinnedItems,
+                coroutineScope = coroutineScope,
+                placementScopeInvalidator = state.placementScopeInvalidator,
+                prefetchInfoRetriever = prefetchInfoRetriever,
+                layout = { width, height, placement ->
+                    layout(
+                        containerConstraints.constrainWidth(width + totalHorizontalPadding),
+                        containerConstraints.constrainHeight(height + totalVerticalPadding),
+                        emptyMap(),
+                        placement
+                    )
+                }
+            )
         }
+        state.applyMeasureResult(measureResult)
+        measureResult
     }
 }
