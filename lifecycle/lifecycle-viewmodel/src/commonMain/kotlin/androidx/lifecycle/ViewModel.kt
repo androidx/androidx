@@ -18,7 +18,7 @@
 package androidx.lifecycle
 
 import androidx.annotation.MainThread
-import androidx.lifecycle.viewmodel.internal.CloseableCoroutineScope
+import androidx.lifecycle.viewmodel.internal.Lock
 import androidx.lifecycle.viewmodel.internal.VIEW_MODEL_SCOPE_KEY
 import androidx.lifecycle.viewmodel.internal.createViewModelScope
 import kotlin.coroutines.EmptyCoroutineContext
@@ -200,7 +200,9 @@ public expect abstract class ViewModel {
  * @see ViewModel.onCleared
  */
 public val ViewModel.viewModelScope: CoroutineScope
-    get() {
-        return getCloseable<CloseableCoroutineScope>(VIEW_MODEL_SCOPE_KEY)
+    get() = viewModelScopeLock.withLock {
+        getCloseable(VIEW_MODEL_SCOPE_KEY)
             ?: createViewModelScope().also { scope -> addCloseable(VIEW_MODEL_SCOPE_KEY, scope) }
     }
+
+private val viewModelScopeLock = Lock()
