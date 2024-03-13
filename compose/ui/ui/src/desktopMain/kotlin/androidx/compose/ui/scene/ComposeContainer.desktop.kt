@@ -23,8 +23,8 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.LayerType
-import androidx.compose.ui.awt.AwtEventFilter
-import androidx.compose.ui.awt.AwtEventFilters
+import androidx.compose.ui.awt.AwtEventListener
+import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.PlatformContext
@@ -122,7 +122,7 @@ internal class ComposeContainer(
         exceptionHandler = {
             exceptionHandler?.onException(it) ?: throw it
         },
-        eventFilter = AwtEventFilters(
+        eventListener = AwtEventListeners(
             OnlyValidPrimaryMouseButtonFilter,
             DetectEventOutsideLayer(),
             FocusableLayerEventFilter()
@@ -415,23 +415,23 @@ internal class ComposeContainer(
      * Detect and trigger [DesktopComposeSceneLayer.onMouseEventOutside] if event happened below
      * focused layer.
      */
-    private inner class DetectEventOutsideLayer : AwtEventFilter {
-        override fun shouldSendMouseEvent(event: AwtMouseEvent): Boolean {
+    private inner class DetectEventOutsideLayer : AwtEventListener {
+        override fun onMouseEvent(event: AwtMouseEvent): Boolean {
             layers.fastForEachReversed {
                 it.onMouseEventOutside(event)
                 if (it.focusable) {
-                    return true
+                    return false
                 }
             }
-            return true
+            return false
         }
     }
 
-    private inner class FocusableLayerEventFilter : AwtEventFilter {
+    private inner class FocusableLayerEventFilter : AwtEventListener {
         private val noFocusableLayers get() = layers.all { !it.focusable }
 
-        override fun shouldSendMouseEvent(event: AwtMouseEvent): Boolean = noFocusableLayers
-        override fun shouldSendKeyEvent(event: AwtKeyEvent): Boolean = noFocusableLayers
+        override fun onMouseEvent(event: AwtMouseEvent): Boolean = !noFocusableLayers
+        override fun onKeyEvent(event: AwtKeyEvent): Boolean = !noFocusableLayers
     }
 }
 

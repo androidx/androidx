@@ -123,7 +123,7 @@ internal class SwingComposeSceneLayer(
             exceptionHandler = {
                 composeContainer.exceptionHandler?.onException(it) ?: throw it
             },
-            eventFilter = eventFilter,
+            eventListener = eventListener,
             coroutineContext = compositionContext.effectCoroutineContext,
             skiaLayerComponentFactory = ::createSkiaLayerComponent,
             composeSceneFactory = ::createComposeScene,

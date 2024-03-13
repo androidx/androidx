@@ -19,8 +19,8 @@ package androidx.compose.ui.scene
 import androidx.annotation.CallSuper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
-import androidx.compose.ui.awt.AwtEventFilter
-import androidx.compose.ui.awt.AwtEventFilters
+import androidx.compose.ui.awt.AwtEventListener
+import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.awt.toAwtRectangle
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -46,7 +46,7 @@ internal abstract class DesktopComposeSceneLayer(
 ) : ComposeSceneLayer {
     protected val windowContainer get() = composeContainer.windowContainer
     protected val layersAbove get() = composeContainer.layersAbove(this)
-    protected val eventFilter get() = AwtEventFilters(
+    protected val eventListener get() = AwtEventListeners(
         OnlyValidPrimaryMouseButtonFilter,
         DetectEventOutsideLayer(),
         FocusableLayerEventFilter()
@@ -166,24 +166,24 @@ internal abstract class DesktopComposeSceneLayer(
      * Detect and trigger [DesktopComposeSceneLayer.onMouseEventOutside] if event happened below
      * focused layer.
      */
-    private inner class DetectEventOutsideLayer : AwtEventFilter {
-        override fun shouldSendMouseEvent(event: MouseEvent): Boolean {
+    private inner class DetectEventOutsideLayer : AwtEventListener {
+        override fun onMouseEvent(event: MouseEvent): Boolean {
             layersAbove.toList().fastForEachReversed {
                 it.onMouseEventOutside(event)
                 if (it.focusable) {
-                    return true
+                    return false
                 }
             }
-            return true
+            return false
         }
     }
 
-    private inner class FocusableLayerEventFilter : AwtEventFilter {
+    private inner class FocusableLayerEventFilter : AwtEventListener {
         private val noFocusableLayersAbove: Boolean
             get() = layersAbove.all { !it.focusable }
 
-        override fun shouldSendMouseEvent(event: MouseEvent): Boolean = noFocusableLayersAbove
-        override fun shouldSendKeyEvent(event: KeyEvent): Boolean = focusable && noFocusableLayersAbove
+        override fun onMouseEvent(event: MouseEvent): Boolean = !noFocusableLayersAbove
+        override fun onKeyEvent(event: KeyEvent): Boolean = !focusable || !noFocusableLayersAbove
     }
 }
 
