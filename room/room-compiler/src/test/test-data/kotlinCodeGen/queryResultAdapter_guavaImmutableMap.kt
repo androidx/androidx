@@ -5,11 +5,11 @@ import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.query
 import com.google.common.collect.ImmutableMap
-import java.util.LinkedHashMap
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
+import kotlin.collections.LinkedHashMap
 import kotlin.collections.List
 import kotlin.collections.MutableMap
 import kotlin.reflect.KClass
