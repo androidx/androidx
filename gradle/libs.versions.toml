@@ -24,6 +24,7 @@ annotationVersion = "1.7.0"
 atomicFu = "0.17.0"
 autoService = "1.0-rc6"
 autoValue = "1.6.3"
+binaryCompatibilityValidator = "0.14.0"
 byteBuddy = "1.14.9"
 asm = "9.3"
 cmake = "3.22.1"
@@ -100,6 +101,7 @@ apacheCommonsMath = { module = "org.apache.commons:commons-math3", version = "3.
 assertj = { module = "org.assertj:assertj-core", version = "3.23.1" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm"}
 asmCommons = { module = "org.ow2.asm:asm-commons", version.ref = "asm"}
+binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx.binary-compatibility-validator:org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin", version.ref = "binaryCompatibilityValidator"}
 byteBuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
 byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }

@@ -442,7 +442,10 @@
             <trusting group="com.google.errorprone"/>
             <trusting group="com.google.googlejavaformat"/>
          </trusted-key>
-         <trusted-key id="E7DC75FC24FB3C8DFE8086AD3D5839A2262CBBFB" group="org.jetbrains.kotlinx"/>
+         <trusted-key id="E7DC75FC24FB3C8DFE8086AD3D5839A2262CBBFB">
+            <trusting group="org.jetbrains.kotlinx"/>
+            <trusting group="org.jetbrains.kotlinx.binary-compatibility-validator"/>
+         </trusted-key>
          <trusted-key id="E80EADEA55B8CA4AC11237EBAD26515E93BE1A0B" group="com.squareup.curtains" name="curtains"/>
          <trusted-key id="E82D2EAF2E83830CE1F7F6BE571A5291E827E1C7" group="net.java"/>
          <trusted-key id="E85AED155021AF8A6C6B7A4A7C7D8456294423BA" group="org.objenesis"/>
