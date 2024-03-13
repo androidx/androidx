@@ -548,7 +548,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
             onVariants {
                 it.configureTests()
-                it.artRewritingWorkaround()
                 it.configureLocalAsbSigning(project.getKeystore())
             }
         }
@@ -728,12 +727,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    private fun Variant.artRewritingWorkaround() {
-        // b/279234807
-        @Suppress("UnstableApiUsage") // usage of experimentalProperties
-        experimentalProperties.put("android.experimental.art-profile-r8-rewriting", false)
-    }
-
     private fun Variant.aotCompileMicrobenchmarks(project: Project) {
         if (project.hasBenchmarkPlugin()) {
             @Suppress("UnstableApiUsage") // usage of experimentalProperties
@@ -789,7 +782,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
             onVariants {
                 it.configureTests()
-                it.artRewritingWorkaround()
                 it.aotCompileMicrobenchmarks(project)
             }
         }
