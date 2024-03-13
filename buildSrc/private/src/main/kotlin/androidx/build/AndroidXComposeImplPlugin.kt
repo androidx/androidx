@@ -222,7 +222,18 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
         }
         project.dependencies.add(
             COMPILER_PLUGIN_CONFIGURATION,
-            "androidx.compose.compiler:compiler:$versionToUse"
+            if (project.isComposeCompilerUnpinned()) {
+                if (ProjectLayoutType.isPlayground(project)) {
+                    AndroidXPlaygroundRootImplPlugin.projectOrArtifact(
+                        project.rootProject,
+                        ":compose:compiler:compiler"
+                    )
+                } else {
+                    project.rootProject.resolveProject(":compose:compiler:compiler")
+                }
+            } else {
+                "androidx.compose.compiler:compiler:$versionToUse"
+            }
         )
 
         val kotlinPluginProvider = project.provider {
