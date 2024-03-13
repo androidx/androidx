@@ -619,8 +619,14 @@ class DiffRunner(object):
     self.targetState = self.targetState.withoutDuplicatesFrom(testState)
     self.resetTo_state = self.resetTo_state.withConflictsFrom(testState).withoutDuplicatesFrom(testState)
     delta = self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).withoutDuplicatesFrom(self.full_resetTo_state)
-    delta.apply(self.bestState_path)
     self.full_resetTo_state = self.full_resetTo_state.expandedWithEmptyEntriesFor(delta).withConflictsFrom(delta)
+    # Update results path for the user to look at
+    if os.path.exists(self.bestState_path):
+      # The previous results are still there, so we just apply the difference between the previous and new best results
+      delta.apply(self.bestState_path)
+    else:
+      # The previous results are missing (most likely moved/deleted by the user) so we save them again
+      self.full_resetTo_state.apply(self.bestState_path)
     if debug:
       if not filesStateFromTree(self.bestState_path).checkSameKeys(self.full_resetTo_state.withoutEmptyEntries()):
         print("Contents of " + self.bestState_path + " don't match self.full_resetTo_state at end of onSuccess")
