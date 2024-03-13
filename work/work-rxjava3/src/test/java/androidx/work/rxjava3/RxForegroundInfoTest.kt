@@ -18,6 +18,7 @@ package androidx.work.rxjava3
 
 import android.app.Notification
 import android.content.Context
+import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.work.Data
 import androidx.work.DefaultWorkerFactory
 import androidx.work.ForegroundInfo
@@ -26,7 +27,6 @@ import androidx.work.ListenableWorker.Result
 import androidx.work.ProgressUpdater
 import androidx.work.WorkerParameters
 import androidx.work.impl.utils.SynchronousExecutor
-import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.truth.Truth.assertThat
 import io.reactivex.rxjava3.core.Single
 import java.util.UUID
@@ -53,9 +53,7 @@ class RxForegroundInfoTest {
         var actualForegroundInfo: ForegroundInfo? = null
         val foregroundUpdater = ForegroundUpdater { _, _, foregroundInfo ->
             actualForegroundInfo = foregroundInfo
-            val future = SettableFuture.create<Void>()
-            future.set(null)
-            future
+            getFuture { it.set(null) }
         }
         val worker = WorkerSetForeground(context, createWorkerParams(
             foregroundUpdater = foregroundUpdater

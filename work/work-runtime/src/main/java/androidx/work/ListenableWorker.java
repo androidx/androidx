@@ -28,7 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.work.impl.utils.futures.SettableFuture;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -253,12 +253,13 @@ public abstract class ListenableWorker {
      */
     @NonNull
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
-        SettableFuture<ForegroundInfo> future = SettableFuture.create();
-        String message =
-                "Expedited WorkRequests require a ListenableWorker to provide an implementation for"
-                        + " `getForegroundInfoAsync()`";
-        future.setException(new IllegalStateException(message));
-        return future;
+        return CallbackToFutureAdapter.getFuture((completer) -> {
+            String message =
+                    "Expedited WorkRequests require a ListenableWorker to provide an implementation"
+                            + " for`getForegroundInfoAsync()`";
+            completer.setException(new IllegalStateException(message));
+            return "default failing getForegroundInfoAsync";
+        });
     }
 
     /**

@@ -22,11 +22,11 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
+import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutorImpl
-import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import java.util.concurrent.Executor
 import org.junit.Assert.assertNotNull
@@ -111,8 +111,7 @@ public class ListenableWorkerImplClientTest {
         `when`(remoteDispatcher.execute(eq(remoteStub), any(IWorkManagerImplCallback::class.java)))
             .thenThrow(RuntimeException(message))
         `when`(remoteStub.asBinder()).thenReturn(binder)
-        val session = SettableFuture.create<IListenableWorkerImpl>()
-        session.set(remoteStub)
+        val session = getFuture { it.set(remoteStub) }
         var exception: Throwable? = null
         try {
             mClient.execute(session, remoteDispatcher).get()
@@ -133,8 +132,9 @@ public class ListenableWorkerImplClientTest {
 
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IListenableWorkerImpl>
-        val session = SettableFuture.create<IListenableWorkerImpl>()
-        session.setException(RuntimeException("Something bad happened"))
+        val session = getFuture<IListenableWorkerImpl> {
+            it.setException(RuntimeException("Something bad happened"))
+        }
         var exception: Throwable? = null
         try {
             mClient.execute(session, remoteDispatcher).get()
@@ -158,8 +158,7 @@ public class ListenableWorkerImplClientTest {
         }
         val remoteStub = mock(IListenableWorkerImpl::class.java)
         `when`(remoteStub.asBinder()).thenReturn(binder)
-        val session = SettableFuture.create<IListenableWorkerImpl>()
-        session.set(remoteStub)
+        val session = getFuture { it.set(remoteStub) }
         var exception: Throwable? = null
         try {
             mClient.execute(session, remoteDispatcher).get()

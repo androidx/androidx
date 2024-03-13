@@ -34,9 +34,9 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.6.2")
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
-    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
