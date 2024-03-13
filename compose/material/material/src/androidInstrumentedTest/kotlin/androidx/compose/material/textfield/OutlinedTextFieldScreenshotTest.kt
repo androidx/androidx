@@ -157,6 +157,10 @@ class OutlinedTextFieldScreenshotTest {
         }
 
         rule.onNodeWithTag(TextFieldTag).focus()
+        rule.runOnIdle {
+            // stop animation of blinking cursor
+            rule.mainClock.autoAdvance = false
+        }
 
         assertAgainstGolden("outlined_textField_focused_errorState")
     }
