@@ -32,7 +32,7 @@ import androidx.sqlite.use
  * An Android platform specific [RoomConnectionManager] with backwards compatibility with
  * [androidx.sqlite.db] APIs (SupportSQLite*).
  */
-internal class RoomAndroidConnectionManager : RoomConnectionManager {
+internal actual class RoomConnectionManager : BaseRoomConnectionManager {
 
     override val configuration: DatabaseConfiguration
     override val connectionPool: ConnectionPool
@@ -136,13 +136,13 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
         version: Int
     ) : SupportSQLiteOpenHelper.Callback(version) {
         override fun onCreate(db: SupportSQLiteDatabase) {
-            this@RoomAndroidConnectionManager.onCreate(
+            this@RoomConnectionManager.onCreate(
                 SupportSQLiteConnection(db)
             )
         }
 
         override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            this@RoomAndroidConnectionManager.onMigrate(
+            this@RoomConnectionManager.onMigrate(
                 SupportSQLiteConnection(db), oldVersion, newVersion
             )
         }
@@ -152,7 +152,7 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
         }
 
         override fun onOpen(db: SupportSQLiteDatabase) {
-            this@RoomAndroidConnectionManager.onOpen(SupportSQLiteConnection(db))
+            this@RoomConnectionManager.onOpen(SupportSQLiteConnection(db))
             supportDatabase = db
         }
     }

@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
+@file:JvmMultifileClass
+@file:JvmName("SQLiteStatementUtil")
+
 package androidx.room.util
 
 import androidx.sqlite.SQLiteStatement
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /**
  * Returns the zero-based index for the given column name, or -1 if the column doesn't exist.

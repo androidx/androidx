@@ -84,6 +84,24 @@ androidXMultiplatform {
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
+    // Source set structure:
+    //                            ┌──────────────────┐
+    //                            │    commonMain    │
+    //                            └──────────────────┘
+    //                                      │
+    //                       ┌──────────────┴─────────────┐
+    //                       │                            │
+    //                       ▼                            ▼
+    //             ┌──────────────────┐         ┌──────────────────┐
+    //             │  jvmAndroidMain  │         │  jvmNativeMain   │
+    //             └──────────────────┘         └──────────────────┘
+    //                       │                            │
+    //           ┌───────────┴──────────────┬─────────────┴───────────┐
+    //           │                          │                         │
+    //           ▼                          ▼                         ▼
+    // ┌──────────────────┐       ┌──────────────────┐      ┌──────────────────┐
+    // │   androidMain    │       │     jvmMain      │      │    nativeMain    │
+    // └──────────────────┘       └──────────────────┘      └──────────────────┘
     sourceSets {
         commonMain {
             dependencies {
@@ -102,11 +120,15 @@ androidXMultiplatform {
                 implementation(project(":kruth:kruth"))
             }
         }
-        jvmAndroid {
+        jvmAndroidMain {
+            dependsOn(commonMain)
+        }
+        jvmNativeMain {
             dependsOn(commonMain)
         }
         jvmMain {
-            dependsOn(jvmAndroid)
+            dependsOn(jvmAndroidMain)
+            dependsOn(jvmNativeMain)
         }
         jvmTest {
             dependsOn(commonTest)
@@ -116,7 +138,7 @@ androidXMultiplatform {
             }
         }
         androidMain {
-            dependsOn(jvmAndroid)
+            dependsOn(jvmAndroidMain)
             dependencies {
                 api(project(":sqlite:sqlite-framework"))
                 api(libs.kotlinCoroutinesAndroid)
@@ -156,7 +178,7 @@ androidXMultiplatform {
             }
         }
         nativeMain {
-            dependsOn(commonMain)
+            dependsOn(jvmNativeMain)
             dependencies {
                 api(project(":sqlite:sqlite-framework"))
             }

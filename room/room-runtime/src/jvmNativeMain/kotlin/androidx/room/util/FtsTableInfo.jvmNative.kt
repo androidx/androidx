@@ -17,6 +17,8 @@ package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * A data class that holds the information about an FTS table.
@@ -27,17 +29,20 @@ actual class FtsTableInfo(
     /**
      * The table name
      */
+    @JvmField
     actual val name: String,
 
     /**
      * The column names
      */
+    @JvmField
     actual val columns: Set<String>,
 
     /**
      * The set of options. Each value in the set contains the option in the following format:
      * <key, value>.
      */
+    @JvmField
     actual val options: Set<String>
 ) {
     actual constructor(name: String, columns: Set<String>, createSql: String) :
@@ -57,6 +62,7 @@ actual class FtsTableInfo(
          * @param tableName The table name.
          * @return A FtsTableInfo containing the columns and options for the provided table name.
          */
+        @JvmStatic
         actual fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo {
             val columns = readFtsColumns(connection, tableName)
             val options = readFtsOptions(connection, tableName)

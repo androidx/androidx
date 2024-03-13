@@ -27,10 +27,15 @@ import androidx.sqlite.execSQL
 import androidx.sqlite.use
 
 /**
- * Room's database connection manager, responsible for opening and managing such connections,
- * including performing migrations if necessary and validating schema.
+ * Expect implementation declaration of Room's connection manager.
  */
-internal abstract class RoomConnectionManager {
+internal expect class RoomConnectionManager : BaseRoomConnectionManager
+
+/**
+ * Base class for Room's database connection manager, responsible for opening and managing such
+ * connections, including performing migrations if necessary and validating schema.
+ */
+internal abstract class BaseRoomConnectionManager {
 
     protected abstract val configuration: DatabaseConfiguration
     protected abstract val connectionPool: ConnectionPool

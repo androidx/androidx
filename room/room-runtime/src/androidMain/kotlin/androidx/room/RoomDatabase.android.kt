@@ -128,7 +128,7 @@ actual abstract class RoomDatabase {
                 "SupportSQLiteOpenHelper.Factory was configured with Room."
         )
 
-    private lateinit var connectionManager: RoomAndroidConnectionManager
+    private lateinit var connectionManager: RoomConnectionManager
 
     /**
      * The invalidation tracker for this database.
@@ -231,7 +231,7 @@ actual abstract class RoomDatabase {
      */
     @CallSuper
     open fun init(configuration: DatabaseConfiguration) {
-        connectionManager = createConnectionManager(configuration) as RoomAndroidConnectionManager
+        connectionManager = createConnectionManager(configuration)
         validateAutoMigrations(configuration)
         validateTypeConverters(configuration)
 
@@ -285,12 +285,12 @@ actual abstract class RoomDatabase {
         // deprecated RoomOpenHelper installed.
         return if (openDelegate == null) {
             @Suppress("DEPRECATION")
-            RoomAndroidConnectionManager(
+            RoomConnectionManager(
                 config = configuration,
                 supportOpenHelperFactory = { config -> createOpenHelper(config) }
             )
         } else {
-            RoomAndroidConnectionManager(
+            RoomConnectionManager(
                 config = configuration,
                 openDelegate = openDelegate
             )
@@ -579,7 +579,7 @@ actual abstract class RoomDatabase {
      * Room is considered in compatibility mode in Android when no [SQLiteDriver] was provided
      * and [androidx.sqlite.db] APIs are used instead (SupportSQLite*).
      *
-     * @see RoomAndroidConnectionManager
+     * @see RoomConnectionManager
      */
     internal fun inCompatibilityMode(): Boolean =
         connectionManager.supportOpenHelper != null
