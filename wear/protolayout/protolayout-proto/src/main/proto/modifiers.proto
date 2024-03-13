@@ -179,13 +179,9 @@ message Transformation {
   DegreesProp rotation = 5;
   // The x offset of the point around which the element is rotated
   // and scaled. Dynamic value is supported. If not set, defaults to the element center.
-  // Note that, for ArcText or ArcLine, the element inscribes the
-  // entire circle and the default pivot is located at the center of the circle.
   PivotDimension pivot_x = 6;
   // The y offset of the point around which the element is rotated
   // and scaled. Dynamic value is supported. If not set, defaults to the element center.
-  // Note that, for ArcText or ArcLine, the element inscribes the
-  // entire circle and the default pivot is located at the center of the circle.
   PivotDimension pivot_y = 7;
 }
 
@@ -405,11 +401,10 @@ message ArcModifiers {
   // descriptions.
   Semantics semantics = 2;
 
-  // The transformation applied to the element post-layout
-  Transformation transformation = 3;
-
   // The opacity of the element
   FloatProp opacity = 4;
+
+  reserved 3;
 }
 
 // Modifiers that can be used with Span elements. These may change the way
