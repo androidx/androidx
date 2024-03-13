@@ -177,14 +177,8 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
 
         if (map != null) {
             // The sample implementation only retrieves originally supported resolutions from
-            // CameraCharacteristics for JPEG and YUV_420_888 formats to return.
-            Size[] outputSizes = map.getOutputSizes(ImageFormat.JPEG);
-
-            if (outputSizes != null) {
-                formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, outputSizes));
-            }
-
-            outputSizes = map.getOutputSizes(ImageFormat.YUV_420_888);
+            // CameraCharacteristics for YUV_420_888 formats to return.
+            Size[] outputSizes = map.getOutputSizes(ImageFormat.YUV_420_888);
 
             if (outputSizes != null) {
                 formatResolutionsPairList.add(Pair.create(ImageFormat.YUV_420_888, outputSizes));
