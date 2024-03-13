@@ -85,8 +85,8 @@ public fun rememberScalingLazyListState(
  */
 @Stable
 class ScalingLazyListState constructor(
-    private var initialCenterItemIndex: Int = 1,
-    private var initialCenterItemScrollOffset: Int = 0
+    val initialCenterItemIndex: Int = 1,
+    val initialCenterItemScrollOffset: Int = 0
 ) : ScrollableState {
 
     internal var lazyListState: LazyListState = LazyListState(0, 0)
@@ -111,13 +111,17 @@ class ScalingLazyListState constructor(
     private val incompleteScrollItem = mutableStateOf<Int?>(null)
     private val incompleteScrollOffset = mutableStateOf<Int?>(null)
     private val incompleteScrollAnimated = mutableStateOf(false)
+
+    internal var pendingCenterItemIndex: Int = initialCenterItemIndex
+    internal var pendingCenterItemScrollOffset: Int = initialCenterItemScrollOffset
+
     /**
      * The index of the item positioned closest to the viewport center
      */
     public val centerItemIndex: Int by derivedStateOf {
         (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
             if (it.initialized) it.centerItemIndex else null
-        } ?: initialCenterItemIndex
+        } ?: pendingCenterItemIndex
     }
 
     internal val topAutoCenteringItemSizePx: Int by derivedStateOf {
@@ -155,7 +159,7 @@ class ScalingLazyListState constructor(
         get() =
             (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
                 if (it.initialized) it.centerItemScrollOffset else null
-            } ?: initialCenterItemScrollOffset
+            } ?: pendingCenterItemScrollOffset
 
     /**
      * The object of [ScalingLazyListLayoutInfo] calculated during the last layout pass. For
@@ -461,8 +465,8 @@ class ScalingLazyListState constructor(
     ) {
         if (!initialized.value) {
             // We can't scroll yet, save to do it when we can (on the first composition).
-            initialCenterItemIndex = index
-            initialCenterItemScrollOffset = scrollOffset
+            pendingCenterItemIndex = index
+            pendingCenterItemScrollOffset = scrollOffset
             return
         }
 
@@ -511,7 +515,7 @@ class ScalingLazyListState constructor(
         // First time initialization
         if (!initialized.value) {
             initialized.value = true
-            scrollToItem(initialCenterItemIndex, initialCenterItemScrollOffset)
+            scrollToItem(pendingCenterItemIndex, pendingCenterItemScrollOffset)
         }
         // Check whether we are becoming visible after an incomplete scrollTo/animatedScrollTo
         if (incompleteScrollItem.value != null) {
