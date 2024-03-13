@@ -570,8 +570,7 @@ class AnnotatedString internal constructor(
         /**
          * Set a [LinkAnnotation.Clickable] for the given [range].
          *
-         * When clicking on the text in [range], the
-         * [androidx.compose.foundation.TextLinkClickHandler] will be triggered with the tag
+         * When clicking on the text in [range], a handler will be triggered with the tag
          * corresponding to the [clickable] object.
          *
          * Clickable link may be treated specially by screen readers, including being identified
