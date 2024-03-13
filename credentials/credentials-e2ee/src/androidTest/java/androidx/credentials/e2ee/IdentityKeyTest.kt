@@ -43,7 +43,8 @@ class IdentityKeyTest {
         val expectedPrivKeyHex = "df7204546f1bee78b85324a7898ca119b387e01386d1aef037781d4a8a036aee"
         val expectedPubKeyHex = "ba33d523fd7bf0d06ce9298c3440be1bea3748c6270ae3e07ae8ea19abb8ed23"
 
-        val identityKey = IdentityKey.createFromPrf(prf, salt, IdentityKey.IDENTITYKEY_TYPE_ED25519)
+        val identityKey =
+            IdentityKey.createFromPrf(prf, salt, IdentityKey.IDENTITY_KEY_TYPE_ED25519)
 
         assertThat(identityKey.private).isNotNull()
         assertThat(identityKey.public).isNotNull()
@@ -57,10 +58,10 @@ class IdentityKeyTest {
             val prf = randBytes(32)
             val identityKey =
                 IdentityKey.createFromPrf(prf, /* salt= */null,
-                IdentityKey.IDENTITYKEY_TYPE_ED25519)
+                IdentityKey.IDENTITY_KEY_TYPE_ED25519)
             val identityKey2 =
                 IdentityKey.createFromPrf(prf, ByteArray(32),
-                IdentityKey.IDENTITYKEY_TYPE_ED25519)
+                IdentityKey.IDENTITY_KEY_TYPE_ED25519)
 
             assertThat(identityKey).isEqualTo(identityKey2)
         }
@@ -85,7 +86,7 @@ class IdentityKeyTest {
         val expectedPubKeyHex = "23fa91da0af9edefae9c53c584f933f3d02f934aebddb70511adac91f255afda"
 
         val identityKey =
-            IdentityKey.createFromPrf(prfOutput, salt, IdentityKey.IDENTITYKEY_TYPE_ED25519)
+            IdentityKey.createFromPrf(prfOutput, salt, IdentityKey.IDENTITY_KEY_TYPE_ED25519)
 
         assertThat(prfOutput).isNotNull()
         assertThat(identityKey.private).isNotNull()
