@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.asSkiaColorFilter
 import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toSkia
@@ -81,6 +82,16 @@ actual class GraphicsLayer {
     private var roundRectOutlineSize: IntSize = UnsetSize
     private var roundRectCornerRadius: Float = 0f
     private var outlinePath: Path? = null
+
+    /**
+     * Tracks the amount of the parent layers currently drawing this layer as a child.
+     */
+    private var parentLayerUsages = 0
+
+    /**
+     * Keeps track of the child layers we currently draw into this layer.
+     */
+    private val childDependenciesTracker = ChildLayerDependenciesTracker()
 
     actual var topLeft: IntOffset = IntOffset.Zero
         set(value) {
@@ -175,16 +186,26 @@ actual class GraphicsLayer {
         } else {
             1.0f
         }
-
-        pictureDrawScope.draw(
-            density,
-            layoutDirection,
-            skiaCanvas,
-            size.toSize(),
-            block
-        )
+        childDependenciesTracker.withTracking(
+            onDependencyRemoved = { it.onRemovedFromParentLayer() }
+        ) {
+            pictureDrawScope.draw(
+                density,
+                layoutDirection,
+                skiaCanvas,
+                size.toSize(),
+                this,
+                block
+            )
+        }
         picture = pictureRecorder.finishRecordingAsPicture()
         return this
+    }
+
+    private fun addSubLayer(graphicsLayer: GraphicsLayer) {
+        if (childDependenciesTracker.onDependencyAdded(graphicsLayer)) {
+            graphicsLayer.onAddedToParentLayer()
+        }
     }
 
     actual var clip: Boolean = false
@@ -248,6 +269,12 @@ actual class GraphicsLayer {
     }
 
     internal actual fun draw(canvas: Canvas, parentLayer: GraphicsLayer?) {
+        if (isReleased) {
+            return
+        }
+
+        parentLayer?.addSubLayer(this)
+
         picture?.let {
             configureOutline()
 
@@ -305,9 +332,20 @@ actual class GraphicsLayer {
         }
     }
 
+    private fun onAddedToParentLayer() {
+        parentLayerUsages++
+    }
+
+    private fun onRemovedFromParentLayer() {
+        parentLayerUsages--
+        discardContentIfReleasedAndHaveNoParentLayerUsages()
+    }
+
     internal fun release() {
-        discardDisplayList()
-        isReleased = true
+        if (!isReleased) {
+            isReleased = true
+            discardContentIfReleasedAndHaveNoParentLayerUsages()
+        }
     }
 
     actual var pivotOffset: Offset = Offset.Unspecified
@@ -423,9 +461,16 @@ actual class GraphicsLayer {
     actual var isReleased: Boolean = false
         private set
 
-    private fun discardDisplayList() {
-        picture?.close()
-        pictureRecorder.close()
+    private fun discardContentIfReleasedAndHaveNoParentLayerUsages() {
+        if (isReleased && parentLayerUsages == 0) {
+            picture?.close()
+            pictureRecorder.close()
+
+            // discarding means we don't draw children layer anymore and need to remove dependencies:
+            childDependenciesTracker.removeDependencies {
+                it.onRemovedFromParentLayer()
+            }
+        }
     }
 
     /**
