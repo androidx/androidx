@@ -899,7 +899,6 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable? getClickable();
     method public androidx.wear.protolayout.TypeBuilders.FloatProp? getOpacity();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics? getSemantics();
-    method public androidx.wear.protolayout.ModifiersBuilders.Transformation? getTransformation();
   }
 
   public static final class ModifiersBuilders.ArcModifiers.Builder {
@@ -908,7 +907,6 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers.Builder setClickable(androidx.wear.protolayout.ModifiersBuilders.Clickable);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers.Builder setOpacity(androidx.wear.protolayout.TypeBuilders.FloatProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers.Builder setSemantics(androidx.wear.protolayout.ModifiersBuilders.Semantics);
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers.Builder setTransformation(androidx.wear.protolayout.ModifiersBuilders.Transformation);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class ModifiersBuilders.Background {
