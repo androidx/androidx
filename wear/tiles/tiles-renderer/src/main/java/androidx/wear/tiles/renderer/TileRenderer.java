@@ -19,6 +19,7 @@ package androidx.wear.tiles.renderer;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.content.Context;
+import android.util.ArrayMap;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -30,6 +31,8 @@ import androidx.wear.protolayout.ResourceBuilders;
 import androidx.wear.protolayout.StateBuilders;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
+import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ResourceProto;
@@ -38,12 +41,15 @@ import androidx.wear.protolayout.renderer.inflater.ProtoLayoutThemeImpl;
 import androidx.wear.tiles.TileService;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -106,7 +112,8 @@ public final class TileRenderer {
                 loadActionExecutor,
                 toStateConsumer(loadActionListener),
                 layout.toProto(),
-                resources.toProto());
+                resources.toProto(),
+                /* platformDataProviders */ null);
     }
 
     /**
@@ -137,7 +144,8 @@ public final class TileRenderer {
                 loadActionExecutor,
                 toStateConsumer(loadActionListener),
                 layout.toProto(),
-                resources.toProto());
+                resources.toProto(),
+                /* platformDataProviders */ null);
     }
 
     /**
@@ -159,7 +167,8 @@ public final class TileRenderer {
                 loadActionExecutor,
                 loadActionListener,
                 /* layout= */ null,
-                /* resources= */ null);
+                /* resources= */ null,
+                /* platformDataProviders */ null);
     }
 
     /**
@@ -174,7 +183,8 @@ public final class TileRenderer {
                 config.getLoadActionExecutor(),
                 config.getLoadActionListener(),
                 /* layout= */ null,
-                /* resources= */ null);
+                /* resources= */ null,
+                config.getPlatformDataProviders());
     }
 
     private TileRenderer(
@@ -183,7 +193,8 @@ public final class TileRenderer {
             @NonNull Executor loadActionExecutor,
             @NonNull Consumer<StateBuilders.State> loadActionListener,
             @Nullable LayoutElementProto.Layout layout,
-            @Nullable ResourceProto.Resources resources) {
+            @Nullable ResourceProto.Resources resources,
+            @Nullable Map<PlatformDataProvider, Set<PlatformDataKey<?>>> platformDataProviders) {
 
         this.mLayout = layout;
         this.mResources = resources;
@@ -204,6 +215,13 @@ public final class TileRenderer {
                         .setLoadActionListener(instanceListener);
         if (tilesTheme != 0) {
             config.setProtoLayoutTheme(new ProtoLayoutThemeImpl(uiContext, tilesTheme));
+        }
+        if (platformDataProviders != null) {
+            for (Map.Entry<PlatformDataProvider, Set<PlatformDataKey<?>>> entry :
+                    platformDataProviders.entrySet()) {
+                config.addPlatformDataProvider(entry.getKey(),
+                        entry.getValue().toArray(new PlatformDataKey[]{}));
+            }
         }
         this.mInstance = new ProtoLayoutViewInstance(config.build());
     }
@@ -299,15 +317,20 @@ public final class TileRenderer {
 
         @StyleRes int mTilesTheme;
 
+        @NonNull
+        private final Map<PlatformDataProvider, Set<PlatformDataKey<?>>> mPlatformDataProviders;
+
         Config(
                 @NonNull Context uiContext,
                 @NonNull Executor loadActionExecutor,
                 @NonNull Consumer<StateBuilders.State> loadActionListener,
-                @StyleRes int tilesTheme) {
+                @StyleRes int tilesTheme,
+                @NonNull Map<PlatformDataProvider, Set<PlatformDataKey<?>>> platformDataProviders) {
             this.mUiContext = uiContext;
             this.mLoadActionExecutor = loadActionExecutor;
             this.mLoadActionListener = loadActionListener;
             this.mTilesTheme = tilesTheme;
+            this.mPlatformDataProviders = platformDataProviders;
         }
 
         /** Returns the {@link Context} suitable for interacting with the UI. */
@@ -337,6 +360,12 @@ public final class TileRenderer {
             return mTilesTheme;
         }
 
+        /** Returns the platform data providers that will be registered for this Tile instance. */
+        @NonNull
+        public Map<PlatformDataProvider, Set<PlatformDataKey<?>>> getPlatformDataProviders() {
+            return Collections.unmodifiableMap(mPlatformDataProviders);
+        }
+
         /** Builder class for {@link Config}. */
         public static final class Builder {
             @NonNull private final Context mUiContext;
@@ -344,6 +373,10 @@ public final class TileRenderer {
             @NonNull private final Consumer<StateBuilders.State> mLoadActionListener;
 
             @StyleRes int mTilesTheme = 0; // Default theme.
+
+            @NonNull
+            private final Map<PlatformDataProvider, Set<PlatformDataKey<?>>>
+                    mPlatformDataProviders = new ArrayMap<>();
 
             /**
              * Builder for the {@link Config} class.
@@ -372,11 +405,29 @@ public final class TileRenderer {
                 return this;
             }
 
+            /**
+             * Adds a {@link PlatformDataProvider} that will be registered for
+             * the given {@code supportedKeys}. Adding the same {@link PlatformDataProvider} several
+             * times will override previous entries instead of adding multiple entries.
+             */
+            @NonNull
+            public Builder addPlatformDataProvider(
+                    @NonNull PlatformDataProvider platformDataProvider,
+                    @NonNull PlatformDataKey<?>... supportedKeys) {
+                this.mPlatformDataProviders.put(
+                        platformDataProvider, ImmutableSet.copyOf(supportedKeys));
+                return this;
+            }
+
             /** Builds {@link Config} object. */
             @NonNull
             public Config build() {
                 return new Config(
-                        mUiContext, mLoadActionExecutor, mLoadActionListener, mTilesTheme);
+                        mUiContext,
+                        mLoadActionExecutor,
+                        mLoadActionListener,
+                        mTilesTheme,
+                        mPlatformDataProviders);
             }
         }
     }
