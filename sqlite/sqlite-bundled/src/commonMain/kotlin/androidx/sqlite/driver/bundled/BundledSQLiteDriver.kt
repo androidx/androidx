@@ -22,4 +22,4 @@ import androidx.sqlite.SQLiteDriver
  * A [SQLiteDriver] that uses a bundled version of SQLite included as a native component of this
  * library.
  */
-expect class BundledSQLiteDriver(filename: String) : SQLiteDriver
+expect class BundledSQLiteDriver() : SQLiteDriver

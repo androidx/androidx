@@ -23,7 +23,7 @@ import kotlin.test.Test
 abstract class BaseBundledConformanceTest : BaseConformanceTest() {
     @Test
     fun readSQLiteVersion() {
-        val connection = getDriver().open()
+        val connection = getDriver().open(":memory:")
         try {
             val version = connection.prepare("SELECT sqlite_version()").use {
                 it.step()

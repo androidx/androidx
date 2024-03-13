@@ -51,10 +51,8 @@ abstract class BaseRoomConnectionManager {
     protected inner class DriverWrapper(
         private val actual: SQLiteDriver
     ) : SQLiteDriver {
-        override fun open(): SQLiteConnection {
-            // TODO(b/317973999): Try to validate connections point to the same filename as the
-            //                    one in the database configuration provided in the builder.
-            return configureConnection(actual.open())
+        override fun open(fileName: String): SQLiteConnection {
+            return configureConnection(actual.open(fileName))
         }
     }
 

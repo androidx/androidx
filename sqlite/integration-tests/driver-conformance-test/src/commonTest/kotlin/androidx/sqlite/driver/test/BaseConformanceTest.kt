@@ -40,7 +40,7 @@ abstract class BaseConformanceTest {
     @Test
     fun openAndCloseConnection() {
         val driver = getDriver()
-        val connection = driver.open()
+        val connection = driver.open(":memory:")
         try {
             val version = connection.prepare("PRAGMA user_version").use { statement ->
                 statement.step()
@@ -223,7 +223,7 @@ abstract class BaseConformanceTest {
     @Test
     fun useClosedConnection() {
         val driver = getDriver()
-        val connection = driver.open()
+        val connection = driver.open(":memory:")
         connection.close()
         assertFailsWith<SQLiteException> {
             connection.prepare("SELECT * FROM Foo")
@@ -299,7 +299,7 @@ abstract class BaseConformanceTest {
 
     private inline fun testWithConnection(block: (SQLiteConnection) -> Unit) {
         val driver = getDriver()
-        val connection = driver.open()
+        val connection = driver.open(":memory:")
         try {
             block.invoke(connection)
         } finally {

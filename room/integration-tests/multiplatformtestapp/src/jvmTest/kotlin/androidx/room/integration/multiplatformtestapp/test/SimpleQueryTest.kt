@@ -24,7 +24,7 @@ class SimpleQueryTest : BaseSimpleQueryTest() {
 
     override fun getRoomDatabase(): SampleDatabase {
         return Room.inMemoryDatabaseBuilder<SampleDatabase>()
-            .setDriver(BundledSQLiteDriver(":memory:"))
+            .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()
     }

@@ -219,7 +219,7 @@ private class DefaultTestConnectionManager(
 
     private val driverWrapper = DriverWrapper(requireNotNull(configuration.sqliteDriver))
 
-    override fun openConnection() = driverWrapper.open()
+    override fun openConnection() = driverWrapper.open(configuration.name ?: ":memory:")
 }
 
 private sealed class TestOpenDelegate(

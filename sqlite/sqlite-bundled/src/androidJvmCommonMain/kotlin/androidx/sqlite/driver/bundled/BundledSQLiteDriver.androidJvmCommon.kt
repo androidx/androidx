@@ -25,11 +25,9 @@ import androidx.sqlite.SQLiteDriver
  * library.
  */
 // TODO(b/313895287): Explore usability of @FastNative and @CriticalNative for the external functions.
-actual class BundledSQLiteDriver actual constructor(
-    private val filename: String
-) : SQLiteDriver {
-    override fun open(): SQLiteConnection {
-        val address = nativeOpen(filename)
+actual class BundledSQLiteDriver : SQLiteDriver {
+    override fun open(fileName: String): SQLiteConnection {
+        val address = nativeOpen(fileName)
         return BundledSQLiteConnection(address)
     }
 

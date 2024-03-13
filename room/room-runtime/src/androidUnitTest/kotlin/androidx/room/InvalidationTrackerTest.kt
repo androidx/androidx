@@ -585,7 +585,7 @@ class InvalidationTrackerTest {
 
         val preparedQueries = mutableListOf<String>()
 
-        override fun open(): SQLiteConnection {
+        override fun open(fileName: String): SQLiteConnection {
             return FakeSQLiteConnection()
         }
 

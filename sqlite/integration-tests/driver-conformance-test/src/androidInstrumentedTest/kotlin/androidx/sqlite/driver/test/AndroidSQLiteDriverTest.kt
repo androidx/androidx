@@ -25,7 +25,7 @@ class AndroidSQLiteDriverTest : BaseConformanceTest() {
     override val driverType = TestDriverType.ANDROID_FRAMEWORK
 
     override fun getDriver(): SQLiteDriver {
-        return AndroidSQLiteDriver(":memory:")
+        return AndroidSQLiteDriver()
     }
 
     @Ignore // TODO(b/304297717): Align exception checking test with native.

@@ -34,7 +34,7 @@ class BuilderTest : BaseBuilderTest() {
             context = instrumentation.targetContext,
             name = file.path,
             factory = { SampleDatabase::class.instantiateImpl() }
-        ).setDriver(BundledSQLiteDriver(file.path))
+        ).setDriver(BundledSQLiteDriver())
     }
 
     @BeforeTest

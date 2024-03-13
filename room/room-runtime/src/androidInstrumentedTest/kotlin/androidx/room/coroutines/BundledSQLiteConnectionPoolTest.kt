@@ -44,8 +44,10 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val file = instrumentation.targetContext.getDatabasePath("test.db")
 
+    override val fileName = file.path
+
     override fun getDriver(): SQLiteDriver {
-        return BundledSQLiteDriver(file.path)
+        return BundledSQLiteDriver()
     }
 
     @BeforeTest
@@ -63,7 +65,12 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
     @Test
     fun reusingConnectionOnBlocking() = runTest {
         val driver = setupDriver()
-        val pool = newConnectionPool(driver = driver, maxNumOfReaders = 1, maxNumOfWriters = 1)
+        val pool = newConnectionPool(
+            driver = driver,
+            fileName = fileName,
+            maxNumOfReaders = 1,
+            maxNumOfWriters = 1
+        )
         var count = 0
         withContext(NewThreadDispatcher()) {
             pool.useConnection(isReadOnly = true) { initialConnection ->
@@ -84,7 +91,12 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
     @Test
     fun newThreadDispatcherDoesNotAffectThreadConfinement() = runTest {
         val driver = setupDriver()
-        val pool = newConnectionPool(driver = driver, maxNumOfReaders = 1, maxNumOfWriters = 1)
+        val pool = newConnectionPool(
+            driver = driver,
+            fileName = fileName,
+            maxNumOfReaders = 1,
+            maxNumOfWriters = 1
+        )
         val job = launch(Dispatchers.IO) {
             pool.useReaderConnection {
                 delay(500)

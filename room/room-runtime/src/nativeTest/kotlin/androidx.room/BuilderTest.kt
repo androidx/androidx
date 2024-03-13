@@ -27,7 +27,7 @@ class BuilderTest {
         val db = databaseBuilder(
             name = "TestDatabase",
             factory = { TestDatabase::class.instantiateImpl() }
-        ).setDriver(NativeSQLiteDriver(":memory:")).build()
+        ).setDriver(NativeSQLiteDriver()).build()
 
         // Assert that the db is built successfully.
         assertThat(db).isInstanceOf<TestDatabase>()

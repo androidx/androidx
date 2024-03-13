@@ -23,7 +23,8 @@ interface SQLiteDriver {
     /**
      * Opens a new database connection.
      *
+     * @param fileName Name of the database file.
      * @return the database connection.
      */
-    fun open(): SQLiteConnection
+    fun open(fileName: String): SQLiteConnection
 }

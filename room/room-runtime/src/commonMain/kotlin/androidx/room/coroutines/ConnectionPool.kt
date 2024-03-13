@@ -74,10 +74,11 @@ internal interface ConnectionPool {
  * in-memory databases whose schema and data are isolated to a database connection.
  *
  * @param driver The driver from which to request the connection to be opened.
+ * @param fileName The database file name.
  * @return The newly created connection pool
  */
-internal fun newSingleConnectionPool(driver: SQLiteDriver): ConnectionPool =
-    ConnectionPoolImpl(driver)
+internal fun newSingleConnectionPool(driver: SQLiteDriver, fileName: String): ConnectionPool =
+    ConnectionPoolImpl(driver, fileName)
 
 /**
  * Creates a new [ConnectionPool] with multiple connections separated by readers and writers.
@@ -87,15 +88,17 @@ internal fun newSingleConnectionPool(driver: SQLiteDriver): ConnectionPool =
  * DELETE or PERSIST) then it is recommended to create a pool of one writer and one reader.
  *
  * @param driver The driver from which to request new connections to be opened.
+ * @param fileName The database file name.
  * @param maxNumOfReaders The maximum number of connections to be opened and used as readers.
  * @param maxNumOfWriters The maximum number of connections to be opened and used as writers.
  * @return The newly created connection pool
  */
 internal fun newConnectionPool(
     driver: SQLiteDriver,
+    fileName: String,
     maxNumOfReaders: Int,
     maxNumOfWriters: Int
-): ConnectionPool = ConnectionPoolImpl(driver, maxNumOfReaders, maxNumOfWriters)
+): ConnectionPool = ConnectionPoolImpl(driver, fileName, maxNumOfReaders, maxNumOfWriters)
 
 /**
  * Defines an object that provides 'raw' access to a connection.
