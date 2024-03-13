@@ -1335,7 +1335,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the horizontal offset of this element relative to the location where the element's
-         * layout placed it.
+         * layout placed it. If not set, defaults to zero.
          */
         @Nullable
         public DpProp getTranslationX() {
@@ -1348,7 +1348,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the vertical offset of this element in addition to the location where the element's
-         * layout placed it.
+         * layout placed it. If not set, defaults to zero.
          */
         @Nullable
         public DpProp getTranslationY() {
@@ -1362,7 +1362,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the scale of this element in the x direction around the pivot point, as a proportion
-         * of the element's unscaled width .
+         * of the element's unscaled width. If not set, defaults to one.
          */
         @Nullable
         public FloatProp getScaleX() {
@@ -1375,7 +1375,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the scale of this element in the y direction around the pivot point, as a proportion
-         * of the element's unscaled height.
+         * of the element's unscaled height. If not set, defaults to one.
          */
         @Nullable
         public FloatProp getScaleY() {
@@ -1386,7 +1386,10 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Gets the clockwise Degrees that the element is rotated around the pivot point. */
+        /**
+         * Gets the clockwise Degrees that the element is rotated around the pivot point. If not
+         * set, defaults to zero.
+         */
         @Nullable
         public DegreesProp getRotation() {
             if (mImpl.hasRotation()) {
@@ -1398,8 +1401,8 @@ public final class ModifiersBuilders {
 
         /**
          * Sets the x offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported. By default, the pivot is centered on the element.
-         * Note that, for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
+         * Dynamic value is supported. If not set, defaults to the element center. Note that, for
+         * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
          * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
          * inscribes the entire circle and the default pivot is located at the center of the
          * circle.
@@ -1415,8 +1418,8 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the y offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported. By default, the pivot is centered on the element.
-         * Note that, for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
+         * Dynamic value is supported. If not set, defaults to the element center. Note that, for
+         * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
          * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
          * inscribes the entire circle and the default pivot is located at the center of the
          * circle.
@@ -1489,7 +1492,7 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the horizontal offset of this element relative to the location where the
-             * element's layout placed it.
+             * element's layout placed it. If not set, defaults to zero.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1503,7 +1506,7 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the vertical offset of this element in addition to the location where the
-             * element's layout placed it.
+             * element's layout placed it. If not set, defaults to zero.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1516,7 +1519,7 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the scale of this element in the x direction around the pivot point, as a
-             * proportion of the element's unscaled width .
+             * proportion of the element's unscaled width. If not set, defaults to one.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1529,7 +1532,7 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the scale of this element in the y direction around the pivot point, as a
-             * proportion of the element's unscaled height.
+             * proportion of the element's unscaled height. If not set, defaults to one.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1540,7 +1543,10 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the clockwise degrees that the element is rotated around the pivot point. */
+            /**
+             * Sets the clockwise degrees that the element is rotated around the pivot point.
+             * If not set, defaults to zero.
+             */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
             public Builder setRotation(@NonNull DegreesProp rotation) {
@@ -1552,8 +1558,8 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the x offset of the point around which the element is rotated and scaled.
-             * Dynamic value is supported. By default, the pivot is centered on the element.
-             * Note that, for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
+             * Dynamic value is supported. If not set, defaults to the element center. Note that,
+             * for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
              * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
              * inscribes the entire circle and the default pivot is located at the center of the
              * circle.
@@ -1569,8 +1575,8 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the y offset of the point around which the element is rotated and scaled.
-             * Dynamic value is supported. By default, the pivot is centered on the element.
-             * Note that, for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
+             * Dynamic value is supported. If not set, defaults to the element center. Note that,
+             * for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
              * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
              * inscribes the entire circle and the default pivot is located at the center of the
              * circle.
