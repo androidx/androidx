@@ -37,7 +37,7 @@ class IdentityKey private constructor(
 ) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
-    @IntDef(IDENTITYKEY_TYPE_RESERVED, IDENTITYKEY_TYPE_ED25519)
+    @IntDef(IDENTITY_KEY_TYPE_RESERVED, IDENTITY_KEY_TYPE_ED25519)
     annotation class IdentityKeyType
 
     companion object {
@@ -45,13 +45,13 @@ class IdentityKey private constructor(
          * The default signing key type, which should not be used.
          * This is required to match https://www.iana.org/assignments/cose/cose.xhtml#algorithms
          */
-        const val IDENTITYKEY_TYPE_RESERVED = 0
+        const val IDENTITY_KEY_TYPE_RESERVED = 0
 
         /**
          * A signing key on Ed25519.
          * The value matches https://www.iana.org/assignments/cose/cose.xhtml#algorithms
          */
-        const val IDENTITYKEY_TYPE_ED25519 = 6
+        const val IDENTITY_KEY_TYPE_ED25519 = 6
 
         /**
          * Creates a [IdentityKey], a public/private key pair usable for signing. It is intended for
@@ -73,7 +73,7 @@ class IdentityKey private constructor(
             salt: ByteArray?,
             @IdentityKeyType keyType: Int
         ): IdentityKey {
-            if (keyType != IDENTITYKEY_TYPE_ED25519) {
+            if (keyType != IDENTITY_KEY_TYPE_ED25519) {
                 throw IllegalArgumentException("Only Ed25519 is supported at this stage.")
             }
 
@@ -87,7 +87,7 @@ class IdentityKey private constructor(
                 /* size= */ 32
             )
             val keyPair: Ed25519Sign.KeyPair = Ed25519Sign.KeyPair.newKeyPairFromSeed(hkdf)
-            return IdentityKey(keyPair.publicKey, keyPair.privateKey, IDENTITYKEY_TYPE_ED25519)
+            return IdentityKey(keyPair.publicKey, keyPair.privateKey, IDENTITY_KEY_TYPE_ED25519)
         }
     }
 
