@@ -67,9 +67,18 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     abstract val frameworkSamplesDir: DirectoryProperty
 
-    // Directory containing the code samples
+    // Directory containing the code samples derived via the old method. This will be removed
+    // as soon as all libraries have been published with samples. b/329424152
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    abstract val samplesDir: DirectoryProperty
+    abstract val samplesDeprecatedDir: DirectoryProperty
+
+    // Directory containing the code samples for non-KMP libraries
+    @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
+    abstract val samplesJvmDir: DirectoryProperty
+
+    // Directory containing the code samples for KMP libraries
+    @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
+    abstract val samplesKmpDir: DirectoryProperty
 
     // Directory containing the JVM source code for Dackka to process
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
@@ -153,7 +162,9 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                             // samples are in common
                             samples = if (analysisPlatform == DokkaAnalysisPlatform.COMMON) {
                                 objects.fileCollection().from(
-                                    samplesDir,
+                                    samplesDeprecatedDir,
+                                    samplesJvmDir,
+                                    samplesKmpDir,
                                     frameworkSamplesDir.get().asFile
                                 )
                             } else {
@@ -179,7 +190,9 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 analysisPlatform = "jvm",
                 sourceRoots = objects.fileCollection().from(jvmSourcesDir),
                 samples = objects.fileCollection().from(
-                    samplesDir,
+                    samplesDeprecatedDir,
+                    samplesJvmDir,
+                    samplesKmpDir,
                     frameworkSamplesDir.get().asFile
                 ),
                 includes = objects.fileCollection().from(includesFiles(jvmSourcesDir.get().asFile)),
