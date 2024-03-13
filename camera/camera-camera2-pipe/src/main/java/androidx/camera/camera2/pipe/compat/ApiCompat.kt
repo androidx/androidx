@@ -386,6 +386,14 @@ internal object Api31Compat {
 
     @JvmStatic
     @DoNotInline
+    fun getPhysicalCameraTotalResults(
+        totalCaptureResult: TotalCaptureResult
+    ): Map<String, CaptureResult>? {
+        return totalCaptureResult.physicalCameraTotalResults
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun addSensorPixelModeUsed(
         outputConfiguration: OutputConfiguration,
         sensorPixelMode: Int,
