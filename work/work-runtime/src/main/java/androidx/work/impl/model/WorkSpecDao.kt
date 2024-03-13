@@ -364,7 +364,7 @@ interface WorkSpecDao {
      * @return The time at which the [WorkSpec] was scheduled.
      */
     @Query("SELECT schedule_requested_at FROM workspec WHERE id=:id")
-    fun getScheduleRequestedAtLiveData(id: String): LiveData<Long>
+    fun getScheduleRequestedAtLiveData(id: String): LiveData<Long?>
 
     /**
      * Resets the scheduled state on the [WorkSpec]s that are not in a a completed state.

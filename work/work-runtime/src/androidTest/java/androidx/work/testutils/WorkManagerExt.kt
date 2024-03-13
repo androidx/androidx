@@ -19,10 +19,11 @@ package androidx.work.testutils
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import java.util.UUID
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 
 suspend fun WorkManager.awaitWorkerFinished(id: UUID): WorkInfo =
-    getWorkInfoByIdFlow(id).first { it.state.isFinished }
+    getWorkInfoByIdFlow(id).filterNotNull().first { it.state.isFinished }
 
 suspend fun WorkManager.awaitWorkerEnqueued(id: UUID): WorkInfo =
-    getWorkInfoByIdFlow(id).first { it.state == WorkInfo.State.ENQUEUED }
+    getWorkInfoByIdFlow(id).filterNotNull().first { it.state == WorkInfo.State.ENQUEUED }

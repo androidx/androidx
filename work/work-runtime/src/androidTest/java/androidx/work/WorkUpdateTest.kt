@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.DAYS
 import java.util.concurrent.TimeUnit.HOURS
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -160,7 +161,7 @@ class WorkUpdateTest {
         assertThat(workManager.updateWork(updatedWorkRequest).await())
             .isEqualTo(APPLIED_IMMEDIATELY)
 
-        val info = workManager.getWorkInfoByIdFlow(oneTimeWorkRequest.id).first()
+        val info = workManager.getWorkInfoByIdFlow(oneTimeWorkRequest.id).first()!!
         assertThat(info.tags).contains("test")
         assertThat(info.tags).doesNotContain("previous")
     }
@@ -229,7 +230,7 @@ class WorkUpdateTest {
             .build()
         workManager.enqueue(request).result.await()
         fakeChargingTracker.constraintState = true
-        workManager.getWorkInfoByIdFlow(request.id).first {
+        workManager.getWorkInfoByIdFlow(request.id).filterNotNull().first {
             it.state == State.RUNNING && it.progress.size() != 0
         }
         // will trigger worker to be stopped
@@ -243,7 +244,7 @@ class WorkUpdateTest {
             .addTag("bla")
             .build()
         assertThat(workManager.updateWork(updatedRequest).await()).isEqualTo(APPLIED_IMMEDIATELY)
-        val updatedInfo = workManager.getWorkInfoByIdFlow(request.id).first()
+        val updatedInfo = workManager.getWorkInfoByIdFlow(request.id).first()!!
         assertThat(updatedInfo.tags).contains("bla")
         assertThat(updatedInfo.progress).isEqualTo(Data.EMPTY)
     }
@@ -259,7 +260,7 @@ class WorkUpdateTest {
         val updatedStep2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setId(step2.id).addTag("updated").build()
         assertThat(workManager.updateWork(updatedStep2).await()).isEqualTo(APPLIED_IMMEDIATELY)
-        val workInfo = workManager.getWorkInfoById(step2.id).await()
+        val workInfo = workManager.getWorkInfoById(step2.id).await()!!
         assertThat(workInfo.state).isEqualTo(State.BLOCKED)
         assertThat(workInfo.tags).contains("updated")
     }
@@ -272,7 +273,7 @@ class WorkUpdateTest {
             .setConstraints(Constraints(requiresCharging = true)).build()
         val step2 = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         workManager.beginWith(step1).then(step2).enqueue().result.await()
-        val workInfo = workManager.getWorkInfoById(step2.id).await()
+        val workInfo = workManager.getWorkInfoById(step2.id).await()!!
         assertThat(workInfo.state).isEqualTo(State.BLOCKED)
         val updatedStep1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setId(step1.id).build()
@@ -292,7 +293,7 @@ class WorkUpdateTest {
         val updatedStep2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setId(step2.id).addTag("updated").build()
         assertThat(workManager.updateWork(updatedStep2).await()).isEqualTo(APPLIED_IMMEDIATELY)
-        val workInfo = workManager.getWorkInfoById(step2.id).await()
+        val workInfo = workManager.getWorkInfoById(step2.id).await()!!
         assertThat(workInfo.state).isEqualTo(State.BLOCKED)
         assertThat(workInfo.tags).contains("updated")
     }
@@ -306,7 +307,7 @@ class WorkUpdateTest {
         val step2 = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         workManager.enqueueUniqueWork("name", ExistingWorkPolicy.APPEND, step1)
         workManager.enqueueUniqueWork("name", ExistingWorkPolicy.APPEND, step2)
-        val workInfo = workManager.getWorkInfoById(step2.id).await()
+        val workInfo = workManager.getWorkInfoById(step2.id).await()!!
         assertThat(workInfo.state).isEqualTo(State.BLOCKED)
         val updatedStep1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setId(step1.id).build()
@@ -365,7 +366,7 @@ class WorkUpdateTest {
         assertThat(worker.tags).doesNotContain("updated")
         worker.result.complete(Result.success())
         workManager.awaitWorkerEnqueued(request.id)
-        val newTags = workManager.getWorkInfoById(request.id).await().tags
+        val newTags = workManager.getWorkInfoById(request.id).await()!!.tags
         assertThat(newTags).contains("updated")
         assertThat(newTags).doesNotContain("original")
     }
@@ -387,7 +388,7 @@ class WorkUpdateTest {
 
         assertThat(workManager.updateWork(updatedRequest).await()).isEqualTo(APPLIED_IMMEDIATELY)
 
-        val newTags = workManager.getWorkInfoById(request.id).await().tags
+        val newTags = workManager.getWorkInfoById(request.id).await()!!.tags
         assertThat(newTags).contains("updated")
         assertThat(newTags).doesNotContain("original")
         val workSpec = env.db.workSpecDao().getWorkSpec(request.stringId)!!
@@ -480,7 +481,7 @@ class WorkUpdateTest {
             .isEqualTo(APPLIED_IMMEDIATELY)
         val worker = workerFactory.await(oneTimeWorkRequest.id) as WorkerWithParam
         assertThat(worker.generation).isEqualTo(1)
-        val workInfo = workManager.getWorkInfoById(oneTimeWorkRequest.id).await()
+        val workInfo = workManager.getWorkInfoById(oneTimeWorkRequest.id).await()!!
         assertThat(workInfo.generation).isEqualTo(1)
     }
 
@@ -503,7 +504,7 @@ class WorkUpdateTest {
                 .build()
         ).await()
 
-        val workInfo = workManager.getWorkInfoById(request.id).await()
+        val workInfo = workManager.getWorkInfoById(request.id).await()!!
         assertThat(workInfo.nextScheduleTimeMillis).isEqualTo(nextRunTimeMillis)
     }
 
@@ -526,7 +527,7 @@ class WorkUpdateTest {
                 .setNextScheduleTimeOverride(overrideScheduleTimeMillis)
                 .build()
         ).await()
-        val workInfo = workManager.getWorkInfoById(request.id).await()
+        val workInfo = workManager.getWorkInfoById(request.id).await()!!
         assertThat(workInfo.nextScheduleTimeMillis).isEqualTo(overrideScheduleTimeMillis)
 
         workManager.updateWork(
@@ -537,7 +538,7 @@ class WorkUpdateTest {
                 .build()
         ).await()
 
-        val workInfo2 = workManager.getWorkInfoById(request.id).await()
+        val workInfo2 = workManager.getWorkInfoById(request.id).await()!!
         assertThat(workInfo2.nextScheduleTimeMillis).isEqualTo(overrideScheduleTimeMillis2)
     }
 
@@ -563,7 +564,7 @@ class WorkUpdateTest {
                 .build()
         ).await()
 
-        val workInfo = workManager.getWorkInfoById(request.id).await()
+        val workInfo = workManager.getWorkInfoById(request.id).await()!!
         assertThat(workInfo.nextScheduleTimeMillis).isEqualTo(overrideScheduleTimeMillis)
         val workSpec = env.db.workSpecDao().getWorkSpec(request.stringId)!!
         // attemptCount is still kept, just not used in the schedule time calculation.
@@ -592,7 +593,7 @@ class WorkUpdateTest {
                 .build()
         ).await()
 
-        val workInfo = workManager.getWorkInfoById(request.id).await()
+        val workInfo = workManager.getWorkInfoById(request.id).await()!!
         assertThat(workInfo.nextScheduleTimeMillis).isEqualTo(
             testClock.currentTimeMillis + DAYS.toMillis(2)
         )

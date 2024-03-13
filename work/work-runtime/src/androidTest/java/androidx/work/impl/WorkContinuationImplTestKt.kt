@@ -34,6 +34,7 @@ import androidx.work.workDataOf
 import androidx.work.worker.CompletableWorker
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -71,7 +72,7 @@ class WorkContinuationImplTestKt {
             .complete(Success(workDataOf(intTag to 1, stringTag to "hello")))
         (workerFactory.await(secondWork.id) as CompletableWorker).result
             .complete(Success(workDataOf(intTag to 3)))
-        val info = workManager.getWorkInfoByIdFlow(thirdId)
+        val info = workManager.getWorkInfoByIdFlow(thirdId).filterNotNull()
             .first { it.state == WorkInfo.State.SUCCEEDED }
         assertThat(info.outputData.size()).isEqualTo(2)
         assertThat(info.outputData.getStringArray(stringTag)).isEqualTo(arrayOf("hello"))

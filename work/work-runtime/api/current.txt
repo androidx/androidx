@@ -453,41 +453,50 @@ package androidx.work {
   }
 
   public abstract class WorkManager {
-    method public final androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
-    method public abstract androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
-    method public final androidx.work.WorkContinuation beginWith(androidx.work.OneTimeWorkRequest);
-    method public abstract androidx.work.WorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest!>);
+    method public final androidx.work.WorkContinuation beginUniqueWork(String uniqueWorkName, androidx.work.ExistingWorkPolicy existingWorkPolicy, androidx.work.OneTimeWorkRequest request);
+    method public abstract androidx.work.WorkContinuation beginUniqueWork(String uniqueWorkName, androidx.work.ExistingWorkPolicy existingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest> requests);
+    method public final androidx.work.WorkContinuation beginWith(androidx.work.OneTimeWorkRequest request);
+    method public abstract androidx.work.WorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest> requests);
     method public abstract androidx.work.Operation cancelAllWork();
-    method public abstract androidx.work.Operation cancelAllWorkByTag(String);
-    method public abstract androidx.work.Operation cancelUniqueWork(String);
-    method public abstract androidx.work.Operation cancelWorkById(java.util.UUID);
-    method public abstract android.app.PendingIntent createCancelPendingIntent(java.util.UUID);
-    method public final androidx.work.Operation enqueue(androidx.work.WorkRequest);
-    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest!>);
-    method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
-    method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
-    method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
+    method public abstract androidx.work.Operation cancelAllWorkByTag(String tag);
+    method public abstract androidx.work.Operation cancelUniqueWork(String uniqueWorkName);
+    method public abstract androidx.work.Operation cancelWorkById(java.util.UUID id);
+    method public abstract android.app.PendingIntent createCancelPendingIntent(java.util.UUID id);
+    method public final androidx.work.Operation enqueue(androidx.work.WorkRequest request);
+    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest> requests);
+    method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String uniqueWorkName, androidx.work.ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest request);
+    method public androidx.work.Operation enqueueUniqueWork(String uniqueWorkName, androidx.work.ExistingWorkPolicy existingWorkPolicy, androidx.work.OneTimeWorkRequest request);
+    method public abstract androidx.work.Operation enqueueUniqueWork(String uniqueWorkName, androidx.work.ExistingWorkPolicy existingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest> requests);
     method public abstract androidx.work.Configuration getConfiguration();
     method @Deprecated public static androidx.work.WorkManager getInstance();
-    method public static androidx.work.WorkManager getInstance(android.content.Context);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> getLastCancelAllTimeMillis();
-    method public abstract androidx.lifecycle.LiveData<java.lang.Long!> getLastCancelAllTimeMillisLiveData();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo!> getWorkInfoById(java.util.UUID);
-    method public abstract kotlinx.coroutines.flow.Flow<androidx.work.WorkInfo!> getWorkInfoByIdFlow(java.util.UUID);
-    method public abstract androidx.lifecycle.LiveData<androidx.work.WorkInfo!> getWorkInfoByIdLiveData(java.util.UUID);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfos(androidx.work.WorkQuery);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTag(String);
-    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagFlow(String);
-    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagLiveData(String);
-    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosFlow(androidx.work.WorkQuery);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWork(String);
-    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkFlow(String);
-    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkLiveData(String);
-    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosLiveData(androidx.work.WorkQuery);
-    method public static void initialize(android.content.Context, androidx.work.Configuration);
+    method public static androidx.work.WorkManager getInstance(android.content.Context context);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long> getLastCancelAllTimeMillis();
+    method public abstract androidx.lifecycle.LiveData<java.lang.Long> getLastCancelAllTimeMillisLiveData();
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo?> getWorkInfoById(java.util.UUID id);
+    method public abstract kotlinx.coroutines.flow.Flow<androidx.work.WorkInfo?> getWorkInfoByIdFlow(java.util.UUID id);
+    method public abstract androidx.lifecycle.LiveData<androidx.work.WorkInfo?> getWorkInfoByIdLiveData(java.util.UUID id);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfos(androidx.work.WorkQuery workQuery);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTag(String tag);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTagFlow(String tag);
+    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTagLiveData(String tag);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo>> getWorkInfosFlow(androidx.work.WorkQuery workQuery);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWork(String uniqueWorkName);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWorkFlow(String uniqueWorkName);
+    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWorkLiveData(String uniqueWorkName);
+    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosLiveData(androidx.work.WorkQuery workQuery);
+    method public static void initialize(android.content.Context context, androidx.work.Configuration configuration);
     method public static boolean isInitialized();
     method public abstract androidx.work.Operation pruneWork();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkManager.UpdateResult!> updateWork(androidx.work.WorkRequest);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkManager.UpdateResult> updateWork(androidx.work.WorkRequest request);
+    property public abstract androidx.work.Configuration configuration;
+    field public static final androidx.work.WorkManager.Companion Companion;
+  }
+
+  public static final class WorkManager.Companion {
+    method @Deprecated public androidx.work.WorkManager getInstance();
+    method public androidx.work.WorkManager getInstance(android.content.Context context);
+    method public void initialize(android.content.Context context, androidx.work.Configuration configuration);
+    method public boolean isInitialized();
   }
 
   public enum WorkManager.UpdateResult {
