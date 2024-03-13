@@ -490,23 +490,27 @@ class FragmentNavigatorTest {
             .isEqualTo(2)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
         assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
-
+        // obs for upcoming pop
+        var pendingOps1: List<String> = emptyList()
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it.entries()).containsExactly(entry2.id, entry3.id)
+            pendingOps1 = it.entries().toList()
         }
         // first pop entry3
         fragmentNavigator.popBackStack(entry3, false)
+        assertThat(pendingOps1).containsExactly(entry2.id, entry3.id)
 
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
             assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
-
+        // obs for upcoming pop
+        var pendingOps2: List<String> = emptyList()
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it.entries()).containsExactly(entry1.id, entry2.id)
+            pendingOps2 = it.entries().toList()
         }
         // And then pop entry2
         fragmentNavigator.popBackStack(entry2, false)
+        assertThat(pendingOps2).containsExactly(entry1.id, entry2.id)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
             assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
@@ -1729,24 +1733,26 @@ class FragmentNavigatorTest {
                 }
             })
         }
-
+        // obs for upcoming pop
+        var pendingOps1: List<String> = emptyList()
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it.entries()).containsExactly(entry2.id, entry3.id)
+            pendingOps1 = it.entries().toList()
         }
         fragmentNavigator.popBackStack(entry3, false)
+        assertThat(pendingOps1).containsExactly(entry2.id, entry3.id)
         assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
-
+        // obs for upcoming pop
+        var pendingOps2: List<String> = emptyList()
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it.entries()).containsExactly(entry1.id, entry2.id)
+            pendingOps2 = it.entries().toList()
         }
         fragmentNavigator.popBackStack(entry2, false)
-
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
             assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
-
+        assertThat(pendingOps2).containsExactly(entry1.id, entry2.id)
         val fragment1 = fragmentManager.findFragmentById(R.id.container) as AnimatorFragment
         assertWithMessage("Fragment should be added")
             .that(fragment1)
