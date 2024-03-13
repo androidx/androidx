@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.scene
 
-import java.awt.event.MouseEvent as AwtMouseEvent
 import java.awt.event.KeyEvent as AwtKeyEvent
+import java.awt.event.MouseEvent as AwtMouseEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
@@ -36,6 +36,7 @@ import androidx.compose.ui.skiko.OverlaySkikoViewDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -123,6 +124,7 @@ internal class ComposeContainer(
         },
         eventFilter = AwtEventFilters(
             OnlyValidPrimaryMouseButtonFilter,
+            DetectEventOutsideLayer(),
             FocusableLayerEventFilter()
         ),
         coroutineContext = coroutineContext,
@@ -197,7 +199,9 @@ internal class ComposeContainer(
      * Callback to let layers draw overlay on main [mediator].
      */
     private fun onRenderOverlay(canvas: Canvas, width: Int, height: Int) {
-        layers.fastForEach { it.onRenderOverlay(canvas, width, height) }
+        layers.fastForEach {
+            it.onRenderOverlay(canvas, width, height, windowContext.isWindowTransparent)
+        }
     }
 
     fun onChangeWindowTransparency(value: Boolean) {
@@ -312,6 +316,7 @@ internal class ComposeContainer(
             LayerType.OnWindow -> WindowComposeSceneLayer(
                 composeContainer = this,
                 skiaLayerAnalytics = skiaLayerAnalytics,
+                transparent = true, // TODO: Consider allowing opaque window layers
                 density = density,
                 layoutDirection = layoutDirection,
                 focusable = focusable,
@@ -329,12 +334,55 @@ internal class ComposeContainer(
         }
     }
 
-    fun attachLayer(layer: DesktopComposeSceneLayer) {
-        layers.add(layer)
+    /**
+     * Generates a sequence of layers that are positioned above the given layer in the layers list.
+     *
+     * @param layer the layer to find layers above
+     * @return a sequence of layers positioned above the given layer
+     */
+    fun layersAbove(layer: DesktopComposeSceneLayer) = sequence {
+        var isAbove = false
+        for (i in layers) {
+            if (i == layer) {
+                isAbove = true
+            } else if (isAbove) {
+                yield(i)
+            }
+        }
     }
 
+    /**
+     * Notify layers about change in layers list. Required for additional invalidation and
+     * re-drawing if needed.
+     *
+     * @param layer the layer that triggered the change
+     */
+    private fun onLayersChange(layer: DesktopComposeSceneLayer) {
+        layers.fastForEach {
+            if (it != layer) {
+                it.onLayersChange()
+            }
+        }
+    }
+
+    /**
+     * Attaches a [DesktopComposeSceneLayer] to the list of layers.
+     *
+     * @param layer the layer to attach
+     */
+    fun attachLayer(layer: DesktopComposeSceneLayer) {
+        layers.add(layer)
+        onLayersChange(layer)
+    }
+
+    /**
+     * Detaches a [DesktopComposeSceneLayer] from the list of layers.
+     *
+     * @param layer the layer to detach
+     */
     fun detachLayer(layer: DesktopComposeSceneLayer) {
         layers.remove(layer)
+        onLayersChange(layer)
     }
 
     fun createComposeSceneContext(platformContext: PlatformContext): ComposeSceneContext =
@@ -360,6 +408,22 @@ internal class ComposeContainer(
         AbstractCoroutineContextElement(CoroutineExceptionHandler), CoroutineExceptionHandler {
         override fun handleException(context: CoroutineContext, exception: Throwable) {
             exceptionHandler?.onException(exception) ?: throw exception
+        }
+    }
+
+    /**
+     * Detect and trigger [DesktopComposeSceneLayer.onMouseEventOutside] if event happened below
+     * focused layer.
+     */
+    private inner class DetectEventOutsideLayer : AwtEventFilter {
+        override fun shouldSendMouseEvent(event: AwtMouseEvent): Boolean {
+            layers.fastForEachReversed {
+                it.onMouseEventOutside(event)
+                if (it.focusable) {
+                    return true
+                }
+            }
+            return true
         }
     }
 

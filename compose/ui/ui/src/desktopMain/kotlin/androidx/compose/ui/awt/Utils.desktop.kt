@@ -17,10 +17,13 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
 import java.awt.Component
-import java.awt.Transparency
+import java.awt.Rectangle
 import javax.swing.JComponent
-import org.jetbrains.skiko.ClipRectangle
+import kotlin.math.ceil
+import kotlin.math.floor
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
@@ -34,6 +37,18 @@ internal fun Component.isParentOf(component: Component?): Boolean {
         parent = parent.parent
     }
     return false
+}
+
+internal fun IntRect.toAwtRectangle(density: Density): Rectangle {
+    val left = floor(left / density.density).toInt()
+    val top = floor(top / density.density).toInt()
+    val right = ceil(right / density.density).toInt()
+    val bottom = ceil(bottom / density.density).toInt()
+    val width = right - left
+    val height = bottom - top
+    return Rectangle(
+        left, top, width, height
+    )
 }
 
 internal fun Color.toAwtColor() = java.awt.Color(red, green, blue, alpha)

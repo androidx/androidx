@@ -32,7 +32,6 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
@@ -56,6 +55,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.ui.window.getDialogScrimBlendMode
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 
@@ -530,20 +530,14 @@ private class MultiLayerComposeSceneImpl(
                 invalidateIfNeeded()
             }
 
-        private val dialogScrimBlendMode
-            get() = if (composeSceneContext.platformContext.isWindowTransparent) {
-                // Use background alpha channel to respect transparent window shape.
-                BlendMode.SrcAtop
-            } else {
-                BlendMode.SrcOver
-            }
-
         private val background: Modifier
             get() = scrimColor?.let {
                 Modifier.drawBehind {
                     drawRect(
                         color = it,
-                        blendMode = dialogScrimBlendMode
+                        blendMode = getDialogScrimBlendMode(
+                            composeSceneContext.platformContext.isWindowTransparent
+                        )
                     )
                 }
             } ?: Modifier

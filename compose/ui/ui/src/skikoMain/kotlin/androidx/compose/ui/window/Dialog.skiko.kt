@@ -21,6 +21,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -251,3 +252,11 @@ private fun rememberDialogMeasurePolicy(
 
 private fun KeyEvent.isDismissRequest() =
     type == KeyEventType.KeyDown && key == Key.Escape
+
+internal fun getDialogScrimBlendMode(isWindowTransparent: Boolean) =
+    if (isWindowTransparent) {
+        // Use background alpha channel to respect transparent window shape.
+        BlendMode.SrcAtop
+    } else {
+        BlendMode.SrcOver
+    }
