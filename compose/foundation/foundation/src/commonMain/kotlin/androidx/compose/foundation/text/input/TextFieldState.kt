@@ -500,7 +500,6 @@ fun TextFieldState.textAsFlow(): Flow<TextFieldCharSequence> = snapshotFlow { te
  * If you need to store a [TextFieldState] in another object, use the [TextFieldState.Saver] object
  * to manually save and restore the state.
  */
-@ExperimentalFoundationApi
 @Composable
 fun rememberTextFieldState(
     initialText: String = "",
