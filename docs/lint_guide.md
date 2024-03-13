@@ -593,6 +593,15 @@ multiple registries.
 androidx.mylibrary.lint.MyLibraryIssueRegistry
 ```
 
+Note that `lintPublish` only publishes the lint module, it doesn't include it
+when running lint on the module that `lintPublish` is attached to. In order to
+also run these lint checks as part of the module that is publishing them, you
+can add `lintChecks` in the same way.
+
+```
+lintChecks(project(':mylibrary:mylibrary-lint'))
+```
+
 ## Advanced topics
 
 ### Analyzing multiple different file types
@@ -720,6 +729,14 @@ Here are the steps to fix this:
 Note: the generated replacement code will inline the specified sample file (in
 our case, `ktSample("androidx.sample.deprecated.DeprecatedKotlinClass")`).
 Replace the inlined code with the sample declaration.
+
+### Lint checks with WARNING severity (my lint check won't run!) {#tips-warnings}
+
+In AndroidX lint checks with a severity of `WARNING` are ignored by default to
+prevent noise from bundled lint checks. If your lint check has this severity,
+and you want it to run inside AndroidX, you'll need to override the severity: in
+Compose for example this happens in
+[AndroidXComposeLintIssues](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/AndroidXComposeLintIssues.kt).
 
 ## Helpful links
 
