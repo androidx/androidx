@@ -17,5 +17,14 @@ package androidx.browser.customtabs;
 
 import androidx.annotation.RequiresOptIn;
 
+/**
+ * Denotes that the annotated method uses the experimental {@link CustomTabsSession#PendingSession}
+ * class.
+ * <p> The PendingSession is a class to be used instead of {@link CustomTabsSession} when a Custom
+ * Tab is launched before a service connection is established. Users may create a new pending
+ * session, and later convert it to a standard session using
+ * {@link CustomTabsClient#attachSession()} which associates the pending session with the service
+ * and turn it into a {@link CustomTabsSession}.
+ */
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)
 public @interface ExperimentalPendingSession {}
