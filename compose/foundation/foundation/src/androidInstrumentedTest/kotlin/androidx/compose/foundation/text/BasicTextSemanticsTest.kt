@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -68,40 +67,28 @@ class BasicTextSemanticsTest {
         rule.onNodeWithText("after").assertExists()
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun link_semantics_AnnotatedString() {
         rule.setContent {
             BasicText(
                 text = buildAnnotatedString {
-                    withAnnotation(LinkAnnotation.Url("url")) { append("abc") }
-                    withAnnotation(LinkAnnotation.Clickable("tag")) { append("def") }
-                },
-                onLinkClicked = {}
+                    withAnnotation(LinkAnnotation.Clickable("tag")) { append("text") }
+                }
             )
         }
 
         val node = rule
-            .onNodeWithText("abcdef", useUnmergedTree = true)
+            .onNodeWithText("text", useUnmergedTree = true)
             .assertExists()
             .fetchSemanticsNode()
-        assertThat(node.children.size).isEqualTo(2)
         assertThat(node.config.isClearingSemantics).isTrue()
 
-        rule.onNodeWithText("abcdef", useUnmergedTree = true)
+        rule.onNodeWithText("text", useUnmergedTree = true)
             .onChildAt(0)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CustomActions))
             .assert(SemanticsMatcher.expectValue(
                 SemanticsProperties.TextSelectionRange,
-                TextRange(0, 3)
-            ))
-
-        rule.onNodeWithText("abcdef", useUnmergedTree = true)
-            .onChildAt(1)
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CustomActions))
-            .assert(SemanticsMatcher.expectValue(
-                SemanticsProperties.TextSelectionRange,
-                TextRange(3, 6)
+                TextRange(0, 4)
             ))
     }
 }

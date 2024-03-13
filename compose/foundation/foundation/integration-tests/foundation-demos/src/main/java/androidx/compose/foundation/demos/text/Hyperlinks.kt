@@ -17,7 +17,6 @@
 package androidx.compose.foundation.demos.text
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,17 +31,11 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.LocalTextLinkStyle
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,7 +50,6 @@ import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.random.Random
 
 private const val WebLink = "https://developer.android.com"
 private const val LongWebLink =
@@ -65,7 +57,6 @@ private const val LongWebLink =
 private const val PhoneUri = "tel:+123456789"
 
 @SuppressLint("NullAnnotationGroup")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Hyperlinks() {
     Column(
@@ -94,19 +85,6 @@ fun Hyperlinks() {
                 append(" with a custom style.")
             }
             Text(text = stringWithLink)
-        }
-        Sample("Link styling via composition local") {
-            CompositionLocalProvider(
-                LocalTextLinkStyle provides LocalTextLinkStyle.current.copy(
-                    color = Color(139, 195, 74, 255)
-                )
-            ) {
-                Text(buildAnnotatedString {
-                    append("Text with ")
-                    withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
-                    append(" link wrapped in green theming.")
-                })
-            }
         }
         Sample("BasicText styling") {
             BasicText(buildAnnotatedString {
@@ -181,40 +159,6 @@ fun Hyperlinks() {
                         }
                     }
                     append(" is invalid and won't be opened.")
-                }
-            )
-        }
-        Sample("Clickable inside a text") {
-            var color by remember { mutableStateOf(Color.LightGray) }
-            var background by remember { mutableStateOf(Color.LightGray) }
-
-            BasicText(
-                buildAnnotatedString {
-                    append("Text contains ")
-                    withAnnotation(LinkAnnotation.Clickable("color")) {
-                        withStyle(SpanStyle(color = color)) {
-                            append("a variable color clickable")
-                        }
-                    }
-                    append(" and ")
-                    withAnnotation(LinkAnnotation.Clickable("background")) {
-                        withStyle(SpanStyle(background = background)) {
-                            append("a variable background clickable")
-                        }
-                    }
-                    append(" parts.")
-                },
-                onLinkClicked = { link ->
-                    (link as? LinkAnnotation.Clickable)?.let { clickable ->
-                        when (clickable.tag) {
-                            "color" -> {
-                                color = Color(Random.nextInt())
-                            }
-                            "background" -> {
-                                background = Color(Random.nextInt()).copy(alpha = 0.3f)
-                            }
-                        }
-                    }
                 }
             )
         }

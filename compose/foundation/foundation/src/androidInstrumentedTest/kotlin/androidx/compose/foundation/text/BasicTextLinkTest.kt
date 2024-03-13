@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,10 +59,8 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.LinkAnnotation.Url
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -84,7 +81,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class BasicTextLinkTest {
@@ -423,67 +419,6 @@ class BasicTextLinkTest {
 
         rule.onNodeWithTag("box").assertIsNotFocused()
         rule.onNode(hasClickAction(), useUnmergedTree = true).assertIsFocused()
-    }
-
-    @Test
-    fun link_handler_calledWithoutDefaultBehavior() {
-        var counter = 0
-        setupContent {
-            BasicText(
-                text = buildAnnotatedString {
-                    withAnnotation(Url(Url1)) { append("link") }
-                },
-                onLinkClicked = {
-                    counter++
-                }
-            )
-        }
-
-        rule.onNodeWithText("link").performClick()
-
-        rule.runOnIdle {
-            assertThat(openedUri).isNull()
-            assertThat(counter).isEqualTo(1)
-        }
-    }
-
-    @Test
-    fun link_nullHandler_defaultBehavior() {
-        setupContent {
-            BasicText(
-                text = buildAnnotatedString {
-                    withAnnotation(Url(Url1)) { append("link") }
-                },
-                onLinkClicked = null // default
-            )
-        }
-
-        rule.onNodeWithText("link").performClick()
-
-        rule.runOnIdle {
-            assertThat(openedUri).isEqualTo(Url1)
-        }
-    }
-
-    @Test
-    fun clickable_handler_called() {
-        var counter = 0
-        setupContent {
-            BasicText(
-                text = buildAnnotatedString {
-                    withAnnotation(LinkAnnotation.Clickable(Url1)) { append("clickable") }
-                },
-                onLinkClicked = {
-                    counter++
-                }
-            )
-        }
-
-        rule.onNodeWithText("clickable").performClick()
-
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
-        }
     }
 
     @Test

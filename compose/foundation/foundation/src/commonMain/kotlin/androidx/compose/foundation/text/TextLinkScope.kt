@@ -18,7 +18,6 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.TextLinkClickHandler
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -60,10 +59,7 @@ internal typealias LinkRange = AnnotatedString.Range<LinkAnnotation>
  * Therefore this class initialisation should be guarded by the `hasLinks` check.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class TextLinkScope(
-    val text: AnnotatedString,
-    private val linkClickHandler: TextLinkClickHandler?
-) {
+internal class TextLinkScope(val text: AnnotatedString) {
     var textLayoutResult: TextLayoutResult? by mutableStateOf(null)
 
     // indicates whether the links should be measured or not. The latter needed to handle
@@ -147,12 +143,15 @@ internal class TextLinkScope(
                 clipModifier
                     .textRange(range.start, range.end)
                     .semantics {
-                        linkClickHandler?.let {
+                        // TODO(b/139312671) handle Url when replacement API for a link click
+                        //  handler arrives
+                        if (range.item is LinkAnnotation.Clickable) {
                             customActions = listOf(
                                 // this action will be passed down to the Talkback through the
                                 // ClickableSpan's onClick method
                                 CustomAccessibilityAction("") {
-                                    it.onClick(range.item)
+                                    // TODO(b/139312671) handle this no-op when replacement API for
+                                    //  a link click handler arrives
                                     true
                                 }
                             )
@@ -161,7 +160,7 @@ internal class TextLinkScope(
                     }
                     .pointerHoverIcon(PointerIcon.Hand)
                     .combinedClickable(null, indication, onClick = {
-                        handleLink(range.item, uriHandler, linkClickHandler)
+                        handleLink(range.item, uriHandler)
                     })
             )
         }
@@ -169,25 +168,20 @@ internal class TextLinkScope(
 
     private fun handleLink(
         link: LinkAnnotation,
-        uriHandler: UriHandler,
-        clickHandler: TextLinkClickHandler?
+        uriHandler: UriHandler
     ) {
         when (link) {
             is LinkAnnotation.Url -> {
-                // if a handler is present, we delegate link handling to it. If not, we try to
-                // handle links ourselves. And if we can't (the uri is invalid or there's no app to
-                // handle such a uri), we silently fail
-                clickHandler?.onClick(link)
-                    ?: try {
-                        uriHandler.openUri(link.url)
-                    } catch (_: IllegalArgumentException) {
-                        // we choose to silently fail when the uri can't be opened to avoid crashes
-                        // for users. This is the case where developer don't provide the link
-                        // handlers themselves and therefore I suspect are less likely to test them
-                        // manually.
-                    }
+                try {
+                    uriHandler.openUri(link.url)
+                } catch (_: IllegalArgumentException) {
+                    // we choose to silently fail when the uri can't be opened to avoid crashes
+                    // for users. This is the case where developer don't provide the link
+                    // handlers themselves and therefore I suspect are less likely to test them
+                    // manually.
+                }
             }
-            is LinkAnnotation.Clickable -> clickHandler?.onClick(link)
+            is LinkAnnotation.Clickable -> { /* for now this is a no-op */ }
         }
     }
 }
