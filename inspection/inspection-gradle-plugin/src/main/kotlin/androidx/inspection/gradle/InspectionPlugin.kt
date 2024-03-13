@@ -213,6 +213,18 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
             )
         )
     )
+
+    // When adding package inspector to a new project, add the artifactId here
+    // to ensure inspector.jar is packaged in the correct location
+    val artifactId = when (libraryProject.name) {
+        "ui" -> "ui-android"
+        "work-runtime" -> "work-runtime"
+        else -> throw GradleException(
+            "Project ${libraryProject.name} does not have artifactId defined " +
+                "for packaging the inspector.jar file"
+        )
+    }
+    libraryProject.createVerifyInspectorJarPresentTask(artifactId)
 }
 
 fun Project.createConsumeInspectionConfiguration(): Configuration =
