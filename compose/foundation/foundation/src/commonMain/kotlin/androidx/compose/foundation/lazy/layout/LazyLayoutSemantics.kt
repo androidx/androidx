@@ -19,10 +19,14 @@ package androidx.compose.foundation.lazy.layout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.collectionInfo
 import androidx.compose.ui.semantics.getScrollViewportLength
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
@@ -30,9 +34,7 @@ import androidx.compose.ui.semantics.indexForKey
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.scrollToIndex
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -43,96 +45,194 @@ internal fun Modifier.lazyLayoutSemantics(
     orientation: Orientation,
     userScrollEnabled: Boolean,
     reverseScrolling: Boolean,
-    coroutineScope: CoroutineScope
-): Modifier {
-    return this.then(
-        remember(
-            itemProviderLambda,
-            state,
-            orientation,
-            userScrollEnabled
-        ) {
-            val isVertical = orientation == Orientation.Vertical
-            val indexForKeyMapping: (Any) -> Int = { needle ->
-                val itemProvider = itemProviderLambda()
-                var result = -1
-                for (index in 0 until itemProvider.itemCount) {
-                    if (itemProvider.getKey(index) == needle) {
-                        result = index
-                        break
-                    }
-                }
-                result
-            }
+): Modifier = this then LazyLayoutSemanticsModifier(
+    itemProviderLambda = itemProviderLambda,
+    state = state,
+    orientation = orientation,
+    userScrollEnabled = userScrollEnabled,
+    reverseScrolling = reverseScrolling,
+)
 
-            val accessibilityScrollState = ScrollAxisRange(
-                value = { state.pseudoScrollOffset() },
-                maxValue = { state.pseudoMaxScrollOffset() },
-                reverseScrolling = reverseScrolling
-            )
+@OptIn(ExperimentalFoundationApi::class)
+private class LazyLayoutSemanticsModifier(
+    val itemProviderLambda: () -> LazyLayoutItemProvider,
+    val state: LazyLayoutSemanticState,
+    val orientation: Orientation,
+    val userScrollEnabled: Boolean,
+    val reverseScrolling: Boolean,
+) : ModifierNodeElement<LazyLayoutSemanticsModifierNode>() {
+    override fun create(): LazyLayoutSemanticsModifierNode = LazyLayoutSemanticsModifierNode(
+        itemProviderLambda = itemProviderLambda,
+        state = state,
+        orientation = orientation,
+        userScrollEnabled = userScrollEnabled,
+        reverseScrolling = reverseScrolling,
+    )
 
-            val scrollByAction: ((x: Float, y: Float) -> Boolean)? = if (userScrollEnabled) {
-                { x, y ->
-                    val delta = if (isVertical) {
-                        y
-                    } else {
-                        x
-                    }
-                    coroutineScope.launch {
-                        state.animateScrollBy(delta)
-                    }
-                    // TODO(aelias): is it important to return false if we know in advance we cannot scroll?
-                    true
-                }
-            } else {
-                null
-            }
+    override fun update(node: LazyLayoutSemanticsModifierNode) {
+        node.update(
+            itemProviderLambda = itemProviderLambda,
+            state = state,
+            orientation = orientation,
+            userScrollEnabled = userScrollEnabled,
+            reverseScrolling = reverseScrolling,
+        )
+    }
 
-            val scrollToIndexAction: ((Int) -> Boolean)? = if (userScrollEnabled) {
-                { index ->
-                    val itemProvider = itemProviderLambda()
-                    require(index >= 0 && index < itemProvider.itemCount) {
-                        "Can't scroll to index $index, it is out of " +
-                            "bounds [0, ${itemProvider.itemCount})"
-                    }
-                    coroutineScope.launch {
-                        state.scrollToItem(index)
-                    }
-                    true
-                }
-            } else {
-                null
-            }
+    override fun InspectorInfo.inspectableProperties() {
+        // Not a public modifier.
+    }
 
-            val collectionInfo = state.collectionInfo()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LazyLayoutSemanticsModifier) return false
 
-            Modifier.semantics {
-                isTraversalGroup = true
-                indexForKey(indexForKeyMapping)
+        if (itemProviderLambda != other.itemProviderLambda) return false
+        if (state != other.state) return false
+        if (orientation != other.orientation) return false
+        if (userScrollEnabled != other.userScrollEnabled) return false
+        if (reverseScrolling != other.reverseScrolling) return false
 
-                if (isVertical) {
-                    verticalScrollAxisRange = accessibilityScrollState
-                } else {
-                    horizontalScrollAxisRange = accessibilityScrollState
-                }
+        return true
+    }
 
-                if (scrollByAction != null) {
-                    scrollBy(action = scrollByAction)
-                }
+    override fun hashCode(): Int {
+        var result = itemProviderLambda.hashCode()
+        result = 31 * result + state.hashCode()
+        result = 31 * result + orientation.hashCode()
+        result = 31 * result + userScrollEnabled.hashCode()
+        result = 31 * result + reverseScrolling.hashCode()
+        return result
+    }
+}
 
-                if (scrollToIndexAction != null) {
-                    scrollToIndex(action = scrollToIndexAction)
-                }
+@OptIn(ExperimentalFoundationApi::class)
+private class LazyLayoutSemanticsModifierNode(
+    private var itemProviderLambda: () -> LazyLayoutItemProvider,
+    private var state: LazyLayoutSemanticState,
+    private var orientation: Orientation,
+    private var userScrollEnabled: Boolean,
+    private var reverseScrolling: Boolean,
+) : Modifier.Node(), SemanticsModifierNode {
 
-                getScrollViewportLength {
-                    it.add((state.viewport - state.contentPadding).toFloat())
-                    true
-                }
+    override val shouldAutoInvalidate: Boolean
+        get() = false
+    private val isVertical get() = orientation == Orientation.Vertical
+    private val collectionInfo get() = state.collectionInfo()
+    private lateinit var scrollAxisRange: ScrollAxisRange
 
-                this.collectionInfo = collectionInfo
+    private val indexForKeyMapping: (Any) -> Int = { needle ->
+        val itemProvider = itemProviderLambda()
+        var result = -1
+        for (index in 0 until itemProvider.itemCount) {
+            if (itemProvider.getKey(index) == needle) {
+                result = index
+                break
             }
         }
-    )
+        result
+    }
+
+    private var scrollByAction: ((x: Float, y: Float) -> Boolean)? = null
+    private var scrollToIndexAction: ((Int) -> Boolean)? = null
+
+    init {
+        updateCachedSemanticsValues()
+    }
+
+    fun update(
+        itemProviderLambda: () -> LazyLayoutItemProvider,
+        state: LazyLayoutSemanticState,
+        orientation: Orientation,
+        userScrollEnabled: Boolean,
+        reverseScrolling: Boolean,
+    ) {
+        // These properties are only read lazily, so we don't need to invalidate
+        // semantics if they change.
+        this.itemProviderLambda = itemProviderLambda
+        this.state = state
+
+        // These properties are read when appling semantics, but don't need to rebuild the cache.
+        if (this.orientation != orientation) {
+            this.orientation = orientation
+            invalidateSemantics()
+        }
+
+        // These values are used to build different cached values. If they, we need to rebuild the
+        // cache.
+        if (this.userScrollEnabled != userScrollEnabled ||
+            this.reverseScrolling != reverseScrolling
+        ) {
+            this.userScrollEnabled = userScrollEnabled
+            this.reverseScrolling = reverseScrolling
+            updateCachedSemanticsValues()
+            invalidateSemantics()
+        }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        isTraversalGroup = true
+        indexForKey(indexForKeyMapping)
+
+        if (isVertical) {
+            verticalScrollAxisRange = scrollAxisRange
+        } else {
+            horizontalScrollAxisRange = scrollAxisRange
+        }
+
+        scrollByAction?.let {
+            scrollBy(action = it)
+        }
+
+        scrollToIndexAction?.let {
+            scrollToIndex(action = it)
+        }
+
+        getScrollViewportLength {
+            it.add((state.viewport - state.contentPadding).toFloat())
+            true
+        }
+
+        collectionInfo = this@LazyLayoutSemanticsModifierNode.collectionInfo
+    }
+
+    private fun updateCachedSemanticsValues() {
+        scrollAxisRange = ScrollAxisRange(
+            value = { state.pseudoScrollOffset() },
+            maxValue = { state.pseudoMaxScrollOffset() },
+            reverseScrolling = reverseScrolling
+        )
+
+        scrollByAction = if (userScrollEnabled) {
+            { x, y ->
+                val delta = if (isVertical) y else x
+                coroutineScope.launch {
+                    state.animateScrollBy(delta)
+                }
+                // TODO(aelias): is it important to return false if we know in advance we cannot
+                //  scroll?
+                true
+            }
+        } else {
+            null
+        }
+
+        scrollToIndexAction = if (userScrollEnabled) {
+            { index ->
+                val itemProvider = itemProviderLambda()
+                require(index >= 0 && index < itemProvider.itemCount) {
+                    "Can't scroll to index $index, it is out of " +
+                        "bounds [0, ${itemProvider.itemCount})"
+                }
+                coroutineScope.launch {
+                    state.scrollToItem(index)
+                }
+                true
+            }
+        } else {
+            null
+        }
+    }
 }
 
 internal interface LazyLayoutSemanticState {

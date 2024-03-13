@@ -106,7 +106,6 @@ internal fun LazyList(
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
                 reverseScrolling = reverseLayout,
-                coroutineScope = coroutineScope
             )
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberLazyListBeyondBoundsState(
