@@ -54,6 +54,7 @@ import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -1497,12 +1498,14 @@ class AndroidViewTest {
 
             Column {
                 repeat(10) { slot ->
-                    if (slot == slotWithContent) {
-                        ReusableContent(Unit) {
-                            movableContext()
+                    key(slot) {
+                        if (slot == slotWithContent) {
+                            ReusableContent(Unit) {
+                                movableContext()
+                            }
+                        } else {
+                            Text("Slot $slot")
                         }
-                    } else {
-                        Text("Slot $slot")
                     }
                 }
             }
@@ -1539,7 +1542,10 @@ class AndroidViewTest {
         assertEquals(
             "AndroidView experienced unexpected lifecycle events when " +
                 "moved in the composition",
-            emptyList<AndroidViewLifecycleEvent>(),
+            listOf(
+                OnViewDetach,
+                OnViewAttach
+            ),
             lifecycleEvents
         )
 
