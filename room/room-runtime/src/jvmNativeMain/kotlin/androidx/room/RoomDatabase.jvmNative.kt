@@ -24,6 +24,8 @@ import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
 /**
@@ -37,7 +39,7 @@ import kotlin.reflect.KClass
  */
 actual abstract class RoomDatabase {
 
-    private lateinit var connectionManager: RoomJvmConnectionManager
+    private lateinit var connectionManager: RoomConnectionManager
 
     private val typeConverters: MutableMap<KClass<*>, Any> = mutableMapOf()
 
@@ -58,7 +60,7 @@ actual abstract class RoomDatabase {
      * @throws IllegalArgumentException if initialization fails.
      */
     internal fun init(configuration: DatabaseConfiguration) {
-        connectionManager = createConnectionManager(configuration) as RoomJvmConnectionManager
+        connectionManager = createConnectionManager(configuration)
         validateAutoMigrations(configuration)
         validateTypeConverters(configuration)
     }
@@ -72,7 +74,7 @@ actual abstract class RoomDatabase {
      */
     internal actual fun createConnectionManager(
         configuration: DatabaseConfiguration
-    ): RoomConnectionManager = RoomJvmConnectionManager(
+    ): RoomConnectionManager = RoomConnectionManager(
         configuration = configuration,
         sqliteDriver = checkNotNull(configuration.sqliteDriver),
         openDelegate = createOpenDelegate() as RoomOpenDelegate,

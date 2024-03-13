@@ -21,12 +21,12 @@ import androidx.room.coroutines.newConnectionPool
 import androidx.room.coroutines.newSingleConnectionPool
 import androidx.sqlite.SQLiteDriver
 
-internal class RoomJvmConnectionManager(
+internal actual class RoomConnectionManager(
     override val configuration: DatabaseConfiguration,
     sqliteDriver: SQLiteDriver,
     override val openDelegate: RoomOpenDelegate,
     override val callbacks: List<RoomDatabase.Callback>,
-    ) : RoomConnectionManager() {
+) : BaseRoomConnectionManager() {
 
     override val connectionPool: ConnectionPool =
         if (configuration.name == null) {
