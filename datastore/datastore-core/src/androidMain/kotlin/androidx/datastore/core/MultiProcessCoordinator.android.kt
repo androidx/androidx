@@ -26,7 +26,6 @@ import java.nio.channels.FileLock
 import kotlin.contracts.ExperimentalContracts
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -37,9 +36,6 @@ internal class MultiProcessCoordinator(
 ) : InterProcessCoordinator {
     // TODO(b/269375542): the flow should `flowOn` the provided [context]
     override val updateNotifications: Flow<Unit> = MulticastFileObserver.observe(file)
-        // MulticastFileObserver dispatches 1 value upon connecting to the FileSystem, which
-        // is useful for its tests but not necessary here.
-        .drop(1)
 
     // run block with the exclusive lock
     override suspend fun <T> lock(block: suspend () -> T): T {
