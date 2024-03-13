@@ -28,7 +28,7 @@ import androidx.lifecycle.ViewModelStore
  * directly from a navigation host via [NavHost.getNavController] or by using one of
  * the utility methods on the [Navigation] class.
  */
-public open class NavHostController
+public actual open class NavHostController
 /**
  * Construct a new controller for a given [Context] suitable for use in a
  * [NavHost]. Controllers should not be used outside of their context and retain a

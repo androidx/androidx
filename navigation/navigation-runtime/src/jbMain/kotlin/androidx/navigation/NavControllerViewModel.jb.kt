@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.get
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlin.jvm.JvmStatic
 
-/**
- * NavControllerViewModel is the always up to date view of the NavController's
- * non configuration state
- */
 internal actual class NavControllerViewModel : ViewModel(), NavViewModelStoreProvider {
     private val viewModelStores = mutableMapOf<String, ViewModelStore>()
 
@@ -51,7 +51,7 @@ internal actual class NavControllerViewModel : ViewModel(), NavViewModelStorePro
 
     override fun toString(): String {
         val sb = StringBuilder("NavControllerViewModel{")
-        sb.append(Integer.toHexString(System.identityHashCode(this)))
+        sb.append(hashCode())
         sb.append("} ViewModelStores (")
         val viewModelStoreIterator: Iterator<String> = viewModelStores.keys.iterator()
         while (viewModelStoreIterator.hasNext()) {
@@ -65,16 +65,13 @@ internal actual class NavControllerViewModel : ViewModel(), NavViewModelStorePro
     }
 
     actual companion object {
-        private val FACTORY: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return NavControllerViewModel() as T
-            }
+        private val FACTORY: ViewModelProvider.Factory = viewModelFactory {
+            initializer { NavControllerViewModel() }
         }
 
         @JvmStatic
         actual fun getInstance(viewModelStore: ViewModelStore): NavControllerViewModel {
-            val viewModelProvider = ViewModelProvider(viewModelStore, FACTORY)
+            val viewModelProvider = ViewModelProvider.create(viewModelStore, FACTORY)
             return viewModelProvider.get()
         }
     }

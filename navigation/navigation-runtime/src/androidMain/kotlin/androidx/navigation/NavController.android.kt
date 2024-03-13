@@ -68,7 +68,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * (For example, if the navigation structure of the application is determined by live data obtained'
  * from a remote server.)
  */
-public open class NavController(
+public actual open class NavController(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val context: Context
 ) {
@@ -90,7 +90,7 @@ public open class NavController(
      * @see NavController.setGraph
      * @throws IllegalStateException if called before `setGraph()`.
      */
-    public open var graph: NavGraph
+    public actual open var graph: NavGraph
         @MainThread
         get() {
             checkNotNull(_graph) { "You must call setGraph() before calling getGraph()" }
@@ -118,7 +118,7 @@ public open class NavController(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val currentBackStack: StateFlow<List<NavBackStackEntry>> =
+    public actual val currentBackStack: StateFlow<List<NavBackStackEntry>> =
         _currentBackStack.asStateFlow()
 
     private val _visibleEntries: MutableStateFlow<List<NavBackStackEntry>> =
@@ -142,7 +142,7 @@ public open class NavController(
      * Activity/Fragment - if the Activity is not `RESUMED`, no entry will be `RESUMED`, no matter
      * what the transition state is.
      */
-    public val visibleEntries: StateFlow<List<NavBackStackEntry>> =
+    public actual val visibleEntries: StateFlow<List<NavBackStackEntry>> =
         _visibleEntries.asStateFlow()
 
     private val childToParentEntries = mutableMapOf<NavBackStackEntry, NavBackStackEntry>()
@@ -206,7 +206,7 @@ public open class NavController(
      * OnDestinationChangedListener receives a callback when the
      * [currentDestination] or its arguments change.
      */
-    public fun interface OnDestinationChangedListener {
+    public actual fun interface OnDestinationChangedListener {
         /**
          * Callback for when the [currentDestination] or its arguments change.
          * This navigation may be to a destination that has not been seen before, or one that
@@ -217,7 +217,7 @@ public open class NavController(
          * @param destination the new destination
          * @param arguments the arguments passed to the destination
          */
-        public fun onDestinationChanged(
+        public actual fun onDestinationChanged(
             controller: NavController,
             destination: NavDestination,
             arguments: Bundle?
@@ -239,7 +239,7 @@ public open class NavController(
      *
      * @throws IllegalStateException If this set called after `setGraph()`
      */
-    public open var navigatorProvider: NavigatorProvider
+    public actual open var navigatorProvider: NavigatorProvider
         get() = _navigatorProvider
         /**
          */
@@ -414,7 +414,7 @@ public open class NavController(
      *
      * @param listener the listener to receive events
      */
-    public open fun addOnDestinationChangedListener(listener: OnDestinationChangedListener) {
+    public actual open fun addOnDestinationChangedListener(listener: OnDestinationChangedListener) {
         onDestinationChangedListeners.add(listener)
 
         // Inform the new listener of our current state, if any
@@ -434,7 +434,7 @@ public open class NavController(
      *
      * @param listener the listener to remove
      */
-    public open fun removeOnDestinationChangedListener(listener: OnDestinationChangedListener) {
+    public actual open fun removeOnDestinationChangedListener(listener: OnDestinationChangedListener) {
         onDestinationChangedListeners.remove(listener)
     }
 
@@ -447,7 +447,7 @@ public open class NavController(
      * another destination, false otherwise
      */
     @MainThread
-    public open fun popBackStack(): Boolean {
+    public actual open fun popBackStack(): Boolean {
         return if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
             false
@@ -513,10 +513,10 @@ public open class NavController(
      */
     @MainThread
     @JvmOverloads
-    public fun popBackStack(
+    public actual fun popBackStack(
         route: String,
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean
     ): Boolean {
         val popped = popBackStackInternal(route, inclusive, saveState)
         // Only return true if the pop succeeded and we've dispatched
@@ -708,7 +708,7 @@ public open class NavController(
      * [onComplete] callback. Only after the processing here is done and the [onComplete]
      * callback completes does this method dispatch the destination change event.
      */
-    internal fun popBackStackFromNavigator(popUpTo: NavBackStackEntry, onComplete: () -> Unit) {
+    internal actual fun popBackStackFromNavigator(popUpTo: NavBackStackEntry, onComplete: () -> Unit) {
         val popIndex = backQueue.indexOf(popUpTo)
         if (popIndex < 0) {
             Log.i(
@@ -783,7 +783,7 @@ public open class NavController(
      * @return true if the saved state of the stack associated with [route] was cleared.
      */
     @MainThread
-    public fun clearBackStack(route: String): Boolean {
+    public actual fun clearBackStack(route: String): Boolean {
         val cleared = clearBackStackInternal(route)
         // Only return true if the clear succeeded and we've dispatched
         // the change to a new destination
@@ -847,7 +847,7 @@ public open class NavController(
      * @return true if navigation was successful, false otherwise
      */
     @MainThread
-    public open fun navigateUp(): Boolean {
+    public actual open fun navigateUp(): Boolean {
         // If there's only one entry, then we may have deep linked into a specific destination
         // on another task.
         if (destinationCountOnBackStack == 1) {
@@ -1185,7 +1185,7 @@ public open class NavController(
      */
     @MainThread
     @CallSuper
-    public open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
+    public actual open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
         if (_graph != graph) {
             _graph?.let { previousGraph ->
                 // Clear all saved back stacks by iterating through a copy of the saved keys,
@@ -1519,7 +1519,7 @@ public open class NavController(
     /**
      * The current destination.
      */
-    public open val currentDestination: NavDestination?
+    public actual open val currentDestination: NavDestination?
         get() {
             return currentBackStackEntry?.destination
         }
@@ -1545,7 +1545,7 @@ public open class NavController(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findDestination(route: String): NavDestination? {
+    public actual fun findDestination(route: String): NavDestination? {
         if (_graph == null) {
             return null
         }
@@ -2210,7 +2210,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the given route is invalid
      */
     @MainThread
-    public fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
+    public actual fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
         navigate(route, navOptions(builder))
     }
 
@@ -2229,10 +2229,10 @@ public open class NavController(
      */
     @MainThread
     @JvmOverloads
-    public fun navigate(
+    public actual fun navigate(
         route: String,
-        navOptions: NavOptions? = null,
-        navigatorExtras: Navigator.Extras? = null
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
     ) {
         navigate(
             NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build(), navOptions,
@@ -2259,7 +2259,7 @@ public open class NavController(
      * @return saved state for this controller
      */
     @CallSuper
-    public open fun saveState(): Bundle? {
+    public actual open fun saveState(): Bundle? {
         var b: Bundle? = null
         val navigatorNames = ArrayList<String>()
         val navigatorState = Bundle()
@@ -2335,7 +2335,7 @@ public open class NavController(
      */
     @CallSuper
     @Suppress("DEPRECATION")
-    public open fun restoreState(navState: Bundle?) {
+    public actual open fun restoreState(navState: Bundle?) {
         if (navState == null) {
             return
         }
@@ -2367,7 +2367,7 @@ public open class NavController(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun setLifecycleOwner(owner: LifecycleOwner) {
+    public actual open fun setLifecycleOwner(owner: LifecycleOwner) {
         if (owner == lifecycleOwner) {
             return
         }
@@ -2411,7 +2411,7 @@ public open class NavController(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun setViewModelStore(viewModelStore: ViewModelStore) {
+    public actual open fun setViewModelStore(viewModelStore: ViewModelStore) {
         if (viewModel == NavControllerViewModel.getInstance(viewModelStore)) {
             return
         }
@@ -2473,7 +2473,7 @@ public open class NavController(
      * arguments as long as it is exact match with route used to navigate.
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
-    public fun getBackStackEntry(route: String): NavBackStackEntry {
+    public actual fun getBackStackEntry(route: String): NavBackStackEntry {
         val lastFromBackStack: NavBackStackEntry? = backQueue.lastOrNull { entry ->
             entry.destination.hasRoute(route, entry.arguments)
         }
@@ -2489,7 +2489,7 @@ public open class NavController(
      *
      * @return the topmost entry on the back stack or null if the back stack is empty
      */
-    public open val currentBackStackEntry: NavBackStackEntry?
+    public actual open val currentBackStackEntry: NavBackStackEntry?
         get() = backQueue.lastOrNull()
 
     private val _currentBackStackEntryFlow: MutableSharedFlow<NavBackStackEntry> =
@@ -2499,7 +2499,7 @@ public open class NavController(
      * A [Flow] that will emit the currently active [NavBackStackEntry] whenever it changes. If
      * there is no active [NavBackStackEntry], no item will be emitted.
      */
-    public val currentBackStackEntryFlow: Flow<NavBackStackEntry> =
+    public actual val currentBackStackEntryFlow: Flow<NavBackStackEntry> =
         _currentBackStackEntryFlow.asSharedFlow()
 
     /**
@@ -2510,7 +2510,7 @@ public open class NavController(
      * @return the previous visible entry on the back stack or null if the back stack has less
      * than two visible entries
      */
-    public open val previousBackStackEntry: NavBackStackEntry?
+    public actual open val previousBackStackEntry: NavBackStackEntry?
         get() {
             val iterator = backQueue.reversed().iterator()
             // throw the topmost destination away.
@@ -2600,8 +2600,8 @@ public inline fun NavController.createGraph(
  * @param route the route for the graph
  * @param builder the builder used to construct the graph
  */
-public inline fun NavController.createGraph(
+public actual inline fun NavController.createGraph(
     startDestination: String,
-    route: String? = null,
+    route: String?,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, builder)

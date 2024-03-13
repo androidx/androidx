@@ -29,7 +29,7 @@ import java.lang.ref.WeakReference
  * various common places in your application, or for performing navigation in response to
  * UI events.
  */
-public object Navigation {
+public actual object Navigation {
     /**
      * Find a [NavController] given the id of a View and its containing
      * [Activity]. This is a convenience wrapper around [findNavController].

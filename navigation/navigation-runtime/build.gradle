@@ -25,6 +25,7 @@
 import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
@@ -33,6 +34,12 @@ plugins {
 
 androidXMultiplatform {
     android()
+    desktop()
+    mac()
+    linux()
+    ios()
+    js()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -55,8 +62,12 @@ androidXMultiplatform {
             }
         }
 
-        androidMain {
+        jvmMain {
             dependsOn(commonMain)
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
             dependencies {
                 api("androidx.activity:activity-ktx:1.7.1")
             }
@@ -83,6 +94,32 @@ androidXMultiplatform {
                 // implementation(libs.dexmakerMockito, excludes.bytebuddy)
                 implementation("org.mockito:mockito-core:2.25.0", excludes.bytebuddy)
                 implementation("com.linkedin.dexmaker:dexmaker-mockito:2.28.3", excludes.bytebuddy)
+            }
+        }
+
+        jbMain.dependsOn(commonMain)
+
+        nonJvmMain {
+            dependsOn(jbMain)
+            dependencies {
+                implementation(libs.atomicFu)
+            }
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(jbMain)
+        }
+
+        targets.all { target ->
+            if (target.platformType !in [
+                    KotlinPlatformType.androidJvm,
+                    KotlinPlatformType.jvm,
+                    KotlinPlatformType.common
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nonJvmMain)
+                }
             }
         }
     }
