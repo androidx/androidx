@@ -30,7 +30,7 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
-import androidx.camera.camera2.pipe.core.TokenLock
+import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
@@ -38,21 +38,20 @@ import kotlinx.coroutines.Deferred
 internal val cameraGraphSessionIds = atomic(0)
 
 internal class CameraGraphSessionImpl(
-    private val token: TokenLock.Token,
+    private val token: Token,
     private val graphProcessor: GraphProcessor,
     private val controller3A: Controller3A,
     private val frameCaptureQueue: FrameCaptureQueue,
 ) : CameraGraph.Session {
     private val debugId = cameraGraphSessionIds.incrementAndGet()
-    private val closed = atomic(false)
 
     override fun submit(request: Request) {
-        check(!closed.value) { "Cannot call submit on $this after close." }
+        check(!token.released) { "Cannot call submit on $this after close." }
         graphProcessor.submit(request)
     }
 
     override fun submit(requests: List<Request>) {
-        check(!closed.value) { "Cannot call submit on $this after close." }
+        check(!token.released) { "Cannot call submit on $this after close." }
         check(requests.isNotEmpty()) { "Cannot call submit with an empty list of Requests!" }
         graphProcessor.submit(requests)
     }
@@ -70,24 +69,22 @@ internal class CameraGraphSessionImpl(
     }
 
     override fun startRepeating(request: Request) {
-        check(!closed.value) { "Cannot call startRepeating on $this after close." }
+        check(!token.released) { "Cannot call startRepeating on $this after close." }
         graphProcessor.startRepeating(request)
     }
 
     override fun abort() {
-        check(!closed.value) { "Cannot call abort on $this after close." }
+        check(!token.released) { "Cannot call abort on $this after close." }
         graphProcessor.abort()
     }
 
     override fun stopRepeating() {
-        check(!closed.value) { "Cannot call stopRepeating on $this after close." }
+        check(!token.released) { "Cannot call stopRepeating on $this after close." }
         graphProcessor.stopRepeating()
         controller3A.onStopRepeating()
     }
 
     override fun close() {
-        closed.compareAndSet(expect = false, update = true)
-        // Release the token so that a new instance of session can be created.
         token.release()
     }
 
@@ -99,7 +96,7 @@ internal class CameraGraphSessionImpl(
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
     ): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call update3A on $this after close." }
+        check(!token.released) { "Cannot call update3A on $this after close." }
         return controller3A.update3A(
             aeMode = aeMode,
             afMode = afMode,
@@ -118,12 +115,12 @@ internal class CameraGraphSessionImpl(
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
     ): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call submit3A on $this after close." }
+        check(!token.released) { "Cannot call submit3A on $this after close." }
         return controller3A.submit3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
     }
 
     override fun setTorch(torchState: TorchState): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call setTorch on $this after close." }
+        check(!token.released) { "Cannot call setTorch on $this after close." }
         // TODO(sushilnath): First check whether the camera device has a flash unit. Ref:
         // https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_INFO_AVAILABLE
         return controller3A.setTorch(torchState)
@@ -145,7 +142,7 @@ internal class CameraGraphSessionImpl(
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call lock3A on $this after close." }
+        check(!token.released) { "Cannot call lock3A on $this after close." }
         // TODO(sushilnath): check if the device or the current mode supports lock for each of
         // ae, af and awb respectively. If not supported return an exception or return early with
         // the right status code.
@@ -172,7 +169,7 @@ internal class CameraGraphSessionImpl(
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call unlock3A on $this after close." }
+        check(!token.released) { "Cannot call unlock3A on $this after close." }
         return controller3A.unlock3A(ae, af, awb, unlockedCondition, frameLimit, timeLimitNs)
     }
 
@@ -181,7 +178,7 @@ internal class CameraGraphSessionImpl(
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call lock3AForCapture on $this after close." }
+        check(!token.released) { "Cannot call lock3AForCapture on $this after close." }
         return controller3A.lock3AForCapture(
             lockedCondition,
             frameLimit,
@@ -195,7 +192,7 @@ internal class CameraGraphSessionImpl(
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call lock3AForCapture on $this after close." }
+        check(!token.released) { "Cannot call lock3AForCapture on $this after close." }
         return controller3A.lock3AForCapture(
             triggerAf,
             waitForAwb,
@@ -205,7 +202,7 @@ internal class CameraGraphSessionImpl(
     }
 
     override suspend fun unlock3APostCapture(cancelAf: Boolean): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call unlock3APostCapture on $this after close." }
+        check(!token.released) { "Cannot call unlock3APostCapture on $this after close." }
         return controller3A.unlock3APostCapture(cancelAf)
     }
 

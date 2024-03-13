@@ -16,11 +16,14 @@
 
 package androidx.camera.camera2.pipe.core
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlin.coroutines.intrinsics.intercepted
 import kotlin.coroutines.intrinsics.startCoroutineUninterceptedOrReturn
 import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 import kotlin.coroutines.resume
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -65,7 +68,7 @@ fun <T> CoroutineMutex.withLockAsync(
         // that any child coroutines started via `block` are completed before `lock` gets released
         // and the next block starts, which includes other async/launch calls invoked on the
         // scope.
-        mutex.withLockAndSuspend { coroutineScope(block) }
+        mutex.withLockSuspend { coroutineScope(block) }
     }
 }
 
@@ -86,7 +89,53 @@ fun CoroutineMutex.withLockLaunch(
         // The block is called within a new CoroutineScope, while holding the lock. This ensures
         // that any child coroutines started via `block` are completed before `lock` gets released
         // and the next block starts.
-        mutex.withLockAndSuspend { coroutineScope(block) }
+        mutex.withLockSuspend { coroutineScope(block) }
+    }
+}
+
+/**
+ * Acquire a lock on the provided mutex, suspending if the lock could not be immediately acquired.
+ */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+internal suspend inline fun Mutex.acquireToken(): Token {
+    lock()
+    return MutexToken(this)
+}
+
+/**
+ * Acquire a lock on the provided mutex and suspend. This can be used with coroutines that are
+ * are started as `UNDISPATCHED` to ensure they are dispatched onto the correct context.
+ */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+internal suspend inline fun Mutex.acquireTokenAndSuspend(): Token {
+    lockAndSuspend()
+    return MutexToken(this)
+}
+
+/**
+ * Acquire a lock on the provided mutex without suspending. Returns null if the lock could not be
+ * immediately acquired.
+ */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+internal fun Mutex.tryAcquireToken(): Token? {
+    if (tryLock()) {
+        return MutexToken(this)
+    }
+    return null
+}
+
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+internal class MutexToken(private val mutex: Mutex) : Token {
+    private val _released = atomic(false)
+    override val released: Boolean
+        get() = _released.value
+
+    override fun release(): Boolean {
+        if (_released.compareAndSet(expect = false, update = true)) {
+            mutex.unlock()
+            return true
+        }
+        return false
     }
 }
 
@@ -101,7 +150,7 @@ private suspend fun Mutex.lockWithoutOwner() = lock(owner = null)
  * Same as [kotlinx.coroutines.sync.withLock], but guarantees that the coroutine is suspended before
  * the lock is acquired whether or not the lock is locked at the time this function is called.
  */
-private suspend inline fun <T> Mutex.withLockAndSuspend(action: () -> T): T {
+private suspend inline fun <T> Mutex.withLockSuspend(action: () -> T): T {
     lockAndSuspend()
     try {
         return action()
