@@ -487,6 +487,7 @@ package androidx.room.util {
 
   public final class SQLiteStatementUtil {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getColumnIndexOrThrow(androidx.sqlite.SQLiteStatement stmt, String name);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static String[] getColumnNames(androidx.sqlite.SQLiteStatement statement);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {

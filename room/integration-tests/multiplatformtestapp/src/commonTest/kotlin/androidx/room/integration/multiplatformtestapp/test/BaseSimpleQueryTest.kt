@@ -127,4 +127,64 @@ abstract class BaseSimpleQueryTest {
             dao.getSingleItem()
         }.hasMessageThat().contains("The query result was empty")
     }
+
+    @Test
+    fun simpleInsertMap() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity2(1, 2)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity1)
+        dao.insert(sampleEntity2)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
+
+        val map = dao.getSimpleMapReturnType()
+        assertThat(map[sampleEntity1]).isEqualTo(sampleEntity2)
+    }
+
+    @Test
+    fun simpleMapWithDupeColumns() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntityCopy(1, 2)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity1)
+        dao.insert(sampleEntity2)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
+
+        val map = dao.getMapWithDupeColumns()
+        assertThat(map[sampleEntity1]).isEqualTo(sampleEntity2)
+    }
+
+    @Test
+    fun simpleInsertNestedMap() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity2(1, 2)
+        val sampleEntity3 = SampleEntity3(1, 2)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity1)
+        dao.insert(sampleEntity2)
+        dao.insert(sampleEntity3)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
+
+        val map = dao.getSimpleNestedMapReturnType()
+        assertThat(map[sampleEntity1]).isEqualTo(mapOf(Pair(sampleEntity2, sampleEntity3)))
+    }
+
+    @Test
+    fun simpleInsertNestedMapColumnMap() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity2(1, 2)
+        val sampleEntity3 = SampleEntity3(1, 2)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity1)
+        dao.insert(sampleEntity2)
+        dao.insert(sampleEntity3)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
+
+        val map = dao.getSimpleNestedMapColumnMap()
+        assertThat(map[sampleEntity1]).isEqualTo(mapOf(Pair(sampleEntity2, sampleEntity3.data3)))
+    }
 }
