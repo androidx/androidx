@@ -131,6 +131,7 @@ internal class GraphProcessorImpl
 @Inject
 constructor(
     private val threads: Threads,
+    private val cameraGraphId: CameraGraphId,
     private val cameraGraphConfig: CameraGraph.Config,
     private val graphState3A: GraphState3A,
     @ForCameraGraph private val graphScope: CoroutineScope,
@@ -648,4 +649,6 @@ constructor(
             }
         }
     }
+
+    override fun toString(): String = "GraphProcessor(cameraGraph: $cameraGraphId)"
 }

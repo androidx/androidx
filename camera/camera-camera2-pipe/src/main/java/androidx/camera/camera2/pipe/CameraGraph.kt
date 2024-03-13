@@ -675,6 +675,6 @@ abstract class GraphState internal constructor() {
     class GraphStateError(val cameraError: CameraError, val willAttemptRetry: Boolean) :
         GraphState() {
         override fun toString(): String =
-            super.toString() + "(cameraError = $cameraError, willAttemptRetry = $willAttemptRetry)"
+            super.toString() + "(cameraError=$cameraError, willAttemptRetry=$willAttemptRetry)"
     }
 }

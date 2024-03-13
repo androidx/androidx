@@ -134,6 +134,6 @@ value class StreamFormat(val value: Int) {
                 YUY2 -> return "YUY2"
                 YV12 -> return "YV12"
             }
-            return "UNKNOWN-${this.value.toString(16)}"
+            return "UNKNOWN(${this.value.toString(16)})"
         }
 }

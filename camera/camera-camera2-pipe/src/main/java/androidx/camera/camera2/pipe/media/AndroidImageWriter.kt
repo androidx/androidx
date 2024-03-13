@@ -71,8 +71,7 @@ class AndroidImageWriter private constructor(
     }
 
     override fun toString(): String {
-        return "ImageWriter-${StreamFormat(imageWriter.format).name}-" +
-            "inputStreamId$inputStreamId"
+        return "ImageWriter-${StreamFormat(imageWriter.format).name}-$inputStreamId"
     }
 
     companion object {

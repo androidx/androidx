@@ -25,6 +25,7 @@ import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILI
 import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import android.os.Trace
 import androidx.annotation.RequiresApi
@@ -73,17 +74,7 @@ object Debug {
                 append("$name: (None)\n")
             } else {
                 append("${name}\n")
-                val parametersString: List<Pair<String, Any?>> =
-                    parameters.map {
-                        when (val key = it.key) {
-                            is CameraCharacteristics.Key<*> -> key.name
-                            is CaptureRequest.Key<*> -> key.name
-                            is CaptureResult.Key<*> -> key.name
-                            else -> key.toString()
-                        } to it.value
-                    }
-                parametersString
-                    .sortedBy { it.first }
+                parametersToSortedStringPairs(parameters)
                     .forEach { append("  ${it.first.padEnd(50, ' ')} ${it.second}\n") }
             }
         }
@@ -94,21 +85,34 @@ object Debug {
      *
      * Example: `[abc.xyz=1, abc.zyx=something]`
      */
-    fun formatParameterMap(parameters: Map<*, Any?>): String {
-        return parameters.map {
-            when (val key = it.key) {
-                is CameraCharacteristics.Key<*> -> key.name
-                is CaptureRequest.Key<*> -> key.name
-                is CaptureResult.Key<*> -> key.name
-                else -> key.toString()
-            } to it.value
-        }
-            .sortedBy { it.first }
+    fun formatParameterMap(parameters: Map<*, Any?>, limit: Int = -1): String {
+        return parametersToSortedStringPairs(parameters)
             .joinToString(
-                separator = ", ",
                 prefix = "{",
-                postfix = "}"
+                postfix = "}",
+                limit = limit
             ) { "${it.first}=${it.second}" }
+    }
+
+    private fun parametersToSortedStringPairs(
+        parameters: Map<*, Any?>
+    ): List<Pair<String, String>> = parameters.map {
+        keyNameToString(it.key) to valueToString(it.value)
+    }.sortedBy { it.first }
+
+    private fun keyNameToString(key: Any?): String = when (key) {
+        is CameraCharacteristics.Key<*> -> key.name
+        is CaptureRequest.Key<*> -> key.name
+        is CaptureResult.Key<*> -> key.name
+        else -> key.toString()
+    }
+
+    /* Utility for cleaning up some verbose value types for logs */
+    private fun valueToString(value: Any?): String = when (value) {
+        is MeteringRectangle -> "[x=${value.x}, y=${value.y}, " +
+            "w=${value.width}, h=${value.height}, weight=${value.meteringWeight}"
+
+        else -> value.toString()
     }
 
     fun formatCameraGraphProperties(
