@@ -488,19 +488,19 @@
       </trusted-keys>
    </configuration>
    <components>
-      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.9.22">
-         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.9.22.tar.gz">
-            <sha256 value="4653979dd53623b92439def2ea28706c2842eaae84bdfa6ba7703dad210a1328" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.9.22.tar.gz" reason="https://youtrack.jetbrains.com/issue/KT-52483"/>
+      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.9.23">
+         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.9.23.tar.gz">
+            <sha256 value="ffab3a3c870bbc99770ce3971e04823cc7a7d215fee0eb496ea4af1df7e90e19" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.9.23.tar.gz" reason="https://youtrack.jetbrains.com/issue/KT-52483"/>
          </artifact>
       </component>
-      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.9.22">
-         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.9.22.tar.gz">
-            <sha256 value="20f4ff427763c19fe20ffaae0b0447eb8ebb17d2f834ca9208c7a22bdc5ffbc0" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.9.22.tar.gz" reason="https://youtrack.jetbrains.com/issue/KT-52483"/>
+      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.9.23">
+         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.9.23.tar.gz">
+            <sha256 value="9a3a9e94ac63b66477896b79a398a5dd84517054c848191edb18954443428b5a" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.9.23.tar.gz" reason="https://youtrack.jetbrains.com/issue/KT-52483"/>
          </artifact>
       </component>
-      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.9.22">
-         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.9.22.tar.gz">
-            <sha256 value="abe5f19ac2a9df76a3e8822d54447f0322252f3620da5394ab728beea836ec9e" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.9.22.tar.gz" reason="https://youtrack.jetbrains.com/issue/KT-52483"/>
+      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.9.23">
+         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.9.23.tar.gz">
+            <sha256 value="dd50c2e01db9e7232eed72c8de391a5016e8ef8edab4f5fdbd679034852e72b5" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.9.23.tar.gz" reason="https://youtrack.jetbrains.com/issue/KT-52483"/>
          </artifact>
       </component>
       <component group="aopalliance" name="aopalliance" version="1.0">
