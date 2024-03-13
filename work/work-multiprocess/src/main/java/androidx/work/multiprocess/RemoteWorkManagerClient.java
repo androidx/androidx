@@ -16,8 +16,7 @@
 
 package androidx.work.multiprocess;
 
-import static androidx.work.multiprocess.RemoteClientUtils.map;
-import static androidx.work.multiprocess.RemoteClientUtils.sVoidMapper;
+import static androidx.work.multiprocess.RemoteClientUtilsKt.map;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -73,6 +72,11 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     // Synthetic access
     static final String TAG = Logger.tagWithPrefix("RemoteWorkManagerClient");
+
+    /**
+     * A mapper that essentially drops the byte[].
+     */
+    public static final Function<byte[], Void> sVoidMapper = input -> null;
 
     // Synthetic access
     Session<IWorkManagerImpl> mSession;

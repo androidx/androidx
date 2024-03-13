@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.work.testing.workers
+package androidx.work.multiprocess
 
-import android.content.Context
-import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
-import androidx.work.ListenableWorker
-import androidx.work.WorkerParameters
+import androidx.arch.core.util.Function
+import androidx.concurrent.futures.SuspendToFutureAdapter.launchFuture
+import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
+import kotlinx.coroutines.asCoroutineDispatcher
 
-class RetryWorker(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(appContext, workerParams) {
-    override fun startWork(): ListenableFuture<Result> = getFuture { completer ->
-        if (runAttemptCount <= 2) completer.set(Result.retry())
-        else completer.set(Result.success())
+internal fun <I, O> ListenableFuture<I>.map(
+    transformation: Function<I, O>,
+    executor: Executor,
+): ListenableFuture<O> =
+    launchFuture(executor.asCoroutineDispatcher(), launchUndispatched = false) {
+        transformation.apply(await())
     }
-}
