@@ -17,9 +17,12 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
+import androidx.navigation.serialization.generateRoutePattern
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -108,6 +111,27 @@ class NavGraphBuilderTest {
         }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+    }
+
+    @Test
+    fun navigationAddDestinationKClassBuilder() {
+        @Serializable
+        class TestClass
+
+        val serializer = serializer<TestClass>()
+        val route = serializer.generateRoutePattern()
+        val graph = provider.navigation(
+            startDestination = route
+        ) {
+            val builder = NavDestinationBuilder(provider[NoOpNavigator::class], TestClass::class)
+            addDestination(builder.build())
+        }
+        assertWithMessage("Destination route should be added to the graph")
+            .that(route in graph)
+            .isTrue()
+        assertWithMessage("Destination id should be added to the graph")
+            .that(serializer.hashCode() in graph)
             .isTrue()
     }
 
