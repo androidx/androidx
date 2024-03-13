@@ -25,6 +25,7 @@ import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSui
 import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
+import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldWithNavigationSample
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
@@ -198,7 +199,12 @@ val AdaptiveExamples =
             name = ::ListDetailPaneScaffoldSampleWithExtraPane.name,
             description = AdaptiveExampleDescription,
             sourceUrl = AdaptiveExampleSourceUrl
-        ) { ListDetailPaneScaffoldSampleWithExtraPane() }
+        ) { ListDetailPaneScaffoldSampleWithExtraPane() },
+        Example(
+            name = ::ListDetailPaneScaffoldWithNavigationSample.name,
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl
+        ) { ListDetailPaneScaffoldWithNavigationSample() }
     )
 
 private const val BadgeExampleDescription = "Badge examples"

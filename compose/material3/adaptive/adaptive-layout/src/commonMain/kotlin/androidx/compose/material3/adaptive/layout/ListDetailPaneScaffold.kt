@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
  * See usage samples at:
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldWithNavigationSample
  *
  * @param directive The top-level directives about how the scaffold should arrange its panes.
  * @param value The current adapted value of the scaffold, which indicates how each pane of
