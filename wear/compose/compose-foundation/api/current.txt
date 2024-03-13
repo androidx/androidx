@@ -423,6 +423,8 @@ package androidx.wear.compose.foundation.lazy {
     method public float dispatchRawDelta(float delta);
     method public int getCenterItemIndex();
     method public int getCenterItemScrollOffset();
+    method public int getInitialCenterItemIndex();
+    method public int getInitialCenterItemScrollOffset();
     method public androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -431,6 +433,8 @@ package androidx.wear.compose.foundation.lazy {
     property public boolean canScrollForward;
     property public final int centerItemIndex;
     property public final int centerItemScrollOffset;
+    property public final int initialCenterItemIndex;
+    property public final int initialCenterItemScrollOffset;
     property public boolean isScrollInProgress;
     property public final androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo layoutInfo;
     field public static final androidx.wear.compose.foundation.lazy.ScalingLazyListState.Companion Companion;
