@@ -69,7 +69,6 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(project(":compose:ui:ui-graphics"))
             }
         }
 
