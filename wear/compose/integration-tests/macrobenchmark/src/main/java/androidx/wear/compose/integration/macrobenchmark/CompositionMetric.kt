@@ -25,7 +25,7 @@ import kotlin.time.DurationUnit
 @OptIn(ExperimentalMetricApi::class)
 internal class CompositionMetric(private val composable: String) : TraceMetric() {
     @OptIn(ExperimentalMetricApi::class, ExperimentalPerfettoTraceProcessorApi::class)
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
