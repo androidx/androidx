@@ -856,5 +856,28 @@ src/androidx/compose/ui/foo/TestModifier.kt:34: Error: Modifier factory function
             .run()
             .expectClean()
     }
+
+    @Test
+    fun composedNoErrors() {
+        // Regression test from b/328119668
+        lint().files(
+            kotlin(
+                """
+                package androidx.compose.ui.foo
+
+                import androidx.compose.ui.Modifier
+                import androidx.compose.ui.composed
+
+                fun Modifier.bar(): Modifier = composed {
+                    object : Modifier {}
+                }
+            """
+            ),
+            Stubs.Modifier,
+            UiStubs.composed,
+        )
+            .run()
+            .expectClean()
+    }
 }
 /* ktlint-enable max-line-length */
