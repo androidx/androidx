@@ -901,6 +901,7 @@ package androidx.compose.runtime.snapshots {
     property public abstract boolean readOnly;
     property public abstract androidx.compose.runtime.snapshots.Snapshot root;
     field public static final androidx.compose.runtime.snapshots.Snapshot.Companion Companion;
+    field public static final int PreexistingSnapshotId = 1; // 0x1
   }
 
   public static final class Snapshot.Companion {
@@ -908,6 +909,7 @@ package androidx.compose.runtime.snapshots {
     method public androidx.compose.runtime.snapshots.Snapshot getCurrent();
     method public inline <T> T global(kotlin.jvm.functions.Function0<? extends T> block);
     method public boolean isApplyObserverNotificationPending();
+    method public boolean isInSnapshot();
     method @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot makeCurrentNonObservable(androidx.compose.runtime.snapshots.Snapshot? previous);
     method public void notifyObjectsInitialized();
     method public <T> T observe(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver, kotlin.jvm.functions.Function0<? extends T> block);
@@ -925,6 +927,7 @@ package androidx.compose.runtime.snapshots {
     property public final androidx.compose.runtime.snapshots.Snapshot current;
     property @kotlin.PublishedApi internal final androidx.compose.runtime.snapshots.Snapshot? currentThreadSnapshot;
     property public final boolean isApplyObserverNotificationPending;
+    property public final boolean isInSnapshot;
   }
 
   public final class SnapshotApplyConflictException extends java.lang.Exception {
