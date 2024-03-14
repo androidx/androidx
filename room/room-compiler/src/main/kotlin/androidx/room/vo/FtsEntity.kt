@@ -133,6 +133,8 @@ class FtsEntity(
         createTableQuery(TABLE_NAME_PLACEHOLDER),
         nonHiddenFields.map { it.toBundle() },
         primaryKey.toBundle(),
+        emptyList(),
+        emptyList(),
         ftsVersion.name,
         ftsOptions.toBundle(),
         contentSyncTriggerCreateQueries

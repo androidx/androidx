@@ -17,35 +17,32 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds [androidx.room.FtsOptions] information.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class FtsOptionsBundle(
-    @SerializedName("tokenizer")
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class FtsOptionsBundle(
+    @SerialName("tokenizer")
     private val tokenizer: String,
-    @SerializedName("tokenizerArgs")
-    public open val tokenizerArgs: List<String>,
-    @SerializedName("contentTable")
-    public open val contentTable: String,
-    @SerializedName("languageIdColumnName")
-    public open val languageIdColumnName: String,
-    @SerializedName("matchInfo")
-    public open val matchInfo: String,
-    @SerializedName("notIndexedColumns")
-    public open val notIndexedColumns: List<String>,
-    @SerializedName("prefixSizes")
-    public open val prefixSizes: List<Int>,
-    @SerializedName("preferredOrder")
-    public open val preferredOrder: String
+    @SerialName("tokenizerArgs")
+    val tokenizerArgs: List<String>,
+    @SerialName("contentTable")
+    val contentTable: String,
+    @SerialName("languageIdColumnName")
+    val languageIdColumnName: String,
+    @SerialName("matchInfo")
+    val matchInfo: String,
+    @SerialName("notIndexedColumns")
+    val notIndexedColumns: List<String>,
+    @SerialName("prefixSizes")
+    val prefixSizes: List<Int>,
+    @SerialName("preferredOrder")
+    val preferredOrder: String
 ) : SchemaEquality<FtsOptionsBundle> {
-
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    private constructor() : this("", emptyList(), "", "", "", emptyList(), emptyList(), "")
 
     override fun isSchemaEqual(other: FtsOptionsBundle): Boolean {
         return tokenizer == other.tokenizer &&

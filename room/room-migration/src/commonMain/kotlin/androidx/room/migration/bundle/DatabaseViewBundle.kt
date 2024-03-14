@@ -17,28 +17,25 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds the schema information about a [androidx.room.DatabaseView].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class DatabaseViewBundle(
-    @SerializedName("viewName")
-    public open val viewName: String,
-    @SerializedName("createSql")
-    public open val createSql: String
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class DatabaseViewBundle(
+    @SerialName("viewName")
+    val viewName: String,
+    @SerialName("createSql")
+    val createSql: String
 ) : SchemaEquality<DatabaseViewBundle> {
 
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    private constructor() : this("", "")
-
     /**
-     * @return Create view SQL query that uses the actual view name.
+     * CREATE VIEW SQL query that uses the actual view name.
      */
-    public open fun createView(): String {
+    fun createView(): String {
         return replaceViewName(createSql, viewName)
     }
 

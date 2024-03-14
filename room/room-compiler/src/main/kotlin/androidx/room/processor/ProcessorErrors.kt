@@ -926,11 +926,6 @@ object ProcessorErrors {
             "out folder: $schemaOutFolderPath. Cannot generate auto migrations."
     }
 
-    fun autoMigrationSchemaIsEmpty(schemaVersion: Int, schemaOutFolderPath: String): String {
-        return "Found empty schema file '$schemaVersion.json' required for migration was not " +
-            "found at the schema out folder: $schemaOutFolderPath. Cannot generate auto migrations."
-    }
-
     fun invalidAutoMigrationSchema(schemaVersion: Int, schemaOutFolderPath: String): String {
         return "Found invalid schema file '$schemaVersion.json' at the schema out " +
             "folder: $schemaOutFolderPath.\nIf you've modified the file, you might've broken the " +

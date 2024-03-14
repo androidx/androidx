@@ -17,33 +17,26 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds the schema information for an [androidx.room.Entity] field.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class FieldBundle(
-    @SerializedName("fieldPath")
-    public open val fieldPath: String,
-    @SerializedName("columnName")
-    public open val columnName: String,
-    @SerializedName("affinity")
-    public open val affinity: String,
-    @SerializedName("notNull")
-    public open val isNonNull: Boolean,
-    @SerializedName("defaultValue")
-    public open val defaultValue: String?,
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class FieldBundle(
+    @SerialName("fieldPath")
+    val fieldPath: String,
+    @SerialName("columnName")
+    val columnName: String,
+    @SerialName("affinity")
+    val affinity: String,
+    @SerialName("notNull")
+    val isNonNull: Boolean,
+    @SerialName("defaultValue")
+    val defaultValue: String? = null,
 ) : SchemaEquality<FieldBundle> {
-
-    @Deprecated("Use [FieldBundle(String, String, String, boolean, String)")
-    public constructor(fieldPath: String, columnName: String, affinity: String, nonNull: Boolean) :
-        this(fieldPath, columnName, affinity, nonNull, null)
-
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    private constructor() : this("", "", "", false, null)
 
     override fun isSchemaEqual(other: FieldBundle): Boolean {
         if (isNonNull != other.isNonNull) return false

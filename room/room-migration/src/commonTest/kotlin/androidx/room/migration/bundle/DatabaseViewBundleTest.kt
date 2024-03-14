@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@
 
 package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-/**
- * A loose equals check which checks schema equality instead of 100% equality (e.g. order of
- * columns in an entity does not have to match)
- *
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface SchemaEquality<T> {
-    public fun isSchemaEqual(other: T): Boolean
+class DatabaseViewBundleTest {
+    @Test
+    fun basic() {
+        val bundle = DatabaseViewBundle(viewName = "abc", createSql = "def")
+        val other = DatabaseViewBundle(viewName = "abc", createSql = "def")
+        assertThat(bundle.isSchemaEqual(other)).isTrue()
+        assertThat(bundle.viewName).isEqualTo("abc")
+        assertThat(bundle.createSql).isEqualTo("def")
+    }
 }

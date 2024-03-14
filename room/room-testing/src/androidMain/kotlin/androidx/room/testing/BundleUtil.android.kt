@@ -20,6 +20,7 @@
 package androidx.room.testing
 
 import androidx.annotation.RestrictTo
+import androidx.room.migration.bundle.BaseEntityBundle
 import androidx.room.migration.bundle.DatabaseViewBundle
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
@@ -62,8 +63,8 @@ private fun List<IndexBundle>?.toIndices(): Set<TableInfo.Index> {
         TableInfo.Index(
             name = bundle.name,
             unique = bundle.isUnique,
-            columns = bundle.columnNames!!,
-            orders = bundle.orders!!
+            columns = bundle.columnNames ?: emptyList(),
+            orders = bundle.orders ?: emptyList()
         )
     }.toSet()
     return result
@@ -85,7 +86,7 @@ private fun List<ForeignKeyBundle>?.toForeignKeys(): Set<TableInfo.ForeignKey> {
     return result
 }
 
-private fun EntityBundle.toColumnNamesSet(): Set<String> {
+private fun BaseEntityBundle.toColumnNamesSet(): Set<String> {
     return this.fields.map { field -> field.columnName }.toSet()
 }
 
