@@ -86,7 +86,6 @@ import androidx.compose.ui.zIndex
  * * doesTabRowHaveFocus: whether any [Tab] within [TabRow] is focused
  * @param tabs a composable which will render all the tabs
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Composable
 fun TabRow(
     selectedTabIndex: Int,
@@ -190,7 +189,6 @@ fun TabRow(
     }
 }
 
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 object TabRowDefaults {
     /** Color of the background of a tab */
     val ContainerColor = Color.Transparent
