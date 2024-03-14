@@ -33,6 +33,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.room.Room.LOG_TAG
+import androidx.room.concurrent.CloseBarrier
 import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
@@ -63,8 +64,6 @@ import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
@@ -150,6 +149,14 @@ actual abstract class RoomDatabase {
      */
     actual open val invalidationTracker: InvalidationTracker = createInvalidationTracker()
 
+    /**
+     * A barrier that prevents the database from closing while the [InvalidationTracker] is using
+     * the database asynchronously.
+     *
+     * @return The barrier for [close].
+     */
+    internal actual val closeBarrier = CloseBarrier(::onClosed)
+
     private var allowMainThreadQueries = false
 
     @JvmField
@@ -160,22 +167,7 @@ actual abstract class RoomDatabase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     protected var mCallbacks: List<Callback>? = null
 
-    private val readWriteLock = ReentrantReadWriteLock()
     private var autoCloser: AutoCloser? = null
-
-    /**
-     * [InvalidationTracker] uses this lock to prevent the database from closing while it is
-     * querying database updates.
-     *
-     * The returned lock is reentrant and will allow multiple threads to acquire the lock
-     * simultaneously until [close] is invoked in which the lock becomes exclusive as
-     * a way to let the InvalidationTracker finish its work before closing the database.
-     *
-     * @return The lock for [close].
-     */
-    internal fun getCloseLock(): Lock {
-        return readWriteLock.readLock()
-    }
 
     /**
      * Suspending transaction id of the current thread.
@@ -569,17 +561,16 @@ actual abstract class RoomDatabase {
      * Once a [RoomDatabase] is closed it should no longer be used.
      */
     actual open fun close() {
-        if (isOpen) {
-            val closeLock: Lock = readWriteLock.writeLock()
-            closeLock.lock()
-            try {
-                coroutineScope.cancel()
-                invalidationTracker.stop()
-                connectionManager.close()
-            } finally {
-                closeLock.unlock()
-            }
+        if (inCompatibilityMode() && !isOpen) {
+            return
         }
+        closeBarrier.close()
+    }
+
+    private fun onClosed() {
+        coroutineScope.cancel()
+        invalidationTracker.stop()
+        connectionManager.close()
     }
 
     /** True if the calling thread is the main thread.  */

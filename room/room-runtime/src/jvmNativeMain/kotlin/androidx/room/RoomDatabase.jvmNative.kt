@@ -20,6 +20,7 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
+import androidx.room.concurrent.CloseBarrier
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
@@ -62,6 +63,14 @@ actual abstract class RoomDatabase {
      * @return The invalidation tracker for the database.
      */
     actual val invalidationTracker: InvalidationTracker = createInvalidationTracker()
+
+    /**
+     * A barrier that prevents the database from closing while the [InvalidationTracker] is using
+     * the database asynchronously.
+     *
+     * @return The barrier for [close].
+     */
+    internal actual val closeBarrier = CloseBarrier(::onClosed)
 
     /**
      * Called by Room when it is initialized.
@@ -217,6 +226,10 @@ actual abstract class RoomDatabase {
      * Once a [RoomDatabase] is closed it should no longer be used.
      */
     actual fun close() {
+        closeBarrier.close()
+    }
+
+    private fun onClosed() {
         coroutineScope.cancel()
         connectionManager.close()
     }
