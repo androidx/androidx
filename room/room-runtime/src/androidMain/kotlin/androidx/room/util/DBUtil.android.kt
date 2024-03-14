@@ -24,10 +24,8 @@ import android.database.Cursor
 import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
-import androidx.room.PooledConnection
 import androidx.room.RoomDatabase
 import androidx.room.TransactionElement
-import androidx.room.Transactor
 import androidx.room.coroutines.RawConnectionAccessor
 import androidx.room.driver.SupportSQLiteConnection
 import androidx.sqlite.SQLiteConnection
@@ -90,31 +88,6 @@ actual suspend fun <R> performInTransactionSuspending(
     block: suspend () -> R
 ): R = db.compatCoroutineExecute(true) {
     db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
-}
-
-private suspend inline fun <R> RoomDatabase.internalPerform(
-    isReadOnly: Boolean,
-    inTransaction: Boolean,
-    crossinline block: suspend (PooledConnection) -> R
-): R = useConnection(isReadOnly) { transactor ->
-    if (inTransaction) {
-        val type = if (isReadOnly) {
-            Transactor.SQLiteTransactionType.DEFERRED
-        } else {
-            Transactor.SQLiteTransactionType.IMMEDIATE
-        }
-        // TODO(b/309990302): Commonize Invalidation Tracker
-        if (inCompatibilityMode() && !isReadOnly) {
-            invalidationTracker.syncTriggers(openHelper.writableDatabase)
-        }
-        val result = transactor.withTransaction(type) { block.invoke(this) }
-        if (inCompatibilityMode() && !isReadOnly && !transactor.inTransaction()) {
-            invalidationTracker.refreshVersionsAsync()
-        }
-        result
-    } else {
-        block.invoke(transactor)
-    }
 }
 
 /**

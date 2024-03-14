@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room.integration.multiplatformtestapp.test
 
-/**
- * Trojan class to be able to assert internal state.
- */
-public class InvalidationTrackerTrojan {
-    @SuppressWarnings("KotlinInternalInJava") // For testing
-    public static int countObservers(InvalidationTracker tracker) {
-        return tracker.getObserverMap$room_runtime_debug().size();
-    }
+import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 
-    private InvalidationTrackerTrojan() {
+class InvalidationTest : BaseInvalidationTest() {
+
+    override fun getRoomDatabase(): SampleDatabase {
+        return Room.inMemoryDatabaseBuilder { SampleDatabase::class.instantiateImpl() }
+            .setDriver(BundledSQLiteDriver(":memory:"))
+            .build()
     }
 }

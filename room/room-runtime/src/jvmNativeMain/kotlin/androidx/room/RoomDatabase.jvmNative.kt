@@ -62,7 +62,10 @@ actual abstract class RoomDatabase {
      *
      * @return The invalidation tracker for the database.
      */
-    actual val invalidationTracker: InvalidationTracker = createInvalidationTracker()
+    actual val invalidationTracker: InvalidationTracker
+        get() = internalTracker
+
+    private lateinit var internalTracker: InvalidationTracker
 
     /**
      * A barrier that prevents the database from closing while the [InvalidationTracker] is using
@@ -80,6 +83,7 @@ actual abstract class RoomDatabase {
      */
     internal actual fun init(configuration: DatabaseConfiguration) {
         connectionManager = createConnectionManager(configuration)
+        internalTracker = createInvalidationTracker()
         val parentJob = checkNotNull(configuration.queryCoroutineContext)[Job]
         coroutineScope = CoroutineScope(
             configuration.queryCoroutineContext + SupervisorJob(parentJob)
@@ -231,6 +235,7 @@ actual abstract class RoomDatabase {
 
     private fun onClosed() {
         coroutineScope.cancel()
+        invalidationTracker.stop()
         connectionManager.close()
     }
 
