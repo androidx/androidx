@@ -32,8 +32,8 @@ internal fun OverlayLayout(modifier: Modifier, content: @Composable () -> Unit) 
     measurePolicy = { measurables, constraints ->
         val placeables = measurables.map { it.measure(constraints) }
         layout(
-            placeables.maxOfOrNull { it.width } ?: 0,
-            placeables.maxOfOrNull { it.height } ?: 0
+            placeables.maxOfOrNull { it.width } ?: constraints.minWidth,
+            placeables.maxOfOrNull { it.height } ?: constraints.minHeight
         ) {
             placeables.forEach {
                 it.place(0, 0)

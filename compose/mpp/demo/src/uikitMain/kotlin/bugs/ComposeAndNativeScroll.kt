@@ -81,7 +81,7 @@ val ComposeAndNativeScroll = Screen.Example("ScrollDraggingTest") {
         Spacer(Modifier.height(10.dp))
         Text("UIKit:")
         Box(modifier = Modifier.height(ItemsHeight.dp)) {
-            UIKitView(::makeScrollView, Modifier.height(ItemsHeight.dp))
+            UIKitView(::makeScrollView, Modifier.fillMaxSize())
         }
     }
 }
