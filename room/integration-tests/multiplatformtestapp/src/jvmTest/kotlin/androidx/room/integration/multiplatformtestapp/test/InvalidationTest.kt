@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room
 
-import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
+package androidx.room.integration.multiplatformtestapp.test
 
-/**
- * Polls [InvalidationTracker] until it sets its pending refresh flag to true.
- */
-suspend fun InvalidationTracker.awaitPendingRefresh() {
-    withTimeout(TimeUnit.SECONDS.toMillis(10)) {
-        while (true) {
-            if (pendingRefresh.get()) return@withTimeout
-            delay(50)
-        }
+import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+
+class InvalidationTest : BaseInvalidationTest() {
+
+    override fun getRoomDatabase(): SampleDatabase {
+        return Room.inMemoryDatabaseBuilder<SampleDatabase>()
+            .setDriver(BundledSQLiteDriver(":memory:"))
+            .build()
     }
 }

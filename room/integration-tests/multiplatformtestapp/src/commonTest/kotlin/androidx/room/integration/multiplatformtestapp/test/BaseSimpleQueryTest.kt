@@ -18,16 +18,30 @@ package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
 abstract class BaseSimpleQueryTest {
 
+    private lateinit var db: SampleDatabase
+
     abstract fun getRoomDatabase(): SampleDatabase
+
+    @BeforeTest
+    fun before() {
+        db = getRoomDatabase()
+    }
+
+    @AfterTest
+    fun after() {
+        db.close()
+    }
 
     @Test
     fun preparedInsertAndDelete() = runTest {
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
         assertThat(dao.insertItem(1)).isEqualTo(1)
         assertThat(dao.getSingleItem().pk).isEqualTo(1)
         assertThat(dao.deleteItem(1)).isEqualTo(1)
@@ -39,7 +53,7 @@ abstract class BaseSimpleQueryTest {
 
     @Test
     fun emptyResult() = runTest {
-        val db = getRoomDatabase()
+        val db = db
         assertThrows<IllegalStateException> {
             db.dao().getSingleItem()
         }.hasMessageThat().contains("The query result was empty")
@@ -47,7 +61,7 @@ abstract class BaseSimpleQueryTest {
 
     @Test
     fun queryList() = runTest {
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
         dao.insertItem(1)
         dao.insertItem(2)
         dao.insertItem(3)
@@ -57,7 +71,7 @@ abstract class BaseSimpleQueryTest {
 
     @Test
     fun transactionDelegate() = runTest {
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
         dao.insertItem(1)
         dao.insertItem(2)
         dao.insertItem(3)
@@ -79,7 +93,7 @@ abstract class BaseSimpleQueryTest {
     }
 
     @Test
-    fun simpleInsertAndDelete() = runTest {
+    fun insertAndDelete() = runTest {
         val sampleEntity = SampleEntity(1, 1)
         val dao = getRoomDatabase().dao()
 
@@ -93,7 +107,7 @@ abstract class BaseSimpleQueryTest {
     }
 
     @Test
-    fun simpleInsertAndUpdateAndDelete() = runTest {
+    fun insertAndUpdateAndDelete() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity(1, 2)
         val dao = getRoomDatabase().dao()
@@ -111,7 +125,7 @@ abstract class BaseSimpleQueryTest {
     }
 
     @Test
-    fun simpleInsertAndUpsertAndDelete() = runTest {
+    fun insertAndUpsertAndDelete() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity(1, 2)
         val dao = getRoomDatabase().dao()
