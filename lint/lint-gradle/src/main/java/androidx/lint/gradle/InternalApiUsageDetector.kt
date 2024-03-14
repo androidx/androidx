@@ -49,9 +49,14 @@ class InternalApiUsageDetector : Detector(), Detector.UastScanner {
 
                 if (resolved is PsiClass) {
                     if (resolved.isInternalGradleApi()) {
-                        reportIncidentForNode(node, "Avoid using internal Gradle APIs")
+                        reportIncidentForNode(
+                            INTERNAL_GRADLE_ISSUE,
+                            node,
+                            "Avoid using internal Gradle APIs"
+                        )
                     } else if (resolved.isInternalAgpApi()) {
                         reportIncidentForNode(
+                            INTERNAL_AGP_ISSUE,
                             node,
                             "Avoid using internal Android Gradle Plugin APIs"
                         )
@@ -60,9 +65,9 @@ class InternalApiUsageDetector : Detector(), Detector.UastScanner {
             }
         }
 
-        private fun reportIncidentForNode(node: UElement, message: String) {
+        private fun reportIncidentForNode(issue: Issue, node: UElement, message: String) {
             val incident = Incident(context)
-                .issue(ISSUE)
+                .issue(issue)
                 .location(context.getLocation(node))
                 .message(message)
                 .scope(node)
@@ -81,9 +86,23 @@ class InternalApiUsageDetector : Detector(), Detector.UastScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create(
+        val INTERNAL_GRADLE_ISSUE = Issue.create(
             "InternalGradleApiUsage",
             "Avoid using internal Gradle APIs",
+            """
+                Using internal APIs results in fragile plugin behavior as these types have no binary
+                compatibility guarantees. It is best to create a feature request to open up these
+                APIs if you find them useful.
+            """,
+            Category.CORRECTNESS, 5, Severity.ERROR,
+            Implementation(
+                InternalApiUsageDetector::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+        val INTERNAL_AGP_ISSUE = Issue.create(
+            "InternalAgpApiUsage",
+            "Avoid using internal Android Gradle Plugin APIs",
             """
                 Using internal APIs results in fragile plugin behavior as these types have no binary
                 compatibility guarantees. It is best to create a feature request to open up these
