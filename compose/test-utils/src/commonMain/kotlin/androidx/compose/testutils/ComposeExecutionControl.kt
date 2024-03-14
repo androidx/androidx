@@ -112,6 +112,11 @@ interface ComposeExecutionControl {
      * This API may be removed in the future.
      */
     fun getHostView(): NativeView
+
+    /**
+     * A count on launched jobs in the composition.
+     */
+    fun getCoroutineLaunchedCount(): Int
 }
 
 /**
@@ -253,4 +258,14 @@ fun ComposeExecutionControl.doFramesUntilNoChangesPending(maxAmountOfFrames: Int
         "Changes are still pending after '$maxAmountOfFrames' " +
             "frames."
     )
+}
+
+@UiThread
+fun ComposeExecutionControl.assertCoroutinesCount(expectedCount: Int) {
+    val actual = getCoroutineLaunchedCount()
+    if (getCoroutineLaunchedCount() != expectedCount) {
+        throw AssertionError(
+            "Coroutines launched is $actual when $expectedCount were expected."
+        )
+    }
 }
