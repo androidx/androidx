@@ -20,9 +20,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.IntSize
 
 /**
@@ -44,27 +44,15 @@ import androidx.compose.ui.unit.IntSize
 @Stable
 fun Modifier.onSizeChanged(
     onSizeChanged: (IntSize) -> Unit
-) = this.then(
-    OnSizeChangedModifier(
-        onSizeChanged = onSizeChanged,
-        inspectorInfo = debugInspectorInfo {
-            name = "onSizeChanged"
-            properties["onSizeChanged"] = onSizeChanged
-        }
-    )
-)
+) = this.then(OnSizeChangedModifier(onSizeChanged = onSizeChanged))
 
 private class OnSizeChangedModifier(
-    val onSizeChanged: (IntSize) -> Unit,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : OnRemeasuredModifier, InspectorValueInfo(inspectorInfo) {
-    private var previousSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+    private val onSizeChanged: (IntSize) -> Unit
+) : ModifierNodeElement<OnSizeChangedNode>() {
+    override fun create(): OnSizeChangedNode = OnSizeChangedNode(onSizeChanged)
 
-    override fun onRemeasured(size: IntSize) {
-        if (previousSize != size) {
-            onSizeChanged(size)
-            previousSize = size
-        }
+    override fun update(node: OnSizeChangedNode) {
+        node.update(onSizeChanged)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -76,6 +64,33 @@ private class OnSizeChangedModifier(
 
     override fun hashCode(): Int {
         return onSizeChanged.hashCode()
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "onSizeChanged"
+        properties["onSizeChanged"] = onSizeChanged
+    }
+}
+
+private class OnSizeChangedNode(
+    private var onSizeChanged: (IntSize) -> Unit
+) : Modifier.Node(), LayoutAwareModifierNode {
+    // When onSizeChanged changes, we want to invalidate so onRemeasured is called again
+    override val shouldAutoInvalidate: Boolean = true
+    private var previousSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+
+    fun update(onSizeChanged: (IntSize) -> Unit) {
+        this.onSizeChanged = onSizeChanged
+        // Reset the previous size, so when onSizeChanged changes the new lambda gets invoked,
+        // matching previous behavior
+        previousSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+    }
+
+    override fun onRemeasured(size: IntSize) {
+        if (previousSize != size) {
+            onSizeChanged(size)
+            previousSize = size
+        }
     }
 }
 
