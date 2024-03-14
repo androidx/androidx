@@ -58,6 +58,7 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OpenComposeView
+import androidx.compose.ui.background
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
@@ -65,6 +66,7 @@ import androidx.compose.ui.findAndroidComposeView
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -2260,6 +2262,1050 @@ class AndroidPointerInputTest {
             // Verify Box 2 events
             assertThat(box2HoverEnter).isEqualTo(1)
             assertThat(box2HoverExit).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests TOUCH events are triggered correctly when dynamically adding a NON-pointer input
+     * modifier above an existing pointer input modifier.
+     *
+     * Note: The lambda for the existing pointer input modifier is not re-executed after the
+     * dynamic one is added.
+     *
+     * Specific events:
+     *  1. UI Element (modifier 1 only): PRESS (touch)
+     *  2. UI Element (modifier 1 only): MOVE (touch)
+     *  3. UI Element (modifier 1 only): RELEASE (touch)
+     *  4. Dynamically adds NON-pointer input modifier (between input event streams)
+     *  5. UI Element (modifier 1 and 2): PRESS (touch)
+     *  6. UI Element (modifier 1 and 2): MOVE (touch)
+     *  7. UI Element (modifier 1 and 2): RELEASE (touch)
+     */
+    @Test
+    fun dynamicNonInputModifier_addsAboveExistingModifier_shouldTriggerInNewModifier() {
+        // --> Arrange
+        val originalPointerInputModifierKey = "ORIGINAL_POINTER_INPUT_MODIFIER_KEY_123"
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        var enableDynamicPointerInput by mutableStateOf(false)
+
+        // Events for the lower modifier Box 1
+        var originalPointerInputScopeExecutionCount by mutableStateOf(0)
+        var preexistingModifierPress by mutableStateOf(0)
+        var preexistingModifierMove by mutableStateOf(0)
+        var preexistingModifierRelease by mutableStateOf(0)
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger by mutableStateOf(false)
+
+        var pointerEvent: PointerEvent? by mutableStateOf(null)
+
+        // Events for the dynamic upper modifier Box 1
+        var dynamicModifierExecuted by mutableStateOf(false)
+
+        // Non-Pointer Input Modifier that is toggled on/off based on passed value.
+        fun Modifier.dynamicallyToggledModifier(enable: Boolean) = if (enable) {
+            dynamicModifierExecuted = true
+            background(Color.Green)
+        } else this
+
+        // Setup UI
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(200.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .dynamicallyToggledModifier(enableDynamicPointerInput)
+                        .pointerInput(originalPointerInputModifierKey) {
+                            ++originalPointerInputScopeExecutionCount
+                            // Reset pointer events when lambda is ran the first time
+                            preexistingModifierPress = 0
+                            preexistingModifierMove = 0
+                            preexistingModifierRelease = 0
+
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Press -> {
+                                            ++preexistingModifierPress
+                                        }
+                                        PointerEventType.Move -> {
+                                            ++preexistingModifierMove
+                                        }
+                                        PointerEventType.Release -> {
+                                            ++preexistingModifierRelease
+                                        }
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // DOWN (original modifier only)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(false)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original modifier only)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(false)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original modifier only)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(false)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+        enableDynamicPointerInput = true
+        rule.waitForFutureFrame(2)
+
+        // DOWN (original + dynamically added modifiers)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            // There are no pointer input modifiers added above this pointer modifier, so the
+            // same one is used.
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            // The dynamic one has been added, so we execute its thing as well.
+            assertThat(dynamicModifierExecuted).isEqualTo(true)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(true)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(true)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(2)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests TOUCH events are triggered correctly when dynamically adding a pointer input modifier
+     * ABOVE an existing pointer input modifier.
+     *
+     * Note: The lambda for the existing pointer input modifier **IS** re-executed after the
+     * dynamic pointer input modifier is added above it.
+     *
+     * Specific events:
+     *  1. UI Element (modifier 1 only): PRESS (touch)
+     *  2. UI Element (modifier 1 only): MOVE (touch)
+     *  3. UI Element (modifier 1 only): RELEASE (touch)
+     *  4. Dynamically add pointer input modifier above existing one (between input event streams)
+     *  5. UI Element (modifier 1 and 2): PRESS (touch)
+     *  6. UI Element (modifier 1 and 2): MOVE (touch)
+     *  7. UI Element (modifier 1 and 2): RELEASE (touch)
+     */
+    @Test
+    fun dynamicInputModifierWithKey_addsAboveExistingModifier_shouldTriggerInNewModifier() {
+        // --> Arrange
+        val originalPointerInputModifierKey = "ORIGINAL_POINTER_INPUT_MODIFIER_KEY_123"
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        var enableDynamicPointerInput by mutableStateOf(false)
+
+        // Events for the lower modifier Box 1
+        var originalPointerInputScopeExecutionCount by mutableStateOf(0)
+        var preexistingModifierPress by mutableStateOf(0)
+        var preexistingModifierMove by mutableStateOf(0)
+        var preexistingModifierRelease by mutableStateOf(0)
+
+        // Events for the dynamic upper modifier Box 1
+        var dynamicPointerInputScopeExecutionCount by mutableStateOf(0)
+        var dynamicModifierPress by mutableStateOf(0)
+        var dynamicModifierMove by mutableStateOf(0)
+        var dynamicModifierRelease by mutableStateOf(0)
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger by mutableStateOf(false)
+
+        var pointerEvent: PointerEvent? by mutableStateOf(null)
+
+        // Pointer Input Modifier that is toggled on/off based on passed value.
+        fun Modifier.dynamicallyToggledPointerInput(
+            enable: Boolean,
+            pointerEventLambda: (pointerEvent: PointerEvent) -> Unit
+        ) = if (enable) {
+            pointerInput(pointerEventLambda) {
+                ++dynamicPointerInputScopeExecutionCount
+
+                // Reset pointer events when lambda is ran the first time
+                dynamicModifierPress = 0
+                dynamicModifierMove = 0
+                dynamicModifierRelease = 0
+
+                awaitPointerEventScope {
+                    while (true) {
+                        pointerEventLambda(awaitPointerEvent())
+                    }
+                }
+            }
+        } else this
+
+        // Setup UI
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(200.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .dynamicallyToggledPointerInput(enableDynamicPointerInput) {
+                            when (it.type) {
+                                PointerEventType.Press -> {
+                                    ++dynamicModifierPress
+                                }
+                                PointerEventType.Move -> {
+                                    ++dynamicModifierMove
+                                }
+                                PointerEventType.Release -> {
+                                    ++dynamicModifierRelease
+                                }
+                                else -> {
+                                    eventsThatShouldNotTrigger = true
+                                }
+                            }
+                        }
+                        .pointerInput(originalPointerInputModifierKey) {
+                            ++originalPointerInputScopeExecutionCount
+                            // Reset pointer events when lambda is ran the first time
+                            preexistingModifierPress = 0
+                            preexistingModifierMove = 0
+                            preexistingModifierRelease = 0
+
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Press -> {
+                                            ++preexistingModifierPress
+                                        }
+                                        PointerEventType.Move -> {
+                                            ++preexistingModifierMove
+                                        }
+                                        PointerEventType.Release -> {
+                                            ++preexistingModifierRelease
+                                        }
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // DOWN (original modifier only)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original modifier only)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original modifier only)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        enableDynamicPointerInput = true
+        rule.waitForFutureFrame(2)
+
+        // Important Note: Even though we reset all the pointer input blocks, the initial lambda is
+        // lazily executed, meaning it won't reset the values until the first event comes in, so
+        // the previously set values are still the same until an event comes in.
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+        }
+
+        // DOWN (original + dynamically added modifiers)
+        // Now an event comes in, so the lambdas are both executed completely (dynamic one for the
+        // first time and the existing one for a second time [since it was moved]).
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            // While the original pointer input block is being reused after a new one is added, it
+            // is reset (since things have changed with the Modifiers), so the entire block is
+            // executed again to allow devs to reset their gesture detectors for the new Modifier
+            // chain changes.
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            // The dynamic one has been added, so we execute its thing as well.
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests TOUCH events are triggered incorrectly when dynamically adding a pointer input modifier
+     * (which uses Unit for its key [bad]) ABOVE an existing pointer input modifier. This is more
+     * of an "education test" for developers to see how things can go wrong if you use "Unit" for
+     * your key in pointer input and pointer input modifiers are later added dynamically.
+     *
+     * Note: Even though we are dynamically adding a new pointer input modifier above the existing
+     * pointer input modifier, Compose actually reuses the existing pointer input modifier to
+     * contain the new pointer input modifier. It then adds a new pointer input modifier below that
+     * one and copies in the original (non-dynamic) pointer input modifier into that. However, in
+     * this case, because we are using the "Unit" for both keys, Compose thinks they are the same
+     * pointer input modifier, so it never replaces the existing lambda with the dynamic pointer
+     * input modifier node's lambda. This is why you should not use Unit for your key.
+     *
+     * Why can't the lambdas passed into pointer input be compared? We can't memoize them because
+     * they are outside of a Compose scope (defined in a Modifier extension function), so
+     * developers need to pass a unique key(s) as a way to let us know when to update the lambda.
+     * You can do that with a unique key for each pointer input modifier and/or take it a step
+     * further and use captured values in the lambda as keys (ones that change lambda
+     * behavior).
+     *
+     * Specific events:
+     *  1. UI Element (modifier 1 only): PRESS (touch)
+     *  2. UI Element (modifier 1 only): MOVE (touch)
+     *  3. UI Element (modifier 1 only): RELEASE (touch)
+     *  4. Dynamically add pointer input modifier above existing one (between input event streams)
+     *  5. UI Element (modifier 1 and 2): PRESS (touch)
+     *  6. UI Element (modifier 1 and 2): MOVE (touch)
+     *  7. UI Element (modifier 1 and 2): RELEASE (touch)
+     */
+    @Test
+    fun dynamicInputModifierWithUnitKey_addsAboveExistingModifier_failsToTriggerNewModifier() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        var enableDynamicPointerInput by mutableStateOf(false)
+
+        // Events for the lower modifier Box 1
+        var originalPointerInputScopeExecutionCount by mutableStateOf(0)
+        var preexistingModifierPress by mutableStateOf(0)
+        var preexistingModifierMove by mutableStateOf(0)
+        var preexistingModifierRelease by mutableStateOf(0)
+
+        // Events for the dynamic upper modifier Box 1
+        var dynamicPointerInputScopeExecutionCount by mutableStateOf(0)
+        var dynamicModifierPress by mutableStateOf(0)
+        var dynamicModifierMove by mutableStateOf(0)
+        var dynamicModifierRelease by mutableStateOf(0)
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger by mutableStateOf(false)
+
+        var pointerEvent: PointerEvent? by mutableStateOf(null)
+
+        // Pointer Input Modifier that is toggled on/off based on passed value.
+        fun Modifier.dynamicallyToggledPointerInput(
+            enable: Boolean,
+            pointerEventLambda: (pointerEvent: PointerEvent) -> Unit
+        ) = if (enable) {
+            pointerInput(Unit) {
+                ++dynamicPointerInputScopeExecutionCount
+
+                // Reset pointer events when lambda is ran the first time
+                dynamicModifierPress = 0
+                dynamicModifierMove = 0
+                dynamicModifierRelease = 0
+
+                awaitPointerEventScope {
+                    while (true) {
+                        pointerEventLambda(awaitPointerEvent())
+                    }
+                }
+            }
+        } else this
+
+        // Setup UI
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(200.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .dynamicallyToggledPointerInput(enableDynamicPointerInput) {
+                            when (it.type) {
+                                PointerEventType.Press -> {
+                                    ++dynamicModifierPress
+                                }
+                                PointerEventType.Move -> {
+                                    ++dynamicModifierMove
+                                }
+                                PointerEventType.Release -> {
+                                    ++dynamicModifierRelease
+                                }
+                                else -> {
+                                    eventsThatShouldNotTrigger = true
+                                }
+                            }
+                        }
+                        .pointerInput(Unit) {
+                            ++originalPointerInputScopeExecutionCount
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Press -> {
+                                            ++preexistingModifierPress
+                                        }
+                                        PointerEventType.Move -> {
+                                            ++preexistingModifierMove
+                                        }
+                                        PointerEventType.Release -> {
+                                            ++preexistingModifierRelease
+                                        }
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // DOWN (original modifier only)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original modifier only)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original modifier only)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        enableDynamicPointerInput = true
+        rule.waitForFutureFrame(2)
+
+        // Important Note: I'm not resetting the variable counters in this test.
+
+        // DOWN (original + dynamically added modifiers)
+        // Now an event comes in, so the lambdas are both executed completely for the first time.
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            // While the original pointer input block is being reused after a new one is added, it
+            // is reset (since things have changed with the Modifiers), so the entire block is
+            // executed again to allow devs to reset their gesture detectors for the new Modifier
+            // chain changes.
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            // The dynamic one has been added, so we execute its thing as well.
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            // This is 2 because the dynamic modifier added before the existing one, is using Unit
+            // for the key, so the comparison shows that it doesn't need to update the lambda...
+            // Thus, it uses the old lambda (why it is very important you don't use Unit for your
+            // key.
+            assertThat(preexistingModifierPress).isEqualTo(3)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(3)
+            assertThat(preexistingModifierMove).isEqualTo(3)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(3)
+            assertThat(preexistingModifierMove).isEqualTo(3)
+            assertThat(preexistingModifierRelease).isEqualTo(3)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests TOUCH events are triggered correctly when dynamically adding a pointer input
+     * modifier BELOW an existing pointer input modifier.
+     *
+     * Note: The lambda for the existing pointer input modifier is NOT re-executed after the
+     * dynamic one is added below it (since it doesn't impact it).
+     *
+     * Specific events:
+     *  1. UI Element (modifier 1 only): PRESS (touch)
+     *  2. UI Element (modifier 1 only): MOVE (touch)
+     *  3. UI Element (modifier 1 only): RELEASE (touch)
+     *  4. Dynamically add pointer input modifier below existing one (between input event streams)
+     *  5. UI Element (modifier 1 and 2): PRESS (touch)
+     *  6. UI Element (modifier 1 and 2): MOVE (touch)
+     *  7. UI Element (modifier 1 and 2): RELEASE (touch)
+     */
+    @Test
+    fun dynamicInputModifierWithKey_addsBelowExistingModifier_shouldTriggerInNewModifier() {
+        // --> Arrange
+        val originalPointerInputModifierKey = "ORIGINAL_POINTER_INPUT_MODIFIER_KEY_123"
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        var enableDynamicPointerInput by mutableStateOf(false)
+
+        // Events for the lower modifier Box 1
+        var originalPointerInputScopeExecutionCount by mutableStateOf(0)
+        var preexistingModifierPress by mutableStateOf(0)
+        var preexistingModifierMove by mutableStateOf(0)
+        var preexistingModifierRelease by mutableStateOf(0)
+
+        // Events for the dynamic upper modifier Box 1
+        var dynamicPointerInputScopeExecutionCount by mutableStateOf(0)
+        var dynamicModifierPress by mutableStateOf(0)
+        var dynamicModifierMove by mutableStateOf(0)
+        var dynamicModifierRelease by mutableStateOf(0)
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger by mutableStateOf(false)
+
+        var pointerEvent: PointerEvent? by mutableStateOf(null)
+
+        // Pointer Input Modifier that is toggled on/off based on passed value.
+        fun Modifier.dynamicallyToggledPointerInput(
+            enable: Boolean,
+            pointerEventLambda: (pointerEvent: PointerEvent) -> Unit
+        ) = if (enable) {
+            pointerInput(pointerEventLambda) {
+                ++dynamicPointerInputScopeExecutionCount
+
+                // Reset pointer events when lambda is ran the first time
+                dynamicModifierPress = 0
+                dynamicModifierMove = 0
+                dynamicModifierRelease = 0
+
+                awaitPointerEventScope {
+                    while (true) {
+                        pointerEventLambda(awaitPointerEvent())
+                    }
+                }
+            }
+        } else this
+
+        // Setup UI
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(200.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .pointerInput(originalPointerInputModifierKey) {
+                            ++originalPointerInputScopeExecutionCount
+                            // Reset pointer events when lambda is ran the first time
+                            preexistingModifierPress = 0
+                            preexistingModifierMove = 0
+                            preexistingModifierRelease = 0
+
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Press -> {
+                                            ++preexistingModifierPress
+                                        }
+                                        PointerEventType.Move -> {
+                                            ++preexistingModifierMove
+                                        }
+                                        PointerEventType.Release -> {
+                                            ++preexistingModifierRelease
+                                        }
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .dynamicallyToggledPointerInput(enableDynamicPointerInput) {
+                            when (it.type) {
+                                PointerEventType.Press -> {
+                                    ++dynamicModifierPress
+                                }
+                                PointerEventType.Move -> {
+                                    ++dynamicModifierMove
+                                }
+                                PointerEventType.Release -> {
+                                    ++dynamicModifierRelease
+                                }
+                                else -> {
+                                    eventsThatShouldNotTrigger = true
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // DOWN (original modifier only)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original modifier only)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original modifier only)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        enableDynamicPointerInput = true
+        rule.waitForFutureFrame(2)
+
+        // DOWN (original + dynamically added modifiers)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            // Because the new pointer input modifier is added below the existing one, the existing
+            // one doesn't change.
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(2)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(1)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
