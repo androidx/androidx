@@ -26,11 +26,10 @@ import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.room.PooledConnection
 import androidx.room.RoomDatabase
+import androidx.room.TransactionElement
 import androidx.room.Transactor
 import androidx.room.coroutines.RawConnectionAccessor
 import androidx.room.driver.SupportSQLiteConnection
-import androidx.room.getQueryDispatcher
-import androidx.room.withTransactionContext
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -38,6 +37,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
@@ -117,25 +118,35 @@ private suspend inline fun <R> RoomDatabase.internalPerform(
 }
 
 /**
- * Compatibility dispatcher behaviour in [androidx.room.CoroutinesRoom.execute] for driver codegen
- * utility functions. With the additional behaviour that it will use [withTransactionContext] if
- * performing a transaction.
+ * Compatibility suspend function execution with driver usage. This will maintain the dispatcher
+ * behaviour in [androidx.room.CoroutinesRoom.execute] when Room is in compatibility mode executing
+ * driver codegen utility functions.
  */
 private suspend inline fun <R> RoomDatabase.compatCoroutineExecute(
     inTransaction: Boolean,
     crossinline block: suspend () -> R
 ): R {
-    if (inCompatibilityMode()) {
-        if (isOpenInternal && inTransaction()) {
-            return block.invoke()
-        }
-        if (inTransaction) {
-            return withTransactionContext { block.invoke() }
-        } else {
-            return withContext(getQueryDispatcher()) { block.invoke() }
-        }
-    } else {
+    if (inCompatibilityMode() && isOpenInternal && inTransaction()) {
         return block.invoke()
+    }
+    return withContext(getCoroutineContext(inTransaction)) { block.invoke() }
+}
+
+/**
+ * Gets the database [CoroutineContext] to perform database operation on utility functions. Prefer
+ * using this function over directly accessing [RoomDatabase.getCoroutineScope] as it has platform
+ * compatibility behaviour.
+ */
+internal actual suspend fun RoomDatabase.getCoroutineContext(
+    inTransaction: Boolean
+): CoroutineContext {
+    return if (inCompatibilityMode()) {
+        // If in compatibility mode check if we are on a transaction coroutine, if so combine
+        // it with the database context, otherwise use the database dispatchers.
+        coroutineContext[TransactionElement]?.transactionDispatcher?.let { getQueryContext() + it }
+            ?: if (inTransaction) getTransactionContext() else getQueryContext()
+    } else {
+        getCoroutineScope().coroutineContext
     }
 }
 

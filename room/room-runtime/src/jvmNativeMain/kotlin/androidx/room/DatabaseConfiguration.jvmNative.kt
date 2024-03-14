@@ -18,6 +18,7 @@ package androidx.room
 
 import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.SQLiteDriver
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Configuration class for a [RoomDatabase].
@@ -34,5 +35,6 @@ actual class DatabaseConfiguration(
     internal actual val migrationNotRequiredFrom: Set<Int>?,
     actual val typeConverters: List<Any>,
     actual val autoMigrationSpecs: List<AutoMigrationSpec>,
-    actual val sqliteDriver: SQLiteDriver?
+    actual val sqliteDriver: SQLiteDriver?,
+    actual val queryCoroutineContext: CoroutineContext?,
 )

@@ -26,6 +26,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.Callable
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,13 +41,16 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 @SmallTest
+@OptIn(DelicateCoroutinesApi::class)
 class CoroutineRoomCancellationTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val testScope = TestScope(testDispatcher)
 
-    private val database = TestDatabase().apply {
-        init(
+    private val database = TestDatabase()
+
+    private fun initWithDispatcher(dispatcher: CoroutineDispatcher) {
+        database.init(
             DatabaseConfiguration(
                 context = InstrumentationRegistry.getInstrumentation().targetContext,
                 name = "test",
@@ -68,15 +72,15 @@ class CoroutineRoomCancellationTest {
                 typeConverters = emptyList(),
                 autoMigrationSpecs = emptyList(),
                 allowDestructiveMigrationForAllTables = false,
-                sqliteDriver = null
+                sqliteDriver = null,
+                queryCoroutineContext = dispatcher
             )
         )
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testSuspend_cancellable_duringLongQuery() = runBlocking {
-        database.backingFieldMap["QueryDispatcher"] = Dispatchers.IO
+        initWithDispatcher(Dispatchers.IO)
 
         val inQueryLatch = CountDownLatch(1)
         val cancelledLatch = CountDownLatch(1)
@@ -88,6 +92,7 @@ class CoroutineRoomCancellationTest {
         }
 
         val job = GlobalScope.launch(Dispatchers.IO) {
+            @Suppress("DEPRECATION")
             CoroutinesRoom.execute(
                 db = database,
                 inTransaction = false,
@@ -107,10 +112,9 @@ class CoroutineRoomCancellationTest {
         assertThat(cancellationSignal.isCanceled).isTrue()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     @Test
     fun testSuspend_cancellable_beforeQueryStarts() = runBlocking {
-        database.backingFieldMap["QueryDispatcher"] = testDispatcher
+        initWithDispatcher(testDispatcher)
 
         val inCoroutineLatch = CountDownLatch(1)
         val cancelledLatch = CountDownLatch(1)
@@ -125,6 +129,7 @@ class CoroutineRoomCancellationTest {
             // Coroutine started so now we can cancel it
             inCoroutineLatch.countDown()
 
+            @Suppress("DEPRECATION")
             CoroutinesRoom.execute(
                 db = database,
                 inTransaction = false,
@@ -142,14 +147,14 @@ class CoroutineRoomCancellationTest {
         assertThat(cancellationSignal.isCanceled).isTrue()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testSuspend_exception_in_query() = runBlocking {
-        database.backingFieldMap["QueryDispatcher"] = Dispatchers.IO
+        initWithDispatcher(Dispatchers.IO)
         val cancellationSignal = CancellationSignal()
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
+                @Suppress("DEPRECATION")
                 CoroutinesRoom.execute(
                     db = database,
                     inTransaction = false,
@@ -166,14 +171,15 @@ class CoroutineRoomCancellationTest {
         assertThat(cancellationSignal.isCanceled).isFalse()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun testSuspend_notCancelled() = runBlocking {
-        database.backingFieldMap["QueryDispatcher"] = testDispatcher
+        initWithDispatcher(testDispatcher)
 
         val cancellationSignal = CancellationSignal()
 
         val job = testScope.launch {
+            @Suppress("DEPRECATION")
             CoroutinesRoom.execute(
                 db = database,
                 inTransaction = false,
