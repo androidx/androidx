@@ -25,8 +25,10 @@ import androidx.room.RoomDatabase
 import androidx.room.Transactor
 import androidx.room.coroutines.RawConnectionAccessor
 import androidx.sqlite.SQLiteConnection
+import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
+import kotlinx.coroutines.withContext
 
 /**
  * Performs a database operation.
@@ -37,10 +39,21 @@ actual suspend fun <R> performSuspending(
     isReadOnly: Boolean,
     inTransaction: Boolean,
     block: (SQLiteConnection) -> R
-): R = db.internalPerform(isReadOnly, inTransaction) { connection ->
-    val rawConnection = (connection as RawConnectionAccessor).rawConnection
-    block.invoke(rawConnection)
+): R = withContext(db.getCoroutineContext(inTransaction)) {
+    db.internalPerform(isReadOnly, inTransaction) { connection ->
+        val rawConnection = (connection as RawConnectionAccessor).rawConnection
+        block.invoke(rawConnection)
+    }
 }
+
+/**
+ * Gets the database [CoroutineContext] to perform database operation on utility functions. Prefer
+ * using this function over directly accessing [RoomDatabase.getCoroutineScope] as it has platform
+ * compatibility behaviour.
+ */
+internal actual suspend fun RoomDatabase.getCoroutineContext(
+    inTransaction: Boolean
+): CoroutineContext = getCoroutineScope().coroutineContext
 
 /**
  * Utility function to wrap a suspend block in Room's transaction coroutine.
@@ -52,8 +65,10 @@ actual suspend fun <R> performSuspending(
 actual suspend fun <R> performInTransactionSuspending(
     db: RoomDatabase,
     block: suspend () -> R
-): R = db.internalPerform(isReadOnly = false, inTransaction = true) {
-    block.invoke()
+): R = withContext(db.getCoroutineContext(inTransaction = true)) {
+    db.internalPerform(isReadOnly = false, inTransaction = true) {
+        block.invoke()
+    }
 }
 
 private suspend inline fun <R> RoomDatabase.internalPerform(

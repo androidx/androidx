@@ -24,9 +24,18 @@ import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 
 /**
  * Base class for all Room databases. All classes that are annotated with [Database] must
@@ -40,6 +49,7 @@ import kotlin.reflect.KClass
 actual abstract class RoomDatabase {
 
     private lateinit var connectionManager: RoomConnectionManager
+    private lateinit var coroutineScope: CoroutineScope
 
     private val typeConverters: MutableMap<KClass<*>, Any> = mutableMapOf()
 
@@ -59,8 +69,12 @@ actual abstract class RoomDatabase {
      * @param configuration The database configuration.
      * @throws IllegalArgumentException if initialization fails.
      */
-    internal fun init(configuration: DatabaseConfiguration) {
+    internal actual fun init(configuration: DatabaseConfiguration) {
         connectionManager = createConnectionManager(configuration)
+        val parentJob = checkNotNull(configuration.queryCoroutineContext)[Job]
+        coroutineScope = CoroutineScope(
+            configuration.queryCoroutineContext + SupervisorJob(parentJob)
+        )
         validateAutoMigrations(configuration)
         validateTypeConverters(configuration)
     }
@@ -103,6 +117,10 @@ actual abstract class RoomDatabase {
      * @return A new invalidation tracker.
      */
     protected actual abstract fun createInvalidationTracker(): InvalidationTracker
+
+    internal actual fun getCoroutineScope(): CoroutineScope {
+        return coroutineScope
+    }
 
     /**
      * Returns a Set of required [AutoMigrationSpec] classes.
@@ -199,6 +217,7 @@ actual abstract class RoomDatabase {
      * Once a [RoomDatabase] is closed it should no longer be used.
      */
     actual fun close() {
+        coroutineScope.cancel()
         connectionManager.close()
     }
 
@@ -246,6 +265,7 @@ actual abstract class RoomDatabase {
     ) {
 
         private var driver: SQLiteDriver? = null
+        private var queryCoroutineContext: CoroutineContext? = null
         private val callbacks = mutableListOf<Callback>()
 
         /**
@@ -258,6 +278,26 @@ actual abstract class RoomDatabase {
          */
         actual fun setDriver(driver: SQLiteDriver): Builder<T> = apply {
             this.driver = driver
+        }
+
+        /**
+         * Sets the [CoroutineContext] that will be used to execute all asynchronous queries and
+         * tasks, such as `Flow` emissions and [InvalidationTracker] notifications.
+         *
+         * If no [CoroutineDispatcher] is present in the [context] then this function will throw
+         * an [IllegalArgumentException]
+         *
+         * If no context is provided, then Room will default to `Dispatchers.IO`.
+         *
+         * @param context The context
+         * @return This [Builder] instance
+         * @throws IllegalArgumentException if the [context] has no [CoroutineDispatcher]
+         */
+        actual fun setQueryCoroutineContext(context: CoroutineContext) = apply {
+            require(context[ContinuationInterceptor] != null) {
+                "It is required that the coroutine context contain a dispatcher."
+            }
+            this.queryCoroutineContext = context
         }
 
         /**
@@ -290,7 +330,8 @@ actual abstract class RoomDatabase {
                 migrationNotRequiredFrom = null,
                 typeConverters = emptyList(),
                 autoMigrationSpecs = emptyList(),
-                sqliteDriver = driver
+                sqliteDriver = driver,
+                queryCoroutineContext = queryCoroutineContext ?: Dispatchers.IO,
             )
             val db = factory.invoke()
             db.init(configuration)

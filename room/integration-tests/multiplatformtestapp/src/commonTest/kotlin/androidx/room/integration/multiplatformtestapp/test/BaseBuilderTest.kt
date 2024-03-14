@@ -17,8 +17,10 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.room.RoomDatabase
 import androidx.sqlite.SQLiteConnection
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
@@ -65,5 +67,13 @@ abstract class BaseBuilderTest {
         assertThat(onOpenInvoked).isEqualTo(2)
 
         db2.close()
+    }
+
+    @Test
+    fun setCoroutineContextWithoutDispatcher() {
+        assertThrows<IllegalArgumentException> {
+            getRoomDatabaseBuilder().setQueryCoroutineContext(EmptyCoroutineContext)
+        }.hasMessageThat()
+            .contains("It is required that the coroutine context contain a dispatcher.")
     }
 }
