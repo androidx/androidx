@@ -359,7 +359,7 @@ package androidx.compose.foundation.content {
   }
 
   public final class TransferableContent_androidKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.content.TransferableContent? consumeEach(androidx.compose.foundation.content.TransferableContent, kotlin.jvm.functions.Function1<? super android.content.ClipData.Item,java.lang.Boolean> predicate);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.content.TransferableContent? consume(androidx.compose.foundation.content.TransferableContent, kotlin.jvm.functions.Function1<? super android.content.ClipData.Item,java.lang.Boolean> predicate);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static boolean hasMediaType(androidx.compose.foundation.content.TransferableContent, androidx.compose.foundation.content.MediaType mediaType);
   }
 

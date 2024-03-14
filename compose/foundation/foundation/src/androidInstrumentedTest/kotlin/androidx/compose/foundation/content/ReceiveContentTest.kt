@@ -92,7 +92,7 @@ class ReceiveContentTest {
             Box(modifier = Modifier
                 .receiveContent(setOf(MediaType.Video)) {
                     videoReceived = it
-                    val t = it.consumeEach {
+                    val t = it.consume {
                         it.uri
                             ?.toString()
                             ?.contains("video") ?: false
@@ -101,7 +101,7 @@ class ReceiveContentTest {
                 }
                 .receiveContent(setOf(MediaType.Audio)) {
                     audioReceived = it
-                    val t = it.consumeEach {
+                    val t = it.consume {
                         it.uri
                             ?.toString()
                             ?.contains("audio") ?: false
@@ -110,7 +110,7 @@ class ReceiveContentTest {
                 }
                 .receiveContent(setOf(MediaType.Text)) {
                     textReceived = it
-                    val t = it.consumeEach { it.text != null }
+                    val t = it.consume { it.text != null }
                     t
                 }
                 .then(TestElement {

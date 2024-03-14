@@ -29,7 +29,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.TransferableContent
-import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.consume
 import androidx.compose.foundation.content.hasMediaType
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.layout.Arrangement
@@ -111,7 +111,7 @@ fun TextFieldReceiveContentDemo() {
             ): TransferableContent? {
                 val newImageUris = mutableListOf<Uri>()
                 return transferableContent
-                    .consumeEach { item ->
+                    .consume { item ->
                         // this happens in the ui thread, try not to load images here.
                         val isImageBitmap = item.uri?.isImageBitmap(context) ?: false
                         if (isImageBitmap) {
@@ -221,7 +221,7 @@ fun NestedReceiveContentDemo() {
                         transferableContent
                     } else {
                         var uri: Uri? = null
-                        transferableContent.consumeEach { item ->
+                        transferableContent.consume { item ->
                             // only consume this item if we can read
                             if (item.uri != null && uri == null) {
                                 uri = item.uri
@@ -246,7 +246,7 @@ fun NestedReceiveContentDemo() {
                 ReceiveContentShowcase(
                     "Text Consumer",
                     MediaType.Text, {
-                        it.consumeEach { item ->
+                        it.consume { item ->
                             val text = item.coerceToText(context)
                             // only consume if it has text in it.
                             !text.isNullOrBlank() && item.uri == null

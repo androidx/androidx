@@ -24,7 +24,7 @@ import androidx.compose.foundation.content.DragAndDropScope
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.TransferableContent
-import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.consume
 import androidx.compose.foundation.content.createClipData
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.content.testDragAndDrop
@@ -366,7 +366,7 @@ class TextFieldDragAndDropTest {
             "Hello World!",
             modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
                 receivedContent = it
-                receivedContent.consumeEach {
+                receivedContent.consume {
                     // do not consume text
                     it.uri != null
                 }

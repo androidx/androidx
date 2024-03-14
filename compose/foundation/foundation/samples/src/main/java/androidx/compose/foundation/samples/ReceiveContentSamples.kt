@@ -24,7 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.TransferableContent
-import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.consume
 import androidx.compose.foundation.content.hasMediaType
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.layout.Column
@@ -60,7 +60,7 @@ fun ReceiveContentBasicSample() {
                     return@receiveContent transferableContent
                 }
                 val newImages = mutableListOf<ImageBitmap>()
-                transferableContent.consumeEach { item ->
+                transferableContent.consume { item ->
                     // only consume this item if we can read an imageBitmap
                     item.readImageBitmap()?.let { newImages += it; true } ?: false
                 }.also {
@@ -123,7 +123,7 @@ fun ReceiveContentFullSample() {
                             }
                             val newImages = mutableListOf<ImageBitmap>()
                             return transferableContent
-                                .consumeEach { item ->
+                                .consume { item ->
                                     // only consume this item if we can read an imageBitmap
                                     item
                                         .readImageBitmap()

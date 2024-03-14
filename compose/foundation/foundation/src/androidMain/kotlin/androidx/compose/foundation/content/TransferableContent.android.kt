@@ -28,8 +28,8 @@ import androidx.compose.ui.platform.toClipMetadata
 /**
  * Android specific parts of [TransferableContent].
  *
- * @param linkUri Only supplied by InputConnection#commitContent.
- * @param extras Extras bundle that's passed by InputConnection#commitContent.
+ * @property linkUri Only supplied by InputConnection#commitContent.
+ * @property extras Extras bundle that's passed by InputConnection#commitContent.
  */
 @ExperimentalFoundationApi
 actual class PlatformTransferableContent internal constructor(
@@ -64,13 +64,15 @@ actual class PlatformTransferableContent internal constructor(
  * [ClipData.Item] parts. Use this function in [receiveContent] modifier's `onReceive` callback to
  * easily separate remaining parts from incoming [TransferableContent].
  *
+ * @sample androidx.compose.foundation.samples.ReceiveContentBasicSample
+ *
  * @param predicate Decides whether to consume or leave the given item out. Return true to indicate
  * that this particular item was processed here, it shouldn't be passed further down the content
  * receiver chain. Return false to keep it in the returned [TransferableContent].
  * @return Remaining parts of this [TransferableContent].
  */
 @ExperimentalFoundationApi
-fun TransferableContent.consumeEach(predicate: (ClipData.Item) -> Boolean): TransferableContent? {
+fun TransferableContent.consume(predicate: (ClipData.Item) -> Boolean): TransferableContent? {
     val clipData = clipEntry.clipData
     return if (clipData.itemCount == 1) {
         // return this if the single item inside ClipData is not consumed, or null if it's consumed

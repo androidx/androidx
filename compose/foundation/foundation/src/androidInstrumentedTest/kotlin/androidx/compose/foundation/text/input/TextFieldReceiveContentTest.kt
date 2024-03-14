@@ -26,7 +26,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.assertClipData
-import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.consume
 import androidx.compose.foundation.content.createClipData
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -456,7 +456,7 @@ class TextFieldReceiveContentTest {
                     modifier = Modifier
                         .testTag(tag)
                         .receiveContent(setOf(MediaType.Image, MediaType.Text)) {
-                            it.consumeEach { item ->
+                            it.consume { item ->
                                 // only consume if there's no text
                                 item.text == null
                             }
@@ -496,19 +496,19 @@ class TextFieldReceiveContentTest {
                         .testTag(tag)
                         .receiveContent(setOf(MediaType.Text)) {
                             transferableContent1 = it
-                            it.consumeEach {
+                            it.consume {
                                 it.text.contains("a")
                             }
                         }
                         .receiveContent(setOf(MediaType.Text)) {
                             transferableContent2 = it
-                            it.consumeEach {
+                            it.consume {
                                 it.text.contains("b")
                             }
                         }
                         .receiveContent(setOf(MediaType.Text)) {
                             transferableContent3 = it
-                            it.consumeEach {
+                            it.consume {
                                 it.text.contains("c")
                             }
                         }
