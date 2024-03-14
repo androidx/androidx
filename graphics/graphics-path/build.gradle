@@ -67,6 +67,7 @@ android {
                     "-fomit-frame-pointer",
                     "-ffunction-sections",
                     "-fdata-sections",
+                    "-fstack-protector",
                     "-Wl,--gc-sections",
                     "-Wl,-Bsymbolic-functions",
                     "-nostdlib++"
