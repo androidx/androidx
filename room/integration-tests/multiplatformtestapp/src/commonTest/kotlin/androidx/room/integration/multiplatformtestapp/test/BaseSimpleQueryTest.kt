@@ -21,6 +21,7 @@ import androidx.kruth.assertThrows
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.test.runTest
 
 abstract class BaseSimpleQueryTest {
@@ -90,6 +91,27 @@ abstract class BaseSimpleQueryTest {
             pks = listOf(1L, 3L),
         )
         assertThat(dao.getItemList().map { it.pk }).containsExactly(2L)
+    }
+
+    @Test
+    fun queryFlow() = runTest {
+        val dao = getRoomDatabase().dao()
+        dao.insertItem(1)
+
+        val channel = dao.getItemListFlow().produceIn(this)
+
+        assertThat(channel.receive()).containsExactly(SampleEntity(1))
+
+        dao.insertItem(2)
+        dao.insertItem(3)
+
+        assertThat(channel.receive()).containsExactly(
+            SampleEntity(1),
+            SampleEntity(2),
+            SampleEntity(3),
+        )
+
+        channel.cancel()
     }
 
     @Test

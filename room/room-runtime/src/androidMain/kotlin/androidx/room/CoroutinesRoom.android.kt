@@ -18,16 +18,12 @@ package androidx.room
 
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
+import androidx.room.coroutines.createFlow as createFlowCommon
 import androidx.room.util.getCoroutineContext
 import java.util.concurrent.Callable
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -88,41 +84,13 @@ public class CoroutinesRoom private constructor() {
         }
 
         @JvmStatic
+        @Deprecated("No longer called by generated implementation")
         public fun <R> createFlow(
             db: RoomDatabase,
             inTransaction: Boolean,
             tableNames: Array<String>,
             callable: Callable<R>
-        ): Flow<@JvmSuppressWildcards R> = flow {
-            coroutineScope {
-                // Observer channel receives signals from the invalidation tracker to emit queries.
-                val observerChannel = Channel<Unit>(Channel.CONFLATED)
-                val observer = object : InvalidationTracker.Observer(tableNames) {
-                    override fun onInvalidated(tables: Set<String>) {
-                        observerChannel.trySend(Unit)
-                    }
-                }
-                observerChannel.trySend(Unit) // Initial signal to perform first query.
-                // Use the database context minus the Job since the collector already has one and
-                // the child coroutine should be tied to it.
-                val queryContext = db.getCoroutineContext(inTransaction).minusKey(Job)
-                val resultChannel = Channel<R>()
-                launch(queryContext) {
-                    db.invalidationTracker.addObserver(observer)
-                    try {
-                        // Iterate until cancelled, transforming observer signals to query results
-                        // to be emitted to the flow.
-                        for (signal in observerChannel) {
-                            val result = callable.call()
-                            resultChannel.send(result)
-                        }
-                    } finally {
-                        db.invalidationTracker.removeObserver(observer)
-                    }
-                }
-
-                emitAll(resultChannel)
-            }
-        }
+        ): Flow<@JvmSuppressWildcards R> =
+            createFlowCommon(db, inTransaction, tableNames) { callable.call() }
     }
 }
