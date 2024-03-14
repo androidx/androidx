@@ -587,7 +587,7 @@ class SnapshotStateListTests {
 
             repeat(100) { index ->
                 repeat(10) {
-                    assertTrue(list.contains(index * 100 + it))
+                    assertTrue(list.contains(index * 100 + it), "Missing ${index * 100 + it}")
                 }
             }
         }
@@ -820,6 +820,17 @@ class SnapshotStateListTests {
         )
     }
 
+    @Test
+    fun testWritingTheSameValueDoesNotChangeTheList() {
+        val state = mutableStateListOf(0, 1, 2, 3)
+        val modified = observeGlobalChanges {
+            repeat(4) {
+                state[it] = it
+            }
+        }
+        assertTrue(modified.isEmpty())
+    }
+
     private fun <T> validate(list: MutableList<T>, block: (list: MutableList<T>) -> Unit) {
         val normalList = list.toMutableList()
         block(normalList)
@@ -832,5 +843,19 @@ class SnapshotStateListTests {
         expected.indices.forEach {
             assertEquals(expected[it], actual[it])
         }
+    }
+
+    private fun observeGlobalChanges(block: () -> Unit): Set<Any> {
+        val result = mutableSetOf<Any>()
+        val handle = Snapshot.registerApplyObserver { set, _ ->
+            result.addAll(set)
+        }
+        try {
+            block()
+        } finally {
+            Snapshot.sendApplyNotifications()
+            handle.dispose()
+        }
+        return result
     }
 }
