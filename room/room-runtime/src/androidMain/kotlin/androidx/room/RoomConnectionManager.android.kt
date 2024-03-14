@@ -198,7 +198,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
     private class SupportConnectionPool(
         val supportDriver: SupportSQLiteDriver
     ) : ConnectionPool {
-        private val supportConnection by lazy(LazyThreadSafetyMode.NONE) {
+        private val supportConnection by lazy(LazyThreadSafetyMode.PUBLICATION) {
             SupportPooledConnection(supportDriver.open())
         }
 
