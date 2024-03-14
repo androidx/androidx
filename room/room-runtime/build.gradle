@@ -22,12 +22,12 @@
  * modifying its settings.
  */
 
+
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.KonanTarget
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -198,14 +198,11 @@ androidXMultiplatform {
                 test.defaultSourceSet {
                     dependsOn(nativeTest)
                 }
-                if (target.konanTarget == KonanTarget.LINUX_X64.INSTANCE) {
+                if (target.konanTarget.family == Family.LINUX) {
                     // For tests in Linux host, statically include androidx's compiled SQLite
                     // via a generated C interop definition
                     createCinteropFromArchiveConfiguration(test, configurations["sqliteSharedArchive"])
-                } else if (
-                        target.konanTarget == KonanTarget.MACOS_X64.INSTANCE ||
-                                target.konanTarget == KonanTarget.MACOS_ARM64.INSTANCE
-                ) {
+                } else if (target.konanTarget.family == Family.OSX) {
                     // For tests in Mac host, link to shared SQLite library included in MacOS
                     test.kotlinOptions.freeCompilerArgs += [
                             "-linker-options", "-lsqlite3"
