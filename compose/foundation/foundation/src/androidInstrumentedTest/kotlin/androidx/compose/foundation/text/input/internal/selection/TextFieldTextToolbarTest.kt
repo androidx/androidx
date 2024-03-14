@@ -18,8 +18,8 @@ package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.MediaType
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.createClipData
-import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -582,7 +582,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             toolbar = textToolbar,
             singleLine = true,
             clipboardManager = clipboardManager,
-            modifier = Modifier.receiveContent(setOf(MediaType.Image)) { null }
+            modifier = Modifier.contentReceiver(setOf(MediaType.Image)) { null }
         )
 
         rule.onNodeWithTag(TAG).performTouchInput { click() }

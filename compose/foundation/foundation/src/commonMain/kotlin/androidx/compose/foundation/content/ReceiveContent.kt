@@ -42,47 +42,15 @@ import androidx.compose.ui.platform.InspectorInfo
  * supports. It's possible that this modifier receives other type of content that's not specified in
  * this set. Please make sure to check again whether the received [TransferableContent] carries a
  * supported [MediaType]. An empty [MediaType] set implies [MediaType.All].
- * @param onReceive Callback that's triggered when a content is successfully committed. Return
- * an optional [TransferableContent] that contains the unprocessed or unaccepted parts of the
- * received [TransferableContent]. The remaining [TransferableContent] first will be sent to to the
- * closest ancestor [receiveContent] modifier. This chain will continue until there's no ancestor
- * modifier left, or [TransferableContent] is fully consumed. After, the source subsystem that
- * created the original [TransferableContent] and initiated the chain will receive any remaining
- * items to execute its default behavior. For example a text editor that receives content should
- * insert any remaining text to the drop position.
- *
- * @sample androidx.compose.foundation.samples.ReceiveContentBasicSample
- */
-@ExperimentalFoundationApi
-fun Modifier.receiveContent(
-    hintMediaTypes: Set<MediaType>,
-    onReceive: (TransferableContent) -> TransferableContent?
-): Modifier = then(
-    ReceiveContentElement(
-        hintMediaTypes = hintMediaTypes,
-        receiveContentListener = ReceiveContentListener(onReceive)
-    )
-)
-
-/**
- * Configures the current node and any children nodes as a Content Receiver.
- *
- * Content in this context refers to a [TransferableContent] that could be received from another
- * app through Drag-and-Drop, Copy/Paste, or from the Software Keyboard.
- *
- * @param hintMediaTypes A set of media types that are expected by this receiver. This set
- * gets passed to the Software Keyboard to send information about what type of content the editor
- * supports. It's possible that this modifier receives other type of content that's not specified in
- * this set. Please make sure to check again whether the received [TransferableContent] carries a
- * supported [MediaType]. An empty [MediaType] set implies [MediaType.All].
- * @param receiveContentListener A set of callbacks that includes certain Drag-and-Drop state
- * changes. Please checkout [ReceiveContentListener] docs for an explanation of each callback.
+ * @param receiveContentListener Listener to respond to the receive event. This interface also
+ * includes a set of callbacks for certain Drag-and-Drop state changes. Please checkout
+ * [ReceiveContentListener] docs for an explanation of each callback.
  *
  * @sample androidx.compose.foundation.samples.ReceiveContentFullSample
  */
 @Suppress("ExecutorRegistration")
 @ExperimentalFoundationApi
-fun Modifier.receiveContent(
+fun Modifier.contentReceiver(
     hintMediaTypes: Set<MediaType>,
     receiveContentListener: ReceiveContentListener
 ): Modifier = then(

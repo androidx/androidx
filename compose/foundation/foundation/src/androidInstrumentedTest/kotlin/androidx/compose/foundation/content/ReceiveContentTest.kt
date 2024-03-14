@@ -62,9 +62,9 @@ class ReceiveContentTest {
         val listenerCalls = mutableListOf<Int>()
         rule.setContent {
             Box(modifier = Modifier
-                .receiveContent(setOf(MediaType.Video)) { listenerCalls += 3; it }
-                .receiveContent(setOf(MediaType.Audio)) { listenerCalls += 2; it }
-                .receiveContent(setOf(MediaType.Text)) { listenerCalls += 1; it }
+                .contentReceiver(setOf(MediaType.Video)) { listenerCalls += 3; it }
+                .contentReceiver(setOf(MediaType.Audio)) { listenerCalls += 2; it }
+                .contentReceiver(setOf(MediaType.Text)) { listenerCalls += 1; it }
                 .then(TestElement {
                     calculatedReceiveContent = it.getReceiveContentConfiguration()
                     calculatedReceiveContent
@@ -90,7 +90,7 @@ class ReceiveContentTest {
         var textReceived: TransferableContent? = null
         rule.setContent {
             Box(modifier = Modifier
-                .receiveContent(setOf(MediaType.Video)) {
+                .contentReceiver(setOf(MediaType.Video)) {
                     videoReceived = it
                     val t = it.consume {
                         it.uri
@@ -99,7 +99,7 @@ class ReceiveContentTest {
                     }
                     t
                 }
-                .receiveContent(setOf(MediaType.Audio)) {
+                .contentReceiver(setOf(MediaType.Audio)) {
                     audioReceived = it
                     val t = it.consume {
                         it.uri
@@ -108,7 +108,7 @@ class ReceiveContentTest {
                     }
                     t
                 }
-                .receiveContent(setOf(MediaType.Text)) {
+                .contentReceiver(setOf(MediaType.Text)) {
                     textReceived = it
                     val t = it.consume { it.text != null }
                     t
@@ -171,7 +171,7 @@ class ReceiveContentTest {
                 Box(modifier = Modifier.then(TestElement {
                     calculatedReceiveContent = it.getReceiveContentConfiguration()
                 }))
-                Box(modifier = Modifier.receiveContent(setOf(MediaType.Text)) { it })
+                Box(modifier = Modifier.contentReceiver(setOf(MediaType.Text)) { it })
             }
         }
 
@@ -192,7 +192,7 @@ class ReceiveContentTest {
                     calculatedReceiveContent = it.getReceiveContentConfiguration()
                 })
             ) {
-                Box(modifier = Modifier.receiveContent(setOf(MediaType.Text)) { it })
+                Box(modifier = Modifier.contentReceiver(setOf(MediaType.Text)) { it })
             }
         }
 
@@ -208,7 +208,7 @@ class ReceiveContentTest {
             ReceiveContentListener { null }
         )
         rule.setContent {
-            Box(modifier = Modifier.receiveContent(emptySet()) { it }) {
+            Box(modifier = Modifier.contentReceiver(emptySet()) { it }) {
                 Box(modifier = Modifier.then(TestElement {
                     calculatedReceiveContent = it.getReceiveContentConfiguration()
                 }))
@@ -227,13 +227,13 @@ class ReceiveContentTest {
         var attached by mutableStateOf(true)
         rule.setContent {
             Box(modifier = Modifier
-                .receiveContent(setOf(MediaType.Video)) { it }
+                .contentReceiver(setOf(MediaType.Video)) { it }
                 .then(if (attached) {
-                    Modifier.receiveContent(setOf(MediaType.Audio)) { it }
+                    Modifier.contentReceiver(setOf(MediaType.Audio)) { it }
                 } else {
                     Modifier
                 })
-                .receiveContent(setOf(MediaType.Text)) { it }
+                .contentReceiver(setOf(MediaType.Text)) { it }
                 .then(TestElement {
                     getReceiveContentConfiguration = {
                         it.getReceiveContentConfiguration()
@@ -267,13 +267,13 @@ class ReceiveContentTest {
         var attached by mutableStateOf(false)
         rule.setContent {
             Box(modifier = Modifier
-                .receiveContent(setOf(MediaType.Video)) { it }
+                .contentReceiver(setOf(MediaType.Video)) { it }
                 .then(if (attached) {
-                    Modifier.receiveContent(setOf(MediaType.Audio)) { it }
+                    Modifier.contentReceiver(setOf(MediaType.Audio)) { it }
                 } else {
                     Modifier
                 })
-                .receiveContent(setOf(MediaType.Text)) { it }
+                .contentReceiver(setOf(MediaType.Text)) { it }
                 .then(TestElement {
                     getReceiveContentConfiguration = {
                         it.getReceiveContentConfiguration()
@@ -307,8 +307,8 @@ class ReceiveContentTest {
         var topMediaTypes by mutableStateOf(setOf(MediaType.Video))
         rule.setContent {
             Box(modifier = Modifier
-                .receiveContent(topMediaTypes) { it }
-                .receiveContent(setOf(MediaType.Text)) { it }
+                .contentReceiver(topMediaTypes) { it }
+                .contentReceiver(setOf(MediaType.Text)) { it }
                 .then(TestElement {
                     getReceiveContentConfiguration = {
                         it.getReceiveContentConfiguration()
@@ -342,8 +342,8 @@ class ReceiveContentTest {
         var currentMediaTypes by mutableStateOf(setOf(MediaType.Video))
         rule.setContent {
             Box(modifier = Modifier
-                .receiveContent(setOf(MediaType.Image)) { it }
-                .receiveContent(currentMediaTypes) { it }
+                .contentReceiver(setOf(MediaType.Image)) { it }
+                .contentReceiver(currentMediaTypes) { it }
                 .then(TestElement {
                     getReceiveContentConfiguration = {
                         it.getReceiveContentConfiguration()
@@ -379,11 +379,11 @@ class ReceiveContentTest {
             view = LocalView.current
             Box(modifier = Modifier
                 .size(200.dp)
-                .receiveContent(setOf(MediaType.Video)) { it }
+                .contentReceiver(setOf(MediaType.Video)) { it }
                 .size(100.dp)
-                .receiveContent(setOf(MediaType.Audio)) { it }
+                .contentReceiver(setOf(MediaType.Audio)) { it }
                 .size(50.dp)
-                .receiveContent(setOf(MediaType.Text)) { it }
+                .contentReceiver(setOf(MediaType.Text)) { it }
             )
         }
 
@@ -411,7 +411,7 @@ class ReceiveContentTest {
             view = LocalView.current
             Box(modifier = Modifier
                 .size(100.dp)
-                .receiveContent(setOf(MediaType.Image)) {
+                .contentReceiver(setOf(MediaType.Image)) {
                     transferableContent = it
                     null // consume all
                 })
@@ -443,7 +443,7 @@ class ReceiveContentTest {
             view = LocalView.current
             Box(modifier = Modifier
                 .size(100.dp)
-                .receiveContent(setOf(MediaType.Audio)) {
+                .contentReceiver(setOf(MediaType.Audio)) {
                     transferableContent = it
                     null // consume all
                 })
@@ -476,14 +476,14 @@ class ReceiveContentTest {
             view = LocalView.current
             Box(modifier = Modifier
                 .size(200.dp)
-                .receiveContent(setOf(MediaType.All)) {
+                .contentReceiver(setOf(MediaType.All)) {
                     parentTransferableContent = it
                     null
                 }) {
                 Box(modifier = Modifier
                     .align(Alignment.Center)
                     .size(100.dp)
-                    .receiveContent(setOf(MediaType.Image)) {
+                    .contentReceiver(setOf(MediaType.Image)) {
                         childTransferableContent = it
                         it // don't consume anything
                     })
@@ -524,21 +524,21 @@ class ReceiveContentTest {
             view = LocalView.current
             Box(modifier = Modifier
                 .size(200.dp)
-                .receiveContent(setOf(MediaType.All)) {
+                .contentReceiver(setOf(MediaType.All)) {
                     grandParentTransferableContent = it
                     null
                 }) {
                 Box(modifier = Modifier
                     .align(Alignment.Center)
                     .size(100.dp)
-                    .receiveContent(setOf(MediaType.Image)) {
+                    .contentReceiver(setOf(MediaType.Image)) {
                         parentTransferableContent = it
                         it // don't consume anything
                     }) {
                     Box(modifier = Modifier
                         .align(Alignment.Center)
                         .size(50.dp)
-                        .receiveContent(setOf(MediaType.Text)) {
+                        .contentReceiver(setOf(MediaType.Text)) {
                             childTransferableContent = it
                             it // don't consume anything
                         })
@@ -571,7 +571,7 @@ class ReceiveContentTest {
             Box(
                 modifier = Modifier
                     .size(100.dp)
-                    .receiveContent(setOf(MediaType.All), object : ReceiveContentListener {
+                    .contentReceiver(setOf(MediaType.All), object : ReceiveContentListener {
                         override fun onDragEnter() {
                             calls += "enter"
                         }
@@ -618,7 +618,7 @@ class ReceiveContentTest {
             Box(
                 modifier = Modifier
                     .size(200.dp)
-                    .receiveContent(setOf(MediaType.All), object : ReceiveContentListener {
+                    .contentReceiver(setOf(MediaType.All), object : ReceiveContentListener {
                         override fun onDragEnter() {
                             calls += "enter-1"
                         }
@@ -636,7 +636,7 @@ class ReceiveContentTest {
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(100.dp)
-                        .receiveContent(setOf(MediaType.All), object : ReceiveContentListener {
+                        .contentReceiver(setOf(MediaType.All), object : ReceiveContentListener {
                             override fun onDragEnter() {
                                 calls += "enter-2"
                             }
@@ -654,7 +654,7 @@ class ReceiveContentTest {
                         modifier = Modifier
                             .align(Alignment.Center)
                             .size(50.dp)
-                            .receiveContent(setOf(MediaType.All), object : ReceiveContentListener {
+                            .contentReceiver(setOf(MediaType.All), object : ReceiveContentListener {
                                 override fun onDragEnter() {
                                     calls += "enter-3"
                                 }
@@ -710,7 +710,7 @@ class ReceiveContentTest {
             Box(
                 modifier = Modifier
                     .size(100.dp)
-                    .receiveContent(setOf(MediaType.All), object : ReceiveContentListener {
+                    .contentReceiver(setOf(MediaType.All), object : ReceiveContentListener {
                         override fun onDragStart() {
                             calls += "start"
                         }
@@ -757,7 +757,7 @@ class ReceiveContentTest {
             Box(
                 modifier = Modifier
                     .size(200.dp)
-                    .receiveContent(setOf(MediaType.All), object : ReceiveContentListener {
+                    .contentReceiver(setOf(MediaType.All), object : ReceiveContentListener {
                         override fun onDragStart() {
                             calls += "start-1"
                         }
@@ -775,7 +775,7 @@ class ReceiveContentTest {
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(100.dp)
-                        .receiveContent(setOf(MediaType.All), object : ReceiveContentListener {
+                        .contentReceiver(setOf(MediaType.All), object : ReceiveContentListener {
                             override fun onDragStart() {
                                 calls += "start-2"
                             }
@@ -793,7 +793,7 @@ class ReceiveContentTest {
                         modifier = Modifier
                             .align(Alignment.Center)
                             .size(50.dp)
-                            .receiveContent(setOf(MediaType.All), object : ReceiveContentListener {
+                            .contentReceiver(setOf(MediaType.All), object : ReceiveContentListener {
                                 override fun onDragStart() {
                                     calls += "start-3"
                                 }

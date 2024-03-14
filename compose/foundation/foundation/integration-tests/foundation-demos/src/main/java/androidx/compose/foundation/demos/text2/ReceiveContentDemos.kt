@@ -30,8 +30,8 @@ import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.consume
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.hasMediaType
-import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -131,7 +131,7 @@ fun TextFieldReceiveContentDemo() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .receiveContent(
+            .contentReceiver(
                 hintMediaTypes = setOf(MediaType.Image),
                 receiveContentListener = receiveContentListener
             )
@@ -412,7 +412,7 @@ class ReceiveContentState(
 fun Modifier.dropReceiveContent(
     state: ReceiveContentState
 ) = composed {
-    receiveContent(state.hintMediaTypes, state.listener)
+    contentReceiver(state.hintMediaTypes, state.listener)
         .background(
             color = if (state.hovering) {
                 MaterialTheme.colors.secondary

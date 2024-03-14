@@ -61,7 +61,7 @@ actual class PlatformTransferableContent internal constructor(
 
 /**
  * Helper function to consume parts of [TransferableContent] in Android by splitting it to
- * [ClipData.Item] parts. Use this function in [receiveContent] modifier's `onReceive` callback to
+ * [ClipData.Item] parts. Use this function in [contentReceiver] modifier's `onReceive` callback to
  * easily separate remaining parts from incoming [TransferableContent].
  *
  * @sample androidx.compose.foundation.samples.ReceiveContentBasicSample
