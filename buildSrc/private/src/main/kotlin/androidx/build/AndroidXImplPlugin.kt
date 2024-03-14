@@ -977,7 +977,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         defaultConfig.targetSdk = project.defaultAndroidConfig.targetSdk
         defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        testOptions.animationsDisabled = true
+        testOptions.animationsDisabled = !project.isMacrobenchmark()
         testOptions.unitTests.isReturnDefaultValues = true
         testOptions.unitTests.all { task ->
             task.configureForRobolectric()
@@ -1489,6 +1489,10 @@ private fun Project.configureJavaCompilationWarnings(androidXExtension: AndroidX
 
 fun Project.hasBenchmarkPlugin(): Boolean {
     return this.plugins.hasPlugin(BenchmarkPlugin::class.java)
+}
+
+fun Project.isMacrobenchmark(): Boolean {
+    return this.path.endsWith("macrobenchmark")
 }
 
 /**
