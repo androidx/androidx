@@ -247,7 +247,14 @@ public class ExtensionsTestUtil {
                 || Build.MODEL.equalsIgnoreCase("G8342")))
                 || Build.MODEL.contains("Cuttlefish")
                 || Build.MODEL.equalsIgnoreCase("Pixel XL")
-                || Build.MODEL.equalsIgnoreCase("Pixel");
+                || Build.MODEL.equalsIgnoreCase("Pixel")
+                // Skip all devices that have ExtraCropping Quirk
+                || Build.MODEL.equalsIgnoreCase("SM-T580")
+                || Build.MODEL.equalsIgnoreCase("SM-J710MN")
+                || Build.MODEL.equalsIgnoreCase("SM-A320FL")
+                || Build.MODEL.equalsIgnoreCase("SM-G570M")
+                || Build.MODEL.equalsIgnoreCase("SM-G610F")
+                || Build.MODEL.equalsIgnoreCase("SM-G610M");
     }
 
     /**

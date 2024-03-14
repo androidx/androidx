@@ -60,6 +60,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     private static final int EFFECT = CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE;
 
     private CameraCharacteristics mCameraCharacteristics;
+    private BeautyImageCaptureExtenderCaptureProcessorImpl mCaptureProcessor;
 
     public BeautyImageCaptureExtenderImpl() {
     }
@@ -100,7 +101,8 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return new BeautyImageCaptureExtenderCaptureProcessorImpl();
+            mCaptureProcessor = new BeautyImageCaptureExtenderCaptureProcessorImpl();
+            return mCaptureProcessor;
         } else {
             return new NoOpCaptureProcessorImpl();
         }
@@ -115,7 +117,9 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
 
     @Override
     public void onDeInit() {
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mCaptureProcessor != null) {
+            mCaptureProcessor.release();
+        }
     }
 
     @Nullable
@@ -277,6 +281,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
                         }
                     }
                 }
+                outputImage.setTimestamp(image.getTimestamp());
                 mImageWriter.queueInputImage(outputImage);
             }
 
@@ -314,6 +319,12 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
                 @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
             throw new UnsupportedOperationException("Postview is not supported");
+        }
+
+        public void release() {
+            if (mImageWriter != null) {
+                mImageWriter.close();
+            }
         }
     }
 
