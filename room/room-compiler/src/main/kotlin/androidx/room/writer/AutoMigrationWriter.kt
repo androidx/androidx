@@ -29,6 +29,7 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverMemberNames
 import androidx.room.ext.SQLiteDriverTypeNames.CONNECTION
+import androidx.room.migration.bundle.BaseEntityBundle
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.vo.AutoMigration
@@ -201,12 +202,14 @@ class AutoMigrationWriter(
                     tableNameWithNewPrefix,
                     migrateBuilder
                 )
-                addStatementsToRecreateIndexes(newEntityBundle, migrateBuilder)
-                if (newEntityBundle.foreignKeys.isNotEmpty()) {
-                    addStatementsToCheckForeignKeyConstraint(
-                        newEntityBundle.tableName,
-                        migrateBuilder
-                    )
+                if (newEntityBundle is EntityBundle) {
+                    addStatementsToRecreateIndexes(newEntityBundle, migrateBuilder)
+                    if (newEntityBundle.foreignKeys.isNotEmpty()) {
+                        addStatementsToCheckForeignKeyConstraint(
+                            newEntityBundle.tableName,
+                            migrateBuilder
+                        )
+                    }
                 }
             }
         }
@@ -214,8 +217,8 @@ class AutoMigrationWriter(
 
     private fun addStatementsToMigrateFtsTable(
         migrateBuilder: XFunSpec.Builder,
-        oldTable: EntityBundle,
-        newTable: EntityBundle,
+        oldTable: BaseEntityBundle,
+        newTable: BaseEntityBundle,
         renamedColumnsMap: MutableMap<String, String>
     ) {
         addDatabaseExecuteSqlStatement(migrateBuilder, "DROP TABLE `${oldTable.tableName}`")
@@ -274,7 +277,7 @@ class AutoMigrationWriter(
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addStatementsToCreateNewTable(
-        newTable: EntityBundle,
+        newTable: BaseEntityBundle,
         migrateBuilder: XFunSpec.Builder
     ) {
         addDatabaseExecuteSqlStatement(
@@ -296,8 +299,8 @@ class AutoMigrationWriter(
     private fun addStatementsToContentTransfer(
         oldTableName: String,
         tableNameWithNewPrefix: String,
-        oldEntityBundle: EntityBundle,
-        newEntityBundle: EntityBundle,
+        oldEntityBundle: BaseEntityBundle,
+        newEntityBundle: BaseEntityBundle,
         renamedColumnsMap: MutableMap<String, String>,
         migrateBuilder: XFunSpec.Builder
     ) {
@@ -463,7 +466,9 @@ class AutoMigrationWriter(
                 migrateBuilder,
                 addedTable.entityBundle.createTable()
             )
-            addStatementsToRecreateIndexes(addedTable.entityBundle, migrateBuilder)
+            if (addedTable.entityBundle is EntityBundle) {
+                addStatementsToRecreateIndexes(addedTable.entityBundle, migrateBuilder)
+            }
         }
     }
 

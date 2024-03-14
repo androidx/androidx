@@ -29,6 +29,7 @@ import androidx.room.util.TableInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
@@ -42,6 +43,7 @@ import java.io.IOException;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@SdkSuppress(minSdkVersion = 22) // b/329236938
 public class AutoMigrationTest {
     private static final String TEST_DB = "auto-migration-test";
     @Rule

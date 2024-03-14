@@ -17,22 +17,20 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Data class that holds the schema information about a [androidx.room.PrimaryKey].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class PrimaryKeyBundle(
-    @SerializedName("autoGenerate")
-    public open val isAutoGenerate: Boolean,
-    @SerializedName("columnNames")
-    public open val columnNames: List<String>
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class PrimaryKeyBundle(
+    @SerialName("autoGenerate")
+    val isAutoGenerate: Boolean,
+    @SerialName("columnNames")
+    val columnNames: List<String>
 ) : SchemaEquality<PrimaryKeyBundle> {
-    // Used by GSON
-    @Deprecated("Marked deprecated to avoid usage in the codebase")
-    @SuppressWarnings("unused")
-    private constructor() : this(false, emptyList())
 
     override fun isSchemaEqual(other: PrimaryKeyBundle): Boolean {
         return columnNames == other.columnNames && isAutoGenerate == other.isAutoGenerate

@@ -15,5 +15,22 @@
  */
 
 package androidx.room.migration.bundle
-// empty file to trigger klib creation
-// see: https://youtrack.jetbrains.com/issue/KT-52344
+
+import androidx.annotation.RestrictTo
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+actual class SchemaBundle actual constructor(
+    @SerialName("formatVersion")
+    actual val formatVersion: Int,
+    @SerialName("database")
+    actual val database: DatabaseBundle
+) : SchemaEquality<SchemaBundle> {
+
+    actual override fun isSchemaEqual(other: SchemaBundle): Boolean {
+        return formatVersion == other.formatVersion &&
+            SchemaEqualityUtil.checkSchemaEquality(database, other.database)
+    }
+}
