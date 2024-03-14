@@ -2,14 +2,14 @@
 package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CoroutinesRoom {
-    method public static <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<R> callable);
+    method @Deprecated public static <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<R> callable);
     method @Deprecated public static suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, android.os.CancellationSignal? cancellationSignal, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
     method @Deprecated public static suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
     field public static final androidx.room.CoroutinesRoom.Companion Companion;
   }
 
   public static final class CoroutinesRoom.Companion {
-    method public <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<R> callable);
+    method @Deprecated public <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<R> callable);
     method @Deprecated public suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, android.os.CancellationSignal? cancellationSignal, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
     method @Deprecated public suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
   }
@@ -388,6 +388,14 @@ package androidx.room {
     method public static suspend <R> Object? exclusiveTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend Object? execSQL(androidx.room.PooledConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend <R> Object? immediateTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+  }
+
+}
+
+package androidx.room.coroutines {
+
+  public final class FlowUtil {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends R> block);
   }
 
 }

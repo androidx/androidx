@@ -30,13 +30,14 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 
 @Entity
 data class SampleEntity(
     @PrimaryKey
     val pk: Long,
     @ColumnInfo(defaultValue = "0")
-    val data: Long
+    val data: Long = 0
 )
 
 @Entity
@@ -77,6 +78,9 @@ interface SampleDao {
 
     @Query("SELECT * FROM SampleEntity")
     suspend fun getItemList(): List<SampleEntity>
+
+    @Query("SELECT * FROM SampleEntity")
+    fun getItemListFlow(): Flow<List<SampleEntity>>
 
     @Transaction
     suspend fun deleteList(pks: List<Long>, withError: Boolean = false) {
