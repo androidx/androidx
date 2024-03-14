@@ -40,6 +40,7 @@ val singlePaneDirective = PaneScaffoldDirective(
     horizontalPartitionSpacerSize = 0.dp,
     maxVerticalPartitions = 1,
     verticalPartitionSpacerSize = 0.dp,
+    defaultPanePreferredWidth = 360.dp,
     excludedBounds = emptyList()
 )
 
@@ -49,6 +50,7 @@ val dualPaneDirective = PaneScaffoldDirective(
     horizontalPartitionSpacerSize = 24.dp,
     maxVerticalPartitions = 1,
     verticalPartitionSpacerSize = 0.dp,
+    defaultPanePreferredWidth = 360.dp,
     excludedBounds = emptyList()
 )
 
