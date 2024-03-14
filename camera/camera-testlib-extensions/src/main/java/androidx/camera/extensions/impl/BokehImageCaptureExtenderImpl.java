@@ -56,7 +56,7 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
     private static final int EFFECT = CaptureRequest.CONTROL_EFFECT_MODE_SEPIA;
-
+    private BokehImageCaptureExtenderCaptureProcessorImpl mCaptureProcessor;
     public BokehImageCaptureExtenderImpl() {
     }
 
@@ -95,7 +95,8 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return new BokehImageCaptureExtenderCaptureProcessorImpl();
+            mCaptureProcessor = new BokehImageCaptureExtenderCaptureProcessorImpl();
+            return mCaptureProcessor;
         } else {
             return new NoOpCaptureProcessorImpl();
         }
@@ -110,7 +111,9 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
 
     @Override
     public void onDeInit() {
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mCaptureProcessor != null) {
+            mCaptureProcessor.release();
+        }
     }
 
     @Nullable
@@ -257,6 +260,7 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
                         }
                     }
                 }
+                outputImage.setTimestamp(image.getTimestamp());
                 mImageWriter.queueInputImage(outputImage);
             }
 
@@ -294,6 +298,12 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
                 @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
             throw new UnsupportedOperationException("Postview is not supported");
+        }
+
+        public void release() {
+            if (mImageWriter != null) {
+                mImageWriter.close();
+            }
         }
     }
 

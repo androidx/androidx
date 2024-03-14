@@ -257,6 +257,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
             // Do processing here
             // The sample here simply returns the normal image result
             Image normalImage = imageDataPairs.get(NORMAL_STAGE_ID).first;
+            outputImage.setTimestamp(imageDataPairs.get(UNDER_STAGE_ID).first.getTimestamp());
             if (outputImage.getWidth() != normalImage.getWidth()
                     || outputImage.getHeight() != normalImage.getHeight()) {
                 throw new IllegalStateException(String.format("input image "
