@@ -45,15 +45,20 @@ import kotlinx.coroutines.isActive
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoKeyboardEventKind
 import org.jetbrains.skiko.SkikoPointerEventKind
+import org.w3c.dom.AddEventListenerOptions
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.HTMLTitleElement
+import org.w3c.dom.MediaQueryListEvent
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
 import org.w3c.dom.TouchEvent
 
+
+private val actualDensity
+    get() = window.devicePixelRatio
 
 @OptIn(InternalComposeApi::class)
 private class ComposeWindow(
@@ -62,7 +67,7 @@ private class ComposeWindow(
 )  {
 
     private val density: Density = Density(
-        density = window.devicePixelRatio.toFloat(),
+        density = actualDensity.toFloat(),
         fontScale = 1f
     )
 
@@ -101,6 +106,20 @@ private class ComposeWindow(
     ) {
         this.addEventListener(type, { event -> handler(event as T, layer.view) })
     }
+
+
+    private fun initMediaEventListener(handler: (Double) -> Unit) {
+        val contentScale = actualDensity
+        window.matchMedia("(resolution: ${contentScale}dppx)")
+            .addEventListener("change", { evt ->
+                evt as MediaQueryListEvent
+                if (!evt.matches) {
+                    handler(contentScale)
+                }
+                initMediaEventListener(handler)
+            }, AddEventListenerOptions(capture = true, once = true))
+    }
+
 
     private fun initEvents(canvas: HTMLCanvasElement) {
         var offsetX = 0.0
@@ -168,6 +187,10 @@ private class ComposeWindow(
             val processed = skikoView.onKeyboardEventWithResult(event.toSkikoEvent(SkikoKeyboardEventKind.UP))
             if (processed) event.preventDefault()
         }
+
+        initMediaEventListener {
+            resize(getParentContainerBox())
+        }
     }
 
     init {
@@ -185,16 +208,18 @@ private class ComposeWindow(
     }
 
     fun resize(boxSize: IntSize) {
-        val density = density.density.toInt()
+        val scaledDensity = density.density.toInt()
 
-        val width = boxSize.width * density
-        val height = boxSize.height * density
+        val width = boxSize.width * scaledDensity
+        val height = boxSize.height * scaledDensity
 
-        // TODO: What we actually should do is to pass this new dimensions to attachTo without setting them directly on canvas.
-        // We should be HTMLCanvas-agnostic in that sense
-        canvas.width = boxSize.width
-        canvas.height = boxSize.height
+        canvas.width = width
+        canvas.height = height
 
+        // Scale canvas to allow high DPI rendering as suggested in
+        // https://www.khronos.org/webgl/wiki/HandlingHighDPI.
+        canvas.style.width = "${boxSize.width}px"
+        canvas.style.height = "${boxSize.height}px"
 
         _windowInfo.containerSize = IntSize(width, height)
 
@@ -211,6 +236,11 @@ private class ComposeWindow(
 }
 
 private val defaultCanvasElementId = "ComposeTarget"
+
+private fun getParentContainerBox(): IntSize {
+    val documentElement = document.documentElement ?: return IntSize(0, 0)
+    return IntSize(documentElement.clientWidth, documentElement.clientHeight)
+}
 
 @ExperimentalComposeUiApi
 /**
@@ -250,11 +280,6 @@ fun CanvasBasedWindow(
                 )
             }
         )
-    }
-
-    fun getParentContainerBox(): IntSize {
-        val documentElement = document.documentElement ?: return IntSize(0, 0)
-        return IntSize(documentElement.clientWidth, documentElement.clientHeight)
     }
 
     val actualRequestResize: suspend () -> IntSize = if (requestResize != null) {
