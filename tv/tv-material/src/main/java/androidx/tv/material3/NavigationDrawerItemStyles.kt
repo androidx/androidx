@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.Shape
  * @param pressedSelectedShape the shape used when the [NavigationDrawerItem] is enabled,
  * pressed and selected
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Immutable
 class NavigationDrawerItemShape(
     val shape: Shape,
@@ -132,7 +131,6 @@ class NavigationDrawerItemShape(
  * @param pressedSelectedContentColor the content color used when the [NavigationDrawerItem] is
  * enabled, pressed and selected
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Immutable
 class NavigationDrawerItemColors(
     val containerColor: Color,
@@ -232,7 +230,6 @@ class NavigationDrawerItemColors(
  * @param pressedSelectedScale the scale used when the [NavigationDrawerItem] is enabled,
  * pressed and selected
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Immutable
 class NavigationDrawerItemScale(
     @FloatRange(from = 0.0) val scale: Float,
@@ -320,7 +317,6 @@ class NavigationDrawerItemScale(
  * @param pressedSelectedBorder the [Border] used when the [NavigationDrawerItem] is enabled,
  * pressed and selected
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Immutable
 class NavigationDrawerItemBorder(
     val border: Border,
@@ -388,7 +384,6 @@ class NavigationDrawerItemBorder(
  * @param pressedSelectedGlow the [Glow] used when the [NavigationDrawerItem] is enabled,
  * pressed and selected
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Immutable
 class NavigationDrawerItemGlow(
     val glow: Glow,
