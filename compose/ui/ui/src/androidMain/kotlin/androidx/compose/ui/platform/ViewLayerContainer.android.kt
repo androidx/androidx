@@ -19,8 +19,8 @@ package androidx.compose.ui.platform
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.R
 import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.R
 import androidx.compose.ui.graphics.nativeCanvas
 
 /**
