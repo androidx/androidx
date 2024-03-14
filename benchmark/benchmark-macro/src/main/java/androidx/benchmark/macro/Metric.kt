@@ -140,6 +140,12 @@ private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
  * Thread, and RenderThread. Note that this doesn't account for time before the frame started
  * (before Choreographer#doFrame), as that data isn't available in traces prior to API 31.
  *
+ * * `frameCount` - How many total frames were produced. This is a secondary metric which can be
+ * used to understand *why* the above metrics changed. For example, when removing unneeded frames
+ * that were incorrectly invalidated to save power, `frameOverrunMs` and `frameDurationCpuMs` will
+ * often get worse, as the removed frames were trivial. Checking `frameCount` can be a useful
+ * indicator in such cases.
+ *
  * Generally, prefer tracking and detecting regressions with `frameOverrunMs` when it is available,
  * as it is the more complete data, and accounts for modern devices (including higher, variable
  * framerate rendering) more naturally.
@@ -154,11 +160,12 @@ class FrameTimingMetric : Metric() {
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
-        return FrameTimingQuery.getFrameData(
+        val frameData = FrameTimingQuery.getFrameData(
             session = traceSession,
             captureApiLevel = captureInfo.apiLevel,
             packageName = captureInfo.targetPackageName
         )
+        return frameData
             .getFrameSubMetrics(captureInfo.apiLevel)
             .filterKeys { it == SubMetric.FrameDurationCpuNs || it == SubMetric.FrameOverrunNs }
             .map {
@@ -170,7 +177,7 @@ class FrameTimingMetric : Metric() {
                     },
                     dataSamples = it.value.map { timeNs -> timeNs.nsToDoubleMs() }
                 )
-            }
+            } + listOf(Measurement("frameCount", frameData.size.toDouble()))
     }
 }
 
