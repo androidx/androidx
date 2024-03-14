@@ -376,7 +376,7 @@ class ThreePaneScaffoldScreenshotTest {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun SampleThreePaneScaffoldStandardMode() {
-    val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+    val scaffoldDirective = calculatePaneScaffoldDirective(
         currentWindowAdaptiveInfo()
     )
     val scaffoldValue = calculateThreePaneScaffoldValue(
@@ -394,7 +394,7 @@ private fun SampleThreePaneScaffoldStandardMode() {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun SampleThreePaneScaffoldDenseMode() {
-    val scaffoldDirective = calculateDensePaneScaffoldDirective(
+    val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
         currentWindowAdaptiveInfo()
     )
     val scaffoldValue = calculateThreePaneScaffoldValue(
@@ -415,7 +415,7 @@ private fun SampleThreePaneScaffoldWithPaneExpansion(
     paneExpansionState: PaneExpansionState,
     paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
 ) {
-    val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+    val scaffoldDirective = calculatePaneScaffoldDirective(
         currentWindowAdaptiveInfo()
     )
     val scaffoldValue = calculateThreePaneScaffoldValue(

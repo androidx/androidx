@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowWidthSizeClass
 
 /**
- * Calculates the standard [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
+ * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
  * method with [currentWindowAdaptiveInfo] to acquire Material-recommended adaptive layout
  * settings of the current activity window.
  *
@@ -43,9 +43,8 @@ import androidx.window.core.layout.WindowWidthSizeClass
  *        vertical hinges.
  * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
-// TODO(b/285144647): Add more details regarding the use scenarios of this function.
 @ExperimentalMaterial3AdaptiveApi
-fun calculateStandardPaneScaffoldDirective(
+fun calculatePaneScaffoldDirective(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     verticalHingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {
@@ -87,9 +86,13 @@ fun calculateStandardPaneScaffoldDirective(
 }
 
 /**
- * Calculates the dense-mode [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
+ * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
  * method with [currentWindowAdaptiveInfo] to acquire Material-recommended dense-mode adaptive
- * layout settings of the current activity window.
+ * layout settings of the current activity window. Note that this function results in a dual-pane
+ * layout when the [WindowWidthSizeClass] is [WindowWidthSizeClass.MEDIUM], while
+ * [calculatePaneScaffoldDirective] results in a single-pane layout instead. We recommend to use
+ * [calculatePaneScaffoldDirective], unless you have a strong use case to show two panes on
+ * a medium-width window, which can make your layout look too packed.
  *
  * See more details on the [Material design guideline site]
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
@@ -100,9 +103,8 @@ fun calculateStandardPaneScaffoldDirective(
  *        vertical hinges.
  * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
-// TODO(b/285144647): Add more details regarding the use scenarios of this function.
 @ExperimentalMaterial3AdaptiveApi
-fun calculateDensePaneScaffoldDirective(
+fun calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     verticalHingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {

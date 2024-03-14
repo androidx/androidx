@@ -71,8 +71,8 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   public final class PaneScaffoldDirectiveKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculateDensePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculateStandardPaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public interface PaneScaffoldScope {

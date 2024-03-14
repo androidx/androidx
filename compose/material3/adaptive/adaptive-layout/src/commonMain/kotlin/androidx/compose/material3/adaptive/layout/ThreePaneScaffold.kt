@@ -69,7 +69,7 @@ import kotlin.math.min
  * freely pipeline the relevant adaptive signals and use them as input of the scaffold function
  * to render the final adaptive layout.
  *
- * It's recommended to use [ThreePaneScaffold] with [calculateStandardPaneScaffoldDirective],
+ * It's recommended to use [ThreePaneScaffold] with [calculatePaneScaffoldDirective],
  * [calculateThreePaneScaffoldValue] to follow the Material design guidelines on adaptive
  * programming.
  *
