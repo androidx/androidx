@@ -18,7 +18,12 @@ package androidx.navigation
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertFailsWith
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -129,6 +134,36 @@ class NavGraphTest {
     fun getIllegalArgumentException() {
         val graph = NavGraph(navGraphNavigator)
         graph[DESTINATION_ID]
+    }
+
+    @Test
+    fun graphSetStartDestinationRoute() {
+        @Serializable
+        @SerialName("route")
+        class TestClass(val arg: Int)
+
+        val graph = NavGraph(navGraphNavigator).apply {
+            setStartDestination(15)
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+        }
+        assertThat(graph.startDestinationId).isEqualTo(15)
+
+        graph.setStartDestination(TestClass::class)
+        assertThat(graph.startDestinationRoute).isEqualTo("route/{arg}")
+        assertThat(graph.startDestinationId).isEqualTo(serializer<TestClass>().hashCode())
+    }
+
+    @Test
+    fun graphSetStartDestinationRouteMissingStartDestination() {
+        @Serializable
+        class TestClass
+
+        val graph = NavGraph(navGraphNavigator)
+
+        // start destination not added via KClass, cannot match
+        assertFailsWith<IllegalStateException> {
+            graph.setStartDestination(TestClass::class)
+        }
     }
 }
 

@@ -26,6 +26,9 @@ import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
 import java.lang.StringBuilder
+import kotlin.reflect.KClass
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
 /**
  * NavGraph is a collection of [NavDestination] nodes fetchable by ID.
@@ -326,6 +329,31 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      */
     public fun setStartDestination(startDestRoute: String) {
         startDestinationRoute = startDestRoute
+    }
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationId]
+     *
+     * @param startDestRoute The route of the destination as a [KClass] to be shown when navigating
+     * to this NavGraph.
+     */
+    @OptIn(InternalSerializationApi::class)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun setStartDestination(startDestRoute: KClass<*>) {
+        val serializer = startDestRoute.serializer()
+        val id = serializer.hashCode()
+        val startDest = findNode(id)
+        checkNotNull(startDest) {
+            "Cannot find startDestination $startDestRoute from NavGraph. Ensure the starting " +
+                "NavDestination was added via KClass."
+        }
+        // when dest id is based on serializer, we expect the dest route to have been generated
+        // and set
+        startDestinationRoute = startDest.route!!
+        // bypass startDestinationId setter so we don't set route back to null
+        this.startDestId = id
     }
 
     /**
