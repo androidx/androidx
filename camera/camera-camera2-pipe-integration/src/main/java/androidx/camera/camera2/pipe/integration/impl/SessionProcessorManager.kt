@@ -195,8 +195,9 @@ class SessionProcessorManager(
         val processorSessionConfig = synchronized(lock) {
             if (isClosed()) return@launch configure(null)
             try {
-                DeferrableSurfaces.incrementAll(deferrableSurfaces)
-                postviewDeferrableSurface?.incrementUseCount()
+                val surfacesToIncrement = ArrayList(deferrableSurfaces)
+                postviewDeferrableSurface?.let { surfacesToIncrement.add(it) }
+                DeferrableSurfaces.incrementAll(surfacesToIncrement)
             } catch (exception: DeferrableSurface.SurfaceClosedException) {
                 sessionConfigAdapter.reportSurfaceInvalid(exception.deferrableSurface)
                 return@launch configure(null)

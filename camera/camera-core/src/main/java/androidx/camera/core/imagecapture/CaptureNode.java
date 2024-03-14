@@ -323,10 +323,16 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         // prematurely before it can be used by camera2.
         inputEdge.getSurface().getTerminationFuture().addListener(() -> {
             imageReader.safeClose();
-            if (imageReaderForPostview != null) {
-                imageReaderForPostview.safeClose();
-            }
         }, mainThreadExecutor());
+
+        if (inputEdge.getPostviewSurface() != null) {
+            inputEdge.getPostviewSurface().close();
+            inputEdge.getPostviewSurface().getTerminationFuture().addListener(() -> {
+                if (imageReaderForPostview != null) {
+                    imageReaderForPostview.safeClose();
+                }
+            }, mainThreadExecutor());
+        }
     }
 
     @VisibleForTesting
