@@ -104,17 +104,14 @@ public final class AppSearchResult<ValueType> {
     /**
      * The requested operation is denied for the caller. This error is logged and returned for
      * denylist rejections.
-     * <!--@exportToFramework:hide-->
      */
-    // TODO(b/279047435): unhide this the next time we can make API changes
+    @FlaggedApi(Flags.FLAG_ENABLE_RESULT_DENIED_AND_RESULT_RATE_LIMITED)
     public static final int RESULT_DENIED = 9;
 
     /**
      * The caller has hit AppSearch's rate limit and the requested operation has been rejected.
-     * <!--@exportToFramework:hide-->
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    // TODO(b/279047435): unhide this the next time we can make API changes
+    @FlaggedApi(Flags.FLAG_ENABLE_RESULT_DENIED_AND_RESULT_RATE_LIMITED)
     public static final int RESULT_RATE_LIMITED = 10;
 
     /** The operation was timed out. */
