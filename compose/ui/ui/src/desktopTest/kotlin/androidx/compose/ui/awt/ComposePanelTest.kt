@@ -29,12 +29,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.util.ThrowUncaughtExceptionRule
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
@@ -54,9 +59,13 @@ import org.jetbrains.skiko.MainUIDispatcher
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.junit.Assume.assumeFalse
+import org.junit.Rule
 import org.junit.Test
 
 class ComposePanelTest {
+    @get:Rule
+    val throwUncaughtExceptionRule = ThrowUncaughtExceptionRule()
+
     @Test
     fun `don't override user preferred size`() {
         assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
@@ -264,6 +273,47 @@ class ComposePanelTest {
                 frame.contentPane.add(composePanel)
                 delay(1000)
                 assertEquals(2, initialStateCounter)
+            } finally {
+                frame.dispose()
+            }
+        }
+    }
+
+    // https://github.com/JetBrains/compose-multiplatform/issues/4479
+    @Test
+    fun `add, removing, add, set size`() {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        runBlocking(MainUIDispatcher) {
+            var size = Size.Zero
+            val composePanel = ComposePanel()
+            composePanel.setContent {
+                Box(Modifier.fillMaxSize().onGloballyPositioned {
+                    size = it.size.toSize()
+                })
+            }
+
+            val frame = JFrame()
+            frame.isUndecorated = true
+            frame.size = Dimension(100, 100)
+            try {
+                val density = frame.contentPane.density.density
+                frame.contentPane.add(composePanel)
+                frame.isVisible = true
+                delay(1000)
+                assertEquals(Size(100f * density, 100f * density), size)
+
+                frame.contentPane.remove(composePanel)
+                delay(1000)
+                assertEquals(Size(100f * density, 100f * density), size)
+
+                frame.contentPane.add(composePanel)
+                delay(1000)
+                assertEquals(Size(100f * density, 100f * density), size)
+
+                frame.size = Dimension(200, 100)
+                delay(1000)
+                assertEquals(Size(200f * density, 100f * density), size)
             } finally {
                 frame.dispose()
             }

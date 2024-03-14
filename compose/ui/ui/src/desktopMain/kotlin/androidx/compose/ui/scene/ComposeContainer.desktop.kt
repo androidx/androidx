@@ -155,6 +155,7 @@ internal class ComposeContainer(
     }
 
     fun dispose() {
+        _windowContainer?.removeComponentListener(this)
         mediator.dispose()
         layers.fastForEach(DesktopComposeSceneLayer::close)
     }
