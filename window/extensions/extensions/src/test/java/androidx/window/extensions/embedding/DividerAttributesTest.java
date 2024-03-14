@@ -18,8 +18,8 @@ package androidx.window.extensions.embedding;
 
 import static androidx.window.extensions.embedding.DividerAttributes.DIVIDER_TYPE_DRAGGABLE;
 import static androidx.window.extensions.embedding.DividerAttributes.DIVIDER_TYPE_FIXED;
-import static androidx.window.extensions.embedding.DividerAttributes.RATIO_UNSET;
-import static androidx.window.extensions.embedding.DividerAttributes.WIDTH_UNSET;
+import static androidx.window.extensions.embedding.DividerAttributes.RATIO_SYSTEM_DEFAULT;
+import static androidx.window.extensions.embedding.DividerAttributes.WIDTH_SYSTEM_DEFAULT;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -41,9 +41,9 @@ public class DividerAttributesTest {
         final DividerAttributes defaultAttrs =
                 new DividerAttributes.Builder(DIVIDER_TYPE_FIXED).build();
         assertThat(defaultAttrs.getDividerType()).isEqualTo(DIVIDER_TYPE_FIXED);
-        assertThat(defaultAttrs.getWidthDp()).isEqualTo(WIDTH_UNSET);
-        assertThat(defaultAttrs.getPrimaryMinRatio()).isEqualTo(RATIO_UNSET);
-        assertThat(defaultAttrs.getPrimaryMaxRatio()).isEqualTo(RATIO_UNSET);
+        assertThat(defaultAttrs.getWidthDp()).isEqualTo(WIDTH_SYSTEM_DEFAULT);
+        assertThat(defaultAttrs.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
+        assertThat(defaultAttrs.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
     }
 
     @Test
@@ -54,8 +54,8 @@ public class DividerAttributesTest {
                         .build();
         assertThat(dividerAttributes1.getDividerType()).isEqualTo(DIVIDER_TYPE_FIXED);
         assertThat(dividerAttributes1.getWidthDp()).isEqualTo(20);
-        assertThat(dividerAttributes1.getPrimaryMinRatio()).isEqualTo(RATIO_UNSET);
-        assertThat(dividerAttributes1.getPrimaryMaxRatio()).isEqualTo(RATIO_UNSET);
+        assertThat(dividerAttributes1.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
+        assertThat(dividerAttributes1.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
 
         final DividerAttributes dividerAttributes2 =
                 new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
@@ -74,8 +74,8 @@ public class DividerAttributesTest {
                         .build();
         assertThat(dividerAttributes3.getDividerType()).isEqualTo(DIVIDER_TYPE_DRAGGABLE);
         assertThat(dividerAttributes3.getWidthDp()).isEqualTo(20);
-        assertThat(dividerAttributes3.getPrimaryMinRatio()).isEqualTo(RATIO_UNSET);
-        assertThat(dividerAttributes3.getPrimaryMaxRatio()).isEqualTo(RATIO_UNSET);
+        assertThat(dividerAttributes3.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
+        assertThat(dividerAttributes3.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
 
         final DividerAttributes dividerAttributes4 =
                 new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
@@ -85,7 +85,7 @@ public class DividerAttributesTest {
         assertThat(dividerAttributes4.getDividerType()).isEqualTo(DIVIDER_TYPE_DRAGGABLE);
         assertThat(dividerAttributes4.getWidthDp()).isEqualTo(20);
         assertThat(dividerAttributes4.getPrimaryMinRatio()).isEqualTo(0.2f);
-        assertThat(dividerAttributes4.getPrimaryMaxRatio()).isEqualTo(RATIO_UNSET);
+        assertThat(dividerAttributes4.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
 
         final DividerAttributes dividerAttributes5 =
                 new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
@@ -94,7 +94,7 @@ public class DividerAttributesTest {
                         .build();
         assertThat(dividerAttributes5.getDividerType()).isEqualTo(DIVIDER_TYPE_DRAGGABLE);
         assertThat(dividerAttributes5.getWidthDp()).isEqualTo(20);
-        assertThat(dividerAttributes5.getPrimaryMinRatio()).isEqualTo(RATIO_UNSET);
+        assertThat(dividerAttributes5.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
         assertThat(dividerAttributes5.getPrimaryMaxRatio()).isEqualTo(0.2f);
     }
 
@@ -127,7 +127,7 @@ public class DividerAttributesTest {
     public void testDividerAttributesValidation() {
         assertThrows(
                 "Must not set min max ratio for DIVIDER_TYPE_FIXED",
-                IllegalArgumentException.class,
+                IllegalStateException.class,
                 () -> new DividerAttributes.Builder(DIVIDER_TYPE_FIXED)
                         .setPrimaryMinRatio(0.2f)
                         .setPrimaryMaxRatio(0.8f)
@@ -136,7 +136,7 @@ public class DividerAttributesTest {
 
         assertThrows(
                 "Min ratio must be less than or equal to max ratio",
-                IllegalArgumentException.class,
+                IllegalStateException.class,
                 () -> new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
                         .setPrimaryMinRatio(0.8f)
                         .setPrimaryMaxRatio(0.2f)
@@ -148,7 +148,6 @@ public class DividerAttributesTest {
                 IllegalArgumentException.class,
                 () -> new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
                         .setPrimaryMinRatio(2.0f)
-                        .build()
         );
 
         assertThrows(
@@ -156,7 +155,6 @@ public class DividerAttributesTest {
                 IllegalArgumentException.class,
                 () -> new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
                         .setPrimaryMaxRatio(2.0f)
-                        .build()
         );
 
         assertThrows(
@@ -164,7 +162,6 @@ public class DividerAttributesTest {
                 IllegalArgumentException.class,
                 () -> new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
                         .setWidthDp(-10)
-                        .build()
         );
     }
 }

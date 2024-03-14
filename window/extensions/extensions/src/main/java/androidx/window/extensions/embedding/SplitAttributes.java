@@ -29,7 +29,6 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.core.util.function.Function;
 
@@ -459,7 +458,6 @@ public final class SplitAttributes {
     }
 
     /** Returns the {@link DividerAttributes}. If {@code null}, no divider is requested. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresVendorApiLevel(level = 6)
     @Nullable
     public DividerAttributes getDividerAttributes() {
@@ -582,7 +580,6 @@ public final class SplitAttributes {
         }
 
         /** Sets the {@link DividerAttributes}. If {@code null}, no divider is requested. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @RequiresVendorApiLevel(level = 6)
         @NonNull
         public Builder setDividerAttributes(@Nullable DividerAttributes dividerAttributes) {
