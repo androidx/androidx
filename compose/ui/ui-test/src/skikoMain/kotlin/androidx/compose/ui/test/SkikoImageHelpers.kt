@@ -16,15 +16,14 @@
 
 package androidx.compose.ui.test
 
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.graphics.ImageBitmap
 
 
 /**
  * Captures the underlying semantics node's surface into bitmap.
  */
-@OptIn(InternalTestApi::class, InternalComposeUiApi::class)
+@OptIn(InternalTestApi::class, ExperimentalTestApi::class)
 fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     val semanticsNode = fetchSemanticsNode("Failed to capture a node to bitmap.")
-    return (testContext.testOwner as SkikoTestOwner).captureToImage(semanticsNode)
+    return (testContext.testOwner as SkikoComposeUiTest.SkikoTestOwner).captureToImage(semanticsNode)
 }

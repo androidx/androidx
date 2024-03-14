@@ -29,7 +29,7 @@ import javax.accessibility.*
  * This context has no parents and provides [ComposeAccessible] as its children.
  *
  * The main purpose of this class is to support screen readers that read text under the mouse (not only, but mostly).
- * To support it [accessibleContext] provides custom [ComposeSceneAccessibleContext.getAccessibleAt] implementation.
+ * To support it [_accessibleContext] provides custom [ComposeSceneAccessibleContext.getAccessibleAt] implementation.
  *
  * Note about a11y for focus-based tools (e.g. VoiceOver).
  * Now focus-based tools are supported on [org.jetbrains.skiko.HardwareLayer] side.
@@ -41,26 +41,31 @@ import javax.accessibility.*
  * @see ComposeAccessible
  */
 internal class ComposeSceneAccessible(
+    private val forceEnableA11y: Boolean = false,
     private val accessibilityControllersProvider: () -> List<AccessibilityController>,
 ) : Accessible {
-    private val a11yDisabled by lazy {
-        System.getProperty("compose.accessibility.enable") == "false" ||
-            System.getenv("COMPOSE_DISABLE_ACCESSIBILITY") != null
+    private val a11yEnabled by lazy {
+        forceEnableA11y || (
+            (System.getProperty("compose.accessibility.enable") != "false") &&
+            (System.getenv("COMPOSE_DISABLE_ACCESSIBILITY") == null)
+        )
     }
 
-    private val accessibleContext by lazy {
+    private val _accessibleContext by lazy {
         ComposeSceneAccessibleContext()
     }
 
-    override fun getAccessibleContext(): AccessibleContext? {
-        if (a11yDisabled) {
+    // Declare ComposeSceneAccessibleContext as the return type for the benefit of tests
+    override fun getAccessibleContext(): ComposeSceneAccessibleContext? {
+        if (!a11yEnabled) {
             return null
         }
-        return accessibleContext
+        return _accessibleContext
     }
 
-    private inner class ComposeSceneAccessibleContext : AccessibleContext(), AccessibleComponent {
-        private val accessibilityControllers: List<AccessibilityController>
+    inner class ComposeSceneAccessibleContext : AccessibleContext(), AccessibleComponent {
+        // Internal for testing
+        internal val accessibilityControllers: List<AccessibilityController>
             get() = accessibilityControllersProvider()
 
         private val accessibilityController: AccessibilityController?
