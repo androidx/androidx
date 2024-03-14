@@ -212,10 +212,12 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
                             mProcessorState = ProcessorState.SESSION_INITIALIZED;
                             try {
-                                DeferrableSurfaces.incrementAll(mOutputSurfaces);
+                                List<DeferrableSurface> surfacesToIncrement =
+                                        new ArrayList<>(mOutputSurfaces);
                                 if (postviewDeferrableSurface != null) {
-                                    postviewDeferrableSurface.incrementUseCount();
+                                    surfacesToIncrement.add(postviewDeferrableSurface);
                                 }
+                                DeferrableSurfaces.incrementAll(surfacesToIncrement);
                             } catch (DeferrableSurface.SurfaceClosedException e) {
                                 return Futures.immediateFailedFuture(e);
                             }
