@@ -18,7 +18,6 @@ package androidx.compose.material3.adaptive.benchmark
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
@@ -37,7 +36,6 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 val singlePaneDirective = PaneScaffoldDirective(
-    contentPadding = PaddingValues(16.dp),
     maxHorizontalPartitions = 1,
     horizontalPartitionSpacerSize = 0.dp,
     maxVerticalPartitions = 1,
@@ -47,7 +45,6 @@ val singlePaneDirective = PaneScaffoldDirective(
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 val dualPaneDirective = PaneScaffoldDirective(
-    contentPadding = PaddingValues(24.dp),
     maxHorizontalPartitions = 2,
     horizontalPartitionSpacerSize = 24.dp,
     maxVerticalPartitions = 1,

@@ -16,11 +16,7 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.union
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,7 +37,6 @@ import androidx.compose.ui.Modifier
  * @param extraPane the extra pane of the scaffold, which is supposed to hold any additional content
  *        besides the main and the supporting panes, for example, a styling panel in a doc app.
  *        See [SupportingPaneScaffoldRole.Extra].
- * @param windowInsets window insets that the scaffold will respect.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -52,14 +47,12 @@ fun SupportingPaneScaffold(
     supportingPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
-    windowInsets: WindowInsets = SupportingPaneScaffoldDefaults.windowInsets,
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldDirective = directive,
         scaffoldValue = value,
         paneOrder = ThreePaneScaffoldDefaults.SupportingPaneLayoutPaneOrder,
-        windowInsets = windowInsets,
         secondaryPane = supportingPane,
         tertiaryPane = extraPane,
         primaryPane = mainPane
@@ -71,13 +64,6 @@ fun SupportingPaneScaffold(
  */
 @ExperimentalMaterial3AdaptiveApi
 object SupportingPaneScaffoldDefaults {
-    /**
-     * Default insets that will be used and consumed by [SupportingPaneScaffold]. By default it will
-     * be the union of [WindowInsets.Companion.systemBars] and
-     * [WindowInsets.Companion.displayCutout].
-     */
-    val windowInsets @Composable get() = WindowInsets.systemBars.union(WindowInsets.displayCutout)
-
     /**
      * Creates a default [ThreePaneScaffoldAdaptStrategies] for [SupportingPaneScaffold].
      *

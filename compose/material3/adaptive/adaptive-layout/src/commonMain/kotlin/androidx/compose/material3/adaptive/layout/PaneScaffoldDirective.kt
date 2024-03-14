@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.Posture
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
@@ -51,22 +50,18 @@ fun calculateStandardPaneScaffoldDirective(
     verticalHingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {
     val maxHorizontalPartitions: Int
-    val contentPadding: PaddingValues
     val verticalSpacerSize: Dp
     when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
         WindowWidthSizeClass.COMPACT -> {
             maxHorizontalPartitions = 1
-            contentPadding = PaddingValues(16.dp)
             verticalSpacerSize = 0.dp
         }
         WindowWidthSizeClass.MEDIUM -> {
             maxHorizontalPartitions = 1
-            contentPadding = PaddingValues(24.dp)
             verticalSpacerSize = 0.dp
         }
         else -> {
             maxHorizontalPartitions = 2
-            contentPadding = PaddingValues(24.dp)
             verticalSpacerSize = 24.dp
         }
     }
@@ -83,7 +78,6 @@ fun calculateStandardPaneScaffoldDirective(
     }
 
     return PaneScaffoldDirective(
-        contentPadding,
         maxHorizontalPartitions,
         verticalSpacerSize,
         maxVerticalPartitions,
@@ -113,22 +107,18 @@ fun calculateDensePaneScaffoldDirective(
     verticalHingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {
     val maxHorizontalPartitions: Int
-    val contentPadding: PaddingValues
     val verticalSpacerSize: Dp
     when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
         WindowWidthSizeClass.COMPACT -> {
             maxHorizontalPartitions = 1
-            contentPadding = PaddingValues(16.dp)
             verticalSpacerSize = 0.dp
         }
         WindowWidthSizeClass.MEDIUM -> {
             maxHorizontalPartitions = 2
-            contentPadding = PaddingValues(24.dp)
             verticalSpacerSize = 24.dp
         }
         else -> {
             maxHorizontalPartitions = 2
-            contentPadding = PaddingValues(24.dp)
             verticalSpacerSize = 24.dp
         }
     }
@@ -144,7 +134,6 @@ fun calculateDensePaneScaffoldDirective(
     }
 
     return PaneScaffoldDirective(
-        contentPadding,
         maxHorizontalPartitions,
         verticalSpacerSize,
         maxVerticalPartitions,
@@ -168,7 +157,6 @@ private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy
  * partitions the layout can be split into and what should be the gutter size.
  *
  * @constructor create an instance of [PaneScaffoldDirective]
- * @param contentPadding Size of the paddings between the panes and the outer bounds of the layout.
  * @param maxHorizontalPartitions the max number of partitions along the horizontal axis the layout
  *        can be split into.
  * @param horizontalPartitionSpacerSize Size of the spacers between horizontal partitions.
@@ -183,7 +171,6 @@ private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 class PaneScaffoldDirective(
-    val contentPadding: PaddingValues,
     val maxHorizontalPartitions: Int,
     val horizontalPartitionSpacerSize: Dp,
     val maxVerticalPartitions: Int,
@@ -193,7 +180,6 @@ class PaneScaffoldDirective(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PaneScaffoldDirective) return false
-        if (contentPadding != other.contentPadding) return false
         if (maxHorizontalPartitions != other.maxHorizontalPartitions) return false
         if (horizontalPartitionSpacerSize != other.horizontalPartitionSpacerSize) return false
         if (maxVerticalPartitions != other.maxVerticalPartitions) return false
@@ -202,8 +188,7 @@ class PaneScaffoldDirective(
     }
 
     override fun hashCode(): Int {
-        var result = contentPadding.hashCode()
-        result = 31 * result + maxHorizontalPartitions
+        var result = maxHorizontalPartitions
         result = 31 * result + horizontalPartitionSpacerSize.hashCode()
         result = 31 * result + maxVerticalPartitions
         result = 31 * result + verticalPartitionSpacerSize.hashCode()
@@ -211,8 +196,7 @@ class PaneScaffoldDirective(
     }
 
     override fun toString(): String {
-        return "PaneScaffoldDirective(contentPadding=$contentPadding, " +
-            "maxHorizontalPartitions=$maxHorizontalPartitions, " +
+        return "PaneScaffoldDirective(maxHorizontalPartitions=$maxHorizontalPartitions, " +
             "horizontalPartitionSpacerSize=$horizontalPartitionSpacerSize, " +
             "maxVerticalPartitions=$maxVerticalPartitions, " +
             "verticalPartitionSpacerSize=$verticalPartitionSpacerSize, " +
