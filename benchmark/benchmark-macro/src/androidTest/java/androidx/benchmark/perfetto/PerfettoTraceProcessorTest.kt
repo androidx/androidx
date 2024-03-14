@@ -38,6 +38,7 @@ import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import perfetto.protos.TraceMetrics
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -245,6 +246,40 @@ class PerfettoTraceProcessorTest {
                     .asSequence()
                     .toList(),
             )
+        }
+    }
+
+    @Test
+    fun queryMetricsJson() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val metrics = queryMetricsJson(listOf("android_startup"))
+            assertTrue(metrics.contains("\"android_startup\": {"))
+            assertTrue(metrics.contains("\"startup_type\": \"cold\","))
+        }
+    }
+
+    @Test
+    fun queryMetricsProtoBinary() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val metrics =
+                TraceMetrics.ADAPTER.decode(queryMetricsProtoBinary(listOf("android_startup")))
+            val startup = metrics.android_startup!!
+            assertEquals(startup.startup.single().startup_type, "cold")
+        }
+    }
+
+    @Test
+    fun queryMetricsProtoText() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val metrics = queryMetricsProtoText(listOf("android_startup"))
+            assertTrue(metrics.contains("android_startup {"))
+            assertTrue(metrics.contains("startup_type: \"cold\""))
         }
     }
 

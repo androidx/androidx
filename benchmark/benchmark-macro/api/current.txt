@@ -228,6 +228,9 @@ package androidx.benchmark.perfetto {
 
   public static final class PerfettoTraceProcessor.Session {
     method public kotlin.sequences.Sequence<androidx.benchmark.perfetto.Row> query(@org.intellij.lang.annotations.Language("sql") String query);
+    method public String queryMetricsJson(java.util.List<java.lang.String> metrics);
+    method public byte[] queryMetricsProtoBinary(java.util.List<java.lang.String> metrics);
+    method public String queryMetricsProtoText(java.util.List<java.lang.String> metrics);
     method public byte[] rawQuery(@org.intellij.lang.annotations.Language("sql") String query);
   }
 
