@@ -16,7 +16,6 @@
 
 package androidx.tv.material3
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -343,13 +342,9 @@ private fun SurfaceImpl(
     )
 
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
-    val contentColorAsAnim by animateColorAsState(
-        targetValue = contentColor,
-        label = "Surface.contentColor"
-    )
 
     CompositionLocalProvider(
-        LocalContentColor provides contentColorAsAnim,
+        LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
         val zIndex by animateFloatAsState(
