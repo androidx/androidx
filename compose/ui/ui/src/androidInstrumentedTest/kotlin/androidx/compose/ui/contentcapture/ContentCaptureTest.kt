@@ -63,9 +63,11 @@ import java.util.function.Consumer
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.clearInvocations
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -140,7 +142,10 @@ class ContentCaptureTest {
                     Box(
                         Modifier
                             .size(10.dp)
-                            .semantics { text = AnnotatedString("foo") }
+                            .semantics {
+                                text = AnnotatedString("foo")
+                                testTag = "testTagFoo"
+                            }
                     )
                     Box(
                         Modifier
@@ -166,6 +171,10 @@ class ContentCaptureTest {
                 verify(viewStructureCompat, times(2)).setText(capture())
                 assertThat(firstValue).isEqualTo("foo")
                 assertThat(secondValue).isEqualTo("bar")
+            }
+            with(argumentCaptor<String>()) {
+                verify(viewStructureCompat, times(1)).setId(anyInt(), isNull(), isNull(), capture())
+                assertThat(firstValue).isEqualTo("testTagFoo")
             }
             verify(contentCaptureSessionCompat, times(0)).notifyViewsDisappeared(any())
             with(argumentCaptor<List<ViewStructure>>()) {
