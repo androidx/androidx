@@ -137,7 +137,12 @@ private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
  * how much faster than the deadline a frame was.
  *
  * * `frameDurationCpuMs` - How much time the frame took to be produced on the CPU - on both the UI
- * Thread, and RenderThread.
+ * Thread, and RenderThread. Note that this doesn't account for time before the frame started
+ * (before Choreographer#doFrame), as that data isn't available in traces prior to API 31.
+ *
+ * Generally, prefer tracking and detecting regressions with `frameOverrunMs` when it is available,
+ * as it is the more complete data, and accounts for modern devices (including higher, variable
+ * framerate rendering) more naturally.
  */
 @Suppress("CanSealedSubClassBeObject")
 class FrameTimingMetric : Metric() {
