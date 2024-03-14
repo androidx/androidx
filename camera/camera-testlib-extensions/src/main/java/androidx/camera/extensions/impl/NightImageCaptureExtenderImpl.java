@@ -271,7 +271,7 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
             List<Pair<Image, TotalCaptureResult>> imageDataPairs = new ArrayList<>(
                     results.values());
             Image outputImage = mImageWriter.dequeueInputImage();
-
+            outputImage.setTimestamp(imageDataPairs.get(0).first.getTimestamp());
             // Do processing here
             // The sample here simply returns the normal image result
             int stageId = DEFAULT_STAGE_ID;
@@ -300,7 +300,6 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
                         outYBuffer.put(outIndex, inYBuffer.get(inIndex));
                     }
                 }
-
                 if (resultCallback != null) {
                     executorForCallback.execute(
                             () -> resultCallback.onCaptureProcessProgressed(50));
