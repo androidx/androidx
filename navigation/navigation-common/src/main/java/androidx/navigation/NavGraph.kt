@@ -189,11 +189,10 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(route: String, searchParents: Boolean): NavDestination? {
-        // first try matching with routePattern
-        val id = createRoute(route).hashCode()
-        val destination = nodes[id] ?: nodes.valueIterator().asSequence().firstOrNull {
+        val destination = nodes.valueIterator().asSequence().firstOrNull {
+            // first try matching with routePattern
             // if not found with routePattern, try matching with route args
-            it.matchDeepLink(route) != null
+            it.route.equals(route) || it.matchDeepLink(route) != null
         }
 
         // Search the parent for the NavDestination if it is not a child of this navigation graph

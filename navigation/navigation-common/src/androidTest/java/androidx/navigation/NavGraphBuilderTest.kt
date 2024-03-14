@@ -135,6 +135,27 @@ class NavGraphBuilderTest {
             .isTrue()
     }
 
+    @Test
+    fun navigationAddDestinationWithArgsKClassBuilder() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val serializer = serializer<TestClass>()
+        val route = serializer.generateRoutePattern()
+        val graph = provider.navigation(
+            startDestination = route
+        ) {
+            val builder = NavDestinationBuilder(provider[NoOpNavigator::class], TestClass::class)
+            addDestination(builder.build())
+        }
+        assertWithMessage("Destination route should be added to the graph")
+            .that(route in graph)
+            .isTrue()
+        assertWithMessage("Destination id should be added to the graph")
+            .that(serializer.hashCode() in graph)
+            .isTrue()
+    }
+
     @Suppress("DEPRECATION")
     @Test(expected = IllegalStateException::class)
     fun navigationMissingStartDestination() {
