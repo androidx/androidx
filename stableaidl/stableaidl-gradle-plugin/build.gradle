@@ -31,11 +31,18 @@ plugins {
 
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
+configurations {
+    // Config for plugin classpath to be used during tests
+    testPlugin {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
 dependencies {
     implementation(findGradleKotlinDsl())
     implementation(gradleApi())
     implementation(libs.androidGradlePluginApi)
-    implementation(libs.androidGradlePluginz) // Needed for BaseExtension, see b/268237729.
     implementation(libs.androidToolsCommon)
     implementation(libs.androidToolsRepository)
     implementation(libs.androidToolsSdkCommon)
@@ -44,6 +51,9 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.kotlinStdlib)
 
+    testPlugin(libs.androidGradlePluginz)
+
+    testImplementation(libs.androidGradlePluginz)
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.androidToolsAnalyticsProtos)
@@ -51,6 +61,10 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
+}
+
+tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
+    it.pluginClasspath.from(configurations.testPlugin)
 }
 
 gradlePlugin {
