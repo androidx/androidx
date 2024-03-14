@@ -581,23 +581,12 @@ class SupportingPaneScaffoldNavigatorTest {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective(
-    maxHorizontalPartitions = 1,
-    horizontalPartitionSpacerSize = 0.dp,
-    maxVerticalPartitions = 1,
-    verticalPartitionSpacerSize = 0.dp,
-    defaultPanePreferredWidth = 360.dp,
-    excludedBounds = emptyList()
-)
+private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective.Default
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val MockDualPaneScaffoldDirective = PaneScaffoldDirective(
+private val MockDualPaneScaffoldDirective = PaneScaffoldDirective.Default.copy(
     maxHorizontalPartitions = 2,
     horizontalPartitionSpacerSize = 16.dp,
-    maxVerticalPartitions = 1,
-    verticalPartitionSpacerSize = 0.dp,
-    defaultPanePreferredWidth = 360.dp,
-    excludedBounds = emptyList()
 )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
