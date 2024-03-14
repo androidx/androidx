@@ -19,15 +19,7 @@ package androidx.compose.material3.carousel
 import androidx.collection.IntIntMap
 import androidx.collection.emptyIntIntMap
 import androidx.collection.mutableIntIntMapOf
-import androidx.compose.animation.core.calculateTargetValue
-import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.gestures.TargetedFlingBehavior
-import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.SnapPosition
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -85,20 +77,3 @@ internal fun KeylineSnapPosition(snapPositions: IntIntMap): SnapPosition =
             return if (snapPositions.size > 0) snapPositions[itemIndex] else 0
         }
     }
-
-@ExperimentalMaterial3Api
-@Composable
-internal fun rememberDecaySnapFlingBehavior(): TargetedFlingBehavior {
-    val splineDecay = rememberSplineBasedDecay<Float>()
-    val decayLayoutInfoProvider = remember {
-        object : SnapLayoutInfoProvider {
-            override fun calculateApproachOffset(initialVelocity: Float): Float {
-                return splineDecay.calculateTargetValue(0f, initialVelocity)
-            }
-
-            override fun calculateSnappingOffset(currentVelocity: Float): Float = 0f
-        }
-    }
-
-    return rememberSnapFlingBehavior(snapLayoutInfoProvider = decayLayoutInfoProvider)
-}
