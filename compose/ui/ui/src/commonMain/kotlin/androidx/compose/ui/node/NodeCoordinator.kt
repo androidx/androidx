@@ -447,10 +447,10 @@ internal abstract class NodeCoordinator(
 
     // implementation of draw block passed to the OwnedLayer
     @Suppress("LiftReturnOrAssignment")
-    private val drawBlock: (Canvas) -> Unit = { canvas ->
-        if (layoutNode.isPlaced) {
-            snapshotObserver.observeReads(this, onCommitAffectingLayer) {
-                drawContainedDrawModifiers(canvas, explicitLayer)
+    private val drawBlock: (Canvas, GraphicsLayer?) -> Unit = { canvas, parentLayer ->
+            if (layoutNode.isPlaced) {
+                snapshotObserver.observeReads(this, onCommitAffectingLayer) {
+                    drawContainedDrawModifiers(canvas, parentLayer)
             }
             lastLayerDrawingWasSkipped = false
         } else {

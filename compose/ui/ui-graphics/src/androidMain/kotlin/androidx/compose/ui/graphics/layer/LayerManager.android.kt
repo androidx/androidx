@@ -74,8 +74,12 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
             ).also { imageReader = it }
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
-            canvasHolder.drawInto(canvas) {
-                layers.forEach { layer -> layer.draw(this, null) }
+            // on Robolectric even this canvas is not hardware accelerated and drawing render nodes
+            // are not supported
+            if (canvas.isHardwareAccelerated) {
+                canvasHolder.drawInto(canvas) {
+                    layers.forEach { layer -> layer.draw(this, null) }
+                }
             }
             surface.unlockCanvasAndPost(canvas)
         }
