@@ -24,7 +24,10 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class InternalApiUsageDetectorTest : GradleLintDetectorTest(
     detector = InternalApiUsageDetector(),
-    issues = listOf(InternalApiUsageDetector.ISSUE)
+    issues = listOf(
+        InternalApiUsageDetector.INTERNAL_GRADLE_ISSUE,
+        InternalApiUsageDetector.INTERNAL_AGP_ISSUE,
+    )
 ) {
     @Test
     fun `Test usage of internal Gradle API`() {
@@ -90,7 +93,7 @@ class InternalApiUsageDetectorTest : GradleLintDetectorTest(
             .run()
             .expect(
                 """
-                src/test.kt:1: Error: Avoid using internal Android Gradle Plugin APIs [InternalGradleApiUsage]
+                src/test.kt:1: Error: Avoid using internal Android Gradle Plugin APIs [InternalAgpApiUsage]
                 import com.android.build.gradle.internal.lint.VariantInputs
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
