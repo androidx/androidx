@@ -87,4 +87,11 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_ENTERPRISE_GLOBAL_SEARCH_SESSION)
                 .isEqualTo("com.android.appsearch.flags.enable_enterprise_global_search_session");
     }
+
+    @Test
+    public void testFlagValue_enableResultDeniedAndResultRateLimited() {
+        assertThat(Flags.FLAG_ENABLE_RESULT_DENIED_AND_RESULT_RATE_LIMITED)
+                .isEqualTo(
+                        "com.android.appsearch.flags.enable_result_denied_and_result_rate_limited");
+    }
 }
