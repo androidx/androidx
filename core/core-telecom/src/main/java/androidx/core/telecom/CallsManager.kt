@@ -39,6 +39,7 @@ import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
+import java.util.UUID
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 import kotlin.coroutines.coroutineContext
@@ -392,6 +393,7 @@ class CallsManager constructor(context: Context) {
                 CompletableDeferred<CallSessionLegacy>(parent = coroutineContext.job)
 
             val request = JetpackConnectionService.PendingConnectionRequest(
+                UUID.randomUUID().toString(),
                 callAttributes,
                 callChannels,
                 coroutineContext,
