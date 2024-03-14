@@ -24,6 +24,7 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.JunitTaskExecutorRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
+import androidx.room.concurrent.CloseBarrier
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -35,7 +36,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
 import org.junit.After
@@ -82,8 +82,8 @@ class InvalidationTrackerTest {
         doReturn(mSqliteDb).whenever(mOpenHelper).writableDatabase
         doReturn(true).whenever(mRoomDatabase).isOpenInternal
         doReturn(ArchTaskExecutor.getIOThreadExecutor()).whenever(mRoomDatabase).queryExecutor
-        val closeLock = ReentrantLock()
-        doReturn(closeLock).whenever(mRoomDatabase).getCloseLock()
+        val closeBarrier = CloseBarrier {}
+        doReturn(closeBarrier).whenever(mRoomDatabase).closeBarrier
         doReturn(mOpenHelper).whenever(mRoomDatabase).openHelper
         val shadowTables = HashMap<String, String>()
         shadowTables["C"] = "C_content"

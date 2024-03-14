@@ -19,6 +19,7 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
+import androidx.room.concurrent.CloseBarrier
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.room.util.contains
@@ -52,6 +53,14 @@ expect abstract class RoomDatabase {
      * @return The invalidation tracker for the database.
      */
     val invalidationTracker: InvalidationTracker
+
+    /**
+     * A barrier that prevents the database from closing while the [InvalidationTracker] is using
+     * the database asynchronously.
+     *
+     * @return The barrier for [close].
+     */
+    internal val closeBarrier: CloseBarrier
 
     /**
      * Called by Room when it is initialized.
