@@ -207,35 +207,29 @@ package androidx.compose.animation.core {
   }
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class ArcAnimationSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
-    ctor public ArcAnimationSpec(optional androidx.compose.animation.core.ArcMode mode, optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
+    ctor public ArcAnimationSpec(optional int mode, optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
     method public int getDelayMillis();
     method public int getDurationMillis();
     method public androidx.compose.animation.core.Easing getEasing();
-    method public androidx.compose.animation.core.ArcMode getMode();
+    method public int getMode();
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
     property public final int delayMillis;
     property public final int durationMillis;
     property public final androidx.compose.animation.core.Easing easing;
-    property public final androidx.compose.animation.core.ArcMode mode;
+    property public final int mode;
   }
 
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public abstract sealed class ArcMode {
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @kotlin.jvm.JvmInline public final value class ArcMode {
     field public static final androidx.compose.animation.core.ArcMode.Companion Companion;
   }
 
   public static final class ArcMode.Companion {
-  }
-
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class ArcMode.Companion.ArcAbove extends androidx.compose.animation.core.ArcMode {
-    field public static final androidx.compose.animation.core.ArcMode.Companion.ArcAbove INSTANCE;
-  }
-
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class ArcMode.Companion.ArcBelow extends androidx.compose.animation.core.ArcMode {
-    field public static final androidx.compose.animation.core.ArcMode.Companion.ArcBelow INSTANCE;
-  }
-
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class ArcMode.Companion.ArcLinear extends androidx.compose.animation.core.ArcMode {
-    field public static final androidx.compose.animation.core.ArcMode.Companion.ArcLinear INSTANCE;
+    method public int getArcAbove();
+    method public int getArcBelow();
+    method public int getArcLinear();
+    property public final int ArcAbove;
+    property public final int ArcBelow;
+    property public final int ArcLinear;
   }
 
   @androidx.compose.runtime.Immutable public final class CubicBezierEasing implements androidx.compose.animation.core.Easing {
@@ -501,7 +495,7 @@ package androidx.compose.animation.core {
     ctor public KeyframesSpec.KeyframesSpecConfig();
     method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> at(T, @IntRange(from=0L) int timeStamp);
     method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> atFraction(T, @FloatRange(from=0.0, to=1.0) float fraction);
-    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> using(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.ArcMode arcMode);
+    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> using(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, int arcMode);
     method @Deprecated public infix void with(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.Easing easing);
   }
 
