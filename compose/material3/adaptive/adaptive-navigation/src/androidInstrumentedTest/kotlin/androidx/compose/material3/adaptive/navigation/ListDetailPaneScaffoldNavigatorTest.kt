@@ -47,7 +47,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Int>(
                 scaffoldDirective = MockSinglePaneScaffoldDirective
             )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
@@ -78,7 +78,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Int>(
                 scaffoldDirective = MockDualPaneScaffoldDirective
             )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
@@ -109,7 +109,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Int>(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
                 isDestinationHistoryAware = false
             )
@@ -141,7 +141,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Int>(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
                 isDestinationHistoryAware = true
             )
@@ -173,7 +173,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Int>(
                 scaffoldDirective = MockSinglePaneScaffoldDirective
             )
             canNavigateBack = scaffoldNavigator.canNavigateBack()

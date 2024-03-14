@@ -47,7 +47,7 @@ class SupportingPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
+            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator<Int>(
                 scaffoldDirective = MockSinglePaneScaffoldDirective
             )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
@@ -78,7 +78,7 @@ class SupportingPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
+            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator<Int>(
                 scaffoldDirective = MockDualPaneScaffoldDirective
             )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
@@ -187,7 +187,7 @@ class SupportingPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
+            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator<Int>(
                 scaffoldDirective = MockSinglePaneScaffoldDirective
             )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
