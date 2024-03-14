@@ -65,8 +65,8 @@ def prepareSqliteSourcesTask = registerPrepareSqliteSourcesTask(
         project, // project
         "prepareSqliteSourcesTask" // task name
 ) {
-    it.sqliteVersion.set("3.42.0")
-    it.sqliteReleaseYear.set(2023)
+    it.sqliteVersion.set("3.46.0")
+    it.sqliteReleaseYear.set(2024)
     it.destinationDirectory.set(project.layout.buildDirectory.dir("sqlite3/src"))
     if (!ProjectLayoutType.isPlayground(project)) {
         it.sqlitePrebuiltsDirectory.set(
