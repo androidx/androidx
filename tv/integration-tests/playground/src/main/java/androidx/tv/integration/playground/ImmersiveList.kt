@@ -24,7 +24,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.CollectionItemInfo
 import androidx.compose.ui.semantics.collectionItemInfo
@@ -43,7 +48,7 @@ fun ImmersiveListContent() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun SampleImmersiveList() {
     val immersiveListHeight = 300.dp
@@ -68,13 +73,13 @@ private fun SampleImmersiveList() {
             )
         }
     ) {
-        val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
+        val focusRequester = remember { FocusRequester() }
 
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(cardSpacing),
             modifier = Modifier
                 .lazyListSemantics(1, backgrounds.count())
-                .then(focusRestorerModifiers.parentModifier)
+                .focusRestorer { focusRequester }
         ) {
             itemsIndexed(backgrounds) { index, backgroundColor ->
                 Card(
@@ -83,7 +88,7 @@ private fun SampleImmersiveList() {
                             collectionItemInfo = CollectionItemInfo(0, 1, index, 1)
                         }
                         .immersiveListItem(index)
-                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
+                        .ifElse(index == 0, Modifier.focusRequester(focusRequester)),
                     backgroundColor = backgroundColor
                 )
             }
