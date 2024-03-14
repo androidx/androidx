@@ -21,7 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.collection.LongList
 import androidx.collection.mutableLongListOf
-import androidx.compose.ui.graphics.R
+import androidx.compose.ui.R
 import androidx.compose.ui.inspection.framework.ancestors
 import androidx.compose.ui.inspection.framework.getChildren
 import androidx.compose.ui.inspection.framework.isAndroidComposeView
@@ -113,10 +113,14 @@ class AndroidComposeViewWrapper(
     private fun createViewsToSkip(viewGroup: ViewGroup): LongList {
         val result = mutableLongListOf()
         viewGroup.getChildren().forEach { view ->
-            if (view.getTag(R.id.hide_in_inspector_tag) != null) {
+            if (view.hasHideFromInspectionTag()) {
                 result.add(view.uniqueDrawingId)
             }
         }
         return result
     }
+
+    private fun View.hasHideFromInspectionTag(): Boolean =
+        getTag(R.id.hide_in_inspector_tag) != null ||
+            getTag(androidx.compose.ui.graphics.R.id.hide_graphics_layer_in_inspector_tag) != null
 }

@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <item name="hide_graphics_layer_in_inspector_tag" type="id" />
+    <public name="hide_graphics_layer_in_inspector_tag" type="id"/>
 </resources>

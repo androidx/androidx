@@ -52,7 +52,7 @@ internal open class DrawChildContainer(context: Context) : ViewGroup(context) {
         clipToPadding = false
 
         // Hide this view and its children in tools:
-        setTag(R.id.hide_in_inspector_tag, true)
+        setTag(R.id.hide_graphics_layer_in_inspector_tag, true)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
