@@ -102,7 +102,7 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 // argument: `Boolean`
                 val typeReference = element.sourcePsi
                     ?.children
-                    ?.firstOrNull { it is KtTypeReference } as? KtTypeReference
+                    ?.firstNotNullOfOrNull { it as? KtTypeReference }
                 val typeArgument = typeReference?.typeElement?.typeArgumentsAsTypes?.singleOrNull()
                 if (typeArgument != null) {
                     return typeArgument
@@ -114,7 +114,7 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 // argument: `Boolean`
                 val expression = element.sourcePsi
                     ?.children
-                    ?.firstOrNull { it is KtCallExpression } as? KtCallExpression
+                    ?.firstNotNullOfOrNull { it as? KtCallExpression }
                 return expression?.typeArguments?.singleOrNull()?.typeReference
             }
 
