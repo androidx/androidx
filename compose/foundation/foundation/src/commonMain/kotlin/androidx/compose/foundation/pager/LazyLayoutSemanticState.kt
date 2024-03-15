@@ -27,12 +27,10 @@ internal fun LazyLayoutSemanticState(
     state: PagerState,
     isVertical: Boolean
 ): LazyLayoutSemanticState = object : LazyLayoutSemanticState {
-    override val firstVisibleItemScrollOffset: Int
-        get() = state.firstVisiblePageOffset
-    override val firstVisibleItemIndex: Int
-        get() = state.firstVisiblePage
-    override val canScrollForward: Boolean
-        get() = state.canScrollForward
+    override val scrollOffset: Float
+        get() = state.currentAbsoluteScrollOffset().toFloat()
+    override val maxScrollOffset: Float
+        get() = state.layoutInfo.calculateNewMaxScrollOffset(state.pageCount).toFloat()
 
     override suspend fun animateScrollBy(delta: Float) {
         state.animateScrollBy(delta)
