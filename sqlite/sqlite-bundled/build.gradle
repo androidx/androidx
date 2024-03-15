@@ -143,7 +143,7 @@ androidXMultiplatform {
         prepareSqliteSourcesTask.map { it.destinationDirectory }
     )
 
-    // Defince C++ compilation of JNI
+    // Define C++ compilation of JNI
     def jvmArtJniImplementation = createNativeCompilation("jvmArtJniImplementation") {
         configureEachTarget { nativeCompilation ->
             // add JNI headers as sources
@@ -169,7 +169,6 @@ androidXMultiplatform {
     android() {
         addNativeLibrariesToJniLibs(it, jvmArtJniImplementation)
     }
-    androidNative()
     ios()
     jvm() {
         addNativeLibrariesToResources(it, jvmArtJniImplementation)
