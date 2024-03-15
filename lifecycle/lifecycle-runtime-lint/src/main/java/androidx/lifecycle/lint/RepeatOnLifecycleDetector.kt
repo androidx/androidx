@@ -59,7 +59,7 @@ class RepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
     override fun applicableSuperClasses(): List<String>? = listOf(FRAGMENT_CLASS, ACTIVITY_CLASS)
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
-        if (!isKotlin(context.psiFile)) return // Check only Kotlin files
+        if (!isKotlin(declaration.lang)) return // Check only Kotlin files
 
         val visitedMethods = mutableSetOf<PsiMethod>()
         declaration.methods.forEach { method ->

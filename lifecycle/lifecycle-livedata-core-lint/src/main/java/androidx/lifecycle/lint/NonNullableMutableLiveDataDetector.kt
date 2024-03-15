@@ -119,7 +119,7 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
             }
 
             override fun visitCallExpression(node: UCallExpression) {
-                if (!isKotlin(node.sourcePsi) || !methods.contains(node.methodName) ||
+                if (!isKotlin(node.lang) || !methods.contains(node.methodName) ||
                     !context.evaluator.isMemberInSubClassOf(
                             node.resolve()!!, "androidx.lifecycle.LiveData", false
                         )
