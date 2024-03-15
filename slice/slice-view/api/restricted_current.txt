@@ -205,7 +205,7 @@ package androidx.slice.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
   }
 
-  @Deprecated public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder> {
+  @Deprecated public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder!> {
     ctor @Deprecated public SliceAdapter(android.content.Context);
     method @Deprecated public androidx.slice.widget.GridRowView getGridRowView();
     method @Deprecated public int getItemCount();
@@ -235,7 +235,7 @@ package androidx.slice.widget {
     method @Deprecated public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromUri(android.content.Context, android.net.Uri, androidx.slice.widget.SliceLiveData.OnErrorListener?);
   }
 
-  @Deprecated public static class SliceLiveData.CachedSliceLiveData extends androidx.lifecycle.LiveData<androidx.slice.Slice> {
+  @Deprecated public static class SliceLiveData.CachedSliceLiveData extends androidx.lifecycle.LiveData<androidx.slice.Slice!> {
     method @Deprecated public void goLive();
     method @Deprecated public void parseStream();
   }
@@ -251,7 +251,7 @@ package androidx.slice.widget {
   @Deprecated @IntDef({androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_UNKNOWN, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_STRUCTURE_CHANGED, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_INVALID_INPUT}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceLiveData.OnErrorListener.ErrorType {
   }
 
-  @Deprecated public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer<androidx.slice.Slice> android.view.View.OnClickListener {
+  @Deprecated public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer<androidx.slice.Slice!> android.view.View.OnClickListener {
     ctor @Deprecated public SliceView(android.content.Context!);
     ctor @Deprecated public SliceView(android.content.Context!, android.util.AttributeSet?);
     ctor @Deprecated public SliceView(android.content.Context!, android.util.AttributeSet?, int);

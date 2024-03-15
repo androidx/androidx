@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.collection {
 
-  public class ArrayMap<K, V> extends androidx.collection.SimpleArrayMap<K,V> implements java.util.Map<K,V> {
+  public class ArrayMap<K, V> extends androidx.collection.SimpleArrayMap<K!,V!> implements java.util.Map<K!,V!> {
     ctor public ArrayMap();
     ctor public ArrayMap(androidx.collection.SimpleArrayMap?);
     ctor public ArrayMap(int);

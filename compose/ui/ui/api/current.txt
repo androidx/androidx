@@ -920,7 +920,7 @@ package androidx.compose.ui.graphics.vector {
   public abstract sealed class VectorProperty<T> {
   }
 
-  public static final class VectorProperty.Fill extends androidx.compose.ui.graphics.vector.VectorProperty<androidx.compose.ui.graphics.Brush> {
+  public static final class VectorProperty.Fill extends androidx.compose.ui.graphics.vector.VectorProperty<androidx.compose.ui.graphics.Brush?> {
     field public static final androidx.compose.ui.graphics.vector.VectorProperty.Fill INSTANCE;
   }
 
@@ -952,7 +952,7 @@ package androidx.compose.ui.graphics.vector {
     field public static final androidx.compose.ui.graphics.vector.VectorProperty.ScaleY INSTANCE;
   }
 
-  public static final class VectorProperty.Stroke extends androidx.compose.ui.graphics.vector.VectorProperty<androidx.compose.ui.graphics.Brush> {
+  public static final class VectorProperty.Stroke extends androidx.compose.ui.graphics.vector.VectorProperty<androidx.compose.ui.graphics.Brush?> {
     field public static final androidx.compose.ui.graphics.vector.VectorProperty.Stroke INSTANCE;
   }
 
@@ -2497,7 +2497,7 @@ package androidx.compose.ui.layout {
     method public void getSlotsToRetain(androidx.compose.ui.layout.SubcomposeSlotReusePolicy.SlotIdsSet slotIds);
   }
 
-  public static final class SubcomposeSlotReusePolicy.SlotIdsSet implements java.util.Collection<java.lang.Object> kotlin.jvm.internal.markers.KMappedMarker {
+  public static final class SubcomposeSlotReusePolicy.SlotIdsSet implements java.util.Collection<java.lang.Object?> kotlin.jvm.internal.markers.KMappedMarker {
     method public void clear();
     method public java.util.Iterator<java.lang.Object?> iterator();
     method public boolean remove(Object? slotId);

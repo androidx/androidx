@@ -234,7 +234,7 @@ package androidx.benchmark.perfetto {
     method public byte[] rawQuery(@org.intellij.lang.annotations.Language("sql") String query);
   }
 
-  @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class Row implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<java.lang.String,java.lang.Object> {
+  @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class Row implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<java.lang.String,java.lang.Object?> {
     ctor public Row(java.util.Map<java.lang.String,?> map);
     method public byte[] bytes(String columnName);
     method public double double(String columnName);
