@@ -684,9 +684,11 @@ internal class TextFieldDecoratorModifierNode(
         // because the resize happens after the text state change, and the resize moves the cursor
         // under the keyboard. This also covers the case where the field shrinks while focused.
         val selection = textFieldState.visualText.selection
+        val layoutResult = textLayoutState.layoutResult ?: return
         if (selection.collapsed) {
             coroutineScope.launch {
-                textLayoutState.bringCursorIntoView(cursorIndex = selection.start)
+                val rect = layoutResult.getCursorRect(selection.start)
+                textLayoutState.bringIntoViewRequester.bringIntoView(rect)
             }
         }
     }
