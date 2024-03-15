@@ -19,9 +19,14 @@ package androidx.compose.material3
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.time.format.TextStyle
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 internal actual class PlatformDateFormat actual constructor(private val locale: CalendarLocale) {
     private val delegate = LegacyCalendarModelImpl(locale)
 
@@ -40,18 +45,26 @@ internal actual class PlatformDateFormat actual constructor(private val locale: 
         skeleton: String
     ): String {
         // Note: there is no equivalent in Java for Android's DateFormat.getBestDateTimePattern.
-        // The JDK SimpleDateFormat expects a pattern, so the results will be "2023Jan7",
+        // The JDK SimpleDateFormat expects a pattern, so the results for unrecognized skeletons will be "2023Jan7",
         // "2023January", etc. in case a skeleton holds an actual ICU skeleton and not a pattern.
 
         // TODO: support ICU skeleton on JVM
         // Maybe it will be supported in kotlinx.datetime in the future.
-        // See https://github.com/Kotlin/kotlinx-datetime/pull/251
 
-        // stub: not localized but at least readable variant
         val pattern = when(skeleton){
-            DatePickerDefaults.YearMonthSkeleton -> "MMMM yyyy"
-            DatePickerDefaults.YearAbbrMonthDaySkeleton -> "MMM d, yyyy"
-            DatePickerDefaults.YearMonthWeekdayDaySkeleton -> "EEEE, MMMM d, yyyy"
+            DatePickerDefaults.YearAbbrMonthDaySkeleton -> {
+                return DateTimeFormatter
+                    .ofLocalizedDate(FormatStyle.MEDIUM)
+                    .localizedBy(locale)
+                    .format(Instant.ofEpochMilli(utcTimeMillis).atOffset(ZoneOffset.UTC))
+            }
+            DatePickerDefaults.YearMonthWeekdayDaySkeleton -> {
+                return DateTimeFormatter
+                    .ofLocalizedDate(FormatStyle.FULL)
+                    .localizedBy(locale)
+                    .format(Instant.ofEpochMilli(utcTimeMillis).atOffset(ZoneOffset.UTC))
+            }
+            DatePickerDefaults.YearMonthSkeleton -> "LLLL yyyy" // L is a pattern for standalone month (without day)
             else -> skeleton
         }
         return formatWithPattern(utcTimeMillis, pattern)
