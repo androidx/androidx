@@ -19,7 +19,7 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.events.toSkikoDragEvent
@@ -28,7 +28,6 @@ import androidx.compose.ui.events.toSkikoScrollEvent
 import androidx.compose.ui.input.pointer.BrowserCursor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.native.ComposeLayer
-import androidx.compose.ui.native.SkikoViewExtended
 import androidx.compose.ui.platform.JSTextInputService
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.ViewConfiguration
@@ -36,12 +35,16 @@ import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlin.coroutines.coroutineContext
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoKeyboardEventKind
 import org.jetbrains.skiko.SkikoPointerEventKind
@@ -60,12 +63,64 @@ import org.w3c.dom.TouchEvent
 private val actualDensity
     get() = window.devicePixelRatio
 
+private interface ComposeWindowState {
+    fun init() {}
+    fun sizeFlow(): Flow<IntSize>
+
+    companion object {
+        fun createFromLambda(lambda: suspend () -> IntSize): ComposeWindowState {
+            return object : ComposeWindowState {
+                override fun sizeFlow(): Flow<IntSize> = flow {
+                    while (coroutineContext.isActive) {
+                        emit(lambda())
+                    }
+                }
+            }
+        }
+    }
+}
+
+private class DefaultWindowState : ComposeWindowState {
+    private val channel = Channel<IntSize>(CONFLATED)
+
+    override fun init() {
+        window.addEventListener("resize", {
+            channel.trySend(getParentContainerBox())
+        })
+
+        initMediaEventListener {
+            channel.trySend(getParentContainerBox())
+        }
+
+        channel.trySend(getParentContainerBox())
+    }
+
+    private fun getParentContainerBox(): IntSize {
+        val documentElement = document.documentElement ?: return IntSize(0, 0)
+        return IntSize(documentElement.clientWidth, documentElement.clientHeight)
+    }
+
+    private fun initMediaEventListener(handler: (Double) -> Unit) {
+        val contentScale = actualDensity
+        window.matchMedia("(resolution: ${contentScale}dppx)")
+            .addEventListener("change", { evt ->
+                evt as MediaQueryListEvent
+                if (!evt.matches) {
+                    handler(contentScale)
+                }
+                initMediaEventListener(handler)
+            }, AddEventListenerOptions(capture = true, once = true))
+    }
+
+    override fun sizeFlow() = channel.receiveAsFlow()
+}
+
 @OptIn(InternalComposeApi::class)
 private class ComposeWindow(
-    canvasId: String,
+    private val canvas: HTMLCanvasElement,
     content: @Composable () -> Unit,
+    private val state: ComposeWindowState
 )  {
-
     private val density: Density = Density(
         density = actualDensity.toFloat(),
         fontScale = 1f
@@ -86,7 +141,7 @@ private class ComposeWindow(
 
             override fun setPointerIcon(pointerIcon: PointerIcon) {
                 if (pointerIcon is BrowserCursor) {
-                    setCursor(canvasId, pointerIcon.id)
+                    canvas.style.cursor = pointerIcon.id
                 }
             }
         }
@@ -98,34 +153,20 @@ private class ComposeWindow(
     )
     private val systemThemeObserver = getSystemThemeObserver()
 
-    val canvas = document.getElementById(canvasId) as HTMLCanvasElement
 
-    private fun <T : Event> HTMLCanvasElement.addTypedEvent(
+    private fun <T : Event> addTypedEvent(
         type: String,
-        handler: (event: T, skikoView: SkikoViewExtended) -> Unit
+        handler: (event: T) -> Unit
     ) {
-        this.addEventListener(type, { event -> handler(event as T, layer.view) })
+        canvas.addEventListener(type, { event -> handler(event as T) })
     }
-
-
-    private fun initMediaEventListener(handler: (Double) -> Unit) {
-        val contentScale = actualDensity
-        window.matchMedia("(resolution: ${contentScale}dppx)")
-            .addEventListener("change", { evt ->
-                evt as MediaQueryListEvent
-                if (!evt.matches) {
-                    handler(contentScale)
-                }
-                initMediaEventListener(handler)
-            }, AddEventListenerOptions(capture = true, once = true))
-    }
-
 
     private fun initEvents(canvas: HTMLCanvasElement) {
         var offsetX = 0.0
         var offsetY = 0.0
         var isPointerPressed = false
-        canvas.addTypedEvent<TouchEvent>("touchstart") { event, skikoView ->
+
+        addTypedEvent<TouchEvent>("touchstart") { event ->
             event.preventDefault()
 
             canvas.getBoundingClientRect().apply {
@@ -134,67 +175,64 @@ private class ComposeWindow(
             }
 
             val skikoEvent = event.toSkikoEvent(SkikoPointerEventKind.DOWN, offsetX, offsetY)
-            skikoView.onPointerEvent(skikoEvent)
+            layer.view.onPointerEvent(skikoEvent)
         }
 
-        canvas.addTypedEvent<TouchEvent>("touchmove") { event, skikoView ->
+        addTypedEvent<TouchEvent>("touchmove") { event ->
             event.preventDefault()
-            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.MOVE, offsetX, offsetY))
+            layer.view.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.MOVE, offsetX, offsetY))
         }
 
-        canvas.addTypedEvent<TouchEvent>("touchend") { event, skikoView ->
+        addTypedEvent<TouchEvent>("touchend") { event ->
             event.preventDefault()
-            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP, offsetX, offsetY))
+            layer.view.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP, offsetX, offsetY))
         }
 
-        canvas.addTypedEvent<TouchEvent>("touchcancel") { event, skikoView ->
+        addTypedEvent<TouchEvent>("touchcancel") { event ->
             event.preventDefault()
-            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP, offsetX, offsetY))
+            layer.view.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP, offsetX, offsetY))
         }
 
-        canvas.addTypedEvent<MouseEvent>("mousedown") { event, skikoView ->
+        addTypedEvent<MouseEvent>("mousedown") { event ->
             isPointerPressed = true
-            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.DOWN))
+            layer.view.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.DOWN))
         }
 
-        canvas.addTypedEvent<MouseEvent>("mouseup") { event, skikoView ->
+        addTypedEvent<MouseEvent>("mouseup") { event ->
             isPointerPressed = false
-            skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP))
+            layer.view.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.UP))
         }
 
-        canvas.addTypedEvent<MouseEvent>("mousemove") { event, skikoView ->
+        addTypedEvent<MouseEvent>("mousemove") { event ->
             if (isPointerPressed) {
-                skikoView.onPointerEvent(event.toSkikoDragEvent())
+                layer.view.onPointerEvent(event.toSkikoDragEvent())
             } else {
-                skikoView.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.MOVE))
+                layer.view.onPointerEvent(event.toSkikoEvent(SkikoPointerEventKind.MOVE))
             }
         }
 
-        canvas.addTypedEvent<WheelEvent>("wheel") { event, skikoView ->
-            skikoView.onPointerEvent(event.toSkikoScrollEvent())
+        addTypedEvent<WheelEvent>("wheel") { event ->
+            layer.view.onPointerEvent(event.toSkikoScrollEvent())
         }
 
         canvas.addEventListener("contextmenu", { event ->
             event.preventDefault()
         })
 
-        canvas.addTypedEvent<KeyboardEvent>("keydown") { event, skikoView ->
-            val processed = skikoView.onKeyboardEventWithResult(event.toSkikoEvent(SkikoKeyboardEventKind.DOWN))
+        addTypedEvent<KeyboardEvent>("keydown") { event ->
+            val processed = layer.view.onKeyboardEventWithResult(event.toSkikoEvent(SkikoKeyboardEventKind.DOWN))
             if (processed) event.preventDefault()
         }
 
-        canvas.addTypedEvent<KeyboardEvent>("keyup") { event, skikoView ->
-            val processed = skikoView.onKeyboardEventWithResult(event.toSkikoEvent(SkikoKeyboardEventKind.UP))
+        addTypedEvent<KeyboardEvent>("keyup") { event ->
+            val processed = layer.view.onKeyboardEventWithResult(event.toSkikoEvent(SkikoKeyboardEventKind.UP))
             if (processed) event.preventDefault()
-        }
-
-        initMediaEventListener {
-            resize(getParentContainerBox())
         }
     }
 
     init {
         initEvents(canvas)
+        state.init()
 
         canvas.setAttribute("tabindex", "0")
 
@@ -202,7 +240,14 @@ private class ComposeWindow(
         layer.setContent {
             CompositionLocalProvider(
                 LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
-                content = content
+                content = {
+                    content()
+                    rememberCoroutineScope().launch {
+                        state.sizeFlow().collect { size ->
+                            this@ComposeWindow.resize(size)
+                        }
+                    }
+                }
             )
         }
     }
@@ -235,12 +280,7 @@ private class ComposeWindow(
     }
 }
 
-private val defaultCanvasElementId = "ComposeTarget"
-
-private fun getParentContainerBox(): IntSize {
-    val documentElement = document.documentElement ?: return IntSize(0, 0)
-    return IntSize(documentElement.clientWidth, documentElement.clientHeight)
-}
+private const val defaultCanvasElementId = "ComposeTarget"
 
 @ExperimentalComposeUiApi
 /**
@@ -282,42 +322,11 @@ fun CanvasBasedWindow(
         )
     }
 
-    val actualRequestResize: suspend () -> IntSize = if (requestResize != null) {
-        requestResize
-    } else {
-        // we use Channel instead of suspendCancellableCoroutine,
-        // because we want to drop old resize events
-        val channel = Channel<IntSize>(capacity = CONFLATED)
+    val canvas = document.getElementById(canvasElementId) as HTMLCanvasElement
 
-        // we subscribe to 'resize' only once and never unsubscribe,
-        // because the default behaviour expects that the Canvas takes the entire window space,
-        // so the app has the same lifecycle as the browser tab.
-        window.addEventListener("resize", { _ ->
-            channel.trySend(getParentContainerBox())
-        })
-
-        channel.trySend(getParentContainerBox())
-
-        suspend {
-            channel.receive()
-        }
-    }
-
-    var composeWindow: ComposeWindow? = null
-    composeWindow = ComposeWindow(
-        canvasId = canvasElementId,
-        content = {
-            content()
-            LaunchedEffect(Unit) {
-                while (isActive) {
-                    val newSize = actualRequestResize()
-                    composeWindow?.resize(newSize)
-                    delay(100) // throttle
-                }
-            }
-        }
+    ComposeWindow(
+        canvas = canvas,
+        content = content,
+        state = if (requestResize == null) DefaultWindowState() else ComposeWindowState.createFromLambda(requestResize)
     )
 }
-
-private fun setCursor(elementId: String, value: String): Unit =
-    js("document.getElementById(elementId).style.cursor = value")
