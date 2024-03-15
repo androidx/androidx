@@ -35,6 +35,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.tooling.preview.Preview
 
 @Preview
@@ -43,6 +45,19 @@ import androidx.compose.ui.tooling.preview.Preview
 fun IconButtonSample() {
     IconButton(onClick = { /* doSomething() */ }) {
         Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun TintedIconButtonSample() {
+    IconButton(onClick = { /* doSomething() */ }) {
+        Icon(
+            rememberVectorPainter(image = Icons.Outlined.Lock),
+            contentDescription = "Localized description",
+            tint = { Color.Blue })
     }
 }
 
