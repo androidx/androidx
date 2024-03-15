@@ -272,6 +272,7 @@ fun SwipeToDismiss(
  * @param modifier Optional [Modifier] for this component.
  * @param enableDismissFromStartToEnd Whether SwipeToDismissBox can be dismissed from start to end.
  * @param enableDismissFromEndToStart Whether SwipeToDismissBox can be dismissed from end to start.
+ * @param gesturesEnabled Whether swipe-to-dismiss can be interacted by gestures.
  * @param content The content that can be dismissed.
  */
 @Composable
@@ -282,6 +283,7 @@ fun SwipeToDismissBox(
     modifier: Modifier = Modifier,
     enableDismissFromStartToEnd: Boolean = true,
     enableDismissFromEndToStart: Boolean = true,
+    gesturesEnabled: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -291,7 +293,7 @@ fun SwipeToDismissBox(
             .anchoredDraggable(
                 state = state.anchoredDraggableState,
                 orientation = Orientation.Horizontal,
-                enabled = state.currentValue == SwipeToDismissBoxValue.Settled,
+                enabled = gesturesEnabled && state.currentValue == SwipeToDismissBoxValue.Settled,
             ),
         propagateMinConstraints = true
     ) {
