@@ -283,31 +283,11 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun addNativeLibrariesToJniLibs(
         androidTarget: KotlinAndroidTarget,
         nativeCompilation: MultiTargetNativeCompilation,
-        variantBuildType: String = "debug",
         forTest: Boolean = false
     ) = nativeLibraryBundler.addNativeLibrariesToJniLibs(
         androidTarget = androidTarget,
         nativeCompilation = nativeCompilation,
-        variantBuildType = variantBuildType,
         forTest = forTest
-    )
-
-    /**
-     * Convenience method to add native libraries to the jniLibs input of an Android instrumentation
-     * test.
-     *
-     * @see addNativeLibrariesToJniLibs
-     */
-    @JvmOverloads
-    fun addNativeLibrariesToTestJniLibs(
-        androidTarget: KotlinAndroidTarget,
-        nativeCompilation: MultiTargetNativeCompilation,
-        variantBuildType: String = "debug",
-    ) = addNativeLibrariesToJniLibs(
-        androidTarget = androidTarget,
-        nativeCompilation = nativeCompilation,
-        variantBuildType = variantBuildType,
-        forTest = true
     )
 
     /**
