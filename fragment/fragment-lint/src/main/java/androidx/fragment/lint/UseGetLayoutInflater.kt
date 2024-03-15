@@ -31,6 +31,7 @@ import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiType
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UElement
 import org.jetbrains.uast.getContainingUClass
 
 /**
@@ -85,8 +86,8 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
             issue = ISSUE,
             location = context.getLocation(node),
             message = "Use of LayoutInflater.from($methodParameter) detected. Consider using " +
-                "${correctMethod(context)} instead",
-            quickfixData = createFix(correctMethod(context), methodParameter)
+                "${correctMethod(node)} instead",
+            quickfixData = createFix(correctMethod(node), methodParameter)
         )
     }
 
@@ -105,13 +106,13 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
             issue = ISSUE,
             location = context.getLocation(node),
             message = "Use of LayoutInflater.from(Context) detected. Consider using " +
-                "${correctMethod(context)} instead",
+                "${correctMethod(node)} instead",
             quickfixData = null
         )
     }
 
-    private fun correctMethod(context: JavaContext): String {
-        return if (isKotlin(context.psiFile)) {
+    private fun correctMethod(context: UElement): String {
+        return if (isKotlin(context.lang)) {
             "layoutInflater"
         } else {
             "getLayoutInflater()"
