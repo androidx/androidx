@@ -2862,7 +2862,7 @@ package androidx.compose.ui.platform {
     method public androidx.compose.ui.text.AnnotatedString? getText();
     method public default boolean hasClip();
     method public default boolean hasText();
-    method public default void setClip(androidx.compose.ui.platform.ClipEntry clipEntry);
+    method public default void setClip(androidx.compose.ui.platform.ClipEntry? clipEntry);
     method public void setText(androidx.compose.ui.text.AnnotatedString annotatedString);
     property public default android.content.ClipboardManager nativeClipboard;
   }
