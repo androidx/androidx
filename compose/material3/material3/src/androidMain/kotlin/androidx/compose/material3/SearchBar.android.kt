@@ -44,11 +44,11 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.GenericShape
@@ -244,22 +244,28 @@ fun SearchBar(
         finalBackProgress = finalBackProgress,
         firstBackEvent = firstBackEvent,
         currentBackEvent = currentBackEvent,
-        query = query,
-        onQueryChange = onQueryChange,
-        onSearch = onSearch,
-        active = active,
-        onActiveChange = onActiveChange,
         modifier = modifier,
-        enabled = enabled,
-        placeholder = placeholder,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
+        inputField = {
+            SearchBarInputField(
+                query = query,
+                onQueryChange = onQueryChange,
+                onSearch = onSearch,
+                active = active,
+                onActiveChange = onActiveChange,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = enabled,
+                placeholder = placeholder,
+                leadingIcon = leadingIcon,
+                trailingIcon = trailingIcon,
+                colors = colors.inputFieldColors,
+                interactionSource = interactionSource,
+            )
+        },
         shape = shape,
         colors = colors,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         windowInsets = windowInsets,
-        interactionSource = interactionSource,
         content = content,
     )
 }
@@ -332,7 +338,6 @@ fun DockedSearchBar(
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val focusManager = LocalFocusManager.current
 
     Surface(
         shape = shape,
@@ -346,6 +351,7 @@ fun DockedSearchBar(
     ) {
         Column {
             SearchBarInputField(
+                modifier = Modifier.fillMaxWidth(),
                 query = query,
                 onQueryChange = onQueryChange,
                 onSearch = onSearch,
@@ -380,17 +386,6 @@ fun DockedSearchBar(
         }
     }
 
-    val isFocused = interactionSource.collectIsFocusedAsState().value
-    val shouldClearFocus = !active && isFocused
-    LaunchedEffect(active) {
-        if (shouldClearFocus) {
-            // Not strictly needed according to the motion spec, but since the animation already has
-            // a delay, this works around b/261632544.
-            delay(AnimationDelayMillis.toLong())
-            focusManager.clearFocus()
-        }
-    }
-
     BackHandler(enabled = active) {
         onActiveChange(false)
     }
@@ -398,7 +393,7 @@ fun DockedSearchBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchBarInputField(
+internal fun SearchBarInputField(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
@@ -415,6 +410,7 @@ private fun SearchBarInputField(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     val searchSemantics = getString(Strings.SearchBarSearch)
     val suggestionsAvailableSemantics = getString(Strings.SuggestionsAvailable)
     val textColor = LocalTextStyle.current.color.takeOrElse {
@@ -426,8 +422,11 @@ private fun SearchBarInputField(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier
-            .height(InputFieldHeight)
-            .fillMaxWidth()
+            .sizeIn(
+                minWidth = SearchBarMinWidth,
+                maxWidth = SearchBarMaxWidth,
+                minHeight = InputFieldHeight,
+            )
             .focusRequester(focusRequester)
             .onFocusChanged { if (it.isFocused) onActiveChange(true) }
             .semantics {
@@ -469,6 +468,17 @@ private fun SearchBarInputField(
             )
         }
     )
+
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val shouldClearFocus = !active && isFocused
+    LaunchedEffect(active) {
+        if (shouldClearFocus) {
+            // Not strictly needed according to the motion spec, but since the animation already has
+            // a delay, this works around b/261632544.
+            delay(AnimationDelayMillis.toLong())
+            focusManager.clearFocus()
+        }
+    }
 }
 
 /**
@@ -664,27 +674,15 @@ internal fun SearchBarInternal(
     finalBackProgress: MutableFloatState,
     firstBackEvent: MutableState<BackEventCompat?>,
     currentBackEvent: MutableState<BackEventCompat?>,
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    active: Boolean,
-    onActiveChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    placeholder: @Composable (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
+    inputField: @Composable () -> Unit,
     shape: Shape = SearchBarDefaults.inputFieldShape,
     colors: SearchBarColors = SearchBarDefaults.colors(),
     tonalElevation: Dp = SearchBarDefaults.TonalElevation,
     shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
     windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
-    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    @Suppress("NAME_SHADOWING")
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
 
     val defaultInputFieldShape = SearchBarDefaults.inputFieldShape
@@ -798,20 +796,9 @@ internal fun SearchBarInternal(
             val animatedInputFieldPadding = remember {
                 AnimatedPaddingValues(animationProgress.asState(), topPadding)
             }
-            SearchBarInputField(
-                query = query,
-                onQueryChange = onQueryChange,
-                onSearch = onSearch,
-                active = active,
-                onActiveChange = onActiveChange,
-                modifier = Modifier.padding(paddingValues = animatedInputFieldPadding),
-                enabled = enabled,
-                placeholder = placeholder,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                colors = colors.inputFieldColors,
-                interactionSource = interactionSource,
-            )
+            Box(Modifier.padding(animatedInputFieldPadding), propagateMinConstraints = true) {
+                inputField()
+            }
 
             val showResults by remember {
                 derivedStateOf(structuralEqualityPolicy()) { animationProgress.value > 0 }
@@ -822,17 +809,6 @@ internal fun SearchBarInternal(
                     content()
                 }
             }
-        }
-    }
-
-    val isFocused = interactionSource.collectIsFocusedAsState().value
-    val shouldClearFocus = !active && isFocused
-    LaunchedEffect(active) {
-        if (shouldClearFocus) {
-            // Not strictly needed according to the motion spec, but since the animation already has
-            // a delay, this works around b/261632544.
-            delay(AnimationDelayMillis.toLong())
-            focusManager.clearFocus()
         }
     }
 }
