@@ -117,7 +117,7 @@ package androidx.health.connect.client.changes {
 
 package androidx.health.connect.client.contracts {
 
-  public final class ExerciseRouteRequestContract extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,androidx.health.connect.client.records.ExerciseRoute> {
+  public final class ExerciseRouteRequestContract extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,androidx.health.connect.client.records.ExerciseRoute?> {
     ctor public ExerciseRouteRequestContract();
     method public android.content.Intent createIntent(android.content.Context context, String input);
     method public androidx.health.connect.client.records.ExerciseRoute? parseResult(int resultCode, android.content.Intent? intent);

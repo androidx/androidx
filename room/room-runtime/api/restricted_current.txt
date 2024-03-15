@@ -423,7 +423,7 @@ package androidx.room.migration {
 
 package androidx.room.paging {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T!> {
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase, androidx.room.RoomSQLiteQuery, boolean, boolean, java.lang.String!...);
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase, androidx.room.RoomSQLiteQuery, boolean, java.lang.String!...);
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase, androidx.sqlite.db.SupportSQLiteQuery, boolean, boolean, java.lang.String!...);
