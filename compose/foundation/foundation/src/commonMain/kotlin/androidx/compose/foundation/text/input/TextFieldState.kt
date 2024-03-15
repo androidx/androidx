@@ -86,6 +86,16 @@ class TextFieldState internal constructor(
     )
 
     /**
+     * [TextFieldState] does not synchronize calls to [edit] but requires main thread access. It
+     * also has no way to disallow reentrant behavior (nested calls to [edit]) through the API.
+     * Instead we keep track of whether an edit session is currently running. If [edit] is called
+     * concurrently or reentered, it should throw an exception. The only exception is if
+     * [TextFieldState] is being modified in two different snapshots. Hence, this value is backed
+     * by a snapshot state.
+     */
+    private var isEditing: Boolean by mutableStateOf(false)
+
+    /**
      * The current text and selection. This value will automatically update when the user enters
      * text or otherwise changes the text field contents. To change it programmatically, call
      * [edit].
@@ -113,6 +123,10 @@ class TextFieldState internal constructor(
      * text and cursor/selection. See the documentation on [TextFieldBuffer] for a more detailed
      * description of the available operations.
      *
+     * Make sure that you do not make concurrent calls to this function or call it again inside
+     * [block]'s scope. Doing either of these actions will result in triggering an
+     * [IllegalStateException].
+     *
      * @sample androidx.compose.foundation.samples.BasicTextFieldStateEditSample
      *
      * @see setTextAndPlaceCursorAtEnd
@@ -120,8 +134,12 @@ class TextFieldState internal constructor(
      */
     inline fun edit(block: TextFieldBuffer.() -> Unit) {
         val mutableValue = startEdit(text)
-        mutableValue.block()
-        commitEdit(mutableValue)
+        try {
+            mutableValue.block()
+            commitEdit(mutableValue)
+        } finally {
+            finishEditing()
+        }
     }
 
     override fun toString(): String =
@@ -141,8 +159,13 @@ class TextFieldState internal constructor(
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
-    internal fun startEdit(value: TextFieldCharSequence): TextFieldBuffer =
-        TextFieldBuffer(value)
+    internal fun startEdit(value: TextFieldCharSequence): TextFieldBuffer {
+        check(!isEditing) {
+            "TextFieldState does not support concurrent or nested editing."
+        }
+        isEditing = true
+        return TextFieldBuffer(value)
+    }
 
     /**
      * If the text or selection in [newValue] was actually modified, updates this state's internal
@@ -161,6 +184,12 @@ class TextFieldState internal constructor(
             resetStateAndNotifyIme(finalValue)
         }
         textUndoManager.clearHistory()
+    }
+
+    @Suppress("ShowingMemberInHiddenClass")
+    @PublishedApi
+    internal fun finishEditing() {
+        isEditing = false
     }
 
     /**
