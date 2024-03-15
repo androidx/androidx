@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -96,26 +97,28 @@ internal fun rememberStaggeredGridMeasurePolicy(
             state.beyondBoundsInfo
         )
 
-        measureStaggeredGrid(
-            state = state,
-            pinnedItems = pinnedItems,
-            itemProvider = itemProvider,
-            resolvedSlots = resolvedSlots,
-            constraints = constraints.copy(
-                minWidth = constraints.constrainWidth(horizontalPadding),
-                minHeight = constraints.constrainHeight(verticalPadding)
-            ),
-            mainAxisSpacing = mainAxisSpacing.roundToPx(),
-            contentOffset = contentOffset,
-            mainAxisAvailableSize = mainAxisAvailableSize,
-            isVertical = isVertical,
-            reverseLayout = reverseLayout,
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
-            coroutineScope = coroutineScope
-        ).also {
-            state.applyMeasureResult(it)
+        val measureResult = Snapshot.withMutableSnapshot {
+            measureStaggeredGrid(
+                state = state,
+                pinnedItems = pinnedItems,
+                itemProvider = itemProvider,
+                resolvedSlots = resolvedSlots,
+                constraints = constraints.copy(
+                    minWidth = constraints.constrainWidth(horizontalPadding),
+                    minHeight = constraints.constrainHeight(verticalPadding)
+                ),
+                mainAxisSpacing = mainAxisSpacing.roundToPx(),
+                contentOffset = contentOffset,
+                mainAxisAvailableSize = mainAxisAvailableSize,
+                isVertical = isVertical,
+                reverseLayout = reverseLayout,
+                beforeContentPadding = beforeContentPadding,
+                afterContentPadding = afterContentPadding,
+                coroutineScope = coroutineScope
+            )
         }
+        state.applyMeasureResult(measureResult)
+        measureResult
     }
 }
 

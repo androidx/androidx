@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -111,15 +110,13 @@ fun LazyLayout(
             modifier,
             remember(itemContentFactory, measurePolicy) {
                 { constraints ->
-                    Snapshot.withMutableSnapshot {
-                        with(
-                            LazyLayoutMeasureScopeImpl(
-                                itemContentFactory,
-                                this
-                            )
-                        ) {
-                            measurePolicy(constraints)
-                        }
+                    with(
+                        LazyLayoutMeasureScopeImpl(
+                            itemContentFactory,
+                            this
+                        )
+                    ) {
+                        measurePolicy(constraints)
                     }
                 }
             }
