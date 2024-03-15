@@ -48,8 +48,9 @@ internal class RouteEncoder<T : Any>(
      * default implementation which further serializes nested non-primitive values). So we
      * delegate to the default entry by directly calling [super.encodeSerializableValue].
      */
-    fun encodeRouteWithArgs(value: T): String {
-        super.encodeSerializableValue(serializer, value)
+    @Suppress("UNCHECKED_CAST")
+    fun encodeRouteWithArgs(value: Any): String {
+        super.encodeSerializableValue(serializer, value as T)
         return builder.build()
     }
 
