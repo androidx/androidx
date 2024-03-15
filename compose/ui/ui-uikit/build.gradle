@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
+
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin-multiplatform")
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 kotlin {
     iosX64("uikitX64") {

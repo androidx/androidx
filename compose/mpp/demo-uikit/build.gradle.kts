@@ -1,17 +1,18 @@
 import androidx.build.AndroidXComposePlugin
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.KotlinNativeBinaryContainer
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinTargetWithBinaries
+import androidx.build.JetbrainsAndroidXPlugin
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("kotlin-multiplatform")
     id("org.jetbrains.gradle.apple.applePlugin") version "222.4550-0.22"
+    id("JetbrainsAndroidXPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 repositories {
     mavenLocal()
@@ -34,21 +35,18 @@ kotlin {
         binaries {
             configureFramework()
         }
-        substituteForOelPublishedDependencies()
     }
     if (isArm64Host) {
         iosSimulatorArm64 {
             binaries {
                 configureFramework()
             }
-            substituteForOelPublishedDependencies()
         }
     } else {
         iosX64 {
             binaries {
                 configureFramework()
             }
-            substituteForOelPublishedDependencies()
         }
     }
     sourceSets {
@@ -112,30 +110,6 @@ apple {
 
         dependencies {
             // Here we can add additional dependencies to Swift sourceSet
-        }
-    }
-}
-
-// TODO (o.k): this is copy-pasted from AndroidXComposeImplPlugin!!! Avoid duplication and refactor this
-fun KotlinNativeTarget.substituteForOelPublishedDependencies() {
-    val comp = compilations.getByName("main")
-    val androidAnnotationVersion = project.findProperty("artifactRedirecting.androidx.annotation.version")!!
-    val androidCollectionVersion = project.findProperty("artifactRedirecting.androidx.collection.version")!!
-    listOf(
-        comp.configurations.compileDependencyConfiguration,
-        comp.configurations.runtimeDependencyConfiguration,
-        comp.configurations.apiConfiguration,
-        comp.configurations.implementationConfiguration,
-        comp.configurations.runtimeOnlyConfiguration,
-        comp.configurations.compileOnlyConfiguration,
-    ).forEach {
-        it?.resolutionStrategy {
-            dependencySubstitution {
-                substitute(project(":annotation:annotation"))
-                    .using(module("androidx.annotation:annotation:$androidAnnotationVersion"))
-                substitute(project(":collection:collection"))
-                    .using(module("androidx.collection:collection:$androidCollectionVersion"))
-            }
         }
     }
 }

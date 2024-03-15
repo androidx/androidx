@@ -16,6 +16,7 @@
 
 
 import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
 
 plugins {
@@ -23,9 +24,11 @@ plugins {
     id("com.android.library")
     id("AndroidXComposePlugin")
     id("kotlinx-atomicfu")
+    id("JetbrainsAndroidXPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     dependencies {

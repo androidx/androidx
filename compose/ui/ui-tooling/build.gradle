@@ -22,6 +22,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
 def desktopEnabled = KmpPlatformsKt.enableDesktop(project)

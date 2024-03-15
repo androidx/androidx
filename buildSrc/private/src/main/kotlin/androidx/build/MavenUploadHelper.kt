@@ -59,6 +59,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
+import androidx.build.jetbrains.ArtifactRedirecting
+import androidx.build.jetbrains.artifactRedirecting
 
 fun Project.configureMavenArtifactUpload(
     extension: AndroidXExtension,
