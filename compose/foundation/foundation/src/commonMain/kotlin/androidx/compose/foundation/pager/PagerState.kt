@@ -204,7 +204,7 @@ abstract class PagerState(
      * determine scroll deltas and max min scrolling.
      */
     private fun performScroll(delta: Float): Float {
-        val currentScrollPosition = scrollPosition.currentAbsoluteScrollOffset()
+        val currentScrollPosition = currentAbsoluteScrollOffset()
         debugLog {
             "\nDelta=$delta " +
                 "\ncurrentScrollPosition=$currentScrollPosition " +
@@ -830,7 +830,7 @@ private inline fun debugLog(generateMsg: () -> String) {
     }
 }
 
-private fun PagerMeasureResult.calculateNewMaxScrollOffset(pageCount: Int): Long {
+internal fun PagerLayoutInfo.calculateNewMaxScrollOffset(pageCount: Int): Long {
     val pageSizeWithSpacing = pageSpacing + pageSize
     val maxScrollPossible =
         (pageCount.toLong()) * pageSizeWithSpacing + beforeContentPadding + afterContentPadding

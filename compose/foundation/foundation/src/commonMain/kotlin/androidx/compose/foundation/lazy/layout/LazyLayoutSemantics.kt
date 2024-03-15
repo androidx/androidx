@@ -198,8 +198,8 @@ private class LazyLayoutSemanticsModifierNode(
 
     private fun updateCachedSemanticsValues() {
         scrollAxisRange = ScrollAxisRange(
-            value = { state.pseudoScrollOffset() },
-            maxValue = { state.pseudoMaxScrollOffset() },
+            value = { state.scrollOffset },
+            maxValue = { state.maxScrollOffset },
             reverseScrolling = reverseScrolling
         )
 
@@ -236,41 +236,49 @@ private class LazyLayoutSemanticsModifierNode(
 }
 
 internal interface LazyLayoutSemanticState {
-    val firstVisibleItemScrollOffset: Int
-    val firstVisibleItemIndex: Int
-    val canScrollForward: Boolean
     val viewport: Int
     val contentPadding: Int
+    val scrollOffset: Float
+    val maxScrollOffset: Float
 
     fun collectionInfo(): CollectionInfo
     suspend fun animateScrollBy(delta: Float)
     suspend fun scrollToItem(index: Int)
+}
 
-    // It is impossible for lazy lists to provide an absolute scroll offset because the size of the
-    // items above the viewport is not known, but the AccessibilityEvent system API expects one
-    // anyway. So this provides a best-effort pseudo-offset that avoids breaking existing behavior.
-    //
-    // The key properties that A11y services are known to actually rely on are:
-    // A) each scroll change generates a TYPE_VIEW_SCROLLED AccessibilityEvent
-    // B) the integer offset in the AccessibilityEvent is different than the last one (note that the
-    // magnitude and direction of the change does not matter for the known use cases)
-    // C) scrollability is indicated by whether the scroll position is exactly 0 or exactly
-    // maxScrollOffset
-    //
-    // To preserve property B) as much as possible, the constant 500 is chosen to be larger than a
-    // single scroll delta would realistically be, while small enough to avoid losing precision due
-    // to the 24-bit float significand of ScrollAxisRange with realistic list sizes (if there are
-    // fewer than ~16000 items, the integer value is exactly preserved).
-    fun pseudoScrollOffset() =
-        (firstVisibleItemScrollOffset + firstVisibleItemIndex * 500).toFloat()
+// It is impossible for lazy lists to provide an absolute scroll offset because the size of the
+// items above the viewport is not known, but the AccessibilityEvent system API expects one
+// anyway. So this provides a best-effort pseudo-offset that avoids breaking existing behavior.
+//
+// The key properties that A11y services are known to actually rely on are:
+// A) each scroll change generates a TYPE_VIEW_SCROLLED AccessibilityEvent
+// B) the integer offset in the AccessibilityEvent is different than the last one (note that the
+// magnitude and direction of the change does not matter for the known use cases)
+// C) scrollability is indicated by whether the scroll position is exactly 0 or exactly
+// maxScrollOffset
+//
+// To preserve property B) as much as possible, the constant 500 is chosen to be larger than a
+// single scroll delta would realistically be, while small enough to avoid losing precision due
+// to the 24-bit float significand of ScrollAxisRange with realistic list sizes (if there are
+// fewer than ~16000 items, the integer value is exactly preserved).
+internal fun estimatedLazyScrollOffset(
+    firstVisibleItemIndex: Int,
+    firstVisibleItemScrollOffset: Int
+): Float {
+    return (firstVisibleItemScrollOffset + firstVisibleItemIndex * 500).toFloat()
+}
 
-    fun pseudoMaxScrollOffset() =
-        if (canScrollForward) {
-            // If we can scroll further, indicate that by setting it slightly higher than
-            // the current value
-            pseudoScrollOffset() + 100
-        } else {
-            // If we can't scroll further, the current value is the max
-            pseudoScrollOffset()
-        }.toFloat()
+internal fun estimatedLazyMaxScrollOffset(
+    firstVisibleItemIndex: Int,
+    firstVisibleItemScrollOffset: Int,
+    canScrollForward: Boolean
+): Float {
+    return if (canScrollForward) {
+        // If we can scroll further, indicate that by setting it slightly higher than
+        // the current value
+        estimatedLazyScrollOffset(firstVisibleItemIndex, firstVisibleItemScrollOffset) + 100
+    } else {
+        // If we can't scroll further, the current value is the max
+        estimatedLazyScrollOffset(firstVisibleItemIndex, firstVisibleItemScrollOffset)
+    }.toFloat()
 }
