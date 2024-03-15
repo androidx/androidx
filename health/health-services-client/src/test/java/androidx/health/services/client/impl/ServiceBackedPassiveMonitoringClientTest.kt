@@ -208,7 +208,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(fakeService.registeredCallbacks).hasSize(2)
         // Stub is not reused.
         assertThat(fakeService.registeredCallbacks[0]).isNotSameInstanceAs(
-            fakeService.registeredCallbacks[1]);
+            fakeService.registeredCallbacks[1])
     }
 
     @Test
