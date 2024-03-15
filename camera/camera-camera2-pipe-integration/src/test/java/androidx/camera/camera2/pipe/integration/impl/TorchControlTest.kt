@@ -109,7 +109,7 @@ class TorchControlTest {
             State3AControl(
                 fakeCameraProperties,
                 NoOpAutoFlashAEModeDisabler,
-                aeFpsRange
+                aeFpsRange,
             ).apply {
                 useCaseCamera = fakeUseCaseCamera
             },
@@ -130,7 +130,7 @@ class TorchControlTest {
                 State3AControl(
                     fakeCameraProperties,
                     NoOpAutoFlashAEModeDisabler,
-                    aeFpsRange
+                    aeFpsRange,
                 ).apply {
                     useCaseCamera = fakeUseCaseCamera
                 },
@@ -151,7 +151,7 @@ class TorchControlTest {
             State3AControl(
                 fakeCameraProperties,
                 NoOpAutoFlashAEModeDisabler,
-                aeFpsRange
+                aeFpsRange,
             ).apply {
 
                 useCaseCamera = fakeUseCaseCamera
@@ -175,7 +175,7 @@ class TorchControlTest {
                 State3AControl(
                     fakeCameraProperties,
                     NoOpAutoFlashAEModeDisabler,
-                    aeFpsRange
+                    aeFpsRange,
                 ).apply {
                     useCaseCamera = fakeUseCaseCamera
                 },

@@ -48,6 +48,7 @@ internal const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class FlashControl @Inject constructor(
+    private val cameraProperties: CameraProperties,
     private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
 ) : UseCaseCameraControl {
@@ -155,7 +156,8 @@ class FlashControl @Inject constructor(
         }
 
         // Enable external flash AE mode if possible
-        val isExternalFlashAeModeSupported = state3AControl.isExternalFlashAeModeSupported()
+        val isExternalFlashAeModeSupported =
+            cameraProperties.metadata.isExternalFlashAeModeSupported()
         debug {
             "startScreenFlashCaptureTasks: isExternalFlashAeModeSupported = " +
                 "$isExternalFlashAeModeSupported"
@@ -221,7 +223,7 @@ class FlashControl @Inject constructor(
             debug { "screenFlashPostCapture: ScreenFlash.clear() invoked" }
         }
 
-        if (state3AControl.isExternalFlashAeModeSupported()) {
+        if (cameraProperties.metadata.isExternalFlashAeModeSupported()) {
             // Disable external flash AE mode, ok to complete whenever
             state3AControl.tryExternalFlashAeMode = false
         }
