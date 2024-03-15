@@ -44,7 +44,7 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Energy(categories)).getResult(captureInfo, this)
+            PowerMetric(PowerMetric.Energy(categories)).getMeasurements(captureInfo, this)
         }
 
         assertEqualMeasurements(
@@ -82,7 +82,7 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.TOTAL }
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Power(categories)).getResult(captureInfo, this)
+            PowerMetric(PowerMetric.Power(categories)).getMeasurements(captureInfo, this)
         }
 
         assertEqualMeasurements(
@@ -116,7 +116,7 @@ class PowerMetricTest {
         )
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Power(categories)).getResult(captureInfo, this)
+            PowerMetric(PowerMetric.Power(categories)).getMeasurements(captureInfo, this)
         }
 
         assertEqualMeasurements(
@@ -144,7 +144,7 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Energy(categories)).getResult(captureInfo, this)
+            PowerMetric(PowerMetric.Energy(categories)).getMeasurements(captureInfo, this)
         }
 
         assertEquals(emptyList(), actualMetrics)
@@ -158,7 +158,7 @@ class PowerMetricTest {
         val traceFile = createTempFileFromAsset("api31_battery_discharge", ".perfetto-trace")
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Battery()).getResult(captureInfo, this)
+            PowerMetric(PowerMetric.Battery()).getMeasurements(captureInfo, this)
         }
 
         assertEqualMeasurements(
