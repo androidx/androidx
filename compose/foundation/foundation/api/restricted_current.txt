@@ -1751,6 +1751,7 @@ package androidx.compose.foundation.text.input {
     ctor public TextFieldState(optional String initialText, optional long initialSelection);
     method @kotlin.PublishedApi internal void commitEdit(androidx.compose.foundation.text.input.TextFieldBuffer newValue);
     method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text.input.TextFieldBuffer,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal void finishEditing();
     method public androidx.compose.foundation.text.input.TextFieldCharSequence getText();
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.UndoState getUndoState();
     method @kotlin.PublishedApi internal androidx.compose.foundation.text.input.TextFieldBuffer startEdit(androidx.compose.foundation.text.input.TextFieldCharSequence value);
