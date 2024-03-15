@@ -135,7 +135,8 @@ internal class RippleHostView(
         }
         val ripple = ripple!!
         this.onInvalidateRipple = onInvalidateRipple
-        updateRippleProperties(size, radius, color, alpha)
+        ripple.trySetRadius(radius)
+        setRippleProperties(size, color, alpha)
         if (bounded) {
             // Bounded ripples should animate from the press position
             ripple.setHotspot(interaction.pressPosition.x, interaction.pressPosition.y)
@@ -161,13 +162,10 @@ internal class RippleHostView(
     }
 
     /**
-     * Update the underlying [RippleDrawable] with the new properties. Note that changes to
-     * [size] or [radius] while a ripple is animating will cause the animation to move to the UI
-     * thread, so it is important to also provide the correct values in [addRipple].
+     * Update the underlying [RippleDrawable] with the new properties.
      */
-    fun updateRippleProperties(
+    fun setRippleProperties(
         size: Size,
-        radius: Int,
         color: Color,
         alpha: Float
     ) {
@@ -176,7 +174,6 @@ internal class RippleHostView(
         // (either here or internally in RippleDrawable). Many properties invalidate the ripple when
         // changed, which will lead to a call to updateRippleProperties again, which will cause
         // another invalidation, etc.
-        ripple.trySetRadius(radius)
         ripple.setColor(color, alpha)
         val newBounds = Rect(
             0,

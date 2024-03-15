@@ -126,18 +126,7 @@ internal class AndroidRippleNode(
             invalidateDraw()
         }
 
-    /**
-     * Cache the size of the canvas we will draw the ripple into - this is updated each time
-     * [draw] is called. This is needed as before we start animating the ripple, we
-     * need to know its size (changing the bounds mid-animation will cause us to continue the
-     * animation on the UI thread, not the render thread), but the size is only known inside the
-     * draw scope.
-     */
-    private var rippleSize: Size = Size.Zero
-
     override fun DrawScope.drawRipples() {
-        rippleSize = size
-
         drawIntoCanvas { canvas ->
             rippleHostView?.run {
                 // We set these inside addRipple() already, but they may change during the ripple
@@ -146,9 +135,14 @@ internal class AndroidRippleNode(
                 // currently drawn ripples if the ripples are being drawn on the RenderThread,
                 // since only the software paint is updated, not the hardware paint used in
                 // RippleForeground.
-                updateRippleProperties(
-                    size = size,
-                    radius = targetRadius.roundToInt(),
+                // Radius updates will not take effect until the next ripple, so if the size changes
+                // the only way to update the calculated radius is by using
+                // RippleDrawable.RADIUS_AUTO to calculate the radius from the bounds automatically.
+                // But in this case, if the bounds change, the animation will switch to the UI
+                // thread instead of render thread, so this isn't clearly desired either.
+                // b/183019123
+                setRippleProperties(
+                    size = rippleSize,
                     color = rippleColor,
                     alpha = rippleAlpha().pressedAlpha
                 )
@@ -158,13 +152,13 @@ internal class AndroidRippleNode(
         }
     }
 
-    override fun addRipple(interaction: PressInteraction.Press) {
+    override fun addRipple(interaction: PressInteraction.Press, size: Size, targetRadius: Float) {
         rippleHostView = with(getOrCreateRippleContainer()) {
             getRippleHostView().apply {
                 addRipple(
                     interaction = interaction,
                     bounded = bounded,
-                    size = rippleSize,
+                    size = size,
                     radius = targetRadius.roundToInt(),
                     color = rippleColor,
                     alpha = rippleAlpha().pressedAlpha,
@@ -280,9 +274,8 @@ internal class AndroidRippleIndicationInstance(
                 // currently drawn ripples if the ripples are being drawn on the RenderThread,
                 // since only the software paint is updated, not the hardware paint used in
                 // RippleForeground.
-                updateRippleProperties(
+                setRippleProperties(
                     size = size,
-                    radius = rippleRadius,
                     color = color,
                     alpha = alpha
                 )
