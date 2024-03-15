@@ -50,6 +50,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
@@ -117,7 +118,7 @@ class ConstraintTrackingWorkerTest {
         workerFactory.await(workerWrapper.workSpecId)
         future.await()
         assertThat(workManager.awaitNotRunning(workerWrapper)).isEqualTo(State.SUCCEEDED)
-        val outputData = workManager.getWorkInfoById(workerWrapper.workSpecId).await().outputData
+        val outputData = workManager.getWorkInfoById(workerWrapper.workSpecId).await()!!.outputData
         assertThat(outputData.getBoolean(TEST_ARGUMENT_NAME, false)).isTrue()
     }
 
@@ -204,7 +205,8 @@ class SelfCancellingWorker(
 }
 
 private suspend fun WorkManager.awaitNotRunning(workerWrapper: WorkerWrapper) =
-    getWorkInfoByIdFlow(workerWrapper.workSpecId).first { it.state != State.RUNNING }.state
+    getWorkInfoByIdFlow(workerWrapper.workSpecId).filterNotNull()
+        .first { it.state != State.RUNNING }.state
 
 private val WorkerWrapper.workSpecId
     get() = UUID.fromString(workGenerationalId.workSpecId)
