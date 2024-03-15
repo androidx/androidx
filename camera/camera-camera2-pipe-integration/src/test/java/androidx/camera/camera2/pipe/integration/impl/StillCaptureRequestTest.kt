@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
@@ -91,10 +92,18 @@ class StillCaptureRequestTest {
 
     private lateinit var fakeUseCaseCamera: UseCaseCamera
 
+    private val torchControl = TorchControl(
+        fakeCameraProperties,
+        fakeState3AControl,
+        fakeUseCaseThreads
+    )
+
     private val flashControl = FlashControl(
         fakeCameraProperties,
         fakeState3AControl,
         fakeUseCaseThreads,
+        torchControl,
+        NotUseFlashModeTorchFor3aUpdate,
     )
 
     private val stillCaptureRequestControl = StillCaptureRequestControl(
@@ -439,17 +448,18 @@ class StillCaptureRequestTest {
             threads = fakeUseCaseThreads,
             sessionProcessorManager = null,
         )
+        val torchControl = TorchControl(
+            fakeCameraProperties,
+            fakeState3AControl,
+            fakeUseCaseThreads
+        )
         requestControl = UseCaseCameraRequestControlImpl(
             capturePipeline = CapturePipelineImpl(
                 configAdapter = fakeConfigAdapter,
                 cameraProperties = fakeCameraProperties,
                 requestListener = ComboRequestListener(),
                 threads = fakeUseCaseThreads,
-                torchControl = TorchControl(
-                    fakeCameraProperties,
-                    fakeState3AControl,
-                    fakeUseCaseThreads
-                ),
+                torchControl = torchControl,
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
                 useCaseCameraState = fakeUseCaseCameraState,
                 useTorchAsFlash = NotUseTorchAsFlash,
@@ -458,6 +468,8 @@ class StillCaptureRequestTest {
                     cameraProperties = fakeCameraProperties,
                     state3AControl = fakeState3AControl,
                     threads = fakeUseCaseThreads,
+                    torchControl = torchControl,
+                    useFlashModeTorchFor3aUpdate = NotUseFlashModeTorchFor3aUpdate,
                 ),
             ),
             state = fakeUseCaseCameraState,

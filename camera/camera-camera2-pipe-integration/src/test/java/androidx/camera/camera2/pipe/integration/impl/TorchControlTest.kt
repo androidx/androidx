@@ -198,6 +198,30 @@ class TorchControlTest {
     }
 
     @Test
+    fun enableTorch_torchStateOn_whenNoFlashUnit_butFlashUnitAvailabilityIsIgnored() = runBlocking {
+        val fakeUseCaseCamera = FakeUseCaseCamera()
+        val fakeCameraProperties = FakeCameraProperties()
+
+        val torchControl = TorchControl(
+            fakeCameraProperties,
+            State3AControl(
+                fakeCameraProperties,
+                NoOpAutoFlashAEModeDisabler,
+                aeFpsRange,
+            ).apply {
+                useCaseCamera = fakeUseCaseCamera
+            },
+            fakeUseCaseThreads,
+        ).also {
+            it.useCaseCamera = fakeUseCaseCamera
+            it.setTorchAsync(torch = true, ignoreFlashUnitAvailability = true)
+        }
+
+        // LiveData is updated synchronously. Don't need to wait for the result of the setTorchAsync
+        Truth.assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.ON)
+    }
+
+    @Test
     fun disableTorch_TorchStateOff() {
         torchControl.setTorchAsync(true)
         // LiveData is updated synchronously. Don't need to wait for the result of the setTorchAsync
