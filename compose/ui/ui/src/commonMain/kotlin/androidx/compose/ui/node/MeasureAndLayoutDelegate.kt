@@ -456,6 +456,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                 layoutNode.replace()
                 onPositionedDispatcher.onNodePositioned(layoutNode)
             }
+
+            drainPostponedMeasureRequests()
         }
         callOnLayoutCompletedListeners()
     }
@@ -568,21 +570,24 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                     }
                 }
             }
-            // execute postponed `onRequestMeasure`
-            if (postponedMeasureRequests.isNotEmpty()) {
-                postponedMeasureRequests.forEach { request ->
-                    if (request.node.isAttached) {
-                        if (!request.isLookahead) {
-                            requestRemeasure(request.node, request.isForced)
-                        } else {
-                            requestLookaheadRemeasure(request.node, request.isForced)
-                        }
-                    }
-                }
-                postponedMeasureRequests.clear()
-            }
+            drainPostponedMeasureRequests()
         }
         return sizeChanged
+    }
+
+    private fun drainPostponedMeasureRequests() {
+        if (postponedMeasureRequests.isNotEmpty()) {
+            postponedMeasureRequests.forEach { request ->
+                if (request.node.isAttached) {
+                    if (!request.isLookahead) {
+                        requestRemeasure(request.node, request.isForced)
+                    } else {
+                        requestLookaheadRemeasure(request.node, request.isForced)
+                    }
+                }
+            }
+            postponedMeasureRequests.clear()
+        }
     }
 
     /**

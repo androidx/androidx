@@ -163,36 +163,38 @@ internal fun rememberPagerMeasurePolicy(
             beyondBoundsInfo = state.beyondBoundsInfo
         )
 
-        measurePager(
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
-            constraints = contentConstraints,
-            pageCount = pageCount(),
-            spaceBetweenPages = spaceBetweenPages,
-            mainAxisAvailableSize = mainAxisAvailableSize,
-            visualPageOffset = visualItemOffset,
-            pageAvailableSize = pageAvailableSize,
-            outOfBoundsPageCount = outOfBoundsPageCount,
-            orientation = orientation,
-            currentPage = currentPage,
-            currentPageOffset = currentPageOffset,
-            horizontalAlignment = horizontalAlignment,
-            verticalAlignment = verticalAlignment,
-            pagerItemProvider = itemProvider,
-            reverseLayout = reverseLayout,
-            pinnedPages = pinnedPages,
-            snapPosition = snapPosition,
-            placementScopeInvalidator = state.placementScopeInvalidator,
-            layout = { width, height, placement ->
-                layout(
-                    containerConstraints.constrainWidth(width + totalHorizontalPadding),
-                    containerConstraints.constrainHeight(height + totalVerticalPadding),
-                    emptyMap(),
-                    placement
-                )
-            }
-        ).also {
-            state.applyMeasureResult(it)
+        val measureResult = Snapshot.withMutableSnapshot {
+            measurePager(
+                beforeContentPadding = beforeContentPadding,
+                afterContentPadding = afterContentPadding,
+                constraints = contentConstraints,
+                pageCount = pageCount(),
+                spaceBetweenPages = spaceBetweenPages,
+                mainAxisAvailableSize = mainAxisAvailableSize,
+                visualPageOffset = visualItemOffset,
+                pageAvailableSize = pageAvailableSize,
+                outOfBoundsPageCount = outOfBoundsPageCount,
+                orientation = orientation,
+                currentPage = currentPage,
+                currentPageOffset = currentPageOffset,
+                horizontalAlignment = horizontalAlignment,
+                verticalAlignment = verticalAlignment,
+                pagerItemProvider = itemProvider,
+                reverseLayout = reverseLayout,
+                pinnedPages = pinnedPages,
+                snapPosition = snapPosition,
+                placementScopeInvalidator = state.placementScopeInvalidator,
+                layout = { width, height, placement ->
+                    layout(
+                        containerConstraints.constrainWidth(width + totalHorizontalPadding),
+                        containerConstraints.constrainHeight(height + totalVerticalPadding),
+                        emptyMap(),
+                        placement
+                    )
+                }
+            )
         }
+        state.applyMeasureResult(measureResult)
+        measureResult
     }
 }
