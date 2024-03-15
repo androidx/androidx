@@ -25,10 +25,9 @@ import androidx.compose.runtime.remember
 @Composable
 internal fun rememberPagerSemanticState(
     state: PagerState,
-    reverseScrolling: Boolean,
     isVertical: Boolean
 ): LazyLayoutSemanticState {
-    return remember(state, reverseScrolling, isVertical) {
+    return remember(state, isVertical) {
         LazyLayoutSemanticState(state, isVertical)
     }
 }
