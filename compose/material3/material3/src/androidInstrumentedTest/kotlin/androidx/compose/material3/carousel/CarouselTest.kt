@@ -136,7 +136,7 @@ class CarouselTest {
         val smallSize = 100f
         val mediumSize = 200f
         val largeSize = 400f
-        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, CarouselAlignment.Start) {
+        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, 0f, CarouselAlignment.Start) {
             add(xSmallSize, isAnchor = true)
             add(largeSize)
             add(mediumSize)
@@ -145,13 +145,41 @@ class CarouselTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        val strategy = Strategy { keylineList }.apply(1000f)
+        val strategy = Strategy { _, _ ->
+            keylineList
+        }.apply(availableSpace = 1000f, itemSpacing = 0f)
         val outOfBoundsNum = calculateOutOfBounds(strategy)
         // With this strategy, we expect 3 loaded items
         val loadedItems = 3
 
         assertThat(outOfBoundsNum).isEqualTo(
-            (keylineList.filter { !it.isAnchor }.size - loadedItems) + 1)
+            (keylineList.filter { !it.isAnchor }.size - loadedItems) + 1
+        )
+    }
+
+    @Test
+    fun carousel_correctlyCalculatesMaxScrollOffsetWithItemSpacing() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val state = rememberCarouselState { 10 }.also {
+                carouselState = it
+            }
+            val strategy = Strategy { availableSpace, itemSpacing ->
+                keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Start) {
+                    add(10f, isAnchor = true)
+                    add(186f)
+                    add(122f)
+                    add(56f)
+                    add(10f, isAnchor = true)
+                }
+            }.apply(availableSpace = 380f, itemSpacing = 8f)
+
+            // Max offset should only add item spacing between each item
+            val expectedMaxScrollOffset = (186f * 10) + (8f * 9) - 380f
+
+            assertThat(calculateMaxScrollOffset(state, strategy)).isEqualTo(
+                expectedMaxScrollOffset
+            )
+        }
     }
 
     @Composable
@@ -185,12 +213,12 @@ class CarouselTest {
             Carousel(
                 state = state,
                 orientation = orientation,
-                keylineList = { availableSpace ->
+                keylineList = { availableSpace, itemSpacing ->
                     multiBrowseKeylineList(
                         density = density,
                         carouselMainAxisSize = availableSpace,
                         preferredItemSize = with(density) { 186.dp.toPx() },
-                        itemSpacing = 0f,
+                        itemSpacing = itemSpacing,
                         itemCount = itemCount.invoke(),
                     )
                 },

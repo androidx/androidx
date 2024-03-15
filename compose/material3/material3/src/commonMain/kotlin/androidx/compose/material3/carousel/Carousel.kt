@@ -16,8 +16,8 @@
 
 package androidx.compose.material3.carousel
 
+import androidx.annotation.VisibleForTesting
 import androidx.collection.IntIntMap
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.layout.Box
@@ -91,14 +91,14 @@ internal fun HorizontalMultiBrowseCarousel(
     Carousel(
         state = state,
         orientation = Orientation.Horizontal,
-        keylineList = { availableSpace ->
+        keylineList = { availableSpace, itemSpacingPx ->
             with(density) {
                 multiBrowseKeylineList(
                     density = this,
                     carouselMainAxisSize = availableSpace,
                     preferredItemSize = preferredItemSize.toPx(),
-                    itemSpacing = itemSpacing.toPx(),
                     itemCount = state.itemCountState.value.invoke(),
+                    itemSpacing = itemSpacingPx,
                     minSmallSize = minSmallSize.toPx(),
                     maxSmallSize = maxSmallSize.toPx(),
                 )
@@ -144,13 +144,13 @@ internal fun HorizontalUncontainedCarousel(
     Carousel(
         state = state,
         orientation = Orientation.Horizontal,
-        keylineList = {
+        keylineList = { availableSpace, itemSpacingPx ->
             with(density) {
                 uncontainedKeylineList(
                     density = this,
-                    carouselMainAxisSize = state.pagerState.layoutInfo.viewportSize.width.toFloat(),
+                    carouselMainAxisSize = availableSpace,
                     itemSize = itemSize.toPx(),
-                    itemSpacing = itemSpacing.toPx(),
+                    itemSpacing = itemSpacingPx,
                 )
             }
         },
@@ -182,7 +182,7 @@ internal fun HorizontalUncontainedCarousel(
 internal fun Carousel(
     state: CarouselState,
     orientation: Orientation,
-    keylineList: (availableSpace: Float) -> KeylineList?,
+    keylineList: (availableSpace: Float, itemSpacing: Float) -> KeylineList?,
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 0.dp,
     flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state.pagerState),
@@ -275,10 +275,12 @@ internal fun calculateOutOfBounds(strategy: Strategy): Int {
  * @param keylineList The list of keylines that are fixed positions along the scrolling axis which
  * define the state an item should be in when its center is co-located with the keyline's position.
  */
-private class CarouselPageSize(keylineList: (availableSpace: Float) -> KeylineList?) : PageSize {
+private class CarouselPageSize(
+    keylineList: (availableSpace: Float, itemSpacing: Float) -> KeylineList?
+) : PageSize {
     val strategy = Strategy(keylineList)
     override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
-        strategy.apply(availableSpace.toFloat())
+        strategy.apply(availableSpace.toFloat(), pageSpacing.toFloat())
         return if (strategy.isValid()) {
             strategy.itemMainAxisSize.roundToInt()
         } else {
@@ -316,7 +318,7 @@ internal value class CarouselAlignment private constructor(internal val value: I
  * @param itemPositionMap the position of each index when it is the current item
  * @param isRtl whether or not the carousel is rtl
  */
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun Modifier.carouselItem(
     index: Int,
     state: CarouselState,
@@ -324,17 +326,8 @@ internal fun Modifier.carouselItem(
     itemPositionMap: IntIntMap,
     isRtl: Boolean
 ): Modifier {
-    val viewportSize = state.pagerState.layoutInfo.viewportSize
-    val orientation = state.pagerState.layoutInfo.orientation
-    val isVertical = orientation == Orientation.Vertical
-    val mainAxisCarouselSize = if (isVertical) viewportSize.height else viewportSize.width
-
-    if (mainAxisCarouselSize == 0 || !strategy.isValid()) {
-        return this
-    }
-    val itemsCount = state.pagerState.pageCount
-    val maxScrollOffset =
-        itemsCount * strategy.itemMainAxisSize - mainAxisCarouselSize
+    if (!strategy.isValid()) return this
+    val isVertical = state.pagerState.layoutInfo.orientation == Orientation.Vertical
 
     return layout { measurable, constraints ->
         // Force the item to use the strategy's itemMainAxisSize along its main axis
@@ -360,16 +353,15 @@ internal fun Modifier.carouselItem(
             placeable.place(0, 0)
         }
     }.graphicsLayer {
-        val currentItemScrollOffset =
-            (state.pagerState.currentPage * strategy.itemMainAxisSize) +
-                (state.pagerState.currentPageOffsetFraction * strategy.itemMainAxisSize)
-        val scrollOffset = currentItemScrollOffset -
-            (if (itemPositionMap.size > 0) itemPositionMap[state.pagerState.currentPage] else 0)
+        val scrollOffset = calculateCurrentScrollOffset(state, strategy, itemPositionMap)
+        val maxScrollOffset = calculateMaxScrollOffset(state, strategy)
+        // TODO: Reduce the number of times a keyline for the same scroll offset is calculated
         val keylines = strategy.getKeylineListForScrollOffset(scrollOffset, maxScrollOffset)
 
         // Find center of the item at this index
+        val itemSizeWithSpacing = strategy.itemMainAxisSize + strategy.itemSpacing
         val unadjustedCenter =
-            (index * strategy.itemMainAxisSize) + (strategy.itemMainAxisSize / 2f) - scrollOffset
+            (index * itemSizeWithSpacing) + (strategy.itemMainAxisSize / 2f) - scrollOffset
 
         // Find the keyline before and after this item's center and create an interpolated
         // keyline that the item should use for its clip shape and offset
@@ -385,6 +377,7 @@ internal fun Modifier.carouselItem(
         clip = true
         shape = object : Shape {
             // TODO: Find a way to use the shape of the item set by the client for each item
+            // TODO: Allow corner size customization
             val roundedCornerShape = RoundedCornerShape(ShapeDefaults.ExtraLarge.topStart)
             override fun createOutline(
                 size: Size,
@@ -439,6 +432,32 @@ internal fun Modifier.carouselItem(
             translationX = if (isRtl) -translation else translation
         }
     }
+}
+
+/** Calculates the current scroll offset given item count, sizing, spacing, and snap position. */
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun calculateCurrentScrollOffset(
+    state: CarouselState,
+    strategy: Strategy,
+    snapPositionMap: IntIntMap
+): Float {
+    val itemSizeWithSpacing = strategy.itemMainAxisSize + strategy.itemSpacing
+    val currentItemScrollOffset =
+        (state.pagerState.currentPage * itemSizeWithSpacing) +
+            (state.pagerState.currentPageOffsetFraction * itemSizeWithSpacing)
+    return currentItemScrollOffset -
+        (if (snapPositionMap.size > 0) snapPositionMap[state.pagerState.currentPage] else 0)
+}
+
+/** Returns the max scroll offset given the item count, sizing, and spacing. */
+@OptIn(ExperimentalMaterial3Api::class)
+@VisibleForTesting
+internal fun calculateMaxScrollOffset(state: CarouselState, strategy: Strategy): Float {
+    val itemCount = state.pagerState.pageCount.toFloat()
+    val maxScrollPossible = (strategy.itemMainAxisSize * itemCount) +
+        (strategy.itemSpacing * (itemCount - 1))
+
+    return (maxScrollPossible - strategy.availableSpace).coerceAtLeast(0f)
 }
 
 /**

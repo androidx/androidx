@@ -59,7 +59,7 @@ internal object StrategyDefaults {
  * carousel's available space. This function will be called anytime availableSpace changes.
  */
 internal class Strategy(
-    private val keylineList: (availableSpace: Float) -> KeylineList?
+    private val keylineList: (availableSpace: Float, itemSpacing: Float) -> KeylineList?
 ) {
 
     /** The keylines generated from the [keylineList] block. */
@@ -92,7 +92,9 @@ internal class Strategy(
     private lateinit var endShiftPoints: FloatList
 
     /** The available space in the main axis used in the most recent call to [apply]. */
-    private var availableSpace: Float = 0f
+    internal var availableSpace: Float = 0f
+    /** The spacing between each item. */
+    internal var itemSpacing: Float = 0f
     /** The size of items when in focus and fully unmasked. */
     internal var itemMainAxisSize by mutableFloatStateOf(0f)
 
@@ -111,17 +113,17 @@ internal class Strategy(
      *
      * @param availableSpace the size of the carousel container in scrolling axis
      */
-    internal fun apply(availableSpace: Float): Strategy {
+    internal fun apply(availableSpace: Float, itemSpacing: Float): Strategy {
         // Skip computing new keylines and updating this strategy if
         // available space has not changed.
-        if (this.availableSpace == availableSpace) {
+        if (this.availableSpace == availableSpace && this.itemSpacing == itemSpacing) {
             return this
         }
 
-        val keylineList = keylineList.invoke(availableSpace) ?: return this
-        val startKeylineSteps = getStartKeylineSteps(keylineList, availableSpace)
+        val keylineList = keylineList.invoke(availableSpace, itemSpacing) ?: return this
+        val startKeylineSteps = getStartKeylineSteps(keylineList, availableSpace, itemSpacing)
         val endKeylineSteps =
-            getEndKeylineSteps(keylineList, availableSpace)
+            getEndKeylineSteps(keylineList, availableSpace, itemSpacing)
 
         // TODO: Update this to use the first/last focal keylines to calculate shift?
         val startShiftDistance = startKeylineSteps.last().first().unadjustedOffset -
@@ -146,6 +148,7 @@ internal class Strategy(
             false
         )
         this.availableSpace = availableSpace
+        this.itemSpacing = itemSpacing
         this.itemMainAxisSize = defaultKeylines.firstFocal.size
 
         return this
@@ -236,6 +239,7 @@ internal class Strategy(
 
         if (isValid() != other.isValid()) return false
         if (availableSpace != other.availableSpace) return false
+        if (itemSpacing != other.itemSpacing) return false
         if (itemMainAxisSize != other.itemMainAxisSize) return false
         if (startShiftDistance != other.startShiftDistance) return false
         if (endShiftDistance != other.endShiftDistance) return false
@@ -253,6 +257,7 @@ internal class Strategy(
 
         var result = isValid().hashCode()
         result = 31 * result + availableSpace.hashCode()
+        result = 31 * result + itemSpacing.hashCode()
         result = 31 * result + itemMainAxisSize.hashCode()
         result = 31 * result + startShiftDistance.hashCode()
         result = 31 * result + endShiftDistance.hashCode()
@@ -282,7 +287,8 @@ internal class Strategy(
          */
         private fun getStartKeylineSteps(
             defaultKeylines: KeylineList,
-            carouselMainAxisSize: Float
+            carouselMainAxisSize: Float,
+            itemSpacing: Float
         ): List<KeylineList> {
             val steps: MutableList<KeylineList> = mutableListOf()
             steps.add(defaultKeylines)
@@ -303,7 +309,8 @@ internal class Strategy(
                         from = defaultKeylines,
                         srcIndex = 0,
                         dstIndex = 0,
-                        carouselMainAxisSize = carouselMainAxisSize
+                        carouselMainAxisSize = carouselMainAxisSize,
+                        itemSpacing = itemSpacing
                     )
                 )
                 return steps
@@ -326,7 +333,8 @@ internal class Strategy(
                         from = prevStep,
                         srcIndex = defaultKeylines.firstNonAnchorIndex,
                         dstIndex = dstIndex,
-                        carouselMainAxisSize = carouselMainAxisSize
+                        carouselMainAxisSize = carouselMainAxisSize,
+                        itemSpacing = itemSpacing
                     )
                 )
                 i++
@@ -353,7 +361,8 @@ internal class Strategy(
          */
         private fun getEndKeylineSteps(
             defaultKeylines: KeylineList,
-            carouselMainAxisSize: Float
+            carouselMainAxisSize: Float,
+            itemSpacing: Float
         ): List<KeylineList> {
             val steps: MutableList<KeylineList> = mutableListOf()
             steps.add(defaultKeylines)
@@ -374,7 +383,8 @@ internal class Strategy(
                         from = defaultKeylines,
                         srcIndex = 0,
                         dstIndex = 0,
-                        carouselMainAxisSize = carouselMainAxisSize
+                        carouselMainAxisSize = carouselMainAxisSize,
+                        itemSpacing = itemSpacing
                     )
                 )
                 return steps
@@ -397,7 +407,8 @@ internal class Strategy(
                     from = prevStep,
                     srcIndex = defaultKeylines.lastNonAnchorIndex,
                     dstIndex = dstIndex,
-                    carouselMainAxisSize = carouselMainAxisSize
+                    carouselMainAxisSize = carouselMainAxisSize,
+                    itemSpacing = itemSpacing
                 )
                 steps.add(keylines)
                 i++
@@ -414,14 +425,15 @@ internal class Strategy(
             from: KeylineList,
             srcIndex: Int,
             dstIndex: Int,
-            carouselMainAxisSize: Float
+            carouselMainAxisSize: Float,
+            itemSpacing: Float
         ): KeylineList {
             // -1 if the pivot is shifting left/top, 1 if shifting right/bottom
             val pivotDir = if (srcIndex > dstIndex) 1 else -1
-            val pivotDelta = (from[srcIndex].size - from[srcIndex].cutoff) * pivotDir
+            val pivotDelta = (from[srcIndex].size - from[srcIndex].cutoff + itemSpacing) * pivotDir
             val newPivotIndex = from.pivotIndex + pivotDir
             val newPivotOffset = from.pivot.offset + pivotDelta
-            return keylineListOf(carouselMainAxisSize, newPivotIndex, newPivotOffset) {
+            return keylineListOf(carouselMainAxisSize, itemSpacing, newPivotIndex, newPivotOffset) {
                 from.toMutableList()
                     .move(srcIndex, dstIndex)
                     .fastForEach { k -> add(k.size, k.isAnchor) }

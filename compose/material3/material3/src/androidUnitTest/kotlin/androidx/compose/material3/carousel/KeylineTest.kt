@@ -35,7 +35,11 @@ class KeylineTest {
     @Test
     fun testKeylineList_pivotsWithCorrectCutoffsRight() {
         val carouselMainAxisSize = LargeSize + (MediumSize * .75f).roundToInt()
-        val keylineList = keylineListOf(carouselMainAxisSize, CarouselAlignment.Start) {
+        val keylineList = keylineListOf(
+            carouselMainAxisSize = carouselMainAxisSize,
+            itemSpacing = 0f,
+            carouselAlignment = CarouselAlignment.Start
+        ) {
             add(SmallSize, isAnchor = true)
             add(LargeSize)
             add(MediumSize)
@@ -49,7 +53,11 @@ class KeylineTest {
     @Test
     fun testKeylineList_pivotsWithCorrectCutoffsLeft() {
         val carouselMainAxisSize = (MediumSize * .75f).roundToInt() + LargeSize
-        val keylineList = keylineListOf(carouselMainAxisSize, CarouselAlignment.End) {
+        val keylineList = keylineListOf(
+            carouselMainAxisSize = carouselMainAxisSize,
+            itemSpacing = 0f,
+            carouselAlignment = CarouselAlignment.End
+        ) {
             add(SmallSize, isAnchor = true)
             add(MediumSize)
             add(LargeSize)
@@ -95,7 +103,12 @@ class KeylineTest {
     @Test
     fun testKeylineListLerp() {
         val carouselMainAxisSize = StrategyTest.large + StrategyTest.medium + StrategyTest.small
-        val from = keylineListOf(carouselMainAxisSize, 1, StrategyTest.large / 2) {
+        val from = keylineListOf(
+            carouselMainAxisSize = carouselMainAxisSize,
+            itemSpacing = 0f,
+            pivotIndex = 1,
+            pivotOffset = StrategyTest.large / 2
+        ) {
             add(StrategyTest.xSmall, isAnchor = true)
             add(StrategyTest.large)
             add(StrategyTest.medium)
@@ -103,9 +116,10 @@ class KeylineTest {
             add(StrategyTest.xSmall, isAnchor = true)
         }
         val to = keylineListOf(
-            carouselMainAxisSize,
-            2,
-            StrategyTest.small + (StrategyTest.large / 2)
+            carouselMainAxisSize = carouselMainAxisSize,
+            itemSpacing = 0f,
+            pivotIndex = 2,
+            pivotOffset = StrategyTest.small + (StrategyTest.large / 2)
         ) {
             add(StrategyTest.xSmall, isAnchor = true)
             add(StrategyTest.small)
@@ -134,13 +148,21 @@ class KeylineTest {
 
     @Test
     fun test_keylineListsShouldBeEqual() {
-        val keylineList1 = keylineListOf(120f, CarouselAlignment.Start) {
+        val keylineList1 = keylineListOf(
+            carouselMainAxisSize = 120f,
+            itemSpacing = 0f,
+            carouselAlignment = CarouselAlignment.Start
+        ) {
             add(10f, true)
             add(100f)
             add(20f)
             add(10f, true)
         }
-        val keylineList2 = keylineListOf(120f, CarouselAlignment.Start) {
+        val keylineList2 = keylineListOf(
+            carouselMainAxisSize = 120f,
+            itemSpacing = 0f,
+            carouselAlignment = CarouselAlignment.Start
+        ) {
             add(10f, true)
             add(100f)
             add(20f)
@@ -153,13 +175,21 @@ class KeylineTest {
 
     @Test
     fun testDifferentSizedItem_keylineListsShouldNotBeEqual() {
-        val keylineList1 = keylineListOf(120f, CarouselAlignment.Start) {
+        val keylineList1 = keylineListOf(
+            carouselMainAxisSize = 120f,
+            itemSpacing = 0f,
+            carouselAlignment = CarouselAlignment.Start
+        ) {
             add(11f, true)
             add(100f)
             add(20f)
             add(10f, true)
         }
-        val keylineList2 = keylineListOf(120f, CarouselAlignment.Start) {
+        val keylineList2 = keylineListOf(
+            carouselMainAxisSize = 120f,
+            itemSpacing = 0f,
+            carouselAlignment = CarouselAlignment.Start
+        ) {
             add(10f, true)
             add(100f)
             add(20f)
@@ -168,6 +198,80 @@ class KeylineTest {
 
         assertThat(keylineList1 == keylineList2).isFalse()
         assertThat(keylineList1.hashCode()).isNotEqualTo(keylineList2.hashCode())
+    }
+
+    @Test
+    fun testStartKeylines_shouldAddSpacingBetweenItems() {
+        val keylines = keylineListOf(
+            carouselMainAxisSize = 380f,
+            itemSpacing = 8f,
+            carouselAlignment = CarouselAlignment.Start
+        ) {
+            add(10f, isAnchor = true)
+            add(186f)
+            add(122f)
+            add(56f)
+            add(10f, isAnchor = true)
+        }
+
+        val actualOffsets = keylines.map { it.offset }.toFloatArray()
+        val expectedOffsets = floatArrayOf(-13f, 93f, 255f, 352f, 393f)
+        assertThat(actualOffsets).isEqualTo(expectedOffsets)
+
+        val actualUnadjustedOffsets = keylines.map { it.unadjustedOffset }.toFloatArray()
+        val expectedUnadjustedOffsets = floatArrayOf(-101f, 93f, 287f, 481f, 675f)
+        assertThat(actualUnadjustedOffsets).isEqualTo(expectedUnadjustedOffsets)
+    }
+
+    @Test
+    fun testCenteredKeylines_shouldAddSpacingBetweenItems() {
+        val keylines = keylineListOf(
+            carouselMainAxisSize = 768f,
+            itemSpacing = 8f,
+            carouselAlignment = CarouselAlignment.Center
+        ) {
+            add(10f, isAnchor = true)
+            add(56f)
+            add(122f)
+            add(186f)
+            add(186f)
+            add(122f)
+            add(56f)
+            add(10f, isAnchor = true)
+        }
+
+        val actualOffsets = keylines.map { it.offset }.toFloatArray()
+        val expectedOffsets = floatArrayOf(-13f, 28f, 125f, 287f, 481f, 643f, 740f, 781f)
+        assertThat(actualOffsets).isEqualTo(expectedOffsets)
+
+        val actualUnadjustedOffsets = keylines.map { it.unadjustedOffset }.toFloatArray()
+        val expectedUnadjustedOffsets = floatArrayOf(
+            -295f, -101f, 93f, 287f, 481f, 675f, 869f, 1063f
+        )
+        assertThat(actualUnadjustedOffsets).isEqualTo(expectedUnadjustedOffsets)
+    }
+
+    @Test
+    fun testEndKeylines_shouldAddSpacingBetweenItems() {
+        val keylines = keylineListOf(
+            carouselMainAxisSize = 380f,
+            itemSpacing = 8f,
+            carouselAlignment = CarouselAlignment.End
+        ) {
+            add(10f, isAnchor = true)
+            add(56f)
+            add(122f)
+            add(186f)
+            add(10f, isAnchor = true)
+        }
+
+        val actualOffsets = keylines.map { it.offset }.toFloatArray()
+        val expectedOffsets = floatArrayOf(-13f, 28f, 125f, 287f, 393f)
+        assertThat(actualOffsets).isEqualTo(expectedOffsets)
+
+        val actualUnadjustedOffsets = keylines.map { it.unadjustedOffset }.toFloatArray()
+        val expectedUnadjustedOffsets = floatArrayOf(-295f, -101f, 93f, 287f, 481f)
+        assertThat(actualUnadjustedOffsets).isEqualTo(expectedUnadjustedOffsets)
     }
 
     companion object {
@@ -184,7 +288,11 @@ class KeylineTest {
             // [xs-s-s-m-l-l-m-s-s-xs]
             val carouselMainAxisSize =
                 (XSmallSize * 2) + (SmallSize * 4) + (MediumSize * 2) + (LargeSize * 2)
-            return keylineListOf(carouselMainAxisSize, CarouselAlignment.Center) {
+            return keylineListOf(
+                carouselMainAxisSize = carouselMainAxisSize,
+                itemSpacing = 0f,
+                carouselAlignment = CarouselAlignment.Center
+            ) {
                 add(XSmallSize, isAnchor = true)
                 add(SmallSize)
                 add(SmallSize)
