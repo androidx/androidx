@@ -122,12 +122,12 @@ package androidx.core.animation {
     method @FloatRange(to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
   }
 
-  public final class ArgbEvaluator implements androidx.core.animation.TypeEvaluator<java.lang.Integer> {
+  public final class ArgbEvaluator implements androidx.core.animation.TypeEvaluator<java.lang.Integer!> {
     method public Integer evaluate(float, Integer, Integer);
     method public static androidx.core.animation.ArgbEvaluator getInstance();
   }
 
-  public abstract class BidirectionalTypeConverter<T, V> extends androidx.core.animation.TypeConverter<T,V> {
+  public abstract class BidirectionalTypeConverter<T, V> extends androidx.core.animation.TypeConverter<T!,V!> {
     ctor public BidirectionalTypeConverter(Class<T!>, Class<V!>);
     method public abstract T convertBack(V);
     method public androidx.core.animation.BidirectionalTypeConverter<V!,T!> invert();
@@ -151,36 +151,36 @@ package androidx.core.animation {
     method @FloatRange(from=0, to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
   }
 
-  public final class FloatArrayEvaluator implements androidx.core.animation.TypeEvaluator<float[]> {
+  public final class FloatArrayEvaluator implements androidx.core.animation.TypeEvaluator<float[]!> {
     ctor public FloatArrayEvaluator();
     ctor public FloatArrayEvaluator(float[]?);
     method public float[] evaluate(float, float[], float[]);
   }
 
-  public final class FloatEvaluator implements androidx.core.animation.TypeEvaluator<java.lang.Float> {
+  public final class FloatEvaluator implements androidx.core.animation.TypeEvaluator<java.lang.Float!> {
     method public Float evaluate(float, Float, Float);
     method public static androidx.core.animation.FloatEvaluator getInstance();
   }
 
-  public abstract class FloatProperty<T> extends android.util.Property<T,java.lang.Float> {
+  public abstract class FloatProperty<T> extends android.util.Property<T!,java.lang.Float!> {
     ctor public FloatProperty();
     ctor public FloatProperty(String);
     method public final void set(T, Float);
     method public abstract void setValue(T, float);
   }
 
-  public class IntArrayEvaluator implements androidx.core.animation.TypeEvaluator<int[]> {
+  public class IntArrayEvaluator implements androidx.core.animation.TypeEvaluator<int[]!> {
     ctor public IntArrayEvaluator();
     ctor public IntArrayEvaluator(int[]?);
     method public int[] evaluate(float, int[], int[]);
   }
 
-  public class IntEvaluator implements androidx.core.animation.TypeEvaluator<java.lang.Integer> {
+  public class IntEvaluator implements androidx.core.animation.TypeEvaluator<java.lang.Integer!> {
     method public Integer evaluate(float, Integer, Integer);
     method public static androidx.core.animation.IntEvaluator getInstance();
   }
 
-  public abstract class IntProperty<T> extends android.util.Property<T,java.lang.Integer> {
+  public abstract class IntProperty<T> extends android.util.Property<T!,java.lang.Integer!> {
     ctor public IntProperty();
     ctor public IntProperty(String);
     method public final void set(T, Integer);
@@ -265,7 +265,7 @@ package androidx.core.animation {
     method public float getInterpolation(@FloatRange(from=0, to=1) float);
   }
 
-  public class PointFEvaluator implements androidx.core.animation.TypeEvaluator<android.graphics.PointF> {
+  public class PointFEvaluator implements androidx.core.animation.TypeEvaluator<android.graphics.PointF!> {
     ctor public PointFEvaluator();
     ctor public PointFEvaluator(android.graphics.PointF);
     method public android.graphics.PointF evaluate(float, android.graphics.PointF, android.graphics.PointF);
@@ -303,7 +303,7 @@ package androidx.core.animation {
     method public void setPropertyName(String);
   }
 
-  public class RectEvaluator implements androidx.core.animation.TypeEvaluator<android.graphics.Rect> {
+  public class RectEvaluator implements androidx.core.animation.TypeEvaluator<android.graphics.Rect!> {
     ctor public RectEvaluator();
     ctor public RectEvaluator(android.graphics.Rect);
     method public android.graphics.Rect evaluate(float, android.graphics.Rect, android.graphics.Rect);

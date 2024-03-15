@@ -45,7 +45,7 @@ package androidx.appsearch.annotation {
     method public abstract Class<? extends androidx.appsearch.app.LongSerializer<?>!> serializer() default androidx.appsearch.annotation.Document.LongProperty.DefaultSerializer.class;
   }
 
-  public static final class Document.LongProperty.DefaultSerializer implements androidx.appsearch.app.LongSerializer<java.lang.Long> {
+  public static final class Document.LongProperty.DefaultSerializer implements androidx.appsearch.app.LongSerializer<java.lang.Long!> {
     ctor public Document.LongProperty.DefaultSerializer();
     method public Long deserialize(long);
     method public long serialize(Long);
@@ -66,7 +66,7 @@ package androidx.appsearch.annotation {
     method public abstract int tokenizerType() default androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
   }
 
-  public static final class Document.StringProperty.DefaultSerializer implements androidx.appsearch.app.StringSerializer<java.lang.String> {
+  public static final class Document.StringProperty.DefaultSerializer implements androidx.appsearch.app.StringSerializer<java.lang.String!> {
     ctor public Document.StringProperty.DefaultSerializer();
     method public String deserialize(String);
     method public String serialize(String);
@@ -422,7 +422,7 @@ package androidx.appsearch.app {
     method public byte[] getSha256Certificate();
   }
 
-  public class PropertyPath implements java.lang.Iterable<androidx.appsearch.app.PropertyPath.PathSegment> {
+  public class PropertyPath implements java.lang.Iterable<androidx.appsearch.app.PropertyPath.PathSegment!> {
     ctor public PropertyPath(String);
     ctor public PropertyPath(java.util.List<androidx.appsearch.app.PropertyPath.PathSegment!>);
     method public androidx.appsearch.app.PropertyPath.PathSegment get(int);

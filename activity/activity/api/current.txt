@@ -346,7 +346,7 @@ package androidx.activity.result.contract {
     method public final Boolean parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+  public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri?> {
     ctor @Deprecated public ActivityResultContracts.CreateDocument();
     ctor public ActivityResultContracts.CreateDocument(String mimeType);
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
@@ -354,7 +354,7 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.GetContent extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+  public static class ActivityResultContracts.GetContent extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri?> {
     ctor public ActivityResultContracts.GetContent();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri?>? getSynchronousResult(android.content.Context context, String input);
@@ -368,14 +368,14 @@ package androidx.activity.result.contract {
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
+  public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri?> {
     ctor public ActivityResultContracts.OpenDocument();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String[] input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri?>? getSynchronousResult(android.content.Context context, String[] input);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(21) public static class ActivityResultContracts.OpenDocumentTree extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.net.Uri> {
+  @RequiresApi(21) public static class ActivityResultContracts.OpenDocumentTree extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri?,android.net.Uri?> {
     ctor public ActivityResultContracts.OpenDocumentTree();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, android.net.Uri? input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri?>? getSynchronousResult(android.content.Context context, android.net.Uri? input);
@@ -389,7 +389,7 @@ package androidx.activity.result.contract {
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static final class ActivityResultContracts.PickContact extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.net.Uri> {
+  public static final class ActivityResultContracts.PickContact extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void?,android.net.Uri?> {
     ctor public ActivityResultContracts.PickContact();
     method public android.content.Intent createIntent(android.content.Context context, Void? input);
     method public android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
@@ -402,7 +402,7 @@ package androidx.activity.result.contract {
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
+  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri?> {
     ctor public ActivityResultContracts.PickVisualMedia();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri?>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
@@ -492,14 +492,14 @@ package androidx.activity.result.contract {
     method public final Boolean parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.TakePicturePreview extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.graphics.Bitmap> {
+  public static class ActivityResultContracts.TakePicturePreview extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void?,android.graphics.Bitmap?> {
     ctor public ActivityResultContracts.TakePicturePreview();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, Void? input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.graphics.Bitmap?>? getSynchronousResult(android.content.Context context, Void? input);
     method public final android.graphics.Bitmap? parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @Deprecated public static class ActivityResultContracts.TakeVideo extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap> {
+  @Deprecated public static class ActivityResultContracts.TakeVideo extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap?> {
     ctor @Deprecated public ActivityResultContracts.TakeVideo();
     method @Deprecated @CallSuper public android.content.Intent createIntent(android.content.Context context, android.net.Uri input);
     method @Deprecated public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.graphics.Bitmap?>? getSynchronousResult(android.content.Context context, android.net.Uri input);

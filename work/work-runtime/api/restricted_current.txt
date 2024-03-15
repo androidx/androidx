@@ -505,7 +505,7 @@ package androidx.work {
     enum_constant public static final androidx.work.WorkManager.UpdateResult NOT_APPLIED;
   }
 
-  public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager> {
+  public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager!> {
     ctor public WorkManagerInitializer();
     method public androidx.work.WorkManager create(android.content.Context);
     method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>!>!> dependencies();
