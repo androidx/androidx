@@ -70,25 +70,22 @@ class NativeLibraryBundler(
 
     /**
      * Adds the shared library outputs from [nativeCompilation] to the jni libs dependency of
-     * the [androidTarget]'s [variantBuildType].
+     * the [androidTarget].
      *
      * @see CombineObjectFilesTask for details.
      */
     fun addNativeLibrariesToJniLibs(
         androidTarget: KotlinAndroidTarget,
         nativeCompilation: MultiTargetNativeCompilation,
-        variantBuildType: String,
         forTest: Boolean
     ) {
         project.androidExtension.onVariants(
-            project.androidExtension.selector().withBuildType(
-                variantBuildType
-            )
+            project.androidExtension.selector().all()
         ) { variant ->
             fun setup(name: String, jniLibsSources: SourceDirectories.Layered?) {
                 checkNotNull(jniLibsSources) {
                     "Cannot find jni libs sources for variant: " +
-                        "$variant($variantBuildType / $forTest)"
+                        "$variant (forTest=$forTest)"
                 }
                 val combineTask = project.tasks.register(
                     "createJniLibsDirectoryFor".appendCapitalized(
