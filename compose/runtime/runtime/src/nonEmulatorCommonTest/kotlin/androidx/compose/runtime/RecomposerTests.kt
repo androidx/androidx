@@ -23,6 +23,7 @@ import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -439,6 +440,7 @@ class RecomposerTests {
         assertEquals<List<Set<Any>>>(listOf(setOf(countFromEffect)), applications)
     }
 
+    @Ignore // b/329682091
     @OptIn(DelicateCoroutinesApi::class)
     @Test // b/329011032
     fun validatePotentialDeadlock() = compositionTest {
