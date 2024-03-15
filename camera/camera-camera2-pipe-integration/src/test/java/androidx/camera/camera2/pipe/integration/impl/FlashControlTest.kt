@@ -25,13 +25,16 @@ import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCom
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
+import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
+import androidx.camera.camera2.pipe.integration.compat.workaround.UseFlashModeTorchFor3aUpdateImpl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.TorchState
 import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.testutils.MainDispatcherRule
 import androidx.testutils.assertThrows
@@ -94,6 +97,7 @@ class FlashControlTest {
         )
     )
     private lateinit var state3AControl: State3AControl
+    private lateinit var torchControl: TorchControl
     private lateinit var flashControl: FlashControl
 
     private val screenFlash = MockScreenFlash()
@@ -103,7 +107,10 @@ class FlashControlTest {
         createFlashControl()
     }
 
-    private fun createFlashControl(addExternalFlashAeMode: Boolean = false) {
+    private fun createFlashControl(
+        addExternalFlashAeMode: Boolean = false,
+        useFlashModeTorch: Boolean = false,
+    ) {
         val aeAvailableModes = mutableListOf(
             CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
             CaptureRequest.CONTROL_AE_MODE_ON,
@@ -130,10 +137,24 @@ class FlashControlTest {
             useCaseCamera = fakeUseCaseCamera
         }
 
+        torchControl = TorchControl(
+            cameraProperties,
+            state3AControl,
+            fakeUseCaseThreads
+        ).apply {
+            useCaseCamera = fakeUseCaseCamera
+        }
+
         flashControl = FlashControl(
             cameraProperties = cameraProperties,
             state3AControl = state3AControl,
             threads = fakeUseCaseThreads,
+            torchControl = torchControl,
+            useFlashModeTorchFor3aUpdate = if (useFlashModeTorch) {
+                UseFlashModeTorchFor3aUpdateImpl
+            } else {
+                NotUseFlashModeTorchFor3aUpdate
+            },
         )
         flashControl.useCaseCamera = fakeUseCaseCamera
         flashControl.setScreenFlash(screenFlash)
@@ -154,6 +175,12 @@ class FlashControlTest {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeUseCaseThreads,
+            TorchControl(
+                fakeCameraProperties,
+                state3AControl,
+                fakeUseCaseThreads
+            ),
+            NotUseFlashModeTorchFor3aUpdate
         )
 
         assertThrows<CameraControl.OperationCanceledException> {
@@ -370,6 +397,44 @@ class FlashControlTest {
         flashControl.stopScreenFlashCaptureTasks()
 
         assertThat(state3AControl.tryExternalFlashAeMode).isFalse()
+    }
+
+    @Test
+    fun torchNotEnabledAtScreenFlashCapture_whenNotRequired() = runTest {
+        createFlashControl(addExternalFlashAeMode = false, useFlashModeTorch = false)
+
+        flashControl.startScreenFlashCaptureTasks()
+
+        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.OFF)
+    }
+
+    @Test
+    fun torchEnabledAtScreenFlashCapture_whenRequired() = runTest {
+        createFlashControl(addExternalFlashAeMode = false, useFlashModeTorch = true)
+
+        flashControl.startScreenFlashCaptureTasks()
+
+        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.ON)
+    }
+
+    @Test
+    fun torchEnabled_whenScreenFlashCaptureApplyNotCompleted() = runTest {
+        createFlashControl(addExternalFlashAeMode = false, useFlashModeTorch = true)
+        screenFlash.setApplyCompletedInstantly(false)
+
+        flashControl.startScreenFlashCaptureTasks()
+
+        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.ON)
+    }
+
+    @Test
+    fun torchDisabledAtScreenFlashCaptureStop_whenRequired() = runTest {
+        createFlashControl(addExternalFlashAeMode = false, useFlashModeTorch = true)
+        flashControl.startScreenFlashCaptureTasks()
+
+        flashControl.stopScreenFlashCaptureTasks()
+
+        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.OFF)
     }
 
     @Test

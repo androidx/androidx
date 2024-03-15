@@ -46,6 +46,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelineTorchCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
+import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlashImpl
@@ -277,14 +278,6 @@ class CapturePipelineTest {
             useCaseCamera = fakeUseCaseCamera
         }
 
-        flashControl = FlashControl(
-            cameraProperties = fakeCameraProperties,
-            state3AControl = state3AControl,
-            threads = fakeUseCaseThreads,
-        ).apply {
-            setScreenFlash(this@CapturePipelineTest.screenFlash)
-        }
-
         torchControl = TorchControl(
             fakeCameraProperties,
             state3AControl,
@@ -297,6 +290,16 @@ class CapturePipelineTest {
                 fakeRequestControl.setTorchSemaphore.tryAcquire(testScope)
             ).isTrue()
             fakeRequestControl.torchUpdateEventList.clear()
+        }
+
+        flashControl = FlashControl(
+            cameraProperties = fakeCameraProperties,
+            state3AControl = state3AControl,
+            threads = fakeUseCaseThreads,
+            torchControl = torchControl,
+            useFlashModeTorchFor3aUpdate = NotUseFlashModeTorchFor3aUpdate,
+        ).apply {
+            setScreenFlash(this@CapturePipelineTest.screenFlash)
         }
 
         fakeUseCaseCameraState = UseCaseCameraState(
