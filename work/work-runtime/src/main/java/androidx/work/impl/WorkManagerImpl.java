@@ -351,32 +351,33 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public @NonNull WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
-        if (work.isEmpty()) {
+    public @NonNull WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> requests) {
+        if (requests.isEmpty()) {
             throw new IllegalArgumentException(
                     "beginWith needs at least one OneTimeWorkRequest.");
         }
-        return new WorkContinuationImpl(this, work);
+        return new WorkContinuationImpl(this, requests);
     }
 
     @Override
     public @NonNull WorkContinuation beginUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<OneTimeWorkRequest> work) {
-        if (work.isEmpty()) {
+            @NonNull List<OneTimeWorkRequest> requests) {
+        if (requests.isEmpty()) {
             throw new IllegalArgumentException(
                     "beginUniqueWork needs at least one OneTimeWorkRequest.");
         }
-        return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work);
+        return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, requests);
     }
 
     @NonNull
     @Override
     public Operation enqueueUniqueWork(@NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<OneTimeWorkRequest> work) {
-        return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work).enqueue();
+            @NonNull List<OneTimeWorkRequest> requests) {
+        return new WorkContinuationImpl(this, uniqueWorkName,
+                existingWorkPolicy, requests).enqueue();
     }
 
     @Override
@@ -384,14 +385,14 @@ public class WorkManagerImpl extends WorkManager {
     public Operation enqueueUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
-            @NonNull PeriodicWorkRequest periodicWork) {
+            @NonNull PeriodicWorkRequest request) {
         if (existingPeriodicWorkPolicy == ExistingPeriodicWorkPolicy.UPDATE) {
-            return enqueueUniquelyNamedPeriodic(this, uniqueWorkName, periodicWork);
+            return enqueueUniquelyNamedPeriodic(this, uniqueWorkName, request);
         }
         return createWorkContinuationForUniquePeriodicWork(
                 uniqueWorkName,
                 existingPeriodicWorkPolicy,
-                periodicWork)
+                request)
                 .enqueue();
     }
 

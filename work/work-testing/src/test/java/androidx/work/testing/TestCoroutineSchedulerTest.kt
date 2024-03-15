@@ -112,7 +112,7 @@ class TestCoroutineSchedulerTest {
         val workInfoEarly = workManager.getWorkInfoById(request.id)
         synchronizeThreads()
 
-        assertThat(Futures.getDone(workInfoEarly).state).isEqualTo(ENQUEUED)
+        assertThat(Futures.getDone(workInfoEarly)!!.state).isEqualTo(ENQUEUED)
 
         // Work should run and finish now.
         testCoroutineScheduler.advanceTimeBy(initialDelayMillis)
@@ -121,7 +121,7 @@ class TestCoroutineSchedulerTest {
         // Verify result
         val workInfoOnTime = workManager.getWorkInfoById(request.id)
         synchronizeThreads()
-        assertThat(Futures.getDone(workInfoOnTime).state).isEqualTo(SUCCEEDED)
+        assertThat(Futures.getDone(workInfoOnTime)!!.state).isEqualTo(SUCCEEDED)
     }
 
     @Test
@@ -138,7 +138,7 @@ class TestCoroutineSchedulerTest {
         val workInfoEarly = workManager.getWorkInfoById(request.id)
         synchronizeThreads()
 
-        assertThat(Futures.getDone(workInfoEarly).state).isEqualTo(ENQUEUED)
+        assertThat(Futures.getDone(workInfoEarly)!!.state).isEqualTo(ENQUEUED)
 
         // Can't use setXDelayMet with clock-based scheduling
         assertThrows(IllegalStateException::class.java) {
