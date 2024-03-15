@@ -29,10 +29,10 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.UastLintUtils
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.PsiVariable
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.PsiImmediateClassType
-import org.jetbrains.kotlin.asJava.elements.KtLightTypeParameter
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
 import org.jetbrains.kotlin.psi.KtNullableType
@@ -223,7 +223,7 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
     private fun UCallExpression.isGenericTypeDefinition(): Boolean {
         val classType = typeArguments.singleOrNull() as? PsiImmediateClassType
         val resolveGenerics = classType?.resolveGenerics()
-        return resolveGenerics?.element is KtLightTypeParameter
+        return resolveGenerics?.element is PsiTypeParameter
     }
 
     /**
