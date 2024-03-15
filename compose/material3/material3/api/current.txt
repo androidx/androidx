@@ -1278,6 +1278,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SearchBarColors {
+    ctor public SearchBarColors(long containerColor, long dividerColor, androidx.compose.material3.TextFieldColors inputFieldColors);
     method public long getContainerColor();
     method public long getDividerColor();
     method public androidx.compose.material3.TextFieldColors getInputFieldColors();

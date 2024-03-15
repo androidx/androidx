@@ -264,235 +264,6 @@ fun SearchBar(
     )
 }
 
-@ExperimentalMaterial3Api
-@Composable
-internal fun SearchBarInternal(
-    animationProgress: Animatable<Float, AnimationVector1D>,
-    finalBackProgress: MutableFloatState,
-    firstBackEvent: MutableState<BackEventCompat?>,
-    currentBackEvent: MutableState<BackEventCompat?>,
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    active: Boolean,
-    onActiveChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    placeholder: @Composable (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    shape: Shape = SearchBarDefaults.inputFieldShape,
-    colors: SearchBarColors = SearchBarDefaults.colors(),
-    tonalElevation: Dp = SearchBarDefaults.TonalElevation,
-    shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
-    windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    @Suppress("NAME_SHADOWING")
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val focusManager = LocalFocusManager.current
-    val density = LocalDensity.current
-
-    val defaultInputFieldShape = SearchBarDefaults.inputFieldShape
-    val defaultFullScreenShape = SearchBarDefaults.fullScreenShape
-    val useFullScreenShape by remember {
-        derivedStateOf(structuralEqualityPolicy()) { animationProgress.value == 1f }
-    }
-    val animatedShape = remember(useFullScreenShape, shape) {
-        when {
-            shape == defaultInputFieldShape ->
-                // The shape can only be animated if it's the default spec value
-                GenericShape { size, _ ->
-                    val radius = with(density) {
-                        (SearchBarCornerRadius * (1 - animationProgress.value)).toPx()
-                    }
-                    addRoundRect(RoundRect(size.toRect(), CornerRadius(radius)))
-                }
-            useFullScreenShape -> defaultFullScreenShape
-            else -> shape
-        }
-    }
-
-    // The main animation complexity is allowing the component to smoothly expand while keeping the
-    // input field at the same relative location on screen. `Modifier.windowInsetsPadding` does not
-    // support animation and thus is not suitable. Instead, we convert the insets to a padding
-    // applied to the Surface, which gradually becomes padding applied to the input field as the
-    // animation proceeds.
-    val unconsumedInsets = remember { MutableWindowInsets() }
-    val topPadding = remember(density) {
-        derivedStateOf {
-            SearchBarVerticalPadding +
-                unconsumedInsets.asPaddingValues(density).calculateTopPadding()
-        }
-    }
-
-    Surface(
-        shape = animatedShape,
-        color = colors.containerColor,
-        contentColor = contentColorFor(colors.containerColor),
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        modifier = modifier
-            .zIndex(1f)
-            .onConsumedWindowInsetsChanged { consumedInsets ->
-                unconsumedInsets.insets = windowInsets.exclude(consumedInsets)
-            }
-            .consumeWindowInsets(unconsumedInsets)
-            .layout { measurable, constraints ->
-                val animatedTopPadding =
-                    lerp(topPadding.value, 0.dp, animationProgress.value).roundToPx()
-
-                val defaultStartWidth = max(constraints.minWidth, SearchBarMinWidth.roundToPx())
-                    .coerceAtMost(min(constraints.maxWidth, SearchBarMaxWidth.roundToPx()))
-                val defaultStartHeight = max(constraints.minHeight, InputFieldHeight.roundToPx())
-                    .coerceAtMost(constraints.maxHeight)
-                val predictiveBackStartWidth =
-                    (constraints.maxWidth * SearchBarPredictiveBackMinScale).roundToInt()
-                val predictiveBackStartHeight =
-                    (constraints.maxHeight * SearchBarPredictiveBackMinScale).roundToInt()
-                val predictiveBackMultiplier = calculatePredictiveBackMultiplier(
-                    currentBackEvent.value,
-                    animationProgress.value,
-                    finalBackProgress.floatValue
-                )
-                val startWidth =
-                    lerp(defaultStartWidth, predictiveBackStartWidth, predictiveBackMultiplier)
-                val startHeight =
-                    lerp(defaultStartHeight, predictiveBackStartHeight, predictiveBackMultiplier)
-
-                val endWidth = constraints.maxWidth
-                val endHeight = constraints.maxHeight
-
-                val width = lerp(startWidth, endWidth, animationProgress.value)
-                val height =
-                    lerp(startHeight, endHeight, animationProgress.value) + animatedTopPadding
-
-                val minOffsetMargin = SearchBarPredictiveBackMinMargin.roundToPx()
-                val predictiveBackOffsetX = calculatePredictiveBackOffsetX(
-                    constraints,
-                    minOffsetMargin,
-                    currentBackEvent.value,
-                    animationProgress.value,
-                    predictiveBackMultiplier
-                )
-                val predictiveBackOffsetY = calculatePredictiveBackOffsetY(
-                    constraints,
-                    minOffsetMargin,
-                    currentBackEvent.value,
-                    firstBackEvent.value,
-                    height,
-                    SearchBarPredictiveBackMaxOffsetY.roundToPx(),
-                    predictiveBackMultiplier
-                )
-
-                val placeable = measurable.measure(
-                    Constraints
-                        .fixed(width, height)
-                        .offset(
-                            vertical = -animatedTopPadding
-                        )
-                )
-                layout(width, height) {
-                    placeable.placeRelative(
-                        predictiveBackOffsetX,
-                        animatedTopPadding + predictiveBackOffsetY
-                    )
-                }
-            }
-    ) {
-        Column {
-            val animatedInputFieldPadding = remember {
-                AnimatedPaddingValues(animationProgress.asState(), topPadding)
-            }
-            SearchBarInputField(
-                query = query,
-                onQueryChange = onQueryChange,
-                onSearch = onSearch,
-                active = active,
-                onActiveChange = onActiveChange,
-                modifier = Modifier.padding(paddingValues = animatedInputFieldPadding),
-                enabled = enabled,
-                placeholder = placeholder,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                colors = colors.inputFieldColors,
-                interactionSource = interactionSource,
-            )
-
-            val showResults by remember {
-                derivedStateOf(structuralEqualityPolicy()) { animationProgress.value > 0 }
-            }
-            if (showResults) {
-                Column(Modifier.graphicsLayer { alpha = animationProgress.value }) {
-                    HorizontalDivider(color = colors.dividerColor)
-                    content()
-                }
-            }
-        }
-    }
-
-    val isFocused = interactionSource.collectIsFocusedAsState().value
-    val shouldClearFocus = !active && isFocused
-    LaunchedEffect(active) {
-        if (shouldClearFocus) {
-            // Not strictly needed according to the motion spec, but since the animation already has
-            // a delay, this works around b/261632544.
-            delay(AnimationDelayMillis.toLong())
-            focusManager.clearFocus()
-        }
-    }
-}
-
-private fun calculatePredictiveBackMultiplier(
-    currentBackEvent: BackEventCompat?,
-    progress: Float,
-    finalBackProgress: Float
-) = when {
-    currentBackEvent == null -> 0f // Not in predictive back at all.
-    finalBackProgress.isNaN() -> 1f // User is currently swiping predictive back.
-    finalBackProgress <= 0 -> 0f // Safety check for divide by zero.
-    else -> progress / finalBackProgress // User has released predictive back swipe.
-}
-
-private fun calculatePredictiveBackOffsetX(
-    constraints: Constraints,
-    minMargin: Int,
-    currentBackEvent: BackEventCompat?,
-    progress: Float,
-    predictiveBackMultiplier: Float
-): Int {
-    if (currentBackEvent == null || predictiveBackMultiplier == 0f) {
-        return 0
-    }
-    val directionMultiplier = if (currentBackEvent.swipeEdge == BackEventCompat.EDGE_LEFT) 1 else -1
-    val maxOffsetX =
-        (constraints.maxWidth * SearchBarPredictiveBackMaxOffsetXRatio) - minMargin
-    val interpolatedOffsetX = maxOffsetX * (1 - progress)
-    return (interpolatedOffsetX * predictiveBackMultiplier * directionMultiplier).roundToInt()
-}
-
-private fun calculatePredictiveBackOffsetY(
-    constraints: Constraints,
-    minMargin: Int,
-    currentBackEvent: BackEventCompat?,
-    firstBackEvent: BackEventCompat?,
-    height: Int,
-    maxOffsetY: Int,
-    predictiveBackMultiplier: Float
-): Int {
-    if (firstBackEvent == null || currentBackEvent == null || predictiveBackMultiplier == 0f) {
-        return 0
-    }
-    val availableVerticalSpace = max(0, (constraints.maxHeight - height) / 2 - minMargin)
-    val adjustedMaxOffsetY = min(availableVerticalSpace, maxOffsetY)
-    val yDelta = currentBackEvent.touchY - firstBackEvent.touchY
-    val yProgress = abs(yDelta) / constraints.maxHeight
-    val directionMultiplier = sign(yDelta)
-    val interpolatedOffsetY = lerp(0, adjustedMaxOffsetY, yProgress)
-    return (interpolatedOffsetY * predictiveBackMultiplier * directionMultiplier).roundToInt()
-}
-
 /**
  * <a href="https://m3.material.io/components/search/overview" class="external" target="_blank">Material Design search</a>.
  *
@@ -860,7 +631,7 @@ object SearchBarDefaults {
  */
 @ExperimentalMaterial3Api
 @Immutable
-class SearchBarColors internal constructor(
+class SearchBarColors(
     val containerColor: Color,
     val dividerColor: Color,
     val inputFieldColors: TextFieldColors,
@@ -884,6 +655,235 @@ class SearchBarColors internal constructor(
         result = 31 * result + inputFieldColors.hashCode()
         return result
     }
+}
+
+@ExperimentalMaterial3Api
+@Composable
+internal fun SearchBarInternal(
+    animationProgress: Animatable<Float, AnimationVector1D>,
+    finalBackProgress: MutableFloatState,
+    firstBackEvent: MutableState<BackEventCompat?>,
+    currentBackEvent: MutableState<BackEventCompat?>,
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearch: (String) -> Unit,
+    active: Boolean,
+    onActiveChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    shape: Shape = SearchBarDefaults.inputFieldShape,
+    colors: SearchBarColors = SearchBarDefaults.colors(),
+    tonalElevation: Dp = SearchBarDefaults.TonalElevation,
+    shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
+    windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val focusManager = LocalFocusManager.current
+    val density = LocalDensity.current
+
+    val defaultInputFieldShape = SearchBarDefaults.inputFieldShape
+    val defaultFullScreenShape = SearchBarDefaults.fullScreenShape
+    val useFullScreenShape by remember {
+        derivedStateOf(structuralEqualityPolicy()) { animationProgress.value == 1f }
+    }
+    val animatedShape = remember(useFullScreenShape, shape) {
+        when {
+            shape == defaultInputFieldShape ->
+                // The shape can only be animated if it's the default spec value
+                GenericShape { size, _ ->
+                    val radius = with(density) {
+                        (SearchBarCornerRadius * (1 - animationProgress.value)).toPx()
+                    }
+                    addRoundRect(RoundRect(size.toRect(), CornerRadius(radius)))
+                }
+            useFullScreenShape -> defaultFullScreenShape
+            else -> shape
+        }
+    }
+
+    // The main animation complexity is allowing the component to smoothly expand while keeping the
+    // input field at the same relative location on screen. `Modifier.windowInsetsPadding` does not
+    // support animation and thus is not suitable. Instead, we convert the insets to a padding
+    // applied to the Surface, which gradually becomes padding applied to the input field as the
+    // animation proceeds.
+    val unconsumedInsets = remember { MutableWindowInsets() }
+    val topPadding = remember(density) {
+        derivedStateOf {
+            SearchBarVerticalPadding +
+                unconsumedInsets.asPaddingValues(density).calculateTopPadding()
+        }
+    }
+
+    Surface(
+        shape = animatedShape,
+        color = colors.containerColor,
+        contentColor = contentColorFor(colors.containerColor),
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        modifier = modifier
+            .zIndex(1f)
+            .onConsumedWindowInsetsChanged { consumedInsets ->
+                unconsumedInsets.insets = windowInsets.exclude(consumedInsets)
+            }
+            .consumeWindowInsets(unconsumedInsets)
+            .layout { measurable, constraints ->
+                val animatedTopPadding =
+                    lerp(topPadding.value, 0.dp, animationProgress.value).roundToPx()
+
+                val defaultStartWidth = max(constraints.minWidth, SearchBarMinWidth.roundToPx())
+                    .coerceAtMost(min(constraints.maxWidth, SearchBarMaxWidth.roundToPx()))
+                val defaultStartHeight = max(constraints.minHeight, InputFieldHeight.roundToPx())
+                    .coerceAtMost(constraints.maxHeight)
+                val predictiveBackStartWidth =
+                    (constraints.maxWidth * SearchBarPredictiveBackMinScale).roundToInt()
+                val predictiveBackStartHeight =
+                    (constraints.maxHeight * SearchBarPredictiveBackMinScale).roundToInt()
+                val predictiveBackMultiplier = calculatePredictiveBackMultiplier(
+                    currentBackEvent.value,
+                    animationProgress.value,
+                    finalBackProgress.floatValue
+                )
+                val startWidth =
+                    lerp(defaultStartWidth, predictiveBackStartWidth, predictiveBackMultiplier)
+                val startHeight =
+                    lerp(defaultStartHeight, predictiveBackStartHeight, predictiveBackMultiplier)
+
+                val endWidth = constraints.maxWidth
+                val endHeight = constraints.maxHeight
+
+                val width = lerp(startWidth, endWidth, animationProgress.value)
+                val height =
+                    lerp(startHeight, endHeight, animationProgress.value) + animatedTopPadding
+
+                val minOffsetMargin = SearchBarPredictiveBackMinMargin.roundToPx()
+                val predictiveBackOffsetX = calculatePredictiveBackOffsetX(
+                    constraints,
+                    minOffsetMargin,
+                    currentBackEvent.value,
+                    animationProgress.value,
+                    predictiveBackMultiplier
+                )
+                val predictiveBackOffsetY = calculatePredictiveBackOffsetY(
+                    constraints,
+                    minOffsetMargin,
+                    currentBackEvent.value,
+                    firstBackEvent.value,
+                    height,
+                    SearchBarPredictiveBackMaxOffsetY.roundToPx(),
+                    predictiveBackMultiplier
+                )
+
+                val placeable = measurable.measure(
+                    Constraints
+                        .fixed(width, height)
+                        .offset(
+                            vertical = -animatedTopPadding
+                        )
+                )
+                layout(width, height) {
+                    placeable.placeRelative(
+                        predictiveBackOffsetX,
+                        animatedTopPadding + predictiveBackOffsetY
+                    )
+                }
+            }
+    ) {
+        Column {
+            val animatedInputFieldPadding = remember {
+                AnimatedPaddingValues(animationProgress.asState(), topPadding)
+            }
+            SearchBarInputField(
+                query = query,
+                onQueryChange = onQueryChange,
+                onSearch = onSearch,
+                active = active,
+                onActiveChange = onActiveChange,
+                modifier = Modifier.padding(paddingValues = animatedInputFieldPadding),
+                enabled = enabled,
+                placeholder = placeholder,
+                leadingIcon = leadingIcon,
+                trailingIcon = trailingIcon,
+                colors = colors.inputFieldColors,
+                interactionSource = interactionSource,
+            )
+
+            val showResults by remember {
+                derivedStateOf(structuralEqualityPolicy()) { animationProgress.value > 0 }
+            }
+            if (showResults) {
+                Column(Modifier.graphicsLayer { alpha = animationProgress.value }) {
+                    HorizontalDivider(color = colors.dividerColor)
+                    content()
+                }
+            }
+        }
+    }
+
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val shouldClearFocus = !active && isFocused
+    LaunchedEffect(active) {
+        if (shouldClearFocus) {
+            // Not strictly needed according to the motion spec, but since the animation already has
+            // a delay, this works around b/261632544.
+            delay(AnimationDelayMillis.toLong())
+            focusManager.clearFocus()
+        }
+    }
+}
+
+private fun calculatePredictiveBackMultiplier(
+    currentBackEvent: BackEventCompat?,
+    progress: Float,
+    finalBackProgress: Float
+) = when {
+    currentBackEvent == null -> 0f // Not in predictive back at all.
+    finalBackProgress.isNaN() -> 1f // User is currently swiping predictive back.
+    finalBackProgress <= 0 -> 0f // Safety check for divide by zero.
+    else -> progress / finalBackProgress // User has released predictive back swipe.
+}
+
+private fun calculatePredictiveBackOffsetX(
+    constraints: Constraints,
+    minMargin: Int,
+    currentBackEvent: BackEventCompat?,
+    progress: Float,
+    predictiveBackMultiplier: Float
+): Int {
+    if (currentBackEvent == null || predictiveBackMultiplier == 0f) {
+        return 0
+    }
+    val directionMultiplier = if (currentBackEvent.swipeEdge == BackEventCompat.EDGE_LEFT) 1 else -1
+    val maxOffsetX =
+        (constraints.maxWidth * SearchBarPredictiveBackMaxOffsetXRatio) - minMargin
+    val interpolatedOffsetX = maxOffsetX * (1 - progress)
+    return (interpolatedOffsetX * predictiveBackMultiplier * directionMultiplier).roundToInt()
+}
+
+private fun calculatePredictiveBackOffsetY(
+    constraints: Constraints,
+    minMargin: Int,
+    currentBackEvent: BackEventCompat?,
+    firstBackEvent: BackEventCompat?,
+    height: Int,
+    maxOffsetY: Int,
+    predictiveBackMultiplier: Float
+): Int {
+    if (firstBackEvent == null || currentBackEvent == null || predictiveBackMultiplier == 0f) {
+        return 0
+    }
+    val availableVerticalSpace = max(0, (constraints.maxHeight - height) / 2 - minMargin)
+    val adjustedMaxOffsetY = min(availableVerticalSpace, maxOffsetY)
+    val yDelta = currentBackEvent.touchY - firstBackEvent.touchY
+    val yProgress = abs(yDelta) / constraints.maxHeight
+    val directionMultiplier = sign(yDelta)
+    val interpolatedOffsetY = lerp(0, adjustedMaxOffsetY, yProgress)
+    return (interpolatedOffsetY * predictiveBackMultiplier * directionMultiplier).roundToInt()
 }
 
 @Stable
