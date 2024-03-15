@@ -14,20 +14,30 @@
  * limitations under the License.
  */
 
-
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.AndroidXComposePlugin
-import androidx.build.KmpPlatformsKt
-import androidx.build.LibraryType
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    android()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
+androidXComposeMultiplatform {
+    android()
+    desktop()
+    darwin()
+    js()
+    wasm()
+}
+
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
@@ -51,6 +61,7 @@ androidXMultiplatform {
         }
 
         androidMain {
+            dependsOn(commonMain)
             dependencies {
                 api("androidx.activity:activity-compose:1.8.0")
             }
@@ -65,11 +76,10 @@ androidXMultiplatform {
                 implementation(project(":internal-testutils-navigation"))
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":lifecycle:lifecycle-common"))
-                implementation(project(":lifecycle:lifecycle-common-java8"))
-                implementation(project(":lifecycle:lifecycle-livedata-core"))
+                implementation("androidx.lifecycle:lifecycle-livedata-core:2.7.0")
                 implementation(project(":lifecycle:lifecycle-viewmodel"))
                 implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-                implementation(project(":activity:activity-ktx"))
+                implementation("androidx.activity:activity-ktx:1.8.2")
                 implementation("androidx.collection:collection-ktx:1.1.0")
                 implementation(libs.testRunner)
                 implementation(libs.junit)
@@ -99,18 +109,12 @@ androidXMultiplatform {
     }
 }
 
-dependencies {
-    lintChecks(project(":navigation:navigation-compose-lint"))
-    lintPublish(project(":navigation:navigation-compose-lint"))
-}
-
 androidx {
     name = "Compose Navigation"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
     legacyDisableKotlinStrictApiMode = true
-    samples(project(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 android {

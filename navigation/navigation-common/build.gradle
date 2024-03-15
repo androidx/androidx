@@ -23,8 +23,8 @@
  */
 
 
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.KmpPlatformsKt
-import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -34,7 +34,10 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     alias(libs.plugins.kotlinSerialization)
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 def jsEnabled = KmpPlatformsKt.enableJs(project)
 def wasmEnabled = KmpPlatformsKt.enableWasm(project)
@@ -49,17 +52,25 @@ androidXMultiplatform {
     wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
 
     sourceSets {
         commonMain {
             dependencies {
                 api project(":annotation:annotation")
                 api project(":collection:collection")
+                api project(":core:core-bundle")
                 api project(":lifecycle:lifecycle-common")
                 api project(":lifecycle:lifecycle-runtime")
                 api project(":lifecycle:lifecycle-viewmodel")
-                api project(":savedstate:savedstate")
                 api project(":lifecycle:lifecycle-viewmodel-savedstate")
+                api project(":savedstate:savedstate")
 
                 api(libs.kotlinStdlib)
                 implementation(libs.kotlinSerializationCore)
@@ -166,14 +177,9 @@ android {
     namespace "androidx.navigation.common"
 }
 
-dependencies {
-    lintPublish(project(':navigation:navigation-common-lint'))
-}
-
 androidx {
     name = "Navigation Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2017"
     description = "Android Navigation-Common"
     metalavaK2UastEnabled = true

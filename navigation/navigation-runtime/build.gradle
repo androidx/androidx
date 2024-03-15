@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -30,7 +30,10 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXMultiplatform {
     android()
@@ -42,14 +45,26 @@ androidXMultiplatform {
     wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
 
     sourceSets {
         commonMain {
             dependencies {
+                api project(":annotation:annotation")
                 implementation project(":collection:collection")
+                api project(":core:core-bundle")
+                api project(":lifecycle:lifecycle-common")
                 api project(":lifecycle:lifecycle-runtime")
                 api project(":lifecycle:lifecycle-viewmodel")
+                api project(":lifecycle:lifecycle-viewmodel-savedstate")
                 api project(":navigation:navigation-common")
+                api project(":savedstate:savedstate")
 
                 api(libs.kotlinStdlib)
             }
@@ -76,7 +91,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
-                implementation(project(":navigation:navigation-testing"))
+//                implementation(project(":navigation:navigation-testing"))
                 implementation(project(":internal-testutils-navigation"))
                 implementation(project(":internal-testutils-runtime"))
                 implementation(libs.testExtJunit)
@@ -125,10 +140,6 @@ androidXMultiplatform {
     }
 }
 
-dependencies {
-    lintPublish(project(':navigation:navigation-runtime-lint'))
-}
-
 android {
     defaultConfig {
         multiDexEnabled = true
@@ -142,7 +153,6 @@ android {
 androidx {
     name = "Navigation Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2017"
     description = "Android Navigation-Runtime"
     metalavaK2UastEnabled = true
