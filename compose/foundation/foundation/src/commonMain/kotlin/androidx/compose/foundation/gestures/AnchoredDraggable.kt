@@ -958,9 +958,9 @@ private suspend fun <T> AnchoredDraggableState<T>.animateTo(
 ) {
     with(anchoredDragScope) {
         val targetOffset = anchors.positionOf(latestTarget)
-        if (!targetOffset.isNaN()) {
+        var prev = if (offset.isNaN()) 0f else offset
+        if (!targetOffset.isNaN() && prev != targetOffset) {
             debugLog { "Target animation is used" }
-            var prev = if (offset.isNaN()) 0f else offset
             animate(prev, targetOffset, velocity, snapAnimationSpec) { value, velocity ->
                 // Our onDrag coerces the value within the bounds, but an animation may
                 // overshoot, for example a spring animation or an overshooting interpolator
@@ -1017,44 +1017,48 @@ suspend fun <T> AnchoredDraggableState<T>.animateToWithDecay(
         val targetOffset = anchors.positionOf(latestTarget)
         if (!targetOffset.isNaN()) {
             var prev = if (offset.isNaN()) 0f else offset
-            // If targetOffset is not in the same direction as the direction of the drag (sign
-            // of the velocity) we fall back to using target animation.
-            // If the component is at the target offset already, we use decay animation that will
-            // not consume any velocity.
-            if (velocity * (targetOffset - prev) < 0f || velocity == 0f) {
-                animateTo(velocity, this, anchors, latestTarget)
-                remainingVelocity = 0f
-            } else {
-                val projectedDecayOffset = decayAnimationSpec.calculateTargetValue(prev, velocity)
-                debugLog {
-                    "offset = $prev\tvelocity = $velocity\t" +
-                        "targetOffset = $targetOffset\tprojectedOffset = $projectedDecayOffset"
-                }
-
-                val canDecayToTarget = if (velocity > 0) {
-                    projectedDecayOffset >= targetOffset
-                } else {
-                    projectedDecayOffset <= targetOffset
-                }
-                if (canDecayToTarget) {
-                    debugLog { "Decay animation is used" }
-                    AnimationState(prev, velocity)
-                        .animateDecay(decayAnimationSpec) {
-                            if (abs(value) >= abs(targetOffset)) {
-                                val finalValue = value.coerceToTarget(targetOffset)
-                                dragTo(finalValue, this.velocity)
-                                remainingVelocity = if (this.velocity.isNaN()) 0f else this.velocity
-                                prev = finalValue
-                                cancelAnimation()
-                            } else {
-                                dragTo(value, this.velocity)
-                                remainingVelocity = this.velocity
-                                prev = value
-                            }
-                        }
-                } else {
+            if (prev != targetOffset) {
+                // If targetOffset is not in the same direction as the direction of the drag (sign
+                // of the velocity) we fall back to using target animation.
+                // If the component is at the target offset already, we use decay animation that will
+                // not consume any velocity.
+                if (velocity * (targetOffset - prev) < 0f || velocity == 0f) {
                     animateTo(velocity, this, anchors, latestTarget)
                     remainingVelocity = 0f
+                } else {
+                    val projectedDecayOffset =
+                        decayAnimationSpec.calculateTargetValue(prev, velocity)
+                    debugLog {
+                        "offset = $prev\tvelocity = $velocity\t" +
+                            "targetOffset = $targetOffset\tprojectedOffset = $projectedDecayOffset"
+                    }
+
+                    val canDecayToTarget = if (velocity > 0) {
+                        projectedDecayOffset >= targetOffset
+                    } else {
+                        projectedDecayOffset <= targetOffset
+                    }
+                    if (canDecayToTarget) {
+                        debugLog { "Decay animation is used" }
+                        AnimationState(prev, velocity)
+                            .animateDecay(decayAnimationSpec) {
+                                if (abs(value) >= abs(targetOffset)) {
+                                    val finalValue = value.coerceToTarget(targetOffset)
+                                    dragTo(finalValue, this.velocity)
+                                    remainingVelocity =
+                                        if (this.velocity.isNaN()) 0f else this.velocity
+                                    prev = finalValue
+                                    cancelAnimation()
+                                } else {
+                                    dragTo(value, this.velocity)
+                                    remainingVelocity = this.velocity
+                                    prev = value
+                                }
+                            }
+                    } else {
+                        animateTo(velocity, this, anchors, latestTarget)
+                        remainingVelocity = 0f
+                    }
                 }
             }
         }
