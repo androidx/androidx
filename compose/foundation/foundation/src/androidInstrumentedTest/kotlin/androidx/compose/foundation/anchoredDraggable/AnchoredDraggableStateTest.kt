@@ -897,7 +897,7 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
-    fun anchoredDraggable_customDrag_snapsToClosestAnchor() = runBlocking {
+    fun anchoredDraggable_customDrag_doesNotSnapToClosestAnchor() = runBlocking {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
@@ -916,13 +916,13 @@ class AnchoredDraggableStateTest {
         }
 
         assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.requireOffset()).isEqualTo(200f)
+        assertThat(state.requireOffset()).isEqualTo(150f)
 
         state.anchoredDrag {
             dragTo(260f)
         }
         assertThat(state.currentValue).isEqualTo(C)
-        assertThat(state.requireOffset()).isEqualTo(300f)
+        assertThat(state.requireOffset()).isEqualTo(260f)
     }
 
     @Test

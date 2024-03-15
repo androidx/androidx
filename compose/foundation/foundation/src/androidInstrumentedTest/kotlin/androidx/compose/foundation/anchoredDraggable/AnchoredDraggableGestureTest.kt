@@ -870,7 +870,7 @@ class AnchoredDraggableGestureTest {
         val velocityThreshold = 100.dp
         val state = AnchoredDraggableState(
             initialValue = A,
-            velocityThreshold = { 0f },
+            velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
             positionalThreshold = { Float.POSITIVE_INFINITY },
             snapAnimationSpec = tween(),
             decayAnimationSpec = DefaultDecayAnimationSpec

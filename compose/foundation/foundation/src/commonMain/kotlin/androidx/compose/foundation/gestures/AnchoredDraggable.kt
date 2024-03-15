@@ -732,9 +732,27 @@ class AnchoredDraggableState<T>(
                 // In the first invocation, we do not have a direction. The previous offset will be
                 // NaN in the first invocation of dragTo; so we will only initialize in the second
                 // invocation when we have a direction to calculate the thresholds with
-                update(isMovingForward)
+                // update(isMovingForward)
+                initialize(isMovingForward)
+                val crossedThresholdTowardsNextAnchor = if (isMovingForward) {
+                    newOffset >= absoluteThresholdToCross
+                } else {
+                    newOffset <= absoluteThresholdToCross
+                }
+                if (crossedThresholdTowardsNextAnchor) {
+                    update(isMovingForward)
+                }
                 initialized = true
             }
+        }
+
+        fun initialize(isMovingForward: Boolean) {
+            val currentAnchorPosition = anchors.positionOf(currentValue)
+            val nextAnchor = anchors.closestAnchor(offset, isMovingForward) ?: currentValue
+            val nextAnchorPosition = anchors.positionOf(nextAnchor!!)
+            val relativeThreshold = (nextAnchorPosition - currentAnchorPosition) / 2f
+            absoluteThresholdToCross = currentAnchorPosition + relativeThreshold
+            nextValue = nextAnchor
         }
 
         fun update(isMovingForward: Boolean) {
@@ -785,11 +803,13 @@ class AnchoredDraggableState<T>(
                 anchoredDragScope.block(latestAnchors)
             }
             val closest = anchors.closestAnchor(offset)
-            if (closest != null && confirmValueChange.invoke(closest)) {
+            if (closest != null) {
                 val closestAnchorOffset = anchors.positionOf(closest)
-                anchoredDragScope.dragTo(closestAnchorOffset, lastVelocity)
-                settledValue = closest
-                currentValue = closest
+                val isAtClosestAnchor = abs(offset - closestAnchorOffset) < 0.5f
+                if (isAtClosestAnchor && confirmValueChange.invoke(closest)) {
+                    settledValue = closest
+                    currentValue = closest
+                }
             }
         }
     }
