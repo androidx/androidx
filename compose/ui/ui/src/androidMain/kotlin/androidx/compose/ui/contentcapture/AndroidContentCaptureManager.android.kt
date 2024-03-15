@@ -386,6 +386,10 @@ internal class AndroidContentCaptureManager(
             "android.view.contentcapture.EventTimestamp",
             currentSemanticsNodesSnapshotTimestampMillis)
 
+        configuration.getOrNull(SemanticsProperties.TestTag)?.let {
+            // Treat test tag as resourceId
+            structure.setId(id, null, null, it)
+        }
         configuration.getOrNull(SemanticsProperties.Text)?.let {
             structure.setClassName("android.widget.TextView")
             structure.setText(it.fastJoinToString("\n"))

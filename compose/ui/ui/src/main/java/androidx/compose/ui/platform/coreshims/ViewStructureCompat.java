@@ -75,6 +75,27 @@ public class ViewStructureCompat {
     }
 
     /**
+     * Set the identifier for this view.
+     *
+     * @param id The view's identifier, as per {@link android.view.View#getId View.getId()}.
+     * @param packageName The package name of the view's identifier, or null if there is none.
+     * @param typeName The type name of the view's identifier, or null if there is none.
+     * @param entryName The entry name of the view's identifier, or null if there is none.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 23 and above, this method matches platform behavior.
+     * <li>SDK 22 and below, this method does nothing.
+     * </ul>
+     */
+    public void setId(int id, @Nullable String packageName, @Nullable String typeName,
+            @Nullable String entryName) {
+        if (SDK_INT >= 23) {
+            Api23Impl.setId((ViewStructure) mWrappedObj, id, packageName, typeName, entryName);
+        }
+    }
+
+    /**
      * Set the text that is associated with this view.  There is no selection
      * associated with the text.  The text may have style spans to supply additional
      * display and semantic information.
@@ -192,6 +213,11 @@ public class ViewStructureCompat {
     private static class Api23Impl {
         private Api23Impl() {
             // This class is not instantiable.
+        }
+
+        static void setId(ViewStructure viewStructure, int id, String packageName, String typeName,
+                String entryName) {
+            viewStructure.setId(id, packageName, typeName, entryName);
         }
 
         @DoNotInline
