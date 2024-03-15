@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.pdf.aidl;
+package androidx.pdf.models;
 
 import android.graphics.Rect;
 import android.os.Parcel;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.data.TextSelection;
 
 import java.util.List;
 
-
 /** Represents text selection on a particular page of a PDF. Immutable. */
+// TODO: Use android.graphics.pdf.models.selection.PageSelection and remove this class
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("deprecation")
 public class PageSelection extends TextSelection {
@@ -58,8 +59,8 @@ public class PageSelection extends TextSelection {
     /** The highlighted text. */
     private final String mText;
 
-    public PageSelection(int page, SelectionBoundary start, SelectionBoundary stop,
-            List<Rect> rects, String text) {
+    public PageSelection(int page, @NonNull SelectionBoundary start,
+            @NonNull SelectionBoundary stop, @NonNull List<Rect> rects, @NonNull String text) {
         super(start, stop);
         this.mPage = page;
         this.mRects = rects;
@@ -70,10 +71,12 @@ public class PageSelection extends TextSelection {
         return mPage;
     }
 
+    @NonNull
     public List<Rect> getRects() {
         return mRects;
     }
 
+    @NonNull
     public String getText() {
         return mText;
     }
@@ -86,7 +89,7 @@ public class PageSelection extends TextSelection {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int flags) {
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeInt(mPage);
         parcel.writeParcelable(getStart(), 0);
         parcel.writeParcelable(getStop(), 0);

@@ -1,13 +1,16 @@
-package androidx.pdf.aidl;
+package androidx.pdf.models;
 
 import android.graphics.Rect;
+import android.graphics.Bitmap;
 
 import android.os.ParcelFileDescriptor;
-import androidx.pdf.aidl.Dimensions;
-import androidx.pdf.aidl.MatchRects;
-import androidx.pdf.aidl.PageSelection;
-import androidx.pdf.aidl.SelectionBoundary;
-import androidx.pdf.aidl.LinkRects;
+
+import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
+import androidx.pdf.models.MatchRects;
+import androidx.pdf.models.PageSelection;
+import androidx.pdf.models.SelectionBoundary;
+import androidx.pdf.models.LinkRects;
 
 /** Remote interface around a PdfDocument. */
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
@@ -17,10 +20,9 @@ interface PdfDocumentRemote {
     int numPages();
     Dimensions getPageDimensions(int pageNum);
 
-    boolean renderPage(int pageNum, in Dimensions size, boolean hideTextAnnots,
-      in ParcelFileDescriptor output);
-    boolean renderTile(int pageNum, int pageWidth, int pageHeight, int left, int top,
-      in Dimensions tileSize, boolean hideTextAnnots, in ParcelFileDescriptor output);
+    Bitmap renderPage(int pageNum, int pageWidth, int pageHeight, boolean hideTextAnnots);
+    Bitmap renderTile(int pageNum, int tileWidth, int tileHeight, int scaledPageWidth,
+      int scaledPageHeight, int left, int top, boolean hideTextAnnots);
 
     String getPageText(int pageNum);
     List<String> getPageAltText(int pageNum);
@@ -30,9 +32,10 @@ interface PdfDocumentRemote {
 
     LinkRects getPageLinks(int pageNum);
 
-    byte[] getPageGotoLinksByteArray(int pageNum);
+    List<GotoLink> getPageGotoLinks(int pageNum);
 
     boolean isPdfLinearized();
+    int getFormType();
 
     boolean cloneWithoutSecurity(in ParcelFileDescriptor destination);
 

@@ -17,7 +17,7 @@
 package androidx.pdf.pdflib;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.PdfDocumentRemote;
+import androidx.pdf.models.PdfDocumentRemote;
 
 /**
  *

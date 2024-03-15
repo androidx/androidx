@@ -25,7 +25,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.PdfDocumentRemote;
+import androidx.pdf.models.PdfDocumentRemote;
+import androidx.pdf.pdflib.PdfDocumentService;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;
 
@@ -174,12 +175,8 @@ public class PdfConnection implements ServiceConnection {
         if (mConnected) {
             return;
         }
-        Intent intent = new Intent();
+        Intent intent = new Intent(mContext, PdfDocumentService.class);
         // Data is only required here to make sure we start a new service per document.
-        // TODO: Update after porting service
-        intent.setComponent(new ComponentName(
-                /* pkg = */ "com.androidx.pdf",
-                /* cls = */ "com.androidx.pdf.PdfDocumentService"));
         intent.setData(uri);
         Log.d(TAG, "Connecting to service " + uri);
         mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);

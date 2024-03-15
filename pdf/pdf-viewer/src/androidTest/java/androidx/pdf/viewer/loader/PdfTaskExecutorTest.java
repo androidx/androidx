@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 import android.os.RemoteException;
 
-import androidx.pdf.aidl.PdfDocumentRemote;
+import androidx.pdf.models.PdfDocumentRemote;
 import androidx.pdf.pdflib.PdfDocumentRemoteProto;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;

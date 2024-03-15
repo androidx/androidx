@@ -21,7 +21,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.Dimensions;
+import androidx.pdf.models.Dimensions;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

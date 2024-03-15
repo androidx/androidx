@@ -19,17 +19,16 @@ package androidx.pdf.viewer.loader;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
-import androidx.pdf.aidl.Dimensions;
-import androidx.pdf.aidl.LinkRects;
-import androidx.pdf.aidl.MatchRects;
-import androidx.pdf.aidl.PageSelection;
-import androidx.pdf.aidl.SelectionBoundary;
+import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.LinkRects;
+import androidx.pdf.models.MatchRects;
+import androidx.pdf.models.PageSelection;
+import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.pdflib.PdfDocumentRemoteProto;
 import androidx.pdf.util.BitmapParcel;
 import androidx.pdf.util.StrictModeUtils;
@@ -56,16 +55,17 @@ public class PdfPageLoader {
     /** Arbitrary dimensions used for pages that are broken. */
     private static final Dimensions DEFAULT_PAGE = new Dimensions(400, 400);
 
+    static {
+        // TODO: StrictMode- disk read 14ms.
+        // NOTE: this line can break when running with --noforge, such as when debugging with
+        // Android Studio. You may need to comment it out locally if you see errors like
+        // `java.lang.UnsatisfiedLinkError: no bitmap_parcel in java.library.path`.
+        StrictModeUtils.bypass(() -> BitmapParcel.loadNdkLib());
+    }
+
     private final PdfLoader mParent;
     private final int mPageNum;
     private final boolean mHideTextAnnotations;
-
-    /**
-     * This flag is set when this page makes pdfClient crash, and we'd better avoid crashing it
-     * again.
-     */
-    private boolean mIsBroken = false;
-
     /** Currently scheduled tasks - null if no task of this type is scheduled. */
     GetDimensionsTask mDimensionsTask;
     RenderBitmapTask mBitmapTask;
@@ -86,14 +86,11 @@ public class PdfPageLoader {
 
     /** The reference pageWidth for all tile related tasks. */
     int mTilePageWidth;
-
-    static {
-        // TODO: StrictMode- disk read 14ms.
-        // NOTE: this line can break when running with --noforge, such as when debugging with
-        // Android Studio. You may need to comment it out locally if you see errors like
-        // `java.lang.UnsatisfiedLinkError: no bitmap_parcel in java.library.path`.
-        StrictModeUtils.bypass(() -> BitmapParcel.loadNdkLib());
-    }
+    /**
+     * This flag is set when this page makes pdfClient crash, and we'd better avoid crashing it
+     * again.
+     */
+    private boolean mIsBroken = false;
 
     PdfPageLoader(PdfLoader parent, int pageNum, boolean hideTextAnnotations) {
         this.mParent = parent;
@@ -342,23 +339,9 @@ public class PdfPageLoader {
 
         @Override
         protected Bitmap doInBackground(PdfDocumentRemoteProto pdfDocument) throws RemoteException {
-            Bitmap bitmap = mParent.mBitmapRecycler.obtainBitmap(mDimensions);
-            if (bitmap != null) {
-                BitmapParcel bitmapParcel = null;
-                try {
-                    bitmapParcel = new BitmapParcel(bitmap);
-                    ParcelFileDescriptor fd = bitmapParcel.openOutputFd();
-                    if (fd != null) {
-                        pdfDocument.getPdfDocumentRemote().renderPage(mPageNum, mDimensions,
-                                mHideTextAnnotations, fd);
-                    }
-                } finally {
-                    if (bitmapParcel != null) {
-                        bitmapParcel.close();
-                    }
-                }
-            }
-            return bitmap;
+            return pdfDocument.getPdfDocumentRemote().renderPage(mPageNum, mDimensions.getWidth(),
+                    mDimensions.getHeight(),
+                    mHideTextAnnotations);
         }
 
         @Override
@@ -404,33 +387,16 @@ public class PdfPageLoader {
 
         @Override
         protected Bitmap doInBackground(PdfDocumentRemoteProto pdfDocument) throws RemoteException {
-            Bitmap bitmap = mParent.mBitmapRecycler.obtainBitmap(mTileInfo.getSize());
-            if (bitmap != null) {
-                Point offset = mTileInfo.getOffset();
-
-                BitmapParcel bitmapParcel = null;
-                try {
-                    bitmapParcel = new BitmapParcel(bitmap);
-                    ParcelFileDescriptor fd = bitmapParcel.openOutputFd();
-                    if (fd != null) {
-                        pdfDocument.getPdfDocumentRemote().renderTile(
-                                mPageNum,
-                                mPageSize.getWidth(),
-                                mPageSize.getHeight(),
-                                offset.x,
-                                offset.y,
-                                mTileInfo.getSize(),
-                                mHideTextAnnotations,
-                                fd);
-                    }
-                } finally {
-                    if (bitmapParcel != null) {
-                        bitmapParcel.close();
-                    }
-                }
-
-            }
-            return bitmap;
+            Point offset = mTileInfo.getOffset();
+            return pdfDocument.getPdfDocumentRemote().renderTile(
+                    mPageNum,
+                    mTileInfo.getSize().getWidth(),
+                    mTileInfo.getSize().getHeight(),
+                    mPageSize.getWidth(),
+                    mPageSize.getHeight(),
+                    offset.x,
+                    offset.y,
+                    mHideTextAnnotations);
         }
 
         @Override

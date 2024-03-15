@@ -39,7 +39,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.Dimensions;
+import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;

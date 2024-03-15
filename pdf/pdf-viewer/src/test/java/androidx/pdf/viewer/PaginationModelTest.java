@@ -22,8 +22,8 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.graphics.Rect;
 
-import androidx.pdf.aidl.Dimensions;
 import androidx.pdf.data.Range;
+import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.ProjectorContext;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;

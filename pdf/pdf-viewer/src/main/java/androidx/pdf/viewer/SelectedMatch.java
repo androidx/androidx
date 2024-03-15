@@ -20,7 +20,7 @@ import android.graphics.Rect;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.MatchRects;
+import androidx.pdf.models.MatchRects;
 import androidx.pdf.util.CycleRange.Direction;
 import androidx.pdf.util.Preconditions;
 

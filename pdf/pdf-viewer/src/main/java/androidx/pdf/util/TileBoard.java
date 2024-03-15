@@ -24,7 +24,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.pdf.aidl.Dimensions;
+import androidx.pdf.models.Dimensions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
