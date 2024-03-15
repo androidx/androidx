@@ -24,7 +24,6 @@ import java.awt.datatransfer.StringSelection
 import java.awt.datatransfer.Transferable
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
-import java.lang.IllegalStateException
 
 internal actual class PlatformClipboardManager : ClipboardManager {
     internal val systemClipboard = try {
@@ -63,9 +62,9 @@ internal actual class PlatformClipboardManager : ClipboardManager {
         }
     }
 
-    override fun setClip(clipEntry: ClipEntry) {
+    override fun setClip(clipEntry: ClipEntry?) {
         // Ignore clipDescription.
-        systemClipboard?.setContents(clipEntry.transferable, null)
+        systemClipboard?.setContents(clipEntry?.transferable, null)
     }
 
     override fun hasClip(): Boolean {
