@@ -52,7 +52,7 @@ sealed class Metric {
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    internal abstract fun getResult(
+    internal abstract fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement>
@@ -156,7 +156,7 @@ class FrameTimingMetric : Metric() {
     override fun start() {}
     override fun stop() {}
 
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
@@ -272,7 +272,7 @@ class FrameTimingGfxInfoMetric : Metric() {
         "gfxFrameJankPercent",
     )
 
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
@@ -315,7 +315,7 @@ class StartupTimingMetric : Metric() {
     override fun stop() {
     }
 
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
@@ -355,7 +355,7 @@ class StartupTimingLegacyMetric : Metric() {
     override fun stop() {
     }
 
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
@@ -398,10 +398,10 @@ class StartupTimingLegacyMetric : Metric() {
  * package:
  * ```
  * class ActivityResumeMetric : TraceMetric() {
- *     override fun getResult(
+ *     override fun getMeasurements(
  *         captureInfo: CaptureInfo,
  *         traceSession: PerfettoTraceProcessor.Session
- *     ): Result {
+ *     ): List<Measurement> {
  *         val rowSequence = traceSession.query(
  *             """
  *             SELECT
@@ -421,9 +421,9 @@ class StartupTimingLegacyMetric : Metric() {
  *         // to capture timing of every component of activity lifecycle
  *         val activityResultNs = rowSequence.firstOrNull()?.double("dur")
  *         return if (activityResultMs != null) {
- *             Result("activityResumeMs", activityResultNs / 1_000_000.0)
+ *             listOf(Measurement("activityResumeMs", activityResultNs / 1_000_000.0))
  *         } else {
- *             Result()
+ *             emptyList()
  *         }
  *     }
  * }
@@ -447,7 +447,7 @@ abstract class TraceMetric : Metric() {
     /**
      * Get the metric result for a given iteration given information about the target process and a TraceProcessor session
      */
-    public abstract override fun getResult(
+    public abstract override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement>
@@ -533,7 +533,7 @@ class TraceSectionMetric(
     override fun stop() {
     }
 
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
@@ -712,7 +712,7 @@ class PowerMetric(
         }
     }
 
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
@@ -872,7 +872,7 @@ class MemoryUsageMetric(
         Gpu("GPU Memory", alreadyInKb = false)
     }
 
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
@@ -897,7 +897,7 @@ class MemoryUsageMetric(
  */
 @ExperimentalMetricApi
 class MemoryCountersMetric : TraceMetric() {
-    override fun getResult(
+    override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
