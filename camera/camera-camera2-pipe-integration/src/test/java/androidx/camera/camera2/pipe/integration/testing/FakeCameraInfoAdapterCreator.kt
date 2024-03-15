@@ -121,7 +121,7 @@ object FakeCameraInfoAdapterCreator {
         val state3AControl = State3AControl(
             cameraProperties,
             NoOpAutoFlashAEModeDisabler,
-            AeFpsRange(fakeCameraQuirks)
+            AeFpsRange(fakeCameraQuirks),
         ).apply {
             useCaseCamera = fakeUseCaseCamera
         }

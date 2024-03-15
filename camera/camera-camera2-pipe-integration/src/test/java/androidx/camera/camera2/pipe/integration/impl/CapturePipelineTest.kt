@@ -272,12 +272,13 @@ class CapturePipelineTest {
                         )
                     )
                 )
-            )
+            ),
         ).apply {
             useCaseCamera = fakeUseCaseCamera
         }
 
         flashControl = FlashControl(
+            cameraProperties = fakeCameraProperties,
             state3AControl = state3AControl,
             threads = fakeUseCaseThreads,
         ).apply {

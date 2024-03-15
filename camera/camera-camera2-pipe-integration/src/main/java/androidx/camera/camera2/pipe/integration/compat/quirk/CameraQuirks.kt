@@ -98,6 +98,9 @@ class CameraQuirks @Inject constructor(
         if (TextureViewIsClosedQuirk.isEnabled(cameraMetadata)) {
             quirks.add(TextureViewIsClosedQuirk())
         }
+        if (TorchFlashRequiredFor3aUpdateQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(TorchFlashRequiredFor3aUpdateQuirk(cameraMetadata))
+        }
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
             quirks.add(YuvImageOnePixelShiftQuirk())
         }

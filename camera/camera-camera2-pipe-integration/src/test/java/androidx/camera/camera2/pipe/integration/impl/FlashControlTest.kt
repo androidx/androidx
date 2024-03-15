@@ -120,16 +120,18 @@ class FlashControlTest {
                 CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to aeAvailableModes.toIntArray()
             )
         )
+        val cameraProperties = FakeCameraProperties(metadata)
 
         state3AControl = State3AControl(
-            FakeCameraProperties(metadata),
+            cameraProperties,
             NoOpAutoFlashAEModeDisabler,
-            aeFpsRange
+            aeFpsRange,
         ).apply {
             useCaseCamera = fakeUseCaseCamera
         }
 
         flashControl = FlashControl(
+            cameraProperties = cameraProperties,
             state3AControl = state3AControl,
             threads = fakeUseCaseThreads,
         )
@@ -143,10 +145,11 @@ class FlashControlTest {
         val fakeCameraProperties = FakeCameraProperties()
 
         val flashControl = FlashControl(
+            fakeCameraProperties,
             State3AControl(
                 fakeCameraProperties,
                 NoOpAutoFlashAEModeDisabler,
-                aeFpsRange
+                aeFpsRange,
             ).apply {
                 useCaseCamera = fakeUseCaseCamera
             },
