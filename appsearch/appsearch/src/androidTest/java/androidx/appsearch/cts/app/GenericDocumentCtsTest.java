@@ -405,6 +405,7 @@ public class GenericDocumentCtsTest {
                 new GenericDocument.Builder<>(document1)
                         .setId("id2")
                         .setNamespace("namespace2")
+                        .setSchemaType("schemaType2")
                         .setPropertyBytes("byteKey1", sByteArray2)
                         .setPropertyLong("longKey2", 10L)
                         .clearProperty("booleanKey1")
@@ -421,7 +422,7 @@ public class GenericDocumentCtsTest {
 
         // Make sure the new doc contains the expected values
         GenericDocument expectedDoc = new GenericDocument.Builder<>(
-                "namespace2", "id2", "schemaType1")
+                "namespace2", "id2", "schemaType2")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
                 .setPropertyLong("longKey2", 10L)
