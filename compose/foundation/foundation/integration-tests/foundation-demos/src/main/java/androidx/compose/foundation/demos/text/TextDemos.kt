@@ -25,6 +25,7 @@ import androidx.compose.foundation.demos.text2.BasicTextFieldLongTextDemo
 import androidx.compose.foundation.demos.text2.BasicTextFieldOutputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldValueCallbackDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
+import androidx.compose.foundation.demos.text2.HandwritingDelegationDemo
 import androidx.compose.foundation.demos.text2.KeyboardActionsDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
 import androidx.compose.foundation.demos.text2.NestedReceiveContentDemo
@@ -156,6 +157,7 @@ val TextDemos = DemoCategory(
             "Text Input (BasicTextFieldv2)",
             listOf(
                 ComposableDemo("Basic text input") { BasicTextFieldDemos() },
+                ComposableDemo("Handwriting delegation") { HandwritingDelegationDemo() },
                 ComposableDemo("Value/callback overload") { BasicTextFieldValueCallbackDemo() },
                 ComposableDemo("Keyboard Options") { KeyboardOptionsDemos() },
                 ComposableDemo("Keyboard Actions") { KeyboardActionsDemos() },
