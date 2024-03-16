@@ -38,16 +38,13 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
@@ -69,8 +66,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -89,7 +84,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -104,9 +100,11 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
-import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import kotlin.coroutines.cancellation.CancellationException
@@ -239,7 +237,7 @@ fun SearchBar(
         }
     }
 
-    SearchBarInternal(
+    SearchBarImpl(
         animationProgress = animationProgress,
         finalBackProgress = finalBackProgress,
         firstBackEvent = firstBackEvent,
@@ -667,9 +665,9 @@ class SearchBarColors(
     }
 }
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SearchBarInternal(
+internal fun SearchBarImpl(
     animationProgress: Animatable<Float, AnimationVector1D>,
     finalBackProgress: MutableFloatState,
     firstBackEvent: MutableState<BackEventCompat?>,
@@ -704,111 +702,177 @@ internal fun SearchBarInternal(
             else -> shape
         }
     }
-
-    // The main animation complexity is allowing the component to smoothly expand while keeping the
-    // input field at the same relative location on screen. `Modifier.windowInsetsPadding` does not
-    // support animation and thus is not suitable. Instead, we convert the insets to a padding
-    // applied to the Surface, which gradually becomes padding applied to the input field as the
-    // animation proceeds.
-    val unconsumedInsets = remember { MutableWindowInsets() }
-    val topPadding = remember(density) {
-        derivedStateOf {
-            SearchBarVerticalPadding +
-                unconsumedInsets.asPaddingValues(density).calculateTopPadding()
-        }
+    val surface = @Composable {
+        Surface(
+            modifier = Modifier,
+            shape = animatedShape,
+            color = colors.containerColor,
+            contentColor = contentColorFor(colors.containerColor),
+            tonalElevation = tonalElevation,
+            shadowElevation = shadowElevation,
+            content = {},
+        )
     }
 
-    Surface(
-        shape = animatedShape,
-        color = colors.containerColor,
-        contentColor = contentColorFor(colors.containerColor),
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+    val showContent by remember {
+        derivedStateOf(structuralEqualityPolicy()) { animationProgress.value > 0 }
+    }
+    val wrappedContent: (@Composable () -> Unit)? = if (showContent) {
+        {
+            Column(Modifier.graphicsLayer { alpha = animationProgress.value }) {
+                HorizontalDivider(color = colors.dividerColor)
+                content()
+            }
+        }
+    } else null
+
+    SearchBarLayout(
+        animationProgress = animationProgress,
+        finalBackProgress = finalBackProgress,
+        firstBackEvent = firstBackEvent,
+        currentBackEvent = currentBackEvent,
+        modifier = modifier,
+        windowInsets = windowInsets,
+        inputField = inputField,
+        surface = surface,
+        content = wrappedContent,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchBarLayout(
+    animationProgress: Animatable<Float, AnimationVector1D>,
+    finalBackProgress: MutableFloatState,
+    firstBackEvent: MutableState<BackEventCompat?>,
+    currentBackEvent: MutableState<BackEventCompat?>,
+    modifier: Modifier,
+    windowInsets: WindowInsets,
+    inputField: @Composable () -> Unit,
+    surface: @Composable () -> Unit,
+    content: (@Composable () -> Unit)?,
+) {
+    // `Modifier.windowInsetsPadding` does not support animation,
+    // so the insets are converted to paddings in the Layout's MeasureScope
+    // and the animation calculations are done manually.
+    val unconsumedInsets = remember { MutableWindowInsets() }
+    Layout(
         modifier = modifier
             .zIndex(1f)
             .onConsumedWindowInsetsChanged { consumedInsets ->
                 unconsumedInsets.insets = windowInsets.exclude(consumedInsets)
             }
-            .consumeWindowInsets(unconsumedInsets)
-            .layout { measurable, constraints ->
-                val animatedTopPadding =
-                    lerp(topPadding.value, 0.dp, animationProgress.value).roundToPx()
-
-                val defaultStartWidth = max(constraints.minWidth, SearchBarMinWidth.roundToPx())
-                    .coerceAtMost(min(constraints.maxWidth, SearchBarMaxWidth.roundToPx()))
-                val defaultStartHeight = max(constraints.minHeight, InputFieldHeight.roundToPx())
-                    .coerceAtMost(constraints.maxHeight)
-                val predictiveBackStartWidth =
-                    (constraints.maxWidth * SearchBarPredictiveBackMinScale).roundToInt()
-                val predictiveBackStartHeight =
-                    (constraints.maxHeight * SearchBarPredictiveBackMinScale).roundToInt()
-                val predictiveBackMultiplier = calculatePredictiveBackMultiplier(
-                    currentBackEvent.value,
-                    animationProgress.value,
-                    finalBackProgress.floatValue
-                )
-                val startWidth =
-                    lerp(defaultStartWidth, predictiveBackStartWidth, predictiveBackMultiplier)
-                val startHeight =
-                    lerp(defaultStartHeight, predictiveBackStartHeight, predictiveBackMultiplier)
-
-                val endWidth = constraints.maxWidth
-                val endHeight = constraints.maxHeight
-
-                val width = lerp(startWidth, endWidth, animationProgress.value)
-                val height =
-                    lerp(startHeight, endHeight, animationProgress.value) + animatedTopPadding
-
-                val minOffsetMargin = SearchBarPredictiveBackMinMargin.roundToPx()
-                val predictiveBackOffsetX = calculatePredictiveBackOffsetX(
-                    constraints,
-                    minOffsetMargin,
-                    currentBackEvent.value,
-                    animationProgress.value,
-                    predictiveBackMultiplier
-                )
-                val predictiveBackOffsetY = calculatePredictiveBackOffsetY(
-                    constraints,
-                    minOffsetMargin,
-                    currentBackEvent.value,
-                    firstBackEvent.value,
-                    height,
-                    SearchBarPredictiveBackMaxOffsetY.roundToPx(),
-                    predictiveBackMultiplier
-                )
-
-                val placeable = measurable.measure(
-                    Constraints
-                        .fixed(width, height)
-                        .offset(
-                            vertical = -animatedTopPadding
-                        )
-                )
-                layout(width, height) {
-                    placeable.placeRelative(
-                        predictiveBackOffsetX,
-                        animatedTopPadding + predictiveBackOffsetY
-                    )
-                }
+            .consumeWindowInsets(unconsumedInsets),
+        content = {
+            Box(Modifier.layoutId(LayoutIdSurface), propagateMinConstraints = true) {
+                surface()
             }
-    ) {
-        Column {
-            val animatedInputFieldPadding = remember {
-                AnimatedPaddingValues(animationProgress.asState(), topPadding)
-            }
-            Box(Modifier.padding(animatedInputFieldPadding), propagateMinConstraints = true) {
+            Box(Modifier.layoutId(LayoutIdInputField), propagateMinConstraints = true) {
                 inputField()
             }
-
-            val showResults by remember {
-                derivedStateOf(structuralEqualityPolicy()) { animationProgress.value > 0 }
-            }
-            if (showResults) {
-                Column(Modifier.graphicsLayer { alpha = animationProgress.value }) {
-                    HorizontalDivider(color = colors.dividerColor)
+            content?.let { content ->
+                Box(Modifier.layoutId(LayoutIdSearchContent), propagateMinConstraints = true) {
                     content()
                 }
             }
+        },
+    ) { measurables, constraints ->
+        @Suppress("NAME_SHADOWING")
+        val animationProgress = animationProgress.value
+
+        val inputFieldMeasurable = measurables.fastFirst { it.layoutId == LayoutIdInputField }
+        val surfaceMeasurable = measurables.fastFirst { it.layoutId == LayoutIdSurface }
+        val contentMeasurable = measurables.fastFirstOrNull { it.layoutId == LayoutIdSearchContent }
+
+        val topPadding = unconsumedInsets.getTop(this) + SearchBarVerticalPadding.roundToPx()
+        val bottomPadding = SearchBarVerticalPadding.roundToPx()
+
+        val defaultStartWidth = constraints
+            .constrainWidth(inputFieldMeasurable.maxIntrinsicWidth(constraints.maxHeight))
+        val defaultStartHeight = constraints
+            .constrainHeight(inputFieldMeasurable.minIntrinsicHeight(constraints.maxWidth))
+
+        val predictiveBackStartWidth =
+            (constraints.maxWidth * SearchBarPredictiveBackMinScale).roundToInt()
+        val predictiveBackStartHeight =
+            (constraints.maxHeight * SearchBarPredictiveBackMinScale).roundToInt()
+        val predictiveBackMultiplier = calculatePredictiveBackMultiplier(
+            currentBackEvent.value,
+            animationProgress,
+            finalBackProgress.floatValue
+        )
+
+        val startWidth =
+            lerp(defaultStartWidth, predictiveBackStartWidth, predictiveBackMultiplier)
+        val startHeight = lerp(
+            topPadding + defaultStartHeight,
+            predictiveBackStartHeight,
+            predictiveBackMultiplier
+        )
+
+        val endWidth = constraints.maxWidth
+        val endHeight = constraints.maxHeight
+
+        val width = lerp(startWidth, endWidth, animationProgress)
+        val height = lerp(startHeight, endHeight, animationProgress)
+
+        // Note: animatedTopPadding decreases w.r.t. animationProgress
+        val animatedTopPadding = lerp(topPadding, 0, animationProgress)
+        val animatedBottomPadding = lerp(0, bottomPadding, animationProgress)
+
+        // As the animation proceeds, the surface loses its padding
+        // and expands to cover the entire container.
+        val surfacePlaceable = surfaceMeasurable
+            .measure(Constraints.fixed(width, height - animatedTopPadding))
+        val inputFieldPlaceable = inputFieldMeasurable
+            .measure(Constraints.fixed(width, defaultStartHeight))
+        val contentPlaceable = contentMeasurable?.measure(
+            Constraints(
+                minWidth = width,
+                maxWidth = width,
+                minHeight = 0,
+                maxHeight = if (constraints.hasBoundedHeight) {
+                    (constraints.maxHeight - (topPadding + defaultStartHeight + bottomPadding))
+                        .coerceAtLeast(0)
+                } else {
+                    constraints.maxHeight
+                }
+            )
+        )
+
+        layout(width, height) {
+            val minOffsetMargin = SearchBarPredictiveBackMinMargin.roundToPx()
+            val predictiveBackOffsetX = calculatePredictiveBackOffsetX(
+                constraints = constraints,
+                minMargin = minOffsetMargin,
+                currentBackEvent = currentBackEvent.value,
+                layoutDirection = layoutDirection,
+                progress = animationProgress,
+                predictiveBackMultiplier = predictiveBackMultiplier,
+            )
+            val predictiveBackOffsetY = calculatePredictiveBackOffsetY(
+                constraints = constraints,
+                minMargin = minOffsetMargin,
+                currentBackEvent = currentBackEvent.value,
+                firstBackEvent = firstBackEvent.value,
+                height = height,
+                maxOffsetY = SearchBarPredictiveBackMaxOffsetY.roundToPx(),
+                predictiveBackMultiplier = predictiveBackMultiplier,
+            )
+
+            surfacePlaceable.placeRelative(
+                predictiveBackOffsetX,
+                predictiveBackOffsetY + animatedTopPadding,
+            )
+            inputFieldPlaceable.placeRelative(
+                predictiveBackOffsetX,
+                predictiveBackOffsetY + topPadding,
+            )
+            contentPlaceable?.placeRelative(
+                predictiveBackOffsetX,
+                predictiveBackOffsetY + topPadding + inputFieldPlaceable.height +
+                    animatedBottomPadding,
+            )
         }
     }
 }
@@ -828,6 +892,7 @@ private fun calculatePredictiveBackOffsetX(
     constraints: Constraints,
     minMargin: Int,
     currentBackEvent: BackEventCompat?,
+    layoutDirection: LayoutDirection,
     progress: Float,
     predictiveBackMultiplier: Float
 ): Int {
@@ -835,10 +900,12 @@ private fun calculatePredictiveBackOffsetX(
         return 0
     }
     val directionMultiplier = if (currentBackEvent.swipeEdge == BackEventCompat.EDGE_LEFT) 1 else -1
+    val rtlMultiplier = if (layoutDirection == LayoutDirection.Ltr) 1 else -1
     val maxOffsetX =
         (constraints.maxWidth * SearchBarPredictiveBackMaxOffsetXRatio) - minMargin
     val interpolatedOffsetX = maxOffsetX * (1 - progress)
-    return (interpolatedOffsetX * predictiveBackMultiplier * directionMultiplier).roundToInt()
+    return (interpolatedOffsetX * predictiveBackMultiplier * directionMultiplier * rtlMultiplier)
+        .roundToInt()
 }
 
 private fun calculatePredictiveBackOffsetY(
@@ -862,17 +929,9 @@ private fun calculatePredictiveBackOffsetY(
     return (interpolatedOffsetY * predictiveBackMultiplier * directionMultiplier).roundToInt()
 }
 
-@Stable
-private class AnimatedPaddingValues(
-    val animationProgress: State<Float>,
-    val topPadding: State<Dp>,
-) : PaddingValues {
-    override fun calculateTopPadding(): Dp = topPadding.value * animationProgress.value
-    override fun calculateBottomPadding(): Dp = SearchBarVerticalPadding * animationProgress.value
-
-    override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp = 0.dp
-    override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp = 0.dp
-}
+private const val LayoutIdInputField = "InputField"
+private const val LayoutIdSurface = "Surface"
+private const val LayoutIdSearchContent = "Content"
 
 // Measurement specs
 @OptIn(ExperimentalMaterial3Api::class)

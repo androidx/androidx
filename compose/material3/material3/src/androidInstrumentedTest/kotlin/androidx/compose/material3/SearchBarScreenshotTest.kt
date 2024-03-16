@@ -407,7 +407,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             )
         }
 
-        SearchBarInternal(
+        SearchBarImpl(
             animationProgress = animationProgress,
             finalBackProgress = finalBackProgress,
             firstBackEvent = firstBackEvent,
