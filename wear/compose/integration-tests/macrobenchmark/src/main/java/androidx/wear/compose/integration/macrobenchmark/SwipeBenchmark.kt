@@ -66,7 +66,12 @@ class SwipeBenchmark(
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             swipeToDismissBox.setGestureMargin(device.displayWidth / 5)
             repeat(3) {
-                swipeToDismissBox.swipe(Direction.RIGHT, 0.75f, SWIPE_SPEED)
+                swipeToDismissBox.swipe(Direction.RIGHT, 1f, SWIPE_SPEED)
+                // Sleeping the current thread for sometime before swiping again. This is required
+                // for cuttlefish_wear emulator as swipes are not completed when performed
+                // repeatedly. See b/328016250 for more details.
+                // TODO(b/329837878): Remove the sleep once infra improves
+                Thread.sleep(500)
                 device.waitForIdle()
             }
         }
