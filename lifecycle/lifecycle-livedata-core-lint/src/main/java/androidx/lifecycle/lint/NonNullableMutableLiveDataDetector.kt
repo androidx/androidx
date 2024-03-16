@@ -175,6 +175,11 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
             return null
         }
         val cls = classType.resolve().getUastParentOfType<UClass>()
+        if (cls != null && !isKotlin(cls.lang)) {
+            // If the type argument refers to a Java type,
+            // we won't get KtTypeReference anyway, so bail out early.
+            return null
+        }
         val parentPsiType = cls?.superClassType as PsiClassType
         if (parentPsiType.hasParameters()) {
             val parentTypeReference = cls.uastSuperTypes[0]
