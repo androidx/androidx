@@ -3046,6 +3046,10 @@ public final class androidx/compose/ui/platform/CompositionLocalsKt {
 	public static final fun getLocalWindowInfo ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
 
+public final class androidx/compose/ui/platform/CompositionLocals_skikoKt {
+	public static final fun getLocalLifecycleOwner ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+}
+
 public final class androidx/compose/ui/platform/DefaultViewConfiguration : androidx/compose/ui/platform/ViewConfiguration {
 	public static final field $stable I
 	public fun <init> (Landroidx/compose/ui/unit/Density;)V
