@@ -33,7 +33,7 @@ class FieldBundle(
     @SerialName("affinity")
     val affinity: String,
     @SerialName("notNull")
-    val isNonNull: Boolean,
+    val isNonNull: Boolean = false,
     @SerialName("defaultValue")
     val defaultValue: String? = null,
 ) : SchemaEquality<FieldBundle> {
