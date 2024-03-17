@@ -16,13 +16,11 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.ui.semantics.CollectionInfo
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutSemanticState(
     state: PagerState,
     isVertical: Boolean

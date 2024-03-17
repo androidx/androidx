@@ -32,7 +32,6 @@
 
 package androidx.compose.foundation.demos.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -71,7 +70,6 @@ val PagerDemos = listOf(
     DemoCategory("Snap Position", SnapPositionDemos),
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VerticalPagerDemo() {
     val pagerState = rememberPagerState { PagesCount }
@@ -83,7 +81,6 @@ private fun VerticalPagerDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun HorizontalPagerDemo() {
     val pagerState = rememberPagerState { PagesCount }
@@ -111,7 +108,6 @@ internal fun PagerItem(index: Int) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun PagerControls(modifier: Modifier = Modifier, pagerState: PagerState) {
     val animationScope = rememberCoroutineScope()
