@@ -23,11 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 
-// TODO: Create a sample androidx.compose.material3.samples.MaterialThemeSample
-// TODO(b/197880751) Update to link M3 Material Theming page (i.e. a <a href="https://material
-//  .io/design/material-theming/overview.html" class="external" target="_blank">Material
-//  Theming</a> M3 equivalent).
 /**
  * Material Theming refers to the customization of your Material Design app to better reflect your
  * product’s brand.
@@ -36,13 +33,15 @@ import androidx.compose.runtime.remember
  * default values.
  *
  * All values may be set by providing this component with the [colorScheme][ColorScheme],
- * [typography][Typography] attributes. Use this to configure the overall
+ * [typography][Typography] and [shapes][Shapes] attributes. Use this to configure the overall
  * theme of elements within this MaterialTheme.
  *
  * Any values that are not set will inherit the current value from the theme, falling back to the
  * defaults if there is no parent MaterialTheme. This allows using a MaterialTheme at the top
  * of your application, and then separate MaterialTheme(s) for different screens / parts of your
  * UI, overriding only the parts of the theme definition that need to change.
+ *
+ * @sample androidx.compose.material3.samples.MaterialThemeSample
  *
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
@@ -78,6 +77,8 @@ fun MaterialTheme(
 object MaterialTheme {
     /**
      * Retrieves the current [ColorScheme] at the call site's position in the hierarchy.
+     *
+     * @sample androidx.compose.material3.samples.ThemeColorSample
      */
     val colorScheme: ColorScheme
         @Composable
@@ -86,6 +87,8 @@ object MaterialTheme {
 
     /**
      * Retrieves the current [Typography] at the call site's position in the hierarchy.
+     *
+     * @sample androidx.compose.material3.samples.ThemeTextStyleSample
      */
     val typography: Typography
         @Composable
@@ -94,12 +97,70 @@ object MaterialTheme {
 
     /**
      * Retrieves the current [Shapes] at the call site's position in the hierarchy.
+     *
+     * @sample androidx.compose.material3.samples.ThemeShapeSample
      */
     val shapes: Shapes
         @Composable
         @ReadOnlyComposable
         get() = LocalShapes.current
 }
+
+// TODO: Create a sample androidx.compose.material3.samples.MaterialExpressiveThemeSample
+/**
+ * Material Expressive Theming refers to the customization of your Material Design app to better
+ * reflect your product’s brand.
+ *
+ * Material components such as [Button] and [Checkbox] use values provided here when retrieving
+ * default values.
+ *
+ * All values may be set by providing this component with the [colorScheme][ColorScheme],
+ * [typography][Typography], [shapes][Shapes] attributes. Use this to configure the overall
+ * theme of elements within this MaterialTheme.
+ *
+ * Any values that are not set will fall back to the defaults. To inherit the current value from the
+ * theme, pass them into subsequent calls and override only the parts of the theme definition that
+ * need to change.
+ *
+ * Alternatively, only call this function at the top
+ * of your application, and then call [MaterialTheme] to specify separate MaterialTheme(s) for
+ * different screens / parts of your UI, overriding only the parts of the theme definition that need
+ * to change.
+ *
+ * @param colorScheme A complete definition of the Material Color theme for this hierarchy
+ * @param typography A set of text styles to be used as this hierarchy's typography system
+ * @param shapes A set of corner shapes to be used as this hierarchy's shape system
+ */
+// TODO: Mark as experimental if scope is changed to public
+@Composable
+internal fun MaterialExpressiveTheme(
+    colorScheme: ColorScheme? = null,
+    shapes: Shapes? = null,
+    typography: Typography? = null,
+    content: @Composable () -> Unit
+) {
+    if (LocalUsingExpressiveTheme.current) {
+        MaterialTheme(
+            colorScheme = colorScheme ?: MaterialTheme.colorScheme,
+            typography = typography ?: MaterialTheme.typography,
+            shapes = shapes ?: MaterialTheme.shapes,
+            content = content
+        )
+    } else {
+        CompositionLocalProvider(LocalUsingExpressiveTheme provides true) {
+            MaterialTheme(
+                colorScheme = colorScheme ?: lightColorScheme(),
+                // TODO: replace with calls to Expressive shape default
+                shapes = shapes ?: Shapes(),
+                // TODO: replace with calls to Expressive typography default
+                typography = typography ?: Typography(),
+                content = content
+            )
+        }
+    }
+}
+
+internal val LocalUsingExpressiveTheme = staticCompositionLocalOf { false }
 
 @Composable
 /*@VisibleForTesting*/
