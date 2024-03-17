@@ -124,4 +124,6 @@
       e.g. "3 of 12" meaning "match 3 is selected, out of 12 matches" [CHAR LIMIT=10] -->
     <string name="message_match_status"><xliff:g id="position" example="3">%1$d</xliff:g> / <xliff:g id="total" example="12">%2$d</xliff:g></string>
 
+    <!-- Content description for edit fab button -->
+    <string name="action_edit">Edit file</string>
 </resources>

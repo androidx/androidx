@@ -24,4 +24,13 @@
             tools:ignore="MissingServiceExportedEqualsTrue" />
 
     </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.ANNOTATE" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <data android:mimeType="application/pdf"/>
+        </intent>
+    </queries>
+
 </manifest>

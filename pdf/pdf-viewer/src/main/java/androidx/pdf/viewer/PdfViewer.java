@@ -22,6 +22,7 @@ import static android.view.View.VISIBLE;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -87,6 +88,7 @@ import androidx.pdf.widget.ZoomView.InitialZoomMode;
 import androidx.pdf.widget.ZoomView.RotateMode;
 import androidx.pdf.widget.ZoomView.ZoomScroll;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import java.util.ArrayList;
@@ -141,6 +143,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private static final String KEY_SPACE_RIGHT = "rightSpace";
     private static final String KEY_QUIT_ON_ERROR = "quitOnError";
     private static final String KEY_EXIT_ON_CANCEL = "exitOnCancel";
+    private static final String ACTION_ANNOTATE_PDF = "android.intent.action.ANNOTATE";
+    private static final String PDF_MIME_TYPE = "application/pdf";
 
     /** Key to save/retrieve {@link #mEditingAuthorized} from Bundle. */
     private static final String KEY_EDITING_AUTHORIZED = "editingAuthorized";
@@ -227,6 +231,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     private FindInFileView mFindInFileView;
 
+    private FloatingActionButton mAnnotationButton;
+
     /** Callback is called everytime dimensions for a page have loaded. */
     private interface OnDimensCallback {
         /** Return true to continue receiving callbacks, else false. */
@@ -309,6 +315,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
         mFastScrollView.setScrollable(this);
         mFastScrollView.setId(getId() * 10);
+
+        setUpEditFab();
+
         return mPdfViewer;
     }
 
@@ -955,6 +964,16 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                                 computeImportantRange(position), position.zoom, position.stable)) {
                             showFastScrollView();
                         }
+
+                        if (showEditFab()) {
+                            if (position.scrollY > 0) {
+                                mAnnotationButton.setVisibility(View.GONE);
+                            } else if (position.scrollY == 0
+                                    && mAnnotationButton.getVisibility() == View.GONE
+                                    && mFindInFileView.getVisibility() == View.GONE) {
+                                mAnnotationButton.setVisibility(View.VISIBLE);
+                            }
+                        }
                     }
 
                     @Override
@@ -1123,6 +1142,14 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
          * statements.
          */
         private boolean handleSingleTapNoFormFilling(MotionEvent e) {
+            if (showEditFab()) {
+                if (mAnnotationButton.getVisibility() == View.GONE
+                        && mFindInFileView.getVisibility() == GONE) {
+                    mAnnotationButton.setVisibility(View.VISIBLE);
+                } else {
+                    mAnnotationButton.setVisibility(View.GONE);
+                }
+            }
             boolean hadSelection =
                     mSelectionModel != null && mSelectionModel.selection().get() != null;
             if (hadSelection) {
@@ -1205,6 +1232,10 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
                         if (mShouldRedrawOnDocumentLoaded) {
                             mShouldRedrawOnDocumentLoaded = false;
+                        }
+
+                        if (showEditFab()) {
+                            mAnnotationButton.setVisibility(VISIBLE);
                         }
                     }
 
@@ -1474,6 +1505,39 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             queryBox.clearFocus();
             queryBox.setText("");
             parentLayout.setVisibility(GONE);
+            if (showEditFab()) {
+                mAnnotationButton.setVisibility(VISIBLE);
+            }
         });
+    }
+
+    private void setUpEditFab() {
+        mAnnotationButton = mPdfViewer.findViewById(R.id.edit_fab);
+        mAnnotationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performEdit();
+            }
+        });
+
+    }
+
+    private void performEdit() {
+        Intent intent = getAnnotationIntent();
+        intent.setData(mLocalUri);
+        startActivity(intent);
+    }
+
+    private boolean showEditFab() {
+        Intent intent = getAnnotationIntent();
+        return intent.resolveActivity(getContext().getPackageManager()) != null;
+    }
+
+    private Intent getAnnotationIntent() {
+        Intent intent = new Intent(ACTION_ANNOTATE_PDF);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setDataAndType(mLocalUri, PDF_MIME_TYPE);
+        return intent;
     }
 }

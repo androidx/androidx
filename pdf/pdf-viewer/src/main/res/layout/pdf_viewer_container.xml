@@ -23,5 +23,17 @@
 
     <include layout="@layout/file_viewer_pdf"/>
     <include layout="@layout/search" android:id="@+id/search"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/edit_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/viewer_edit_fab_margin_bottom"
+        android:layout_marginEnd="@dimen/viewer_edit_fab_margin_right"
+        android:contentDescription="@string/action_edit"
+        android:layout_gravity="bottom|end"
+        android:visibility="gone"
+        android:src="@drawable/edit_fab"
+        app:backgroundTint="#5D4200"
+        app:tint="#FFDEA5"/>
 
 </FrameLayout>

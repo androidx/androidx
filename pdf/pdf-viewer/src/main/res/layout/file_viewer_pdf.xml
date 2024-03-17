@@ -39,7 +39,7 @@
                 android:id="@+id/pdf_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:orientation="vertical"/>
         </FrameLayout>
     </androidx.pdf.widget.ZoomView>
 </androidx.pdf.widget.FastScrollView>
