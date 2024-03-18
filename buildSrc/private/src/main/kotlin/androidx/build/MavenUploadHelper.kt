@@ -289,7 +289,7 @@ internal fun modifyPomDependency(
     val shouldReplace = redirecting.targetNames.contains(target)
     if (shouldReplace) {
         groupId.text = redirecting.groupId
-        version.text = redirecting.version
+        version.text = redirecting.versionForTargetOrDefault(target)
     }
     return dependency
 }

@@ -20,9 +20,14 @@ import org.gradle.api.Project
 
 data class ArtifactRedirecting(
     val groupId: String,
-    val version: String,
+    val defaultVersion: String,
     val targetNames: Set<String>,
-)
+    val targetVersions: Map<String, String>
+) {
+    fun versionForTargetOrDefault(target: String): String {
+        return targetVersions[target] ?: defaultVersion
+    }
+}
 
 fun Project.artifactRedirecting(): ArtifactRedirecting {
     val groupId = findProperty("artifactRedirecting.androidx.groupId") as? String
@@ -30,17 +35,40 @@ fun Project.artifactRedirecting(): ArtifactRedirecting {
     // but we can comply to this convention:
         ?: project.group.toString().replace("org.jetbrains.", "androidx.")
 
-    val version = findProperty("artifactRedirecting.${groupId}.version") as? String
+    val targetNames = (findProperty("artifactRedirecting.publication.targetNames") as? String ?: "")
+        .split(",").toSet()
+
+    var defaultVersion: String = findProperty("artifactRedirecting.${groupId}.version") as? String
         // artifactRedirecting for compose was added before all other libs,
         // therefore it's a default:
         ?: findProperty("artifactRedirecting.androidx.compose.version") as String
 
-    val targetNames = (findProperty("artifactRedirecting.publication.targetNames") as? String ?: "")
-        .split(",").toSet()
+    val targetVersionsMap = mutableMapOf<String, String>()
+
+    // for a case when some targets have different redirecting version
+    val redirectTargetVersions = findProperty("artifactRedirecting.${groupId}.targetVersions") as? String
+    if (redirectTargetVersions != null) {
+        // for example: jvm=1.7.1,default=1.8.0-alpha01
+        val versionsMap = redirectTargetVersions.split(",").map {
+            val values = it.split("=")
+            values[0] to values[1]
+        }.associate { it }
+
+        defaultVersion = versionsMap["default"] ?: defaultVersion
+
+        targetVersionsMap.putAll(
+            targetNames.associateWith {
+                (versionsMap[it] ?: "")
+            }.filterValues {
+                it.isNotEmpty()
+            }
+        )
+    }
 
     return ArtifactRedirecting(
         groupId = groupId,
-        version = version,
+        defaultVersion = defaultVersion,
         targetNames = targetNames,
+        targetVersions = targetVersionsMap
     )
 }

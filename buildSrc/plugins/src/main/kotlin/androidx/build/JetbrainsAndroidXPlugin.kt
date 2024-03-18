@@ -172,8 +172,16 @@ fun enableArtifactRedirectingPublishing(project: Project) {
             .withType(KotlinSoftwareComponentWithCoordinatesAndPublication::class.java)
             .getByName("kotlin")
 
-        val newDependency = project.dependencies.create(redirecting.groupId, project.name, redirecting.version)
-        CustomRootComponent(rootComponent, newDependency)
+        CustomRootComponent(rootComponent) { configuration ->
+            val targetName = redirecting.targetVersions.keys.firstOrNull {
+                // we rely on the fact that configuration name starts with target name
+                configuration.name.startsWith(it)
+            }
+            val targetVersion = redirecting.versionForTargetOrDefault(targetName ?: "")
+            project.dependencies.create(
+                redirecting.groupId, project.name, targetVersion
+            )
+        }
     }
 
     val oelTargetNames = (project.findProperty("artifactRedirecting.publication.targetNames") as? String ?: "")

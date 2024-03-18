@@ -119,7 +119,7 @@ internal fun Project.publishAndroidxReference(target: AbstractKotlinTarget, newR
 
 internal class CustomRootComponent(
     val rootComponent: KotlinSoftwareComponentWithCoordinatesAndPublication,
-    val newDependency: ModuleDependency
+    val customizeDependencyPerConfiguration: (Configuration) -> ModuleDependency
 ) : SoftwareComponentInternal, ComponentWithVariants, ComponentWithCoordinates {
     override fun getName(): String = "kotlinDecoratedRootComponent"
     override fun getVariants(): Set<SoftwareComponent> = rootComponent.variants
@@ -131,6 +131,8 @@ internal class CustomRootComponent(
     private val extraUsages = mutableSetOf<UsageContext>()
 
     fun addUsageFromConfiguration(configuration: Configuration) {
+        val newDependency = customizeDependencyPerConfiguration(configuration)
+
         extraUsages.add(
             CustomUsage(
                 name = configuration.name,
