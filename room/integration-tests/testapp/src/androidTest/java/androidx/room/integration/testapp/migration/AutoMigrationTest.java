@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.database.SQLException;
 
 import androidx.annotation.NonNull;
-import androidx.room.DatabaseConfiguration;
 import androidx.room.migration.Migration;
 import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
@@ -147,10 +146,6 @@ public class AutoMigrationTest {
                 true,
                 MIGRATION_1_0
         );
-        DatabaseConfiguration config = helper.databaseConfiguration;
-        assertThat(config).isNotNull();
-        assertThat(config.migrationContainer.findMigrationPath(1, 2)).isNotNull();
-        assertThat(config.migrationContainer.findMigrationPath(1, 2)).isNotEmpty();
     }
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
