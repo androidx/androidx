@@ -94,18 +94,18 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
     @OptIn(InternalSerializationApi::class)
     public constructor(
         navigator: Navigator<out D>,
-        route: KClass<*>,
-        typeMap: Map<KType, NavType<*>> = mapOf(),
+        route: KClass<*>? = null,
+        typeMap: Map<KType, NavType<*>>? = null,
     ) : this(
         navigator,
-        route.serializer().hashCode(),
-        route.serializer().generateRoutePattern(typeMap.ifEmpty { null })
+        route?.serializer()?.hashCode() ?: -1,
+        route?.serializer()?.generateRoutePattern(typeMap)
     ) {
-        route.serializer()
-            .generateNavArguments(typeMap)
-            .forEach {
+        route?.apply {
+            serializer().generateNavArguments(typeMap).forEach {
                 arguments[it.name] = it.argument
             }
+        }
     }
 
     /**
