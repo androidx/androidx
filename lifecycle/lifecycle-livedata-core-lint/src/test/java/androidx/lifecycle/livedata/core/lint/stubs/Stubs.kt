@@ -25,7 +25,7 @@ private val LIVEDATA = java(
     public abstract class LiveData<T> {
         protected void postValue(T value) {}
         protected void setValue(T value) {}
-        public T getValue() {}
+        public T getValue() { return null; }
     }
 """
 ).indented()
