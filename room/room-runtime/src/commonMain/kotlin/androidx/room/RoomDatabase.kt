@@ -22,16 +22,17 @@ import androidx.annotation.RestrictTo
 import androidx.room.concurrent.CloseBarrier
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
-import androidx.room.util.contains
 import androidx.room.util.isAssignableFrom
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.SQLiteException
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.withContext
 
 /**
  * Base class for all Room databases. All classes that are annotated with [Database] must
@@ -42,7 +43,7 @@ import kotlinx.coroutines.CoroutineScope
  *
  * @see Database
  */
-expect abstract class RoomDatabase {
+expect abstract class RoomDatabase() {
 
     /**
      * The invalidation tracker for this database.
@@ -186,6 +187,10 @@ expect abstract class RoomDatabase {
 
     /**
      * Use a connection to perform database operations.
+     *
+     * This function is for internal access to the pool, it is an unconfined coroutine function to
+     * be used by Room generated code paths. For the public version see [useReaderConnection] and
+     * [useWriterConnection].
      */
     internal suspend fun <R> useConnection(isReadOnly: Boolean, block: suspend (Transactor) -> R): R
 
@@ -334,6 +339,69 @@ expect abstract class RoomDatabase {
          */
         open fun onOpen(connection: SQLiteConnection)
     }
+}
+
+/**
+ * Acquires a READ connection, suspending while waiting if none is available and then calling the
+ * [block] to use the connection once it is acquired. A [RoomDatabase] will have one or more READ
+ * connections. The connection to use in the [block] is an instance of [Transactor] that provides
+ * the capabilities for performing nested transactions.
+ *
+ * Using the connection after [block] completes is prohibited.
+ *
+ * The connection will be confined to the coroutine on which [block] executes, attempting to use
+ * the connection from a different coroutine will result in an error.
+ *
+ * If the current coroutine calling this function already has a confined connection, then that
+ * connection is used.
+ *
+ * A connection is a limited resource and should not be held for more than it is needed. The best
+ * practice in using connections is to avoid executing long-running computations within the [block].
+ * If a caller has to wait too long to acquire a connection a [SQLiteException] will be thrown due
+ * to a timeout.
+ *
+ * @param block The code to use the connection.
+ * @throws SQLiteException when the database is closed or a thread confined connection needs to be
+ * upgraded or there is a timeout acquiring a connection.
+ *
+ * @see [useWriterConnection]
+ */
+suspend fun <R> RoomDatabase.useReaderConnection(
+    block: suspend (Transactor) -> R
+): R = withContext(getCoroutineScope().coroutineContext) {
+    useConnection(isReadOnly = true, block)
+}
+
+/**
+ * Acquires a WRITE connection, suspending while waiting if none is available and then calling the
+ * [block] to use the connection once it is acquired. A [RoomDatabase] will have only one WRITE
+ * connection. The connection to use in the [block] is an instance of [Transactor] that provides the
+ * capabilities for performing nested transactions.
+ *
+ * Using the connection after [block] completes is prohibited.
+ *
+ * The connection will be confined to the coroutine on which [block] executes, attempting to use
+ * the connection from a different coroutine will result in an error.
+ *
+ * If the current coroutine calling this function already has a confined connection, then that
+ * connection is used as long as it isn't required to be upgraded to a writer. If an upgrade is
+ * required then a [SQLiteException] is thrown.
+ *
+ * A connection is a limited resource and should not be held for more than it is needed. The best
+ * practice in using connections is to avoid executing long-running computations within the [block].
+ * If a caller has to wait too long to acquire a connection a [SQLiteException] will be thrown due
+ * to a timeout.
+ *
+ * @param block The code to use the connection.
+ * @throws SQLiteException when the database is closed or a thread confined connection needs to be
+ * upgraded or there is a timeout acquiring a connection.
+ *
+ * @see [useReaderConnection]
+ */
+suspend fun <R> RoomDatabase.useWriterConnection(
+    block: suspend (Transactor) -> R
+): R = withContext(getCoroutineScope().coroutineContext) {
+    useConnection(isReadOnly = false, block)
 }
 
 internal fun RoomDatabase.validateAutoMigrations(configuration: DatabaseConfiguration) {

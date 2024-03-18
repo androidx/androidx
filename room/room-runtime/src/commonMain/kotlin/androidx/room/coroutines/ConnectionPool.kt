@@ -43,15 +43,14 @@ internal interface ConnectionPool {
      * Using the connection after [block] completes is prohibited.
      *
      * The connection will be confined to the coroutine on which [block] executes, attempting to use
-     * from another coroutine is an error.
+     * the connection from a different coroutine will result in an error.
      *
      * If the current coroutine calling this function already has a confined connection, then that
-     * connection is used as long as the connection isn't required to be upgraded to a writer.
-     * If an upgrade is required then a [SQLiteException] is thrown.
+     * connection is used as long as it isn't required to be upgraded to a writer. If an upgrade is
+     * required then a [SQLiteException] is thrown.
      *
-     * A connection is a resource and shouldn't be held more than it needs to, therefore try not to
-     * do long-running computations within the [block]. If a caller has to wait too long to
-     * acquire a connection a [SQLiteException] will be thrown due to a timeout.
+     * If a caller has to wait too long to acquire a connection a [SQLiteException] will be thrown
+     * due to a timeout.
      *
      * @param isReadOnly Whether to use a reader or a writer connection.
      * @param block The code to use the connection.
