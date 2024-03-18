@@ -32,7 +32,6 @@ internal object BaseButtonDefaults {
     val MinHeight = 40.dp
 }
 
-@ExperimentalTvMaterial3Api
 object ButtonDefaults {
     private val ContainerShape = CircleShape
     private val ButtonHorizontalPadding = 16.dp
@@ -196,7 +195,6 @@ object ButtonDefaults {
     )
 }
 
-@ExperimentalTvMaterial3Api
 object OutlinedButtonDefaults {
     private val ContainerShape = CircleShape
     private val ButtonHorizontalPadding = 16.dp
