@@ -782,7 +782,8 @@ fun CompactButton(
     if (label != null) {
         ButtonImpl(
             onClick = onClick,
-            modifier = modifier.compactButtonModifier()
+            modifier = modifier
+                .compactButtonModifier()
                 .padding(ButtonDefaults.CompactButtonTapTargetPadding),
             secondaryLabel = null,
             icon = icon,
@@ -801,7 +802,8 @@ fun CompactButton(
         // content. We use the base simple single slot Button under the covers.
         ButtonImpl(
             onClick = onClick,
-            modifier = modifier.compactButtonModifier()
+            modifier = modifier
+                .compactButtonModifier()
                 .width(ButtonDefaults.IconOnlyCompactButtonWidth)
                 .padding(ButtonDefaults.CompactButtonTapTargetPadding),
             enabled = enabled,
@@ -1451,7 +1453,8 @@ class ButtonColors constructor(
 
 @Composable
 private fun Modifier.buttonSizeModifier(): Modifier =
-    this.defaultMinSize(minHeight = ButtonDefaults.Height)
+    this
+        .defaultMinSize(minHeight = ButtonDefaults.Height)
         .height(IntrinsicSize.Min)
 
 @Composable
@@ -1557,13 +1560,14 @@ private fun ButtonImpl(
                     )
                 )
                 if (secondaryLabel != null && secondaryLabelFont != null) {
-                   Row(
-                       content = provideScopeContent(
-                           colors.secondaryContentColor(enabled),
-                           secondaryLabelFont,
-                           secondaryLabel
-                       )
-                   )
+                    Spacer(modifier = Modifier.size(2.dp))
+                    Row(
+                        content = provideScopeContent(
+                            colors.secondaryContentColor(enabled),
+                            secondaryLabelFont,
+                            secondaryLabel
+                        )
+                    )
                 }
             }
         }

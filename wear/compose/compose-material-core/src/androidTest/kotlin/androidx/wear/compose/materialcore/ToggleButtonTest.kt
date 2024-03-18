@@ -1122,6 +1122,7 @@ private fun ToggleButtonWithDefaults(
     shape = shape,
     toggleControlWidth = selectionControlWidth,
     toggleControlHeight = selectionControlHeight,
+    labelSpacerSize = 0.dp,
     ripple = EmptyIndication,
 )
 
@@ -1172,6 +1173,7 @@ private fun SplitToggleButtonWithDefaults(
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
     shape = shape,
+    labelSpacerSize = 0.dp,
     ripple = EmptyIndication,
 )
 
