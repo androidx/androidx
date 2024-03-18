@@ -56,7 +56,9 @@ test_rx="androidx.compose.foundation.benchmark.lazy.LazyListScrollingBenchmark.s
 
 ## CLI completion
 
-Generate completion files with `./generate-completion-files.sh` and source in your shell config, e.g.:
+Generate shell-specific completion files with `./generate-completion.sh`.
+
+Then, source in your shell config, e.g.:
 - For `bash`: `dst="$(pwd)/completion_bash.sh"; echo "source '$dst'" >> ~/.bashrc`
 - For `zsh`: `dst="$(pwd)/completion_zsh.sh"; echo "source '$dst'" >> ~/.zshrc`
 
