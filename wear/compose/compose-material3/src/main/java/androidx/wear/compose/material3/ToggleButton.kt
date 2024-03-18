@@ -142,6 +142,7 @@ fun ToggleButton(
         shape = shape,
         toggleControlWidth = TOGGLE_CONTROL_WIDTH,
         toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
+        labelSpacerSize = ToggleButtonDefaults.LabelSpacerSize,
         ripple = rippleOrFallbackImplementation()
     )
 
@@ -259,6 +260,7 @@ fun SplitToggleButton(
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
     shape = shape,
+    labelSpacerSize = ToggleButtonDefaults.LabelSpacerSize,
     ripple = rippleOrFallbackImplementation()
 )
 
@@ -425,17 +427,18 @@ object ToggleButtonDefaults {
             disabledUncheckedSplitContainerColor = disabledUncheckedSplitContainerColor
         )
 
-    private val ChipHorizontalPadding = 14.dp
-    private val ChipVerticalPadding = 6.dp
+    internal val LabelSpacerSize = 2.dp
+    private val HorizontalPadding = 14.dp
+    private val VerticalPadding = 6.dp
 
     /**
      * The default content padding used by [ToggleButton]
      */
     val ContentPadding: PaddingValues = PaddingValues(
-        start = ChipHorizontalPadding,
-        top = ChipVerticalPadding,
-        end = ChipHorizontalPadding,
-        bottom = ChipVerticalPadding
+        start = HorizontalPadding,
+        top = VerticalPadding,
+        end = HorizontalPadding,
+        bottom = VerticalPadding
     )
 
     private val ColorScheme.defaultToggleButtonColors: ToggleButtonColors
