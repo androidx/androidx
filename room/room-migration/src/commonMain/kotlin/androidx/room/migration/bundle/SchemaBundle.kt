@@ -20,6 +20,7 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
@@ -42,9 +43,12 @@ expect class SchemaBundle(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 const val SCHEMA_LATEST_FORMAT_VERSION = 1
 
+@OptIn(ExperimentalSerializationApi::class) // due to prettyPrintIndex
 internal val json = Json {
     // The schema files are meant to be human readable and are checked-in into repositories.
     prettyPrint = true
+    // Keep index to 2 spaces as that is what we used before kotlinx-serialization
+    prettyPrintIndent = "  "
     // Don't output class discriminator as that would encode library class names into JSON file
     // making implementation details harder to refactor. When reading, we use a content inspector
     // that will perform polymorphic deserialization.
