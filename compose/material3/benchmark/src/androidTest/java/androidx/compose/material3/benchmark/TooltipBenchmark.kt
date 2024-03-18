@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.benchmark
 
-import androidx.compose.material3.CaretScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
@@ -25,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TooltipScope
 import androidx.compose.material3.TooltipState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
@@ -86,7 +86,7 @@ private class TooltipTestCase(
         state = rememberTooltipState()
         scope = rememberCoroutineScope()
 
-        val tooltip: @Composable CaretScope.() -> Unit
+        val tooltip: @Composable TooltipScope.() -> Unit
         val positionProvider: PopupPositionProvider
         when (tooltipType) {
             TooltipType.Plain -> {
@@ -122,12 +122,12 @@ private class TooltipTestCase(
     }
 
     @Composable
-    private fun CaretScope.PlainTooltipTest() {
+    private fun TooltipScope.PlainTooltipTest() {
         PlainTooltip { Text("Text") }
     }
 
     @Composable
-    private fun CaretScope.RichTooltipTest() {
+    private fun TooltipScope.RichTooltipTest() {
         RichTooltip(
             title = { Text("Subhead") },
             action = {
