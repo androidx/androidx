@@ -60,16 +60,10 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun loadSdk_withoutLocalImpl_throwsLoadSdkNotFoundException() {
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-
-        val exception = Assert.assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                controllerCompat.loadSdk("SDK", Bundle())
-            }
+    fun from_withoutLocalImpl_throwsUnsupportedOperationException() {
+        Assert.assertThrows(UnsupportedOperationException::class.java) {
+            SdkSandboxControllerCompat.from(context)
         }
-
-        assertThat(exception.loadSdkErrorCode).isEqualTo(LoadSdkCompatException.LOAD_SDK_NOT_FOUND)
     }
 
     @Test
@@ -90,10 +84,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun loadSdk_withLocalImpl_returnsLoadedSdkFromLocalImpl() {
-        // Emulate loading via client lib with version 5
-        Versions.handShake(5)
-
+    fun loadSdk_returnsLoadedSdkFromLocalImpl() {
         val expectedResult = SandboxedSdkCompat(Binder())
         val stubLocalImpl = TestStubImpl(
             loadSdkResult = expectedResult
@@ -113,10 +104,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun loadSdk_withLocalImpl_rethrowsExceptionFromLocalImpl() {
-        // Emulate loading via client lib with version 5
-        Versions.handShake(5)
-
+    fun loadSdk_rethrowsExceptionFromLocalImpl() {
         val expectedError = LoadSdkCompatException(RuntimeException(), Bundle())
         SdkSandboxControllerCompat.injectLocalImpl(
             TestStubImpl(
@@ -135,14 +123,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun getSandboxedSdks_withoutLocalImpl_returnsEmptyList() {
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-        val sandboxedSdks = controllerCompat.getSandboxedSdks()
-        assertThat(sandboxedSdks).isEmpty()
-    }
-
-    @Test
-    fun getSandboxedSdks_withLocalImpl_returnsListFromLocalImpl() {
+    fun getSandboxedSdks_returnsListFromLocalImpl() {
         val expectedResult = listOf(SandboxedSdkCompat(Binder()))
         SdkSandboxControllerCompat.injectLocalImpl(
             TestStubImpl(
@@ -153,13 +134,6 @@ class SdkSandboxControllerCompatLocalTest {
         val controllerCompat = SdkSandboxControllerCompat.from(context)
         val sandboxedSdks = controllerCompat.getSandboxedSdks()
         assertThat(sandboxedSdks).isEqualTo(expectedResult)
-    }
-
-    @Test
-    fun getAppOwnedSdkSandboxInterfaces_withoutLocalImpl_returnsEmptyList() {
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-        val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()
-        assertThat(appOwnedInterfaces).isEmpty()
     }
 
     @Test
@@ -185,7 +159,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun getAppOwnedSdkSandboxInterfaces_withLocalImpl_returnsListFromLocalImpl() {
+    fun getAppOwnedSdkSandboxInterfaces_returnsListFromLocalImpl() {
         val expectedResult = listOf(
             AppOwnedSdkSandboxInterfaceCompat(
                 name = "TestSdk",
@@ -205,7 +179,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun registerSdkSandboxActivityHandler_withLocalImpl_registerItInLocalImpl() {
+    fun registerSdkSandboxActivityHandler_registerItInLocalImpl() {
         val localImpl = TestStubImpl()
         SdkSandboxControllerCompat.injectLocalImpl(localImpl)
 
@@ -218,7 +192,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun unregisterSdkSandboxActivityHandler_withLocalImpl_unregisterItFromLocalImpl() {
+    fun unregisterSdkSandboxActivityHandler_unregisterItFromLocalImpl() {
         val localImpl = TestStubImpl()
         SdkSandboxControllerCompat.injectLocalImpl(localImpl)
 
