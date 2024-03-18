@@ -105,7 +105,6 @@ internal value class NavigationItemIconPosition private constructor(private val 
  * TODO: Remove "internal".
  */
 @Immutable
-@ExperimentalMaterial3Api
 internal class NavigationItemColors constructor(
     val selectedIconColor: Color,
     val selectedTextColor: Color,
