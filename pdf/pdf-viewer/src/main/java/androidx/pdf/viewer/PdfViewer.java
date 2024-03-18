@@ -312,6 +312,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 .setInitialZoomMode(InitialZoomMode.ZOOM_TO_FIT)
                 .setRotateMode(RotateMode.KEEP_SAME_VIEWPORT_WIDTH)
                 .setContentResizedModeX(ContentResizedMode.KEEP_SAME_RELATIVE);
+        adjustZoomViewMargins();
 
         // Setting an id so that the View can restore itself. The Id has to be unique and
         // predictable. An alternative that doesn't require id is to rely on this Fragment's
@@ -401,6 +402,30 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 getResources().getDimensionPixelSize(R.dimen.viewer_doc_additional_top_offset);
 
         mZoomViewBasePaddingSaved = true;
+    }
+
+    /**
+     * Adjusts the horizontal margins (left and right padding) of the ZoomView based on the
+     * screen width to optimize the display of PDF content.
+     *
+     * This method applies different margin values depending on the screen size:
+     * - For screens with a screen width of 840dp or greater, a larger margin is applied
+     *   to enhance readability on larger displays.
+     * - For screens with a screen width < 840dp, no margin is used to
+     *   maximize the use of available space.
+     *
+     * This dynamic adjustment is achieved through the use of resource qualifiers (values-w840dp)
+     * that define different margin values for different screen sizes.
+     *
+     * Note: This method does not affect the top or bottom padding of the ZoomView.
+     */
+    private void adjustZoomViewMargins() {
+        int margin = getResources().getDimensionPixelSize(R.dimen.viewer_doc_padding_x);
+
+        mZoomView.setPadding(margin,
+                mZoomView.getPaddingTop(),
+                margin,
+                mZoomView.getPaddingBottom());
     }
 
     @Override

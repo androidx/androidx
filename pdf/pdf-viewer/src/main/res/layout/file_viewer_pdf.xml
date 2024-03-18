@@ -25,8 +25,6 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingBottom="@dimen/viewer_doc_padding_y"
-        android:paddingLeft="@dimen/viewer_doc_padding_x"
-        android:paddingRight="@dimen/viewer_doc_padding_x"
         android:paddingTop="@dimen/viewer_doc_padding_y">
 
         <FrameLayout
