@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.room.driver
+package androidx.room.integration.multiplatformtestapp.test
 
-import androidx.annotation.RestrictTo
-import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.db.SupportSQLiteDatabase
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class SupportSQLiteConnection(
-    val db: SupportSQLiteDatabase
-) : SQLiteConnection {
-    override fun prepare(sql: String): SupportSQLiteStatement {
-        return SupportSQLiteStatement.create(db, sql)
-    }
-
-    override fun close() {
-        db.close()
-    }
-}
+/**
+ * Gets the schema directory path for tests with [androidx.room.testing.MigrationTestHelper]
+ */
+internal expect fun getSchemaDirectoryPath(): String

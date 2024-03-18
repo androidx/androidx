@@ -188,6 +188,7 @@ kotlinKlibCommonizer = { module = "org.jetbrains.kotlin:kotlin-klib-commonizer" 
 kotlinMetadataJvm = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version = "0.9.0" }
 kotlinSerializationCore = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinSerialization" }
 kotlinSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+kotlinSerializationJsonOkio = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-okio", version.ref = "kotlinSerialization" }
 kotlinSerializationProtobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinSerialization" }
 kotlinGradlePluginz = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }

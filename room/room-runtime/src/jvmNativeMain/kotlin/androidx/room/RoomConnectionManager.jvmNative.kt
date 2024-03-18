@@ -28,7 +28,7 @@ internal actual class RoomConnectionManager(
     override val callbacks: List<RoomDatabase.Callback>,
 ) : BaseRoomConnectionManager() {
 
-    override val connectionPool: ConnectionPool =
+    private val connectionPool: ConnectionPool =
         if (configuration.name == null) {
             // An in-memory database must use a single connection pool.
             newSingleConnectionPool(

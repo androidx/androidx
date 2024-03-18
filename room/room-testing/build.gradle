@@ -46,8 +46,8 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(project(":room:room-common"))
                 api(project(":room:room-runtime"))
-                api(project(":room:room-migration"))
                 api(project(":sqlite:sqlite"))
+                implementation(project(":room:room-migration"))
             }
         }
         commonTest {
@@ -58,6 +58,9 @@ androidXMultiplatform {
         }
         jvmMain {
             dependsOn(commonMain)
+            dependencies {
+                api(libs.junit)
+            }
         }
         androidMain {
             dependsOn(commonMain)
@@ -69,6 +72,9 @@ androidXMultiplatform {
         }
         nativeMain {
             dependsOn(commonMain)
+            dependencies {
+                implementation(libs.okio)
+            }
         }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
