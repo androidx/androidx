@@ -63,6 +63,7 @@ internal fun rememberPagerMeasurePolicy(
     pageSize,
     snapPosition,
     pageCount,
+    outOfBoundsPageCount
 ) {
     { containerConstraints ->
         val isVertical = orientation == Orientation.Vertical
