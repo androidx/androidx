@@ -139,10 +139,11 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 ?.let { metadataFile ->
                     val metadata =
                         gson.fromJson(metadataFile.readText(), ProjectStructureMetadata::class.java)
-                    metadata.sourceSets.map { sourceSet ->
+                    metadata.sourceSets.mapNotNull { sourceSet ->
+                        val sourceDir = multiplatformSourcesDir.get().asFile.resolve(sourceSet.name)
+                        if (!sourceDir.exists()) return@mapNotNull null
                         val analysisPlatform =
                             DokkaAnalysisPlatform.valueOf(sourceSet.analysisPlatform.uppercase())
-                        val sourceDir = multiplatformSourcesDir.get().asFile.resolve(sourceSet.name)
                         DokkaInputModels.SourceSet(
                             id = sourceSetIdForSourceSet(sourceSet.name),
                             displayName = sourceSet.name,
