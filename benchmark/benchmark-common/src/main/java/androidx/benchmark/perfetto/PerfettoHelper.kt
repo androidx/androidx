@@ -51,11 +51,9 @@ public class PerfettoHelper(
     var perfettoPid: Int? = null
 
     /**
-     * For now, we use --background-wait only when unbundled.
-     *
-     * Eventually, we should also use it when using bundled platform version that support it (T+?)
+     * --background-wait requires unbundled or API 33 bundled version of perfetto
      */
-    private val useBackgroundWait = unbundled
+    private val useBackgroundWait = unbundled || Build.VERSION.SDK_INT >= 33
 
     private fun perfettoStartupException(label: String, cause: Exception?): IllegalStateException {
         return IllegalStateException(
