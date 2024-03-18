@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavHostControllerKt")
+
 package androidx.navigation.compose
 
 import android.content.Context
@@ -39,7 +41,7 @@ import androidx.navigation.Navigator
  * @return a mutable state of the current back stack entry
  */
 @Composable
-public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry?> {
+public actual fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry?> {
     return currentBackStackEntryFlow.collectAsState(null)
 }
 
@@ -53,7 +55,7 @@ public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry
  * @see NavHost
  */
 @Composable
-public fun rememberNavController(
+public actual fun rememberNavController(
     vararg navigators: Navigator<out NavDestination>
 ): NavHostController {
     val context = LocalContext.current

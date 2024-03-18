@@ -16,7 +16,6 @@
 
 package androidx.navigation.compose
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -250,7 +249,6 @@ public fun NavHost(
     message = "Deprecated in favor of NavHost that supports sizeTransform",
     level = DeprecationLevel.HIDDEN
 )
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 public fun NavHost(
     navController: NavHostController,
@@ -294,7 +292,6 @@ public fun NavHost(
  * @param popExitTransition callback to define popExit transitions for destination in this host
  * @param sizeTransform callback to define the size transform for destinations in this host
  */
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 public fun NavHost(
     navController: NavHostController,
