@@ -250,6 +250,27 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
+    fun query_includeModule() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        val startups = PerfettoTraceProcessor.runServer {
+            loadTrace(PerfettoTrace(traceFile.absolutePath)) {
+                query("""
+                    INCLUDE PERFETTO MODULE android.startup.startups;
+
+                    SELECT * FROM android_startups;
+                """.trimIndent()).toList()
+            }
+        }
+        // minimal validation, just verifying query worked
+        assertEquals(1, startups.size)
+        assertEquals(
+            "androidx.benchmark.integration.macrobenchmark.target",
+            startups.single().string("package")
+        )
+    }
+
+    @Test
     fun queryMetricsJson() {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
