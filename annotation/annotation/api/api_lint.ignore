@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+GetterSetterNames: field FloatRange.fromInclusive:
+    Invalid name for boolean property `fromInclusive`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field FloatRange.toInclusive:
+    Invalid name for boolean property `toInclusive`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field IntDef.flag:
+    Invalid name for boolean property `flag`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field IntDef.open:
+    Invalid name for boolean property `open`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field LongDef.flag:
+    Invalid name for boolean property `flag`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field LongDef.open:
+    Invalid name for boolean property `open`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field RequiresPermission.conditional:
+    Invalid name for boolean property `conditional`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field StringDef.open:
+    Invalid name for boolean property `open`. Should start with one of `has`, `can`, `should`, `is`.

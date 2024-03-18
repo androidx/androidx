@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,16 @@
  */
 package androidx.annotation
 
-import java.lang.annotation.ElementType.CONSTRUCTOR
-import java.lang.annotation.ElementType.FIELD
-import java.lang.annotation.ElementType.METHOD
-import java.lang.annotation.ElementType.PACKAGE
-import java.lang.annotation.ElementType.TYPE
-
 /**
- * Denotes that the annotated element should only be called on the given API level or higher.
+ * Denotes that the annotated element should only be called on the given Android API level or
+ * higher.
  *
  * This is similar in purpose to the older `@TargetApi` annotation, but more clearly expresses that
  * this is a requirement on the caller, rather than being used to "suppress" warnings within the
  * method that exceed the `minSdkVersion`.
  *
- * For API requirements on SDK extensions, see the [RequiresExtension] annotation.
+ * For API requirements on SDK extensions, see the [androidx.annotation.RequiresExtension]
+ * annotation.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
@@ -42,11 +38,10 @@ import java.lang.annotation.ElementType.TYPE
     AnnotationTarget.FIELD,
     AnnotationTarget.FILE
 )
-// Needed due to Kotlin's lack of PACKAGE annotation target
-// https://youtrack.jetbrains.com/issue/KT-45921
-@Suppress("DEPRECATED_JAVA_ANNOTATION", "SupportAnnotationUsage")
-@java.lang.annotation.Target(TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE)
-public annotation class RequiresApi(
+@Suppress("SupportAnnotationUsage")
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation // Need to use expect due to Java-specific target annotations on the actual.
+public expect annotation class RequiresApi(
     /** The API level to require. Alias for [.api] which allows you to leave out the `api=` part. */
     @IntRange(from = 1) val value: Int = 1,
     /** The API level to require */
