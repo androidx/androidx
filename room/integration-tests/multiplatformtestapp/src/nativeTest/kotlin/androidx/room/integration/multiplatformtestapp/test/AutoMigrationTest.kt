@@ -39,7 +39,9 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
     override fun getTestHelper() = migrationTestHelper
 
     override fun getRoomDatabase(): AutoMigrationDatabase {
-        return Room.databaseBuilder(filename) { AutoMigrationDatabase::class.instantiateImpl() }
+        return Room.databaseBuilder<AutoMigrationDatabase>(filename) {
+            AutoMigrationDatabase::class.instantiateImpl()
+        }
             .setDriver(driver).build()
     }
 
