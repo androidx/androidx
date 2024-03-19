@@ -184,7 +184,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureTaskTimeouts()
         project.configureMavenArtifactUpload(
             androidXExtension, androidXKmpExtension, componentFactory) {
-            project.addCreateLibraryBuildInfoFileTasks(androidXExtension)
+            project.addCreateLibraryBuildInfoFileTasks(androidXExtension, androidXKmpExtension)
         }
         project.publishInspectionArtifacts()
         project.configureExternalDependencyLicenseCheck()
