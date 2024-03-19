@@ -26,6 +26,8 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.compat.AudioRestrictionController
+import androidx.camera.camera2.pipe.compat.AudioRestrictionMode
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -67,6 +69,7 @@ constructor(
     private val listener3A: Listener3A,
     private val frameDistributor: FrameDistributor,
     private val frameCaptureQueue: FrameCaptureQueue,
+    private val audioRestriction: AudioRestrictionController? = null
 ) : CameraGraph {
     private val debugId = cameraGraphIds.incrementAndGet()
     private val sessionMutex = Mutex()
@@ -206,6 +209,19 @@ constructor(
         Debug.traceStop()
     }
 
+    override fun getAudioRestriction(): AudioRestrictionMode? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return audioRestriction?.getCameraGraphAudioRestriction(this)
+        }
+        return null
+    }
+
+    override fun setAudioRestriction(mode: AudioRestrictionMode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            audioRestriction?.setCameraGraphAudioRestriction(this, mode)
+        }
+    }
+
     override fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             Debug.traceStart { "$this#close" }
@@ -215,6 +231,9 @@ constructor(
             frameDistributor.close()
             frameCaptureQueue.close()
             surfaceGraph.close()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                audioRestriction?.removeCameraGraph(this)
+            }
             Debug.traceStop()
         }
     }
