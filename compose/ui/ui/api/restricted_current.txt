@@ -2394,6 +2394,7 @@ package androidx.compose.ui.layout {
     method public int getMeasuredWidth();
     method protected final long getMeasurementConstraints();
     method public final int getWidth();
+    method protected void placeAt(long position, float zIndex, androidx.compose.ui.graphics.layer.GraphicsLayer layer);
     method protected abstract void placeAt(long position, float zIndex, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>? layerBlock);
     method protected final void setMeasuredSize(long);
     method protected final void setMeasurementConstraints(long);
@@ -2416,9 +2417,13 @@ package androidx.compose.ui.layout {
     method public final void place(androidx.compose.ui.layout.Placeable, long position, optional float zIndex);
     method public final void placeRelative(androidx.compose.ui.layout.Placeable, int x, int y, optional float zIndex);
     method public final void placeRelative(androidx.compose.ui.layout.Placeable, long position, optional float zIndex);
+    method public final void placeRelativeWithLayer(androidx.compose.ui.layout.Placeable, int x, int y, androidx.compose.ui.graphics.layer.GraphicsLayer layer, optional float zIndex);
     method public final void placeRelativeWithLayer(androidx.compose.ui.layout.Placeable, int x, int y, optional float zIndex, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> layerBlock);
+    method public final void placeRelativeWithLayer(androidx.compose.ui.layout.Placeable, long position, androidx.compose.ui.graphics.layer.GraphicsLayer layer, optional float zIndex);
     method public final void placeRelativeWithLayer(androidx.compose.ui.layout.Placeable, long position, optional float zIndex, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> layerBlock);
+    method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, int x, int y, androidx.compose.ui.graphics.layer.GraphicsLayer layer, optional float zIndex);
     method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, int x, int y, optional float zIndex, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> layerBlock);
+    method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, long position, androidx.compose.ui.graphics.layer.GraphicsLayer layer, optional float zIndex);
     method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, long position, optional float zIndex, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> layerBlock);
     property public androidx.compose.ui.layout.LayoutCoordinates? coordinates;
     property protected abstract androidx.compose.ui.unit.LayoutDirection parentLayoutDirection;

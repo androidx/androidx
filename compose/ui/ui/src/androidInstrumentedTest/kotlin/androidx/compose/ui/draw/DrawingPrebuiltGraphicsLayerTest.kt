@@ -35,11 +35,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -166,6 +168,39 @@ class DrawingPrebuiltGraphicsLayerTest {
         rule.onNodeWithTag(LayerDrawingBoxTag)
             .captureToImage()
             .assertPixels(expectedSize) { Color.Green }
+    }
+
+    @Test
+    fun keepDrawingTheLayerWePreviouslyPlacedWith() {
+        // even that we don't place it anymore, it still holds the content we can continue drawing
+        rule.setContent {
+            Column {
+                if (!drawPrebuiltLayer) {
+                    val layer = obtainLayer()
+                    Canvas(
+                        Modifier
+                            .layout { measurable, _ ->
+                                val placeable = measurable.measure(Constraints.fixed(size, size))
+                                layout(placeable.width, placeable.height) {
+                                    placeable.placeWithLayer(0, 0, layer)
+                                }
+                            }
+                    ) {
+                        drawRect(Color.Red)
+                    }
+                } else {
+                    LayerDrawingBox()
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            drawPrebuiltLayer = true
+        }
+
+        rule.onNodeWithTag(LayerDrawingBoxTag)
+            .captureToImage()
+            .assertPixels(expectedSize) { Color.Red }
     }
 
     @Test
