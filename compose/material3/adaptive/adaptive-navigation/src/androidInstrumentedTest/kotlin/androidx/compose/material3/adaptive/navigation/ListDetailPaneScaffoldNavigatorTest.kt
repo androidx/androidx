@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.adaptive.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
@@ -569,7 +568,6 @@ class ListDetailPaneScaffoldNavigatorTest {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective(
-    contentPadding = PaddingValues(0.dp),
     maxHorizontalPartitions = 1,
     horizontalPartitionSpacerSize = 0.dp,
     maxVerticalPartitions = 1,
@@ -579,7 +577,6 @@ private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective(
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockDualPaneScaffoldDirective = PaneScaffoldDirective(
-    contentPadding = PaddingValues(16.dp),
     maxHorizontalPartitions = 2,
     horizontalPartitionSpacerSize = 16.dp,
     maxVerticalPartitions = 1,
