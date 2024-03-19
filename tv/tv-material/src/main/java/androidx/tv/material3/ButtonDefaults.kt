@@ -53,7 +53,7 @@ object ButtonDefaults {
     )
 
     /** The default size of the icon when used inside any button. */
-    val IconSize = 18.dp
+    val IconSize = 20.dp
 
     /**
      * The default size of the spacing between an icon and a text when they used inside any button.
@@ -209,7 +209,7 @@ object OutlinedButtonDefaults {
     )
 
     /** The default size of the icon when used inside any button. */
-    val IconSize = 18.dp
+    val IconSize = 20.dp
 
     /**
      * The default size of the spacing between an icon and a text when they used inside any button.
