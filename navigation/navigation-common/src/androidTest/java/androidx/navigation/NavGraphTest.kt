@@ -137,7 +137,7 @@ class NavGraphTest {
     }
 
     @Test
-    fun graphSetStartDestinationRoute() {
+    fun graphSetStartDestinationKClass() {
         @Serializable
         @SerialName("route")
         class TestClass(val arg: Int)
@@ -154,7 +154,7 @@ class NavGraphTest {
     }
 
     @Test
-    fun graphSetStartDestinationRouteMissingStartDestination() {
+    fun graphSetStartDestinationKClassMissingStartDestination() {
         @Serializable
         class TestClass
 
@@ -163,6 +163,36 @@ class NavGraphTest {
         // start destination not added via KClass, cannot match
         assertFailsWith<IllegalStateException> {
             graph.setStartDestination(TestClass::class)
+        }
+    }
+
+    @Test
+    fun graphSetStartDestinationObject() {
+        @Serializable
+        @SerialName("route")
+        class TestClass(val arg: Int, val arg2: String? = "test")
+
+        val graph = NavGraph(navGraphNavigator).apply {
+            setStartDestination(15)
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+        }
+        assertThat(graph.startDestinationId).isEqualTo(15)
+
+        graph.setStartDestination(TestClass(20))
+        assertThat(graph.startDestinationRoute).isEqualTo("route/20?arg2=test")
+        assertThat(graph.startDestinationId).isEqualTo(serializer<TestClass>().hashCode())
+    }
+
+    @Test
+    fun graphSetStartDestinationObjectMissingStartDestination() {
+        @Serializable
+        class TestClass
+
+        val graph = NavGraph(navGraphNavigator)
+
+        // start destination not added via KClass, cannot match
+        assertFailsWith<IllegalStateException> {
+            graph.setStartDestination(TestClass())
         }
     }
 }

@@ -31,7 +31,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.serializer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -47,10 +46,8 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass
 
-        val serializer = serializer<TestClass>()
-
         val clazz = TestClass()
-        assertThatRouteFilledFrom(clazz, serializer).isEqualTo(PATH_SERIAL_NAME)
+        assertThatRouteFilledFrom(clazz).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -59,12 +56,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String)
 
-        val serializer = serializer<TestClass>()
-
         val clazz = TestClass("test")
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(stringArgument("arg"))
         ).isEqualTo("$PATH_SERIAL_NAME/test")
     }
@@ -75,12 +69,10 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String, val arg2: Int)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass("test", 0)
 
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(stringArgument("arg"), intArgument("arg2"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/test/0"
@@ -93,11 +85,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String?)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass("test")
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(nullableStringArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/test"
@@ -110,11 +100,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String?)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(null)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(nullableStringArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/null"
@@ -130,7 +118,6 @@ class RouteFilledTest {
         val clazz = TestClass("null")
         assertThatRouteFilledFrom(
             clazz,
-            serializer<TestClass>(),
             listOf(nullableStringArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/null"
@@ -143,11 +130,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String?, val arg2: Int?)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass("test", 0)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(nullableStringArgument("arg"), nullableIntArgument("arg2"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/test/0"
@@ -160,11 +145,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String?, val arg2: Int?)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(null, null)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(nullableStringArgument("arg"), nullableIntArgument("arg2"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/null/null"
@@ -177,11 +160,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String = "test")
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass()
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(stringArgument("arg", true))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?arg=test"
@@ -194,11 +175,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String = "test")
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass("newTest")
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(stringArgument("arg", true))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?arg=newTest"
@@ -211,11 +190,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String? = "test")
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass()
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(nullableStringArgument("arg", true))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?arg=test"
@@ -228,11 +205,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String? = null)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass()
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(nullableStringArgument("arg", true))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?arg=null"
@@ -248,7 +223,6 @@ class RouteFilledTest {
         val clazz = TestClass("null")
         assertThatRouteFilledFrom(
             clazz,
-            serializer<TestClass>(),
             listOf(nullableStringArgument("arg", true))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?arg=null"
@@ -261,11 +235,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String? = "test", val arg2: Int? = 0)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass()
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(
                 nullableStringArgument("arg", true),
                 nullableIntArgument("arg2", true)
@@ -281,11 +253,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String? = null, val arg2: Int? = null)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass()
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(
                 nullableStringArgument("arg", true),
                 nullableIntArgument("arg2", true)
@@ -301,11 +271,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val pathArg: String, val queryArg: Int = 0)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass("test")
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(
                 stringArgument("pathArg"),
                 intArgument("queryArg", true)
@@ -321,11 +289,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val queryArg: Int = 0, val pathArg: String)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(1, "test")
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(
                 intArgument("queryArg", true),
                 stringArgument("pathArg")
@@ -341,11 +307,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val pathArg: String?, val queryArg: Int? = 0)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass("test", 1)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(
                 nullableStringArgument("pathArg"),
                 nullableIntArgument("queryArg", true)
@@ -361,11 +325,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val array: IntArray)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(intArrayOf(0, 1, 2))
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArrayArgument("array"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?array=0&array=1&array=2"
@@ -378,11 +340,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val array: IntArray?)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(intArrayOf(0, 1, 2))
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArrayArgument("array"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?array=0&array=1&array=2"
@@ -395,12 +355,10 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val array: IntArray? = null)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass()
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
-            listOf(intArrayArgument("array"),)
+            listOf(intArrayArgument("array"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?array=null"
         )
@@ -412,11 +370,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val string: String, val array: IntArray)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass("test", intArrayOf(0, 1, 2))
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(
                 stringArgument("string"),
                 intArrayArgument("array")
@@ -432,11 +388,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val array: IntArray, val arg: Int = 0)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(intArrayOf(0, 1, 2), 15)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(
                 intArrayArgument("array"),
                 intArgument("arg")
@@ -454,11 +408,9 @@ class RouteFilledTest {
             constructor(arg2: Int) : this(arg2.toString())
         }
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(0)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(stringArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/0"
@@ -467,11 +419,9 @@ class RouteFilledTest {
 
     @Test
     fun withCompanionObject() {
-        val serializer = serializer<ClassWithCompanionObject>()
         val clazz = ClassWithCompanionObject(0)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/0"
@@ -480,11 +430,9 @@ class RouteFilledTest {
 
     @Test
     fun withCompanionParameter() {
-        val serializer = serializer<ClassWithCompanionParam>()
         val clazz = ClassWithCompanionParam(0)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/0"
@@ -499,11 +447,9 @@ class RouteFilledTest {
             fun testFun() { }
         }
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass("test")
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(stringArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/test"
@@ -530,11 +476,9 @@ class RouteFilledTest {
             unknownDefaultValuePresent = false
         }
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(CustomType())
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(customArg)
         ).isEqualTo(
             "$PATH_SERIAL_NAME/customValue"
@@ -564,11 +508,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val custom: CustomType)
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(CustomType(NestedCustomType()))
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(customArg)
         ).isEqualTo(
             "$PATH_SERIAL_NAME/customValue[nestedCustomValue]"
@@ -596,11 +538,9 @@ class RouteFilledTest {
             nullable = false
             unknownDefaultValuePresent = false
         }
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(0, CustomSerializerClass(1L))
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArgument("arg"), customArg)
         ).isEqualTo(
             "$PATH_SERIAL_NAME/0/customSerializerClass[1]"
@@ -615,14 +555,12 @@ class RouteFilledTest {
             val noBackingField: Int
                 get() = 0
         }
-        val serializer = serializer<TestClass>()
         // only members with backing field should appear on route
         val clazz = TestClass()
         assertThatRouteFilledFrom(
-            clazz,
-            serializer
+            clazz
         ).isEqualTo(
-            "$PATH_SERIAL_NAME"
+            PATH_SERIAL_NAME
         )
     }
 
@@ -633,11 +571,9 @@ class RouteFilledTest {
         class TestClass {
             val arg: Int = 0
         }
-        val serializer = serializer<TestClass>()
         val clazz = TestClass()
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?arg=0"
@@ -651,11 +587,9 @@ class RouteFilledTest {
         class TestClass {
             lateinit var arg: IntArray
         }
-        val serializer = serializer<TestClass>()
         val clazz = TestClass().also { it.arg = intArrayOf(0) }
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArrayArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME?arg=0"
@@ -669,7 +603,7 @@ class RouteFilledTest {
 
         assertFailsWith<SerializationException> {
             // the class must be serializable
-            serializer<TestClass>().generateRouteWithArgs(TestClass(), emptyMap())
+            TestClass().generateRouteWithArgs(emptyMap())
         }
     }
 
@@ -682,11 +616,11 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass : TestAbstractClass()
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass()
-        assertThatRouteFilledFrom(clazz, serializer,
+        assertThatRouteFilledFrom(
+            clazz,
         ).isEqualTo(
-            "$PATH_SERIAL_NAME"
+            PATH_SERIAL_NAME
         )
     }
 
@@ -699,12 +633,10 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg2: Int) : TestAbstractClass(arg2)
 
-        val serializer = serializer<TestClass>()
         // args will be duplicated
         val clazz = TestClass(0)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArgument("arg"), intArgument("arg2"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/0/0"
@@ -713,12 +645,10 @@ class RouteFilledTest {
 
     @Test
     fun childClassOfSealed_withArgs() {
-        val serializer = serializer<SealedClass.TestClass>()
         // child class overrides parent variable so only child variable shows up in route pattern
         val clazz = SealedClass.TestClass(0)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArgument("arg2"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/0"
@@ -731,11 +661,9 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: Int) : TestInterface
 
-        val serializer = serializer<TestClass>()
         val clazz = TestClass(0)
         assertThatRouteFilledFrom(
             clazz,
-            serializer,
             listOf(intArgument("arg"))
         ).isEqualTo(
             "$PATH_SERIAL_NAME/0"
@@ -744,30 +672,27 @@ class RouteFilledTest {
 
     @Test
     fun routeFromObject() {
-        val serializer = serializer<TestObject>()
-        assertThatRouteFilledFrom(TestObject, serializer).isEqualTo(
-            "$PATH_SERIAL_NAME"
+        assertThatRouteFilledFrom(TestObject).isEqualTo(
+            PATH_SERIAL_NAME
         )
     }
 
     @Test
     fun routeFromObject_argsNotSerialized() {
-        val serializer = serializer<TestObjectWithArg>()
         // object variables are not serialized and does not show up on route
-        assertThatRouteFilledFrom(TestObjectWithArg, serializer).isEqualTo(
-            "$PATH_SERIAL_NAME"
+        assertThatRouteFilledFrom(TestObjectWithArg).isEqualTo(
+            PATH_SERIAL_NAME
         )
     }
 }
 
 private fun <T : Any> assertThatRouteFilledFrom(
     obj: T,
-    serializer: KSerializer<T>,
     customArgs: List<NamedNavArgument>? = null
 ): String {
     val typeMap = mutableMapOf<String, NavType<Any?>>()
     customArgs?.forEach { typeMap[it.name] = it.argument.type }
-    return serializer.generateRouteWithArgs(obj, typeMap)
+    return obj.generateRouteWithArgs(typeMap)
 }
 
 internal fun String.isEqualTo(other: String) {

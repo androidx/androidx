@@ -25,9 +25,12 @@ import androidx.collection.size
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
+import androidx.navigation.serialization.generateRouteWithArgs
 import java.lang.StringBuilder
 import kotlin.reflect.KClass
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
 /**
@@ -342,16 +345,44 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     @OptIn(InternalSerializationApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setStartDestination(startDestRoute: KClass<*>) {
-        val serializer = startDestRoute.serializer()
+        setStartDestination(startDestRoute.serializer()) { startDestination ->
+            startDestination.route!!
+        }
+    }
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationId]
+     *
+     * @param startDestRoute The route of the destination as an object to be shown when navigating
+     * to this NavGraph.
+     */
+    @OptIn(InternalSerializationApi::class)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun <T : Any> setStartDestination(startObject: T) {
+        setStartDestination(startObject::class.serializer()) { startDestination ->
+            val args = startDestination.arguments.mapValues {
+                it.value.type
+            }
+            startObject.generateRouteWithArgs(args)
+        }
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    private fun <T> setStartDestination(
+        serializer: KSerializer<T>,
+        parseRoute: (NavDestination) -> String,
+    ) {
         val id = serializer.hashCode()
         val startDest = findNode(id)
         checkNotNull(startDest) {
-            "Cannot find startDestination $startDestRoute from NavGraph. Ensure the starting " +
-                "NavDestination was added via KClass."
+            "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +
+                "Ensure the starting NavDestination was added via KClass."
         }
         // when dest id is based on serializer, we expect the dest route to have been generated
         // and set
-        startDestinationRoute = startDest.route!!
+        startDestinationRoute = parseRoute(startDest)
         // bypass startDestinationId setter so we don't set route back to null
         this.startDestId = id
     }
