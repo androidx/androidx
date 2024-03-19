@@ -50,19 +50,10 @@ interface ClipboardManager {
      * This item can include arbitrary content like images, videos, or any data that may be provided
      * through a mediator. Returned entry may contain multiple items with different types.
      *
-     * Calling this method may show a Clipboard access warning message to the user on mobile
-     * platforms since it usually accesses the Clipboard contents.
+     * It's safe to call this function without triggering Clipboard access warnings on mobile
+     * platforms.
      */
     fun getClip(): ClipEntry? = null
-
-    /**
-     * Returns a [ClipMetadata] which describes the existing clip entry. This is an ideal way to
-     * check whether to accept or reject what may be pasted from the clipboard without explicitly
-     * reading the content.
-     *
-     * Calling this function does not trigger any content access warnings on any platform.
-     */
-    fun getClipMetadata(): ClipMetadata? = null
 
     /**
      * Puts the given [clipEntry] in platform's ClipboardManager.
@@ -72,13 +63,6 @@ interface ClipboardManager {
      */
     @Suppress("GetterSetterNames")
     fun setClip(clipEntry: ClipEntry?) = Unit
-
-    /**
-     * Returns true if there is currently a clip entry on the platform Clipboard. Even though
-     * [getClip] should be available immediately if this function returns true, [getClipMetadata]
-     * may still return null if the platform doesn't support clip descriptions.
-     */
-    fun hasClip(): Boolean = false
 
     /**
      * Returns the native clipboard that exposes the full functionality of platform clipboard.
@@ -95,7 +79,17 @@ interface ClipboardManager {
 /**
  * Platform specific protocol that expresses an item in the native Clipboard.
  */
-expect class ClipEntry
+expect class ClipEntry {
+
+    /**
+     * Returns a [ClipMetadata] which describes the contents of this [ClipEntry]. This is an ideal
+     * way to check whether to accept or reject what may be pasted from the clipboard without
+     * explicitly reading the content.
+     *
+     * Calling this function does not trigger any content access warnings on any platform.
+     */
+    fun getMetadata(): ClipMetadata
+}
 
 /**
  * Platform specific protocol that describes an item in the native Clipboard. This object should

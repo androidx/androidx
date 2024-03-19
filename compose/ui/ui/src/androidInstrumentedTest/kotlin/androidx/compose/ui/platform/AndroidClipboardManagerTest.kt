@@ -44,7 +44,6 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -258,33 +257,6 @@ class AndroidClipboardManagerTest {
         val subject = AndroidClipboardManager(clipboardManager)
 
         assertThat(subject.getClip()?.clipData).isSameInstanceAs(clipData)
-    }
-
-    @Test
-    fun getPrimaryClipDescription_returnsClipDescription() {
-        val clipboardManager = mock<ClipboardManager>()
-        val clipDescription = mock<ClipDescription>()
-        whenever(clipboardManager.primaryClipDescription).thenReturn(clipDescription)
-        val subject = AndroidClipboardManager(clipboardManager)
-
-        assertThat(subject.getClipMetadata()?.clipDescription).isSameInstanceAs(clipDescription)
-        verify(clipboardManager, never()).primaryClip
-    }
-
-    @Test
-    fun hasPrimaryClipEntry_returnsHasClipData() {
-        val clipboardManager = mock<ClipboardManager>()
-        whenever(clipboardManager.hasPrimaryClip()).thenReturn(true)
-        val subject = AndroidClipboardManager(clipboardManager)
-
-        assertThat(subject.hasClip()).isEqualTo(true)
-
-        whenever(clipboardManager.hasPrimaryClip()).thenReturn(false)
-
-        assertThat(subject.hasClip()).isEqualTo(false)
-
-        verify(clipboardManager, never()).primaryClip
-        verify(clipboardManager, never()).primaryClipDescription
     }
 
     @Test

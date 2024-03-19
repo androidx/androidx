@@ -2895,6 +2895,7 @@ package androidx.compose.ui.platform {
   public final class ClipEntry {
     ctor public ClipEntry(android.content.ClipData clipData);
     method public android.content.ClipData getClipData();
+    method public androidx.compose.ui.platform.ClipMetadata getMetadata();
     property public final android.content.ClipData clipData;
   }
 
@@ -2910,10 +2911,8 @@ package androidx.compose.ui.platform {
 
   public interface ClipboardManager {
     method public default androidx.compose.ui.platform.ClipEntry? getClip();
-    method public default androidx.compose.ui.platform.ClipMetadata? getClipMetadata();
     method public default android.content.ClipboardManager getNativeClipboard();
     method public androidx.compose.ui.text.AnnotatedString? getText();
-    method public default boolean hasClip();
     method public default boolean hasText();
     method public default void setClip(androidx.compose.ui.platform.ClipEntry? clipEntry);
     method public void setText(androidx.compose.ui.text.AnnotatedString annotatedString);
