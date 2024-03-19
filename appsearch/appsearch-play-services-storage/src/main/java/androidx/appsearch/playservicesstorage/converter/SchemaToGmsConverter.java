@@ -19,6 +19,7 @@ package androidx.appsearch.playservicesstorage.converter;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.Features;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -138,6 +139,10 @@ public final class SchemaToGmsConverter {
                     .setCardinality(documentProperty.getCardinality())
                     .setShouldIndexNestedProperties(documentProperty.shouldIndexNestedProperties())
                     .build();
+        } else if (jetpackProperty instanceof AppSearchSchema.EmbeddingPropertyConfig) {
+            // TODO(b/309826655): Remove this once embedding search APIs are available.
+            throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
+                    + " is not available on this AppSearch implementation.");
         } else {
             throw new IllegalArgumentException(
                     "Invalid dataType: " + jetpackProperty.getDataType());
@@ -197,6 +202,8 @@ public final class SchemaToGmsConverter {
                     .setShouldIndexNestedProperties(documentProperty.shouldIndexNestedProperties())
                     .build();
         } else {
+            // TODO(b/326656531) : Add an entry for EmbeddingPropertyConfig once it becomes
+            //  available in gms-appsearch.
             throw new IllegalArgumentException(
                     "Invalid property type " + gmsProperty.getClass()
                             + ": " + gmsProperty);

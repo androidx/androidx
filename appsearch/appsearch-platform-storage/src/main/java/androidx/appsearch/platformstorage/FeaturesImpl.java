@@ -87,6 +87,9 @@ final class FeaturesImpl implements Features {
             case Features.LIST_FILTER_HAS_PROPERTY_FUNCTION:
                 // TODO(b/309826655) : Update when feature is ready in service-appsearch.
                 // fall through
+            case Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG:
+                // TODO(b/326656531) : Update when feature is ready in service-appsearch.
+                // fall through
             case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
                 // TODO(b/309826655) : Update when feature is ready in service-appsearch.
                 // fall through
