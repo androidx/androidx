@@ -2859,7 +2859,7 @@ class SubcomposeLayoutTest {
     private fun SemanticsNodeInteraction.assertIsDetached() {
         assertDoesNotExist()
         // we want to verify the node is not deactivated, but such API does not exist yet
-        expectAssertionError(true) {
+        expectAssertionError {
             assertIsDeactivated()
         }
     }

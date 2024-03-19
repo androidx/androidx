@@ -40,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.testutils.expectAssertionError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -739,14 +738,12 @@ class SliderTest {
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun slider_rowWithInfiniteWidth() {
-        expectAssertionError(false) {
-            rule.setContent {
-                Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
-                    Slider(
-                        state = SliderState(0f),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+        rule.setContent {
+            Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                Slider(
+                    state = SliderState(0f),
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
@@ -1393,14 +1390,12 @@ class SliderTest {
     @Test
     fun rangeSlider_rowWithInfiniteWidth() {
         val state = RangeSliderState(0f, 1f)
-        expectAssertionError(false) {
-            rule.setContent {
-                Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
-                    RangeSlider(
-                        state = state,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+        rule.setContent {
+            Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                RangeSlider(
+                    state = state,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
