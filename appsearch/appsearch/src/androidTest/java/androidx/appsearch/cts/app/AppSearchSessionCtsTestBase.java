@@ -41,6 +41,7 @@ import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
@@ -8338,5 +8339,419 @@ public abstract class AppSearchSessionCtsTestBase {
 
         assertThat(emailSchema.toString()).contains(expectedIndexableNestedPropertyMessage);
 
+    }
+
+    @Test
+    public void testEmbeddingSearch_simple() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding2")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setPropertyString("body", "foo")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                        new float[]{-0.1f, -0.2f, -0.3f, 0.4f, 0.5f},
+                                        "my_model_v1"),
+                                new EmbeddingVector(
+                                        new float[]{0.6f, 0.7f, 0.8f}, "my_model_v2"))
+                        .build();
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setPropertyString("body", "bar")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{-0.1f, 0.2f, -0.3f, -0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                new float[]{0.6f, 0.7f, -0.8f}, "my_model_v2"))
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1).build()));
+
+        // Add an embedding search with dot product semantic scores:
+        // - document 0: -0.5 (embedding1), 0.3 (embedding2)
+        // - document 1: -0.9 (embedding1)
+        EmbeddingVector searchEmbedding = new EmbeddingVector(
+                new float[]{1, -1, -1, 1, -1}, "my_model_v1");
+
+        // Match documents that have embeddings with a similarity closer to 0 that is
+        // greater than -1.
+        //
+        // The matched embeddings for each doc are:
+        // - document 0: -0.5 (embedding1), 0.3 (embedding2)
+        // - document 1: -0.9 (embedding1)
+        // The scoring expression for each doc will be evaluated as:
+        // - document 0: sum({-0.5, 0.3}) + sum({}) = -0.2
+        // - document 1: sum({-0.9}) + sum({}) = -0.9
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(searchEmbedding)
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "semanticSearch(getSearchSpecEmbedding(0), -1, 1)", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.00001).of(-0.2);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal()).isWithin(0.00001).of(-0.9);
+    }
+
+    @Test
+    public void testEmbeddingSearch_propertyRestriction() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding2")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setPropertyString("body", "foo")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                        new float[]{-0.1f, -0.2f, -0.3f, 0.4f, 0.5f},
+                                        "my_model_v1"),
+                                new EmbeddingVector(
+                                        new float[]{0.6f, 0.7f, 0.8f}, "my_model_v2"))
+                        .build();
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setPropertyString("body", "bar")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{-0.1f, 0.2f, -0.3f, -0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                new float[]{0.6f, 0.7f, -0.8f}, "my_model_v2"))
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1).build()));
+
+        // Add an embedding search with dot product semantic scores:
+        // - document 0: -0.5 (embedding1), 0.3 (embedding2)
+        // - document 1: -0.9 (embedding1)
+        EmbeddingVector searchEmbedding = new EmbeddingVector(
+                new float[]{1, -1, -1, 1, -1}, "my_model_v1");
+
+        // Create a query similar as above but with a property restriction, which still matches
+        // document 0 and document 1 but the semantic score 0.3 should be removed from document 0.
+        //
+        // The matched embeddings for each doc are:
+        // - document 0: -0.5 (embedding1)
+        // - document 1: -0.9 (embedding1)
+        // The scoring expression for each doc will be evaluated as:
+        // - document 0: sum({-0.5}) = -0.5
+        // - document 1: sum({-0.9}) = -0.9
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(searchEmbedding)
+                .setRankingStrategy("sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "embedding1:semanticSearch(getSearchSpecEmbedding(0), -1, 1)", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.00001).of(-0.5);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal()).isWithin(0.00001).of(-0.9);
+    }
+
+    @Test
+    public void testEmbeddingSearch_multipleSearchEmbeddings() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding2")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setPropertyString("body", "foo")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                        new float[]{-0.1f, -0.2f, -0.3f, 0.4f, 0.5f},
+                                        "my_model_v1"),
+                                new EmbeddingVector(
+                                        new float[]{0.6f, 0.7f, 0.8f}, "my_model_v2"))
+                        .build();
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setPropertyString("body", "bar")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{-0.1f, 0.2f, -0.3f, -0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                new float[]{0.6f, 0.7f, -0.8f}, "my_model_v2"))
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1).build()));
+
+        // Add an embedding search with dot product semantic scores:
+        // - document 0: -0.5 (embedding1), 0.3 (embedding2)
+        // - document 1: -0.9 (embedding1)
+        EmbeddingVector searchEmbedding1 = new EmbeddingVector(
+                new float[]{1, -1, -1, 1, -1}, "my_model_v1");
+        // Add an embedding search with dot product semantic scores:
+        // - document 0: -0.5 (embedding2)
+        // - document 1: -2.1 (embedding2)
+        EmbeddingVector searchEmbedding2 = new EmbeddingVector(
+                new float[]{-1, -1, 1}, "my_model_v2");
+
+        // Create a complex query that matches all hits from all documents.
+        //
+        // The matched embeddings for each doc are:
+        // - document 0: -0.5 (embedding1), 0.3 (embedding2), -0.5 (embedding2)
+        // - document 1: -0.9 (embedding1), -2.1 (embedding2)
+        // The scoring expression for each doc will be evaluated as:
+        // - document 0: sum({-0.5, 0.3}) + sum({-0.5}) = -0.7
+        // - document 1: sum({-0.9}) + sum({-2.1}) = -3
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(searchEmbedding1, searchEmbedding2)
+                .setRankingStrategy("sum(this.matchedSemanticScores(getSearchSpecEmbedding(0))) + "
+                        + "sum(this.matchedSemanticScores(getSearchSpecEmbedding(1)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "semanticSearch(getSearchSpecEmbedding(0)) OR "
+                        + "semanticSearch(getSearchSpecEmbedding(1))", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.00001).of(-0.7);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal()).isWithin(0.00001).of(-3);
+    }
+
+    @Test
+    public void testEmbeddingSearch_hybrid() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding2")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setPropertyString("body", "foo")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                        new float[]{-0.1f, -0.2f, -0.3f, 0.4f, 0.5f},
+                                        "my_model_v1"),
+                                new EmbeddingVector(
+                                        new float[]{0.6f, 0.7f, 0.8f}, "my_model_v2"))
+                        .build();
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setPropertyString("body", "bar")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{-0.1f, 0.2f, -0.3f, -0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                new float[]{0.6f, 0.7f, -0.8f}, "my_model_v2"))
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1).build()));
+
+        // Add an embedding search with dot product semantic scores:
+        // - document 0: -0.5 (embedding2)
+        // - document 1: -2.1 (embedding2)
+        EmbeddingVector searchEmbedding = new EmbeddingVector(
+                new float[]{-1, -1, 1}, "my_model_v2");
+
+        // Create a hybrid query that matches document 0 because of term-based search
+        // and document 1 because of embedding-based search.
+        //
+        // The matched embeddings for each doc are:
+        // - document 1: -2.1 (embedding2)
+        // The scoring expression for each doc will be evaluated as:
+        // - document 0: sum({}) = 0
+        // - document 1: sum({-2.1}) = -2.1
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(searchEmbedding)
+                .setRankingStrategy("sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "foo OR semanticSearch(getSearchSpecEmbedding(0), -10, -1)", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.00001).of(0);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal()).isWithin(0.00001).of(-2.1);
+    }
+
+    @Test
+    public void testEmbeddingSearchWithoutEnablingFeatureFails() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding2")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setPropertyString("body", "foo")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f}, "my_model_v1"))
+                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
+                                        new float[]{-0.1f, -0.2f, -0.3f, 0.4f, 0.5f},
+                                        "my_model_v1"),
+                                new EmbeddingVector(
+                                        new float[]{0.6f, 0.7f, 0.8f}, "my_model_v2"))
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
+
+        EmbeddingVector searchEmbedding = new EmbeddingVector(
+                new float[]{1, -1, -1, 1, -1}, "my_model_v1");
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(searchEmbedding)
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "semanticSearch(getSearchSpecEmbedding(0), -1, 1)", searchSpec);
+        ExecutionException executionException = assertThrows(ExecutionException.class,
+                () -> searchResults.getNextPageAsync().get());
+        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) executionException.getCause();
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(exception).hasMessageThat().contains("Attempted use of unenabled feature");
+        assertThat(exception).hasMessageThat().contains("EMBEDDING_SEARCH");
+    }
+
+    @Test
+    public void testEmbeddingSearch_notSupported() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
+        assumeFalse(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> mDb1.search("semanticSearch(getSearchSpecEmbedding(0), -1, 1)", searchSpec));
+        assertThat(exception).hasMessageThat().contains(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
+                + " is not available on this AppSearch implementation.");
     }
 }

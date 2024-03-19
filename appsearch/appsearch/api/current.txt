@@ -585,6 +585,7 @@ package androidx.appsearch.app {
 
   public final class SearchSpec {
     method public String getAdvancedRankingExpression();
+    method public int getDefaultEmbeddingSearchMetricType();
     method public java.util.List<java.lang.String!> getFilterNamespaces();
     method public java.util.List<java.lang.String!> getFilterPackageNames();
     method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getFilterProperties();
@@ -600,14 +601,19 @@ package androidx.appsearch.app {
     method public int getResultCountPerPage();
     method public int getResultGroupingLimit();
     method public int getResultGroupingTypeFlags();
+    method public java.util.List<androidx.appsearch.app.EmbeddingVector!> getSearchEmbeddings();
     method public String? getSearchSourceLogTag();
     method public int getSnippetCount();
     method public int getSnippetCountPerProperty();
     method public int getTermMatch();
+    method public boolean isEmbeddingSearchEnabled();
     method public boolean isListFilterHasPropertyFunctionEnabled();
     method public boolean isListFilterQueryLanguageEnabled();
     method public boolean isNumericSearchEnabled();
     method public boolean isVerbatimSearchEnabled();
+    field public static final int EMBEDDING_SEARCH_METRIC_TYPE_COSINE = 1; // 0x1
+    field public static final int EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT = 2; // 0x2
+    field public static final int EMBEDDING_SEARCH_METRIC_TYPE_EUCLIDEAN = 3; // 0x3
     field public static final int GROUPING_TYPE_PER_NAMESPACE = 2; // 0x2
     field public static final int GROUPING_TYPE_PER_PACKAGE = 1; // 0x1
     field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA) public static final int GROUPING_TYPE_PER_SCHEMA = 4; // 0x4
@@ -647,7 +653,11 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionPaths(String, java.util.Collection<androidx.appsearch.app.PropertyPath!>);
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionPathsForDocumentClass(Class<?>, java.util.Collection<androidx.appsearch.app.PropertyPath!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionsForDocumentClass(Class<?>, java.util.Collection<java.lang.String!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG) public androidx.appsearch.app.SearchSpec.Builder addSearchEmbeddings(androidx.appsearch.app.EmbeddingVector!...);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG) public androidx.appsearch.app.SearchSpec.Builder addSearchEmbeddings(java.util.Collection<androidx.appsearch.app.EmbeddingVector!>);
     method public androidx.appsearch.app.SearchSpec build();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG) public androidx.appsearch.app.SearchSpec.Builder setDefaultEmbeddingSearchMetricType(int);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG) public androidx.appsearch.app.SearchSpec.Builder setEmbeddingSearchEnabled(boolean);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) public androidx.appsearch.app.SearchSpec.Builder setJoinSpec(androidx.appsearch.app.JoinSpec);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.LIST_FILTER_HAS_PROPERTY_FUNCTION) public androidx.appsearch.app.SearchSpec.Builder setListFilterHasPropertyFunctionEnabled(boolean);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.LIST_FILTER_QUERY_LANGUAGE) public androidx.appsearch.app.SearchSpec.Builder setListFilterQueryLanguageEnabled(boolean);

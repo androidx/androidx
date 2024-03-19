@@ -90,7 +90,7 @@ public final class GenericDocumentToPlatformConverter {
                 }
                 platformBuilder.setPropertyDocument(propertyName, platformSubDocuments);
             } else if (property instanceof EmbeddingVector[]) {
-                // TODO(b/309826655): Remove this once embedding search APIs are available.
+                // TODO(b/326656531): Remove this once embedding search APIs are available.
                 throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
                         + " is not available on this AppSearch implementation.");
             } else {
