@@ -18,6 +18,7 @@
 <resources>
     <string name="html" translatable="false">
         &lt;a href="https://example.com">a&lt;/a>
+        &lt;annotation Foo=Bar>a&lt;/annotation>
         &lt;b>a&lt;/b>
         &lt;big>a&lt;/big>
         &lt;div>a&lt;/div>

@@ -18,9 +18,12 @@ package androidx.compose.ui.text
 
 import android.graphics.Typeface
 import android.os.Build
-import android.text.Annotation
+import android.text.Editable
+import android.text.Html.TagHandler
 import android.text.Layout
 import android.text.Spanned
+import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+import android.text.Spanned.SPAN_MARK_MARK
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.AlignmentSpan
 import android.text.style.BackgroundColorSpan
@@ -43,10 +46,21 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.util.fastForEach
 import androidx.core.text.HtmlCompat
+import org.xml.sax.Attributes
+import org.xml.sax.ContentHandler
+import org.xml.sax.XMLReader
 
 actual fun String.parseAsHtml(): AnnotatedString {
-    val spanned = HtmlCompat.fromHtml(this, HtmlCompat.FROM_HTML_MODE_COMPACT)
+    // Check ContentHandlerReplacementTag kdoc for more details
+    val stringToParse = "<$ContentHandlerReplacementTag />$this"
+    val spanned = HtmlCompat.fromHtml(
+        stringToParse,
+        HtmlCompat.FROM_HTML_MODE_COMPACT,
+        null,
+        TagHandler
+    )
     return spanned.toAnnotatedString()
 }
 
@@ -72,8 +86,8 @@ private fun AnnotatedString.Builder.addSpan(span: Any, start: Int, end: Int) {
         is AlignmentSpan -> {
             addStyle(span.toParagraphStyle(), start, end)
         }
-        is Annotation -> {
-            // TODO(soboleva) handle this via TagHandler
+        is AnnotationSpan -> {
+            addStringAnnotation(span.key, span.value, start, end)
         }
         is BackgroundColorSpan -> {
             addStyle(SpanStyle(background = Color(span.backgroundColor)), start, end)
@@ -161,3 +175,87 @@ private object Api28Impl {
     fun createFontFamilyFromTypeface(typefaceSpan: TypefaceSpan) =
         typefaceSpan.typeface?.let { FontFamily(it) }
 }
+
+private val TagHandler = object : TagHandler {
+    override fun handleTag(
+        opening: Boolean,
+        tag: String?,
+        output: Editable?,
+        xmlReader: XMLReader?
+    ) {
+        if (xmlReader == null || output == null) return
+
+        if (opening && tag == ContentHandlerReplacementTag) {
+            val currentContentHandler = xmlReader.contentHandler
+            xmlReader.contentHandler = AnnotationContentHandler(currentContentHandler, output)
+        }
+    }
+}
+
+private class AnnotationContentHandler(
+    private val contentHandler: ContentHandler,
+    private val output: Editable
+) : ContentHandler by contentHandler {
+    override fun startElement(uri: String?, localName: String?, qName: String?, atts: Attributes?) {
+        if (localName == AnnotationTag) {
+            atts?.let { handleAnnotationStart(it) }
+        } else {
+            contentHandler.startElement(uri, localName, qName, atts)
+        }
+    }
+
+    override fun endElement(uri: String?, localName: String?, qName: String?) {
+        if (localName == AnnotationTag) {
+            handleAnnotationEnd()
+        } else {
+            contentHandler.endElement(uri, localName, qName)
+        }
+    }
+
+    private fun handleAnnotationStart(attributes: Attributes) {
+        // Each annotation can have several key/value attributes. So for
+        // <annotation key1=value1 key2=value2>...<annotation>
+        // example we will add two [AnnotationSpan]s which we'll later read
+        for (i in 0 until attributes.length) {
+            val key = attributes.getLocalName(i).orEmpty()
+            val value = attributes.getValue(i).orEmpty()
+            if (key.isNotEmpty() && value.isNotEmpty()) {
+                val start = output.length
+                // add temporary AnnotationSpan to the output to read it when handling
+                // the closing tag
+                output.setSpan(AnnotationSpan(key, value), start, start, SPAN_MARK_MARK)
+            }
+        }
+    }
+
+    private fun handleAnnotationEnd() {
+        // iterate through all of the spans that we added when handling the opening tag. Calculate
+        // the true position of the span and make a replacement
+        output.getSpans(0, output.length, AnnotationSpan::class.java)
+            .filter { output.getSpanFlags(it) == SPAN_MARK_MARK }
+            .fastForEach { annotation ->
+                val start = output.getSpanStart(annotation)
+                val end = output.length
+
+                output.removeSpan(annotation)
+                // only add the annotation if there's a text in between the opening and closing tags
+                if (start != end) {
+                    output.setSpan(annotation, start, end, SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+    }
+}
+
+private class AnnotationSpan(val key: String, val value: String)
+
+/**
+ * This tag is added at the beginning of a string fed to the HTML parser in order to trigger
+ * a TagHandler's callback early on so we can replace the ContentHandler with our
+ * own [AnnotationContentHandler]. This is needed to handle the opening <annotation> tags since by
+ * the time TagHandler is triggered, the parser already visited and left the opening <annotation>
+ * tag which contains the attributes. Note that closing tag doesn't have the attributes and
+ * therefore not enough to construct the intermediate [AnnotationSpan] object that is later
+ * transformed into [AnnotatedString]'s string annotation.
+ */
+private const val ContentHandlerReplacementTag = "ContentHandlerReplacementTag"
+private const val AnnotationTag = "annotation"
