@@ -228,7 +228,7 @@ suspend fun awaitApplication(
                                 // This is also provided in `ProvidePlatformCompositionLocals`, but
                                 // for backwards compatibility we need to provide it in the
                                 // application scope too.
-                                LocalLocalization provides defaultPlatformLocalization()
+                                LocalLocalization providesDefault defaultPlatformLocalization()
                             ) {
                                 applicationScope.content()
                             }

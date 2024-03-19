@@ -24,7 +24,8 @@ internal actual fun ProvidePlatformCompositionLocals(
     content: @Composable () -> Unit
 ) {
     CompositionLocalProvider(
-        LocalLocalization provides defaultPlatformLocalization(),
+        // See https://issuetracker.google.com/issues/330036209 for why `arrayOf` is used.
+        values = arrayOf(LocalLocalization providesDefault defaultPlatformLocalization()),
         content = content
     )
 }

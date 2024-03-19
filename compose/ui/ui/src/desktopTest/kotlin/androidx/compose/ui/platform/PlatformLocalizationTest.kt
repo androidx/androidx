@@ -32,8 +32,11 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.runApplicationTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
@@ -86,10 +89,10 @@ class PlatformLocalizationTest {
         val textManager = object: TextContextMenu.TextManager {
             override val selectedText: AnnotatedString
                 get() = AnnotatedString("")
-            override val cut = { println("Cutting") }
-            override val copy = { println("Copying") }
-            override val paste = { println("Pasting ")}
-            override val selectAll = { println("Selecting all") }
+            override val cut = { }
+            override val copy = { }
+            override val paste = { }
+            override val selectAll = { }
         }
 
         setContent {
@@ -112,5 +115,64 @@ class PlatformLocalizationTest {
         onNodeWithText("Cut").assertDoesNotExist()
         onNodeWithText("Paste").assertDoesNotExist()
         onNodeWithText("Select All").assertDoesNotExist()
+    }
+
+    /**
+     * Verify that providing a [PlatformLocalization] in [LocalLocalization] in the application
+     * scope correctly overrides it in the window scope.
+     */
+    @Test
+    fun canOverridePlatformLocalizationFromAppToWindowScope() = runApplicationTest {
+        val customLocalization = object : PlatformLocalization {
+            override val copy: String
+                get() = "My Copy"
+            override val cut: String
+                get() = "My Cut"
+            override val paste: String
+                get() = "My Paste"
+            override val selectAll: String
+                get() = "My Select All"
+        }
+
+        lateinit var actualLocalization: PlatformLocalization
+        launchTestApplication {
+            CompositionLocalProvider(LocalLocalization provides customLocalization) {
+                Window(onCloseRequest = { }) {
+                    actualLocalization = LocalLocalization.current
+                }
+            }
+        }
+        awaitIdle()
+
+        assertEquals(customLocalization, actualLocalization)
+    }
+
+    /**
+     * Verify that providing a [PlatformLocalization] in [LocalLocalization] in the window scope
+     * correctly overrides it in a [Popup].
+     */
+    @Test
+    fun canOverridePlatformLocalizationFromWindowToPopupScope() = runComposeUiTest {
+        val customLocalization = object : PlatformLocalization {
+            override val copy: String
+                get() = "My Copy"
+            override val cut: String
+                get() = "My Cut"
+            override val paste: String
+                get() = "My Paste"
+            override val selectAll: String
+                get() = "My Select All"
+        }
+
+        lateinit var actualLocalization: PlatformLocalization
+        setContent {
+            CompositionLocalProvider(LocalLocalization provides customLocalization) {
+                Popup {
+                    actualLocalization = LocalLocalization.current
+                }
+            }
+        }
+
+        assertEquals(customLocalization, actualLocalization)
     }
 }
