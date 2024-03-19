@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,72 +25,45 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.compose.DialogNavigator.Destination
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Navigator that navigates through [Composable]s that will be hosted within a
  * [Dialog]. Every destination using this Navigator must  set a valid [Composable] by setting it
  * directly on an instantiated [Destination] or calling [dialog].
  */
-@Navigator.Name("dialog")
-public class DialogNavigator : Navigator<Destination>() {
+public expect class DialogNavigator : Navigator<Destination> {
 
     /**
      * Get the back stack from the [state].
      */
-    internal val backStack get() = state.backStack
+    internal val backStack: StateFlow<List<NavBackStackEntry>>
 
     /**
      * Get the transitioning dialogs from the [state].
      */
-    internal val transitionInProgress get() = state.transitionsInProgress
+    internal val transitionInProgress: StateFlow<Set<NavBackStackEntry>>
 
     /**
      * Dismiss the dialog destination associated with the given [backStackEntry].
      */
-    internal fun dismiss(backStackEntry: NavBackStackEntry) {
-        popBackStack(backStackEntry, false)
-    }
+    internal fun dismiss(backStackEntry: NavBackStackEntry)
 
-    override fun navigate(
-        entries: List<NavBackStackEntry>,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?
-    ) {
-        entries.forEach { entry ->
-            state.push(entry)
-        }
-    }
-
-    override fun createDestination(): Destination {
-        return Destination(this) { }
-    }
-
-    override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
-        state.popWithTransition(popUpTo, savedState)
-        // When popping, the incoming dialog is marked transitioning to hold it in
-        // STARTED. With pop complete, we can remove it from transition so it can move to RESUMED.
-        val popIndex = state.transitionsInProgress.value.indexOf(popUpTo)
-        // do not mark complete for entries up to and including popUpTo
-        state.transitionsInProgress.value.forEachIndexed { index, entry ->
-            if (index > popIndex) onTransitionComplete(entry)
-        }
-    }
-
-    internal fun onTransitionComplete(entry: NavBackStackEntry) {
-        state.markTransitionComplete(entry)
-    }
+    internal fun onTransitionComplete(entry: NavBackStackEntry)
 
     /**
      * NavDestination specific to [DialogNavigator]
      */
-    @NavDestination.ClassType(Composable::class)
     public class Destination(
         navigator: DialogNavigator,
-        internal val dialogProperties: DialogProperties = DialogProperties(),
+        dialogProperties: DialogProperties = DialogProperties(),
+        content: @Composable (NavBackStackEntry) -> Unit
+    ) : NavDestination, FloatingWindow {
+        internal val dialogProperties: DialogProperties
         internal val content: @Composable (NavBackStackEntry) -> Unit
-    ) : NavDestination(navigator), FloatingWindow
+    }
 
     internal companion object {
-        internal const val NAME = "dialog"
+        internal val NAME: String
     }
 }

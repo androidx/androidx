@@ -29,6 +29,7 @@ import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.get
+import kotlin.jvm.JvmSuppressWildcards
 
 /**
  * Add the [Composable] to the [NavGraphBuilder]
@@ -49,7 +50,7 @@ public fun NavGraphBuilder.composable(
     content: @Composable (NavBackStackEntry) -> Unit
 ) {
     addDestination(
-        ComposeNavigator.Destination(provider[ComposeNavigator::class]) {
+        ComposeNavigator.Destination(provider[ComposeNavigator.NAME]) {
                 entry ->
             content(entry)
         }.apply {
@@ -98,7 +99,7 @@ public fun NavGraphBuilder.composable(
 ) {
     addDestination(
         ComposeNavigator.Destination(
-            provider[ComposeNavigator::class],
+            provider[ComposeNavigator.NAME],
             content
         ).apply {
             this.route = route
@@ -149,7 +150,7 @@ public fun NavGraphBuilder.composable(
 ) {
     addDestination(
         ComposeNavigator.Destination(
-            provider[ComposeNavigator::class],
+            provider[ComposeNavigator.NAME],
             content
         ).apply {
             this.route = route
@@ -315,7 +316,7 @@ public fun NavGraphBuilder.dialog(
 ) {
     addDestination(
         DialogNavigator.Destination(
-            provider[DialogNavigator::class],
+            provider[DialogNavigator.NAME],
             dialogProperties,
             content
         ).apply {

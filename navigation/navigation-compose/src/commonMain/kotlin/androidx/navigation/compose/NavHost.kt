@@ -16,15 +16,12 @@
 
 package androidx.navigation.compose
 
-import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.SeekableTransitionState
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -54,7 +51,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.Navigator
 import androidx.navigation.createGraph
 import androidx.navigation.get
-import kotlin.coroutines.cancellation.CancellationException
+import kotlin.jvm.JvmSuppressWildcards
 
 /**
  * Provides in place in the Compose hierarchy for self contained navigation to occur.
@@ -64,8 +61,6 @@ import kotlin.coroutines.cancellation.CancellationException
  *
  * The builder passed into this method is [remember]ed. This means that for this NavHost, the
  * contents of the builder cannot be changed.
- *
- * @sample androidx.navigation.compose.samples.NavScaffold
  *
  * @param navController the navController for this host
  * @param startDestination the route for the start destination
@@ -332,23 +327,24 @@ public fun NavHost(
 
     var progress by remember { mutableFloatStateOf(0f) }
     var inPredictiveBack by remember { mutableStateOf(false) }
-    PredictiveBackHandler(currentBackStack.size > 1) { backEvent ->
-        progress = 0f
-        val currentBackStackEntry = currentBackStack.lastOrNull()
-        composeNavigator.prepareForTransition(currentBackStackEntry!!)
-        val previousEntry = currentBackStack[currentBackStack.size - 2]
-        composeNavigator.prepareForTransition(previousEntry)
-        try {
-            backEvent.collect {
-                inPredictiveBack = true
-                progress = it.progress
-            }
-            inPredictiveBack = false
-            composeNavigator.popBackStack(currentBackStackEntry, false)
-        } catch (e: CancellationException) {
-            inPredictiveBack = false
-        }
-    }
+    // TODO: Support PredictiveBackHandler on multiplatform
+//    PredictiveBackHandler(currentBackStack.size > 1) { backEvent ->
+//        progress = 0f
+//        val currentBackStackEntry = currentBackStack.lastOrNull()
+//        composeNavigator.prepareForTransition(currentBackStackEntry!!)
+//        val previousEntry = currentBackStack[currentBackStack.size - 2]
+//        composeNavigator.prepareForTransition(previousEntry)
+//        try {
+//            backEvent.collect {
+//                inPredictiveBack = true
+//                progress = it.progress
+//            }
+//            inPredictiveBack = false
+//            composeNavigator.popBackStack(currentBackStackEntry, false)
+//        } catch (e: CancellationException) {
+//            inPredictiveBack = false
+//        }
+//    }
 
     DisposableEffect(lifecycleOwner) {
         // Setup the navController with proper owners
@@ -419,21 +415,22 @@ public fun NavHost(
             }
         }
 
-        val transition = if (inPredictiveBack) {
-            val transitionState = remember(backStackEntry) {
-                // The state returned here cannot be nullable cause it produces the input of the
-                // transitionSpec passed into the AnimatedContent and that must match the non-nullable
-                // scope exposed by the transitions on the NavHost and composable APIs.
-                SeekableTransitionState(backStackEntry)
-            }
-            LaunchedEffect(progress) {
-                val previousEntry = currentBackStack[currentBackStack.size - 2]
-                transitionState.seekTo(progress, previousEntry)
-            }
-            rememberTransition(transitionState, label = "entry")
-        } else {
+        val transition =
+//        if (inPredictiveBack) {
+//            val transitionState = remember(backStackEntry) {
+//                // The state returned here cannot be nullable cause it produces the input of the
+//                // transitionSpec passed into the AnimatedContent and that must match the non-nullable
+//                // scope exposed by the transitions on the NavHost and composable APIs.
+//                SeekableTransitionState(backStackEntry)
+//            }
+//            LaunchedEffect(progress) {
+//                val previousEntry = currentBackStack[currentBackStack.size - 2]
+//                transitionState.seekTo(progress, previousEntry)
+//            }
+//            rememberTransition(transitionState, label = "entry")
+//        } else {
             updateTransition(backStackEntry, label = "entry")
-        }
+//        }
 
         transition.AnimatedContent(
             modifier,

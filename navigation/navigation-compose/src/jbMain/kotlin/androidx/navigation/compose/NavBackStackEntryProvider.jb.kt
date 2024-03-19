@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavBackStackEntry
-import java.lang.ref.WeakReference
-import java.util.UUID
 
-/**
- * Provides [this] [NavBackStackEntry] as [LocalViewModelStoreOwner], [LocalLifecycleOwner] and
- * [LocalSavedStateRegistryOwner] to the [content] and saves the [content]'s saveable states with
- * the given [saveableStateHolder].
- *
- * @param saveableStateHolder The [SaveableStateHolder] that holds the saved states. The same
- * holder should be used for all [NavBackStackEntry]s in the encapsulating [Composable] and the
- * holder should be hoisted.
- * @param content The content [Composable]
- */
 @Composable
 actual fun NavBackStackEntry.LocalOwnersProvider(
     saveableStateHolder: SaveableStateHolder,
@@ -47,7 +37,7 @@ actual fun NavBackStackEntry.LocalOwnersProvider(
     CompositionLocalProvider(
         LocalViewModelStoreOwner provides this,
         LocalLifecycleOwner provides this,
-        LocalSavedStateRegistryOwner provides this
+        // TODO: LocalSavedStateRegistryOwner provides this
     ) {
         saveableStateHolder.SaveableStateProvider(content)
     }
@@ -55,7 +45,15 @@ actual fun NavBackStackEntry.LocalOwnersProvider(
 
 @Composable
 private fun SaveableStateHolder.SaveableStateProvider(content: @Composable () -> Unit) {
-    val viewModel = viewModel<BackStackEntryIdViewModel>()
+    val viewModel = viewModel(
+        // TODO investigate why inline with refined type triggers
+        //  "Compilation failed: Symbol for ... is unbound"
+        //  https://github.com/JetBrains/compose-multiplatform/issues/3147
+        BackStackEntryIdViewModel::class,
+        factory = viewModelFactory {
+            initializer { BackStackEntryIdViewModel(createSavedStateHandle()) }
+        }
+    )
     // Stash a reference to the SaveableStateHolder in the ViewModel so that
     // it is available when the ViewModel is cleared, marking the permanent removal of this
     // NavBackStackEntry from the back stack. Which, because of animations,
@@ -71,7 +69,9 @@ internal class BackStackEntryIdViewModel(handle: SavedStateHandle) : ViewModel()
 
     // we create our own id for each back stack entry to support multiple entries of the same
     // destination. this id will be restored by SavedStateHandle
-    val id: UUID = handle.get<UUID>(IdKey) ?: UUID.randomUUID().also { handle.set(IdKey, it) }
+    val id: String = handle.get<String>(IdKey) ?: NavBackStackEntry.randomId().also {
+        handle.set(IdKey, it)
+    }
 
     lateinit var saveableStateHolderRef: WeakReference<SaveableStateHolder>
 
