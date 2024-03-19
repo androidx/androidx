@@ -18,6 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.animation.splineBasedDecay
@@ -273,7 +274,7 @@ private class ScrollableNode(
     enabled: Boolean,
     reverseDirection: Boolean,
     interactionSource: MutableInteractionSource?,
-    private val bringIntoViewSpec: BringIntoViewSpec?
+    bringIntoViewSpec: BringIntoViewSpec?
 ) : DragGestureNode(
     canDrag = CanDragCalculation,
     enabled = enabled,
@@ -308,7 +309,7 @@ private class ScrollableNode(
         delegate(
             ContentInViewNode(
                 orientation,
-                state,
+                scrollingLogic,
                 reverseDirection,
                 bringIntoViewSpec
             )
@@ -337,7 +338,16 @@ private class ScrollableNode(
     override suspend fun drag(
         forEachDelta: suspend ((dragDelta: DragEvent.DragDelta) -> Unit) -> Unit
     ) {
-        scrollingLogic.dispatchDragEvents(forEachDelta)
+        with(scrollingLogic) {
+            scroll(scrollPriority = MutatePriority.UserInput) {
+                forEachDelta {
+                    scrollByWithOverscroll(
+                        it.delta.singleAxisOffset(),
+                        source = UserInput
+                    )
+                }
+            }
+        }
     }
 
     override fun onDragStarted(startedPosition: Offset) {}
@@ -382,7 +392,6 @@ private class ScrollableNode(
 
         contentInViewNode.update(
             orientation,
-            state,
             reverseDirection,
             bringIntoViewSpec
         )
@@ -464,7 +473,12 @@ private class ScrollableNode(
             // lazily launch one coroutine (with the first event) and use a Channel
             // to communicate the scroll amount to the UI thread.
             coroutineScope.launch {
-                scrollingLogic.dispatchUserInputDelta(scrollAmount, UserInput)
+                scrollingLogic.scroll(scrollPriority = MutatePriority.UserInput) {
+                    scrollBy(
+                        offset = scrollAmount,
+                        source = UserInput
+                    )
+                }
             }
             true
         } else {
@@ -502,12 +516,12 @@ private class ScrollableNode(
     private fun setScrollSemanticsActions() {
         scrollByAction = { x, y ->
             coroutineScope.launch {
-                scrollingLogic.animateScrollBy(Offset(x, y))
+                scrollingLogic.semanticsScrollBy(Offset(x, y))
             }
             true
         }
 
-        scrollByOffsetAction = { offset -> scrollingLogic.animateScrollBy(offset) }
+        scrollByOffsetAction = { offset -> scrollingLogic.semanticsScrollBy(offset) }
     }
 
     private fun clearScrollSemanticsActions() {
@@ -529,7 +543,12 @@ private class ScrollableNode(
                 // lazily launch one coroutine (with the first event) and use a Channel
                 // to communicate the scroll amount to the UI thread.
                 coroutineScope.launch {
-                    scrollingLogic.dispatchUserInputDelta(scrollAmount, UserInput)
+                    scrollingLogic.scroll(scrollPriority = MutatePriority.UserInput) {
+                        scrollBy(
+                            offset = scrollAmount,
+                            source = UserInput
+                        )
+                    }
                 }
                 event.changes.fastForEach { it.consume() }
             }
@@ -618,7 +637,7 @@ private val CanDragCalculation: (PointerInputChange) -> Boolean =
  * dispatching.
  */
 @OptIn(ExperimentalFoundationApi::class)
-private class ScrollingLogic(
+internal class ScrollingLogic(
     private var scrollableState: ScrollableState,
     private var overscrollEffect: OverscrollEffect?,
     private var flingBehavior: FlingBehavior,
@@ -639,30 +658,51 @@ private class ScrollingLogic(
     fun Offset.toFloat(): Float =
         if (orientation == Horizontal) this.x else this.y
 
-    fun Velocity.toFloat(): Float =
+    private fun Velocity.toFloat(): Float =
         if (orientation == Horizontal) this.x else this.y
 
-    fun Velocity.singleAxisVelocity(): Velocity =
+    private fun Velocity.singleAxisVelocity(): Velocity =
         if (orientation == Horizontal) copy(y = 0f) else copy(x = 0f)
 
-    fun Velocity.update(newValue: Float): Velocity =
+    private fun Velocity.update(newValue: Float): Velocity =
         if (orientation == Horizontal) copy(x = newValue) else copy(y = newValue)
 
     fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
 
     fun Offset.reverseIfNeeded(): Offset = if (reverseDirection) this * -1f else this
 
-    fun Float.toVelocity() = Velocity(
-        x = if (orientation == Horizontal) this else 0f,
-        y = if (orientation == Orientation.Vertical) this else 0f,
-    )
+    private var latestScrollSource = UserInput
+    private var outerStateScope = NoOpScrollScope
 
-    private var latestScrollScope: ScrollScope = NoOpScrollScope
-    private var latestScrollSource: NestedScrollSource = UserInput
+    private val nestedScrollScope = object : NestedScrollScope {
+        override fun scrollBy(offset: Offset, source: NestedScrollSource): Offset {
+            return with(outerStateScope) {
+                performScroll(offset, source)
+            }
+        }
 
-    private val performScroll: (delta: Offset) -> Offset = { delta ->
+        override fun scrollByWithOverscroll(offset: Offset, source: NestedScrollSource): Offset {
+            latestScrollSource = source
+            val overscroll = overscrollEffect
+            return if (overscroll != null && shouldDispatchOverscroll) {
+                overscroll.applyToScroll(offset, latestScrollSource, performScrollForOverscroll)
+            } else {
+                with(outerStateScope) {
+                    performScroll(offset, source)
+                }
+            }
+        }
+    }
+
+    private val performScrollForOverscroll: (Offset) -> Offset = { delta ->
+        with(outerStateScope) {
+            performScroll(delta, latestScrollSource)
+        }
+    }
+
+    private fun ScrollScope.performScroll(delta: Offset, source: NestedScrollSource): Offset {
         val consumedByPreScroll =
-            nestedScrollDispatcher.dispatchPreScroll(delta, latestScrollSource)
+            nestedScrollDispatcher.dispatchPreScroll(delta, source)
 
         val scrollAvailableAfterPreScroll = delta - consumedByPreScroll
 
@@ -671,35 +711,15 @@ private class ScrollingLogic(
 
         // Consume on a single axis.
         val consumedBySelfScroll =
-            with(latestScrollScope) {
-                scrollBy(singleAxisDeltaForSelfScroll).toOffset().reverseIfNeeded()
-            }
+            scrollBy(singleAxisDeltaForSelfScroll).toOffset().reverseIfNeeded()
 
         val deltaAvailableAfterScroll = scrollAvailableAfterPreScroll - consumedBySelfScroll
         val consumedByPostScroll = nestedScrollDispatcher.dispatchPostScroll(
             consumedBySelfScroll,
             deltaAvailableAfterScroll,
-            latestScrollSource
+            source
         )
-        consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
-    }
-
-    /**
-     * @return the amount of scroll that was consumed
-     */
-    private fun ScrollScope.dispatchScroll(
-        initialAvailableDelta: Offset,
-        source: NestedScrollSource,
-        overscrollEnabledForSource: Boolean
-    ): Offset {
-        latestScrollSource = source
-        latestScrollScope = this
-        val overscroll = overscrollEffect
-        return if (overscroll != null && shouldDispatchOverscroll && overscrollEnabledForSource) {
-            overscroll.applyToScroll(initialAvailableDelta, source, performScroll)
-        } else {
-            performScroll(initialAvailableDelta)
-        }
+        return consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
     }
 
     private val shouldDispatchOverscroll
@@ -743,21 +763,17 @@ private class ScrollingLogic(
 
     suspend fun doFlingAnimation(available: Velocity): Velocity {
         var result: Velocity = available
-        scrollableState.scroll {
-            val outerScopeScroll: (Offset) -> Offset = { delta ->
-                dispatchScroll(
-                    delta.reverseIfNeeded(),
-                    SideEffect,
-                    overscrollEnabledForSource = true
-                ).reverseIfNeeded()
-            }
-            val scope = object : ScrollScope {
+        scroll(scrollPriority = MutatePriority.Default) {
+            val nestedScrollScope = this
+            val reverseScope = object : ScrollScope {
                 override fun scrollBy(pixels: Float): Float {
-                    return outerScopeScroll.invoke(pixels.toOffset()).toFloat()
+                    return nestedScrollScope.scrollByWithOverscroll(
+                        offset = pixels.toOffset().reverseIfNeeded(),
+                        source = SideEffect
+                    ).toFloat().reverseIfNeeded()
                 }
             }
-
-            with(scope) {
+            with(reverseScope) {
                 with(flingBehavior) {
                     result = result.update(
                         performFling(available.toFloat().reverseIfNeeded()).reverseIfNeeded()
@@ -773,31 +789,17 @@ private class ScrollingLogic(
             overscrollEffect?.isInProgress ?: false
     }
 
-    suspend fun dispatchUserInputDelta(delta: Offset, source: NestedScrollSource) {
-        scrollableState.scroll(MutatePriority.UserInput) {
-            dispatchScroll(delta, source, overscrollEnabledForSource = false)
-        }
-    }
-
-    suspend fun dispatchDragEvents(
-        forEachDelta: suspend ((dragDelta: DragEvent.DragDelta) -> Unit) -> Unit
-    ) {
-        scrollableState.scroll(MutatePriority.UserInput) {
-            forEachDelta {
-                dispatchScroll(
-                    it.delta.singleAxisOffset(),
-                    UserInput,
-                    overscrollEnabledForSource = true
-                )
-            }
-        }
-    }
-
     /**
-     * This is a single orientation animation since toFloat will clamp the cross axis offset.
+     * Opens a scrolling session with nested scrolling and overscroll support.
      */
-    suspend fun animateScrollBy(scrollAmount: Offset): Offset {
-        return scrollableState.animateScrollBy(scrollAmount.toFloat()).toOffset()
+    suspend fun scroll(
+        scrollPriority: MutatePriority = MutatePriority.Default,
+        block: suspend NestedScrollScope.() -> Unit
+    ) {
+        scrollableState.scroll(scrollPriority) {
+            outerStateScope = this
+            block.invoke(nestedScrollScope)
+        }
     }
 
     /**
@@ -935,4 +937,39 @@ private val UnityDensity = object : Density {
         get() = 1f
     override val fontScale: Float
         get() = 1f
+}
+
+/**
+ * A scroll scope for nested scrolling and overscroll support.
+ */
+internal interface NestedScrollScope {
+    fun scrollBy(
+        offset: Offset,
+        source: NestedScrollSource
+    ): Offset
+
+    fun scrollByWithOverscroll(
+        offset: Offset,
+        source: NestedScrollSource
+    ): Offset
+}
+
+/**
+ * Scroll deltas originating from the semantics system. Should be dispatched as an animation
+ * driven event.
+ */
+private suspend fun ScrollingLogic.semanticsScrollBy(offset: Offset): Offset {
+    var previousValue = 0f
+    scroll(scrollPriority = MutatePriority.Default) {
+        animate(0f, offset.toFloat()) { currentValue, _ ->
+            val delta = currentValue - previousValue
+            val consumed =
+                scrollBy(
+                    offset = delta.reverseIfNeeded().toOffset(),
+                    source = UserInput
+                ).toFloat().reverseIfNeeded()
+            previousValue += consumed
+        }
+    }
+    return previousValue.toOffset()
 }
