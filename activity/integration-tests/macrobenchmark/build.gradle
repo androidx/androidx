@@ -29,6 +29,11 @@ android {
     experimentalProperties["android.experimental.self-instrumenting"] = true
 }
 
+// Create a release build type and make sure it's the only one enabled.
+// This is needed because we benchmark the release build type only.
+android.buildTypes { release {} }
+androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
+
 dependencies {
     implementation(project(":benchmark:benchmark-junit4"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
