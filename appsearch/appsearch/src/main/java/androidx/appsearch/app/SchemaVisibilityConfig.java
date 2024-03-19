@@ -252,6 +252,7 @@ public final class SchemaVisibilityConfig extends AbstractSafeParcelable {
          *                          android.content.pm.PackageManager#canPackageQuery} to determine
          *                          which packages can access this publicly visible schema.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setPubliclyVisibleTargetPackage(
                 @Nullable PackageIdentifier packageIdentifier) {

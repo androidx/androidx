@@ -2776,7 +2776,7 @@ public final class AppSearchImpl implements Closeable {
                         /*verbosity=*/ (short) 1);
                 return;
             } else if (Log.isLoggable(icingTag, Log.DEBUG)) {
-                IcingSearchEngine.setLoggingLevel(LogSeverity.Code.DBG);
+                boolean unused = IcingSearchEngine.setLoggingLevel(LogSeverity.Code.DBG);
                 return;
             }
         }
