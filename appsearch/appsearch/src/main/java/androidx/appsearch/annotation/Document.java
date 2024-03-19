@@ -228,7 +228,6 @@ public @interface Document {
          * <p>If not specified, defaults to {@link
          * AppSearchSchema.StringPropertyConfig#INDEXING_TYPE_NONE} (the field will not be indexed
          * and cannot be queried).
-         * TODO(b/171857731) renamed to TermMatchType when using String-specific indexing config.
          */
         @AppSearchSchema.StringPropertyConfig.IndexingType int indexingType()
                 default AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE;
