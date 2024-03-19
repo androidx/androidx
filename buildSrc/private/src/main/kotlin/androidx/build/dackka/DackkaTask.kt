@@ -204,7 +204,6 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
         val linksConfiguration = ""
         val jsonMap =
             mapOf(
-                "moduleName" to "",
                 "outputDir" to destinationDir.get().asFile.path,
                 "globalLinks" to linksConfiguration,
                 "sourceSets" to sourceSets(),
