@@ -123,10 +123,12 @@ internal class CameraGraphImplTest {
                 null
             }
 
+        val cameraGraphId = CameraGraphId.nextId()
         val graph =
             CameraGraphImpl(
                 graphConfig,
                 metadata,
+                cameraGraphId,
                 graphLifecycleManager,
                 fakeGraphProcessor,
                 fakeGraphProcessor,

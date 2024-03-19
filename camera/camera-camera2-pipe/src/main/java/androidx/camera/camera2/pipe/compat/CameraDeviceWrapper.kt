@@ -477,6 +477,8 @@ internal class AndroidCameraDevice(
             CameraDevice::class -> cameraDevice as T
             else -> null
         }
+
+    override fun toString(): String = "AndroidCameraDevice(camera=$cameraId)"
 }
 
 /**

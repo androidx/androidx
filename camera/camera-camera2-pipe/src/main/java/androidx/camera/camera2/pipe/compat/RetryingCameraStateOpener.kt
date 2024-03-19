@@ -82,7 +82,7 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
     )
     override fun openCamera(cameraId: CameraId, stateCallback: StateCallback) {
         val instance = cameraManager.get()
-        Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
+        Debug.trace("$cameraId#openCamera") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 Api28Compat.openCamera(
                     instance, cameraId.value, threads.camera2Executor, stateCallback

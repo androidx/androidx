@@ -243,14 +243,17 @@ class Request(
 
     override fun toString(): String {
         val parametersString =
-            if (parameters.isEmpty()) "" else ", parameters=${Debug.formatParameterMap(parameters)}"
+            if (parameters.isEmpty()) {
+                ""
+            } else {
+                ", parameters=${Debug.formatParameterMap(parameters, limit = 5)}"
+            }
         val extrasString =
-            if (extras.isEmpty()) "" else ", extras=${Debug.formatParameterMap(extras)}"
+            if (extras.isEmpty()) "" else ", extras=${Debug.formatParameterMap(extras, limit = 5)}"
         val templateString = if (template == null) "" else ", template=$template"
         // Ignore listener count, always include stream list (required), and use super.toString to
         // reference the class name.
-        return "Request@${super.hashCode().toString(16)}(streams=$streams" +
-            "$parametersString$extrasString$templateString)"
+        return "Request(streams=$streams$templateString$parametersString$extrasString)"
     }
 }
 

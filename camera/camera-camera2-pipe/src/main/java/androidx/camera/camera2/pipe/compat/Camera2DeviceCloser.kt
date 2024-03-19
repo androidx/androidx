@@ -55,13 +55,12 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
         androidCameraState: AndroidCameraState,
         audioRestriction: AudioRestrictionController?
     ) {
-        Log.debug { "Closing $cameraDeviceWrapper and/or $cameraDevice" }
         val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs(CameraDevice::class)
         if (unwrappedCameraDevice != null) {
             cameraDevice?.let {
                 check(unwrappedCameraDevice.id == it.id) {
-                    "Unwrapped camera device has camera ID ${unwrappedCameraDevice.id}, " + "" +
-                        "but the accompanied camera device has camera ID ${it.id}"
+                    "Unwrapped camera device has camera ID ${unwrappedCameraDevice.id}, " +
+                        "but the wrapped camera device has camera ID ${it.id}!"
                 }
             }
             closeCameraDevice(
@@ -105,16 +104,15 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
                 Log.debug { "Empty capture session quirk completed" }
             }
         }
-        Log.debug { "Closing $cameraDevice" }
         Threading.runBlockingWithTimeout(threads.backgroundDispatcher, 5000L) {
             cameraDevice.closeWithTrace()
         }
         if (camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId)) {
-            Log.debug { "Waiting for camera device to be completely closed" }
+            Log.debug { "Waiting for OnClosed from $cameraId" }
             if (androidCameraState.awaitCameraDeviceClosed(timeoutMillis = 5000)) {
-                Log.debug { "Camera device is closed" }
+                Log.debug { "Received OnClosed for $cameraId" }
             } else {
-                Log.warn { "Failed to wait for camera device to close after 5000ms" }
+                Log.warn { "Failed to close $cameraId after 500ms" }
             }
         }
     }
