@@ -395,7 +395,6 @@ fun SemanticsNodeInteraction.performTouchInput(
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @see MouseInjectionScope
  */
-@ExperimentalTestApi
 fun SemanticsNodeInteraction.performMouseInput(
     block: MouseInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {

@@ -742,7 +742,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun interactingWithTextFieldByMouse_doeNotShowTheToolbar() {
         val textToolbar = FakeTextToolbar()

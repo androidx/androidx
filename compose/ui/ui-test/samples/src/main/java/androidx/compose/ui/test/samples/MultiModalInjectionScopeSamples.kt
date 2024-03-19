@@ -17,7 +17,6 @@
 package androidx.compose.ui.test.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.dragAndDrop
 import androidx.compose.ui.test.onNodeWithTag
@@ -28,6 +27,6 @@ fun multiModalInputClickDragDrop() {
     composeTestRule.onNodeWithTag("myComponent").performMultiModalInput {
         touch { click(center) }
         advanceEventTime(500)
-        @OptIn(ExperimentalTestApi::class) mouse { dragAndDrop(topLeft, bottomRight) }
+        mouse { dragAndDrop(topLeft, bottomRight) }
     }
 }

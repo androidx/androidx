@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.TextToolbar
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.MouseInjectionScope
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -60,7 +59,6 @@ import org.junit.Rule
 
 const val RtlChar = "\u05D1"
 
-@OptIn(ExperimentalTestApi::class)
 internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
 
     @get:Rule val rule = createComposeRule()

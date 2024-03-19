@@ -521,7 +521,6 @@ internal abstract class InputDispatcher(
      * a column, or at the end of a row), negative values correspond to scrolling backward (new
      * content appears at the top of a column, or at the start of a row).
      */
-    @OptIn(ExperimentalTestApi::class)
     fun enqueueMouseScroll(delta: Float, scrollWheel: ScrollWheel) {
         val mouse = mouseInputState
 
@@ -702,7 +701,6 @@ internal abstract class InputDispatcher(
     protected open val KeyInputState.scrollLockOn: Boolean
         get() = scrollLockState.isLockKeyOnIncludingOffPress
 
-    @OptIn(ExperimentalTestApi::class)
     protected abstract fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel)
 
     protected abstract fun RotaryInputState.enqueueRotaryScrollHorizontally(

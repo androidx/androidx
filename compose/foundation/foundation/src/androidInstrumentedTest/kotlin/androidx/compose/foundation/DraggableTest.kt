@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
@@ -312,7 +311,6 @@ class DraggableTest {
     }
 
     // regression test for b/176971558
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun draggable_immediateStart_callsStopWithoutSlop() {
         var total = 0f
@@ -814,7 +812,6 @@ class DraggableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun draggable_cancelMidDown_shouldContinueWithNextDown() {
         var total = 0f

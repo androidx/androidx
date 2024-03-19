@@ -22,7 +22,6 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.MouseInjectionScope
@@ -40,7 +39,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
 @Suppress("KotlinConstantConditions") // for "0 * T"
 class MoveTest {
     companion object {

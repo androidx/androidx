@@ -18,10 +18,8 @@ package androidx.compose.ui.test
 
 // TODO: use constants instead of literals
 
-@ExperimentalTestApi
 @JvmInline
 actual value class MouseButton(val buttonId: Int) {
-    @ExperimentalTestApi
     actual companion object {
         /** The left mouse button */
         actual val Primary = MouseButton(1)

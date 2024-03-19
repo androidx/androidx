@@ -1406,7 +1406,6 @@ class CombinedClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun interactionSource_hover() {
         val interactionSource = MutableInteractionSource()
@@ -1450,7 +1449,6 @@ class CombinedClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun interactionSource_hover_and_press() {
         val interactionSource = MutableInteractionSource()
@@ -1946,7 +1944,6 @@ class CombinedClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @LargeTest
     fun noHover_whenDisabled() {
