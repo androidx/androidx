@@ -28,6 +28,7 @@ import android.icu.util.ULocale;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.PlatformDataKey;
@@ -54,7 +55,7 @@ public class DynamicTypeEvaluatorTest {
         ArrayList<Boolean> results = new ArrayList<>();
         DynamicTypeBindingRequest request = createSingleNodeDynamicBoolRequest(results);
         BoundDynamicType boundDynamicType = evaluator.bind(request);
-        assertThat(boundDynamicType.getDynamicNodeCount()).isEqualTo(1);
+        assertThat(boundDynamicType.getDynamicNodeCost()).isEqualTo(1);
     }
 
     @Test
@@ -114,7 +115,7 @@ public class DynamicTypeEvaluatorTest {
         boundDynamicType1.close();
         // Retry binding request2
         BoundDynamicType boundDynamicType2 = evaluator.bind(request2);
-        assertThat(boundDynamicType2.getDynamicNodeCount()).isEqualTo(1);
+        assertThat(boundDynamicType2.getDynamicNodeCost()).isEqualTo(1);
     }
 
     @Test
@@ -155,10 +156,14 @@ public class DynamicTypeEvaluatorTest {
     @NonNull
     private static DynamicTypeBindingRequest createSingleNodeDynamicBoolRequest(
             ArrayList<Boolean> results) {
+        return createDynamicBoolRequest(DynamicBool.from(new AppDataKey<>("key")), results);
+    }
+
+    @NonNull
+    private static DynamicTypeBindingRequest createDynamicBoolRequest(
+            DynamicBuilders.DynamicBool dynamicBool, ArrayList<Boolean> results) {
         return DynamicTypeBindingRequest.forDynamicBool(
-                DynamicBool.constant(false),
-                new MainThreadExecutor(),
-                new AddToListCallback<>(results));
+                dynamicBool, new MainThreadExecutor(), new AddToListCallback<>(results));
     }
 
     @NonNull

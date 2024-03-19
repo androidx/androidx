@@ -64,6 +64,11 @@ class FloatNodes {
         @Override
         @UiThread
         public void destroy() {}
+
+        @Override
+        public int getCost() {
+            return FIXED_NODE_COST;
+        }
     }
 
     /** Dynamic float node that gets value from the state. */
@@ -183,6 +188,11 @@ class FloatNodes {
         public void destroy() {
             mQuotaAwareAnimator.stopAnimator();
         }
+
+        @Override
+        public int getCost() {
+            return DEFAULT_NODE_COST;
+        }
     }
 
     /** Dynamic float node that gets animatable value from dynamic source. */
@@ -264,6 +274,11 @@ class FloatNodes {
 
         public DynamicTypeValueReceiverWithPreUpdate<Float> getInputCallback() {
             return mInputCallback;
+        }
+
+        @Override
+        public int getCost() {
+            return DEFAULT_NODE_COST;
         }
     }
 

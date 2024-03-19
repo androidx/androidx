@@ -104,4 +104,9 @@ class StateSourceNode<T>
 
         return new PlatformDataKey<T>(namespace, key);
     }
+
+    @Override
+    public int getCost() {
+        return DEFAULT_NODE_COST;
+    }
 }
