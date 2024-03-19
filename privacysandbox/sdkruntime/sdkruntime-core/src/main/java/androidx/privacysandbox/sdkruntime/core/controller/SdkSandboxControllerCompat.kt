@@ -32,7 +32,6 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.impl.LocalImpl
-import androidx.privacysandbox.sdkruntime.core.controller.impl.NoOpImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformUDCImpl
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
@@ -160,11 +159,10 @@ class SdkSandboxControllerCompat internal constructor(
         fun from(context: Context): SdkSandboxControllerCompat {
             val clientVersion = Versions.CLIENT_VERSION
             if (clientVersion != null) {
-                val implFromClient = localImpl
-                if (implFromClient != null) {
-                    return SdkSandboxControllerCompat(LocalImpl(implFromClient, clientVersion))
-                }
-                return SdkSandboxControllerCompat(NoOpImpl())
+                val implFromClient = localImpl ?: throw UnsupportedOperationException(
+                    "Shouldn't happen: No controller implementation available"
+                )
+                return SdkSandboxControllerCompat(LocalImpl(implFromClient, clientVersion))
             }
             val platformImpl = PlatformImplFactory.create(context)
             return SdkSandboxControllerCompat(platformImpl)
