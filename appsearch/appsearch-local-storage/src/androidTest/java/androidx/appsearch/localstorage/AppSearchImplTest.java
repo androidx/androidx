@@ -1998,7 +1998,9 @@ public class AppSearchImplTest {
         SchemaProto expectedProto = SchemaProto.newBuilder()
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("package$database1/Email").setVersion(0))
+                                .setSchemaType("package$database1/Email")
+                                .setDescription("")
+                                .setVersion(0))
                 .build();
 
         List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
@@ -2074,9 +2076,14 @@ public class AppSearchImplTest {
         SchemaProto expectedProto = SchemaProto.newBuilder()
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("package$database1/Email").setVersion(0))
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType(
-                        "package$database1/Document").setVersion(0))
+                                .setSchemaType("package$database1/Email")
+                                .setDescription("")
+                                .setVersion(0))
+                .addTypes(
+                        SchemaTypeConfigProto.newBuilder()
+                                .setSchemaType("package$database1/Document")
+                                .setDescription("")
+                                .setVersion(0))
                 .build();
 
         // Check both schema Email and Document saved correctly.
@@ -2117,7 +2124,9 @@ public class AppSearchImplTest {
         expectedProto = SchemaProto.newBuilder()
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("package$database1/Email").setVersion(0))
+                                .setSchemaType("package$database1/Email")
+                                .setDescription("")
+                                .setVersion(0))
                 .build();
 
         expectedTypes = new ArrayList<>();
@@ -2161,14 +2170,24 @@ public class AppSearchImplTest {
         SchemaProto expectedProto = SchemaProto.newBuilder()
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("package$database1/Email").setVersion(0))
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType(
-                        "package$database1/Document").setVersion(0))
+                                .setSchemaType("package$database1/Email")
+                                .setDescription("")
+                                .setVersion(0))
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("package$database2/Email").setVersion(0))
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType(
-                        "package$database2/Document").setVersion(0))
+                                .setSchemaType("package$database1/Document")
+                                .setDescription("")
+                                .setVersion(0))
+                .addTypes(
+                        SchemaTypeConfigProto.newBuilder()
+                                .setSchemaType("package$database2/Email")
+                                .setDescription("")
+                                .setVersion(0))
+                .addTypes(
+                        SchemaTypeConfigProto.newBuilder()
+                                .setSchemaType("package$database2/Document")
+                                .setDescription("")
+                                .setVersion(0))
                 .build();
 
         // Check Email and Document is saved in database 1 and 2 correctly.
@@ -2195,12 +2214,19 @@ public class AppSearchImplTest {
         expectedProto = SchemaProto.newBuilder()
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("package$database1/Email").setVersion(0))
+                                .setSchemaType("package$database1/Email")
+                                .setDescription("")
+                                .setVersion(0))
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("package$database2/Email").setVersion(0))
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType(
-                        "package$database2/Document").setVersion(0))
+                                .setSchemaType("package$database2/Email")
+                                .setDescription("")
+                                .setVersion(0))
+                .addTypes(
+                        SchemaTypeConfigProto.newBuilder()
+                                .setSchemaType("package$database2/Document")
+                                .setDescription("")
+                                .setVersion(0))
                 .build();
 
         // Check nothing changed in database2.
@@ -2306,10 +2332,14 @@ public class AppSearchImplTest {
         SchemaProto expectedProto = SchemaProto.newBuilder()
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("packageA$database/schema").setVersion(0))
+                                .setSchemaType("packageA$database/schema")
+                                .setDescription("")
+                                .setVersion(0))
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
-                                .setSchemaType("packageB$database/schema").setVersion(0))
+                                .setSchemaType("packageB$database/schema")
+                                .setDescription("")
+                                .setVersion(0))
                 .build();
         List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
         expectedTypes.addAll(existingSchemas);

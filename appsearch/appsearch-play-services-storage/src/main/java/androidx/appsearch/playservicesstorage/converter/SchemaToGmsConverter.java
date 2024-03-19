@@ -45,6 +45,11 @@ public final class SchemaToGmsConverter {
         com.google.android.gms.appsearch.AppSearchSchema.Builder gmsBuilder =
                 new com.google.android.gms.appsearch.AppSearchSchema
                         .Builder(jetpackSchema.getSchemaType());
+        if (!jetpackSchema.getDescription().isEmpty()) {
+            // TODO(b/326987971): Remove this once description becomes available.
+            throw new UnsupportedOperationException(Features.SCHEMA_SET_DESCRIPTION
+                    + " is not available on this AppSearch implementation.");
+        }
         List<AppSearchSchema.PropertyConfig> properties = jetpackSchema.getProperties();
         for (int i = 0; i < properties.size(); i++) {
             com.google.android.gms.appsearch.AppSearchSchema.PropertyConfig gmsProperty =
@@ -65,6 +70,8 @@ public final class SchemaToGmsConverter {
         Preconditions.checkNotNull(gmsSchema);
         AppSearchSchema.Builder jetpackBuilder =
                 new AppSearchSchema.Builder(gmsSchema.getSchemaType());
+        // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+        // available in platform.
         List<com.google.android.gms.appsearch.AppSearchSchema.PropertyConfig> properties =
                 gmsSchema.getProperties();
         for (int i = 0; i < properties.size(); i++) {
@@ -78,6 +85,11 @@ public final class SchemaToGmsConverter {
     private static com.google.android.gms.appsearch.AppSearchSchema.PropertyConfig toGmsProperty(
             @NonNull AppSearchSchema.PropertyConfig jetpackProperty) {
         Preconditions.checkNotNull(jetpackProperty);
+        if (!jetpackProperty.getDescription().isEmpty()) {
+            // TODO(b/326987971): Remove this once description becomes available.
+            throw new UnsupportedOperationException(Features.SCHEMA_SET_DESCRIPTION
+                    + " is not available on this AppSearch implementation.");
+        }
         if (jetpackProperty instanceof AppSearchSchema.StringPropertyConfig) {
             AppSearchSchema.StringPropertyConfig stringProperty =
                     (AppSearchSchema.StringPropertyConfig) jetpackProperty;
@@ -159,6 +171,8 @@ public final class SchemaToGmsConverter {
             com.google.android.gms.appsearch.AppSearchSchema.StringPropertyConfig stringProperty =
                     (com.google.android.gms.appsearch.AppSearchSchema.StringPropertyConfig)
                             gmsProperty;
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.StringPropertyConfig.Builder(stringProperty.getName())
                     .setCardinality(stringProperty.getCardinality())
                     .setIndexingType(stringProperty.getIndexingType())
@@ -166,24 +180,32 @@ public final class SchemaToGmsConverter {
                     .build();
         } else if (gmsProperty
                 instanceof com.google.android.gms.appsearch.AppSearchSchema.LongPropertyConfig) {
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.LongPropertyConfig.Builder(
                     gmsProperty.getName())
                     .setCardinality(gmsProperty.getCardinality())
                     .build();
         } else if (gmsProperty
                 instanceof com.google.android.gms.appsearch.AppSearchSchema.DoublePropertyConfig) {
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.DoublePropertyConfig.Builder(
                     gmsProperty.getName())
                     .setCardinality(gmsProperty.getCardinality())
                     .build();
         } else if (gmsProperty
                 instanceof com.google.android.gms.appsearch.AppSearchSchema.BooleanPropertyConfig) {
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.BooleanPropertyConfig.Builder(
                     gmsProperty.getName())
                     .setCardinality(gmsProperty.getCardinality())
                     .build();
         } else if (gmsProperty
                 instanceof com.google.android.gms.appsearch.AppSearchSchema.BytesPropertyConfig) {
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.BytesPropertyConfig.Builder(
                     gmsProperty.getName())
                     .setCardinality(gmsProperty.getCardinality())
@@ -195,6 +217,8 @@ public final class SchemaToGmsConverter {
                     documentProperty =
                     (com.google.android.gms.appsearch.AppSearchSchema.DocumentPropertyConfig)
                             gmsProperty;
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.DocumentPropertyConfig.Builder(
                     documentProperty.getName(),
                     documentProperty.getSchemaType())
