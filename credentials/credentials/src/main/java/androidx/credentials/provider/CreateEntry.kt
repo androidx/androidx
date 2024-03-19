@@ -29,6 +29,7 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
+import androidx.credentials.provider.BiometricPromptData.Companion.BUNDLE_HINT_ALLOWED_AUTHENTICATORS
 import java.time.Instant
 import java.util.Collections
 
@@ -40,6 +41,23 @@ import java.util.Collections
  * registered. When user selects this entry, the corresponding [PendingIntent] is fired, and the
  * credential creation can be completed.
  *
+ * @property accountName the name of the account where the credential will be saved
+ * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * entry, must be created with a unique request code per entry,
+ * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+ * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+ * times
+ * @property description the localized description shown on UI about where the credential is stored
+ * @property icon the icon to be displayed with this entry on the UI, must be created using
+ * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
+ * the latter consumes more memory and may cause undefined behavior due to memory implications
+ * on internal transactions
+ * @property lastUsedTime the last time the account underlying this entry was used by the user,
+ * distinguishable up to the milli second mark only such that if two entries have the same
+ * millisecond precision, they will be considered to have been used at the same time
+ * @property isAutoSelectAllowed whether this entry should be auto selected if it is the only
+ * entry on the selector
+ *
  * @throws IllegalArgumentException If [accountName] is empty
  */
 @RequiresApi(26)
@@ -50,8 +68,69 @@ class CreateEntry internal constructor(
     val description: CharSequence?,
     val lastUsedTime: Instant?,
     private val credentialCountInformationMap: MutableMap<String, Int?>,
-    val isAutoSelectAllowed: Boolean
+    val isAutoSelectAllowed: Boolean,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val biometricPromptData: BiometricPromptData? = null,
 ) {
+
+    /**
+     * Creates an entry to be displayed on the selector during create flows.
+     *
+     * @constructor constructs an instance of [CreateEntry]
+     *
+     * @param accountName the name of the account where the credential will be saved
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with a unique request code per entry,
+     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+     * times
+     * @param description the localized description shown on UI about where the credential is stored
+     * @param icon the icon to be displayed with this entry on the UI, must be created using
+     * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
+     * the latter consumes more memory and may cause undefined behavior due to memory implications
+     * on internal transactions
+     * @param lastUsedTime the last time the account underlying this entry was used by the user,
+     * distinguishable up to the milli second mark only such that if two entries have the same
+     * millisecond precision, they will be considered to have been used at the same time
+     * @param passwordCredentialCount the no. of password credentials contained by the provider
+     * @param publicKeyCredentialCount the no. of public key credentials contained by the provider
+     * @param totalCredentialCount the total no. of credentials contained by the provider
+     * @param isAutoSelectAllowed whether this entry should be auto selected if it is the only
+     * entry on the selector
+     *
+     * @throws IllegalArgumentException If [accountName] is empty, or if [description] is longer
+     * than 300 characters (important: make sure your descriptions across all locales are within
+     * this limit)
+     * @throws NullPointerException If [accountName] or [pendingIntent] is null
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
+        accountName: CharSequence,
+        pendingIntent: PendingIntent,
+        description: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon? = null,
+        @Suppress("AutoBoxing")
+        passwordCredentialCount: Int? = null,
+        @Suppress("AutoBoxing")
+        publicKeyCredentialCount: Int? = null,
+        @Suppress("AutoBoxing")
+        totalCredentialCount: Int? = null,
+        isAutoSelectAllowed: Boolean = false,
+        biometricPromptData: BiometricPromptData? = null,
+    ) : this(
+        accountName,
+        pendingIntent,
+        icon,
+        description,
+        lastUsedTime,
+        mutableMapOf(
+            PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
+            PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
+            TYPE_TOTAL_CREDENTIAL to totalCredentialCount
+        ),
+        isAutoSelectAllowed,
+        biometricPromptData = biometricPromptData,
+    )
 
     /**
      * Creates an entry to be displayed on the selector during create flows.
@@ -95,7 +174,7 @@ class CreateEntry internal constructor(
         publicKeyCredentialCount: Int? = null,
         @Suppress("AutoBoxing")
         totalCredentialCount: Int? = null,
-        isAutoSelectAllowed: Boolean = false
+        isAutoSelectAllowed: Boolean = false,
     ) : this(
         accountName,
         pendingIntent,
@@ -168,6 +247,7 @@ class CreateEntry internal constructor(
         private var publicKeyCredentialCount: Int? = null
         private var totalCredentialCount: Int? = null
         private var autoSelectAllowed: Boolean = false
+        private var biometricPromptData: BiometricPromptData? = null
 
         /**
          * Sets whether the entry should be auto-selected.
@@ -250,14 +330,31 @@ class CreateEntry internal constructor(
         }
 
         /**
+         * Sets the biometric prompt data to optionally utilize a credential
+         * manager flow that directly handles the biometric verification for you and gives you the
+         * response; set to null by default.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun setBiometricPromptData(biometricPromptData: BiometricPromptData): Builder {
+            this.biometricPromptData = biometricPromptData
+            return this
+        }
+
+        /**
          * Builds an instance of [CreateEntry]
          *
          * @throws IllegalArgumentException If [accountName] is empty
          */
         fun build(): CreateEntry {
             return CreateEntry(
-                accountName, pendingIntent, icon, description, lastUsedTime,
-                credentialCountInformationMap, autoSelectAllowed
+                accountName = accountName,
+                pendingIntent = pendingIntent,
+                icon = icon,
+                description = description,
+                lastUsedTime = lastUsedTime,
+                credentialCountInformationMap = credentialCountInformationMap,
+                isAutoSelectAllowed = autoSelectAllowed,
+                biometricPromptData = biometricPromptData
             )
         }
     }
@@ -287,12 +384,16 @@ class CreateEntry internal constructor(
             val pendingIntent = createEntry.pendingIntent
             val sliceBuilder = Slice.Builder(Uri.EMPTY,
                 SliceSpec(SLICE_SPEC_TYPE, REVISION_ID))
+            val biometricPromptData = createEntry.biometricPromptData
 
             val autoSelectAllowed = if (createEntry.isAutoSelectAllowed) {
                 AUTO_SELECT_TRUE_STRING
             } else {
                 AUTO_SELECT_FALSE_STRING
             }
+
+            val cryptoObject = biometricPromptData?.cryptoObject
+            val allowedAuthenticators = biometricPromptData?.allowedAuthenticators
 
             sliceBuilder.addText(
                 accountName, /*subType=*/null,
@@ -339,6 +440,25 @@ class CreateEntry internal constructor(
                 autoSelectAllowed, /*subType=*/null,
                 listOf(SLICE_HINT_AUTO_SELECT_ALLOWED)
             )
+
+            if (biometricPromptData != null) {
+                // TODO(b/326243730) : Await biometric team dependency for opId, then add
+                val cryptoObjectOpId = cryptoObject?.hashCode()
+
+                if (allowedAuthenticators != null) {
+                    sliceBuilder.addInt(
+                        allowedAuthenticators, /*subType=*/null,
+                        listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
+                    )
+                }
+                if (cryptoObjectOpId != null) {
+                    sliceBuilder.addInt(
+                        cryptoObjectOpId, /*subType=*/null,
+                        listOf(SLICE_HINT_CRYPTO_OP_ID)
+                    )
+                }
+            }
+
             return sliceBuilder.build()
         }
 
@@ -353,6 +473,8 @@ class CreateEntry internal constructor(
             var description: CharSequence? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
+            var allowedAuth: Int? = null
+
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_ACCOUNT_NAME)) {
                     accountName = it.text
@@ -374,12 +496,30 @@ class CreateEntry internal constructor(
                     if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
                         autoSelectAllowed = true
                     }
+                } else if (it.hasHint(SLICE_HINT_ALLOWED_AUTHENTICATORS)) {
+                    allowedAuth = it.int
                 }
             }
+
+            // TODO(b/326243730) : Await biometric team dependency for opId, then add - also decide
+            // if we want toBundle to be passed into the framework.
+            var biometricPromptDataBundle: Bundle? = null
+            if (allowedAuth != null) {
+                biometricPromptDataBundle = Bundle()
+                biometricPromptDataBundle.putInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS, allowedAuth!!)
+            }
+
             return try {
                 CreateEntry(
-                    accountName!!, pendingIntent!!, icon, description,
-                    lastUsedTime, credentialCountInfo, autoSelectAllowed
+                    accountName = accountName!!,
+                    pendingIntent = pendingIntent!!,
+                    icon = icon,
+                    description = description,
+                    lastUsedTime = lastUsedTime,
+                    credentialCountInformationMap = credentialCountInfo,
+                    isAutoSelectAllowed = autoSelectAllowed,
+                    biometricPromptData = if (biometricPromptDataBundle != null)
+                        BiometricPromptData.fromBundle(biometricPromptDataBundle) else null
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -449,6 +589,12 @@ class CreateEntry internal constructor(
 
         private const val SLICE_HINT_AUTO_SELECT_ALLOWED =
             "androidx.credentials.provider.createEntry.SLICE_HINT_AUTO_SELECT_ALLOWED"
+
+        private const val SLICE_HINT_ALLOWED_AUTHENTICATORS =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_ALLOWED_AUTHENTICATORS"
+
+        private const val SLICE_HINT_CRYPTO_OP_ID =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_CRYPTO_OP_ID"
 
         private const val AUTO_SELECT_TRUE_STRING = "true"
 
