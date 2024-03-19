@@ -163,6 +163,7 @@ kotlin {
                 implementation(project(":lifecycle:lifecycle-runtime"))
                 implementation(project(":lifecycle:lifecycle-runtime-compose"))
                 implementation(project(":navigation:navigation-common"))
+                implementation(project(":navigation:navigation-compose"))
                 implementation(project(":navigation:navigation-runtime"))
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesCore)

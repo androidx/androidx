@@ -1,5 +1,7 @@
 package androidx.compose.mpp.demo
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -34,12 +36,16 @@ import androidx.compose.mpp.demo.components.Components
 import androidx.compose.mpp.demo.textfield.android.AndroidTextFieldSamples
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 val MainScreen = Screen.Selection(
     "Demo",
@@ -85,38 +91,86 @@ sealed interface Screen {
 }
 
 class App(
-    initialScreenName: String? = null,
-    extraScreens: List<Screen> = listOf()
+    private val initialScreenName: String? = null,
+    private val extraScreens: List<Screen> = listOf()
 ) {
-    private val navigationStack: SnapshotStateList<Screen> =
-        mutableStateListOf(MainScreen.mergedWith(extraScreens))
+    @Composable
+    fun Content() {
+        val navController = rememberNavController()
+        NavHost(
+            navController = navController,
+            startDestination = initialScreenName ?: MainScreen.title,
 
-    init {
-        if (initialScreenName != null) {
-            var currentScreen = navigationStack.first()
-            initialScreenName.split("/").forEach { target ->
-                val selectionScreen = currentScreen as Screen.Selection
-                currentScreen = selectionScreen.screens.find { it.title == target }!!
-                navigationStack.add(currentScreen)
+            // Custom animations
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(700)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(700)
+                )
+            },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
+            buildScreen(MainScreen, navController)
+            for (i in extraScreens) {
+                buildScreen(i, navController)
             }
         }
     }
 
+    private fun NavGraphBuilder.buildScreen(screen: Screen, navController: NavController) {
+        if (screen is Screen.Selection) {
+            for (i in screen.screens) {
+                buildScreen(i, navController)
+            }
+        }
+        composable(screen.title) { ScreenContent(screen, navController) }
+    }
+
     @Composable
-    fun Content() {
-        when (val screen = navigationStack.last()) {
+    private fun ScreenContent(screen: Screen, navController: NavController) {
+        val currentBackStack = remember(screen) { navController.currentBackStack.value }
+        val firstEntry = remember(screen) { navController.previousBackStackEntry == null }
+        val title = currentBackStack.drop(1)
+            .joinToString("/") { it.destination.route ?: it.destination.displayName }
+        val back: (() -> Unit)? = if (!firstEntry) {
+            { navController.popBackStack() }
+        } else null
+        when (screen) {
             is Screen.Example -> {
-                ExampleScaffold(backgroundColor = screen.backgroundColor) {
-                    screen.content()
-                }
+                ExampleScaffold(
+                    title = title,
+                    back = back!!,
+                    backgroundColor = screen.backgroundColor,
+                    content = screen.content
+                )
             }
 
             is Screen.Selection -> {
-                SelectionScaffold {
+                SelectionScaffold(
+                    title = title,
+                    back = back,
+                ) {
                     LazyColumn(Modifier.fillMaxSize()) {
                         items(screen.screens) {
                             Text(it.title, Modifier.clickable {
-                                navigationStack.add(it)
+                                navController.navigate(it.title)
                             }.padding(16.dp).fillMaxWidth())
                         }
                     }
@@ -125,9 +179,7 @@ class App(
 
             is Screen.FullscreenExample -> {
                 screen.content {
-                    if (navigationStack.size > 1) {
-                        navigationStack.removeLast()
-                    }
+                    navController.popBackStack()
                 }
             }
         }
@@ -135,6 +187,8 @@ class App(
 
     @Composable
     private fun ExampleScaffold(
+        title: String,
+        back: () -> Unit,
         backgroundColor: Color?,
         content: @Composable () -> Unit
     ) {
@@ -147,15 +201,13 @@ class App(
             topBar = {
                 TopAppBar(
                     title = {
-                        val title = navigationStack.drop(1)
-                            .joinToString("/") { it.title }
                         Text(title)
                     },
                     navigationIcon = {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            modifier = Modifier.backButton()
+                            modifier = Modifier.clickable { back.invoke() }
                         )
                     }
                 )
@@ -172,6 +224,8 @@ class App(
 
     @Composable
     private fun SelectionScaffold(
+        title: String,
+        back: (() -> Unit)? = null,
         content: @Composable () -> Unit
     ) {
         Scaffold(
@@ -193,16 +247,16 @@ class App(
                                 Modifier.fillMaxHeight().weight(1f),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                if (navigationStack.size > 1) {
+                                if (back != null) {
                                     Icon(
                                         Icons.Filled.ArrowBack,
                                         contentDescription = "Back",
-                                        modifier = Modifier.backButton()
+                                        modifier = Modifier.clickable { back.invoke() }
                                     )
                                     Spacer(Modifier.width(16.dp))
                                 }
                                 ProvideTextStyle(value = MaterialTheme.typography.h6) {
-                                    Text(navigationStack.first().title)
+                                    Text(title)
                                 }
                             }
                         }
@@ -222,12 +276,6 @@ class App(
             ) {
                 content()
             }
-        }
-    }
-
-    private fun Modifier.backButton() = clickable {
-        if (navigationStack.size > 1) {
-            navigationStack.removeLast()
         }
     }
 }
