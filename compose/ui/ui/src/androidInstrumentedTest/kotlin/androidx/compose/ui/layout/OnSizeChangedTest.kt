@@ -216,8 +216,8 @@ class OnSizeChangedTest {
     @Test
     @SmallTest
     fun addedModifier() {
-        var latch1 = CountDownLatch(1)
-        var latch2 = CountDownLatch(1)
+        val latch1 = CountDownLatch(1)
+        val latch2 = CountDownLatch(1)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
         var addModifier by mutableStateOf(false)
@@ -246,11 +246,137 @@ class OnSizeChangedTest {
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
 
-        latch1 = CountDownLatch(1)
         addModifier = true
 
         // We've added an onSizeChanged modifier, so it must trigger another size change
         assertTrue(latch2.await(1, TimeUnit.SECONDS))
+        assertEquals(10, changedSize2.height)
+        assertEquals(10, changedSize2.width)
+    }
+
+    @Test
+    @SmallTest
+    fun addedModifierNode() {
+        val sizeLatch1 = CountDownLatch(1)
+        val sizeLatch2 = CountDownLatch(1)
+        val placedLatch1 = CountDownLatch(1)
+        val placedLatch2 = CountDownLatch(1)
+        var changedSize1 = IntSize.Zero
+        var changedSize2 = IntSize.Zero
+        var addModifier by mutableStateOf(false)
+
+        val node = object : LayoutAwareModifierNode, Modifier.Node() {
+            override fun onRemeasured(size: IntSize) {
+                changedSize1 = size
+                sizeLatch1.countDown()
+            }
+            override fun onPlaced(coordinates: LayoutCoordinates) {
+                placedLatch1.countDown()
+            }
+        }
+
+        val node2 = object : LayoutAwareModifierNode, Modifier.Node() {
+            override fun onRemeasured(size: IntSize) {
+                changedSize2 = size
+                sizeLatch2.countDown()
+            }
+            override fun onPlaced(coordinates: LayoutCoordinates) {
+                placedLatch2.countDown()
+            }
+        }
+
+        rule.runOnUiThread {
+            activity.setContent {
+                with(LocalDensity.current) {
+                    val mod = if (addModifier) Modifier.elementFor(node2) else Modifier
+                    Box(
+                        Modifier.padding(10.toDp()).elementFor(node).then(mod)
+                    ) {
+                        Box(Modifier.requiredSize(10.toDp()))
+                    }
+                }
+            }
+        }
+
+        // Initial setting will call onRemeasured and onPlaced
+        assertTrue(sizeLatch1.await(1, TimeUnit.SECONDS))
+        assertTrue(placedLatch1.await(1, TimeUnit.SECONDS))
+        assertEquals(10, changedSize1.height)
+        assertEquals(10, changedSize1.width)
+
+        addModifier = true
+
+        // We've added a node, so it must trigger onRemeasured and onPlaced on the new node
+        assertTrue(sizeLatch2.await(1, TimeUnit.SECONDS))
+        assertTrue(placedLatch2.await(1, TimeUnit.SECONDS))
+        assertEquals(10, changedSize2.height)
+        assertEquals(10, changedSize2.width)
+    }
+
+    @Test
+    @SmallTest
+    fun lazilyDelegatedModifierNode() {
+        val sizeLatch1 = CountDownLatch(1)
+        val sizeLatch2 = CountDownLatch(1)
+        val placedLatch1 = CountDownLatch(1)
+        val placedLatch2 = CountDownLatch(1)
+        var changedSize1 = IntSize.Zero
+        var changedSize2 = IntSize.Zero
+
+        val node = object : LayoutAwareModifierNode, Modifier.Node() {
+            override fun onRemeasured(size: IntSize) {
+                changedSize1 = size
+                sizeLatch1.countDown()
+            }
+
+            override fun onPlaced(coordinates: LayoutCoordinates) {
+                placedLatch1.countDown()
+            }
+        }
+
+        val node2 = object : DelegatingNode() {
+            fun addDelegate() {
+                delegate(
+                    object : LayoutAwareModifierNode, Modifier.Node() {
+                        override fun onRemeasured(size: IntSize) {
+                            changedSize2 = size
+                            sizeLatch2.countDown()
+                        }
+
+                        override fun onPlaced(coordinates: LayoutCoordinates) {
+                            placedLatch2.countDown()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.runOnUiThread {
+            activity.setContent {
+                with(LocalDensity.current) {
+                    val mod = Modifier.elementFor(node2)
+                    Box(
+                        Modifier.padding(10.toDp()).elementFor(node).then(mod)
+                    ) {
+                        Box(Modifier.requiredSize(10.toDp()))
+                    }
+                }
+            }
+        }
+
+        // Initial setting will call onRemeasured and onPlaced
+        assertTrue(sizeLatch1.await(1, TimeUnit.SECONDS))
+        assertTrue(placedLatch1.await(1, TimeUnit.SECONDS))
+        assertEquals(10, changedSize1.height)
+        assertEquals(10, changedSize1.width)
+
+        rule.runOnUiThread {
+            node2.addDelegate()
+        }
+
+        // We've delegated to a node, so it must trigger onRemeasured and onPlaced on the new node
+        assertTrue(sizeLatch2.await(1, TimeUnit.SECONDS))
+        assertTrue(placedLatch2.await(1, TimeUnit.SECONDS))
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
     }

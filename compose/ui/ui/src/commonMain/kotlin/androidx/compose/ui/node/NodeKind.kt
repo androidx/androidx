@@ -268,6 +268,9 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
             coordinator.onRelease()
         }
     }
+    if (Nodes.LayoutAware in selfKindSet && node is LayoutAwareModifierNode) {
+        node.requireLayoutNode().invalidateMeasurements()
+    }
     if (Nodes.GlobalPositionAware in selfKindSet && node is GlobalPositionAwareModifierNode) {
         node.requireLayoutNode().invalidateOnPositioned()
     }
