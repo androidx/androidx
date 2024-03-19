@@ -44,6 +44,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SkikoComposeUiTest
+import androidx.compose.ui.test.defaultTestDispatcher
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runInternalSkikoComposeUiTest
 import androidx.compose.ui.toDpSize
@@ -238,11 +239,13 @@ private fun runDesktopA11yTest(block: ComposeA11yTestScope.() -> Unit) {
         semanticsOwnerListener.accessibilityControllers
     }
 
+    val testDispatcher = defaultTestDispatcher()
     runInternalSkikoComposeUiTest(
-        semanticsOwnerListener = semanticsOwnerListener
+        semanticsOwnerListener = semanticsOwnerListener,
+        coroutineDispatcher = testDispatcher
     ) {
         semanticsOwnerListener.accessibilityControllers.forEach {
-            it.launchSyncLoop(coroutineDispatcher)
+            it.launchSyncLoop(testDispatcher)
         }
 
         val scope = ComposeA11yTestScope(

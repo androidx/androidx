@@ -45,6 +45,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -75,13 +76,14 @@ fun runSkikoComposeUiTest(
 }
 
 @InternalTestApi
-@OptIn(InternalComposeUiApi::class, ExperimentalTestApi::class)
+@OptIn(InternalComposeUiApi::class, ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 fun runInternalSkikoComposeUiTest(
     width: Int = 1024,
     height: Int = 768,
     density: Density = Density(1f),
     effectContext: CoroutineContext = EmptyCoroutineContext,
     semanticsOwnerListener: PlatformContext.SemanticsOwnerListener? = null,
+    coroutineDispatcher: TestDispatcher = defaultTestDispatcher(),
     block: SkikoComposeUiTest.() -> Unit
 ) {
     SkikoComposeUiTest(
@@ -90,6 +92,7 @@ fun runInternalSkikoComposeUiTest(
         effectContext = effectContext,
         density = density,
         semanticsOwnerListener = semanticsOwnerListener,
+        coroutineDispatcher = coroutineDispatcher,
     ).runTest(block)
 }
 
@@ -100,18 +103,26 @@ fun runInternalSkikoComposeUiTest(
 private const val IDLING_RESOURCES_CHECK_INTERVAL_MS = 20L
 
 /**
+ * Returns the default [TestDispatcher] to use in tests.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+@InternalTestApi
+fun defaultTestDispatcher() = UnconfinedTestDispatcher()
+
+/**
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
  * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
 @ExperimentalTestApi
-@OptIn(ExperimentalCoroutinesApi::class, InternalTestApi::class, InternalComposeUiApi::class)
+@OptIn(InternalTestApi::class, InternalComposeUiApi::class)
 class SkikoComposeUiTest @InternalTestApi constructor(
     width: Int = 1024,
     height: Int = 768,
     // TODO(https://github.com/JetBrains/compose-multiplatform/issues/2960) Support effectContext
     effectContext: CoroutineContext = EmptyCoroutineContext,
     override val density: Density = Density(1f),
-    private val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener?
+    private val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener?,
+    coroutineDispatcher: TestDispatcher = defaultTestDispatcher(),
 ) : ComposeUiTest {
     init {
         require(effectContext == EmptyCoroutineContext) {
@@ -130,7 +141,7 @@ class SkikoComposeUiTest @InternalTestApi constructor(
         height = height,
         effectContext = effectContext,
         density = density,
-        semanticsOwnerListener = null
+        semanticsOwnerListener = null,
     )
 
     private class Session(
@@ -141,8 +152,6 @@ class SkikoComposeUiTest @InternalTestApi constructor(
 
     private val composeRootRegistry = ComposeRootRegistry()
 
-    @InternalTestApi
-    val coroutineDispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(coroutineDispatcher)
     override val mainClock: MainTestClock = MainTestClockImpl(
         testScheduler = coroutineDispatcher.scheduler,
