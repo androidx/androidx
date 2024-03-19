@@ -21,6 +21,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.HandwritingGesture
+import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
@@ -76,6 +78,10 @@ class StatelessInputConnectionTest {
         override fun onCommitContent(transferableContent: TransferableContent): Boolean {
             return this@StatelessInputConnectionTest.onCommitContent?.invoke(transferableContent)
                 ?: false
+        }
+
+        override fun performHandwritingGesture(gesture: HandwritingGesture): Int {
+            return InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
         }
     }
 

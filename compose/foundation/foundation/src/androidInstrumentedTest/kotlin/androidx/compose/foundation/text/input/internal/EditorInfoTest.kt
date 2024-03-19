@@ -17,7 +17,9 @@
 package androidx.compose.foundation.text.input.internal
 
 import android.text.InputType
+import android.view.inputmethod.DeleteGesture
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.SelectGesture
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -589,6 +591,16 @@ class EditorInfoTest {
         info.update(ImeOptions.Default)
 
         assertThat(info.hintLocales).isNull()
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun supportedStylusHandwritingGestures() {
+        val info = EditorInfo()
+        info.update(ImeOptions.Default)
+
+        assertThat(info.supportedHandwritingGestures).contains(SelectGesture::class.java)
+        assertThat(info.supportedHandwritingGestures).contains(DeleteGesture::class.java)
     }
 
     private fun EditorInfo.update(
