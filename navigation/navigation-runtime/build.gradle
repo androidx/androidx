@@ -31,6 +31,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("JetbrainsAndroidXPlugin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 JetbrainsAndroidXPlugin.applyAndConfigure(project)
@@ -93,6 +94,7 @@ kotlin {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.activity:activity-ktx:1.7.1")
+                implementation(libs.kotlinSerializationCore)
             }
         }
 
