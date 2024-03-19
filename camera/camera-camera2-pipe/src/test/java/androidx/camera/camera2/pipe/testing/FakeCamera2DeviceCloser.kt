@@ -17,16 +17,21 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CameraDevice
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.compat.AndroidCameraState
+import androidx.camera.camera2.pipe.compat.AudioRestrictionController
 import androidx.camera.camera2.pipe.compat.Camera2DeviceCloser
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class FakeCamera2DeviceCloser : Camera2DeviceCloser {
     override fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper?,
         cameraDevice: CameraDevice?,
         closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
+        audioRestriction: AudioRestrictionController?
     ) {
         cameraDeviceWrapper?.onDeviceClosed()
     }
