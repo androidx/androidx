@@ -64,10 +64,10 @@ internal val LocalResourceIdCache = staticCompositionLocalOf<ResourceIdCache> {
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
  */
-// @Deprecated(
-//    "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
-//    ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
-// )
+ @Deprecated(
+    "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
+    ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
+ )
 val LocalLifecycleOwner get() = LocalLifecycleOwner
 
 /**

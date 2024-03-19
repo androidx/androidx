@@ -132,6 +132,7 @@ public fun PredictiveBackHandler(
             "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
         }.onBackPressedDispatcher
 
+    @Suppress("deprecation", "KotlinRedundantDiagnosticSuppress") // TODO b/330570365
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner, backDispatcher) {
