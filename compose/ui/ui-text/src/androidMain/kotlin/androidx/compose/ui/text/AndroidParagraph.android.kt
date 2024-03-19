@@ -402,7 +402,8 @@ internal class AndroidParagraph(
         )
     }
 
-    private val wordIterator: WordIterator = layout.wordIterator
+    private val wordIterator: WordIterator
+        get() = layout.wordIterator
 
     override fun getWordBoundary(offset: Int): TextRange {
         val wordIterator = layout.wordIterator
