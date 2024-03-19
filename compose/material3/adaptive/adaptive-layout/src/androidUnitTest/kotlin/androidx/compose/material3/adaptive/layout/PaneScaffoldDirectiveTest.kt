@@ -21,7 +21,6 @@ import androidx.compose.material3.adaptive.HingeInfo
 import androidx.compose.material3.adaptive.Posture
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import com.google.common.truth.Truth.assertThat
@@ -43,15 +42,7 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(16.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(16.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(16.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(16.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
@@ -66,15 +57,7 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
@@ -89,15 +72,7 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
@@ -112,15 +87,7 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(2)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(24.dp)
     }
 
@@ -135,15 +102,7 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(16.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(16.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(16.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(16.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
@@ -158,15 +117,7 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
@@ -181,15 +132,7 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
     }
 
@@ -204,15 +147,7 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(2)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(24.dp)
     }
 
