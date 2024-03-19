@@ -25,13 +25,13 @@ import androidx.compose.ui.platform.ClipMetadata
  *
  * Note; Consult platform-specific guidelines for best practices in content transfer operations.
  *
- * @param clipEntry The main content data, typically representing a text, image, file, or other
+ * @property clipEntry The main content data, typically representing a text, image, file, or other
  * transferable item.
- * @param source The source from which the content originated like Keyboard, DragAndDrop, or
+ * @property source The source from which the content originated like Keyboard, DragAndDrop, or
  * Clipboard.
- * @param clipMetadata Metadata associated with the content, providing additional information or
+ * @property clipMetadata Metadata associated with the content, providing additional information or
  * context.
- * @param platformTransferableContent Optional platform-specific representation of the content, or
+ * @property platformTransferableContent Optional platform-specific representation of the content, or
  * additional platform-specific information, that can be used to access platform level APIs.
  */
 @ExperimentalFoundationApi
@@ -51,10 +51,21 @@ class TransferableContent internal constructor(
 
         companion object {
 
+            /**
+             * Indicates that the [TransferableContent] originates from the soft keyboard (also
+             * known as input method editor or IME)
+             */
             val Keyboard = Source(0)
 
+            /**
+             * Indicates that the [TransferableContent] was passed on by the system drag and drop.
+             */
             val DragAndDrop = Source(1)
 
+            /**
+             * Indicates that the [TransferableContent] comes from the clipboard via paste.
+             * (e.g. "Paste" action in the floating action menu or "Ctrl+V" key combination)
+             */
             val Clipboard = Source(2)
         }
 

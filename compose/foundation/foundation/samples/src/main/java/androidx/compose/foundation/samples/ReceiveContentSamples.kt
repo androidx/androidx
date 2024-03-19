@@ -24,9 +24,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.TransferableContent
-import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.consume
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.hasMediaType
-import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.BasicTextField
@@ -55,12 +55,12 @@ fun ReceiveContentBasicSample() {
         }
         BasicTextField(
             state = state,
-            modifier = Modifier.receiveContent(setOf(MediaType.Image)) { transferableContent ->
+            modifier = Modifier.contentReceiver(setOf(MediaType.Image)) { transferableContent ->
                 if (!transferableContent.hasMediaType(MediaType.Image)) {
-                    return@receiveContent transferableContent
+                    return@contentReceiver transferableContent
                 }
                 val newImages = mutableListOf<ImageBitmap>()
-                transferableContent.consumeEach { item ->
+                transferableContent.consume { item ->
                     // only consume this item if we can read an imageBitmap
                     item.readImageBitmap()?.let { newImages += it; true } ?: false
                 }.also {
@@ -95,7 +95,7 @@ fun ReceiveContentFullSample() {
                         else -> MaterialTheme.colors.background
                     }
                 )
-                .receiveContent(
+                .contentReceiver(
                     hintMediaTypes = setOf(MediaType.Image),
                     receiveContentListener = object : ReceiveContentListener {
                         override fun onDragStart() {
@@ -123,7 +123,7 @@ fun ReceiveContentFullSample() {
                             }
                             val newImages = mutableListOf<ImageBitmap>()
                             return transferableContent
-                                .consumeEach { item ->
+                                .consume { item ->
                                     // only consume this item if we can read an imageBitmap
                                     item
                                         .readImageBitmap()

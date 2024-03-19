@@ -26,9 +26,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.assertClipData
-import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.consume
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.createClipData
-import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicTextField
@@ -124,7 +124,7 @@ class TextFieldReceiveContentTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
-                    .receiveContent(setOf(MediaType.Image)) { null }
+                    .contentReceiver(setOf(MediaType.Image)) { null }
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -141,7 +141,7 @@ class TextFieldReceiveContentTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
-                    .receiveContent(
+                    .contentReceiver(
                         setOf(
                             MediaType.Image,
                             MediaType.PlainText,
@@ -167,12 +167,12 @@ class TextFieldReceiveContentTest {
     @Test
     fun multiReceiveContent_mergesMediaTypes() {
         inputMethodInterceptor.setContent {
-            Box(modifier = Modifier.receiveContent(setOf(MediaType.Text)) { null }) {
+            Box(modifier = Modifier.contentReceiver(setOf(MediaType.Text)) { null }) {
                 BasicTextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
-                        .receiveContent(setOf(MediaType.Image)) { null }
+                        .contentReceiver(setOf(MediaType.Image)) { null }
                 )
             }
         }
@@ -191,14 +191,14 @@ class TextFieldReceiveContentTest {
     @Test
     fun multiReceiveContent_mergesMediaTypes_uniquely() {
         inputMethodInterceptor.setContent {
-            Box(modifier = Modifier.receiveContent(
+            Box(modifier = Modifier.contentReceiver(
                 setOf(MediaType.Text, MediaType.Image)
             ) { null }) {
                 BasicTextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
-                        .receiveContent(setOf(MediaType.Image)) { null }
+                        .contentReceiver(setOf(MediaType.Image)) { null }
                 )
             }
         }
@@ -218,7 +218,7 @@ class TextFieldReceiveContentTest {
     fun multiReceiveContent_mergesMediaTypes_includingAnotherTraversableNode() {
         inputMethodInterceptor.setContent {
             Box(modifier = Modifier
-                .receiveContent(setOf(MediaType.Text)) { null }
+                .contentReceiver(setOf(MediaType.Text)) { null }
                 .dragAndDropTarget({ true }, object : DragAndDropTarget {
                     override fun onDrop(event: DragAndDropEvent): Boolean {
                         return false
@@ -229,7 +229,7 @@ class TextFieldReceiveContentTest {
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
-                        .receiveContent(setOf(MediaType.Image)) { null }
+                        .contentReceiver(setOf(MediaType.Image)) { null }
                 )
             }
         }
@@ -253,7 +253,7 @@ class TextFieldReceiveContentTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
-                    .receiveContent(setOf(MediaType.All)) {
+                    .contentReceiver(setOf(MediaType.All)) {
                         transferableContent = it
                         null
                     }
@@ -299,7 +299,7 @@ class TextFieldReceiveContentTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
-                    .receiveContent(setOf(MediaType.All)) {
+                    .contentReceiver(setOf(MediaType.All)) {
                         transferableContent = it
                         null
                     }
@@ -338,11 +338,11 @@ class TextFieldReceiveContentTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
-                    .receiveContent(setOf(MediaType.All)) {
+                    .contentReceiver(setOf(MediaType.All)) {
                         parentTransferableContent = it
                         null
                     }
-                    .receiveContent(setOf(MediaType.All)) {
+                    .contentReceiver(setOf(MediaType.All)) {
                         childTransferableContent = it
                         it
                     }
@@ -383,11 +383,11 @@ class TextFieldReceiveContentTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier
                     .testTag(tag)
-                    .receiveContent(setOf(MediaType.All)) {
+                    .contentReceiver(setOf(MediaType.All)) {
                         parentTransferableContent = it
                         null
                     }
-                    .receiveContent(setOf(MediaType.All)) {
+                    .contentReceiver(setOf(MediaType.All)) {
                         childTransferableContent = it
                         null
                     }
@@ -422,7 +422,7 @@ class TextFieldReceiveContentTest {
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
-                        .receiveContent(setOf(MediaType.Image)) {
+                        .contentReceiver(setOf(MediaType.Image)) {
                             transferableContent = it
                             null
                         }
@@ -455,8 +455,8 @@ class TextFieldReceiveContentTest {
                     state = state,
                     modifier = Modifier
                         .testTag(tag)
-                        .receiveContent(setOf(MediaType.Image, MediaType.Text)) {
-                            it.consumeEach { item ->
+                        .contentReceiver(setOf(MediaType.Image, MediaType.Text)) {
+                            it.consume { item ->
                                 // only consume if there's no text
                                 item.text == null
                             }
@@ -494,21 +494,21 @@ class TextFieldReceiveContentTest {
                     state = state,
                     modifier = Modifier
                         .testTag(tag)
-                        .receiveContent(setOf(MediaType.Text)) {
+                        .contentReceiver(setOf(MediaType.Text)) {
                             transferableContent1 = it
-                            it.consumeEach {
+                            it.consume {
                                 it.text.contains("a")
                             }
                         }
-                        .receiveContent(setOf(MediaType.Text)) {
+                        .contentReceiver(setOf(MediaType.Text)) {
                             transferableContent2 = it
-                            it.consumeEach {
+                            it.consume {
                                 it.text.contains("b")
                             }
                         }
-                        .receiveContent(setOf(MediaType.Text)) {
+                        .contentReceiver(setOf(MediaType.Text)) {
                             transferableContent3 = it
-                            it.consumeEach {
+                            it.consume {
                                 it.text.contains("c")
                             }
                         }
@@ -548,7 +548,7 @@ class TextFieldReceiveContentTest {
                     state = rememberTextFieldState(),
                     modifier = Modifier
                         .testTag(tag)
-                        .receiveContent(setOf(MediaType.Image)) {
+                        .contentReceiver(setOf(MediaType.Image)) {
                             transferableContent = it
                             null
                         }
