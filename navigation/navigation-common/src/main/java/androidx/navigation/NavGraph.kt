@@ -184,6 +184,31 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         return if (!route.isNullOrBlank()) findNode(route, true) else null
     }
 
+    /**
+     * Finds a destination in the collection by route from [KClass]. This will recursively check the
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param route Route to locate
+     * @return the node with route - the node must have been created with a route from [KClass]
+     */
+    @OptIn(InternalSerializationApi::class)
+    internal fun <T : Any> findNode(route: KClass<T>?): NavDestination? {
+        return if (route != null) findNode(route.serializer().hashCode()) else null
+    }
+
+    /**
+     * Finds a destination in the collection by route from Object. This will recursively check the
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param route Route to locate
+     * @return the node with route - the node must have been created with a route from [KClass]
+     */
+    @OptIn(InternalSerializationApi::class)
+    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+    internal fun <T> findNode(route: T?): NavDestination? {
+        return if (route != null) findNode(route!!::class.serializer().hashCode()) else null
+    }
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(@IdRes resId: Int, searchParents: Boolean): NavDestination? {
         val destination = nodes[resId]
@@ -492,11 +517,38 @@ public inline operator fun NavGraph.get(route: String): NavDestination =
     findNode(route)
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
+/**
+ * Returns the destination with `route` from [KClass].
+ *
+ * @throws IllegalArgumentException if no destination is found with that route.
+ */
+@Suppress("NOTHING_TO_INLINE")
+internal inline operator fun <T : Any> NavGraph.get(route: KClass<T>): NavDestination =
+    findNode(route)
+        ?: throw IllegalArgumentException("No destination for $route was found in $this")
+
+/**
+ * Returns the destination with `route` from an Object.
+ *
+ * @throws IllegalArgumentException if no destination is found with that route.
+ */
+@Suppress("NOTHING_TO_INLINE")
+internal inline operator fun <T> NavGraph.get(route: T): NavDestination =
+    findNode(route)
+        ?: throw IllegalArgumentException("No destination for $route was found in $this")
+
 /** Returns `true` if a destination with `id` is found in this navigation graph. */
 public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 public operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
+
+/** Returns `true` if a destination with `route` is found in this navigation graph. */
+internal operator fun <T : Any> NavGraph.contains(route: KClass<T>): Boolean =
+    findNode(route) != null
+
+/** Returns `true` if a destination with `route` is found in this navigation graph. */
+internal operator fun <T> NavGraph.contains(route: T): Boolean = findNode(route) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have an

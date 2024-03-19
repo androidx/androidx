@@ -195,6 +195,80 @@ class NavGraphTest {
             graph.setStartDestination(TestClass())
         }
     }
+
+    @Test
+    fun findNodeKClass() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val graph = NavGraph(navGraphNavigator).apply {
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+        }
+
+        val dest = graph.findNode(TestClass::class)
+        assertThat(dest).isNotNull()
+    }
+
+    @Test
+    fun getNodeKClass() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val graph = NavGraph(navGraphNavigator).apply {
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+        }
+
+        assertThat(graph[TestClass::class]).isNotNull()
+    }
+
+    @Test
+    fun containNodeKClass() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val graph = NavGraph(navGraphNavigator).apply {
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+        }
+
+        assertThat(graph.contains(TestClass::class)).isTrue()
+    }
+
+    @Test
+    fun findNodeObject() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val graph = NavGraph(navGraphNavigator).apply {
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+        }
+
+        val dest = graph.findNode(TestClass(15))
+        assertThat(dest).isNotNull()
+    }
+
+    @Test
+    fun getNodeObject() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val graph = NavGraph(navGraphNavigator).apply {
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+        }
+
+        assertThat(graph[TestClass(15)]).isNotNull()
+    }
+
+    @Test
+    fun containNodeObject() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val graph = NavGraph(navGraphNavigator).apply {
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+        }
+
+        assertThat(graph.contains(TestClass(15))).isTrue()
+    }
 }
 
 private const val DESTINATION_ID = 1
