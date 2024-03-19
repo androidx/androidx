@@ -22,21 +22,10 @@ import androidx.collection.mutableFloatListOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.roundToInt
-
-/**
- * Contains default values used across Strategies
- */
-internal object StrategyDefaults {
-    val MinSmallSize = 40.dp
-    val MaxSmallSize = 56.dp
-    val AnchorSize = 10.dp
-    const val MediumLargeItemDiffThreshold = 0.85f
-}
 
 /**
  * A class responsible for supplying carousel with a [KeylineList] that is corrected for scroll

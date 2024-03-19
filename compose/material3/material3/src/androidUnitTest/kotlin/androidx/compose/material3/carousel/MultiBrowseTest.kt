@@ -16,12 +16,14 @@
 
 package androidx.compose.material3.carousel
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RunWith(JUnit4::class)
 class MultiBrowseTest {
 
@@ -56,7 +58,7 @@ class MultiBrowseTest {
             availableSpace = 100f,
             itemSpacing = 0f
         )
-        val minSmallItemSize: Float = with(Density) { StrategyDefaults.MinSmallSize.toPx() }
+        val minSmallItemSize: Float = with(Density) { CarouselDefaults.MinSmallItemSize.toPx() }
         val keylines = strategy.defaultKeylines
 
         // If the item size given is larger than the container, the adjusted keyline list from
@@ -71,7 +73,7 @@ class MultiBrowseTest {
 
     @Test
     fun testMultiBrowse_hasNoSmallItemsIfNotEnoughRoom() {
-        val minSmallItemSize: Float = with(Density) { StrategyDefaults.MinSmallSize.toPx() }
+        val minSmallItemSize: Float = with(Density) { CarouselDefaults.MinSmallItemSize.toPx() }
         val keylineList = multiBrowseKeylineList(
             density = Density,
             carouselMainAxisSize = minSmallItemSize,
@@ -104,7 +106,7 @@ class MultiBrowseTest {
 
     @Test
     fun testMultiBrowse_adjustsMediumSizeToBeProportional() {
-        val maxSmallItemSize: Float = with(Density) { StrategyDefaults.MaxSmallSize.toPx() }
+        val maxSmallItemSize: Float = with(Density) { CarouselDefaults.MaxSmallItemSize.toPx() }
         val preferredItemSize = 200f
         val carouselSize = preferredItemSize * 2 + maxSmallItemSize * 2
         val keylineList = multiBrowseKeylineList(
@@ -132,7 +134,7 @@ class MultiBrowseTest {
 
     @Test
     fun testMultiBrowse_withLessItemsThanKeylines() {
-        val maxSmallItemSize: Float = with(Density) { StrategyDefaults.MaxSmallSize.toPx() }
+        val maxSmallItemSize: Float = with(Density) { CarouselDefaults.MaxSmallItemSize.toPx() }
         val preferredItemSize = 200f
         val carouselSize = preferredItemSize * 2 + maxSmallItemSize * 2
         val keylineList = multiBrowseKeylineList(
