@@ -151,7 +151,11 @@ internal fun startRuntimeMethodTracing(
     ) {
         startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)
     } else {
-        Debug.startMethodTracing(path, bufferSize, 0)
+        // NOTE: 0x10 flag enables low-overhead wall clock timing when ART module version supports
+        // it. Note that this doesn't affect trace parsing, since this doesn't affect wall clock,
+        // it only removes the expensive thread time clock which our parser doesn't use.
+        // TODO: switch to platform-defined constant once available (b/329499422)
+        Debug.startMethodTracing(path, bufferSize, 0x10)
     }
 
     return Profiler.ResultFile(
