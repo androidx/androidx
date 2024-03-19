@@ -27,14 +27,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class ActivityStartMacroBenchmark {
+class ActivityStartBenchmark {
 
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
     fun startup() = benchmarkRule.measureStartup(
-        compilationMode = CompilationMode.Full(),
+        compilationMode = CompilationMode.DEFAULT,
         startupMode = StartupMode.COLD,
         packageName = "androidx.activity.integration.macrobenchmark.target",
         metrics = listOf(StartupTimingMetric()),
