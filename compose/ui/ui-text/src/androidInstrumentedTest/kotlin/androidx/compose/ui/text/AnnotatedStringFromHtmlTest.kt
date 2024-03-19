@@ -56,6 +56,7 @@ class AnnotatedStringFromHtmlTest {
                 }
 
                 add { pushLink(LinkAnnotation.Url("https://example.com")) }
+                add { pushStringAnnotation("foo", "Bar") }
                 addStyle(SpanStyle(fontWeight = FontWeight.Bold))
                 addStyle(SpanStyle(fontSize = 1.25.em))
                 append("\na\n") // <div>
@@ -99,6 +100,92 @@ class AnnotatedStringFromHtmlTest {
             assertThat(actual.spanStyles).containsExactly(
                 AnnotatedString.Range(SpanStyle(fontWeight = FontWeight.Bold), 7, 15)
             )
+        }
+    }
+
+    @Test
+    fun annotationTag_withNoText_noStringAnnotation() {
+        expectExactly(
+            "a<annotation key1=value1></annotation>",
+            "a"
+        )
+    }
+
+    @Test
+    fun annotationTag_withNoAttributes_noStringAnnotation() {
+        expectExactly(
+            "<annotation>a</annotation>",
+            "a"
+        )
+    }
+
+    @Test
+    fun annotationTag_withOneAttribute_oneStringAnnotation() {
+        expectExactly(
+            "<annotation key1=value1>a</annotation>",
+            "a",
+            AnnotatedString.Range("value1", 0, 1, "key1")
+        )
+    }
+
+    @Test
+    fun annotationTag_withMultipleAttributes_multipleStringAnnotations() {
+        expectExactly(
+            "<annotation key1=\"value1\" key2=value2 keyThree=\"valueThree\">a</annotation>",
+            "a",
+            AnnotatedString.Range("value1", 0, 1, "key1"),
+            AnnotatedString.Range("value2", 0, 1, "key2"),
+            AnnotatedString.Range("valueThree", 0, 1, "keythree")
+        )
+    }
+
+    @Test
+    fun annotationTag_withMultipleAnnotations_multipleStringAnnotations() {
+        expectExactly(
+            "<annotation key1=\"value1\">a</annotation>a<annotation key2=\"value2\">a</annotation>",
+            "aaa",
+            AnnotatedString.Range("value1", 0, 1, "key1"),
+            AnnotatedString.Range("value2", 2, 3, "key2")
+        )
+    }
+
+    @Test
+    fun annotationTag_withOtherTag() {
+        expectExactly(
+            "<annotation key1=\"value1\">a</annotation><b>a</b>",
+            "aa",
+            AnnotatedString.Range(SpanStyle(fontWeight = FontWeight.Bold), 1, 2),
+            AnnotatedString.Range("value1", 0, 1, "key1"),
+        )
+    }
+
+    @Test
+    fun annotationTag_wrappedByOtherTag() {
+        expectExactly(
+            "<b><annotation key1=\"value1\">a</annotation></b>",
+            "a",
+            AnnotatedString.Range(SpanStyle(fontWeight = FontWeight.Bold), 0, 1),
+            AnnotatedString.Range("value1", 0, 1, "key1")
+        )
+    }
+
+    private fun expectExactly(
+        actualTaggedString: String,
+        expectedString: String,
+        vararg expectedStringAnnotations: AnnotatedString.Range<Any>
+    ) {
+        rule.setContent {
+            val actual = actualTaggedString.parseAsHtml()
+            assertThat(actual.text).isEqualTo(expectedString)
+            assertThat(actual.spanStyles).containsExactlyElementsIn(
+                expectedStringAnnotations.filter {
+                    it.item is SpanStyle
+                }
+            )
+            assertThat(actual.getStringAnnotations(0, actual.length))
+                .containsExactlyElementsIn(expectedStringAnnotations.filter {
+                    it.item is String
+                })
         }
     }
 }
