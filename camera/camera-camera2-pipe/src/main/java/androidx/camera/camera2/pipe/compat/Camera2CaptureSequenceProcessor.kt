@@ -310,6 +310,9 @@ internal class Camera2CaptureSequenceProcessor(
     }
 
     override fun close() = synchronized(lock) {
+        if (closed) {
+            return@synchronized
+        }
         // Close should not shut down
         Debug.trace("$this#close") {
             if (shouldWaitForRepeatingRequest) {
@@ -329,6 +332,7 @@ internal class Camera2CaptureSequenceProcessor(
             }
             closed = true
         }
+        imageWriter?.close()
     }
 
     override fun toString(): String {
