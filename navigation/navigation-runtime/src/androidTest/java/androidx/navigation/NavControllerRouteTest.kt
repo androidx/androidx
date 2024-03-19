@@ -53,6 +53,9 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers
@@ -231,6 +234,125 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = nav_start_destination_route_graph
         assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationKClass() {
+        @Serializable
+        @SerialName("test")
+        class TestClass
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = TestClass::class) {
+            test(route = TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("test")
+        assertThat(navController.currentDestination?.id).isEqualTo(
+            serializer<TestClass>().hashCode()
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationKClassWithArgs() {
+        @Serializable
+        @SerialName("test")
+        class TestClass(val arg: Int)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = TestClass::class) {
+            test(route = TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
+        assertThat(navController.currentDestination?.id).isEqualTo(
+            serializer<TestClass>().hashCode()
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationObject() {
+        @Serializable
+        @SerialName("test")
+        class TestClass
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = TestClass()) {
+            test(route = TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("test")
+        assertThat(navController.currentDestination?.id).isEqualTo(
+            serializer<TestClass>().hashCode()
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationObjectWithPathArg() {
+        @Serializable
+        @SerialName("test")
+        class TestClass(val arg: Int)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            startDestination = TestClass(0)
+        ) {
+            test(route = TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "test/{arg}"
+        )
+        assertThat(navController.currentDestination?.id).isEqualTo(
+            serializer<TestClass>().hashCode()
+        )
+        val arg = navController.currentBackStackEntry?.arguments?.getInt("arg")
+        assertThat(arg).isNotNull()
+        assertThat(arg).isEqualTo(0)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationObjectWithQueryArg() {
+        @Serializable
+        @SerialName("test")
+        class TestClass(val arg: Boolean = false)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            startDestination = TestClass(false)
+        ) {
+            test(route = TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "test?arg={arg}"
+        )
+        assertThat(navController.currentDestination?.id).isEqualTo(
+            serializer<TestClass>().hashCode()
+        )
+        val arg = navController.currentBackStackEntry?.arguments?.getBoolean("arg")
+        assertThat(arg).isNotNull()
+        assertThat(arg).isEqualTo(false)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationObjectNoMatch() {
+        @Serializable
+        @SerialName("test")
+        class TestClass(val arg: Boolean = false)
+
+        val navController = createNavController()
+
+        // Even though route string matches, startDestinations are matched based on id which
+        // is based on serializer. So this won't match. StartDestination must be added via KClass
+        assertFailsWith<IllegalStateException> {
+            navController.graph = navController.createGraph(
+                startDestination = TestClass(false)
+            ) {
+                test(route = "test?arg={arg}")
+            }
+        }
     }
 
     @UiThreadTest

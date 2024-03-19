@@ -60,7 +60,10 @@ public class NavArgument internal constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun putDefaultValue(name: String, bundle: Bundle) {
-        if (isDefaultValuePresent) {
+        // even if there is defaultValuePresent, the defaultValue itself could be null as in the
+        // case of safe args where we know there is default value present but we are not able to
+        // read the actual default (serializer limitations), so the defaultValue is set to null.
+        if (isDefaultValuePresent && defaultValue != null) {
             type.put(bundle, name, defaultValue)
         }
     }

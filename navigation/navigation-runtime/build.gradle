@@ -28,6 +28,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
@@ -37,6 +38,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     api("androidx.annotation:annotation-experimental:1.4.0")
     implementation('androidx.collection:collection:1.1.0')
+    implementation(libs.kotlinSerializationCore)
 
     api(libs.kotlinStdlib)
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
