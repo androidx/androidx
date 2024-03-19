@@ -66,7 +66,6 @@ import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_WORD_STYLE_PHRAS
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_CHARACTER
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_WORD
 import androidx.compose.ui.text.android.TextLayout
-import androidx.compose.ui.text.android.selection.WordIterator
 import androidx.compose.ui.text.android.selection.getWordEnd
 import androidx.compose.ui.text.android.selection.getWordStart
 import androidx.compose.ui.text.android.style.IndentationFixSpan
@@ -401,9 +400,6 @@ internal class AndroidParagraph(
             layout.getLineBottom(line)
         )
     }
-
-    private val wordIterator: WordIterator
-        get() = layout.wordIterator
 
     override fun getWordBoundary(offset: Int): TextRange {
         val wordIterator = layout.wordIterator
