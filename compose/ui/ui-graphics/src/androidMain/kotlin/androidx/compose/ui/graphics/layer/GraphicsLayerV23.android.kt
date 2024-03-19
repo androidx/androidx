@@ -193,7 +193,7 @@ internal class GraphicsLayerV23(
             renderNode.setTranslationX(value)
         }
 
-    override var translationY: Float = 1f
+    override var translationY: Float = 0f
         set(value) {
             field = value
             renderNode.setTranslationY(value)

@@ -62,6 +62,8 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.Layout
@@ -86,6 +88,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1795,6 +1798,84 @@ class GraphicsLayerTest {
         rule.runOnIdle {
             assertEquals(0, relayoutCount)
             assertEquals(0, modifierRelayoutCount)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun placingWithExplicitLayerDraws() {
+        rule.setContent {
+            val layer = rememberGraphicsLayer()
+            Canvas(
+                modifier = Modifier
+                    .testTag("tag")
+                    .layout { measurable, _ ->
+                        val placeable = measurable.measure(Constraints.fixed(10, 10))
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeWithLayer(0, 0, layer)
+                        }
+                    }
+            ) {
+                drawRect(Color.Blue)
+            }
+        }
+
+        rule.onNodeWithTag("tag")
+            .captureToImage()
+            .assertPixels(IntSize(10, 10)) { Color.Blue }
+    }
+
+    @Test
+    fun placingWithExplicitLayerSetsCorrectSizeAndOffset() {
+        lateinit var layer: GraphicsLayer
+        rule.setContent {
+            layer = rememberGraphicsLayer()
+            Canvas(
+                modifier = Modifier.layout { measurable, _ ->
+                    val placeable = measurable.measure(Constraints.fixed(20, 20))
+                    layout(placeable.width, placeable.height) {
+                        placeable.placeWithLayer(10, 10, layer)
+                    }
+                }
+            ) {
+                drawRect(Color.Blue)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(layer.size.width).isEqualTo(20)
+            assertThat(layer.size.height).isEqualTo(20)
+            assertThat(layer.topLeft.x).isEqualTo(10)
+            assertThat(layer.topLeft.y).isEqualTo(10)
+        }
+    }
+
+    @Test
+    fun layerIsNotReleasedWhenWeStopPlacingIt() {
+        lateinit var layer: GraphicsLayer
+        var needChild by mutableStateOf(true)
+        rule.setContent {
+            layer = rememberGraphicsLayer()
+            if (needChild) {
+                Canvas(
+                    modifier = Modifier.layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeWithLayer(1, 0, layer)
+                        }
+                    }
+                ) {
+                    drawRect(Color.Blue)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            needChild = false
+        }
+
+        rule.runOnIdle {
+            assertThat(layer.isReleased).isFalse()
         }
     }
 }
