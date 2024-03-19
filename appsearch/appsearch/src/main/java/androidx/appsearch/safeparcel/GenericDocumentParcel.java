@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.GenericDocument;
 import androidx.collection.ArrayMap;
 
@@ -495,6 +496,16 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
                 @NonNull GenericDocumentParcel[] values) {
             putInPropertyMap(name,
                     new PropertyParcel.Builder(name).setDocumentValues(values).build());
+            return this;
+        }
+
+        /** puts an array of {@link EmbeddingVector} in property map. */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder putInPropertyMap(@NonNull String name,
+                @NonNull EmbeddingVector[] values) {
+            putInPropertyMap(name,
+                    new PropertyParcel.Builder(name).setEmbeddingValues(values).build());
             return this;
         }
 
