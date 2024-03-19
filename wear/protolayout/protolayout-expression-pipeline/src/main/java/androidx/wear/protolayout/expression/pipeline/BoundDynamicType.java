@@ -64,4 +64,13 @@ public interface BoundDynamicType extends AutoCloseable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     int getDynamicNodeCount();
+
+    /**
+     * Returns the cost of dynamic nodes that this dynamic type contains. See {@link
+     * DynamicDataNode#getCost()} for more details on node cost.
+     */
+    @UiThread
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @VisibleForTesting
+    int getDynamicNodeCost();
 }

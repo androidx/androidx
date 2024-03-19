@@ -117,9 +117,9 @@ public class DynamicTypeEvaluator {
                 public boolean tryAcquireQuota(int quota) {
                     return true;
                 }
+
                 @Override
-                public void releaseQuota(int quota) {
-                }
+                public void releaseQuota(int quota) {}
             };
 
     @NonNull
@@ -389,7 +389,7 @@ public class DynamicTypeEvaluator {
     public BoundDynamicType bind(@NonNull DynamicTypeBindingRequest request)
             throws EvaluationException {
         BoundDynamicTypeImpl boundDynamicType = request.callBindOn(this);
-        if (!mDynamicTypesQuotaManager.tryAcquireQuota(boundDynamicType.getDynamicNodeCount())) {
+        if (!mDynamicTypesQuotaManager.tryAcquireQuota(boundDynamicType.getDynamicNodeCost())) {
             throw new EvaluationException(
                     "Dynamic type expression limit reached. Try making the dynamic type expression"
                             + " shorter or reduce the number of dynamic type expressions.");

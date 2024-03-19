@@ -84,6 +84,11 @@ class BoundDynamicTypeImpl implements BoundDynamicType {
     }
 
     @Override
+    public int getDynamicNodeCost() {
+        return mNodes.stream().mapToInt(DynamicDataNode::getCost).sum();
+    }
+
+    @Override
     public void close() {
         if (Looper.getMainLooper().isCurrentThread()) {
             closeInternal();
@@ -106,6 +111,6 @@ class BoundDynamicTypeImpl implements BoundDynamicType {
         mNodes.stream()
                 .filter(n -> n instanceof DynamicDataSourceNode)
                 .forEach(n -> ((DynamicDataSourceNode<?>) n).destroy());
-        mDynamicDataNodesQuotaManager.releaseQuota(getDynamicNodeCount());
+        mDynamicDataNodesQuotaManager.releaseQuota(getDynamicNodeCost());
     }
 }

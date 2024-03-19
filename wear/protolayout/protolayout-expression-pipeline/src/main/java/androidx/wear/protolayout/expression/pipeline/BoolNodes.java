@@ -54,6 +54,11 @@ class BoolNodes {
         @Override
         @UiThread
         public void destroy() {}
+
+        @Override
+        public int getCost() {
+            return FIXED_NODE_COST;
+        }
     }
 
     /** Dynamic boolean node that gets value from the state. */

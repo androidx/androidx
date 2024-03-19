@@ -76,6 +76,11 @@ class DynamicDataBiTransformNode<LhsT, RhsT, O> implements DynamicDataNode<O> {
         this.mTransformer = transformer;
     }
 
+    @Override
+    public int getCost() {
+        return DEFAULT_NODE_COST;
+    }
+
     private class UpstreamCallback<T> implements DynamicTypeValueReceiverWithPreUpdate<T> {
         private boolean mUpstreamPreUpdated = false;
 
