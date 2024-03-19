@@ -23,7 +23,7 @@ import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.ReceiveContentNode
 import androidx.compose.foundation.content.TransferableContent
-import androidx.compose.foundation.content.receiveContent
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalOf
 
@@ -122,8 +122,8 @@ internal class DynamicReceiveContentConfiguration(
         }
 
     /**
-     * A getter that returns the closest [receiveContent] modifier configuration if this node is
-     * attached. It returns null if the node is detached or there is no parent [receiveContent]
+     * A getter that returns the closest [contentReceiver] modifier configuration if this node is
+     * attached. It returns null if the node is detached or there is no parent [contentReceiver]
      * found.
      */
     private fun getParentReceiveContentListener(): ReceiveContentListener? {

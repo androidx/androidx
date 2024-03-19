@@ -24,9 +24,9 @@ import androidx.compose.foundation.content.DragAndDropScope
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.TransferableContent
-import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.consume
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.createClipData
-import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.content.testDragAndDrop
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -87,7 +87,7 @@ class TextFieldDragAndDropTest {
     @Test
     fun nonTextContent_isAcceptedIfReceiveContentDefined() {
         rule.setContentAndTestDragAndDrop(
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
                 null
             }
         ) {
@@ -120,7 +120,7 @@ class TextFieldDragAndDropTest {
     @Test
     fun draggingNonText_updatesSelection_withReceiveContent() {
         rule.setContentAndTestDragAndDrop(
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
                 null
             }
         ) {
@@ -225,7 +225,7 @@ class TextFieldDragAndDropTest {
                 Box(
                     modifier = Modifier
                         .size(200.dp)
-                        .receiveContent(emptySet(), object : ReceiveContentListener {
+                        .contentReceiver(emptySet(), object : ReceiveContentListener {
                             override fun onDragStart() {
                                 calls += "start"
                             }
@@ -298,7 +298,7 @@ class TextFieldDragAndDropTest {
                 Box(
                     modifier = Modifier
                         .size(200.dp)
-                        .receiveContent(emptySet(), object : ReceiveContentListener {
+                        .contentReceiver(emptySet(), object : ReceiveContentListener {
                             override fun onDragStart() {
                                 calls += "start"
                             }
@@ -364,9 +364,9 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
                 receivedContent = it
-                receivedContent.consumeEach {
+                receivedContent.consume {
                     // do not consume text
                     it.uri != null
                 }
@@ -390,7 +390,7 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
                 receivedContent = it
                 // consume everything
                 null
@@ -414,7 +414,7 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
                 receivedContent = it
                 val uri = receivedContent.clipEntry.firstUriOrNull()
                 // replace the content
@@ -436,7 +436,7 @@ class TextFieldDragAndDropTest {
     fun droppedItem_requestsPermission_ifReceiveContent() {
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.receiveContent(emptySet()) { null }
+            modifier = Modifier.contentReceiver(emptySet()) { null }
         ) {
             drag(Offset(fontSize.toPx() * 5, 10f), defaultUri)
             drop()
