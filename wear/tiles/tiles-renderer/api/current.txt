@@ -46,9 +46,23 @@ package androidx.wear.tiles.renderer {
     ctor @Deprecated public TileRenderer(android.content.Context, androidx.wear.tiles.LayoutElementBuilders.Layout, androidx.wear.tiles.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
     ctor @Deprecated public TileRenderer(android.content.Context, androidx.wear.tiles.LayoutElementBuilders.Layout, @StyleRes int, androidx.wear.tiles.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
     ctor public TileRenderer(android.content.Context, java.util.concurrent.Executor, java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!>);
+    ctor public TileRenderer(androidx.wear.tiles.renderer.TileRenderer.Config);
     method @Deprecated public android.view.View? inflate(android.view.ViewGroup);
     method public com.google.common.util.concurrent.ListenableFuture<android.view.View!> inflateAsync(androidx.wear.protolayout.LayoutElementBuilders.Layout, androidx.wear.protolayout.ResourceBuilders.Resources, android.view.ViewGroup);
     method public void setState(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!>);
+  }
+
+  public static final class TileRenderer.Config {
+    method public java.util.concurrent.Executor getLoadActionExecutor();
+    method public java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!> getLoadActionListener();
+    method public int getTilesTheme();
+    method public android.content.Context getUiContext();
+  }
+
+  public static final class TileRenderer.Config.Builder {
+    ctor public TileRenderer.Config.Builder(android.content.Context, java.util.concurrent.Executor, java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!>);
+    method public androidx.wear.tiles.renderer.TileRenderer.Config build();
+    method public androidx.wear.tiles.renderer.TileRenderer.Config.Builder setTilesTheme(@StyleRes int);
   }
 
   @Deprecated public static interface TileRenderer.LoadActionListener {
