@@ -47,8 +47,25 @@ import kotlin.jvm.JvmStatic
  * are continuous.
  *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object AmbiguousColumnResolver {
+
+    /**
+     * Maps query result column indices to result object columns.
+     *
+     * @param resultColumns The ordered result column names.
+     * @param mappings      An array containing the list of result object column names that must be
+     *                      mapped to indices of `resultColumns`.
+     * @return An array with the same dimensions as `mappings` whose values correspond to the
+     * index in `resultColumns` that match the object column at `mappings[i][j]`.
+     */
+    @JvmStatic
+    public fun resolve(
+        resultColumns: List<String>,
+        mappings: Array<Array<String>>
+    ): Array<IntArray> {
+        return resolve(resultColumns.toTypedArray(), mappings)
+    }
 
     /**
      * Maps query result column indices to result object columns.

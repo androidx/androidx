@@ -18,16 +18,23 @@ package androidx.sqlite {
 
   public interface SQLiteStatement {
     method public void bindBlob(int index, byte[] value);
+    method public default void bindBoolean(int index, boolean value);
     method public void bindDouble(int index, double value);
+    method public default void bindFloat(int index, float value);
+    method public default void bindInt(int index, int value);
     method public void bindLong(int index, long value);
     method public void bindNull(int index);
     method public void bindText(int index, String value);
     method public void clearBindings();
     method public void close();
     method public byte[] getBlob(int index);
+    method public default boolean getBoolean(int index);
     method public int getColumnCount();
     method public String getColumnName(int index);
+    method public default java.util.List<java.lang.String> getColumnNames();
     method public double getDouble(int index);
+    method public default float getFloat(int index);
+    method public default int getInt(int index);
     method public long getLong(int index);
     method public String getText(int index);
     method public boolean isNull(int index);
