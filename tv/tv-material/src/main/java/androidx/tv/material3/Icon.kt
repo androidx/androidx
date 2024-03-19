@@ -36,7 +36,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 
 /**
  * A Material Design icon component that draws [imageVector] using [tint], with a default value
@@ -169,5 +168,4 @@ private fun Modifier.defaultSizeFor(painter: Painter) =
 private fun Size.isInfinite() = width.isInfinite() && height.isInfinite()
 
 // Default icon size, for icons with no intrinsic size information
-// TODO(rvighnesh): change this to IconButtonTokens.IconSize when we introduce IconButton
-private val DefaultIconSizeModifier = Modifier.size(24.dp)
+private val DefaultIconSizeModifier = Modifier.size(IconButtonDefaults.MediumIconSize)
