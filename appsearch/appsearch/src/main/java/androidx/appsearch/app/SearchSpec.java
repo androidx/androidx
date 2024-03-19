@@ -827,6 +827,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
          *                      sequence of property names.
          */
+        @CanIgnoreReturnValue
         @NonNull
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",

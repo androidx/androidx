@@ -316,6 +316,7 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
          *
          * @see SchemaVisibilityConfig.Builder#setPubliclyVisibleTargetPackage
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setPubliclyVisibleTargetPackage(
                 @Nullable PackageIdentifier packageIdentifier) {
