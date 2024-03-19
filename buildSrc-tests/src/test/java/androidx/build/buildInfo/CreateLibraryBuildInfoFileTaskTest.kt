@@ -91,6 +91,7 @@ class CreateLibraryBuildInfoFileTaskTest {
         assertThat(buildInfo.dependencyConstraints.single().artifactId)
             .isEqualTo("core-ktx")
         assertThat(buildInfo.shouldPublishDocs).isFalse()
+        assertThat(buildInfo.isKmp).isFalse()
     }
 
     fun setupBuildInfoProject() {
@@ -135,6 +136,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                             null,
                             it.artifactId,
                             project.provider { "fakeSha" },
+                            false,
                             false
                         )
                     }
