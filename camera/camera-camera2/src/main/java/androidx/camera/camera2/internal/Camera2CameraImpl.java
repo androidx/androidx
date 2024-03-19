@@ -1067,7 +1067,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     removeMeteringRepeating();
                 } else {
                     // Other normal cases, do nothing.
-                    Logger.d(TAG, "mMeteringRepeating is ATTACHED, "
+                    Logger.d(TAG, "No need to remove a previous mMeteringRepeating, "
                             + "SessionConfig Surfaces: " + sizeSessionSurfaces + ", "
                             + "CaptureConfig Surfaces: " + sizeRepeatingSurfaces);
                 }
