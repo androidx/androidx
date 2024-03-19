@@ -16,15 +16,15 @@
 
 package androidx.benchmark.macro
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.Metric.Measurement
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.test.filters.SdkSuppress
 import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
+@SdkSuppress(minSdkVersion = 29)
 @OptIn(ExperimentalMetricApi::class)
 class PowerMetricTest {
     private val captureInfo = Metric.CaptureInfo(
@@ -34,7 +34,6 @@ class PowerMetricTest {
         StartupMode.COLD
     )
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun successfulFixedTraceEnergyBreakdown() {
         assumeTrue(isAbiSupported())
@@ -72,7 +71,6 @@ class PowerMetricTest {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun successfulFixedTracePowerTotal() {
         assumeTrue(isAbiSupported())
@@ -101,7 +99,6 @@ class PowerMetricTest {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun successfulFixedTracePowerMix() {
         assumeTrue(isAbiSupported())
@@ -134,7 +131,6 @@ class PowerMetricTest {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun emptyFixedTrace() {
         assumeTrue(isAbiSupported())
@@ -150,7 +146,7 @@ class PowerMetricTest {
         assertEquals(emptyList(), actualMetrics)
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = 29)
     @Test
     fun successfulFixedTraceBatteryDischarge() {
         assumeTrue(isAbiSupported())
@@ -169,6 +165,22 @@ class PowerMetricTest {
             ),
             observed = actualMetrics,
             threshold = 0.1
+        )
+    }
+
+    @Test
+    fun deviceSupportsPowerEnergy() {
+        assertEquals(
+            PowerRail.hasMetrics(throwOnMissingMetrics = false),
+            PowerMetric.deviceSupportsPowerEnergy()
+        )
+    }
+
+    @Test
+    fun deviceBatteryHasMinimumCharge() {
+        assertEquals(
+            BatteryCharge.hasMinimumCharge(throwOnMissingMetrics = false),
+            PowerMetric.deviceBatteryHasMinimumCharge()
         )
     }
 }
