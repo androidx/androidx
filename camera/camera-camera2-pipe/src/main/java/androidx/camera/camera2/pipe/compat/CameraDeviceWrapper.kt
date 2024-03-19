@@ -463,7 +463,9 @@ internal class AndroidCameraDevice(
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode) {
-        Api30Compat.setCameraAudioRestriction(cameraDevice, mode.value)
+        catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
+            Api30Compat.setCameraAudioRestriction(cameraDevice, mode.value)
+        }
     }
 
     override fun onDeviceClosed() {
