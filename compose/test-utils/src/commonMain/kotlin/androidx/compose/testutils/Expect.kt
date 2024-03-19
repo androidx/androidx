@@ -26,7 +26,7 @@ import kotlin.text.RegexOption.DOT_MATCHES_ALL
  * [expectedMessage] is a regex with just the option [DOT_MATCHES_ALL] enabled.
  */
 fun expectAssertionError(
-    expectError: Boolean,
+    expectError: Boolean = true,
     expectedMessage: String = ".*",
     block: () -> Unit
 ) {
