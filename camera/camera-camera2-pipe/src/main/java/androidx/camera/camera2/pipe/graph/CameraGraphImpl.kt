@@ -49,8 +49,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 
-internal val cameraGraphIds = atomic(0)
-
 @RequiresApi(21)
 @CameraGraphScope
 internal class CameraGraphImpl
@@ -58,6 +56,7 @@ internal class CameraGraphImpl
 constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
+    private val cameraGraphId: CameraGraphId,
     private val graphLifecycleManager: GraphLifecycleManager,
     private val graphProcessor: GraphProcessor,
     private val graphListener: GraphListener,
@@ -71,7 +70,6 @@ constructor(
     private val frameCaptureQueue: FrameCaptureQueue,
     private val audioRestriction: AudioRestrictionController? = null
 ) : CameraGraph {
-    private val debugId = cameraGraphIds.incrementAndGet()
     private val sessionMutex = Mutex()
     private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
     private val closed = atomic(false)
@@ -238,5 +236,5 @@ constructor(
         }
     }
 
-    override fun toString(): String = "CameraGraph-$debugId"
+    override fun toString(): String = cameraGraphId.toString()
 }
