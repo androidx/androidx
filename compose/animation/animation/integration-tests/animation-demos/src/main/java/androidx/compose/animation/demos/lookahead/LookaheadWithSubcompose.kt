@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -107,10 +109,11 @@ fun LookaheadWithSubcompose() {
 }
 
 context(LookaheadScope)
+@OptIn(ExperimentalSharedTransitionApi::class)
 private fun Modifier.conditionallyAnimateBounds(
     shouldAnimate: Boolean,
     modifier: Modifier = Modifier
-) = if (shouldAnimate) this.animateBounds(modifier) else this.then(modifier)
+) = if (shouldAnimate) this.animateBounds(this@LookaheadScope, modifier) else this.then(modifier)
 
 private val colors =
     listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff2a9d84), Color(0xff264653))

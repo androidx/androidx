@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun LookaheadWithIntrinsicsDemo() {
     Column {
@@ -64,6 +67,7 @@ fun LookaheadWithIntrinsicsDemo() {
                 ) {
                     Box(
                         Modifier.animateBounds(
+                                lookaheadScope = this@LookaheadScope,
                                 if (isWide) Modifier.width(300.dp) else Modifier.width(150.dp)
                             )
                             .height(50.dp)

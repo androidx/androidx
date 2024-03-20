@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -76,17 +80,26 @@ fun LookaheadWithFlowRowDemo() {
                 ) {
                     Box(
                         Modifier.height(50.dp)
-                            .animateBounds(Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f))
+                            .animateBounds(
+                                lookaheadScope = this@LookaheadScope,
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f)
+                            )
                             .background(colors[0], RoundedCornerShape(10))
                     )
                     Box(
                         Modifier.height(50.dp)
-                            .animateBounds(Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f))
+                            .animateBounds(
+                                lookaheadScope = this@LookaheadScope,
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
+                            )
                             .background(colors[1], RoundedCornerShape(10))
                     )
                     Box(
                         Modifier.height(50.dp)
-                            .animateBounds(Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f))
+                            .animateBounds(
+                                lookaheadScope = this@LookaheadScope,
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
+                            )
                             .background(colors[2], RoundedCornerShape(10))
                     )
                 }
@@ -136,12 +149,19 @@ fun NestedFlowRowDemo() {
             var expanded by remember { mutableStateOf(false) }
             Box(
                 modifier =
-                    Modifier.animateBounds(Modifier.widthIn(max = 600.dp)).background(Color.Red)
+                    Modifier.animateBounds(
+                            lookaheadScope = this@LookaheadScope,
+                            Modifier.widthIn(max = 600.dp)
+                        )
+                        .background(Color.Red)
             ) {
                 val height = animateDpAsState(targetValue = if (expanded) 500.dp else 300.dp)
                 Box(
                     modifier =
-                        Modifier.animateBounds(Modifier.fillMaxWidth().height(height.value))
+                        Modifier.animateBounds(
+                                lookaheadScope = this@LookaheadScope,
+                                Modifier.fillMaxWidth().height(height.value)
+                            )
                             .clickable { expanded = !expanded }
                 )
             }
@@ -155,8 +175,8 @@ fun NestedFlowRowDemo() {
                     modifier =
                         Modifier.size(200.dp)
                             .animateBounds(
+                                lookaheadScope = this@LookaheadScope,
                                 Modifier.wrapContentWidth().heightIn(min = 156.dp),
-                                debug = true
                             )
                             .background(Color.Blue)
                 ) {
@@ -166,8 +186,8 @@ fun NestedFlowRowDemo() {
                     modifier =
                         Modifier.size(200.dp)
                             .animateBounds(
+                                lookaheadScope = this@LookaheadScope,
                                 Modifier.wrapContentWidth().heightIn(min = 156.dp),
-                                debug = true
                             )
                             .background(Color.Yellow)
                 ) {

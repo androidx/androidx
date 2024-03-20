@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.DeferredTargetAnimation
 import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.core.VectorConverter
@@ -58,6 +60,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun LookaheadWithMovableContentDemo() {
@@ -91,7 +94,7 @@ fun LookaheadWithMovableContentDemo() {
                         Modifier.padding(15.dp)
                             .height(80.dp)
                             .fillMaxWidth(weight)
-                            .animateBoundsInScope()
+                            .animateBounds(lookaheadScope = this@movableContentWithReceiverOf)
                             .background(color, RoundedCornerShape(20)),
                         contentAlignment = Alignment.Center
                     ) {

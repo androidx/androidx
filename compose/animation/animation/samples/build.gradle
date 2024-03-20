@@ -36,11 +36,11 @@ dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
     implementation(project(":compose:animation:animation"))
-    implementation("androidx.compose.foundation:foundation:1.2.1")
-    implementation("androidx.compose.material:material:1.2.1")
-    implementation("androidx.compose.material:material-icons-core:1.6.7")
-    implementation("androidx.compose.runtime:runtime:1.2.1")
-    implementation("androidx.compose.ui:ui-text:1.2.1")
+    implementation("androidx.compose.foundation:foundation:1.6.8")
+    implementation("androidx.compose.material:material:1.6.8")
+    implementation("androidx.compose.material:material-icons-core:1.6.8")
+    implementation("androidx.compose.runtime:runtime:1.6.8")
+    implementation("androidx.compose.ui:ui-text:1.6.8")
 }
 
 androidx {

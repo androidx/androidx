@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.animation.demos.gesture.pastelColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("UnusedBoxWithConstraintsScope")
 @Composable
 fun LookaheadWithBoxWithConstraints() {
@@ -59,6 +62,7 @@ fun LookaheadWithBoxWithConstraints() {
                 Column(
                     Modifier.fillMaxHeight()
                         .animateBounds(
+                            this@LookaheadScope,
                             if (halfSize) Modifier.fillMaxSize(0.5f) else Modifier.fillMaxWidth()
                         )
                         .background(pastelColors[2]),
@@ -96,7 +100,10 @@ fun LookaheadWithBoxWithConstraints() {
                         BoxWithConstraints {
                             Column(
                                 if (animate) {
-                                        Modifier.animateBounds(Modifier.fillMaxWidth())
+                                        Modifier.animateBounds(
+                                            lookaheadScope = this@LookaheadScope,
+                                            Modifier.fillMaxWidth()
+                                        )
                                     } else {
                                         Modifier.fillMaxWidth()
                                     }
