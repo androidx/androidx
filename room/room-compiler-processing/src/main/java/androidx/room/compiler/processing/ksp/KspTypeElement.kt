@@ -181,6 +181,39 @@ internal sealed class KspTypeElement(
             }
     }
 
+    private val _constructors by lazy {
+        if (isAnnotationClass()) {
+            emptyList()
+        } else {
+            val constructors = declaration.getConstructors().toList()
+            buildList {
+                addAll(
+                    constructors.map { env.wrapFunctionDeclaration(it) as XConstructorElement }
+                )
+                constructors
+                    .filter { it.hasOverloads() }
+                    .forEach { addAll(enumerateSyntheticConstructors(it)) }
+
+                // To match KAPT if all params in the primary constructor have default values then
+                // synthesize a no-arg constructor if one is not already present.
+                val hasNoArgConstructor = constructors.any { it.parameters.isEmpty() }
+                if (!hasNoArgConstructor) {
+                    declaration.primaryConstructor?.let {
+                        if (!it.hasOverloads() && it.parameters.all { it.hasDefault }) {
+                            add(
+                                KspSyntheticConstructorElement(
+                                    env = env,
+                                    declaration = it,
+                                    valueParameters = emptyList()
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private val _declaredFields by lazy {
         _declaredProperties.filter {
             it.declaration.hasBackingField
@@ -328,36 +361,7 @@ internal sealed class KspTypeElement(
     }
 
     override fun getConstructors(): List<XConstructorElement> {
-        if (isAnnotationClass()) {
-            return emptyList()
-        }
-        val constructors = declaration.getConstructors().toList()
-
-        return buildList {
-            addAll(
-                constructors.map { env.wrapFunctionDeclaration(it) as XConstructorElement }
-            )
-            constructors
-                .filter { it.hasOverloads() }
-                .forEach { addAll(enumerateSyntheticConstructors(it)) }
-
-            // To match KAPT if all params in the primary constructor have default values then
-            // synthesize a no-arg constructor if one is not already present.
-            val hasNoArgConstructor = constructors.any { it.parameters.isEmpty() }
-            if (!hasNoArgConstructor) {
-                declaration.primaryConstructor?.let {
-                    if (!it.hasOverloads() && it.parameters.all { it.hasDefault }) {
-                        add(
-                            KspSyntheticConstructorElement(
-                                env = env,
-                                declaration = it,
-                                valueParameters = emptyList()
-                            )
-                        )
-                    }
-                }
-            }
-        }
+        return _constructors
     }
 
     private fun enumerateSyntheticConstructors(
