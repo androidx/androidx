@@ -412,7 +412,7 @@ expect class GraphicsLayer {
 fun GraphicsLayer.setOutline(outline: Outline) {
     when (outline) {
         is Outline.Rectangle -> setRectOutline(
-            IntOffset(outline.rect.top.fastRoundToInt(), outline.rect.left.fastRoundToInt()),
+            IntOffset(outline.rect.left.fastRoundToInt(), outline.rect.top.fastRoundToInt()),
             IntSize(outline.rect.width.fastRoundToInt(), outline.rect.height.fastRoundToInt())
         )
         is Outline.Generic -> setPathOutline(outline.path)
@@ -426,7 +426,7 @@ fun GraphicsLayer.setOutline(outline: Outline) {
             } else {
                 val rr = outline.roundRect
                 setRoundRectOutline(
-                    IntOffset(rr.top.fastRoundToInt(), rr.left.fastRoundToInt()),
+                    IntOffset(rr.left.fastRoundToInt(), rr.top.fastRoundToInt()),
                     IntSize(rr.width.fastRoundToInt(), rr.height.fastRoundToInt()),
                     rr.bottomLeftCornerRadius.x
                 )
