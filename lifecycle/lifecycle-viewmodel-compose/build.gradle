@@ -54,8 +54,8 @@ androidXMultiplatform {
                 api projectOrArtifact(":lifecycle:lifecycle-common-java8")
                 api projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx")
                 api projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
-                api("androidx.compose.runtime:runtime:1.0.1")
-                api "androidx.compose.ui:ui:1.0.1"
+                api("androidx.compose.runtime:runtime:1.6.0")
+                api "androidx.compose.ui:ui:1.6.0"
                 api("androidx.annotation:annotation-experimental:1.4.0")
 
                 implementation(libs.kotlinStdlib)
