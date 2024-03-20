@@ -86,10 +86,8 @@ internal class PagerMeasureResult(
             return false
         }
 
-        val first =
-            if (extraPagesBefore.isEmpty()) visiblePagesInfo.first() else extraPagesBefore.first()
-        val last =
-            if (extraPagesAfter.isEmpty()) visiblePagesInfo.last() else extraPagesAfter.last()
+        val first = visiblePagesInfo.first()
+        val last = visiblePagesInfo.last()
 
         val canApply = if (delta < 0) {
             // scrolling forward
