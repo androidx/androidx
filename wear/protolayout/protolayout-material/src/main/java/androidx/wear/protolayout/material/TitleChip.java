@@ -24,6 +24,7 @@ import static androidx.wear.protolayout.material.ChipDefaults.TITLE_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.TITLE_PRIMARY_COLORS;
 import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.staticString;
 
 import android.content.Context;
 
@@ -38,6 +39,7 @@ import androidx.wear.protolayout.DimensionBuilders.ContainerDimension;
 import androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -89,6 +91,7 @@ public class TitleChip implements LayoutElement {
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = TITLE_PRIMARY_COLORS;
         @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_UNDEFINED;
+        @Nullable private StringProp mContentDescription = null;
 
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
         // constructor.
@@ -166,6 +169,28 @@ public class TitleChip implements LayoutElement {
             return this;
         }
 
+        /**
+         * Sets the static content description for the {@link TitleChip}. It is highly recommended
+         * to provide this for chip containing an icon.
+         */
+        @NonNull
+        public Builder setContentDescription(@NonNull CharSequence contentDescription) {
+            return setContentDescription(staticString(contentDescription.toString()));
+        }
+
+        /**
+         * Sets the content description for the {@link TitleChip}. It is highly recommended to
+         * provide this for chip containing an icon.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         */
+        @NonNull
+        public Builder setContentDescription(@NonNull StringProp contentDescription) {
+            this.mContentDescription = contentDescription;
+            return this;
+        }
+
         /** Constructs and returns {@link TitleChip} with the provided content and look. */
         @NonNull
         @Override
@@ -174,7 +199,10 @@ public class TitleChip implements LayoutElement {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
                             .setChipColors(mChipColors)
-                            .setContentDescription(mText)
+                            .setContentDescription(
+                                    mContentDescription == null
+                                            ? staticString(mText)
+                                            : mContentDescription)
                             .setHeight(TITLE_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
@@ -253,6 +281,12 @@ public class TitleChip implements LayoutElement {
         androidx.wear.protolayout.materialcore.Chip coreChip =
                 androidx.wear.protolayout.materialcore.Chip.fromLayoutElement(element);
         return coreChip == null ? null : new TitleChip(new Chip(coreChip));
+    }
+
+    /** Returns content description of this TitleChip. */
+    @Nullable
+    public StringProp getContentDescription() {
+        return mElement.getContentDescription();
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
