@@ -23,6 +23,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.reflect.KClass
+import kotlin.test.assertFailsWith
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import org.junit.Assert.fail
@@ -160,28 +161,78 @@ class NavGraphBuilderTest {
 
     @Test fun navigationStartDestinationKClass() {
         @Serializable
-        class TestClass(val arg: Int)
-
-        @Serializable
         class Graph(val arg: Int)
 
-        val serializer = serializer<TestClass>()
-        val expected = serializer.generateRoutePattern()
+        @Serializable
+        class TestClass(val arg: Int)
+
         val graph = provider.navigation(
             route = Graph::class,
             startDestination = TestClass::class
         ) {
             navDestination(TestClass::class) { }
         }
+
+        // assert graph info
+        val expectedGraphRoute = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationStartDestinationKClass.Graph/{arg}"
+        assertWithMessage("graph route should be set")
+            .that(graph.route)
+            .isEqualTo(expectedGraphRoute)
+        assertWithMessage("graph id should be set")
+            .that(graph.id)
+            .isEqualTo(serializer<Graph>().hashCode())
+
+        // assert start destination info
+        val expectedStartRoute = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationStartDestinationKClass.TestClass/{arg}"
         assertWithMessage("Destination route should be added to the graph")
-            .that(expected in graph)
+            .that(expectedStartRoute in graph)
             .isTrue()
         assertWithMessage("startDestinationRoute should be set")
             .that(graph.startDestinationRoute)
-            .isEqualTo(expected)
+            .isEqualTo(expectedStartRoute)
         assertWithMessage("startDestinationId should be set")
             .that(graph.startDestinationId)
-            .isEqualTo(serializer.hashCode())
+            .isEqualTo(serializer<TestClass>().hashCode())
+    }
+
+    @Test fun navigationStartDestinationObject() {
+        @Serializable
+        class Graph(val arg: Int)
+
+        @Serializable
+        class TestClass(val arg2: Int)
+
+        val graph = provider.navigation(
+            route = Graph::class,
+            startDestination = TestClass(1)
+        ) {
+            navDestination(TestClass::class) { }
+        }
+
+        // assert graph info
+        val expectedGraphRoute = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationStartDestinationObject.Graph/{arg}"
+        assertWithMessage("graph route should be set")
+            .that(graph.route)
+            .isEqualTo(expectedGraphRoute)
+        assertWithMessage("graph id should be set")
+            .that(graph.id)
+            .isEqualTo(serializer<Graph>().hashCode())
+
+        // assert start destination info
+        val expectedStartRoute = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationStartDestinationObject.TestClass/1"
+        assertWithMessage("Destination route should be added to the graph")
+            .that(expectedStartRoute in graph)
+            .isTrue()
+        assertWithMessage("startDestinationRoute should be set")
+            .that(graph.startDestinationRoute)
+            .isEqualTo(expectedStartRoute)
+        assertWithMessage("startDestinationId should be set")
+            .that(graph.startDestinationId)
+            .isEqualTo(serializer<TestClass>().hashCode())
     }
 
     @Suppress("DEPRECATION")
@@ -199,6 +250,32 @@ class NavGraphBuilderTest {
             navDestination(DESTINATION_ROUTE) {}
         }
         fail("NavGraph should throw IllegalStateException if no startDestinationRoute is set")
+    }
+
+    @Test
+    fun navigationMissingStartDestinationKClass() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        assertFailsWith<IllegalStateException> {
+            provider.navigation(startDestination = TestClass::class) {
+                // nav destination must have been added via route from KClass
+                navDestination("route") { }
+            }
+        }
+    }
+
+    @Test
+    fun navigationMissingStartDestinationObject() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        assertFailsWith<IllegalStateException> {
+            provider.navigation(startDestination = TestClass(0)) {
+                // nav destination must have been added via route from KClass
+                navDestination("route") { }
+            }
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -234,8 +311,6 @@ class NavGraphBuilderTest {
         @Serializable
         class NestedGraph(val arg: Int)
 
-        val serializer = serializer<TestClass>()
-        val expected = serializer.generateRoutePattern()
         val graph = provider.navigation(startDestination = NestedGraph::class) {
             navigation(startDestination = TestClass::class, route = NestedGraph::class) {
                 navDestination(TestClass::class) {}
@@ -244,10 +319,90 @@ class NavGraphBuilderTest {
         val nestedGraph = graph.findNode(
             serializer<NestedGraph>().generateRoutePattern()
         ) as NavGraph
-        assertThat(nestedGraph.startDestinationRoute).isEqualTo(expected)
-        assertThat(nestedGraph.startDestinationId).isEqualTo(serializer.hashCode())
+        // assert graph
+        val expectedNestedGraph = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationNestedKClass.NestedGraph/{arg}"
+        assertThat(nestedGraph.route).isEqualTo(expectedNestedGraph)
+        assertThat(nestedGraph.id).isEqualTo(serializer<NestedGraph>().hashCode())
+        // assert nested startDestination
+        val expectedNestedStart = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationNestedKClass.TestClass/{arg}"
+        assertThat(nestedGraph.startDestinationRoute).isEqualTo(expectedNestedStart)
+        assertThat(nestedGraph.startDestinationId).isEqualTo(serializer<TestClass>().hashCode())
         assertWithMessage("Destination should be added to the nested graph")
-            .that(expected in nestedGraph)
+            .that(expectedNestedStart in nestedGraph)
+            .isTrue()
+    }
+
+    @Test
+    fun navigationNestedObject() {
+        @Serializable
+        class TestClass(val arg2: Int)
+
+        @Serializable
+        class NestedGraph(val arg: Int)
+
+        val graph = provider.navigation(startDestination = NestedGraph::class) {
+            navigation(startDestination = TestClass(15), route = NestedGraph::class) {
+                navDestination(TestClass::class) {}
+            }
+        }
+        val nestedGraph = graph.findNode(
+            serializer<NestedGraph>().generateRoutePattern()
+        ) as NavGraph
+
+        // assert graph
+        val expectedNestedGraph = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationNestedObject.NestedGraph/{arg}"
+        assertThat(nestedGraph.route).isEqualTo(expectedNestedGraph)
+        assertThat(nestedGraph.id).isEqualTo(serializer<NestedGraph>().hashCode())
+
+        // assert nested StartDestination
+        val expectedNestedStart = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationNestedObject.TestClass/15"
+        assertThat(nestedGraph.startDestinationRoute).isEqualTo(expectedNestedStart)
+        assertThat(nestedGraph.startDestinationId).isEqualTo(serializer<TestClass>().hashCode())
+        assertWithMessage("Destination should be added to the nested graph")
+            .that(expectedNestedStart in nestedGraph)
+            .isTrue()
+    }
+
+    @Test
+    fun navigationNestedObjectAndKClass() {
+        @Serializable
+        class TestClass(val arg2: Int)
+
+        @Serializable
+        class NestedGraph(val arg: Int)
+
+        val graph = provider.navigation(startDestination = NestedGraph(0)) {
+            navigation(startDestination = TestClass(15), route = NestedGraph::class) {
+                navDestination(TestClass::class) {}
+            }
+        }
+        val nestedGraph = graph.findNode(
+            serializer<NestedGraph>().generateRoutePattern()
+        ) as NavGraph
+
+        // assert graph
+        val expectedStart = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationNestedObjectAndKClass.NestedGraph/0"
+        assertThat(graph.startDestinationRoute).isEqualTo(expectedStart)
+        assertThat(graph.startDestinationId).isEqualTo(serializer<NestedGraph>().hashCode())
+
+        // assert nested graph
+        val expectedNestedGraph = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationNestedObjectAndKClass.NestedGraph/{arg}"
+        assertThat(nestedGraph.route).isEqualTo(expectedNestedGraph)
+        assertThat(nestedGraph.id).isEqualTo(serializer<NestedGraph>().hashCode())
+
+        // assert nested StartDestination
+        val expectedNestedStart = "androidx.navigation.NavGraphBuilderTest." +
+            "navigationNestedObjectAndKClass.TestClass/15"
+        assertThat(nestedGraph.startDestinationRoute).isEqualTo(expectedNestedStart)
+        assertThat(nestedGraph.startDestinationId).isEqualTo(serializer<TestClass>().hashCode())
+        assertWithMessage("Destination should be added to the nested graph")
+            .that(expectedNestedStart in nestedGraph)
             .isTrue()
     }
 }
