@@ -94,6 +94,7 @@ class XTypeTest {
                             KTypeVariableName(
                                 "InputStreamType",
                                 KClassName("java.io", "InputStream")
+                                    .copy(nullable = true)
                             )
                         )
                 )
@@ -120,12 +121,14 @@ class XTypeTest {
                     val expected = KTypeVariableName(
                         "InputStreamType",
                         KClassName("java.io", "InputStream")
+                            .copy(nullable = true)
                     )
                     assertThat(firstType.asTypeName().kotlin).isEqualTo(expected)
                     assertThat(
                         (firstType.asTypeName().kotlin as KTypeVariableName).bounds
                     ).containsExactly(
                         KClassName("java.io", "InputStream")
+                            .copy(nullable = true)
                     )
                 }
             }
@@ -622,8 +625,16 @@ class XTypeTest {
             assertThat(typeElement.type.asTypeName().java.dumpToString(5))
                 .isEqualTo(expectedTypeStringDump)
             if (invocation.isKsp) {
+                val expectedTypeStringDumpKotlin = """
+                SelfReferencing<T>
+                | T
+                | > SelfReferencing<T>?
+                | > | T
+                | > | > SelfReferencing<T>?
+                | > | > | T
+                """.trimIndent()
                 assertThat(typeElement.type.asTypeName().kotlin.dumpToString(5))
-                    .isEqualTo(expectedTypeStringDump)
+                    .isEqualTo(expectedTypeStringDumpKotlin)
             }
             val expectedParamStringDump = """
                 SelfReferencing
