@@ -3843,7 +3843,6 @@ public class ConstraintSet {
      *
      * @param viewId ID of view to adjust its height
      * @param height the height of the view
-     * @since 1.1
      */
     public void constrainHeight(int viewId, int height) {
         get(viewId).layout.mHeight = height;
@@ -3855,7 +3854,6 @@ public class ConstraintSet {
      *
      * @param viewId ID of view to adjust its width
      * @param width  the width of the view
-     * @since 1.1
      */
     public void constrainWidth(int viewId, int width) {
         get(viewId).layout.mWidth = width;
@@ -3868,7 +3866,6 @@ public class ConstraintSet {
      * @param id     ID of the view we constrain relative to
      * @param radius the radius of the circle in degrees
      * @param angle  the angle
-     * @since 1.1
      */
     public void constrainCircle(int viewId, int id, int radius, float angle) {
         Constraint constraint = get(viewId);
@@ -3883,7 +3880,6 @@ public class ConstraintSet {
      *
      * @param viewId ID of view to adjust it height
      * @param height the maximum height of the constraint
-     * @since 1.1
      */
     public void constrainMaxHeight(int viewId, int height) {
         get(viewId).layout.heightMax = height;
@@ -3895,7 +3891,6 @@ public class ConstraintSet {
      *
      * @param viewId ID of view to adjust its max height
      * @param width  the maximum width of the view
-     * @since 1.1
      */
     public void constrainMaxWidth(int viewId, int width) {
         get(viewId).layout.widthMax = width;
@@ -3907,7 +3902,6 @@ public class ConstraintSet {
      *
      * @param viewId ID of view to adjust its min height
      * @param height the minimum height of the view
-     * @since 1.1
      */
     public void constrainMinHeight(int viewId, int height) {
         get(viewId).layout.heightMin = height;
@@ -3919,7 +3913,6 @@ public class ConstraintSet {
      *
      * @param viewId ID of view to adjust its min height
      * @param width  the minimum width of the view
-     * @since 1.1
      */
     public void constrainMinWidth(int viewId, int width) {
         get(viewId).layout.widthMin = width;
@@ -3930,7 +3923,6 @@ public class ConstraintSet {
      *
      * @param viewId
      * @param percent
-     * @since 1.1
      */
     public void constrainPercentWidth(int viewId, float percent) {
         get(viewId).layout.widthPercent = percent;
@@ -3941,7 +3933,6 @@ public class ConstraintSet {
      *
      * @param viewId
      * @param percent
-     * @since 1.1
      */
     public void constrainPercentHeight(int viewId, float percent) {
         get(viewId).layout.heightPercent = percent;
@@ -3953,7 +3944,6 @@ public class ConstraintSet {
      *
      * @param viewId ID of view to adjust its matchConstraintDefaultHeight
      * @param height MATCH_CONSTRAINT_WRAP or MATCH_CONSTRAINT_SPREAD
-     * @since 1.1
      */
     public void constrainDefaultHeight(int viewId, int height) {
         get(viewId).layout.heightDefault = height;
@@ -3965,7 +3955,6 @@ public class ConstraintSet {
      *
      * @param viewId      ID of view to adjust its matchConstraintDefaultWidth
      * @param constrained if true with will be constrained
-     * @since 1.1
      */
     public void constrainedWidth(int viewId, boolean constrained) {
         get(viewId).layout.constrainedWidth = constrained;
@@ -3977,7 +3966,6 @@ public class ConstraintSet {
      *
      * @param viewId      ID of view to adjust its matchConstraintDefaultHeight
      * @param constrained if true height will be constrained
-     * @since 1.1
      */
     public void constrainedHeight(int viewId, boolean constrained) {
         get(viewId).layout.constrainedHeight = constrained;
@@ -3989,7 +3977,6 @@ public class ConstraintSet {
      *
      * @param viewId ID of view to adjust its matchConstraintDefaultWidth
      * @param width  SPREAD or WRAP
-     * @since 1.1
      */
     public void constrainDefaultWidth(int viewId, int width) {
         get(viewId).layout.widthDefault = width;
@@ -4216,7 +4203,6 @@ public class ConstraintSet {
      * @param id
      * @param direction  Barrier.{LEFT,RIGHT,TOP,BOTTOM,START,END}
      * @param referenced
-     * @since 1.1
      */
     public void createBarrier(int id, int direction, int margin, int... referenced) {
         Constraint constraint = get(id);
@@ -4285,7 +4271,6 @@ public class ConstraintSet {
      *
      * @param id
      * @param referenced
-     * @since 2.0
      */
     public void setReferencedIds(int id, int... referenced) {
         Constraint constraint = get(id);
