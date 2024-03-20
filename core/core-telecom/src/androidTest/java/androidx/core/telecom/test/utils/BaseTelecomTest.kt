@@ -36,6 +36,7 @@ import androidx.testutils.TestExecutor
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert
@@ -67,7 +68,9 @@ abstract class BaseTelecomTest {
         mPackagePhoneAccountHandle = mCallsManager.getPhoneAccountHandleForPackage()
         mPreviousDefaultDialer = TestUtils.getDefaultDialer()
         TestUtils.setDefaultDialer(TestUtils.TEST_PACKAGE)
-        maybeCleanupStuckCalls()
+        runBlocking {
+            maybeCleanupStuckCalls()
+        }
         Utils.resetUtils()
         TestUtils.resetCallbackConfigs()
     }
@@ -78,13 +81,28 @@ abstract class BaseTelecomTest {
         Utils.resetUtils()
         TestUtils.resetCallbackConfigs()
         TestUtils.setDefaultDialer(mPreviousDefaultDialer)
-        maybeCleanupStuckCalls()
+        runBlocking {
+            maybeCleanupStuckCalls()
+        }
+    }
+
+    fun setInCallService(ics: InCallServiceType) {
+        MockInCallServiceDelegate.mInCallServiceType = ics
     }
 
     fun setUpV2Test() {
         Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs")
         Utils.setUtils(TestUtils.mV2Build)
         mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
+        setInCallService(InCallServiceType.ICS_WITHOUT_EXTENSIONS)
+        logTelecomState()
+    }
+
+    fun setUpV2TestWithExtensions() {
+        Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs + Extension support")
+        Utils.setUtils(TestUtils.mV2Build)
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
+        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS)
         logTelecomState()
     }
 
@@ -111,12 +129,12 @@ abstract class BaseTelecomTest {
         return mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_TELECOM)
     }
 
-    private fun maybeCleanupStuckCalls() {
+    private suspend fun maybeCleanupStuckCalls() {
         JetpackConnectionService.mPendingConnectionRequests.clear()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ManagedConnectionService.mPendingConnectionRequests.clear()
         }
-        MockInCallService.destroyAllCalls()
+        MockInCallServiceDelegate.destroyAllCalls()
         TestUtils.runShellCommand(TestUtils.COMMAND_CLEANUP_STUCK_CALLS)
     }
 

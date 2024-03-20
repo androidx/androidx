@@ -26,7 +26,7 @@ import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
-import androidx.core.telecom.test.utils.MockInCallService
+import androidx.core.telecom.test.utils.MockInCallServiceDelegate
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -389,7 +389,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
 
     /**
      * This helper verifies that [CallControlScope.isMuted] properly collects updates to the mute
-     * state via [MockInCallService.setMuted].
+     * state via [MockInCallServiceDelegate.setMuted].
      *
      * Note: Due to the possibility that the channel can receive stale updates, it's necessary to
      * keep receiving those updates until the state does change. To prevent the test execution from
@@ -410,7 +410,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     val setMuteStateTo = !initialMuteState
                     var muteStateChanged = false
                     // Toggle mute via ICS
-                    MockInCallService.setMute(setMuteStateTo)
+                    MockInCallServiceDelegate.setMute(setMuteStateTo)
                     runBlocking {
                         launch {
                             isMuted.collect {
