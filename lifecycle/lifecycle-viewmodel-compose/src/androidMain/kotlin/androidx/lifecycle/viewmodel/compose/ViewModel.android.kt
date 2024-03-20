@@ -247,11 +247,11 @@ private fun <VM : ViewModel> ViewModelStoreOwner.get(
     }
 ): VM {
     val provider = if (factory != null) {
-        ViewModelProvider(this.viewModelStore, factory, extras)
+        ViewModelProvider.create(this.viewModelStore, factory, extras)
     } else if (this is HasDefaultViewModelProviderFactory) {
-        ViewModelProvider(this.viewModelStore, this.defaultViewModelProviderFactory, extras)
+        ViewModelProvider.create(this.viewModelStore, this.defaultViewModelProviderFactory, extras)
     } else {
-        ViewModelProvider(this)
+        ViewModelProvider.create(this)
     }
     return if (key != null) {
         provider[key, javaClass]
