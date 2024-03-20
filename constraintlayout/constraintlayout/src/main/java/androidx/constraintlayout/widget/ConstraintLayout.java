@@ -1998,7 +1998,6 @@ public class ConstraintLayout extends ViewGroup {
      * </p>
      *
      * @param level optimization level
-     * @since 1.1
      */
     public void setOptimizationLevel(int level) {
         mOptimizationLevel = level;
@@ -2009,7 +2008,6 @@ public class ConstraintLayout extends ViewGroup {
      * Return the current optimization level for the layout resolution
      *
      * @return the current level
-     * @since 1.1
      */
     public int getOptimizationLevel() {
         return mLayoutWidget.getOptimizationLevel();
