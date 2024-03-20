@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
 /**
  * Construct a new [NavGraph]
@@ -318,7 +319,7 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         if (startDestinationRoute != null) {
             navGraph.setStartDestination(startDestinationRoute!!)
         } else if (startDestinationClass != null) {
-            navGraph.setStartDestination(startDestinationClass!!)
+            navGraph.setStartDestination(startDestinationClass!!.serializer()) { it.route!! }
         } else if (startDestinationObject != null) {
             navGraph.setStartDestination(startDestinationObject!!)
         } else {

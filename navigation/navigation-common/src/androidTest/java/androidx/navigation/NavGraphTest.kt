@@ -148,7 +148,7 @@ class NavGraphTest {
         }
         assertThat(graph.startDestinationId).isEqualTo(15)
 
-        graph.setStartDestination(TestClass::class)
+        graph.setStartDestination<TestClass>()
         assertThat(graph.startDestinationRoute).isEqualTo("route/{arg}")
         assertThat(graph.startDestinationId).isEqualTo(serializer<TestClass>().hashCode())
     }
@@ -162,7 +162,7 @@ class NavGraphTest {
 
         // start destination not added via KClass, cannot match
         assertFailsWith<IllegalStateException> {
-            graph.setStartDestination(TestClass::class)
+            graph.setStartDestination<TestClass>()
         }
     }
 
