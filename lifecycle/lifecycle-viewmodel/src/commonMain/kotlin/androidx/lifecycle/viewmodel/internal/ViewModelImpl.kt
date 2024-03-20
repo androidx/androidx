@@ -52,10 +52,10 @@ internal class ViewModelImpl {
      *
      * @see <a href="https://issuetracker.google.com/37042460">b/37042460</a>
      */
-    private val bagOfTags = mutableMapOf<String, AutoCloseable>()
+    private val keyToCloseables = mutableMapOf<String, AutoCloseable>()
 
     /**
-     * @see [bagOfTags]
+     * @see [keyToCloseables]
      */
     private val closeables = mutableSetOf<AutoCloseable>()
 
@@ -77,33 +77,25 @@ internal class ViewModelImpl {
         this.closeables += closeables
     }
 
+    /** @see [ViewModel.clear] */
     @MainThread
     fun clear() {
+        if (isCleared) return
+
         isCleared = true
         lock.withLock {
-            for (value in bagOfTags.values) {
-                // see comment for the similar call in `setTagIfAbsent`
-                closeWithRuntimeException(value)
-            }
-            for (closeable in closeables) {
+            // 1. Closes resources added without a key.
+            // 2. Closes resources added with a key.
+            for (closeable in closeables + keyToCloseables.values) {
                 closeWithRuntimeException(closeable)
             }
+            // Clear only resources without keys to prevent accidental recreation of resources.
+            // For example, `viewModelScope` would be recreated leading to unexpected behaviour.
+            closeables.clear()
         }
-        closeables.clear()
     }
 
-    /**
-     * Add a new [AutoCloseable] object that will be closed directly before
-     * [ViewModel.onCleared] is called.
-     *
-     * If `onCleared()` has already been called, the closeable will not be added,
-     * and will instead be closed immediately.
-     *
-     * @param key A key that allows you to retrieve the closeable passed in by using the same
-     *            key with [ViewModel.getCloseable]
-     * @param closeable The object that should be [AutoCloseable.close] directly before
-     *                  [ViewModel.onCleared] is called.
-     */
+    /** @see [ViewModel.addCloseable] */
     fun addCloseable(key: String, closeable: AutoCloseable) {
         // Although no logic should be done after user calls onCleared(), we will
         // ensure that if it has already been called, the closeable attempting to
@@ -113,19 +105,11 @@ internal class ViewModelImpl {
             return
         }
 
-        lock.withLock { bagOfTags.put(key, closeable) }
+        val oldCloseable = lock.withLock { keyToCloseables.put(key, closeable) }
+        closeWithRuntimeException(oldCloseable)
     }
 
-    /**
-     * Add a new [AutoCloseable] object that will be closed directly before
-     * [ViewModel.onCleared] is called.
-     *
-     * If `onCleared()` has already been called, the closeable will not be added,
-     * and will instead be closed immediately.
-     *
-     * @param closeable The object that should be [closed][AutoCloseable.close] directly before
-     *                  [ViewModel.onCleared] is called.
-     */
+    /** @see [ViewModel.addCloseable] */
     fun addCloseable(closeable: AutoCloseable) {
         // Although no logic should be done after user calls onCleared(), we will
         // ensure that if it has already been called, the closeable attempting to
@@ -135,25 +119,19 @@ internal class ViewModelImpl {
             return
         }
 
-        lock.withLock { this.closeables += closeable }
+        lock.withLock { closeables += closeable }
     }
 
-    /**
-     * Returns the closeable previously added with [ViewModel.addCloseable] with the given [key].
-     *
-     * @param key The key that was used to add the Closeable.
-     */
+    /** @see [ViewModel.getCloseable] */
     fun <T : AutoCloseable> getCloseable(key: String): T? =
         @Suppress("UNCHECKED_CAST")
-        lock.withLock { bagOfTags[key] as T? }
+        lock.withLock { keyToCloseables[key] as T? }
 
-    private fun closeWithRuntimeException(instance: Any) {
-        if (instance is AutoCloseable) {
-            try {
-                instance.close()
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
+    private fun closeWithRuntimeException(closeable: AutoCloseable?) {
+        try {
+            closeable?.close()
+        } catch (e: Exception) {
+            throw RuntimeException(e)
         }
     }
 }
