@@ -26,6 +26,8 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.internal.ClientApiVersion
+import androidx.privacysandbox.sdkruntime.core.internal.ClientFeature
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -46,8 +48,8 @@ class SdkSandboxControllerCompatLocalTest {
 
     @Before
     fun setUp() {
-        // Emulate loading via client lib
-        Versions.handShake(Versions.API_VERSION)
+        // Emulate loading via client lib with only base features available
+        clientHandShakeForMinSupportedVersion()
 
         context = ApplicationProvider.getApplicationContext()
     }
@@ -67,10 +69,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun loadSdk_clientApiBelow5_throwsLoadSdkNotFoundException() {
-        // Emulate loading via client lib with version below 5
-        Versions.handShake(4)
-
+    fun loadSdk_whenNotAvailable_throwsLoadSdkNotFoundException() {
         SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
@@ -85,6 +84,8 @@ class SdkSandboxControllerCompatLocalTest {
 
     @Test
     fun loadSdk_returnsLoadedSdkFromLocalImpl() {
+        clientHandShakeForVersionIncluding(ClientFeature.LOAD_SDK)
+
         val expectedResult = SandboxedSdkCompat(Binder())
         val stubLocalImpl = TestStubImpl(
             loadSdkResult = expectedResult
@@ -105,6 +106,8 @@ class SdkSandboxControllerCompatLocalTest {
 
     @Test
     fun loadSdk_rethrowsExceptionFromLocalImpl() {
+        clientHandShakeForVersionIncluding(ClientFeature.LOAD_SDK)
+
         val expectedError = LoadSdkCompatException(RuntimeException(), Bundle())
         SdkSandboxControllerCompat.injectLocalImpl(
             TestStubImpl(
@@ -137,10 +140,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun getAppOwnedSdkSandboxInterfaces_clientApiBelow4_returnsEmptyList() {
-        // Emulate loading via client lib with version below 4
-        Versions.handShake(3)
-
+    fun getAppOwnedSdkSandboxInterfaces_whenNotAvailable_returnsEmptyList() {
         SdkSandboxControllerCompat.injectLocalImpl(
             TestStubImpl(
                 appOwnedSdks = listOf(
@@ -160,6 +160,8 @@ class SdkSandboxControllerCompatLocalTest {
 
     @Test
     fun getAppOwnedSdkSandboxInterfaces_returnsListFromLocalImpl() {
+        clientHandShakeForVersionIncluding(ClientFeature.APP_OWNED_INTERFACES)
+
         val expectedResult = listOf(
             AppOwnedSdkSandboxInterfaceCompat(
                 name = "TestSdk",
@@ -180,6 +182,8 @@ class SdkSandboxControllerCompatLocalTest {
 
     @Test
     fun registerSdkSandboxActivityHandler_registerItInLocalImpl() {
+        clientHandShakeForVersionIncluding(ClientFeature.SDK_ACTIVITY_HANDLER)
+
         val localImpl = TestStubImpl()
         SdkSandboxControllerCompat.injectLocalImpl(localImpl)
 
@@ -193,6 +197,8 @@ class SdkSandboxControllerCompatLocalTest {
 
     @Test
     fun unregisterSdkSandboxActivityHandler_unregisterItFromLocalImpl() {
+        clientHandShakeForVersionIncluding(ClientFeature.SDK_ACTIVITY_HANDLER)
+
         val localImpl = TestStubImpl()
         SdkSandboxControllerCompat.injectLocalImpl(localImpl)
 
@@ -208,10 +214,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun registerSdkSandboxActivityHandler_clientApiBelow3_throwsUnsupportedOperationException() {
-        // Emulate loading via client lib with version below 3
-        Versions.handShake(2)
-
+    fun registerSdkSandboxActivityHandler_whenNotAvailable_throwsUnsupportedOperationException() {
         SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
@@ -225,10 +228,7 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun unregisterSdkSandboxActivityHandler_clientApiBelow3_throwsUnsupportedOperationException() {
-        // Emulate loading via client lib with version below 3
-        Versions.handShake(2)
-
+    fun unregisterSdkSandboxActivityHandler_whenNotAvailable_throwsUnsupportedOperationException() {
         SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
@@ -239,6 +239,22 @@ class SdkSandboxControllerCompatLocalTest {
                 }
             )
         }
+    }
+
+    /**
+     * Call [Versions.handShake] to emulate loading via client lib.
+     * Using version where [clientFeature] available.
+     */
+    private fun clientHandShakeForVersionIncluding(clientFeature: ClientFeature) {
+        Versions.handShake(clientFeature.availableFrom.apiLevel)
+    }
+
+    /**
+     * Call [Versions.handShake] to emulate loading via client lib.
+     * Using [ClientApiVersion.MIN_SUPPORTED] - to check features available in all client versions.
+     */
+    private fun clientHandShakeForMinSupportedVersion() {
+        Versions.handShake(ClientApiVersion.MIN_SUPPORTED.apiLevel)
     }
 
     internal class TestStubImpl(
