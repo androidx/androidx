@@ -62,6 +62,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.PhysicalCameraInfo;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
@@ -86,6 +87,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 import org.robolectric.shadows.StreamConfigurationMapBuilder;
 import org.robolectric.util.ReflectionHelpers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -513,6 +515,34 @@ public class Camera2CameraInfoImplTest {
         assertThat(map.get("0")).isSameInstanceAs(characteristics0);
         assertThat(map.get("2")).isSameInstanceAs(characteristicsPhysical2);
         assertThat(map.get("3")).isSameInstanceAs(characteristicsPhysical3);
+    }
+
+    @Config(minSdk = 28)
+    @RequiresApi(28)
+    @Test
+    public void canReturnPhysicalCameraInfos()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        CameraCharacteristics characteristics0 = mock(CameraCharacteristics.class);
+        CameraCharacteristics characteristicsPhysical2 = mock(CameraCharacteristics.class);
+        CameraCharacteristics characteristicsPhysical3 = mock(CameraCharacteristics.class);
+        when(characteristics0.getPhysicalCameraIds())
+                .thenReturn(new HashSet<>(Arrays.asList("0", "2", "3")));
+        CameraManagerCompat cameraManagerCompat = initCameraManagerWithPhysicalIds(
+                Arrays.asList(
+                        new Pair<>("0", characteristics0),
+                        new Pair<>("2", characteristicsPhysical2),
+                        new Pair<>("3", characteristicsPhysical3)));
+        Camera2CameraInfoImpl impl = new Camera2CameraInfoImpl("0", cameraManagerCompat);
+
+        List<PhysicalCameraInfo> physicalCameraInfos = new ArrayList<>(
+                impl.getPhysicalCameraInfos());
+        assertThat(physicalCameraInfos.size()).isEqualTo(3);
+        assertThat(characteristics0.getPhysicalCameraIds()).containsExactly(
+                physicalCameraInfos.get(0).getPhysicalCameraId(),
+                physicalCameraInfos.get(1).getPhysicalCameraId(),
+                physicalCameraInfos.get(2).getPhysicalCameraId());
     }
 
     @Config(maxSdk = 27)
