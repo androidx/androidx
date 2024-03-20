@@ -33,12 +33,13 @@ sealed interface PagerLayoutInfo {
     val visiblePagesInfo: List<PageInfo>
 
     /**
-     * The size of the Pages in this [Pager] provided by the [PageSize] API in the Pager definition.
+     * The main axis size of the Pages in this [Pager] provided by the [PageSize] API in the
+     * Pager definition. This is provided in pixels.
      */
     val pageSize: Int
 
     /**
-     * The spacing provided in the [Pager] creation.
+     * The spacing in pixels provided in the [Pager] creation.
      */
     val pageSpacing: Int
 
