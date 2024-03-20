@@ -41,7 +41,14 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain {
-            // TODO(b/330323282): Move common dependencies here.
+            dependencies {
+                api(projectOrArtifact(":lifecycle:lifecycle-common"))
+                api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+                api(projectOrArtifact(":annotation:annotation"))
+                api("androidx.compose.runtime:runtime:1.6.0")
+                api("androidx.compose.ui:ui:1.6.0")
+                implementation(libs.kotlinStdlib)
+            }
         }
 
         commonTest {
@@ -51,14 +58,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(commonMain)
             dependencies {
-                api projectOrArtifact(":lifecycle:lifecycle-common-java8")
-                api projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx")
                 api projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
-                api("androidx.compose.runtime:runtime:1.6.0")
-                api "androidx.compose.ui:ui:1.6.0"
-                api("androidx.annotation:annotation-experimental:1.4.0")
-
-                implementation(libs.kotlinStdlib)
             }
         }
 
