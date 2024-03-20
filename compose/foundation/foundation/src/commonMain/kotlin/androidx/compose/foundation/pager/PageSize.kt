@@ -33,8 +33,8 @@ interface PageSize {
 
     /**
      * Based on [availableSpace] pick a size for the pages
-     * @param availableSpace The amount of space the pages in this Pager can use.
-     * @param pageSpacing The amount of space used to separate pages.
+     * @param availableSpace The amount of space in pixels the pages in this Pager can use.
+     * @param pageSpacing The amount of space in pixels used to separate pages.
      */
     fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int
 
