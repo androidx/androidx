@@ -28,6 +28,7 @@ import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.captureToImage
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.BlendMode
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.TestActivity
@@ -1126,6 +1128,28 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @Test
+    fun setOutlineExtensionAppliesValuesCorrectly() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer = graphicsContext.createGraphicsLayer()
+
+                val rectangle = Outline.Rectangle(Rect(1f, 2f, 3f, 4f))
+                layer.setOutline(rectangle)
+                assertEquals(rectangle, layer.outline)
+
+                val rounded = Outline.Rounded(RoundRect(10f, 20f, 30f, 40f, 5f, 5f))
+                layer.setOutline(rounded)
+                assertEquals(rounded, layer.outline)
+
+                val path = Path().also { it.addOval(Rect(1f, 2f, 3f, 4f)) }
+                val generic = Outline.Generic(path)
+                layer.setOutline(generic)
+                assertEquals(generic, layer.outline)
+            }
+        )
+    }
+
     private fun PixelMap.verifyQuadrants(
         topLeft: Color,
         topRight: Color,
@@ -1144,7 +1168,7 @@ class AndroidGraphicsLayerTest {
 
     private fun graphicsLayerTest(
         block: DrawScope.(GraphicsContext) -> Unit,
-        verify: (PixelMap) -> Unit,
+        verify: ((PixelMap) -> Unit)? = null,
         entireScene: Boolean = false
     ) {
         var scenario: ActivityScenario<TestActivity>? = null
@@ -1184,12 +1208,14 @@ class AndroidGraphicsLayerTest {
                 }
             Assert.assertTrue(resumed.await(3000, TimeUnit.MILLISECONDS))
 
-            val target = if (entireScene) {
-                container!!
-            } else {
-                contentView!!
+            if (verify != null) {
+                val target = if (entireScene) {
+                    container!!
+                } else {
+                    contentView!!
+                }
+                verify(target.captureToImage().toPixelMap())
             }
-            verify(target.captureToImage().toPixelMap())
         } finally {
             scenario?.moveToState(Lifecycle.State.DESTROYED)
         }
