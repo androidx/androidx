@@ -18,6 +18,7 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.res.Configuration
+import android.os.Bundle
 import android.os.IBinder
 import android.view.WindowMetrics
 import androidx.annotation.VisibleForTesting
@@ -33,7 +34,7 @@ import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.AnimationBackground
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
-import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import androidx.window.extensions.embedding.SplitInfo
 import androidx.window.extensions.embedding.SplitPinRule
 import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.extensions.layout.WindowLayoutInfo
@@ -139,7 +140,11 @@ internal class SafeActivityEmbeddingComponentProvider(
      * Vendor API level 5 includes the following methods:
      * - [ActivityEmbeddingComponent.registerActivityStackCallback]
      * - [ActivityEmbeddingComponent.unregisterActivityStackCallback]
-     * - [ActivityStack.getToken]
+     * - [ActivityStack.getActivityStackToken]
+     * - [ActivityStack.Token.createFromBinder]
+     * - [ActivityStack.Token.readFromBundle]
+     * - [ActivityStack.Token.toBundle]
+     * - [ActivityStack.Token.INVALID_ACTIVITY_STACK_TOKEN]
      * - [AnimationBackground.createColorBackground]
      * - [AnimationBackground.ANIMATION_BACKGROUND_DEFAULT]
      * - [WindowAttributes.getDimAreaBehavior]
@@ -148,19 +153,24 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [SplitPinRule.isSticky]
      * - [ActivityEmbeddingComponent.pinTopActivityStack]
      * - [ActivityEmbeddingComponent.unpinTopActivityStack]
-     * - [ActivityEmbeddingComponent.updateSplitAttributes] with [OEMSplitInfo.Token]
+     * - [ActivityEmbeddingComponent.updateSplitAttributes] with [SplitInfo.Token]
+     * - [SplitInfo.getSplitInfoToken]
+     * - [SplitInfo.Token.createFromBinder]
      */
     // TODO(b/316493273): Guard other AEComponentMethods
     @VisibleForTesting
     internal fun hasValidVendorApiLevel5(): Boolean =
         hasValidVendorApiLevel3() &&
             isClassAnimationBackgroundValid() &&
-            isActivityStackGetTokenValid() &&
+            isClassActivityStackTokenValid() &&
+            isActivityStackGetActivityStackTokenValid() &&
             isMethodRegisterActivityStackCallbackValid() &&
             isMethodUnregisterActivityStackCallbackValid() &&
             isClassWindowAttributesValid() &&
             isMethodPinUnpinTopActivityStackValid() &&
-            isMethodUpdateSplitAttributesWithTokenValid()
+            isMethodUpdateSplitAttributesWithTokenValid() &&
+            isClassSplitInfoTokenValid() &&
+            isMethodGetSplitInfoTokenValid()
 
     /**
      * Vendor API level 6 includes the following methods:
@@ -272,7 +282,7 @@ internal class SafeActivityEmbeddingComponentProvider(
     private fun isClassAnimationBackgroundValid(): Boolean =
         validateReflection("Class AnimationBackground is not valid") {
             val animationBackgroundClass = AnimationBackground::class.java
-            val colorBackgroudClass = AnimationBackground.ColorBackground::class.java
+            val colorBackgroundClass = AnimationBackground.ColorBackground::class.java
             val createColorBackgroundMethod = animationBackgroundClass.getMethod(
                 "createColorBackground",
                 Int::class.javaPrimitiveType
@@ -280,22 +290,45 @@ internal class SafeActivityEmbeddingComponentProvider(
             val animationBackgroundDefaultField = animationBackgroundClass.getDeclaredField(
                 "ANIMATION_BACKGROUND_DEFAULT"
             )
-            val colorBackgroundGetColor = colorBackgroudClass.getMethod(
+            val colorBackgroundGetColor = colorBackgroundClass.getMethod(
                 "getColor"
             )
             createColorBackgroundMethod.isPublic &&
-                createColorBackgroundMethod.doesReturn(colorBackgroudClass) &&
+                createColorBackgroundMethod.doesReturn(colorBackgroundClass) &&
                 animationBackgroundDefaultField.isPublic &&
                 colorBackgroundGetColor.isPublic &&
                 colorBackgroundGetColor.doesReturn(Int::class.javaPrimitiveType!!)
         }
 
-    private fun isActivityStackGetTokenValid(): Boolean =
-        validateReflection("ActivityStack#getToken is not valid") {
-            val activityStackClass = ActivityStack::class.java
-            val getTokenMethod = activityStackClass.getMethod("getToken")
+    private fun isClassActivityStackTokenValid(): Boolean =
+        validateReflection("Class ActivityStack.Token is not valid") {
+            val activityStackTokenClass = ActivityStack.Token::class.java
+            val toBundleMethod = activityStackTokenClass.getMethod("toBundle")
+            val readFromBundle = activityStackTokenClass.getMethod(
+                "readFromBundle",
+                Bundle::class.java
+            )
+            val createFromBinder = activityStackTokenClass.getMethod(
+                "createFromBinder",
+                IBinder::class.java
+            )
+            val invalidActivityStackTokenField = activityStackTokenClass.getDeclaredField(
+                "INVALID_ACTIVITY_STACK_TOKEN"
+            )
 
-            getTokenMethod.isPublic && getTokenMethod.doesReturn(ActivityStack.Token::class.java)
+            toBundleMethod.isPublic && toBundleMethod.doesReturn(Bundle::class.java) &&
+                readFromBundle.isPublic && readFromBundle.doesReturn(activityStackTokenClass) &&
+                createFromBinder.isPublic && createFromBinder.doesReturn(activityStackTokenClass) &&
+                invalidActivityStackTokenField.isPublic
+        }
+
+    private fun isActivityStackGetActivityStackTokenValid(): Boolean =
+        validateReflection("ActivityStack#getActivityToken is not valid") {
+            val activityStackClass = ActivityStack::class.java
+            val getActivityStackTokenMethod = activityStackClass.getMethod("getActivityStackToken")
+
+            getActivityStackTokenMethod.isPublic &&
+                getActivityStackTokenMethod.doesReturn(ActivityStack.Token::class.java)
         }
 
     private fun isActivityStackGetTagValid(): Boolean =
@@ -386,12 +419,32 @@ internal class SafeActivityEmbeddingComponentProvider(
             unregisterActivityStackCallbackMethod.isPublic
         }
 
+    private fun isClassSplitInfoTokenValid(): Boolean =
+        validateReflection("SplitInfo.Token is not valid") {
+            val splitInfoTokenClass = SplitInfo.Token::class.java
+            val createFromBinder = splitInfoTokenClass.getMethod(
+                "createFromBinder",
+                IBinder::class.java
+            )
+
+            createFromBinder.isPublic && createFromBinder.doesReturn(splitInfoTokenClass)
+        }
+
+    private fun isMethodGetSplitInfoTokenValid(): Boolean =
+        validateReflection("SplitInfo#getSplitInfoToken is not valid") {
+            val splitInfoClass = SplitInfo::class.java
+            val getSplitInfoToken = splitInfoClass.getMethod("getSplitInfoToken")
+
+            getSplitInfoToken.isPublic &&
+                getSplitInfoToken.doesReturn(SplitInfo.Token::class.java)
+        }
+
     private fun isMethodUpdateSplitAttributesWithTokenValid(): Boolean =
         validateReflection("updateSplitAttributes is not valid") {
             val unregisterActivityStackCallbackMethod = activityEmbeddingComponentClass
                 .getMethod(
                     "updateSplitAttributes",
-                    OEMSplitInfo.Token::class.java,
+                    SplitInfo.Token::class.java,
                     SplitAttributes::class.java,
                 )
             unregisterActivityStackCallbackMethod.isPublic

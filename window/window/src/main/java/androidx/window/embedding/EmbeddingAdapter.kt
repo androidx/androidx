@@ -106,7 +106,7 @@ internal class EmbeddingAdapter(
             else -> ActivityStack(
                 activityStack.activities,
                 activityStack.isEmpty,
-                activityStack.token,
+                activityStack.activityStackToken,
             )
         }
 

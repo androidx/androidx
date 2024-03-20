@@ -209,7 +209,7 @@ internal open class OverlayControllerImpl(
         overlayAttributes: OverlayAttributes
     ) {
         globalLock.withLock {
-            val activityStackToken = overlayTagToContainerMap[overlayTag]?.token
+            val activityStackToken = overlayTagToContainerMap[overlayTag]?.activityStackToken
                 // Users may call this API before any callback coming. Try to ask platform if
                 // this container exists.
                 ?: embeddingExtension.getActivityStackToken(overlayTag)

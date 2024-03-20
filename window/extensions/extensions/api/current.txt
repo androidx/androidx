@@ -100,8 +100,8 @@ package androidx.window.extensions.embedding {
 
   public class ActivityStack {
     method public java.util.List<android.app.Activity!> getActivities();
+    method public androidx.window.extensions.embedding.ActivityStack.Token getActivityStackToken();
     method public String? getTag();
-    method public androidx.window.extensions.embedding.ActivityStack.Token getToken();
     method public boolean isEmpty();
   }
 

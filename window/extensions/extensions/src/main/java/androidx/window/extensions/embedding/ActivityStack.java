@@ -100,8 +100,20 @@ public class ActivityStack {
      */
     @RequiresVendorApiLevel(level = 5)
     @NonNull
-    public Token getToken() {
+    public Token getActivityStackToken() {
         return mToken;
+    }
+
+    // TODO(b/329997430): Remove it after there's no more usages.
+    /**
+     * @deprecated Use {@link #getActivityStackToken()} instead. Use this method only if
+     * {@link #getActivityStackToken()} cannot be used.
+     */
+    @RequiresVendorApiLevel(level = 5, deprecatedSince = 5)
+    @Deprecated
+    @NonNull
+    IBinder getToken() {
+        return mToken.getRawToken();
     }
 
     /**
