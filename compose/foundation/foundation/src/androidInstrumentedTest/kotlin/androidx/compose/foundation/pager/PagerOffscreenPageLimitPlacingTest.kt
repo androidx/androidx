@@ -158,14 +158,25 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.size(pageSizeDp * 1.5f),
                 pageSize = PageSize.Fixed(pageSizeDp),
-                outOfBoundsPageCount = 2,
+                outOfBoundsPageCount = it.outOfBoundsPageCount,
                 orientation = it.orientation,
-                pageSpacing = it.pageSpacing,
-                contentPadding = it.mainAxisContentPadding
+                pageSpacing = it.pageSpacing
             )
         }
 
-        forEachParameter(ParamsToTest) { param ->
+        val Params = mutableListOf<SingleParamConfig>().apply {
+            for (orientation in TestOrientation) {
+                for (pageSpacing in TestPageSpacing) {
+                    add(SingleParamConfig(
+                        orientation = orientation,
+                        pageSpacing = pageSpacing,
+                        outOfBoundsPageCount = 2
+                    ))
+                }
+            }
+        }
+
+        forEachParameter(Params) { param ->
             val lastVisible = pagerState.layoutInfo.visiblePagesInfo.last().index
             // Assert
             rule.runOnIdle {
@@ -184,6 +195,8 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                     Truth.assertThat(pagerState.layoutWithMeasurement)
                         .isEqualTo(previousNumberOfRemeasurementPasses)
                 }
+
+                // verify that out of bounds pages are correctly placed
                 param.confirmPageIsInCorrectPosition(
                     pagerState.currentPage,
                     lastVisible + 1,
