@@ -151,6 +151,7 @@ private fun ftraceDataSource(
                 AtraceTag.Idle,
                 AtraceTag.Input,
                 AtraceTag.MemReclaim,
+                AtraceTag.Power,
                 AtraceTag.Resources,
                 AtraceTag.Scheduling,
                 AtraceTag.Synchronization,
