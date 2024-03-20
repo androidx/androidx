@@ -36,8 +36,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -80,6 +82,7 @@ internal fun LazyList(
 
     val semanticState = rememberLazyListSemanticState(state, isVertical)
     val coroutineScope = rememberCoroutineScope()
+    val graphicsContext = LocalGraphicsContext.current
 
     val measurePolicy = rememberLazyListMeasurePolicy(
         itemProviderLambda,
@@ -92,7 +95,8 @@ internal fun LazyList(
         verticalAlignment,
         horizontalArrangement,
         verticalArrangement,
-        coroutineScope
+        coroutineScope,
+        graphicsContext
     )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -118,6 +122,7 @@ internal fun LazyList(
                 orientation = orientation,
                 enabled = userScrollEnabled
             )
+            .then(state.itemAnimator.modifier)
             .scrollingContainer(
                 state = state,
                 orientation = orientation,
@@ -156,7 +161,8 @@ private fun rememberLazyListMeasurePolicy(
     /** The vertical arrangement for items */
     verticalArrangement: Arrangement.Vertical?,
     /** Scope for animations */
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    graphicsContext: GraphicsContext
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
     contentPadding,
@@ -165,7 +171,8 @@ private fun rememberLazyListMeasurePolicy(
     horizontalAlignment,
     verticalAlignment,
     horizontalArrangement,
-    verticalArrangement
+    verticalArrangement,
+    graphicsContext
 ) {
     { containerConstraints ->
         // Tracks if the lookahead pass has occurred
@@ -324,6 +331,7 @@ private fun rememberLazyListMeasurePolicy(
                 postLookaheadLayoutInfo = state.postLookaheadLayoutInfo,
                 coroutineScope = coroutineScope,
                 placementScopeInvalidator = state.placementScopeInvalidator,
+                graphicsContext = graphicsContext,
                 layout = { width, height, placement ->
                     layout(
                         containerConstraints.constrainWidth(width + totalHorizontalPadding),
