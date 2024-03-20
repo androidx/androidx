@@ -278,6 +278,7 @@
          <trusted-key id="835A685C8C6F49C54980E5CAF406F31BC1468EBA" group="org.jcodec"/>
          <trusted-key id="842AFB86375D805422835BFD82B5574242C20D6F" group="org.antlr"/>
          <trusted-key id="8461EFA0E74ABAE010DE66994EB27DB2A3B88B8B" group="^androidx\..*" regex="true"/>
+         <trusted-key id="A5F483CD733A4EBAEA378B2AE88979FB9B30ACF2" group="^androidx\..*" regex="true"/>
          <trusted-key id="84789D24DF77A32433CE1F079EB80E92EB2135B1">
             <trusting group="org.apache"/>
             <trusting group="org.apache.maven" name="maven-parent"/>
