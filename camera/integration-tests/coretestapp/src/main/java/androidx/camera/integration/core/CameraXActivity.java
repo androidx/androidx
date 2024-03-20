@@ -26,7 +26,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG;
-import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_ULTRA_HDR;
+import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR;
 import static androidx.camera.core.ImageCapture.getImageCaptureCapabilities;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.integration.core.CameraXViewModel.getConfiguredCameraXCameraImplementation;
@@ -1785,8 +1785,8 @@ public class CameraXActivity extends AppCompatActivity {
     private String getBindFailedErrorMessage() {
         if (mVideoQuality != QUALITY_AUTO) {
             return "Bind too many use cases or video quality is too large.";
-        } else if (mImageOutputFormat == OUTPUT_FORMAT_ULTRA_HDR && Objects.equals(mDynamicRange,
-                DynamicRange.SDR)) {
+        } else if (mImageOutputFormat == OUTPUT_FORMAT_JPEG_ULTRA_HDR
+                && Objects.equals(mDynamicRange, DynamicRange.SDR)) {
             return "Bind too many use cases or device does not support concurrent SDR and HDR.";
         } else if (!Objects.equals(mDynamicRange, DynamicRange.SDR)) {
             return "Bind too many use cases or unsupported dynamic range combination.";
@@ -2598,7 +2598,7 @@ public class CameraXActivity extends AppCompatActivity {
     private static String getImageOutputFormatIconName(@ImageCapture.OutputFormat int format) {
         if (format == OUTPUT_FORMAT_JPEG) {
             return "Jpeg";
-        } else if (format == OUTPUT_FORMAT_ULTRA_HDR) {
+        } else if (format == OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
             return "Ultra HDR";
         }
         return "?";
@@ -2608,7 +2608,7 @@ public class CameraXActivity extends AppCompatActivity {
     private static String getImageOutputFormatMenuItemName(@ImageCapture.OutputFormat int format) {
         if (format == OUTPUT_FORMAT_JPEG) {
             return "Jpeg";
-        } else if (format == OUTPUT_FORMAT_ULTRA_HDR) {
+        } else if (format == OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
             return "Ultra HDR";
         }
         return "Unknown format";
@@ -2617,7 +2617,7 @@ public class CameraXActivity extends AppCompatActivity {
     private static int imageOutputFormatToItemId(@ImageCapture.OutputFormat int format) {
         if (format == OUTPUT_FORMAT_JPEG) {
             return 0;
-        } else if (format == OUTPUT_FORMAT_ULTRA_HDR) {
+        } else if (format == OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
             return 1;
         } else {
             throw new IllegalArgumentException("Undefined output format: " + format);
@@ -2630,7 +2630,7 @@ public class CameraXActivity extends AppCompatActivity {
             case 0:
                 return OUTPUT_FORMAT_JPEG;
             case 1:
-                return OUTPUT_FORMAT_ULTRA_HDR;
+                return OUTPUT_FORMAT_JPEG_ULTRA_HDR;
             default:
                 throw new IllegalArgumentException("Undefined item id: " + itemId);
         }

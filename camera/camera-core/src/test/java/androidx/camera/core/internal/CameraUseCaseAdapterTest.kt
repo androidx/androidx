@@ -296,7 +296,7 @@ class CameraUseCaseAdapterTest {
 
         // Act: add ImageCapture that sets Ultra HDR.
         val imageCapture = ImageCapture.Builder()
-            .setOutputFormat(ImageCapture.OUTPUT_FORMAT_ULTRA_HDR)
+            .setOutputFormat(ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR)
             .build()
         adapter.addUseCases(setOf(imageCapture))
     }
@@ -320,7 +320,7 @@ class CameraUseCaseAdapterTest {
 
         // Act: add ImageCapture that sets Ultra HDR.
         val imageCapture = ImageCapture.Builder()
-            .setOutputFormat(ImageCapture.OUTPUT_FORMAT_ULTRA_HDR)
+            .setOutputFormat(ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR)
             .build()
         adapter.addUseCases(setOf(imageCapture))
     }

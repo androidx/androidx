@@ -32,7 +32,7 @@ import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG
-import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_ULTRA_HDR
+import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.impl.CameraFactory
@@ -412,7 +412,7 @@ class ImageCaptureTest {
         // Verify.
         val capabilities = ImageCapture.getImageCaptureCapabilities(cameraInfo)
         assertThat(capabilities.supportedOutputFormats).containsExactlyElementsIn(
-            listOf(OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_ULTRA_HDR)
+            listOf(OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_JPEG_ULTRA_HDR)
         )
     }
 
@@ -438,11 +438,11 @@ class ImageCaptureTest {
     @Test
     fun canSetOutputFormatAsUltraHdr() {
         val imageCapture = ImageCapture.Builder()
-            .setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
+            .setOutputFormat(OUTPUT_FORMAT_JPEG_ULTRA_HDR)
             .build()
 
         // Verify.
-        assertThat(imageCapture.outputFormat).isEqualTo(OUTPUT_FORMAT_ULTRA_HDR)
+        assertThat(imageCapture.outputFormat).isEqualTo(OUTPUT_FORMAT_JPEG_ULTRA_HDR)
     }
 
     @Config(minSdk = 34)
@@ -450,7 +450,7 @@ class ImageCaptureTest {
     fun sessionConfigSurfaceFormat_isJpegR_whenOutputFormatIsSetAsUltraHdr() {
         // Arrange.
         val imageCapture = ImageCapture.Builder()
-            .setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
+            .setOutputFormat(OUTPUT_FORMAT_JPEG_ULTRA_HDR)
             .build()
 
         // Act.
