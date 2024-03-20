@@ -94,4 +94,12 @@ public class FlagsTest {
                 .isEqualTo(
                         "com.android.appsearch.flags.enable_result_denied_and_result_rate_limited");
     }
+
+    @Test
+    public void testFlagValue_enableGetParentTypesAndIndexableNestedProperties() {
+        assertThat(Flags.FLAG_ENABLE_GET_PARENT_TYPES_AND_INDEXABLE_NESTED_PROPERTIES)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".enable_get_parent_types_and_indexable_nested_properties");
+    }
 }

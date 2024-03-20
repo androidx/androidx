@@ -18,6 +18,9 @@ package androidx.appsearch.flags;
 
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchSchema;
+
+import java.util.Collection;
 
 /**
  * Flags to control different features.
@@ -108,6 +111,14 @@ public final class Flags {
     public static final String FLAG_ENABLE_RESULT_DENIED_AND_RESULT_RATE_LIMITED =
             FLAG_PREFIX + "enable_result_denied_and_result_rate_limited";
 
+    /**
+     * Enables {@link AppSearchSchema#getParentTypes()},
+     * {@link AppSearchSchema.DocumentPropertyConfig#getIndexableNestedProperties()} and variants of
+     * {@link AppSearchSchema.DocumentPropertyConfig.Builder#addIndexableNestedProperties(Collection)}}.
+     */
+    public static final String FLAG_ENABLE_GET_PARENT_TYPES_AND_INDEXABLE_NESTED_PROPERTIES =
+            FLAG_PREFIX + "enable_get_parent_types_and_indexable_nested_properties";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -189,6 +200,16 @@ public final class Flags {
      * {@link androidx.appsearch.app.AppSearchResult#RESULT_RATE_LIMITED} should be enabled.
      */
     public static boolean enableResultDeniedAndResultRateLimited() {
+        return true;
+    }
+
+    /**
+     * Whether {@link AppSearchSchema#getParentTypes()},
+     * {@link AppSearchSchema.DocumentPropertyConfig#getIndexableNestedProperties()} and variants of
+     * {@link AppSearchSchema.DocumentPropertyConfig.Builder#addIndexableNestedProperties(Collection)}}
+     * should be enabled.
+     */
+    public static boolean enableGetParentTypesAndIndexableNestedProperties() {
         return true;
     }
 }

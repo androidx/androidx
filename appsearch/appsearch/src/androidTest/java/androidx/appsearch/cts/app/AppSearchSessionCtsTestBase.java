@@ -7468,6 +7468,13 @@ public abstract class AppSearchSessionCtsTestBase {
         Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
         assertThat(actual).hasSize(3);
         assertThat(actual).isEqualTo(request.getSchemas());
+
+        // Check that calling getParentType() for the EmailMessage schema returns Email and Message
+        for (AppSearchSchema schema : actual) {
+            if (schema.getSchemaType().equals("EmailMessage")) {
+                assertThat(schema.getParentTypes()).containsExactly("Email", "Message");
+            }
+        }
     }
 
     @Test
