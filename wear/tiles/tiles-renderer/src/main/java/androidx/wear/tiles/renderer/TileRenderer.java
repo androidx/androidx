@@ -89,9 +89,9 @@ public final class TileRenderer {
      * @param resources The resources for the Tile.
      * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
-     * @deprecated Use {@link #TileRenderer(Context, Executor, Consumer)} which accepts Layout and
-     *     Resources in {@link #inflateAsync(LayoutElementBuilders.Layout,
-     *     ResourceBuilders.Resources, ViewGroup)} method.
+     * @deprecated Use {@link #TileRenderer(Config)} which accepts Layout and Resources in {@link
+     *     #inflateAsync(LayoutElementBuilders.Layout, ResourceBuilders.Resources, ViewGroup)}
+     *     method.
      */
     @Deprecated
     public TileRenderer(
@@ -119,9 +119,9 @@ public final class TileRenderer {
      * @param resources The resources for the Tile.
      * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
-     * @deprecated Use {@link #TileRenderer(Context, Executor, Consumer)} which accepts Layout and
-     *     Resources in {@link #inflateAsync(LayoutElementBuilders.Layout,
-     *     ResourceBuilders.Resources, ViewGroup)} method.
+     * @deprecated Use {@link #TileRenderer(Config)} which accepts Layout and Resources in {@link
+     *     #inflateAsync(LayoutElementBuilders.Layout, ResourceBuilders.Resources, ViewGroup)}
+     *     method.
      */
     @Deprecated
     public TileRenderer(
@@ -141,6 +141,10 @@ public final class TileRenderer {
     }
 
     /**
+     * Constructor for {@link TileRenderer}.
+     *
+     * <p>It is recommended to use the new {@link #TileRenderer(Config)} constructor instead.
+     *
      * @param uiContext A {@link Context} suitable for interacting with the UI.
      * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
@@ -154,6 +158,21 @@ public final class TileRenderer {
                 /* tilesTheme= */ 0,
                 loadActionExecutor,
                 loadActionListener,
+                /* layout= */ null,
+                /* resources= */ null);
+    }
+
+    /**
+     * Constructor for {@link TileRenderer}.
+     *
+     * @param config A {@link Config} to create a {@link TileRenderer} instance.
+     */
+    public TileRenderer(@NonNull Config config) {
+        this(
+                config.getUiContext(),
+                config.getTilesTheme(),
+                config.getLoadActionExecutor(),
+                config.getLoadActionListener(),
                 /* layout= */ null,
                 /* resources= */ null);
     }
@@ -270,5 +289,94 @@ public final class TileRenderer {
             @NonNull ViewGroup parent) {
         ListenableFuture<Void> result = mInstance.renderAndAttach(layout, resources, parent);
         return FluentFuture.from(result).transform(ignored -> parent.getChildAt(0), mUiExecutor);
+    }
+
+    /** Config class for {@link TileRenderer}. */
+    public static final class Config {
+        @NonNull private final Context mUiContext;
+        @NonNull private final Executor mLoadActionExecutor;
+        @NonNull private final Consumer<StateBuilders.State> mLoadActionListener;
+
+        @StyleRes int mTilesTheme;
+
+        Config(
+                @NonNull Context uiContext,
+                @NonNull Executor loadActionExecutor,
+                @NonNull Consumer<StateBuilders.State> loadActionListener,
+                @StyleRes int tilesTheme) {
+            this.mUiContext = uiContext;
+            this.mLoadActionExecutor = loadActionExecutor;
+            this.mLoadActionListener = loadActionListener;
+            this.mTilesTheme = tilesTheme;
+        }
+
+        /** Returns the {@link Context} suitable for interacting with the UI. */
+        @NonNull
+        public Context getUiContext() {
+            return mUiContext;
+        }
+
+        /** Returns the {@link Executor} for {@code loadActionListener}. */
+        @NonNull
+        public Executor getLoadActionExecutor() {
+            return mLoadActionExecutor;
+        }
+
+        /** Returns the Listener for clicks that will cause the contents to be reloaded. */
+        @NonNull
+        public Consumer<StateBuilders.State> getLoadActionListener() {
+            return mLoadActionListener;
+        }
+
+        /**
+         * Returns the theme to use for this Tile instance. This can be used to customise things
+         * like the default font family.
+         */
+        public int getTilesTheme() {
+            return mTilesTheme;
+        }
+
+        /** Builder class for {@link Config}. */
+        public static final class Builder {
+            @NonNull private final Context mUiContext;
+            @NonNull private final Executor mLoadActionExecutor;
+            @NonNull private final Consumer<StateBuilders.State> mLoadActionListener;
+
+            @StyleRes int mTilesTheme = 0; // Default theme.
+
+            /**
+             * Builder for the {@link Config} class.
+             *
+             * @param uiContext A {@link Context} suitable for interacting with the UI.
+             * @param loadActionExecutor Executor for {@code loadActionListener}.
+             * @param loadActionListener Listener for clicks that will cause the contents to be
+             *     reloaded.
+             */
+            public Builder(
+                    @NonNull Context uiContext,
+                    @NonNull Executor loadActionExecutor,
+                    @NonNull Consumer<StateBuilders.State> loadActionListener) {
+                this.mUiContext = uiContext;
+                this.mLoadActionExecutor = loadActionExecutor;
+                this.mLoadActionListener = loadActionListener;
+            }
+
+            /**
+             * Sets the theme to use for this Tile instance. This can be used to customise things
+             * like the default font family.
+             */
+            @NonNull
+            public Builder setTilesTheme(@StyleRes int tilesTheme) {
+                mTilesTheme = tilesTheme;
+                return this;
+            }
+
+            /** Builds {@link Config} object. */
+            @NonNull
+            public Config build() {
+                return new Config(
+                        mUiContext, mLoadActionExecutor, mLoadActionListener, mTilesTheme);
+            }
+        }
     }
 }
