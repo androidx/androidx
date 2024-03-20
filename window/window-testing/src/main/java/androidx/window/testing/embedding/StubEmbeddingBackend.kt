@@ -21,6 +21,7 @@ import android.os.Bundle
 import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
+import androidx.window.embedding.EmbeddedActivityWindowInfo
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingConfiguration
 import androidx.window.embedding.EmbeddingRule
@@ -232,6 +233,19 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     }
 
     override fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    ) {
         TODO("Not yet implemented")
     }
 

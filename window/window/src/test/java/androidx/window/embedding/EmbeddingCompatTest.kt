@@ -41,6 +41,7 @@ class EmbeddingCompatTest {
         CONSUMER_ADAPTER,
         mock(),
         mock(),
+        mock(),
     )
 
     @Suppress("Deprecation")

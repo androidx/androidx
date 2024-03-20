@@ -128,6 +128,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).invalidateTopVisibleSplitAttributes()
 
         verifyOverlayFeatureApis()
+        verifyActivityWindowInfoCallbackController()
     }
 
     @Test
@@ -166,6 +167,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).invalidateTopVisibleSplitAttributes()
 
         verifyOverlayFeatureApis()
+        verifyActivityWindowInfoCallbackController()
     }
 
     @Test
@@ -210,6 +212,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
 
         verifyOverlayFeatureApis()
+        verifyActivityWindowInfoCallbackController()
     }
 
     @Test
@@ -254,6 +257,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
 
         verifyOverlayFeatureApis()
+        verifyActivityWindowInfoCallbackController()
     }
 
     @Test
@@ -295,6 +299,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
 
         verifyOverlayFeatureApis()
+        verifyActivityWindowInfoCallbackController();
     }
 
     private fun verifyOverlayFeatureApis() {
@@ -349,6 +354,16 @@ class RequiresWindowSdkExtensionTests {
         }
     }
 
+    private fun verifyActivityWindowInfoCallbackController() {
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+            ActivityWindowInfoCallbackController(embeddingExtension)
+        } else {
+            assertThrows(UnsupportedOperationException::class.java) {
+                ActivityWindowInfoCallbackController(embeddingExtension)
+            }
+        }
+    }
+
     private fun createTestEmbeddingCompat() {
         val overlayController = if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
             spy(
@@ -366,12 +381,24 @@ class RequiresWindowSdkExtensionTests {
             doNothing().whenever(this).removeOverlayInfoCallback(any())
         }
 
+        val activityWindowInfoCallbackController =
+            if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+                spy(ActivityWindowInfoCallbackController(embeddingExtension))
+            } else {
+                null
+            }
+        activityWindowInfoCallbackController?.apply {
+            doNothing().whenever(this).addCallback(any(), any())
+            doNothing().whenever(this).removeCallback(any())
+        }
+
         embeddingCompat = EmbeddingCompat(
             embeddingExtension,
             EmbeddingAdapter(PredicateAdapter(classLoader)),
             ConsumerAdapter(classLoader),
             applicationContext,
             overlayController,
+            activityWindowInfoCallbackController,
         )
     }
 

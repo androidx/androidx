@@ -96,4 +96,15 @@ internal interface EmbeddingInterfaceCompat {
 
     @RequiresWindowSdkExtension(6)
     fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
+
+    @RequiresWindowSdkExtension(6)
+    fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    )
+
+    @RequiresWindowSdkExtension(6)
+    fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    )
 }

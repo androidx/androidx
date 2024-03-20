@@ -108,6 +108,11 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                             } else {
                                 null
                             },
+                            if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+                                ActivityWindowInfoCallbackController(embeddingExtension)
+                            } else {
+                                null
+                            },
                         )
                     }
                     // TODO(b/190433400): Check API conformance
@@ -472,6 +477,21 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     @RequiresWindowSdkExtension(6)
     override fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>) {
         embeddingExtension?.removeOverlayInfoCallback(overlayInfoCallback)
+    }
+
+    @RequiresWindowSdkExtension(6)
+    override fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    ) {
+        embeddingExtension?.addEmbeddedActivityWindowInfoCallbackForActivity(activity, callback)
+    }
+
+    @RequiresWindowSdkExtension(6)
+    override fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    ) {
+        embeddingExtension?.removeEmbeddedActivityWindowInfoCallbackForActivity(callback)
     }
 
     @RequiresApi(31)

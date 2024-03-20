@@ -19,9 +19,14 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.RestrictTo
+import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * The controller that allows checking the current [Activity] embedding status.
@@ -153,6 +158,35 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
     fun invalidateVisibleActivityStacks() {
         backend.invalidateVisibleActivityStacks()
     }
+
+    /**
+     * A [Flow] of [EmbeddedActivityWindowInfo] that reports the change to the embedded window
+     * related info of the [activity].
+     *
+     * The [Flow] will immediately be invoked with the latest value upon registration if the
+     * [activity] is currently embedded as [EmbeddedActivityWindowInfo.isEmbedded] is `true`.
+     *
+     * When the [activity] is embedded, the [Flow] will be invoked when [EmbeddedActivityWindowInfo]
+     * is changed.
+     * When the [activity] is not embedded, the [Flow] will not be triggered unless the [activity]
+     * is becoming non-embedded from embedded.
+     *
+     * Note that this API is only supported on the device with
+     * [WindowSdkExtensions.extensionVersion] equal to or larger than 6.
+     * If [WindowSdkExtensions.extensionVersion] is less than 6, this [Flow] will not be invoked.
+     *
+     * @param activity the [Activity] that is interested in getting the embedded window info.
+     * @return a [Flow] of [EmbeddedActivityWindowInfo] of the [activity].
+     */
+    // TODO(b/287582673): expose the API
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresWindowSdkExtension(6)
+    fun embeddedActivityWindowInfo(activity: Activity): Flow<EmbeddedActivityWindowInfo> =
+        callbackFlow {
+            val callback = Consumer { info: EmbeddedActivityWindowInfo -> trySend(info) }
+            backend.addEmbeddedActivityWindowInfoCallbackForActivity(activity, callback)
+            awaitClose { backend.removeEmbeddedActivityWindowInfoCallbackForActivity(callback) }
+        }
 
     companion object {
         /**
