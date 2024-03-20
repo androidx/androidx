@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlin.reflect.KClass
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the given owner (usually, a fragment or
@@ -53,7 +54,7 @@ public inline fun <reified VM : ViewModel> viewModel(
     },
     key: String? = null,
     factory: ViewModelProvider.Factory? = null
-): VM = viewModel(VM::class.java, viewModelStoreOwner, key, factory)
+): VM = viewModel(VM::class, viewModelStoreOwner, key, factory)
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the given owner (usually, a fragment or
@@ -89,7 +90,7 @@ public inline fun <reified VM : ViewModel> viewModel(
     } else {
         CreationExtras.Empty
     }
-): VM = viewModel(VM::class.java, viewModelStoreOwner, key, factory, extras)
+): VM = viewModel(VM::class, viewModelStoreOwner, key, factory, extras)
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or
@@ -120,7 +121,7 @@ public fun <VM : ViewModel> viewModel(
     },
     key: String? = null,
     factory: ViewModelProvider.Factory? = null
-): VM = viewModelStoreOwner.get(modelClass, key, factory)
+): VM = viewModelStoreOwner.get(modelClass.kotlin, key, factory)
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or
@@ -148,6 +149,44 @@ public fun <VM : ViewModel> viewModel(
 @Composable
 public fun <VM : ViewModel> viewModel(
     modelClass: Class<VM>,
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+    key: String? = null,
+    factory: ViewModelProvider.Factory? = null,
+    extras: CreationExtras = if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
+        viewModelStoreOwner.defaultViewModelCreationExtras
+    } else {
+        CreationExtras.Empty
+    }
+): VM = viewModelStoreOwner.get(modelClass.kotlin, key, factory, extras)
+
+/**
+ * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or
+ * an activity)
+ *
+ * The created [ViewModel] is associated with the given [viewModelStoreOwner] and will be retained
+ * as long as the scope is alive (e.g. if it is an activity, until it is
+ * finished or process is killed).
+ *
+ * If default arguments are provided via the [CreationExtras], they will be available to the
+ * appropriate factory when the [ViewModel] is created.
+ *
+ * @param modelClass The class of the [ViewModel] to create an instance of it if it is not
+ * present.
+ * @param viewModelStoreOwner The scope that the created [ViewModel] should be associated with.
+ * @param key The key to use to identify the [ViewModel].
+ * @param factory The [ViewModelProvider.Factory] that should be used to create the [ViewModel]
+ * or null if you would like to use the default factory from the [LocalViewModelStoreOwner]
+ * @param extras The default extras used to create the [ViewModel].
+ * @return A [ViewModel] that is an instance of the given [VM] type.
+ *
+ * @sample androidx.lifecycle.viewmodel.compose.samples.CreationExtrasViewModel
+ */
+@Suppress("MissingJvmstatic")
+@Composable
+public fun <VM : ViewModel> viewModel(
+    modelClass: KClass<VM>,
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
@@ -198,7 +237,7 @@ public inline fun <reified VM : ViewModel> viewModel(
 )
 
 private fun <VM : ViewModel> ViewModelStoreOwner.get(
-    javaClass: Class<VM>,
+    javaClass: KClass<VM>,
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
     extras: CreationExtras = if (this is HasDefaultViewModelProviderFactory) {
