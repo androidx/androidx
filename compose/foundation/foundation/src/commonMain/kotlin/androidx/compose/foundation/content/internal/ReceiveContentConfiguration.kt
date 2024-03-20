@@ -19,7 +19,6 @@
 package androidx.compose.foundation.content.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.ReceiveContentNode
 import androidx.compose.foundation.content.TransferableContent
@@ -28,7 +27,6 @@ import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalOf
 
 internal abstract class ReceiveContentConfiguration {
-    abstract val hintMediaTypes: Set<MediaType>
     abstract val receiveContentListener: ReceiveContentListener
 
     fun onCommitContent(transferableContent: TransferableContent): Boolean {
@@ -38,16 +36,14 @@ internal abstract class ReceiveContentConfiguration {
 
     companion object {
         operator fun invoke(
-            hintMediaTypes: Set<MediaType>,
             receiveContentListener: ReceiveContentListener
         ): ReceiveContentConfiguration = ReceiveContentConfigurationImpl(
-            hintMediaTypes, receiveContentListener
+            receiveContentListener
         )
     }
 }
 
 private data class ReceiveContentConfigurationImpl(
-    override val hintMediaTypes: Set<MediaType>,
     override val receiveContentListener: ReceiveContentListener
 ) : ReceiveContentConfiguration()
 
@@ -74,52 +70,6 @@ internal fun ModifierLocalModifierNode.getReceiveContentConfiguration() = if (no
 internal class DynamicReceiveContentConfiguration(
     val receiveContentNode: ReceiveContentNode
 ) : ReceiveContentConfiguration() {
-
-    /**
-     * The set of media types that were read from the ancestor nodes when [cachedHintMediaTypes]
-     * was last calculated.
-     */
-    private var lastParentHintMediaTypes: Set<MediaType>? = null
-
-    /**
-     * The set of media types that were configured for this node when [cachedHintMediaTypes]
-     * was last calculated.
-     */
-    private var lastHintMediaTypes: Set<MediaType>? = null
-
-    /**
-     * The merged set of [lastParentHintMediaTypes] and [lastHintMediaTypes]. [hintMediaTypes]
-     * should always return this value.
-     */
-    private var cachedHintMediaTypes: Set<MediaType> = receiveContentNode.hintMediaTypes
-
-    override val hintMediaTypes: Set<MediaType>
-        get() {
-            val fromParent = with(receiveContentNode) {
-                getReceiveContentConfiguration()?.hintMediaTypes
-            }
-            val fromNode = receiveContentNode.hintMediaTypes
-            var calculatedHintMediaTypes = when {
-                // do not allocate again. return the last merged set.
-                fromParent == lastParentHintMediaTypes && fromNode == lastHintMediaTypes ->
-                    cachedHintMediaTypes
-                // nothing coming from top, we can just return this node's configuration.
-                fromParent == null -> fromNode
-                // there's a change from the last calculation, recalculate
-                else -> fromNode + fromParent
-            }
-
-            if (calculatedHintMediaTypes.isEmpty()) {
-                calculatedHintMediaTypes = setOf(MediaType.All)
-            }
-
-            // after calculating the result, cache the inputs and the output before returning.
-            lastParentHintMediaTypes = fromParent
-            lastHintMediaTypes = fromNode
-            cachedHintMediaTypes = calculatedHintMediaTypes
-
-            return calculatedHintMediaTypes
-        }
 
     /**
      * A getter that returns the closest [contentReceiver] modifier configuration if this node is

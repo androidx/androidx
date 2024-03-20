@@ -23,9 +23,13 @@ import androidx.compose.foundation.draganddrop.dragAndDropTarget
  * A set of callbacks for [contentReceiver] modifier to get information about certain Drag-and-Drop
  * state changes, as well as receiving the payload carrying [TransferableContent].
  *
- * [contentReceiver]'s drop target supports nesting. When two [contentReceiver] modifiers are nested
- * on the composition tree, parent's drop target actually includes child's bounds, meaning that
- * they are not mutually exclusive like the regular [dragAndDropTarget].
+ * [contentReceiver]'s drop target behaves a little different compared to the regular
+ * [dragAndDropTarget] modifier. When two [contentReceiver] modifiers are nested on the composition
+ * tree, drop area of the parent node encapsulates drop area of the child node, meaning that they
+ * wouldn't be mutually exclusive like the regular [dragAndDropTarget] nesting. This becomes useful
+ * when you want to extend the drop area around a TextField by wrapping the TextField in a larger
+ * component with a [contentReceiver] modifier. We can guarantee that the container won't receive
+ * dragExit event when the dragging item moves over to TextField.
  *
  * Let's assume we have two [contentReceiver] boxes named A and B where B is a child of A, aligned
  * to bottom end.
