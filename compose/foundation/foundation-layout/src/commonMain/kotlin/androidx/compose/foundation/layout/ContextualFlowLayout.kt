@@ -351,10 +351,9 @@ internal fun contextualRowMeasurementHelper(
         getComposable
     ) {
         FlowMeasureLazyPolicy(
-            orientation = LayoutOrientation.Horizontal,
+            isHorizontal = true,
             horizontalArrangement = horizontalArrangement,
-            mainAxisArrangementSpacing = horizontalArrangement.spacing,
-            crossAxisSize = SizeMode.Wrap,
+            mainAxisSpacing = horizontalArrangement.spacing,
             crossAxisAlignment = CROSS_AXIS_ALIGNMENT_TOP,
             verticalArrangement = verticalArrangement,
             crossAxisArrangementSpacing = verticalArrangement.spacing,
@@ -392,10 +391,9 @@ internal fun contextualColumnMeasureHelper(
         getComposable
     ) {
         FlowMeasureLazyPolicy(
-            orientation = LayoutOrientation.Vertical,
+            isHorizontal = false,
             verticalArrangement = verticalArrangement,
-            mainAxisArrangementSpacing = verticalArrangement.spacing,
-            crossAxisSize = SizeMode.Wrap,
+            mainAxisSpacing = verticalArrangement.spacing,
             crossAxisAlignment = CROSS_AXIS_ALIGNMENT_START,
             horizontalArrangement = horizontalArrangement,
             crossAxisArrangementSpacing = horizontalArrangement.spacing,
@@ -414,12 +412,11 @@ internal fun contextualColumnMeasureHelper(
  */
 @OptIn(ExperimentalLayoutApi::class)
 private data class FlowMeasureLazyPolicy(
-    private val orientation: LayoutOrientation,
-    private val horizontalArrangement: Arrangement.Horizontal,
-    private val verticalArrangement: Arrangement.Vertical,
-    private val mainAxisArrangementSpacing: Dp,
-    private val crossAxisSize: SizeMode,
-    private val crossAxisAlignment: CrossAxisAlignment,
+    override val isHorizontal: Boolean,
+    override val horizontalArrangement: Arrangement.Horizontal,
+    override val verticalArrangement: Arrangement.Vertical,
+    private val mainAxisSpacing: Dp,
+    override val crossAxisAlignment: CrossAxisAlignment,
     private val crossAxisArrangementSpacing: Dp,
     private val itemCount: Int,
     private val maxLines: Int,
@@ -430,7 +427,8 @@ private data class FlowMeasureLazyPolicy(
         index: Int,
         info: FlowLineInfo
     ) -> Unit
-) {
+) : FlowLineMeasurePolicy {
+
     fun getMeasurePolicy(): (SubcomposeMeasureScope, Constraints) -> MeasureResult {
         return { measureScope, constraints ->
             measureScope.measure(constraints)
@@ -457,7 +455,7 @@ private data class FlowMeasureLazyPolicy(
         }
         overflow.itemCount = itemCount
         overflow.setOverflowMeasurables(
-            orientation,
+            isHorizontal,
             constraints
         ) { canExpand, noOfItemsShown ->
             val composableIndex = if (canExpand) 0 else 1
@@ -468,13 +466,17 @@ private data class FlowMeasureLazyPolicy(
             }
         }
         return breakDownItems(
-            orientation,
-            horizontalArrangement,
-            verticalArrangement,
-            crossAxisSize,
-            crossAxisAlignment,
+            this@FlowMeasureLazyPolicy,
             measurablesIterator,
-            constraints,
+            mainAxisSpacing,
+            crossAxisArrangementSpacing,
+            OrientationIndependentConstraints(
+                constraints, if (isHorizontal) {
+                    LayoutOrientation.Horizontal
+                } else {
+                    LayoutOrientation.Vertical
+                }
+            ),
             maxItemsInMainAxis,
             maxLines,
             overflow
