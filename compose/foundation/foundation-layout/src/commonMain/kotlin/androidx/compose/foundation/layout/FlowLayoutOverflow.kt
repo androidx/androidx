@@ -793,17 +793,19 @@ internal data class FlowLayoutOverflowState internal constructor(
     internal fun setOverflowMeasurables(
         seeMoreMeasurable: IntrinsicMeasurable?,
         collapseMeasurable: IntrinsicMeasurable?,
-        orientation: LayoutOrientation,
+        isHorizontal: Boolean,
         constraints: Constraints,
     ) {
+        val orientation = if (isHorizontal)
+            LayoutOrientation.Horizontal else LayoutOrientation.Vertical
         val orientationIndependentConstraints =
             OrientationIndependentConstraints(constraints, orientation)
         seeMoreMeasurable?.let { item ->
             val mainAxisSize = item.mainAxisMin(
-                orientation,
+                isHorizontal,
                 orientationIndependentConstraints.crossAxisMax
             )
-            val crossAxisSize = item.crossAxisMin(orientation,
+            val crossAxisSize = item.crossAxisMin(isHorizontal,
                 mainAxisSize
             )
             this.seeMoreSize = IntIntPair(mainAxisSize, crossAxisSize)
@@ -811,17 +813,17 @@ internal data class FlowLayoutOverflowState internal constructor(
         }
         collapseMeasurable?.let { item ->
             val mainAxisSize = item.mainAxisMin(
-                orientation,
+                isHorizontal,
                 orientationIndependentConstraints.crossAxisMax
             )
-            val crossAxisSize = item.crossAxisMin(orientation, mainAxisSize)
+            val crossAxisSize = item.crossAxisMin(isHorizontal, mainAxisSize)
             this.collapseSize = IntIntPair(mainAxisSize, crossAxisSize)
             this.collapseMeasurable = item as? Measurable
         }
     }
 
     internal fun setOverflowMeasurables(
-        orientation: LayoutOrientation,
+        isHorizontal: Boolean,
         constraints: Constraints,
         getOverflowMeasurable: ((isExpandable: Boolean, numberOfItemsShown: Int) -> Measurable?)
     ) {
@@ -836,7 +838,7 @@ internal data class FlowLayoutOverflowState internal constructor(
         setOverflowMeasurables(
             seeMoreMeasurable,
             collapseMeasurable,
-            orientation,
+            isHorizontal,
             constraints
         )
     }
