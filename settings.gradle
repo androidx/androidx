@@ -1,5 +1,3 @@
-import androidx.build.gradle.gcpbuildcache.GcpBuildCache
-import androidx.build.gradle.gcpbuildcache.GcpBuildCacheServiceFactory
 import groovy.transform.Field
 
 pluginManagement {
@@ -107,17 +105,9 @@ gradleEnterprise {
 
 def cacheSetting = System.getenv("USE_ANDROIDX_REMOTE_BUILD_CACHE")
 switch (cacheSetting) {
-    case ["true", "uplink"]: // legacy build cache
-        logger.warn("\u001B[31m\nYou are using legacy USE_ANDROIDX_REMOTE_BUILD_CACHE=$cacheSetting " +
-                "type, this cache has been turned down, so you are *not* using a remote cache. " +
-                "Please move to the new cache using http://go/androidx-dev#remote-build-cache\u001B[0m\n")
-        break
-    case "gcp":
-        buildCache {
-            registerBuildCacheService(GcpBuildCache, GcpBuildCacheServiceFactory)
-        }
+    case ["true", "gcp"]:
         settings.buildCache {
-            remote(GcpBuildCache) {
+            remote(androidx.build.gradle.gcpbuildcache.GcpBuildCache) {
                 projectId = "androidx-ge"
                 bucketName = "androidx-gradle-remote-cache"
                 messageOnAuthenticationFailure = "Your GCP Credentials have expired.\n" +
