@@ -138,15 +138,20 @@ package androidx.wear.protolayout.material {
     method public static androidx.wear.protolayout.material.CompactChip? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.ChipColors getChipColors();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
     method public String? getIconContent();
     method public String getText();
   }
 
   public static final class CompactChip.Builder {
+    ctor public CompactChip.Builder(android.content.Context, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     ctor public CompactChip.Builder(android.content.Context, String, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.CompactChip build();
     method public androidx.wear.protolayout.material.CompactChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
+    method public androidx.wear.protolayout.material.CompactChip.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+    method public androidx.wear.protolayout.material.CompactChip.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.CompactChip.Builder setIconContent(String);
+    method public androidx.wear.protolayout.material.CompactChip.Builder setTextContent(String);
   }
 
   public class ProgressIndicatorColors {

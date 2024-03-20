@@ -218,6 +218,12 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "compactchip_custom_default_golden" + goldenSuffix,
+                new CompactChip.Builder(context, clickable, deviceParameters)
+                        .setTextContent("Action")
+                        .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
+                        .build());
+        testCases.put(
+                "compactchip_custom_default_deprecated_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
                         .build());
@@ -242,6 +248,11 @@ public class TestCasesGenerator {
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
+                        .build());
+        testCases.put(
+                "compactchip_icon_only_golden" + goldenSuffix,
+                new CompactChip.Builder(context, clickable, deviceParameters)
+                        .setIconContent(ICON_ID_SMALL)
                         .build());
 
         testCases.put(
