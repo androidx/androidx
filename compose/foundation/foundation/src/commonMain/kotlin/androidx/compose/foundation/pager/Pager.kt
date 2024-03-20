@@ -115,9 +115,10 @@ fun HorizontalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = remember(state) {
-        PagerDefaults.pageNestedScrollConnection(state, Orientation.Horizontal)
-    },
+    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
+        state,
+        Orientation.Horizontal
+    ),
     snapPosition: SnapPosition = SnapPosition.Start,
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
@@ -201,9 +202,10 @@ fun VerticalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = remember(state) {
-        PagerDefaults.pageNestedScrollConnection(state, Orientation.Vertical)
-    },
+    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
+        state,
+        Orientation.Vertical
+    ),
     snapPosition: SnapPosition = SnapPosition.Start,
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
@@ -339,11 +341,14 @@ object PagerDefaults {
      * @param orientation The orientation of the pager. This will be used to determine which
      * direction the nested scroll connection will operate and react on.
      */
+    @Composable
     fun pageNestedScrollConnection(
         state: PagerState,
         orientation: Orientation
     ): NestedScrollConnection {
-        return DefaultPagerNestedScrollConnection(state, orientation)
+        return remember(state, orientation) {
+            DefaultPagerNestedScrollConnection(state, orientation)
+        }
     }
 
     /**
