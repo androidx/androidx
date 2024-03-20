@@ -170,7 +170,6 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
                 return getWritableOrReadableDatabase(writable)
             } catch (t: Throwable) {
                 // No good, just try again...
-                super.close()
             }
             try {
                 // Wait before trying to open the DB, ideally enough to account for some slow I/O.
@@ -182,7 +181,6 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
             val openRetryError: Throwable = try {
                 return getWritableOrReadableDatabase(writable)
             } catch (t: Throwable) {
-                super.close()
                 t
             }
             if (openRetryError is CallbackException) {
