@@ -203,12 +203,26 @@ class NavControllerRouteTest {
             }
     }
 
+    @Serializable
+    class TestClass
+
+    @Serializable
+    class TestClassPathArg(val arg: Int)
+
+    @Serializable
+    class TestGraph
+
     companion object {
         private const val UNKNOWN_DESTINATION_ID = -1
         private const val TEST_ARG = "test"
         private const val TEST_ARG_VALUE = "value"
         private const val TEST_OVERRIDDEN_VALUE_ARG = "test_overridden_value"
         private const val TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override"
+        private const val TEST_CLASS_ROUTE = "androidx.navigation.NavControllerRouteTest.TestClass"
+        private const val TEST_CLASS_PATH_ARG_ROUTE = "androidx.navigation." +
+            "NavControllerRouteTest.TestClassPathArg/{arg}"
+        private const val TEST_GRAPH_ROUTE = "androidx.navigation." +
+            "NavControllerRouteTest.TestGraph"
     }
 
     @UiThreadTest
@@ -1342,6 +1356,167 @@ class NavControllerRouteTest {
         val popped = navController.popBackStack("second_test/18/13", true)
         assertThat(popped).isFalse()
         assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithKClass() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+
+        // first nav
+        navController.navigate("start")
+
+        // second nav
+        navController.navigate(TEST_CLASS_ROUTE)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val popped = navController.popBackStack<TestClass>(true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackGraphWithKClass() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            route = TestGraph::class,
+            startDestination = TestClass::class
+        ) {
+            test(TestClass::class)
+        }
+
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+
+        navController.navigate(TEST_GRAPH_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+
+        val popped = navController.popBackStack<TestGraph>(true)
+        assertThat(popped).isTrue()
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithKClassArg() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClassPathArg::class)
+        }
+
+        // first nav
+        navController.navigate("start")
+
+        // second nav
+        navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val popped = navController.popBackStack<TestClassPathArg>(true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObject() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+
+        // first nav
+        navController.navigate("start")
+
+        // second nav
+        navController.navigate(TEST_CLASS_ROUTE)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val popped = navController.popBackStack(TestClass(), true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackGraphWithObject() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            route = TestGraph::class,
+            startDestination = TestClass::class
+        ) {
+            test(TestClass::class)
+        }
+
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+
+        navController.navigate(TEST_GRAPH_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+
+        val popped = navController.popBackStack(TestGraph(), true)
+        assertThat(popped).isTrue()
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObjectArg() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClassPathArg::class)
+        }
+
+        // first nav
+        navController.navigate("start")
+
+        // second nav
+        navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val popped = navController.popBackStack(TestClassPathArg(0), true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObjectIncorrectArg() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClassPathArg::class)
+        }
+
+        // first nav
+        navController.navigate("start")
+
+        // second nav
+        navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        // pop with a route that has a different arg value
+        val popped = navController.popBackStack(TestClassPathArg(1), true)
+        assertThat(popped).isFalse()
+        assertThat(navigator.backStack.size).isEqualTo(3)
     }
 
     @UiThreadTest
