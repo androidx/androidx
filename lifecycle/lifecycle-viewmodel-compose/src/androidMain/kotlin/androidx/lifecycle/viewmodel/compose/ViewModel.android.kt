@@ -103,6 +103,8 @@ public inline fun <reified VM : ViewModel> viewModel(
  * present.
  * @param viewModelStoreOwner The scope that the created [ViewModel] should be associated with.
  * @param key The key to use to identify the [ViewModel].
+ * @param factory The [ViewModelProvider.Factory] that should be used to create the [ViewModel]
+ * or null if you would like to use the default factory from the [LocalViewModelStoreOwner]
  * @return A [ViewModel] that is an instance of the given [VM] type.
  */
 @Deprecated(
@@ -135,6 +137,8 @@ public fun <VM : ViewModel> viewModel(
  * present.
  * @param viewModelStoreOwner The scope that the created [ViewModel] should be associated with.
  * @param key The key to use to identify the [ViewModel].
+ * @param factory The [ViewModelProvider.Factory] that should be used to create the [ViewModel]
+ * or null if you would like to use the default factory from the [LocalViewModelStoreOwner]
  * @param extras The default extras used to create the [ViewModel].
  * @return A [ViewModel] that is an instance of the given [VM] type.
  *
