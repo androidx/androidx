@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 package androidx.lifecycle.viewmodel.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
 
 @Composable
-internal actual fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? =
-    LocalView.current.findViewTreeViewModelStoreOwner()
+internal actual fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? = null
