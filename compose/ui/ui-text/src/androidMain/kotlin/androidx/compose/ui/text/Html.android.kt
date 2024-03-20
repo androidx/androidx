@@ -17,7 +17,6 @@
 package androidx.compose.ui.text
 
 import android.graphics.Typeface
-import android.os.Build
 import android.text.Editable
 import android.text.Html.TagHandler
 import android.text.Layout
@@ -36,8 +35,7 @@ import android.text.style.SuperscriptSpan
 import android.text.style.TypefaceSpan
 import android.text.style.URLSpan
 import android.text.style.UnderlineSpan
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -64,7 +62,8 @@ actual fun String.parseAsHtml(): AnnotatedString {
     return spanned.toAnnotatedString()
 }
 
-private fun Spanned.toAnnotatedString(): AnnotatedString {
+@VisibleForTesting
+internal fun Spanned.toAnnotatedString(): AnnotatedString {
     return AnnotatedString.Builder(capacity = length)
         .append(this)
         .also { it.addSpans(this) }
@@ -154,26 +153,25 @@ private fun StyleSpan.toSpanStyle(): SpanStyle? {
 }
 
 private fun TypefaceSpan.toSpanStyle(): SpanStyle {
-    var fontFamily: FontFamily? = null
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        fontFamily = Api28Impl.createFontFamilyFromTypeface(this)
-    }
-    if (fontFamily == null) fontFamily = when (family) {
-        null -> null
+    val fontFamily = when (family) {
         FontFamily.Cursive.name -> FontFamily.Cursive
         FontFamily.Monospace.name -> FontFamily.Monospace
         FontFamily.SansSerif.name -> FontFamily.SansSerif
         FontFamily.Serif.name -> FontFamily.Serif
-        else -> FontFamily.Default
+        else -> { optionalFontFamilyFromName(family) }
     }
     return SpanStyle(fontFamily = fontFamily)
 }
 
-@RequiresApi(28)
-private object Api28Impl {
-    @DoNotInline
-    fun createFontFamilyFromTypeface(typefaceSpan: TypefaceSpan) =
-        typefaceSpan.typeface?.let { FontFamily(it) }
+/**
+ * Mirrors [androidx.compose.ui.text.font.PlatformTypefaces.optionalOnDeviceFontFamilyByName]
+ * behavior with both font weight and font style being Normal in this case */
+private fun optionalFontFamilyFromName(familyName: String?): FontFamily? {
+    if (familyName.isNullOrEmpty()) return null
+    val typeface = Typeface.create(familyName, Typeface.NORMAL)
+    return typeface.takeIf { typeface != Typeface.DEFAULT &&
+        typeface != Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+    }?.let { FontFamily(it) }
 }
 
 private val TagHandler = object : TagHandler {
