@@ -603,7 +603,7 @@ class RouteFilledTest {
 
         assertFailsWith<SerializationException> {
             // the class must be serializable
-            TestClass().generateRouteWithArgs(emptyMap())
+            TestClass().generateRouteWithArgs(emptyMap<String, NavType<Any?>>())
         }
     }
 
