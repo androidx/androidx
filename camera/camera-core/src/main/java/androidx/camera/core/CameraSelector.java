@@ -66,10 +66,16 @@ public final class CameraSelector {
     public static final CameraSelector DEFAULT_BACK_CAMERA =
             new CameraSelector.Builder().requireLensFacing(LENS_FACING_BACK).build();
 
-    private LinkedHashSet<CameraFilter> mCameraFilterSet;
+    @NonNull
+    private final LinkedHashSet<CameraFilter> mCameraFilterSet;
 
-    CameraSelector(LinkedHashSet<CameraFilter> cameraFilterSet) {
+    @Nullable
+    private final String mPhysicalCameraId;
+
+    CameraSelector(@NonNull LinkedHashSet<CameraFilter> cameraFilterSet,
+            @Nullable String physicalCameraId) {
         mCameraFilterSet = cameraFilterSet;
+        mPhysicalCameraId = physicalCameraId;
     }
 
     /**
@@ -204,9 +210,24 @@ public final class CameraSelector {
         return currentLensFacing;
     }
 
+    /**
+     * Returns the physical camera id.
+     *
+     * @return physical camera id.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public String getPhysicalCameraId() {
+        return mPhysicalCameraId;
+    }
+
     /** Builder for a {@link CameraSelector}. */
     public static final class Builder {
+        @NonNull
         private final LinkedHashSet<CameraFilter> mCameraFilterSet;
+
+        @Nullable
+        private String mPhysicalCameraId;
 
         public Builder() {
             mCameraFilterSet = new LinkedHashSet<>();
@@ -270,10 +291,23 @@ public final class CameraSelector {
             return builder;
         }
 
+        /**
+         * Sets the physical camera id.
+         *
+         * @param physicalCameraId physical camera id.
+         * @return this builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setPhysicalCameraId(@NonNull String physicalCameraId) {
+            mPhysicalCameraId = physicalCameraId;
+            return this;
+        }
+
         /** Builds the {@link CameraSelector}. */
         @NonNull
         public CameraSelector build() {
-            return new CameraSelector(mCameraFilterSet);
+            return new CameraSelector(mCameraFilterSet, mPhysicalCameraId);
         }
     }
 

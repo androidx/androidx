@@ -332,7 +332,8 @@ public final class Preview extends UseCase {
         // output target for these two cases.
         if (mSurfaceProvider != null) {
             sessionConfigBuilder.addSurface(mSessionDeferrableSurface,
-                    streamSpec.getDynamicRange());
+                    streamSpec.getDynamicRange(),
+                    getPhysicalCameraId());
         }
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {

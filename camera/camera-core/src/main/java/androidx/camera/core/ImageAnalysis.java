@@ -392,7 +392,7 @@ public final class ImageAnalysis extends UseCase {
 
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
 
-        sessionConfigBuilder.addSurface(mDeferrableSurface, streamSpec.getDynamicRange());
+        sessionConfigBuilder.addSurface(mDeferrableSurface, streamSpec.getDynamicRange(), null);
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             clearPipeline();
