@@ -689,7 +689,7 @@ class TextFieldKeyEventTest {
 
         fun expectedSelection(selection: TextRange) {
             rule.runOnIdle {
-                assertThat(state.text.selection).isEqualTo(selection)
+                assertThat(state.selection).isEqualTo(selection)
             }
         }
 

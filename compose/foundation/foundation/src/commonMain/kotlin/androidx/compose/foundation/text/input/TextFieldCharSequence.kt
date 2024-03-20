@@ -77,6 +77,16 @@ internal fun TextFieldCharSequence(
 ): TextFieldCharSequence = TextFieldCharSequenceWrapper(text, selection, composition)
 
 /**
+ * Returns the backing CharSequence object that this TextFieldCharSequence is wrapping. This is
+ * useful for external equality comparisons that cannot use [TextFieldCharSequence.contentEquals].
+ */
+internal fun TextFieldCharSequence.getBackingCharSequence(): CharSequence {
+    return when (this) {
+        is TextFieldCharSequenceWrapper -> this.text
+    }
+}
+
+/**
  * Copies the contents of this sequence from [[sourceStartIndex], [sourceEndIndex]) into
  * [destination] starting at [destinationOffset].
  */
@@ -94,10 +104,21 @@ internal fun TextFieldCharSequence.toCharArray(
 
 @OptIn(ExperimentalFoundationApi::class)
 private class TextFieldCharSequenceWrapper(
-    private val text: CharSequence,
+    text: CharSequence,
     selection: TextRange,
     composition: TextRange?
 ) : TextFieldCharSequence {
+
+    /**
+     * If this TextFieldCharSequence is actually a copy of another, make sure to use the backing
+     * CharSequence object to stop unnecessary nesting and logic that depends on exact equality of
+     * CharSequence comparison that's using [CharSequence.equals].
+     */
+    val text: CharSequence = if (text is TextFieldCharSequenceWrapper) {
+        text.text
+    } else {
+        text
+    }
 
     override val length: Int
         get() = text.length

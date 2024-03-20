@@ -78,13 +78,13 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
         }
         rule.onNodeWithTag(Tag).requestFocus()
 
-        assertThat(text.text.selection).isEqualTo(TextRange(0))
+        assertThat(text.selection).isEqualTo(TextRange(0))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selection).isEqualTo(TextRange(1))
+        assertThat(text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selection).isEqualTo(TextRange(3))
+        assertThat(text.selection).isEqualTo(TextRange(3))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selection).isEqualTo(TextRange(4))
+        assertThat(text.selection).isEqualTo(TextRange(4))
     }
 
     @Test
@@ -100,13 +100,13 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
         }
         rule.onNodeWithTag(Tag).requestFocus()
 
-        assertThat(text.text.selection).isEqualTo(TextRange(4))
+        assertThat(text.selection).isEqualTo(TextRange(4))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selection).isEqualTo(TextRange(3))
+        assertThat(text.selection).isEqualTo(TextRange(3))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selection).isEqualTo(TextRange(1))
+        assertThat(text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selection).isEqualTo(TextRange(0))
+        assertThat(text.selection).isEqualTo(TextRange(0))
     }
 
     @Test
@@ -181,13 +181,13 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
         }
         rule.onNodeWithTag(Tag).requestFocus()
 
-        assertThat(text.text.selection).isEqualTo(TextRange(0))
+        assertThat(text.selection).isEqualTo(TextRange(0))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selection).isEqualTo(TextRange(1))
+        assertThat(text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selection).isEqualTo(TextRange(1))
+        assertThat(text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionRight)
-        assertThat(text.text.selection).isEqualTo(TextRange(2))
+        assertThat(text.selection).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -203,13 +203,13 @@ class TextFieldOutputTransformationHardwareKeysIntegrationTest {
         }
         rule.onNodeWithTag(Tag).requestFocus()
 
-        assertThat(text.text.selection).isEqualTo(TextRange(2))
+        assertThat(text.selection).isEqualTo(TextRange(2))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selection).isEqualTo(TextRange(1))
+        assertThat(text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selection).isEqualTo(TextRange(1))
+        assertThat(text.selection).isEqualTo(TextRange(1))
         pressKey(Key.DirectionLeft)
-        assertThat(text.text.selection).isEqualTo(TextRange(0))
+        assertThat(text.selection).isEqualTo(TextRange(0))
     }
 
     @Test

@@ -458,7 +458,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(scrollState.value).isEqualTo(scrollState.maxValue)
-            assertThat(state.text.selection).isEqualTo(TextRange(5))
+            assertThat(state.selection).isEqualTo(TextRange(5))
         }
     }
 
@@ -591,9 +591,9 @@ class TextFieldScrollTest : FocusedWindowTest {
         rule.onNodeWithTag("field").assertTextEquals("aaaaaaaaaa")
         rule.waitUntil(
             "scrollState.value (${scrollState.value}) == 0 && " +
-                "state.text.selection (${state.text.selection}) == TextRange(0)"
+                "state.selection (${state.selection}) == TextRange(0)"
         ) {
-            scrollState.value == 0 && state.text.selection == TextRange(0)
+            scrollState.value == 0 && state.selection == TextRange(0)
         }
     }
 

@@ -79,7 +79,7 @@ fun BasicTextFieldOutputTransformationDemos() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun InsertReplaceDeleteDemo() {
-    val text = remember { TextFieldState("abc def ghi") }
+    val state = remember { TextFieldState("abc def ghi") }
     var prefixEnabled by remember { mutableStateOf(true) }
     var suffixEnabled by remember { mutableStateOf(true) }
     var middleWedge by remember { mutableStateOf(true) }
@@ -136,7 +136,7 @@ private fun InsertReplaceDeleteDemo() {
         }
         var isFirstFieldFocused by remember { mutableStateOf(false) }
         BasicTextField(
-            state = text,
+            state = state,
             onTextLayout = { textLayoutResultProvider = it },
             modifier = Modifier
                 .alignByBaseline()
@@ -149,7 +149,7 @@ private fun InsertReplaceDeleteDemo() {
                     // Only draw selection outline when not focused.
                     if (isFirstFieldFocused) return@drawWithContent
                     val textLayoutResult = textLayoutResultProvider() ?: return@drawWithContent
-                    val selection = text.text.selection
+                    val selection = state.selection
                     if (selection.collapsed) {
                         val cursorRect = textLayoutResult.getCursorRect(selection.start)
                         drawLine(
@@ -175,7 +175,7 @@ private fun InsertReplaceDeleteDemo() {
             modifier = Modifier.alignBy { (it.measuredHeight * 0.75f).toInt() }
         )
         BasicTextField(
-            state = text,
+            state = state,
             modifier = Modifier
                 .alignByBaseline()
                 .weight(0.5f)

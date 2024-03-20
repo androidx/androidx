@@ -102,7 +102,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             click(Offset(fontSize.toPx() * 2, fontSize.toPx() / 2))
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(state.selection).isEqualTo(TextRange(2))
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
             (2 * fontSize.value).dp + cursorWidth / 2,
@@ -155,7 +155,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             click(Offset(fontSize.toPx() * 2, fontSize.toPx() / 2))
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(4))
+        assertThat(state.selection).isEqualTo(TextRange(4))
     }
 
     @Test
@@ -177,7 +177,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             click(Offset(fontSize.toPx() * 8, fontSize.toPx() / 2))
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(5))
+        assertThat(state.selection).isEqualTo(TextRange(5))
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
             5 * fontSizeDp + cursorWidth / 2,
@@ -206,7 +206,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             click(Offset(fontSize.toPx() * 2, fontSize.toPx() / 2))
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(3))
+        assertThat(state.selection).isEqualTo(TextRange(3))
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
             (2 * fontSize.value).dp + cursorWidth / 2,
@@ -233,7 +233,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             click(Offset(fontSize.toPx() * 8, fontSize.toPx() / 2))
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(5))
+        assertThat(state.selection).isEqualTo(TextRange(5))
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
             (5 * fontSize.value).dp + cursorWidth / 2,
@@ -604,7 +604,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToRight(fontSizePx * 5)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange.Zero)
+        assertThat(state.selection).isEqualTo(TextRange.Zero)
     }
 
     // region ltr drag tests
@@ -629,7 +629,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToRight(fontSizePx)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
     }
 
     @Test
@@ -653,7 +653,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToLeft(fontSizePx)
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(2))
+            assertThat(state.selection).isEqualTo(TextRange(2))
         }
     }
 
@@ -678,7 +678,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToRight(getTextFieldWidth() * 2)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(3))
+        assertThat(state.selection).isEqualTo(TextRange(3))
     }
 
     @Test
@@ -702,7 +702,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToLeft(getTextFieldWidth() * 2)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange.Zero)
+        assertThat(state.selection).isEqualTo(TextRange.Zero)
     }
 
     @Test
@@ -730,7 +730,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToRight(getTextFieldWidth() * 3)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(state.text.length))
+        assertThat(state.selection).isEqualTo(TextRange(state.text.length))
     }
 
     @Test
@@ -757,12 +757,12 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
         swipeToRight(fontSizePx * 12, durationMillis = 1)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(12))
+            assertThat(state.selection).isEqualTo(TextRange(12))
         }
 
         swipeToRight(fontSizePx * 2, durationMillis = 1)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(14))
+            assertThat(state.selection).isEqualTo(TextRange(14))
         }
     }
 
@@ -792,7 +792,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToRight(fontSizePx)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(state.selection).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -818,7 +818,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToLeft(fontSizePx)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
     }
 
     @Test
@@ -844,7 +844,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToRight(getTextFieldWidth() * 2)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange.Zero)
+        assertThat(state.selection).isEqualTo(TextRange.Zero)
     }
 
     @Test
@@ -870,7 +870,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToLeft(getTextFieldWidth() * 2)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(state.text.length))
+        assertThat(state.selection).isEqualTo(TextRange(state.text.length))
     }
 
     @Test
@@ -902,7 +902,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         swipeToLeft(getTextFieldWidth() * 3)
         rule.waitForIdle()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(state.text.length))
+        assertThat(state.selection).isEqualTo(TextRange(state.text.length))
     }
 
     @Test
@@ -936,12 +936,12 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
         swipeToLeft(fontSizePx * 12, durationMillis = 1)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(12))
+            assertThat(state.selection).isEqualTo(TextRange(12))
         }
 
         swipeToLeft(fontSizePx * 2, durationMillis = 1)
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(14))
+            assertThat(state.selection).isEqualTo(TextRange(14))
         }
     }
 

@@ -77,7 +77,7 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
             click(center + Offset(1f, 0f))
         }
         rule.runOnIdle {
-            assertThat(text.text.selection).isEqualTo(TextRange(2))
+            assertThat(text.selection).isEqualTo(TextRange(2))
         }
 
         rule.onNodeWithTag(Tag).performTouchInput {
@@ -87,7 +87,7 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
             click(center + Offset(-1f, 0f))
         }
         rule.runOnIdle {
-            assertThat(text.text.selection).isEqualTo(TextRange(1))
+            assertThat(text.selection).isEqualTo(TextRange(1))
         }
     }
 
@@ -124,7 +124,7 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
             click(topRight)
         }
         rule.runOnIdle {
-            assertThat(text.text.selection).isEqualTo(TextRange(indexOfA))
+            assertThat(text.selection).isEqualTo(TextRange(indexOfA))
         }
         assertCursor(indexOfA)
 
@@ -134,7 +134,7 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
             click(bottomLeft)
         }
         rule.runOnIdle {
-            assertThat(text.text.selection)
+            assertThat(text.selection)
                 .isEqualTo(TextRange(indexOfA + 1))
         }
         assertCursor(indexOfA + replacement.length)
@@ -164,7 +164,7 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
             click(center + Offset(1f, 0f))
         }
         rule.runOnIdle {
-            assertThat(text.text.selection).isEqualTo(TextRange(1))
+            assertThat(text.selection).isEqualTo(TextRange(1))
         }
         assertCursor(5)
 
@@ -175,7 +175,7 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
             click(center + Offset(-1f, 0f))
         }
         rule.runOnIdle {
-            assertThat(text.text.selection).isEqualTo(TextRange(1))
+            assertThat(text.selection).isEqualTo(TextRange(1))
         }
         assertCursor(1)
     }

@@ -44,12 +44,11 @@ import androidx.compose.foundation.text.input.byValue
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.forEachChange
 import androidx.compose.foundation.text.input.forEachChangeReversed
-import androidx.compose.foundation.text.input.forEachTextValue
 import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.text.input.textAsFlow
 import androidx.compose.foundation.text.input.then
+import androidx.compose.foundation.text.input.valueAsFlow
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -224,7 +223,7 @@ fun BasicTextFieldStateCompleteSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            searchFieldState.forEachTextValue { queryText ->
+            searchFieldState.valueAsFlow().collectLatest { queryText ->
                 // Start a new search every time the user types something valid. If the previous
                 // search is still being processed when the text is changed, it will be cancelled
                 // and this code will run again with the latest query text.
@@ -426,41 +425,6 @@ fun BasicTextFieldChangeReverseIterationSample() {
     })
 }
 
-@Sampled
-fun BasicTextFieldForEachTextValueSample() {
-    class SearchViewModel {
-        val searchFieldState = TextFieldState()
-        var searchResults: List<String> by mutableStateOf(emptyList())
-            private set
-
-        /** Called while the view model is active, e.g. from a LaunchedEffect. */
-        suspend fun run() {
-            searchFieldState.forEachTextValue { queryText ->
-                // Start a new search every time the user types something. If the previous search
-                // is still being processed when the text is changed, it will be cancelled and this
-                // code will run again with the latest query text.
-                searchResults = performSearch(query = queryText)
-            }
-        }
-
-        private suspend fun performSearch(query: CharSequence): List<String> {
-            TODO()
-        }
-    }
-
-    @Composable
-    fun SearchScreen(viewModel: SearchViewModel) {
-        Column {
-            BasicTextField(viewModel.searchFieldState)
-            LazyColumn {
-                items(viewModel.searchResults) {
-                    TODO()
-                }
-            }
-        }
-    }
-}
-
 @OptIn(FlowPreview::class)
 @Suppress("RedundantSuspendModifier")
 @Sampled
@@ -472,7 +436,7 @@ fun BasicTextFieldTextValuesSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            searchFieldState.textAsFlow()
+            searchFieldState.valueAsFlow()
                 // Let fast typers get multiple keystrokes in before kicking off a search.
                 .debounce(500)
                 // collectLatest cancels the previous search if it's still running when there's a

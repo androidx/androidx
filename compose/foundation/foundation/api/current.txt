@@ -1748,9 +1748,13 @@ package androidx.compose.foundation.text.input {
   @androidx.compose.runtime.Stable public final class TextFieldState {
     ctor public TextFieldState(optional String initialText, optional long initialSelection);
     method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text.input.TextFieldBuffer,kotlin.Unit> block);
-    method public androidx.compose.foundation.text.input.TextFieldCharSequence getText();
+    method public androidx.compose.ui.text.TextRange? getComposition();
+    method public long getSelection();
+    method public CharSequence getText();
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.UndoState getUndoState();
-    property public final androidx.compose.foundation.text.input.TextFieldCharSequence text;
+    property public final androidx.compose.ui.text.TextRange? composition;
+    property public final long selection;
+    property public final CharSequence text;
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final androidx.compose.foundation.text.input.UndoState undoState;
   }
 
@@ -1762,11 +1766,10 @@ package androidx.compose.foundation.text.input {
 
   public final class TextFieldStateKt {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void clearText(androidx.compose.foundation.text.input.TextFieldState);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend Object? forEachTextValue(androidx.compose.foundation.text.input.TextFieldState, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.text.input.TextFieldCharSequence,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<?>);
     method @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState(optional String initialText, optional long initialSelection);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text.input.TextFieldState, String text);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndSelectAll(androidx.compose.foundation.text.input.TextFieldState, String text);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static kotlinx.coroutines.flow.Flow<androidx.compose.foundation.text.input.TextFieldCharSequence> textAsFlow(androidx.compose.foundation.text.input.TextFieldState);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static kotlinx.coroutines.flow.Flow<androidx.compose.foundation.text.input.TextFieldCharSequence> valueAsFlow(androidx.compose.foundation.text.input.TextFieldState);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @kotlin.jvm.JvmInline public final value class TextObfuscationMode {
