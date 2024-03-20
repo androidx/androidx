@@ -17,12 +17,10 @@
 package androidx.build
 
 import androidx.build.dependencies.KOTLIN_NATIVE_VERSION
+import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
-import com.android.build.gradle.TestedExtension
 import java.io.File
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -47,19 +45,12 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             project.extensions.create<AndroidXComposeExtension>("androidxCompose", project)
         project.plugins.all { plugin ->
             when (plugin) {
-                is LibraryPlugin -> {
-                    val library =
-                        project.extensions.findByType(LibraryExtension::class.java)
+                is AppPlugin, is LibraryPlugin -> {
+                    val commonExtension =
+                        project.extensions.findByType(CommonExtension::class.java)
                             ?: throw Exception("Failed to find Android extension")
-
-                    project.configureAndroidCommonOptions(library)
-                }
-                is AppPlugin -> {
-                    val app =
-                        project.extensions.findByType(AppExtension::class.java)
-                            ?: throw Exception("Failed to find Android extension")
-
-                    project.configureAndroidCommonOptions(app)
+                    commonExtension.defaultConfig.minSdk = 21
+                    project.configureAndroidCommonOptions()
                 }
                 is KotlinBasePluginWrapper -> {
                     configureComposeCompilerPlugin(project, extension)
@@ -73,9 +64,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
     }
 
     companion object {
-        private fun Project.configureAndroidCommonOptions(testedExtension: TestedExtension) {
-            testedExtension.defaultConfig.minSdk = 21
-
+        private fun Project.configureAndroidCommonOptions() {
             extensions.findByType(AndroidComponentsExtension::class.java)!!.finalizeDsl {
                 val isPublished = androidXExtension.shouldPublish()
 
