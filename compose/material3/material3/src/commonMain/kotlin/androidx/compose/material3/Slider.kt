@@ -1332,6 +1332,7 @@ object SliderDefaults {
         val gap =
             if (thumbTrackGapSize > 0.dp) thumbWidth.toPx() / 2 + thumbTrackGapSize.toPx() else 0f
 
+        // inactive track (range slider)
         if (isRangeSlider && sliderValueStart.x > sliderStart.x + gap + cornerSize) {
             val start = sliderStart.x
             val end = sliderValueStart.x - gap
@@ -1344,6 +1345,7 @@ object SliderDefaults {
             )
             drawStopIndicator?.invoke(this, Offset(start + cornerSize, center.y))
         }
+        // inactive track
         if (sliderValueEnd.x < sliderEnd.x - gap - cornerSize) {
             val start = sliderValueEnd.x + gap
             val end = sliderEnd.x
@@ -1356,11 +1358,12 @@ object SliderDefaults {
             )
             drawStopIndicator?.invoke(this, Offset(end - cornerSize, center.y))
         }
+        // active track
         val activeTrackStart =
             if (isRangeSlider) sliderValueStart.x + gap else 0f
         val activeTrackEnd = sliderValueEnd.x - gap
         val startCornerRadius = if (isRangeSlider) insideCornerSize else cornerSize
-        if (activeTrackEnd - activeTrackStart > startCornerRadius + gap) {
+        if (activeTrackEnd - activeTrackStart > startCornerRadius) {
             drawTrackPath(
                 Offset(activeTrackStart, 0f),
                 Size(activeTrackEnd - activeTrackStart, trackStrokeWidth),
@@ -1396,29 +1399,51 @@ object SliderDefaults {
         startCornerRadius: Float,
         endCornerRadius: Float
     ) {
-        val startCorner = RoundRect(
-            rect = Rect(
-                offset,
-                size = Size(startCornerRadius * 2, size.height)
-            ), cornerRadius = CornerRadius(startCornerRadius)
-        )
+        trackPath.rewind()
+
         val track =
             Rect(
                 Offset(offset.x + startCornerRadius, 0f),
                 size = Size(size.width - startCornerRadius - endCornerRadius, size.height)
             )
-        val endCorner = RoundRect(
-            rect = Rect(
-                Offset(offset.x + startCornerRadius + track.width - endCornerRadius, 0f),
-                size = Size(endCornerRadius * 2, size.height)
-            ), cornerRadius = CornerRadius(endCornerRadius)
-        )
+        trackPath.addRect(track)
 
-        val path = Path()
-        path.addRoundRect(startCorner)
-        path.addRect(track)
-        path.addRoundRect(endCorner)
-        drawPath(path, color)
+        buildCorner(offset, size, startCornerRadius, isStart = true) // start
+        buildCorner(Offset(track.right - endCornerRadius, 0f), size, endCornerRadius) // end
+
+        drawPath(trackPath, color)
+
+        trackPath.rewind()
+    }
+
+    private fun buildCorner(
+        offset: Offset,
+        size: Size,
+        cornerRadius: Float,
+        isStart: Boolean = false
+    ) {
+        cornerPath.rewind()
+        halfRectPath.rewind()
+
+        val corner = RoundRect(
+            rect = Rect(
+                offset,
+                size = Size(cornerRadius * 2, size.height)
+            ), cornerRadius = CornerRadius(cornerRadius)
+        )
+        cornerPath.addRoundRect(corner)
+
+        // delete the unnecessary half of the RoundRect
+        halfRectPath.addRect(
+            Rect(
+                Offset(corner.left + if (isStart) cornerRadius else 0f, 0f),
+                size = Size(cornerRadius, size.height)
+            )
+        )
+        trackPath.addPath(cornerPath - halfRectPath)
+
+        cornerPath.rewind()
+        halfRectPath.rewind()
     }
 
     private fun DrawScope.drawStopIndicator(
@@ -1432,6 +1457,10 @@ object SliderDefaults {
             radius = size.toPx() / 2f
         )
     }
+
+    private val trackPath = Path()
+    private val cornerPath = Path()
+    private val halfRectPath = Path()
 }
 
 private fun snapValueToTick(
