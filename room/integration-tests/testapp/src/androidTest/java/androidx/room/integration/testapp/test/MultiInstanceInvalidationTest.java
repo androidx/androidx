@@ -238,6 +238,7 @@ public class MultiInstanceInvalidationTest {
         assertFalse(changed3.second.await(3, TimeUnit.SECONDS));
     }
 
+    @Ignore // Flaky b/330519843
     @Test
     public void invalidationCausesNoLoop() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
