@@ -24,11 +24,11 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -37,11 +37,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 internal class LazyLayoutAnimation(
-    val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
+    private val graphicsContext: GraphicsContext? = null,
+    private val onLayerPropertyChanged: () -> Unit = {}
 ) {
-
-    var appearanceSpec: FiniteAnimationSpec<Float>? = null
+    var fadeInSpec: FiniteAnimationSpec<Float>? = null
     var placementSpec: FiniteAnimationSpec<IntOffset>? = null
+    var fadeOutSpec: FiniteAnimationSpec<Float>? = null
 
     /**
      * Returns true when the placement animation is currently in progress so the parent
@@ -57,6 +59,18 @@ internal class LazyLayoutAnimation(
         private set
 
     /**
+     * Returns true when the disappearance animation is currently in progress.
+     */
+    var isDisappearanceAnimationInProgress by mutableStateOf(false)
+        private set
+
+    /**
+     * Returns true when the disappearance animation has been finished.
+     */
+    var isDisappearanceAnimationFinished by mutableStateOf(false)
+        private set
+
+    /**
      * This property is managed by the animation manager and is not directly used by this class.
      * It represents the last known offset of this item in the lazy layout coordinate space.
      * It will be updated on every scroll and is allowing the manager to track when the item
@@ -64,6 +78,18 @@ internal class LazyLayoutAnimation(
      * When there is an active animation it represents the final/target offset.
      */
     var rawOffset: IntOffset = NotInitialized
+
+    /**
+     * The final offset the placeable associated with this animations was placed at. Unlike
+     * [rawOffset] it takes into account things like reverse layout and content padding.
+     */
+    var finalOffset: IntOffset = IntOffset.Zero
+
+    /**
+     * Current [GraphicsLayer]. It will be set to null in [release].
+     */
+    var layer: GraphicsLayer? = graphicsContext?.createGraphicsLayer()
+        private set
 
     private val placementDeltaAnimation = Animatable(IntOffset.Zero, IntOffset.VectorConverter)
 
@@ -75,13 +101,6 @@ internal class LazyLayoutAnimation(
      */
     var placementDelta by mutableStateOf(IntOffset.Zero)
         private set
-
-    var visibility by mutableFloatStateOf(1f)
-        private set
-
-    val layerBlock: GraphicsLayerScope.() -> Unit = {
-        alpha = visibility
-    }
 
     /**
      * Cancels the ongoing placement animation if there is one.
@@ -125,6 +144,7 @@ internal class LazyLayoutAnimation(
                 if (!placementDeltaAnimation.isRunning) {
                     // if not running we can snap to the initial value and animate to zero
                     placementDeltaAnimation.snapTo(totalDelta)
+                    onLayerPropertyChanged()
                 }
                 // if animation is not currently running the target will be zero, otherwise
                 // we have to continue the animation from the current value, but keep the needed
@@ -133,6 +153,7 @@ internal class LazyLayoutAnimation(
                 placementDeltaAnimation.animateTo(animationTarget, finalSpec) {
                     // placementDelta is calculated as if we always animate to target equal to zero
                     placementDelta = value - animationTarget
+                    onLayerPropertyChanged()
                 }
 
                 isPlacementAnimationInProgress = false
@@ -144,17 +165,32 @@ internal class LazyLayoutAnimation(
     }
 
     fun animateAppearance() {
-        val spec = appearanceSpec
-        if (isAppearanceAnimationInProgress || spec == null) {
+        val layer = layer
+        val spec = fadeInSpec
+        if (isAppearanceAnimationInProgress || spec == null || layer == null) {
+            if (isDisappearanceAnimationInProgress) {
+                // we have an active disappearance, and then appearance was requested, but the user
+                // provided null spec for the appearance. we need to immediately switch to 1f
+                layer?.alpha = 1f
+                coroutineScope.launch {
+                    visibilityAnimation.snapTo(1f)
+                }
+            }
             return
         }
         isAppearanceAnimationInProgress = true
-        visibility = 0f
+        val shouldResetValue = !isDisappearanceAnimationInProgress
+        if (shouldResetValue) {
+            layer.alpha = 0f
+        }
         coroutineScope.launch {
             try {
-                visibilityAnimation.snapTo(0f)
+                if (shouldResetValue) {
+                    visibilityAnimation.snapTo(0f)
+                }
                 visibilityAnimation.animateTo(1f, spec) {
-                    visibility = value
+                    layer.alpha = value
+                    onLayerPropertyChanged()
                 }
             } finally {
                 isAppearanceAnimationInProgress = false
@@ -162,7 +198,27 @@ internal class LazyLayoutAnimation(
         }
     }
 
-    fun stopAnimations() {
+    fun animateDisappearance() {
+        val layer = layer
+        val spec = fadeOutSpec
+        if (layer == null || isDisappearanceAnimationInProgress || spec == null) {
+            return
+        }
+        isDisappearanceAnimationInProgress = true
+        coroutineScope.launch {
+            try {
+                visibilityAnimation.animateTo(0f, spec) {
+                    layer.alpha = value
+                    onLayerPropertyChanged()
+                }
+                isDisappearanceAnimationFinished = true
+            } finally {
+                isDisappearanceAnimationInProgress = false
+            }
+        }
+    }
+
+    fun release() {
         if (isPlacementAnimationInProgress) {
             isPlacementAnimationInProgress = false
             coroutineScope.launch {
@@ -175,9 +231,19 @@ internal class LazyLayoutAnimation(
                 visibilityAnimation.stop()
             }
         }
+        if (isDisappearanceAnimationInProgress) {
+            isDisappearanceAnimationInProgress = false
+            coroutineScope.launch {
+                visibilityAnimation.stop()
+            }
+        }
         placementDelta = IntOffset.Zero
         rawOffset = NotInitialized
-        visibility = 1f
+        layer?.let { graphicsContext?.releaseGraphicsLayer(it) }
+        layer = null
+        fadeInSpec = null
+        fadeOutSpec = null
+        placementSpec = null
     }
 
     companion object {
@@ -186,9 +252,11 @@ internal class LazyLayoutAnimation(
 }
 
 internal class LazyLayoutAnimationSpecsNode(
-    var appearanceSpec: FiniteAnimationSpec<Float>?,
-    var placementSpec: FiniteAnimationSpec<IntOffset>?
+    var fadeInSpec: FiniteAnimationSpec<Float>?,
+    var placementSpec: FiniteAnimationSpec<IntOffset>?,
+    var fadeOutSpec: FiniteAnimationSpec<Float>?
 ) : Modifier.Node(), ParentDataModifierNode {
+
     override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
 }
 
@@ -199,8 +267,3 @@ private val InterruptionSpec = spring(
     stiffness = Spring.StiffnessMediumLow,
     visibilityThreshold = IntOffset.VisibilityThreshold
 )
-
-/**
- * Block on [GraphicsLayerScope] which applies the default layer parameters.
- */
-internal val DefaultLayerBlock: GraphicsLayerScope.() -> Unit = {}

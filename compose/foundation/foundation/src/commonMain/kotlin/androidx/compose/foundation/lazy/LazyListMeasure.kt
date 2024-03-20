@@ -19,10 +19,12 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
@@ -65,14 +67,15 @@ internal fun measureLazyList(
     postLookaheadLayoutInfo: LazyListLayoutInfo?,
     coroutineScope: CoroutineScope,
     placementScopeInvalidator: ObservableScopeInvalidator,
+    graphicsContext: GraphicsContext,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
     require(beforeContentPadding >= 0) { "invalid beforeContentPadding" }
     require(afterContentPadding >= 0) { "invalid afterContentPadding" }
     if (itemsCount <= 0) {
         // empty data set. reset the current scroll and report zero size
-        val layoutWidth = constraints.minWidth
-        val layoutHeight = constraints.minHeight
+        var layoutWidth = constraints.minWidth
+        var layoutHeight = constraints.minHeight
         itemAnimator.onMeasured(
             consumedScroll = 0,
             layoutWidth = layoutWidth,
@@ -82,8 +85,16 @@ internal fun measureLazyList(
             isVertical = isVertical,
             isLookingAhead = isLookingAhead,
             hasLookaheadOccurred = hasLookaheadPassOccurred,
-            coroutineScope = coroutineScope
+            coroutineScope = coroutineScope,
+            graphicsContext = graphicsContext
         )
+        if (!isLookingAhead) {
+            val disappearingItemsSize = itemAnimator.minSizeToFitDisappearingItems
+            if (disappearingItemsSize != IntSize.Zero) {
+                layoutWidth = constraints.constrainWidth(disappearingItemsSize.width)
+                layoutHeight = constraints.constrainHeight(disappearingItemsSize.height)
+            }
+        }
         return LazyListMeasureResult(
             firstVisibleItem = null,
             firstVisibleItemScrollOffset = 0,
@@ -313,9 +324,9 @@ internal fun measureLazyList(
             extraItemsBefore.isEmpty() &&
             extraItemsAfter.isEmpty()
 
-        val layoutWidth =
+        var layoutWidth =
             constraints.constrainWidth(if (isVertical) maxCrossAxis else currentMainAxisOffset)
-        val layoutHeight =
+        var layoutHeight =
             constraints.constrainHeight(if (isVertical) currentMainAxisOffset else maxCrossAxis)
 
         val positionedItems = calculateItemsOffsets(
@@ -343,8 +354,26 @@ internal fun measureLazyList(
             isVertical = isVertical,
             isLookingAhead = isLookingAhead,
             hasLookaheadOccurred = hasLookaheadPassOccurred,
-            coroutineScope = coroutineScope
+            coroutineScope = coroutineScope,
+            graphicsContext = graphicsContext
         )
+
+        if (!isLookingAhead) {
+            val disappearingItemsSize = itemAnimator.minSizeToFitDisappearingItems
+            if (disappearingItemsSize != IntSize.Zero) {
+                val oldMainAxisSize = if (isVertical) layoutHeight else layoutWidth
+                layoutWidth =
+                    constraints.constrainWidth(maxOf(layoutWidth, disappearingItemsSize.width))
+                layoutHeight =
+                    constraints.constrainHeight(maxOf(layoutHeight, disappearingItemsSize.height))
+                val newMainAxisSize = if (isVertical) layoutHeight else layoutWidth
+                if (newMainAxisSize != oldMainAxisSize) {
+                    positionedItems.fastForEach {
+                        it.updateMainAxisLayoutSize(newMainAxisSize)
+                    }
+                }
+            }
+        }
 
         val headerItem = if (headerIndexes.isNotEmpty()) {
             findOrComposeLazyListHeader(
