@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.room {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AmbiguousColumnResolver {
+    method public static int[][] resolve(String[] resultColumns, String[][] mappings);
+    method public static int[][] resolve(java.util.List<java.lang.String> resultColumns, String[][] mappings);
+    field public static final androidx.room.AmbiguousColumnResolver INSTANCE;
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AutoMigration {
     method public abstract int from();
     method public abstract Class<?> spec() default java.lang.Object;

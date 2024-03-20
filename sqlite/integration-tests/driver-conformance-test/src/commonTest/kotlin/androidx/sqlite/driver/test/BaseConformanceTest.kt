@@ -55,28 +55,65 @@ abstract class BaseConformanceTest {
     @Test
     fun bindAndReadColumns() = testWithConnection { connection ->
         connection.execSQL(
-            "CREATE TABLE Test(integerCol INTEGER, realCol REAL, textCol TEXT, blobCol BLOB)"
+            """
+            CREATE TABLE Test(
+                integerCol_long INTEGER,
+                integerCol_int INTEGER,
+                integerCol_boolean INTEGER,
+                realCol_double REAL,
+                realCol_float REAL,
+                textCol TEXT,
+                blobCol BLOB
+            )
+            """.trimIndent()
         )
-        connection.prepare(
-            "INSERT INTO Test (integerCol, realCol, textCol, blobCol) VALUES (?, ?, ?, ?)"
+        connection.prepare("""
+            INSERT INTO Test (
+                integerCol_long,
+                integerCol_int,
+                integerCol_boolean,
+                realCol_double,
+                realCol_float,
+                textCol,
+                blobCol
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """.trimIndent()
         ).use {
             it.bindLong(1, 3)
-            it.bindDouble(2, 7.87)
-            it.bindText(3, "PR")
-            it.bindBlob(4, byteArrayOf(0x0F, 0x12, 0x1B))
+            it.bindInt(2, 22)
+            it.bindBoolean(3, true)
+            it.bindDouble(4, 7.87)
+            it.bindFloat(5, 9.39f)
+            it.bindText(6, "PR")
+            it.bindBlob(7, byteArrayOf(0x0F, 0x12, 0x1B))
             assertThat(it.step()).isFalse() // SQLITE_DONE
         }
         connection.prepare("SELECT * FROM Test").use {
             assertThat(it.step()).isTrue() // SQLITE_ROW
-            assertThat(it.getColumnCount()).isEqualTo(4)
-            assertThat(it.getColumnName(0)).isEqualTo("integerCol")
-            assertThat(it.getColumnName(1)).isEqualTo("realCol")
-            assertThat(it.getColumnName(2)).isEqualTo("textCol")
-            assertThat(it.getColumnName(3)).isEqualTo("blobCol")
+            assertThat(it.getColumnCount()).isEqualTo(7)
+            assertThat(it.getColumnName(0)).isEqualTo("integerCol_long")
+            assertThat(it.getColumnName(1)).isEqualTo("integerCol_int")
+            assertThat(it.getColumnName(2)).isEqualTo("integerCol_boolean")
+            assertThat(it.getColumnName(3)).isEqualTo("realCol_double")
+            assertThat(it.getColumnName(4)).isEqualTo("realCol_float")
+            assertThat(it.getColumnName(5)).isEqualTo("textCol")
+            assertThat(it.getColumnName(6)).isEqualTo("blobCol")
+            assertThat(it.getColumnNames()).containsExactly(
+                "integerCol_long",
+                "integerCol_int",
+                "integerCol_boolean",
+                "realCol_double",
+                "realCol_float",
+                "textCol",
+                "blobCol"
+            ).inOrder()
             assertThat(it.getLong(0)).isEqualTo(3)
-            assertThat(it.getDouble(1)).isEqualTo(7.87)
-            assertThat(it.getText(2)).isEqualTo("PR")
-            assertThat(it.getBlob(3)).isEqualTo(byteArrayOf(0x0F, 0x12, 0x1B))
+            assertThat(it.getInt(1)).isEqualTo(22)
+            assertThat(it.getBoolean(2)).isTrue()
+            assertThat(it.getDouble(3)).isEqualTo(7.87)
+            assertThat(it.getFloat(4)).isEqualTo(9.39f)
+            assertThat(it.getText(5)).isEqualTo("PR")
+            assertThat(it.getBlob(6)).isEqualTo(byteArrayOf(0x0F, 0x12, 0x1B))
             assertThat(it.step()).isFalse() // SQLITE_DONE
         }
     }
