@@ -1,9 +1,7 @@
-import android.database.Cursor
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Array
 import kotlin.Int
@@ -13,8 +11,9 @@ import kotlin.Short
 import kotlin.ShortArray
 import kotlin.String
 import kotlin.Suppress
-import kotlin.arrayOfNulls
 import kotlin.collections.List
+import kotlin.collections.MutableList
+import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -29,98 +28,133 @@ public class MyDao_Impl(
 
   public override fun queryOfArray(): Array<MyEntity> {
     val _sql: String = "SELECT * FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-      val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-      val _cursorIndexOfOther2: Int = getColumnIndexOrThrow(_cursor, "other2")
-      val _tmpResult: Array<MyEntity?> = arrayOfNulls<MyEntity>(_cursor.getCount())
-      var _index: Int = 0
-      while (_cursor.moveToNext()) {
-        val _item: MyEntity
-        val _tmpPk: Int
-        _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-        val _tmpOther: String
-        _tmpOther = _cursor.getString(_cursorIndexOfOther)
-        val _tmpOther2: Long
-        _tmpOther2 = _cursor.getLong(_cursorIndexOfOther2)
-        _item = MyEntity(_tmpPk,_tmpOther,_tmpOther2)
-        _tmpResult[_index] = _item
-        _index++
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _cursorIndexOfOther2: Int = getColumnIndexOrThrow(_stmt, "other2")
+        val _listResult: MutableList<MyEntity> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: MyEntity
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          val _tmpOther2: Long
+          _tmpOther2 = _stmt.getLong(_cursorIndexOfOther2)
+          _item = MyEntity(_tmpPk,_tmpOther,_tmpOther2)
+          _listResult.add(_item)
+        }
+        val _result: Array<MyEntity> = _listResult.toTypedArray()
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _result: Array<MyEntity> = (_tmpResult) as Array<MyEntity>
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
+    }
+  }
+
+  public override fun queryOfNullableArray(): Array<MyEntity?> {
+    val _sql: String = "SELECT * FROM MyEntity"
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _cursorIndexOfOther2: Int = getColumnIndexOrThrow(_stmt, "other2")
+        val _listResult: MutableList<MyEntity> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: MyEntity
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          val _tmpOther2: Long
+          _tmpOther2 = _stmt.getLong(_cursorIndexOfOther2)
+          _item = MyEntity(_tmpPk,_tmpOther,_tmpOther2)
+          _listResult.add(_item)
+        }
+        val _result: Array<MyEntity?> = _listResult.toTypedArray()
+        _result
+      } finally {
+        _stmt.close()
+      }
     }
   }
 
   public override fun queryOfArrayWithLong(): Array<Long> {
     val _sql: String = "SELECT pk FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _tmpResult: Array<Long?> = arrayOfNulls<Long>(_cursor.getCount())
-      var _index: Int = 0
-      while (_cursor.moveToNext()) {
-        val _item: Long
-        _item = _cursor.getLong(0)
-        _tmpResult[_index] = _item
-        _index++
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _listResult: MutableList<Long> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: Long
+          _item = _stmt.getLong(0)
+          _listResult.add(_item)
+        }
+        val _result: Array<Long> = _listResult.toTypedArray()
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _result: Array<Long> = (_tmpResult) as Array<Long>
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
+    }
+  }
+
+  public override fun queryOfArrayWithNullableLong(): Array<Long?> {
+    val _sql: String = "SELECT pk FROM MyEntity"
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _listResult: MutableList<Long> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: Long
+          _item = _stmt.getLong(0)
+          _listResult.add(_item)
+        }
+        val _result: Array<Long?> = _listResult.toTypedArray()
+        _result
+      } finally {
+        _stmt.close()
+      }
     }
   }
 
   public override fun queryOfLongArray(): LongArray {
-    val _sql: String = "SELECT * FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _tmpResult: Array<Long?> = arrayOfNulls<Long>(_cursor.getCount())
-      var _index: Int = 0
-      while (_cursor.moveToNext()) {
-        val _item: Long
-        _item = _cursor.getLong(0)
-        _tmpResult[_index] = _item
-        _index++
+    val _sql: String = "SELECT pk FROM MyEntity"
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _listResult: MutableList<Long> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: Long
+          _item = _stmt.getLong(0)
+          _listResult.add(_item)
+        }
+        val _result: LongArray = _listResult.toLongArray()
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _result: LongArray = ((_tmpResult) as Array<Long>).toLongArray()
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
     }
   }
 
   public override fun queryOfShortArray(): ShortArray {
-    val _sql: String = "SELECT * FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _tmpResult: Array<Short?> = arrayOfNulls<Short>(_cursor.getCount())
-      var _index: Int = 0
-      while (_cursor.moveToNext()) {
-        val _item: Short
-        _item = _cursor.getShort(0)
-        _tmpResult[_index] = _item
-        _index++
+    val _sql: String = "SELECT pk FROM MyEntity"
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _listResult: MutableList<Short> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: Short
+          _item = _stmt.getLong(0).toShort()
+          _listResult.add(_item)
+        }
+        val _result: ShortArray = _listResult.toShortArray()
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _result: ShortArray = ((_tmpResult) as Array<Short>).toShortArray()
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
     }
   }
 
