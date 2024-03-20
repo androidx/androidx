@@ -91,7 +91,6 @@ class AidlGenerator private constructor(
     }
 
     private fun generateAidlContent(): List<AidlFileSpec> {
-        // TODO(b/323369085): Generate AIDL content for enum classes
         val values = api.values.map(::generateValue)
         val service = aidlInterface(api.getOnlyService())
         val customCallbacks = api.callbacks.flatMap(::aidlInterface)
