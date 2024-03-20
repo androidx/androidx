@@ -4,7 +4,6 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndex
-import androidx.room.util.getColumnNames
 import androidx.room.util.performBlocking
 import androidx.room.util.query
 import androidx.room.util.wrapMappedColumns
@@ -38,8 +37,9 @@ public class MyDao_Impl(
     return performBlocking(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
-        val _cursorIndices: Array<IntArray> = AmbiguousColumnResolver.resolve(getColumnNames(_stmt),
-            arrayOf(arrayOf("id", "name"), arrayOf("id", "userId", "text")))
+        val _cursorIndices: Array<IntArray> =
+            AmbiguousColumnResolver.resolve(_stmt.getColumnNames(), arrayOf(arrayOf("id", "name"),
+            arrayOf("id", "userId", "text")))
         val _result: MutableMap<User, MutableList<Comment>> =
             LinkedHashMap<User, MutableList<Comment>>()
         while (_stmt.step()) {
