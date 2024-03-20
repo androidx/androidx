@@ -385,7 +385,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(2, 3))
+            assertThat(state.selection).isEqualTo(TextRange(2, 3))
         }
     }
 
@@ -406,7 +406,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(2))
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(5))
+            assertThat(state.selection).isEqualTo(TextRange(5))
         }
     }
 
@@ -517,7 +517,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.PasteText)
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(5))
+            assertThat(state.selection).isEqualTo(TextRange(5))
             assertThat(state.text.toString()).isEqualTo("Hello World!")
         }
     }
@@ -548,7 +548,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.PasteText)
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(9))
+            assertThat(state.selection).isEqualTo(TextRange(9))
             assertThat(state.text.toString()).isEqualTo("Heo Word!")
         }
     }
@@ -611,7 +611,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.CopyText)
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
         }
     }
 
@@ -633,7 +633,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo(" World!")
-            assertThat(state.text.selection).isEqualTo(TextRange(0))
+            assertThat(state.selection).isEqualTo(TextRange(0))
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("Hello")
         }
     }
@@ -659,7 +659,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Hello World!")
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("Hello")
         }
     }

@@ -43,7 +43,7 @@ class TransformedTextSelectionMovementTest {
 
         calculateNextCursorPosition(transformedState)
 
-        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(state.selection).isEqualTo(TextRange(2))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(3))
     }
 
@@ -59,7 +59,7 @@ class TransformedTextSelectionMovementTest {
 
         calculatePreviousCursorPosition(transformedState)
 
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
     }
 
@@ -73,19 +73,19 @@ class TransformedTextSelectionMovementTest {
             TransformedTextFieldState(state, outputTransformation = outputTransformation)
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(3))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.End))
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(2))
+        assertThat(state.selection).isEqualTo(TextRange(2))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(4))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.End))
@@ -102,19 +102,19 @@ class TransformedTextSelectionMovementTest {
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(4))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(3))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.End))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(1))
+        assertThat(state.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(0))
+        assertThat(state.selection).isEqualTo(TextRange(0))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(0))
         assertThat(transformedState.selectionWedgeAffinity)
             .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
@@ -130,11 +130,11 @@ class TransformedTextSelectionMovementTest {
             TransformedTextFieldState(state, outputTransformation = outputTransformation)
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(1, 3))
+        assertThat(state.selection).isEqualTo(TextRange(1, 3))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
 
         calculateNextCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(4))
+        assertThat(state.selection).isEqualTo(TextRange(4))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(2))
     }
 
@@ -149,11 +149,11 @@ class TransformedTextSelectionMovementTest {
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(2))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(1, 3))
+        assertThat(state.selection).isEqualTo(TextRange(1, 3))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(1))
 
         calculatePreviousCursorPosition(transformedState)
-        assertThat(state.text.selection).isEqualTo(TextRange(0))
+        assertThat(state.selection).isEqualTo(TextRange(0))
         assertThat(transformedState.visualText.selection).isEqualTo(TextRange(0))
     }
 

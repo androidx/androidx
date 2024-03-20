@@ -125,7 +125,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     private var textLayoutResult: (() -> TextLayoutResult?)? = null
     private val cursorRect: Rect
         // assume selection is collapsed
-        get() = textLayoutResult?.invoke()?.getCursorRect(state.text.selection.start)
+        get() = textLayoutResult?.invoke()?.getCursorRect(state.selection.start)
             ?: Rect.Zero
 
     private val cursorSize: DpSize by lazy {

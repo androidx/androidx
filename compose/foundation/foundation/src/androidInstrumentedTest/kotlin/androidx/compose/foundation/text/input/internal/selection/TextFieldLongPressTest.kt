@@ -129,7 +129,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
         }
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
-        assertThat(state.text.selection).isEqualTo(TextRange(3))
+        assertThat(state.selection).isEqualTo(TextRange(3))
     }
 
     @Test
@@ -183,7 +183,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
 
         rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 7))
+        assertThat(state.selection).isEqualTo(TextRange(4, 7))
     }
 
     @Test
@@ -203,8 +203,8 @@ class TextFieldLongPressTest : FocusedWindowTest {
 
         rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
-        assertThat(state.text.selection).isNotEqualTo(TextRange(7, 8))
-        assertThat(state.text.selection.collapsed).isFalse()
+        assertThat(state.selection).isNotEqualTo(TextRange(7, 8))
+        assertThat(state.selection.collapsed).isFalse()
     }
 
     @Test
@@ -232,7 +232,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
 
         rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
-        assertThat(state.text.selection).isEqualTo(TextRange(20, 23))
+        assertThat(state.selection).isEqualTo(TextRange(20, 23))
     }
 
     @Test
@@ -262,7 +262,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
 
         rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 7))
+        assertThat(state.selection).isEqualTo(TextRange(4, 7))
     }
 
     @Test
@@ -282,7 +282,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 11))
+        assertThat(state.selection).isEqualTo(TextRange(4, 11))
     }
 
     @Test
@@ -302,7 +302,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(0, 7))
+        assertThat(state.selection).isEqualTo(TextRange(0, 7))
     }
 
     @Test
@@ -322,7 +322,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 15))
+        assertThat(state.selection).isEqualTo(TextRange(4, 15))
     }
 
     @Test
@@ -342,7 +342,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 15))
+        assertThat(state.selection).isEqualTo(TextRange(4, 15))
     }
 
     @Test
@@ -364,7 +364,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 7))
+        assertThat(state.selection).isEqualTo(TextRange(4, 7))
     }
 
     //region RTL
@@ -386,7 +386,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(0, 7))
+        assertThat(state.selection).isEqualTo(TextRange(0, 7))
     }
 
     @Test
@@ -406,7 +406,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 11))
+        assertThat(state.selection).isEqualTo(TextRange(4, 11))
     }
 
     @Test
@@ -426,7 +426,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(0, 11))
+        assertThat(state.selection).isEqualTo(TextRange(0, 11))
     }
 
     @Test
@@ -446,7 +446,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(0, 11))
+        assertThat(state.selection).isEqualTo(TextRange(0, 11))
     }
 
     @Test
@@ -470,7 +470,7 @@ class TextFieldLongPressTest : FocusedWindowTest {
             up()
         }
 
-        assertThat(state.text.selection).isEqualTo(TextRange(4, 7))
+        assertThat(state.selection).isEqualTo(TextRange(4, 7))
     }
 
     @Test
