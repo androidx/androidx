@@ -242,6 +242,10 @@ actual abstract class RoomDatabase {
 
     /**
      * Use a connection to perform database operations.
+     *
+     * This function is for internal access to the pool, it is an unconfined coroutine function to
+     * be used by Room generated code paths. For the public version see [useReaderConnection] and
+     * [useWriterConnection].
      */
     internal actual suspend fun <R> useConnection(
         isReadOnly: Boolean,
