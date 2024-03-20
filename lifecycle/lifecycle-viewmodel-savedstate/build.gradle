@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -30,7 +30,10 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXMultiplatform {
     android()
@@ -42,11 +45,19 @@ androidXMultiplatform {
     wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
 
     sourceSets {
         commonMain {
             dependencies {
                 api(project(":annotation:annotation"))
+                api(project(":core:core-bundle"))
                 api(project(":lifecycle:lifecycle-common"))
                 api(project(":lifecycle:lifecycle-viewmodel"))
                 api(project(":savedstate:savedstate"))
@@ -112,7 +123,6 @@ android {
 androidx {
     name = "Lifecycle ViewModel with SavedState"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
     metalavaK2UastEnabled = true

@@ -6,6 +6,7 @@
  * modifying its settings.
  */
 
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -13,7 +14,10 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXMultiplatform {
     android()
@@ -21,6 +25,8 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    js()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 }
@@ -53,7 +59,7 @@ kotlin {
 
         androidInstrumentedTest {
             dependencies {
-                implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+                implementation(project(":lifecycle:lifecycle-runtime"))
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
                 implementation(libs.testRunner)

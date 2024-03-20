@@ -232,9 +232,12 @@ includeProject(":kruth:kruth")
 includeProject(":lint-checks")
 includeProject(":lint-checks:integration-tests")
 
+includeProject(":core:core-bundle")
 includeProject(":lifecycle:lifecycle-common")
 includeProject(":lifecycle:lifecycle-runtime")
 includeProject(":lifecycle:lifecycle-runtime-lint")
+includeProject(":lifecycle:lifecycle-viewmodel")
+includeProject(":lifecycle:lifecycle-viewmodel-savedstate")
 includeProject(":savedstate:savedstate")
 
 includeProject(":internal-testutils-common", "testutils/testutils-common",)
