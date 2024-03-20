@@ -21,6 +21,9 @@ import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -36,16 +39,19 @@ import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.TestActivity
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.throwIllegalArgumentException
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.Density
@@ -60,6 +66,11 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertNotNull
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -68,8 +79,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-// Relies on View.captureToImage which is Android O+ only
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class AndroidGraphicsLayerTest {
 
     companion object {
@@ -77,6 +86,130 @@ class AndroidGraphicsLayerTest {
         const val TEST_HEIGHT = 400
 
         val TEST_SIZE = IntSize(TEST_WIDTH, TEST_HEIGHT)
+    }
+
+    private var waitThread: HandlerThread? = null
+    private var waitHandler: Handler? = null
+
+    private fun obtainWaitHandler(): Handler {
+        synchronized(this) {
+            var thread = waitThread
+            if (thread == null) {
+                thread = HandlerThread("waitThread").also {
+                    it.start()
+                    waitThread = it
+                }
+            }
+
+            var handler = waitHandler
+            if (handler == null) {
+                handler = Handler(thread.looper)
+            }
+            return handler
+        }
+    }
+
+    /**
+     * Helper method used to synchronously obtain an [ImageBitmap] from a [GraphicsLayer]
+     */
+    private fun GraphicsLayer.toImageBitmap(handler: Handler): ImageBitmap {
+        if (Looper.myLooper() === handler.looper) {
+            throwIllegalArgumentException("Handler looper cannot be the same as the current " +
+                "looper: ${Looper.myLooper()?.thread?.name}  ${handler.looper.thread.name}")
+        }
+        val latch = CountDownLatch(1)
+        var bitmap: ImageBitmap?
+        runBlocking {
+            withContext(handler.asCoroutineDispatcher().immediate) {
+                bitmap = toImageBitmap()
+                latch.countDown()
+            }
+            latch.await()
+        }
+        return bitmap!!
+    }
+
+    @After
+    fun teardown() {
+        synchronized(this) {
+            waitThread?.quit()
+            waitThread = null
+        }
+    }
+
+    @Test
+    fun testGraphicsLayerBitmap() {
+        var bitmap: ImageBitmap? = null
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                graphicsContext.createGraphicsLayer().apply {
+                    assertEquals(IntSize.Zero, this.size)
+                    buildLayer {
+                        drawRect(
+                            Color.Red,
+                            size = size / 2f
+                        )
+                        drawRect(
+                            Color.Blue,
+                            topLeft = Offset(size.width / 2f, 0f),
+                            size = size / 2f
+                        )
+                        drawRect(
+                            Color.Green,
+                            topLeft = Offset(0f, size.height / 2f),
+                            size = size / 2f
+                        )
+                        drawRect(
+                            Color.Black,
+                            topLeft = Offset(size.width / 2f, size.height / 2f),
+                            size = size / 2f
+                        )
+                    }
+                    bitmap = toImageBitmap(obtainWaitHandler())
+                }
+            },
+            verify = {
+                assertNotNull(bitmap)
+                assertEquals(TEST_SIZE, IntSize(bitmap!!.width, bitmap!!.height))
+                bitmap!!.toPixelMap().verifyQuadrants(
+                    Color.Red,
+                    Color.Blue,
+                    Color.Green,
+                    Color.Black
+                )
+            }
+        )
+    }
+
+    @Test
+    fun testGraphicsLayerBitmapAfterDependencyReleased() {
+        class ColorProvider {
+            val color: Color = Color.Red
+        }
+        var provider: ColorProvider? = ColorProvider()
+        var graphicsLayer: GraphicsLayer? = null
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                graphicsContext.createGraphicsLayer().apply {
+                    graphicsLayer = this
+                    assertEquals(IntSize.Zero, this.size)
+                    buildLayer {
+                        drawRect(provider!!.color)
+                    }
+                }
+            },
+            verify = {
+                // Nulling out the dependency here should be safe despite attempting to obtain an
+                // ImageBitmap afterwards
+                provider = null
+                graphicsLayer!!.toImageBitmap(obtainWaitHandler()).toPixelMap().verifyQuadrants(
+                    Color.Red,
+                    Color.Red,
+                    Color.Red,
+                    Color.Red
+                )
+            }
+        )
     }
 
     @Test
@@ -521,6 +654,7 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testElevation() {
         var layer: GraphicsLayer?
         var left = 0
@@ -563,11 +697,15 @@ class AndroidGraphicsLayerTest {
                     }
                 }
                 assertTrue(shadowPixelCount > 0)
-            }
+            },
+            usePixelCopy = true
         )
     }
 
+    // Test requires validation of elevation shadows which require readback operations from
+    // the PixelCopy APIs
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testElevationPath() {
         var layer: GraphicsLayer?
         var left = 0
@@ -622,11 +760,15 @@ class AndroidGraphicsLayerTest {
                     }
                 }
                 Assert.assertTrue(shadowPixelCount > 0)
-            }
+            },
+            usePixelCopy = true
         )
     }
 
+    // Test requires validation of elevation shadows which require readback operations from
+    // the PixelCopy APIs
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testElevationRoundRect() {
         var layer: GraphicsLayer?
         var left = 0
@@ -716,7 +858,8 @@ class AndroidGraphicsLayerTest {
                         )
                     )
                 }
-            }
+            },
+            usePixelCopy = true
         )
     }
 
@@ -827,6 +970,7 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     fun testCompositingStrategyModulateAlpha() {
         var layer: GraphicsLayer?
@@ -1169,12 +1313,15 @@ class AndroidGraphicsLayerTest {
     private fun graphicsLayerTest(
         block: DrawScope.(GraphicsContext) -> Unit,
         verify: ((PixelMap) -> Unit)? = null,
-        entireScene: Boolean = false
+        entireScene: Boolean = false,
+        usePixelCopy: Boolean = false
     ) {
         var scenario: ActivityScenario<TestActivity>? = null
         try {
             var container: ViewGroup? = null
             var contentView: View? = null
+            var rootGraphicsLayer: GraphicsLayer? = null
+            var density = Density(1f)
             scenario = ActivityScenario.launch(TestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
@@ -1184,6 +1331,8 @@ class AndroidGraphicsLayerTest {
                         clipChildren = false
                     }
                     val graphicsContext = GraphicsContext(container!!)
+                    rootGraphicsLayer = graphicsContext.createGraphicsLayer()
+                    density = Density(it)
                     val content = FrameLayout(it).apply {
                         setLayoutParams(
                             FrameLayout.LayoutParams(
@@ -1199,10 +1348,11 @@ class AndroidGraphicsLayerTest {
                     it.setContentView(container)
                 }
             val resumed = CountDownLatch(1)
+            var testActivity: TestActivity? = null
             scenario.moveToState(Lifecycle.State.RESUMED)
                 .onActivity { activity ->
+                    testActivity = activity
                     activity.runOnUiThread {
-                        contentView!!.invalidate()
                         resumed.countDown()
                     }
                 }
@@ -1214,7 +1364,28 @@ class AndroidGraphicsLayerTest {
                 } else {
                     contentView!!
                 }
-                verify(target.captureToImage().toPixelMap())
+                if (usePixelCopy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    verify(target.captureToImage().toPixelMap())
+                } else {
+                    val buildLayerLatch = CountDownLatch(1)
+                    testActivity!!.runOnUiThread {
+                        rootGraphicsLayer!!.buildLayer(
+                            density,
+                            Ltr,
+                            IntSize(target.width, target.height)
+                        ) {
+                            drawIntoCanvas { canvas ->
+                                target.draw(canvas.nativeCanvas)
+                            }
+                        }
+                        buildLayerLatch.countDown()
+                    }
+                    assertTrue(buildLayerLatch.await(3000, TimeUnit.MILLISECONDS))
+                    val bitmap = runBlocking {
+                        rootGraphicsLayer!!.toImageBitmap()
+                    }
+                    verify(bitmap.toPixelMap())
+                }
             }
         } finally {
             scenario?.moveToState(Lifecycle.State.DESTROYED)
@@ -1226,20 +1397,20 @@ class AndroidGraphicsLayerTest {
         val block: DrawScope.(GraphicsContext) -> Unit
     ) : Drawable() {
 
-        val canvasDrawScope = CanvasDrawScope()
+        var rootGraphicsLayer: GraphicsLayer? = null
 
         override fun draw(canvas: Canvas) {
             val bounds = getBounds()
             val width = bounds.width().toFloat()
             val height = bounds.height().toFloat()
-            canvasDrawScope.draw(
-                Density(1f, 1f),
-                Ltr,
-                androidx.compose.ui.graphics.Canvas(canvas),
-                Size(width, height)
-            ) {
-                block(graphicsContext)
+            var root = rootGraphicsLayer
+            if (root == null) {
+                root = graphicsContext.createGraphicsLayer()
+                root.buildLayer(Density(1f, 1f), Ltr, IntSize(width.toInt(), height.toInt())) {
+                    block(graphicsContext)
+                }
             }
+            root.draw(androidx.compose.ui.graphics.Canvas(canvas), null)
         }
 
         override fun setAlpha(alpha: Int) {

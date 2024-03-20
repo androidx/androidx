@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Paint
@@ -543,4 +544,12 @@ actual class GraphicsLayer {
         actual val UnsetOffset: IntOffset = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE)
         actual val UnsetSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
     }
+
+    /**
+     * Create an [ImageBitmap] with the contents of this [GraphicsLayer] instance. Note that
+     * [GraphicsLayer.buildLayer] must be invoked first to record drawing operations before invoking
+     * this method.
+     */
+    actual suspend fun toImageBitmap(): ImageBitmap =
+        ImageBitmap(size.width, size.height).apply { draw(Canvas(this), null) }
 }

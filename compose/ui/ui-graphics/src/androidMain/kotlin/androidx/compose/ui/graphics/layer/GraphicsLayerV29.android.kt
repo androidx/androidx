@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.layer
 
+import android.graphics.Matrix
 import android.graphics.Outline
 import android.graphics.RenderNode
 import android.os.Build
@@ -53,6 +54,7 @@ internal class GraphicsLayerV29(
 
     private var size: IntSize = IntSize.Zero
     private var layerPaint: android.graphics.Paint? = null
+    private var matrix: Matrix? = null
 
     init {
         renderNode.clipToBounds = false
@@ -229,6 +231,12 @@ internal class GraphicsLayerV29(
 
     override fun draw(canvas: Canvas) {
         canvas.nativeCanvas.drawRenderNode(renderNode)
+    }
+
+    override fun calculateMatrix(): Matrix {
+        val m = matrix ?: Matrix().also { matrix = it }
+        renderNode.getMatrix(m)
+        return m
     }
 
     override fun discardDisplayList() {

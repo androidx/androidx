@@ -16,21 +16,32 @@
 
 package androidx.compose.ui.graphics.samples
 
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.Sampled
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Sampled
 fun DrawScope.GraphicsLayerTopLeftSample(layer: GraphicsLayer) {
@@ -275,4 +286,20 @@ fun DrawScope.GraphicsLayerRotationYWithCameraDistance(layer: GraphicsLayer) {
     }
 
     drawLayer(layer)
+}
+
+@OptIn(DelicateCoroutinesApi::class)
+@Sampled
+fun GraphicsLayerToImageBitmap(context: Context, layer: GraphicsLayer) {
+    layer.buildLayer(Density(1f), LayoutDirection.Ltr, IntSize(300, 200)) {
+        val half = Size(size.width / 2, size.height)
+        drawRect(Color.Red, size = half)
+        drawRect(Color.Blue, topLeft = Offset(size.width / 2f, 0f), size = half)
+    }
+
+    GlobalScope.launch(Dispatchers.IO) {
+        val imageBitmap = layer.toImageBitmap()
+        val outputStream = context.openFileOutput("MyGraphicsLayerImageBitmap.png", MODE_PRIVATE)
+        imageBitmap.asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+    }
 }
