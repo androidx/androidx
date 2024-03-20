@@ -27,26 +27,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicSecureTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconToggleButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
@@ -103,8 +100,10 @@ fun NumberPasswordDemo() {
                 new.revertAllChanges()
             }
         },
-        keyboardType = KeyboardType.NumberPassword,
-        imeAction = ImeAction.Default,
+        keyboardOptions = KeyboardOptions(
+            autoCorrect = false,
+            keyboardType = KeyboardType.NumberPassword
+        ),
         modifier = demoTextFieldModifiers
     )
 }
@@ -114,7 +113,7 @@ fun NumberPasswordDemo() {
 fun PasswordToggleVisibilityDemo() {
     val state = remember { TextFieldState() }
     var visible by remember { mutableStateOf(false) }
-    Row(Modifier.fillMaxWidth()) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         BasicSecureTextField(
             state = state,
             textObfuscationMode = if (visible) {
@@ -128,11 +127,13 @@ fun PasswordToggleVisibilityDemo() {
                 .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
                 .padding(6.dp)
         )
-        IconToggleButton(checked = visible, onCheckedChange = { visible = it }) {
-            if (visible) {
-                Icon(Icons.Default.Warning, "")
-            } else {
-                Icon(Icons.Default.Info, "")
+        if (visible) {
+            TextButton(onClick = { visible = false }) {
+                Text("Hide")
+            }
+        } else {
+            TextButton(onClick = { visible = true }) {
+                Text("Show")
             }
         }
     }

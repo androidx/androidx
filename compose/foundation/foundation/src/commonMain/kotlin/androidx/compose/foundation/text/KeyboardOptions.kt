@@ -70,6 +70,15 @@ class KeyboardOptions(
          */
         @Stable
         val Default = KeyboardOptions()
+
+        /**
+         * Default [KeyboardOptions] for [BasicSecureTextField].
+         */
+        @Stable
+        internal val SecureTextField = KeyboardOptions(
+            autoCorrect = false,
+            keyboardType = KeyboardType.Password
+        )
     }
 
     @Deprecated(
