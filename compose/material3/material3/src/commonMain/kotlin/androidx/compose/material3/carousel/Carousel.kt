@@ -68,18 +68,24 @@ import kotlin.math.roundToInt
  * A horizontal carousel meant to display many items at once for quick browsing of smaller content
  * like album art or photo thumbnails.
  *
- * Note that this carousel may adjust the size of large items. In order to ensure a mix of large,
+ * Note that this carousel may adjust the size of items in order to ensure a mix of large,
  * medium, and small items fit perfectly into the available space and are arranged in a
- * visually pleasing way, this carousel finds the nearest number of large items that
- * will fit the container and adjusts their size to fit, if necessary.
+ * visually pleasing way. Carousel then lays out items using the large item size and clips
+ * (or masks) items depending on their scroll offset to create items which smoothly expand
+ * and collapse between the large, medium, and small sizes.
  *
  * For more information, see <a href="https://material.io/components/carousel/overview">design
  * guidelines</a>.
  *
+ * Example of a multi-browse carousel:
+ * @sample androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
+ *
  * @param state The state object to be used to control the carousel's state
- * @param preferredItemWidth The width the fully visible items would like to be in the main axis.
- * This width is a target and will likely be adjusted by carousel in order to fit a whole number of
- * items within the container
+ * @param preferredItemWidth The width that large, fully visible items would like to be in the
+ * horizontal axis. This width is a target and will likely be adjusted by carousel in order to fit
+ * a whole number of items within the container. Carousel adjusts small items first (between the
+ * [minSmallItemWidth] and [maxSmallItemWidth]) then medium items when present, and finally large
+ * items if necessary.
  * @param modifier A modifier instance to be applied to this carousel container
  * @param itemSpacing The amount of space used to separate items in the carousel
  * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures
@@ -93,12 +99,10 @@ import kotlin.math.roundToInt
  * content after it has been clipped. You can use it to add a padding before the first item or
  * after the last one. Use [itemSpacing] to add spacing between the items.
  * @param content The carousel's content Composable
- *
- * TODO: Add sample link
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun HorizontalMultiBrowseCarousel(
+fun HorizontalMultiBrowseCarousel(
     state: CarouselState,
     preferredItemWidth: Dp,
     modifier: Modifier = Modifier,
@@ -148,6 +152,9 @@ internal fun HorizontalMultiBrowseCarousel(
  * For more information, see <a href="https://material.io/components/carousel/overview">design
  * guidelines</a>.
  *
+ * Example of an uncontained carousel:
+ * @sample androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
+ *
  * @param state The state object to be used to control the carousel's state
  * @param itemWidth The width of items in the carousel
  * @param modifier A modifier instance to be applied to this carousel container
@@ -157,12 +164,10 @@ internal fun HorizontalMultiBrowseCarousel(
  * content after it has been clipped. You can use it to add a padding before the first item or
  * after the last one. Use [itemSpacing] to add spacing between the items.
  * @param content The carousel's content Composable
- *
- * TODO: Add sample link
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun HorizontalUncontainedCarousel(
+fun HorizontalUncontainedCarousel(
     state: CarouselState,
     itemWidth: Dp,
     modifier: Modifier = Modifier,
@@ -211,9 +216,8 @@ internal fun HorizontalUncontainedCarousel(
  * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures
  * @param content The carousel's content Composable where each call is passed the index, from the
  * total item count, of the item being composed
- * TODO: Add sample link
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun Carousel(
     state: CarouselState,
@@ -563,12 +567,7 @@ private fun getProgress(before: Keyline, after: Keyline, unadjustedOffset: Float
  * Contains the default values used by [Carousel].
  */
 @ExperimentalMaterial3Api
-internal object CarouselDefaults {
-    /** The minimum size that a carousel strategy can choose its small items to be. **/
-    val MinSmallItemSize = 40.dp
-
-    /** The maximum size that a carousel strategy can choose its small items to be. **/
-    val MaxSmallItemSize = 56.dp
+object CarouselDefaults {
 
     /**
      * A [TargetedFlingBehavior] that limits a fling to one item at a time. [snapAnimationSpec] can
@@ -661,6 +660,12 @@ internal object CarouselDefaults {
 
         return rememberSnapFlingBehavior(snapLayoutInfoProvider = decayLayoutInfoProvider)
     }
+
+    /** The minimum size that a carousel strategy can choose its small items to be. **/
+    internal val MinSmallItemSize = 40.dp
+
+    /** The maximum size that a carousel strategy can choose its small items to be. **/
+    internal val MaxSmallItemSize = 56.dp
 
     internal val AnchorSize = 10.dp
     internal const val MediumLargeItemDiffThreshold = 0.85f
