@@ -80,8 +80,8 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                     composeImm.updateSelection(
                         selectionStart = newSelection.min,
                         selectionEnd = newSelection.max,
-                        compositionStart = oldComposition?.min ?: -1,
-                        compositionEnd = oldComposition?.max ?: -1
+                        compositionStart = newComposition?.min ?: -1,
+                        compositionEnd = newComposition?.max ?: -1
                     )
                 }
 

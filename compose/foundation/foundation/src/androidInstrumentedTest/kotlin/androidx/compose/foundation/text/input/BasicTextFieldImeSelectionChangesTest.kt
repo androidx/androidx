@@ -93,6 +93,22 @@ internal class BasicTextFieldImeSelectionChangesTest {
     }
 
     @Test
+    fun perform_setComposingText() {
+        val state = TextFieldState("Hello")
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(state = state, modifier = Modifier.testTag(Tag))
+        }
+        rule.onNodeWithTag(Tag).requestFocus()
+
+        inputMethodInterceptor.withInputConnection {
+            setComposingRegion(0, 5)
+            setComposingText("World", 1)
+        }
+
+        imm.expectCall("updateSelection(5, 5, 0, 5)")
+    }
+
+    @Test
     fun perform_sendKeyEvent() {
         val state = TextFieldState("Hello")
         lateinit var view: View
