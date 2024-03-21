@@ -257,8 +257,9 @@ class DrawerState(
  *
  * @param initialValue The initial value of the state.
  * @param density The density that this state can use to convert values to and from dp.
- * @param animationSpec The animation spec to be used for animations.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
+ * @param animationSpec The animation spec to be used for open/close animations, as well as
+ * settling when a user lets go.
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Suppress("NotCloseable")
@@ -266,7 +267,7 @@ class BottomDrawerState(
     initialValue: BottomDrawerValue,
     density: Density,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true },
-    animationSpec: AnimationSpec<Float> = AnimationSpec
+    animationSpec: AnimationSpec<Float> = DrawerDefaults.AnimationSpec
 ) {
     internal val anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
@@ -284,7 +285,7 @@ class BottomDrawerState(
         get() = anchoredDraggableState.targetValue
 
     /**
-     * The current offset, or [Float.NaN] if it has not been initialized yet.
+     * The current offset in pixels, or [Float.NaN] if it has not been initialized yet.
      */
     val offset: Float
         get() = anchoredDraggableState.offset
@@ -435,14 +436,15 @@ fun rememberDrawerState(
  * Create and [remember] a [BottomDrawerState].
  *
  * @param initialValue The initial value of the state.
- * @param animationSpec The animation spec to be used for animations.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
+ * @param animationSpec The animation spec to be used for open/close animations, as well as
+ * settling when a user lets go.
  */
 @Composable
 fun rememberBottomDrawerState(
     initialValue: BottomDrawerValue,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true },
-    animationSpec: AnimationSpec<Float> = AnimationSpec,
+    animationSpec: AnimationSpec<Float> = DrawerDefaults.AnimationSpec,
 ): BottomDrawerState {
     val density = LocalDensity.current
     return rememberSaveable(
@@ -489,9 +491,9 @@ fun ModalDrawer(
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     gesturesEnabled: Boolean = true,
-    drawerShape: Shape = MaterialTheme.shapes.large,
+    drawerShape: Shape = DrawerDefaults.shape,
     drawerElevation: Dp = DrawerDefaults.Elevation,
-    drawerBackgroundColor: Color = MaterialTheme.colors.surface,
+    drawerBackgroundColor: Color = DrawerDefaults.backgroundColor,
     drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
     scrimColor: Color = DrawerDefaults.scrimColor,
     content: @Composable () -> Unit
@@ -599,13 +601,13 @@ fun ModalDrawer(
  *
  * @sample androidx.compose.material.samples.BottomDrawerSample
  *
- * @param drawerState state of the drawer
+ * @param drawerContent composable that represents content inside the drawer
  * @param modifier optional [Modifier] for the entire component
+ * @param drawerState state of the drawer
  * @param gesturesEnabled whether or not drawer can be interacted by gestures
  * @param drawerShape shape of the drawer sheet
  * @param drawerElevation drawer sheet elevation. This controls the size of the shadow below the
  * drawer sheet
- * @param drawerContent composable that represents content inside the drawer
  * @param drawerBackgroundColor background color to be used for the drawer sheet
  * @param drawerContentColor color of the content to use inside the drawer sheet. Defaults to
  * either the matching content color for [drawerBackgroundColor], or, if it is not a color from
@@ -614,7 +616,6 @@ fun ModalDrawer(
  * color passed is [Color.Unspecified], then a scrim will no longer be applied and the bottom
  * drawer will not block interaction with the rest of the screen when visible.
  * @param content content of the rest of the UI
- *
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -623,9 +624,9 @@ fun BottomDrawer(
     modifier: Modifier = Modifier,
     drawerState: BottomDrawerState = rememberBottomDrawerState(Closed),
     gesturesEnabled: Boolean = true,
-    drawerShape: Shape = MaterialTheme.shapes.large,
+    drawerShape: Shape = DrawerDefaults.shape,
     drawerElevation: Dp = DrawerDefaults.Elevation,
-    drawerBackgroundColor: Color = MaterialTheme.colors.surface,
+    drawerBackgroundColor: Color = DrawerDefaults.backgroundColor,
     drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
     scrimColor: Color = DrawerDefaults.scrimColor,
     content: @Composable () -> Unit
@@ -744,10 +745,33 @@ fun BottomDrawer(
 object DrawerDefaults {
 
     /**
-     * Default Elevation for drawer sheet as specified in material specs
+     * Default animation spec used for [ModalDrawer] and [BottomDrawer] open and close animations,
+     * as well as settling when a user lets go.
+     */
+    val AnimationSpec = TweenSpec<Float>(durationMillis = 256)
+
+    /**
+     * Default background color for drawer sheets
+     */
+    val backgroundColor: Color
+        @Composable
+        get() = MaterialTheme.colors.surface
+
+    /**
+     * Default elevation for drawer sheet as specified in material specs
      */
     val Elevation = 16.dp
 
+    /**
+     * Default shape for drawer sheets
+     */
+    val shape: Shape
+        @Composable
+        get() = MaterialTheme.shapes.large
+
+    /**
+     * Default color of the scrim that obscures content when the drawer is open
+     */
     val scrimColor: Color
         @Composable
         get() = MaterialTheme.colors.onSurface.copy(alpha = ScrimOpacity)
