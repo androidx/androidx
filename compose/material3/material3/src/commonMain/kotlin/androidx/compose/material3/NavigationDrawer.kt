@@ -51,6 +51,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -61,8 +62,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -79,6 +83,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -510,6 +515,10 @@ fun PermanentNavigationDrawer(
 
 /**
  * Content inside of a modal navigation drawer.
+
+ * Note: This version of [ModalDrawerSheet] does not handle back by default. For automatic back
+ * handling and predictive back animations on Android 14+, use the [ModalDrawerSheet] that accepts
+ * `drawerState` as a param.
  *
  * @param modifier the [Modifier] to be applied to this drawer's content
  * @param drawerShape defines the shape of this drawer's container
@@ -535,6 +544,7 @@ fun ModalDrawerSheet(
     content: @Composable ColumnScope.() -> Unit
 ) {
     DrawerSheet(
+        drawerPredictiveBackState = null,
         windowInsets,
         modifier,
         drawerShape,
@@ -546,7 +556,57 @@ fun ModalDrawerSheet(
 }
 
 /**
+ * Content inside of a modal navigation drawer.
+ *
+ * Note: This version of [ModalDrawerSheet] requires a [drawerState] to be provided and will handle
+ * back by default for all Android versions, as well as animate during predictive back on Android
+ * 14+.
+ *
+ * @param drawerState state of the drawer
+ * @param modifier the [Modifier] to be applied to this drawer's content
+ * @param drawerShape defines the shape of this drawer's container
+ * @param drawerContainerColor the color used for the background of this drawer. Use
+ * [Color.Transparent] to have no color.
+ * @param drawerContentColor the preferred color for content inside this drawer. Defaults to either
+ * the matching content color for [drawerContainerColor], or to the current [LocalContentColor] if
+ * [drawerContainerColor] is not a color from the theme.
+ * @param drawerTonalElevation when [drawerContainerColor] is [ColorScheme.surface], a translucent
+ * primary color overlay is applied on top of the container. A higher tonal elevation value will
+ * result in a darker color in light theme and lighter color in dark theme. See also: [Surface].
+ * @param windowInsets a window insets for the sheet.
+ * @param content content inside of a modal navigation drawer
+ */
+@Composable
+fun ModalDrawerSheet(
+    drawerState: DrawerState,
+    modifier: Modifier = Modifier,
+    drawerShape: Shape = DrawerDefaults.shape,
+    drawerContainerColor: Color = DrawerDefaults.modalContainerColor,
+    drawerContentColor: Color = contentColorFor(drawerContainerColor),
+    drawerTonalElevation: Dp = DrawerDefaults.ModalDrawerElevation,
+    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    DrawerPredictiveBackHandler(drawerState) { drawerPredictiveBackState ->
+        DrawerSheet(
+            drawerPredictiveBackState,
+            windowInsets,
+            modifier,
+            drawerShape,
+            drawerContainerColor,
+            drawerContentColor,
+            drawerTonalElevation,
+            content
+        )
+    }
+}
+
+/**
  * Content inside of a dismissible navigation drawer.
+ *
+ * Note: This version of [DismissibleDrawerSheet] does not handle back by default. For automatic
+ * back handling and predictive back animations on Android 14+, use the [DismissibleDrawerSheet]
+ * that accepts `drawerState` as a param.
  *
  * @param modifier the [Modifier] to be applied to this drawer's content
  * @param drawerShape defines the shape of this drawer's container
@@ -572,6 +632,7 @@ fun DismissibleDrawerSheet(
     content: @Composable ColumnScope.() -> Unit
 ) {
     DrawerSheet(
+        drawerPredictiveBackState = null,
         windowInsets,
         modifier,
         drawerShape,
@@ -580,6 +641,52 @@ fun DismissibleDrawerSheet(
         drawerTonalElevation,
         content
     )
+}
+
+/**
+ * Content inside of a dismissible navigation drawer.
+
+ * Note: This version of [DismissibleDrawerSheet] requires a [drawerState] to be provided and will
+ * handle back by default for all Android versions, as well as animate during predictive back on
+ * Android 14+.
+ *
+ * @param drawerState state of the drawer
+ * @param modifier the [Modifier] to be applied to this drawer's content
+ * @param drawerShape defines the shape of this drawer's container
+ * @param drawerContainerColor the color used for the background of this drawer. Use
+ * [Color.Transparent] to have no color.
+ * @param drawerContentColor the preferred color for content inside this drawer. Defaults to either
+ * the matching content color for [drawerContainerColor], or to the current [LocalContentColor] if
+ * [drawerContainerColor] is not a color from the theme.
+ * @param drawerTonalElevation when [drawerContainerColor] is [ColorScheme.surface], a translucent
+ * primary color overlay is applied on top of the container. A higher tonal elevation value will
+ * result in a darker color in light theme and lighter color in dark theme. See also: [Surface].
+ * @param windowInsets a window insets for the sheet.
+ * @param content content inside of a dismissible navigation drawer
+ */
+@Composable
+fun DismissibleDrawerSheet(
+    drawerState: DrawerState,
+    modifier: Modifier = Modifier,
+    drawerShape: Shape = RectangleShape,
+    drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
+    drawerContentColor: Color = contentColorFor(drawerContainerColor),
+    drawerTonalElevation: Dp = DrawerDefaults.DismissibleDrawerElevation,
+    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    DrawerPredictiveBackHandler(drawerState) { drawerPredictiveBackState ->
+        DrawerSheet(
+            drawerPredictiveBackState,
+            windowInsets,
+            modifier,
+            drawerShape,
+            drawerContainerColor,
+            drawerContentColor,
+            drawerTonalElevation,
+            content
+        )
+    }
 }
 
 /**
@@ -610,6 +717,7 @@ fun PermanentDrawerSheet(
 ) {
     val navigationMenu = getString(Strings.NavigationMenu)
     DrawerSheet(
+        drawerPredictiveBackState = null,
         windowInsets,
         modifier.semantics {
             paneTitle = navigationMenu
@@ -623,7 +731,8 @@ fun PermanentDrawerSheet(
 }
 
 @Composable
-private fun DrawerSheet(
+internal fun DrawerSheet(
+    drawerPredictiveBackState: DrawerPredictiveBackState?,
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
@@ -632,29 +741,92 @@ private fun DrawerSheet(
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val predictiveBackDrawerContainerModifier =
+        if (drawerPredictiveBackState != null) Modifier.predictiveBackDrawerContainer(
+            drawerPredictiveBackState,
+            isRtl
+        ) else Modifier
     Surface(
         modifier = modifier
             .sizeIn(
                 minWidth = MinimumDrawerWidth,
                 maxWidth = DrawerDefaults.MaximumDrawerWidth
             )
+            .then(predictiveBackDrawerContainerModifier)
             .fillMaxHeight(),
         shape = drawerShape,
         color = drawerContainerColor,
         contentColor = drawerContentColor,
         tonalElevation = drawerTonalElevation
     ) {
+        val predictiveBackDrawerChildModifier =
+            if (drawerPredictiveBackState != null) Modifier.predictiveBackDrawerChild(
+                drawerPredictiveBackState,
+                isRtl
+            ) else Modifier
         Column(
             Modifier
                 .sizeIn(
                     minWidth = MinimumDrawerWidth,
                     maxWidth = DrawerDefaults.MaximumDrawerWidth
                 )
+                .then(predictiveBackDrawerChildModifier)
                 .windowInsetsPadding(windowInsets),
             content = content
         )
     }
 }
+
+private fun Modifier.predictiveBackDrawerContainer(
+    drawerPredictiveBackState: DrawerPredictiveBackState,
+    isRtl: Boolean
+) = graphicsLayer {
+    scaleX = calculatePredictiveBackScaleX(drawerPredictiveBackState)
+    scaleY = calculatePredictiveBackScaleY(drawerPredictiveBackState)
+    transformOrigin = TransformOrigin(if (isRtl) 1f else 0f, 0.5f)
+}
+
+private fun Modifier.predictiveBackDrawerChild(
+    drawerPredictiveBackState: DrawerPredictiveBackState,
+    isRtl: Boolean
+) = graphicsLayer {
+    // Preserve the original aspect ratio and container alignment of the child
+    // content, and add content margins.
+    val containerScaleX = calculatePredictiveBackScaleX(drawerPredictiveBackState)
+    val containerScaleY = calculatePredictiveBackScaleY(drawerPredictiveBackState)
+    scaleX = if (containerScaleX != 0f) containerScaleY / containerScaleX else 1f
+    transformOrigin = TransformOrigin(if (isRtl) 0f else 1f, 0f)
+}
+
+private fun GraphicsLayerScope.calculatePredictiveBackScaleX(
+    drawerPredictiveBackState: DrawerPredictiveBackState
+): Float {
+    val width = size.width
+    return if (width.isNaN() || width == 0f) {
+        1f
+    } else {
+        val scaleXDirection = if (drawerPredictiveBackState.swipeEdgeMatchesDrawer) 1 else -1
+        1f + drawerPredictiveBackState.scaleXDistance * scaleXDirection / width
+    }
+}
+
+private fun GraphicsLayerScope.calculatePredictiveBackScaleY(
+    drawerPredictiveBackState: DrawerPredictiveBackState
+): Float {
+    val height = size.height
+    return if (height.isNaN() || height == 0f) {
+        1f
+    } else {
+        1f - drawerPredictiveBackState.scaleYDistance / height
+    }
+}
+
+@Composable
+internal expect fun DrawerPredictiveBackHandler(
+    drawerState: DrawerState,
+    content: @Composable (DrawerPredictiveBackState) -> Unit
+)
 
 /**
  * Object to hold default values for [ModalNavigationDrawer]
@@ -859,6 +1031,36 @@ object NavigationDrawerItemDefaults {
      * specification.
      */
     val ItemPadding = PaddingValues(horizontal = 12.dp)
+}
+
+@Stable
+internal class DrawerPredictiveBackState {
+
+    var swipeEdgeMatchesDrawer by mutableStateOf(true)
+
+    var scaleXDistance by mutableFloatStateOf(0f)
+
+    var scaleYDistance by mutableFloatStateOf(0f)
+
+    fun update(
+        progress: Float,
+        swipeEdgeLeft: Boolean,
+        isRtl: Boolean,
+        maxScaleXDistanceGrow: Float,
+        maxScaleXDistanceShrink: Float,
+        maxScaleYDistance: Float
+    ) {
+        swipeEdgeMatchesDrawer = swipeEdgeLeft != isRtl
+        val maxScaleXDistance =
+            if (swipeEdgeMatchesDrawer) maxScaleXDistanceGrow else maxScaleXDistanceShrink
+        scaleXDistance = lerp(0f, maxScaleXDistance, progress)
+        scaleYDistance = lerp(0f, maxScaleYDistance, progress)
+    }
+    fun clear() {
+        swipeEdgeMatchesDrawer = true
+        scaleXDistance = 0f
+        scaleYDistance = 0f
+    }
 }
 
 private class DefaultDrawerItemsColor(
