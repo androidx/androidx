@@ -26,9 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -37,6 +35,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.areAnyPressed
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
-import androidx.compose.ui.window.rememberCursorPositionProvider
 import androidx.compose.ui.window.rememberComponentRectPositionProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
@@ -105,14 +103,15 @@ fun TooltipArea(
     content: @Composable () -> Unit
 ) {
     var parentBounds by remember { mutableStateOf(Rect.Zero) }
-    var popupPosition by remember { mutableStateOf(Offset.Zero) }
     var cursorPosition by remember { mutableStateOf(Offset.Zero) }
     var isVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var job: Job? by remember { mutableStateOf(null) }
 
     fun startShowing() {
-        job?.cancel()
+        if (job?.isActive == true) {  // Don't restart the job if it's already active
+            return
+        }
         job = scope.launch {
             delay(delayMillis.toLong())
             isVisible = true
@@ -121,6 +120,7 @@ fun TooltipArea(
 
     fun hide() {
         job?.cancel()
+        job = null
         isVisible = false
     }
 
@@ -135,19 +135,21 @@ fun TooltipArea(
             .onGloballyPositioned { parentBounds = it.boundsInWindow() }
             .onPointerEvent(PointerEventType.Enter) {
                 cursorPosition = it.position
-                startShowing()
+                if (!isVisible && !it.buttons.areAnyPressed) {
+                    startShowing()
+                }
             }
             .onPointerEvent(PointerEventType.Move) {
                 cursorPosition = it.position
-                hideIfNotHovered(parentBounds.topLeft + it.position)
+                if (!isVisible && !it.buttons.areAnyPressed) {
+                    startShowing()
+                }
             }
             .onPointerEvent(PointerEventType.Exit) {
                 hideIfNotHovered(parentBounds.topLeft + it.position)
             }
-            .pointerInput(Unit) {
-                detectDown {
-                    hide()
-                }
+            .onPointerEvent(PointerEventType.Press, pass = PointerEventPass.Initial) {
+                hide()
             }
     ) {
         content()
@@ -157,6 +159,7 @@ fun TooltipArea(
                 popupPositionProvider = tooltipPlacement.positionProvider(cursorPosition),
                 onDismissRequest = { isVisible = false }
             ) {
+                var popupPosition by remember { mutableStateOf(Offset.Zero) }
                 Box(
                     Modifier
                         .onGloballyPositioned { popupPosition = it.positionInWindow() }
@@ -186,18 +189,6 @@ private fun Modifier.onPointerEvent(
             val event = awaitPointerEvent(pass)
             if (event.type == eventType) {
                 onEvent(event)
-            }
-        }
-    }
-}
-
-private suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
-    while (true) {
-        awaitPointerEventScope {
-            val event = awaitPointerEvent(PointerEventPass.Initial)
-            val down = event.changes.find { it.changedToDown() }
-            if (down != null) {
-                onDown(down.position)
             }
         }
     }
