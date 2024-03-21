@@ -24,7 +24,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 class SupportSQLiteDriver(
     val openHelper: SupportSQLiteOpenHelper
 ) : SQLiteDriver {
-    override fun open(): SupportSQLiteConnection {
+    override fun open(fileName: String): SupportSQLiteConnection {
         return SupportSQLiteConnection(openHelper.writableDatabase)
     }
 }

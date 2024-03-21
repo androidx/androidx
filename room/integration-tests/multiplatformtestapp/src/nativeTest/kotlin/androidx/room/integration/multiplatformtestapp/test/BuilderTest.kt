@@ -29,10 +29,8 @@ class BuilderTest : BaseBuilderTest() {
     private val filename = "/tmp/test-${Random.nextInt()}.db"
 
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
-        return Room.databaseBuilder<SampleDatabase>(filename) {
-            SampleDatabase::class.instantiateImpl()
-        }
-            .setDriver(BundledSQLiteDriver(filename))
+        return Room.databaseBuilder(filename) { SampleDatabase::class.instantiateImpl() }
+            .setDriver(BundledSQLiteDriver())
     }
 
     @BeforeTest

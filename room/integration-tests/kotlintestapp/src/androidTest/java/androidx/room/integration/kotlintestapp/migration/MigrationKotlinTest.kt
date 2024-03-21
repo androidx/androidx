@@ -325,7 +325,8 @@ class MigrationKotlinTest {
         val dbFile = instrumentation.targetContext.getDatabasePath("test.db")
         val driverHelper = MigrationTestHelper(
             instrumentation = instrumentation,
-            driver = AndroidSQLiteDriver(dbFile.path),
+            fileName = dbFile.path,
+            driver = AndroidSQLiteDriver(),
             databaseClass = MigrationDbKotlin::class
         )
         assertThrows<IllegalStateException> {

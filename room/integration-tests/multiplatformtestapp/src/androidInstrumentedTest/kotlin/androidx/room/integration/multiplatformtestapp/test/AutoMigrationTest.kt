@@ -34,13 +34,14 @@ import org.junit.Rule
 class AutoMigrationTest : BaseAutoMigrationTest() {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val file = instrumentation.targetContext.getDatabasePath("test.db")
-    private val driver: SQLiteDriver = BundledSQLiteDriver(file.path)
+    private val driver: SQLiteDriver = BundledSQLiteDriver()
 
     @get:Rule
     val migrationTestHelper = MigrationTestHelper(
         instrumentation = instrumentation,
         driver = driver,
-        databaseClass = AutoMigrationDatabase::class
+        databaseClass = AutoMigrationDatabase::class,
+        fileName = file.path
     )
 
     override fun getTestHelper() = migrationTestHelper

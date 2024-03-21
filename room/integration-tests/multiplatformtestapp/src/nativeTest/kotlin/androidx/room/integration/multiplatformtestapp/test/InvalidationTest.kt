@@ -23,7 +23,7 @@ class InvalidationTest : BaseInvalidationTest() {
 
     override fun getRoomDatabase(): SampleDatabase {
         return Room.inMemoryDatabaseBuilder { SampleDatabase::class.instantiateImpl() }
-            .setDriver(BundledSQLiteDriver(":memory:"))
+            .setDriver(BundledSQLiteDriver())
             .build()
     }
 }
