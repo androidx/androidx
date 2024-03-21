@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.WithTouchSlop
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -293,9 +294,10 @@ class AnchoredDraggableOverscrollTest {
         // assert that applyToFling was called but there is no remaining velocity for overscroll
         // because flinging was not towards the min/max anchors
         assertThat(overscrollEffect.applyToFlingCalledCount).isEqualTo(1)
-        assertThat(abs(overscrollEffect.flingOverscrollVelocity.x)).isEqualTo(0f)
+        assertThat(abs(overscrollEffect.flingOverscrollVelocity.x)).isWithin(1f).of(0f)
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun anchoredDraggable_swipeWithVelocity_notEnoughVelocityForOverscroll() {
         val overscrollEffect = TestOverscrollEffect()
@@ -365,7 +367,7 @@ class AnchoredDraggableOverscrollTest {
         // assert that applyToFling was called but there is no remaining velocity for overscroll
         // because velocity is small
         assertThat(overscrollEffect.applyToFlingCalledCount).isEqualTo(1)
-        assertThat(abs(overscrollEffect.flingOverscrollVelocity.x)).isEqualTo(0f)
+        assertThat(abs(overscrollEffect.flingOverscrollVelocity.x)).isWithin(1f).of(0f)
     }
 
     private val DefaultPositionalThreshold: (totalDistance: Float) -> Float = {

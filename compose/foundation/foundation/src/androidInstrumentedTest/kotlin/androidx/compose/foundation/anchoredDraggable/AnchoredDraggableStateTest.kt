@@ -40,6 +40,7 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.animateToWithDecay
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -897,7 +898,7 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
-    fun anchoredDraggable_customDrag_snapsToClosestAnchor() = runBlocking {
+    fun anchoredDraggable_customDrag_doesNotSnapToClosestAnchor() = runBlocking {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
@@ -916,13 +917,13 @@ class AnchoredDraggableStateTest {
         }
 
         assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.requireOffset()).isEqualTo(200f)
+        assertThat(state.requireOffset()).isEqualTo(150f)
 
         state.anchoredDrag {
             dragTo(260f)
         }
         assertThat(state.currentValue).isEqualTo(C)
-        assertThat(state.requireOffset()).isEqualTo(300f)
+        assertThat(state.requireOffset()).isEqualTo(260f)
     }
 
     @Test
@@ -1513,9 +1514,57 @@ class AnchoredDraggableStateTest {
             assertThat(state.offset).isEqualTo(positionB)
 
             // since offset == positionB, decay animation is used
-            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(1)
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
             assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(0)
         }
+
+    @Test
+    fun anchoredDraggable_animateTo_alreadyAtTarget_noOps() {
+        val state = AnchoredDraggableState(
+            initialValue = B,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 200f
+                C at 300f
+            }
+        )
+        val clock = HandPumpTestFrameClock()
+        val scope = CoroutineScope(clock)
+
+        assertThat(state.offset).isEqualTo(200f)
+        scope.launch { state.animateTo(B) }
+        runBlocking { clock.advanceByFrame() } // Advance only one frame, we should be done
+        assertThat(state.offset).isEqualTo(200f)
+    }
+
+    @Test
+    fun anchoredDraggable_animateToWithDecay_alreadyAtTarget_noOps() {
+        val state = AnchoredDraggableState(
+            initialValue = B,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 200f
+                C at 300f
+            }
+        )
+        val clock = HandPumpTestFrameClock()
+        val scope = CoroutineScope(clock)
+
+        assertThat(state.offset).isEqualTo(200f)
+        scope.launch {
+            state.animateToWithDecay(B, velocity = 100f)
+        }
+        runBlocking { clock.advanceByFrame() } // Advance only one frame, we should be done
+        assertThat(state.offset).isEqualTo(200f)
+    }
 
     private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
 
