@@ -91,8 +91,10 @@ package androidx.navigation {
   public class NavController {
     ctor public NavController(android.content.Context context);
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
+    method @SuppressCompatibility @MainThread @androidx.navigation.ExperimentalSafeArgsApi public inline <reified T> boolean clearBackStack();
     method @MainThread public final boolean clearBackStack(@IdRes int destinationId);
     method @MainThread public final boolean clearBackStack(String route);
+    method @SuppressCompatibility @MainThread @androidx.navigation.ExperimentalSafeArgsApi public final <T> boolean clearBackStack(T route);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
     method @SuppressCompatibility @androidx.navigation.NavDeepLinkSaveStateControl public static final void enableDeepLinkSaveState(boolean saveState);
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);

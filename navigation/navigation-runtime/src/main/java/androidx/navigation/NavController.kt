@@ -873,6 +873,48 @@ public open class NavController(
         return cleared && dispatchOnDestinationChanged()
     }
 
+    /**
+     * Clears any saved state associated with KClass [T] that was previously saved
+     * via [popBackStack] when using a `saveState` value of `true`.
+     *
+     * @param T The route from the [KClass] of the destination previously used with [popBackStack]
+     * with a `saveState`value of `true`. The target NavDestination must have been created
+     * with route from [KClass].
+     *
+     * @return true if the saved state of the stack associated with [T] was cleared.
+     */
+    @MainThread
+    @ExperimentalSafeArgsApi
+    public inline fun <reified T> clearBackStack(): Boolean =
+        clearBackStack(serializer<T>().hashCode())
+
+    /**
+     * Clears any saved state associated with KClass [T] that was previously saved
+     * via [popBackStack] when using a `saveState` value of `true`.
+     *
+     * @param route The route from an Object of the destination previously used with
+     * [popBackStack] with a `saveState`value of `true`. The target NavDestination must
+     * have been created with route from [KClass].
+     *
+     * @return true if the saved state of the stack associated with [T] was cleared.
+     */
+    @OptIn(InternalSerializationApi::class)
+    @MainThread
+    @ExperimentalSafeArgsApi
+    public fun <T : Any> clearBackStack(route: T): Boolean {
+        val dest = findDestination(route::class.serializer().hashCode()) ?: return false
+        // route contains arguments so we need to generate and clear with the populated route
+        // rather than clearing based on route pattern
+        val finalRoute = route.generateRouteWithArgs(
+            // get argument typeMap
+            dest.arguments.mapValues { it.value.type }
+        )
+        val cleared = clearBackStackInternal(finalRoute)
+        // Only return true if the clear succeeded and we've dispatched
+        // the change to a new destination
+        return cleared && dispatchOnDestinationChanged()
+    }
+
     @MainThread
     private fun clearBackStackInternal(@IdRes destinationId: Int): Boolean {
         navigatorState.values.forEach { state ->
