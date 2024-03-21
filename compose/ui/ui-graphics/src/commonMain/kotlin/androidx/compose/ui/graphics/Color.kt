@@ -84,10 +84,10 @@ import kotlin.math.min
  * | A         | Alpha       | 10 bits | `[0..1023]`           |
  * |           | Color space | 6 bits  | `[0..63]`             |
  * | [SRGB][ColorSpaces.Srgb] color space                      |
+ * | A         | Alpha       | 8 bits  | `[0..255]`            |
  * | R         | Red         | 8 bits  | `[0..255]`            |
  * | G         | Green       | 8 bits  | `[0..255]`            |
  * | B         | Blue        | 8 bits  | `[0..255]`            |
- * | A         | Alpha       | 8 bits  | `[0..255]`            |
  * | X         | Unused      | 32 bits | `[0]`                 |
  * | [XYZ][ColorSpace.Model.Xyz] color model                   |
  * | X         | X           | 16 bits | `[-65504.0, 65504.0]` |
@@ -102,7 +102,7 @@ import kotlin.math.min
  * | A         | Alpha       | 10 bits | `[0..1023]`           |
  * |           | Color space | 6 bits  | `[0..63]`             |
  * ```
- * The components in this table are listed in encoding order (see below),
+ * The components in this table are listed in encoding order,
  * which is why color longs in the RGB model are called RGBA colors (even if
  * this doesn't quite hold for the special case of sRGB colors).
  *
