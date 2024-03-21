@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.annotation.FloatRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 
@@ -36,13 +37,16 @@ import androidx.compose.ui.geometry.Rect
  * instance if the path is defined in pixels, 0.5 (half a pixel) or 1.0 (a pixel) are
  * appropriate tolerances. If the path is normalized and defined in the domain 0..1,
  * the caller should choose a more appropriate tolerance close to or equal to one
- * "query unit".
+ * "query unit". The tolerance must be >= 0.
  *
  * @param path The [Path] to run queries against.
  * @param tolerance When [path] contains conic curves, defines the maximum distance between
  *        the original conic curve and its quadratic approximations. Set to 0.5 by default.
  */
-fun PathHitTester(path: Path, tolerance: Float = 0.5f) = PathHitTester().apply {
+fun PathHitTester(
+    path: Path,
+    @FloatRange(from = 0.0) tolerance: Float = 0.5f
+) = PathHitTester().apply {
     updatePath(path, tolerance)
 }
 
@@ -79,13 +83,13 @@ class PathHitTester {
      * For instance if the path is defined in pixels, 0.5 (half a pixel) or 1.0 (a pixel)
      * are appropriate tolerances. If the path is normalized and defined in the domain 0..1,
      * the caller should choose a more appropriate tolerance close to or equal to one
-     * "query unit".
+     * "query unit". The tolerance must be >= 0.
      *
      * @param path The [Path] to run queries against.
      * @param tolerance When [path] contains conic curves, defines the maximum distance between
      *        the original conic curve and its quadratic approximations. Set to 0.5 by default.
      */
-    fun updatePath(path: Path, tolerance: Float = 0.5f) {
+    fun updatePath(path: Path, @FloatRange(from = 0.0) tolerance: Float = 0.5f) {
         this.path = path
         this.tolerance = tolerance
         bounds = path.getBounds()
