@@ -49,6 +49,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.robolectric)
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
@@ -56,6 +58,10 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
+
+    // Includes the wear-sdk jar
+    compileOnly files("../../wear_sdk/wear-sdk.jar")
+    testImplementation(files("../../wear_sdk/wear-sdk.jar"))
 }
 
 android {
