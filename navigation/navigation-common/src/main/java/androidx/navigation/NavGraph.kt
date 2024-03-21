@@ -403,7 +403,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         val startDest = findNode(id)
         checkNotNull(startDest) {
             "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +
-                "Ensure the starting NavDestination was added via KClass."
+                "Ensure the starting NavDestination was added with route from KClass."
         }
         // when dest id is based on serializer, we expect the dest route to have been generated
         // and set
