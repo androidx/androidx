@@ -2136,7 +2136,7 @@ package androidx.compose.material3.carousel {
     field public static final androidx.compose.material3.carousel.CarouselState.Companion Companion;
   }
 
-  public static final class CarouselState.Companion {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final class CarouselState.Companion {
     method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.carousel.CarouselState,?> getSaver();
     property public final androidx.compose.runtime.saveable.Saver<androidx.compose.material3.carousel.CarouselState,?> Saver;
   }
