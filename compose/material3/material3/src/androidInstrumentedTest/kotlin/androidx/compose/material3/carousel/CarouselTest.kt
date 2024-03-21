@@ -21,6 +21,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -193,9 +194,12 @@ class CarouselTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        val strategy = Strategy { _, _ ->
-            keylineList
-        }.apply(availableSpace = 1000f, itemSpacing = 0f)
+        val strategy = Strategy { _, _ -> keylineList }.apply(
+            availableSpace = 1000f,
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
         val outOfBoundsNum = calculateOutOfBounds(strategy)
         // With this strategy, we expect 3 loaded items
         val loadedItems = 3
@@ -219,7 +223,12 @@ class CarouselTest {
                     add(56f)
                     add(10f, isAnchor = true)
                 }
-            }.apply(availableSpace = 380f, itemSpacing = 8f)
+            }.apply(
+                availableSpace = 380f,
+                itemSpacing = 8f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
             // Max offset should only add item spacing between each item
             val expectedMaxScrollOffset = (186f * 10) + (8f * 9) - 380f
@@ -278,6 +287,7 @@ class CarouselTest {
                 flingBehavior = flingBehavior(state),
                 modifier = modifier.testTag(CarouselTestTag),
                 itemSpacing = 0.dp,
+                contentPadding = PaddingValues(0.dp),
                 content = content,
             )
         }
