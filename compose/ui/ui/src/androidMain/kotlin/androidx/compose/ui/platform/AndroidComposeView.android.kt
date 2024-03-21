@@ -20,6 +20,7 @@ package androidx.compose.ui.platform
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.M
@@ -46,6 +47,7 @@ import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_SCROLL
 import android.view.MotionEvent.ACTION_UP
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
+import android.view.ScrollCaptureTarget
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
@@ -171,6 +173,7 @@ import androidx.compose.ui.node.visitSubtree
 import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
 import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
 import androidx.compose.ui.platform.coreshims.ViewCompatShims
+import androidx.compose.ui.scrollcapture.ScrollCapture
 import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
@@ -791,6 +794,21 @@ internal class AndroidComposeView(
             rect.right = right.fastRoundToInt()
             rect.bottom = bottom.fastRoundToInt()
         } ?: super.getFocusedRect(rect)
+    }
+
+    override fun onScrollCaptureSearch(
+        localVisibleRect: Rect,
+        windowOffset: Point,
+        targets: Consumer<ScrollCaptureTarget>
+    ) {
+        if (SDK_INT >= 31) {
+            ScrollCapture.onScrollCaptureSearch(
+                view = this,
+                semanticsOwner = semanticsOwner,
+                coroutineContext = coroutineContext,
+                targets = targets
+            )
+        }
     }
 
     override fun onResume(owner: LifecycleOwner) {

@@ -91,6 +91,7 @@ val FoundationDemos = DemoCategory(
         ComposableDemo("Scrollable with focused child") { ScrollableFocusedChildDemo() },
         ComposableDemo("Window insets") { WindowInsetsDemo() },
         ComposableDemo("Marquee") { BasicMarqueeDemo() },
-        DemoCategory("Pointer Icon", PointerIconDemos)
+        DemoCategory("Pointer Icon", PointerIconDemos),
+        DemoCategory("Long screenshots", ScrollingScreenshotsDemos),
     )
 )
