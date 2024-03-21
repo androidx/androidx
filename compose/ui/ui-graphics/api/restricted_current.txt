@@ -804,11 +804,11 @@ package androidx.compose.ui.graphics {
   public final class PathHitTester {
     ctor public PathHitTester();
     method public operator boolean contains(long position);
-    method public void updatePath(androidx.compose.ui.graphics.Path path, optional float tolerance);
+    method public void updatePath(androidx.compose.ui.graphics.Path path, optional @FloatRange(from=0.0) float tolerance);
   }
 
   public final class PathHitTesterKt {
-    method public static androidx.compose.ui.graphics.PathHitTester PathHitTester(androidx.compose.ui.graphics.Path path, optional float tolerance);
+    method public static androidx.compose.ui.graphics.PathHitTester PathHitTester(androidx.compose.ui.graphics.Path path, optional @FloatRange(from=0.0) float tolerance);
   }
 
   public interface PathIterator extends java.util.Iterator<androidx.compose.ui.graphics.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
