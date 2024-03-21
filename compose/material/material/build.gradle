@@ -149,6 +149,7 @@ dependencies {
 androidx {
     name = "Compose Material Components"
     type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2018"
     description = "Compose Material Design Components library"
     legacyDisableKotlinStrictApiMode = true
