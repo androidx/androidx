@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.sdkruntime.testsdk.v4
+package androidx.privacysandbox.sdkruntime.testsdk
 
 import android.content.Context
 import android.os.Binder
 import android.os.Bundle
-import android.os.IBinder
 import android.view.View
-import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
-import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 @Suppress("unused") // Reflection usage from tests in privacysandbox:sdkruntime:sdkruntime-client
 class CompatProvider : SandboxedSdkProviderCompat() {
@@ -41,7 +37,7 @@ class CompatProvider : SandboxedSdkProviderCompat() {
 
     @Throws(LoadSdkCompatException::class)
     override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
-        val result = SdkImpl(context!!)
+        val result = Binder()
         onLoadSdkBinder = result
 
         lastOnLoadSdkParams = params
@@ -62,22 +58,5 @@ class CompatProvider : SandboxedSdkProviderCompat() {
         height: Int
     ): View {
         return View(windowContext)
-    }
-
-    internal class SdkImpl(
-        private val context: Context
-    ) : Binder() {
-        fun getSandboxedSdks(): List<SandboxedSdkCompat> =
-            SdkSandboxControllerCompat.from(context).getSandboxedSdks()
-
-        fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
-            SdkSandboxControllerCompat.from(context).getAppOwnedSdkSandboxInterfaces()
-
-        fun registerSdkSandboxActivityHandler(handler: SdkSandboxActivityHandlerCompat): IBinder =
-            SdkSandboxControllerCompat.from(context).registerSdkSandboxActivityHandler(handler)
-
-        fun unregisterSdkSandboxActivityHandler(handler: SdkSandboxActivityHandlerCompat) {
-            SdkSandboxControllerCompat.from(context).unregisterSdkSandboxActivityHandler(handler)
-        }
     }
 }
