@@ -1433,7 +1433,7 @@ fun BottomAppBarState(
     initialContentOffset
 )
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Stable
 private class BottomAppBarStateImpl(
     initialHeightOffsetLimit: Float,
@@ -1481,7 +1481,7 @@ private class BottomAppBarStateImpl(
  * @param canScroll a callback used to determine whether scroll events are to be
  * handled by this [ExitAlwaysScrollBehavior]
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 private class ExitAlwaysScrollBehavior(
     override val state: BottomAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>?,
@@ -1525,7 +1525,7 @@ private class ExitAlwaysScrollBehavior(
  * Settles the app bar by flinging, in case the given velocity is greater than zero, and snapping
  * after the fling settles.
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 private suspend fun settleAppBarBottom(
     state: BottomAppBarState,
     velocity: Float,
