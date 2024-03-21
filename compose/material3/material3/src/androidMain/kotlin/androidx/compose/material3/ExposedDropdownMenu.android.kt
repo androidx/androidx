@@ -146,15 +146,6 @@ fun ExposedDropdownMenuBox(
     val scope = remember(expanded, onExpandedChange, config, view, density) {
         object : ExposedDropdownMenuBoxScope() {
             override fun Modifier.menuAnchor(): Modifier = this
-                .onGloballyPositioned {
-                    anchorCoordinates = it
-                    anchorWidth = it.size.width
-                    menuMaxHeight = calculateMaxHeight(
-                        windowBounds = view.rootView.getWindowBounds(),
-                        anchorBounds = anchorCoordinates.getAnchorBounds(),
-                        verticalMargin = verticalMargin,
-                    )
-                }
                 .expandable(
                     expanded = expanded,
                     onExpandedChange = { onExpandedChange(!expanded) },
@@ -179,7 +170,17 @@ fun ExposedDropdownMenuBox(
         }
     }
 
-    Box(modifier) {
+    Box(
+        modifier.onGloballyPositioned {
+            anchorCoordinates = it
+            anchorWidth = it.size.width
+            menuMaxHeight = calculateMaxHeight(
+                windowBounds = view.rootView.getWindowBounds(),
+                anchorBounds = anchorCoordinates.getAnchorBounds(),
+                verticalMargin = verticalMargin,
+            )
+        }
+    ) {
         scope.content()
     }
 
