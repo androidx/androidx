@@ -52,6 +52,7 @@ import org.jetbrains.skiko.SkikoKeyboardEvent
 import org.jetbrains.skiko.SkikoKeyboardEventKind
 import org.jetbrains.skiko.SkikoPointerEventKind
 import org.w3c.dom.AddEventListenerOptions
+import org.w3c.dom.Element
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.HTMLTitleElement
@@ -83,7 +84,7 @@ private interface ComposeWindowState {
     }
 }
 
-private class DefaultWindowState : ComposeWindowState {
+private class DefaultWindowState(private val viewportContainer: Element) : ComposeWindowState {
     private val channel = Channel<IntSize>(CONFLATED)
 
     override fun init() {
@@ -99,8 +100,7 @@ private class DefaultWindowState : ComposeWindowState {
     }
 
     private fun getParentContainerBox(): IntSize {
-        val documentElement = document.documentElement ?: return IntSize(0, 0)
-        return IntSize(documentElement.clientWidth, documentElement.clientHeight)
+        return IntSize(viewportContainer.clientWidth, viewportContainer.clientHeight)
     }
 
     private fun initMediaEventListener(handler: (Double) -> Unit) {
@@ -330,6 +330,41 @@ fun CanvasBasedWindow(
     ComposeWindow(
         canvas = canvas,
         content = content,
-        state = if (requestResize == null) DefaultWindowState() else ComposeWindowState.createFromLambda(requestResize)
+        state = if (requestResize == null) DefaultWindowState(document.documentElement!!) else ComposeWindowState.createFromLambda(requestResize)
+    )
+}
+
+/**
+ * EXPERIMENTAL! Might be deleted or changed in the future!
+ *
+ * Creates the composition in HTML canvas created in parent container identified by [viewportContainer] id.
+ * This size of canvas is adjusted with the size of the container
+ */
+fun ComposeViewport(
+    viewportContainer: String,
+    content: @Composable () -> Unit = { }
+) {
+    ComposeViewport(document.getElementById(viewportContainer)!!, content)
+}
+
+/**
+ * EXPERIMENTAL! Might be deleted or changed in the future!
+ *
+ * Creates the composition in HTML canvas created in parent container identified by [viewportContainer] Element.
+ * This size of canvas is adjusted with the size of the container
+ */
+fun ComposeViewport(
+    viewportContainer: Element,
+    content: @Composable () -> Unit = { }
+) {
+    val canvas = document.createElement("canvas") as HTMLCanvasElement
+    canvas.setAttribute("tabindex", "0")
+
+    viewportContainer.appendChild(canvas)
+
+    ComposeWindow(
+        canvas = canvas,
+        content = content,
+        state = DefaultWindowState(viewportContainer)
     )
 }
