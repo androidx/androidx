@@ -76,6 +76,7 @@ import org.junit.runner.Description
  * create and validate schemas.
  *
  * @param schemaDirectoryPath The schema directory where schema files are exported.
+ * @param databasePath Name of the database.
  * @param driver A driver that opens connection to a file database. A driver that opens connections
  * to an in-memory database would be meaningless.
  * @param databaseClass The [androidx.room.Database] annotated class.
@@ -86,6 +87,7 @@ import org.junit.runner.Description
  */
 actual class MigrationTestHelper(
     private val schemaDirectoryPath: Path,
+    private val databasePath: Path,
     private val driver: SQLiteDriver,
     private val databaseClass: KClass<out RoomDatabase>,
     databaseFactory: () -> RoomDatabase = {
@@ -164,7 +166,7 @@ actual class MigrationTestHelper(
     private fun createDatabaseConfiguration(
         container: RoomDatabase.MigrationContainer,
     ) = DatabaseConfiguration(
-        name = null,
+        name = databasePath.toString(),
         migrationContainer = container,
         callbacks = null,
         journalMode = RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING,

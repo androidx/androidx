@@ -72,11 +72,13 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
             this.connectionPool = if (configuration.name == null) {
                 // An in-memory database must use a single connection pool.
                 newSingleConnectionPool(
-                    driver = DriverWrapper(config.sqliteDriver)
+                    driver = DriverWrapper(config.sqliteDriver),
+                    fileName = ":memory:"
                 )
             } else {
                 newConnectionPool(
                     driver = DriverWrapper(config.sqliteDriver),
+                    fileName = configuration.name,
                     maxNumOfReaders = configuration.journalMode.getMaxNumberOfReaders(),
                     maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters()
                 )
@@ -200,7 +202,8 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
         val supportDriver: SupportSQLiteDriver
     ) : ConnectionPool {
         private val supportConnection by lazy(LazyThreadSafetyMode.PUBLICATION) {
-            SupportPooledConnection(supportDriver.open())
+            val fileName = supportDriver.openHelper.databaseName ?: ":memory:"
+            SupportPooledConnection(supportDriver.open(fileName))
         }
 
         override suspend fun <R> useConnection(

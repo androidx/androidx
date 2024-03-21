@@ -61,17 +61,19 @@ internal class ConnectionPoolImpl : ConnectionPool {
 
     constructor(
         driver: SQLiteDriver,
+        fileName: String
     ) {
         this.driver = driver
         this.readers = Pool(
             capacity = 1,
-            connectionFactory = { driver.open() }
+            connectionFactory = { driver.open(fileName) }
         )
         this.writers = readers
     }
 
     constructor(
         driver: SQLiteDriver,
+        fileName: String,
         maxNumOfReaders: Int,
         maxNumOfWriters: Int,
     ) {
@@ -85,7 +87,7 @@ internal class ConnectionPoolImpl : ConnectionPool {
         this.readers = Pool(
             capacity = maxNumOfReaders,
             connectionFactory = {
-                driver.open().also { newConnection ->
+                driver.open(fileName).also { newConnection ->
                     // Enforce to be read only (might be disabled by a YOLO developer)
                     newConnection.execSQL("PRAGMA query_only = 1")
                 }
@@ -93,7 +95,7 @@ internal class ConnectionPoolImpl : ConnectionPool {
         )
         this.writers = Pool(
             capacity = maxNumOfWriters,
-            connectionFactory = { driver.open() }
+            connectionFactory = { driver.open(fileName) }
         )
     }
 

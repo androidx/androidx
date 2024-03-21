@@ -27,10 +27,11 @@ import platform.posix.remove
 
 class AutoMigrationTest : BaseAutoMigrationTest() {
     private val filename = "/tmp/test-${Random.nextInt()}.db"
-    private val driver: SQLiteDriver = BundledSQLiteDriver(filename)
+    private val driver: SQLiteDriver = BundledSQLiteDriver()
 
     private val migrationTestHelper = MigrationTestHelper(
         schemaDirectoryPath = getSchemaDirectoryPath(),
+        fileName = filename,
         driver = driver,
         databaseClass = AutoMigrationDatabase::class,
         databaseFactory = { AutoMigrationDatabase::class.instantiateImpl() }

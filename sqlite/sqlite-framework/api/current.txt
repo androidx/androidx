@@ -11,8 +11,8 @@ package androidx.sqlite.db.framework {
 package androidx.sqlite.driver {
 
   public final class AndroidSQLiteDriver implements androidx.sqlite.SQLiteDriver {
-    ctor public AndroidSQLiteDriver(String filename);
-    method public androidx.sqlite.SQLiteConnection open();
+    ctor public AndroidSQLiteDriver();
+    method public androidx.sqlite.SQLiteConnection open(String fileName);
   }
 
 }

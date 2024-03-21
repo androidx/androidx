@@ -25,10 +25,10 @@ import platform.posix.remove
 
 class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
 
-    private val filename = "/tmp/test-${Random.nextInt()}.db"
+    override val fileName = "/tmp/test-${Random.nextInt()}.db"
 
     override fun getDriver(): SQLiteDriver {
-        return BundledSQLiteDriver(filename)
+        return BundledSQLiteDriver()
     }
 
     @BeforeTest
@@ -42,8 +42,8 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
     }
 
     private fun deleteDatabaseFile() {
-        remove(filename)
-        remove("$filename-wal")
-        remove("$filename-shm")
+        remove(fileName)
+        remove("$fileName-wal")
+        remove("$fileName-shm")
     }
 }

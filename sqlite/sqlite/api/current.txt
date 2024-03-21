@@ -7,7 +7,7 @@ package androidx.sqlite {
   }
 
   public interface SQLiteDriver {
-    method public androidx.sqlite.SQLiteConnection open();
+    method public androidx.sqlite.SQLiteConnection open(String fileName);
   }
 
   public final class SQLiteKt {
