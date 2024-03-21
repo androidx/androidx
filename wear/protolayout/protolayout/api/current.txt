@@ -1155,11 +1155,11 @@ package androidx.wear.protolayout {
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final class ModifiersBuilders.Transformation {
     method public androidx.wear.protolayout.DimensionBuilders.PivotDimension? getPivotX();
     method public androidx.wear.protolayout.DimensionBuilders.PivotDimension? getPivotY();
-    method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getRotation();
-    method public androidx.wear.protolayout.TypeBuilders.FloatProp? getScaleX();
-    method public androidx.wear.protolayout.TypeBuilders.FloatProp? getScaleY();
-    method public androidx.wear.protolayout.DimensionBuilders.DpProp? getTranslationX();
-    method public androidx.wear.protolayout.DimensionBuilders.DpProp? getTranslationY();
+    method public androidx.wear.protolayout.DimensionBuilders.DegreesProp getRotation();
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp getScaleX();
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp getScaleY();
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp getTranslationX();
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp getTranslationY();
   }
 
   public static final class ModifiersBuilders.Transformation.Builder {
