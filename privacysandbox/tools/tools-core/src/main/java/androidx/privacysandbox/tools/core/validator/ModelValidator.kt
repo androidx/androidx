@@ -93,7 +93,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
                 if (method.parameters.any { !(isValidInterfaceParameterType(it.type)) }) {
                     errors.add(
                         "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
-                            "only primitives, lists, data classes annotated with " +
+                            "only primitives, lists, data/enum classes annotated with " +
                             "@PrivacySandboxValue, interfaces annotated with " +
                             "@PrivacySandboxCallback or @PrivacySandboxInterface, and " +
                             "SdkActivityLaunchers are supported as parameter types."
@@ -102,7 +102,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
                 if (!isValidInterfaceReturnType(method.returnType)) {
                     errors.add(
                         "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
-                            "only primitives, lists, data classes annotated with " +
+                            "only primitives, lists, data/enum classes annotated with " +
                             "@PrivacySandboxValue, interfaces annotated with " +
                             "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
                             "return types."
@@ -121,7 +121,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
                 if (!isValidValuePropertyType(property.type)) {
                     errors.add(
                         "Error in ${value.type.qualifiedName}.${property.name}: " +
-                            "only primitives, lists, data classes annotated with " +
+                            "only primitives, lists, data/enum classes annotated with " +
                             "@PrivacySandboxValue, interfaces annotated with " +
                             "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
                             "properties."
@@ -137,7 +137,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
                 if (method.parameters.any { !isValidCallbackParameterType(it.type) }) {
                     errors.add(
                         "Error in ${callback.type.qualifiedName}.${method.name}: " +
-                            "only primitives, lists, data classes annotated with " +
+                            "only primitives, lists, data/enum classes annotated with " +
                             "@PrivacySandboxValue, interfaces annotated with " +
                             "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
                             "callback parameter types."

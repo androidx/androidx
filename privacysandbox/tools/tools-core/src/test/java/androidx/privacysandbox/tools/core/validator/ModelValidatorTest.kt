@@ -293,10 +293,10 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdk.returnFoo: only primitives, lists, data classes annotated " +
-                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
-                "and SdkActivityLaunchers are supported as return types.",
-            "Error in com.mysdk.MySdk.receiveFoo: only primitives, lists, data classes " +
+            "Error in com.mysdk.MySdk.returnFoo: only primitives, lists, data/enum classes " +
+                "annotated with @PrivacySandboxValue, interfaces annotated with " +
+                "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as return types.",
+            "Error in com.mysdk.MySdk.receiveFoo: only primitives, lists, data/enum classes " +
                 "annotated with @PrivacySandboxValue, interfaces annotated with " +
                 "@PrivacySandboxCallback or @PrivacySandboxInterface, and SdkActivityLaunchers " +
                 "are supported as parameter types."
@@ -379,9 +379,9 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.Foo.bar: only primitives, lists, data classes annotated with " +
-                "@PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, and " +
-                "SdkActivityLaunchers are supported as properties."
+            "Error in com.mysdk.Foo.bar: only primitives, lists, data/enum classes annotated " +
+                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
+                "and SdkActivityLaunchers are supported as properties."
         )
     }
 
@@ -410,7 +410,7 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdkCallback.foo: only primitives, lists, data classes " +
+            "Error in com.mysdk.MySdkCallback.foo: only primitives, lists, data/enum classes " +
                 "annotated with @PrivacySandboxValue, interfaces annotated with " +
                 "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as callback " +
                 "parameter types."
