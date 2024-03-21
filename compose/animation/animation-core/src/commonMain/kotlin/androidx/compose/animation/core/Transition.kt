@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.runtime.withFrameNanos
@@ -52,6 +53,7 @@ import kotlin.math.max
 import kotlin.math.roundToLong
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -932,7 +934,7 @@ class Transition<S> @PublishedApi internal constructor(
     internal var startTimeNanos by mutableLongStateOf(AnimationConstants.UnspecifiedTime)
 
     // This gets calculated every time child is updated/added
-    internal var updateChildrenNeeded: Boolean by mutableStateOf(true)
+    private var updateChildrenNeeded: Boolean by mutableStateOf(false)
 
     private val _animations = mutableStateListOf<TransitionAnimationState<*, *>>()
     private val _transitions = mutableStateListOf<Transition<*>>()
@@ -1176,21 +1178,34 @@ class Transition<S> @PublishedApi internal constructor(
     internal fun animateTo(targetState: S) {
         if (!isSeeking) {
             updateTarget(targetState)
-            // target != currentState adds LaunchedEffect into the tree in the same frame as
+            // target != currentState adds the effect into the tree in the same frame as
             // target change.
             if (targetState != currentState || isRunning || updateChildrenNeeded) {
-                LaunchedEffect(this) {
-                    while (true) {
+                // We're using a composition-obtained scope + DisposableEffect here to give us
+                // control over coroutine dispatching
+                val coroutineScope = rememberCoroutineScope()
+                DisposableEffect(coroutineScope, this) {
+                    // Launch the coroutine undispatched so the block is executed in the current
+                    // frame. This is important as this initializes the state.
+                    coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                         val durationScale = coroutineContext.durationScale
                         withFrameNanos {
-                            // This check is very important, as isSeeking may be changed off-band
-                            // between the last check in composition and this callback which
-                            // happens in the animation callback the next frame.
                             if (!isSeeking) {
                                 onFrame(it / AnimationDebugDurationScale, durationScale)
                             }
                         }
+                        while (isRunning) {
+                            withFrameNanos {
+                                // This check is very important, as isSeeking may be changed
+                                // off-band between the last check in composition and this callback
+                                // which happens in the animation callback the next frame.
+                                if (!isSeeking) {
+                                    onFrame(it / AnimationDebugDurationScale, durationScale)
+                                }
+                            }
+                        }
                     }
+                    onDispose { }
                 }
             }
         }
