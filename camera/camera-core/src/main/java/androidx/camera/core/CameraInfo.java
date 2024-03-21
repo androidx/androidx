@@ -405,6 +405,17 @@ public interface CameraInfo {
                 Collections.singleton(DynamicRange.SDR));
     }
 
+    /**
+     * Returns a set of {@link PhysicalCameraInfo}.
+     *
+     * @return Set of {@link PhysicalCameraInfo}.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    default Set<PhysicalCameraInfo> getPhysicalCameraInfos() {
+        return Collections.emptySet();
+    }
+
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,
             IMPLEMENTATION_TYPE_CAMERA2_LEGACY, IMPLEMENTATION_TYPE_CAMERA2,
             IMPLEMENTATION_TYPE_FAKE})
