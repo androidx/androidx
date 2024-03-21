@@ -52,7 +52,7 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
         val metrics = listOf(
             TraceSectionMetric(
                 "%$PACKAGE_NAME.$composableName %$FILE_NAME:%",
-                mode = TraceSectionMetric.Mode.First
+                TraceSectionMetric.Mode.First
             )
         )
         benchmarkRule.measureRepeated(
