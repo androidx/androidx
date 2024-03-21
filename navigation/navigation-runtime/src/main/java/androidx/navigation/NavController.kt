@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:SuppressLint("NullAnnotationGroup")
+
 package androidx.navigation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -529,13 +533,13 @@ public open class NavController(
     /**
      * Attempts to pop the controller's back stack back to a specific destination.
      *
-     * @param route The topmost destination to retain with route from a [KClass]. The
+     * @param T The topmost destination to retain with route from a [KClass]. The
      * target NavDestination must have been created with route from [KClass].
      * @param inclusive Whether the given destination should also be popped.
      * @param saveState Whether the back stack and the state of all destinations between the
-     * current destination and the [route] should be saved for later
+     * current destination and [T] should be saved for later
      * restoration via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
-     * the same [route] (note: this matching ID is true whether
+     * the same [T] (note: this matching ID is true whether
      * [inclusive] is true or false).
      *
      * @return true if the stack was popped at least once and the user has been navigated to
@@ -543,7 +547,8 @@ public open class NavController(
      */
     @MainThread
     @JvmOverloads
-    internal inline fun <reified T> popBackStack(
+    @ExperimentalSafeArgsApi
+    public inline fun <reified T> popBackStack(
         inclusive: Boolean,
         saveState: Boolean = false
     ): Boolean = popBackStack(serializer<T>().hashCode(), inclusive, saveState)
@@ -566,7 +571,8 @@ public open class NavController(
     @OptIn(InternalSerializationApi::class)
     @MainThread
     @JvmOverloads
-    internal fun <T : Any> popBackStack(
+    @ExperimentalSafeArgsApi
+    public fun <T : Any> popBackStack(
         route: T,
         inclusive: Boolean,
         saveState: Boolean = false
@@ -2676,10 +2682,11 @@ public inline fun NavController.createGraph(
  * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-internal inline fun NavController.createGraph(
+@ExperimentalSafeArgsApi
+public inline fun NavController.createGraph(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
-    typeMap: Map<KType, NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
 
@@ -2693,9 +2700,10 @@ internal inline fun NavController.createGraph(
  * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-internal inline fun NavController.createGraph(
+@ExperimentalSafeArgsApi
+public inline fun NavController.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,
-    typeMap: Map<KType, NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)

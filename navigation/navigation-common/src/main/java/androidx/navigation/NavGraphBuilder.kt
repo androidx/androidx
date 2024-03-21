@@ -17,7 +17,6 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
-import androidx.annotation.RestrictTo
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlinx.serialization.InternalSerializationApi
@@ -70,14 +69,15 @@ public inline fun NavigatorProvider.navigation(
  * @param route the graph's unique route as a [KClass]
  * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
  * if [route] uses custom NavTypes.
+ * @param builder the builder used to construct the graph
  *
  * @return the newly constructed NavGraph
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalSafeArgsApi
 public inline fun NavigatorProvider.navigation(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
-    typeMap: Map<KType, NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = NavGraphBuilder(this, startDestination, route, typeMap).apply(builder)
     .build()
@@ -90,14 +90,15 @@ public inline fun NavigatorProvider.navigation(
  * @param route the graph's unique route as a [KClass]
  * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
  * if [route] uses custom NavTypes.
+ * @param builder the builder used to construct the graph
  *
  * @return the newly constructed NavGraph
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalSafeArgsApi
 public inline fun NavigatorProvider.navigation(
     startDestination: Any,
     route: KClass<*>? = null,
-    typeMap: Map<KType, NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = NavGraphBuilder(this, startDestination, route, typeMap).apply(builder)
     .build()
@@ -148,14 +149,15 @@ public inline fun NavGraphBuilder.navigation(
  * @param route the graph's unique route from a [KClass]
  * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
  * if [route] uses custom NavTypes.
+ * @param builder the builder used to construct the graph
  *
  * @return the newly constructed nested NavGraph
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalSafeArgsApi
 public inline fun NavGraphBuilder.navigation(
     startDestination: KClass<*>,
     route: KClass<*>,
-    typeMap: Map<KType, NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
     builder: NavGraphBuilder.() -> Unit
 ): Unit = destination(NavGraphBuilder(provider, startDestination, route, typeMap).apply(builder))
 
@@ -167,14 +169,15 @@ public inline fun NavGraphBuilder.navigation(
  * @param route the graph's unique route from a [KClass]
  * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
  * if [route] uses custom NavTypes.
+ * @param builder the builder used to construct the graph
  *
  * @return the newly constructed nested NavGraph
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalSafeArgsApi
 public inline fun NavGraphBuilder.navigation(
     startDestination: Any,
     route: KClass<*>,
-    typeMap: Map<KType, NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
     builder: NavGraphBuilder.() -> Unit
 ): Unit = destination(NavGraphBuilder(provider, startDestination, route, typeMap).apply(builder))
 
@@ -248,12 +251,12 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      *
      * @return the newly created NavGraph
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalSafeArgsApi
     public constructor(
         provider: NavigatorProvider,
         startDestination: KClass<*>,
         route: KClass<*>?,
-        typeMap: Map<KType, NavType<*>>?
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>?
     ) : super(provider[NavGraphNavigator::class], route, typeMap) {
         this.provider = provider
         this.startDestinationClass = startDestination
@@ -271,12 +274,12 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      *
      * @return the newly created NavGraph
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalSafeArgsApi
     public constructor(
         provider: NavigatorProvider,
         startDestination: Any,
         route: KClass<*>?,
-        typeMap: Map<KType, NavType<*>>?
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>?
     ) : super(provider[NavGraphNavigator::class], route, typeMap) {
             this.provider = provider
             this.startDestinationObject = startDestination
@@ -305,7 +308,7 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         destinations += destination
     }
 
-    @OptIn(InternalSerializationApi::class)
+    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
     override fun build(): NavGraph = super.build().also { navGraph ->
         navGraph.addDestinations(destinations)
         if (startDestinationId == 0 && startDestinationRoute == null &&

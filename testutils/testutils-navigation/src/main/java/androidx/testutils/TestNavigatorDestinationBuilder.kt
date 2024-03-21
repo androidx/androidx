@@ -18,7 +18,9 @@
 
 package androidx.testutils
 
+import android.annotation.SuppressLint
 import androidx.annotation.IdRes
+import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
@@ -82,5 +84,7 @@ class TestNavigatorDestinationBuilder : NavDestinationBuilder<TestNavigator.Dest
     @Suppress("DEPRECATION")
     constructor(navigator: TestNavigator, @IdRes id: Int = 0) : super(navigator, id)
     constructor(navigator: TestNavigator, route: String) : super(navigator, route)
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @SuppressLint("NullAnnotationGroup")
     constructor(navigator: TestNavigator, route: KClass<*>) : super(navigator, route, null)
 }
