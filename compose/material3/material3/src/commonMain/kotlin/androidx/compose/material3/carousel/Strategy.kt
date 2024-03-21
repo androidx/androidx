@@ -22,8 +22,11 @@ import androidx.collection.mutableFloatListOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMapIndexed
 import androidx.compose.ui.util.lerp
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -84,6 +87,8 @@ internal class Strategy(
     internal var availableSpace: Float = 0f
     /** The spacing between each item. */
     internal var itemSpacing: Float = 0f
+    internal var beforeContentPadding: Float = 0f
+    internal var afterContentPadding: Float = 0f
     /** The size of items when in focus and fully unmasked. */
     internal var itemMainAxisSize by mutableFloatStateOf(0f)
 
@@ -101,8 +106,15 @@ internal class Strategy(
      * This method must be called before a strategy can be used by carousel.
      *
      * @param availableSpace the size of the carousel container in scrolling axis
+     * @param beforeContentPadding the padding to add before the list content
+     * @param afterContentPadding the padding to add after the list content
      */
-    internal fun apply(availableSpace: Float, itemSpacing: Float): Strategy {
+    internal fun apply(
+        availableSpace: Float,
+        itemSpacing: Float,
+        beforeContentPadding: Float,
+        afterContentPadding: Float
+    ): Strategy {
         // Skip computing new keylines and updating this strategy if
         // available space has not changed.
         if (this.availableSpace == availableSpace && this.itemSpacing == itemSpacing) {
@@ -110,15 +122,16 @@ internal class Strategy(
         }
 
         val keylineList = keylineList.invoke(availableSpace, itemSpacing) ?: return this
-        val startKeylineSteps = getStartKeylineSteps(keylineList, availableSpace, itemSpacing)
+        val startKeylineSteps =
+            getStartKeylineSteps(keylineList, availableSpace, itemSpacing, beforeContentPadding)
         val endKeylineSteps =
-            getEndKeylineSteps(keylineList, availableSpace, itemSpacing)
+            getEndKeylineSteps(keylineList, availableSpace, itemSpacing, afterContentPadding)
 
         // TODO: Update this to use the first/last focal keylines to calculate shift?
-        val startShiftDistance = startKeylineSteps.last().first().unadjustedOffset -
-            keylineList.first().unadjustedOffset
-        val endShiftDistance = keylineList.last().unadjustedOffset -
-            endKeylineSteps.last().last().unadjustedOffset
+        val startShiftDistance = max(startKeylineSteps.last().first().unadjustedOffset -
+            keylineList.first().unadjustedOffset, beforeContentPadding)
+        val endShiftDistance = max(keylineList.last().unadjustedOffset -
+            endKeylineSteps.last().last().unadjustedOffset, afterContentPadding)
 
         this.defaultKeylines = keylineList
         this.defaultKeylines = keylineList
@@ -138,6 +151,8 @@ internal class Strategy(
         )
         this.availableSpace = availableSpace
         this.itemSpacing = itemSpacing
+        this.beforeContentPadding = beforeContentPadding
+        this.afterContentPadding = afterContentPadding
         this.itemMainAxisSize = defaultKeylines.firstFocal.size
 
         return this
@@ -229,6 +244,8 @@ internal class Strategy(
         if (isValid() != other.isValid()) return false
         if (availableSpace != other.availableSpace) return false
         if (itemSpacing != other.itemSpacing) return false
+        if (beforeContentPadding != other.beforeContentPadding) return false
+        if (afterContentPadding != other.afterContentPadding) return false
         if (itemMainAxisSize != other.itemMainAxisSize) return false
         if (startShiftDistance != other.startShiftDistance) return false
         if (endShiftDistance != other.endShiftDistance) return false
@@ -247,6 +264,8 @@ internal class Strategy(
         var result = isValid().hashCode()
         result = 31 * result + availableSpace.hashCode()
         result = 31 * result + itemSpacing.hashCode()
+        result = 31 * result + beforeContentPadding.hashCode()
+        result = 31 * result + afterContentPadding.hashCode()
         result = 31 * result + itemMainAxisSize.hashCode()
         result = 31 * result + startShiftDistance.hashCode()
         result = 31 * result + endShiftDistance.hashCode()
@@ -277,12 +296,23 @@ internal class Strategy(
         private fun getStartKeylineSteps(
             defaultKeylines: KeylineList,
             carouselMainAxisSize: Float,
-            itemSpacing: Float
+            itemSpacing: Float,
+            beforeContentPadding: Float
         ): List<KeylineList> {
             val steps: MutableList<KeylineList> = mutableListOf()
             steps.add(defaultKeylines)
 
             if (defaultKeylines.isFirstFocalItemAtStartOfContainer()) {
+                if (beforeContentPadding != 0f) {
+                    steps.add(
+                        createShiftedKeylineListForContentPadding(
+                            defaultKeylines,
+                            carouselMainAxisSize,
+                            itemSpacing,
+                            beforeContentPadding
+                        )
+                    )
+                }
                 return steps
             }
 
@@ -329,6 +359,15 @@ internal class Strategy(
                 i++
             }
 
+            if (beforeContentPadding != 0f) {
+                steps[steps.lastIndex] = createShiftedKeylineListForContentPadding(
+                    steps.last(),
+                    carouselMainAxisSize,
+                    itemSpacing,
+                    beforeContentPadding
+                )
+            }
+
             return steps
         }
 
@@ -351,12 +390,21 @@ internal class Strategy(
         private fun getEndKeylineSteps(
             defaultKeylines: KeylineList,
             carouselMainAxisSize: Float,
-            itemSpacing: Float
+            itemSpacing: Float,
+            afterContentPadding: Float
         ): List<KeylineList> {
             val steps: MutableList<KeylineList> = mutableListOf()
             steps.add(defaultKeylines)
 
             if (defaultKeylines.isLastFocalItemAtEndOfContainer(carouselMainAxisSize)) {
+                if (afterContentPadding != 0f) {
+                    steps.add(createShiftedKeylineListForContentPadding(
+                        defaultKeylines,
+                        carouselMainAxisSize,
+                        itemSpacing,
+                        -afterContentPadding
+                    ))
+                }
                 return steps
             }
 
@@ -403,7 +451,51 @@ internal class Strategy(
                 i++
             }
 
+            if (afterContentPadding != 0f) {
+                steps[steps.lastIndex] = createShiftedKeylineListForContentPadding(
+                    steps.last(),
+                    carouselMainAxisSize,
+                    itemSpacing,
+                    -afterContentPadding
+                )
+            }
+
             return steps
+        }
+
+        /**
+         * Returns a new [KeylineList] identical to [from] but with each keyline's offset shifted
+         * by [contentPadding].
+         */
+        private fun createShiftedKeylineListForContentPadding(
+            from: KeylineList,
+            carouselMainAxisSize: Float,
+            itemSpacing: Float,
+            contentPadding: Float
+        ): KeylineList {
+            val numberOfNonAnchorKeylines = from.fastFilter { !it.isAnchor }.count()
+            val sizeReduction = contentPadding / numberOfNonAnchorKeylines
+            // Let keylineListOf create a new keyline list with offsets adjusted for each item's
+            // reduction in size
+            val newKeylines = keylineListOf(
+                carouselMainAxisSize = carouselMainAxisSize,
+                itemSpacing = itemSpacing,
+                pivotIndex = from.pivotIndex,
+                pivotOffset = from.pivot.offset + contentPadding - (sizeReduction / 2f)
+            ) {
+                from.fastForEach { k -> add(k.size - abs(sizeReduction), k.isAnchor) }
+            }
+
+            // Then reset each item's unadjusted offset back to their original value from the
+            // incoming keyline list. This is necessary because Pager will still be laying out items
+            // end-to-end with the original page size and not the new reduced size.
+            return KeylineList(
+                newKeylines.fastMapIndexed { i, k ->
+                    k.copy(
+                        unadjustedOffset = from[i].unadjustedOffset
+                    )
+                }
+            )
         }
 
         /**
