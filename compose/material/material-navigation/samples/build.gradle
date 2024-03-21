@@ -42,6 +42,7 @@ dependencies {
 androidx {
     name = "Compose Material Navigation Integration Samples"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Samples for Compose Material integration with Navigation"
 }
