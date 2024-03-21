@@ -28,6 +28,7 @@ import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.PhysicalCameraInfo;
 import androidx.camera.core.ZoomState;
 import androidx.lifecycle.LiveData;
 
@@ -227,5 +228,11 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     @Override
     public Object getPhysicalCameraCharacteristics(@NonNull String physicalCameraId) {
         return mCameraInfoInternal.getPhysicalCameraCharacteristics(physicalCameraId);
+    }
+
+    @NonNull
+    @Override
+    public Set<PhysicalCameraInfo> getPhysicalCameraInfos() {
+        return mCameraInfoInternal.getPhysicalCameraInfos();
     }
 }
