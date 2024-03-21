@@ -367,10 +367,9 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @param startDestRoute The route of the destination as a [KClass] to be shown when navigating
      * to this NavGraph.
      */
-    @OptIn(InternalSerializationApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setStartDestination(startDestRoute: KClass<*>) {
-        setStartDestination(startDestRoute.serializer()) { startDestination ->
+    public inline fun <reified T> setStartDestination() {
+        setStartDestination(serializer<T>()) { startDestination ->
             startDestination.route!!
         }
     }
@@ -394,8 +393,10 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         }
     }
 
+    // unfortunately needs to be public so reified setStartDestination can access this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @OptIn(ExperimentalSerializationApi::class)
-    private fun <T> setStartDestination(
+    public fun <T> setStartDestination(
         serializer: KSerializer<T>,
         parseRoute: (NavDestination) -> String,
     ) {
