@@ -119,6 +119,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_GET_PARENT_TYPES_AND_INDEXABLE_NESTED_PROPERTIES =
             FLAG_PREFIX + "enable_get_parent_types_and_indexable_nested_properties";
 
+    /** Enables embedding search related APIs. */
+    public static final String FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG =
+            FLAG_PREFIX + "enable_schema_embedding_property_config";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -210,6 +214,11 @@ public final class Flags {
      * should be enabled.
      */
     public static boolean enableGetParentTypesAndIndexableNestedProperties() {
+        return true;
+    }
+
+    /** Whether embedding search related APIs should be enabled. */
+    public static boolean enableSchemaEmbeddingPropertyConfig() {
         return true;
     }
 }

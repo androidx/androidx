@@ -334,6 +334,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                 DATA_TYPE_BOOLEAN,
                 DATA_TYPE_BYTES,
                 DATA_TYPE_DOCUMENT,
+                DATA_TYPE_EMBEDDING,
         })
         @Retention(RetentionPolicy.SOURCE)
         public @interface DataType {
@@ -372,6 +373,14 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_DOCUMENT = 6;
+
+        /**
+         * Indicates that the property is an {@link EmbeddingVector}.
+         *
+         * @exportToFramework:hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final int DATA_TYPE_EMBEDDING = 7;
 
         /**
          * The cardinality of the property (whether it is required, optional or repeated).
@@ -471,6 +480,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                 case AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT:
                     builder.append("dataType: DATA_TYPE_DOCUMENT,\n");
                     break;
+                case PropertyConfig.DATA_TYPE_EMBEDDING:
+                    builder.append("dataType: DATA_TYPE_EMBEDDING,\n");
+                    break;
                 default:
                     builder.append("dataType: DATA_TYPE_UNKNOWN,\n");
             }
@@ -548,6 +560,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                     return new BytesPropertyConfig(propertyConfigParcel);
                 case PropertyConfig.DATA_TYPE_DOCUMENT:
                     return new DocumentPropertyConfig(propertyConfigParcel);
+                case PropertyConfig.DATA_TYPE_EMBEDDING:
+                    return new EmbeddingPropertyConfig(propertyConfigParcel);
                 default:
                     throw new IllegalArgumentException(
                             "Unsupported property bundle of type "
@@ -1424,6 +1438,115 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                     .append(",\n");
 
             builder.append("schemaType: \"").append(getSchemaType()).append("\",\n");
+        }
+    }
+
+    /**
+     * Configuration for a property of type {@link EmbeddingVector} in a Document.
+     */
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public static final class EmbeddingPropertyConfig extends PropertyConfig {
+        /**
+         * Encapsulates the configurations on how AppSearch should query/index these embedding
+         * vectors.
+         *
+         * @exportToFramework:hide
+         */
+        @IntDef(value = {
+                INDEXING_TYPE_NONE,
+                INDEXING_TYPE_SIMILARITY
+        })
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface IndexingType {
+        }
+
+        /** Content in this property will not be indexed. */
+        public static final int INDEXING_TYPE_NONE = 0;
+
+        /**
+         * Embedding vectors in this property will be indexed.
+         *
+         * <p>The index offers 100% accuracy, but has linear time complexity based on the number
+         * of embedding vectors within the index.
+         */
+        public static final int INDEXING_TYPE_SIMILARITY = 1;
+
+        EmbeddingPropertyConfig(@NonNull PropertyConfigParcel propertyConfigParcel) {
+            super(propertyConfigParcel);
+        }
+
+        /** Returns how the property is indexed. */
+        @EmbeddingPropertyConfig.IndexingType
+        public int getIndexingType() {
+            PropertyConfigParcel.EmbeddingIndexingConfigParcel indexingConfigParcel =
+                    mPropertyConfigParcel.getEmbeddingIndexingConfigParcel();
+            if (indexingConfigParcel == null) {
+                return INDEXING_TYPE_NONE;
+            }
+            return indexingConfigParcel.getIndexingType();
+        }
+
+        /** Builder for {@link EmbeddingPropertyConfig}. */
+        public static final class Builder {
+            private final String mPropertyName;
+            @Cardinality
+            private int mCardinality = CARDINALITY_OPTIONAL;
+            @EmbeddingPropertyConfig.IndexingType
+            private int mIndexingType = INDEXING_TYPE_NONE;
+
+            /** Creates a new {@link EmbeddingPropertyConfig.Builder}. */
+            public Builder(@NonNull String propertyName) {
+                mPropertyName = Preconditions.checkNotNull(propertyName);
+            }
+
+            /**
+             * Sets the cardinality of the property (whether it is optional, required or repeated).
+             *
+             * <p>If this method is not called, the default cardinality is
+             * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
+             */
+            @CanIgnoreReturnValue
+            @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
+            @NonNull
+            public EmbeddingPropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
+                Preconditions.checkArgumentInRange(
+                        cardinality, CARDINALITY_REPEATED, CARDINALITY_REQUIRED, "cardinality");
+                mCardinality = cardinality;
+                return this;
+            }
+
+            /**
+             * Configures how a property should be indexed so that it can be retrieved by queries.
+             *
+             * <p>If this method is not called, the default indexing type is
+             * {@link EmbeddingPropertyConfig#INDEXING_TYPE_NONE}, so that it will not be indexed
+             * and cannot be matched by queries.
+             */
+            @CanIgnoreReturnValue
+            @NonNull
+            public EmbeddingPropertyConfig.Builder setIndexingType(
+                    @EmbeddingPropertyConfig.IndexingType int indexingType) {
+                Preconditions.checkArgumentInRange(
+                        indexingType, INDEXING_TYPE_NONE, INDEXING_TYPE_SIMILARITY,
+                        "indexingType");
+                mIndexingType = indexingType;
+                return this;
+            }
+
+            /**
+             * Constructs a new {@link EmbeddingPropertyConfig} from the contents of this
+             * builder.
+             */
+            @NonNull
+            public EmbeddingPropertyConfig build() {
+                return new EmbeddingPropertyConfig(
+                        PropertyConfigParcel.createForEmbedding(
+                                mPropertyName, mCardinality, mIndexingType));
+            }
         }
     }
 }

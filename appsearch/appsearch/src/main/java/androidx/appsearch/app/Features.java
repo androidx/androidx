@@ -121,6 +121,16 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.EmbeddingPropertyConfig}.
+     *
+     * <p>For details on the embedding search expressions, see {@link AppSearchSession#search} for
+     * the query language and {@link SearchSpec.Builder#setRankingStrategy(String)} for the ranking
+     * language.
+     */
+    String SCHEMA_EMBEDDING_PROPERTY_CONFIG = FeatureConstants.SCHEMA_EMBEDDING_PROPERTY_CONFIG;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link SearchSpec#GROUPING_TYPE_PER_SCHEMA}
      */
     String SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA = "SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA";

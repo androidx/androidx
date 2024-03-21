@@ -28,6 +28,7 @@ import androidx.appsearch.app.AppSearchSchema.PropertyConfig.DataType;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JoinableValueType;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TokenizerType;
 import androidx.appsearch.safeparcel.stub.StubCreators.DocumentIndexingConfigParcelCreator;
+import androidx.appsearch.safeparcel.stub.StubCreators.EmbeddingIndexingConfigParcelCreator;
 import androidx.appsearch.safeparcel.stub.StubCreators.IntegerIndexingConfigParcelCreator;
 import androidx.appsearch.safeparcel.stub.StubCreators.JoinableConfigParcelCreator;
 import androidx.appsearch.safeparcel.stub.StubCreators.PropertyConfigParcelCreator;
@@ -80,6 +81,9 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     @Field(id = 8, getter = "getJoinableConfigParcel")
     @Nullable private final JoinableConfigParcel mJoinableConfigParcel;
 
+    @Field(id = 9, getter = "getEmbeddingIndexingConfigParcel")
+    private final EmbeddingIndexingConfigParcel mEmbeddingIndexingConfigParcel;
+
     @Nullable
     private Integer mHashCode;
 
@@ -93,7 +97,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
             @Param(id = 5) @Nullable StringIndexingConfigParcel stringIndexingConfigParcel,
             @Param(id = 6) @Nullable DocumentIndexingConfigParcel documentIndexingConfigParcel,
             @Param(id = 7) @Nullable IntegerIndexingConfigParcel integerIndexingConfigParcel,
-            @Param(id = 8) @Nullable JoinableConfigParcel joinableConfigParcel) {
+            @Param(id = 8) @Nullable JoinableConfigParcel joinableConfigParcel,
+            @Param(id = 9) @Nullable EmbeddingIndexingConfigParcel embeddingIndexingConfigParcel) {
         mName = Objects.requireNonNull(name);
         mDataType = dataType;
         mCardinality = cardinality;
@@ -102,6 +107,7 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
         mDocumentIndexingConfigParcel = documentIndexingConfigParcel;
         mIntegerIndexingConfigParcel = integerIndexingConfigParcel;
         mJoinableConfigParcel = joinableConfigParcel;
+        mEmbeddingIndexingConfigParcel = embeddingIndexingConfigParcel;
     }
 
     /** Creates a {@link PropertyConfigParcel} for String. */
@@ -119,7 +125,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 Objects.requireNonNull(stringIndexingConfigParcel),
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
-                Objects.requireNonNull(joinableConfigParcel));
+                Objects.requireNonNull(joinableConfigParcel),
+                /*embeddingIndexingConfigParcel=*/ null);
     }
 
     /** Creates a {@link PropertyConfigParcel} for Long. */
@@ -136,7 +143,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*stringIndexingConfigParcel=*/ null,
                 /*documentIndexingConfigParcel=*/ null,
                 new IntegerIndexingConfigParcel(indexingType),
-                /*joinableConfigParcel=*/ null);
+                /*joinableConfigParcel=*/ null,
+                /*embeddingIndexingConfigParcel=*/ null);
     }
 
     /** Creates a {@link PropertyConfigParcel} for Double. */
@@ -152,7 +160,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*stringIndexingConfigParcel=*/ null,
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
-                /*joinableConfigParcel=*/ null);
+                /*joinableConfigParcel=*/ null,
+                /*embeddingIndexingConfigParcel=*/ null);
     }
 
     /** Creates a {@link PropertyConfigParcel} for Boolean. */
@@ -168,7 +177,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*stringIndexingConfigParcel=*/ null,
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
-                /*joinableConfigParcel=*/ null);
+                /*joinableConfigParcel=*/ null,
+                /*embeddingIndexingConfigParcel=*/ null);
     }
 
     /** Creates a {@link PropertyConfigParcel} for Bytes. */
@@ -184,7 +194,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*stringIndexingConfigParcel=*/ null,
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
-                /*joinableConfigParcel=*/ null);
+                /*joinableConfigParcel=*/ null,
+                /*embeddingIndexingConfigParcel=*/ null);
     }
 
     /** Creates a {@link PropertyConfigParcel} for Document. */
@@ -202,7 +213,26 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*stringIndexingConfigParcel=*/ null,
                 Objects.requireNonNull(documentIndexingConfigParcel),
                 /*integerIndexingConfigParcel=*/ null,
-                /*joinableConfigParcel=*/ null);
+                /*joinableConfigParcel=*/ null,
+                /*embeddingIndexingConfigParcel=*/ null);
+    }
+
+    /** Creates a {@link PropertyConfigParcel} for Embedding. */
+    @NonNull
+    public static PropertyConfigParcel createForEmbedding(
+            @NonNull String propertyName,
+            @Cardinality int cardinality,
+            @AppSearchSchema.EmbeddingPropertyConfig.IndexingType int indexingType) {
+        return new PropertyConfigParcel(
+                Objects.requireNonNull(propertyName),
+                AppSearchSchema.PropertyConfig.DATA_TYPE_EMBEDDING,
+                cardinality,
+                /*schemaType=*/ null,
+                /*stringIndexingConfigParcel=*/ null,
+                /*documentIndexingConfigParcel=*/ null,
+                /*integerIndexingConfigParcel=*/ null,
+                /*joinableConfigParcel=*/ null,
+                new EmbeddingIndexingConfigParcel(indexingType));
     }
 
     /** Gets name for the property. */
@@ -253,6 +283,12 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
         return mJoinableConfigParcel;
     }
 
+    /** Gets the {@link EmbeddingIndexingConfigParcel}. */
+    @Nullable
+    public EmbeddingIndexingConfigParcel getEmbeddingIndexingConfigParcel() {
+        return mEmbeddingIndexingConfigParcel;
+    }
+
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         PropertyConfigParcelCreator.writeToParcel(this, dest, flags);
@@ -278,7 +314,9 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 && ObjectsCompat.equals(
                 mIntegerIndexingConfigParcel, otherProperty.mIntegerIndexingConfigParcel)
                 && ObjectsCompat.equals(
-                mJoinableConfigParcel, otherProperty.mJoinableConfigParcel);
+                mJoinableConfigParcel, otherProperty.mJoinableConfigParcel)
+                && ObjectsCompat.equals(
+                mEmbeddingIndexingConfigParcel, otherProperty.mEmbeddingIndexingConfigParcel);
     }
 
     @Override
@@ -286,7 +324,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
         if (mHashCode == null) {
             mHashCode = ObjectsCompat.hash(mName, mDataType, mCardinality, mSchemaType,
                     mStringIndexingConfigParcel, mDocumentIndexingConfigParcel,
-                    mIntegerIndexingConfigParcel, mJoinableConfigParcel);
+                    mIntegerIndexingConfigParcel, mJoinableConfigParcel,
+                    mEmbeddingIndexingConfigParcel);
         }
         return mHashCode;
     }
@@ -302,6 +341,7 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 + ", documentIndexingConfigParcel: " + mDocumentIndexingConfigParcel
                 + ", integerIndexingConfigParcel: " + mIntegerIndexingConfigParcel
                 + ", joinableConfigParcel: " + mJoinableConfigParcel
+                + ", embeddingIndexingConfigParcel: " + mEmbeddingIndexingConfigParcel
                 + "}";
     }
 
@@ -554,6 +594,59 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
             return "{indexNestedProperties: " + mIndexNestedProperties
                     + ", indexableNestedPropertiesList: " + mIndexableNestedPropertiesList
                     + "}";
+        }
+    }
+
+    /** Class to hold configuration for embedding property. */
+    @SafeParcelable.Class(creator = "EmbeddingIndexingConfigParcelCreator")
+    public static class EmbeddingIndexingConfigParcel extends AbstractSafeParcelable {
+        @NonNull
+        public static final EmbeddingIndexingConfigParcelCreator CREATOR =
+                new EmbeddingIndexingConfigParcelCreator();
+
+        @AppSearchSchema.EmbeddingPropertyConfig.IndexingType
+        @Field(id = 1, getter = "getIndexingType")
+        private final int mIndexingType;
+
+        /** Constructor for {@link EmbeddingIndexingConfigParcel}. */
+        public EmbeddingIndexingConfigParcel(
+                @Param(id = 1) @AppSearchSchema.EmbeddingPropertyConfig.IndexingType
+                int indexingType) {
+            mIndexingType = indexingType;
+        }
+
+        /** Gets the indexing type for this embedding property. */
+        @AppSearchSchema.EmbeddingPropertyConfig.IndexingType
+        public int getIndexingType() {
+            return mIndexingType;
+        }
+
+        @Override
+        public void writeToParcel(@NonNull Parcel dest, int flags) {
+            EmbeddingIndexingConfigParcelCreator.writeToParcel(this, dest, flags);
+        }
+
+        @Override
+        public int hashCode() {
+            return ObjectsCompat.hash(mIndexingType);
+        }
+
+        @Override
+        public boolean equals(@Nullable Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof EmbeddingIndexingConfigParcel)) {
+                return false;
+            }
+            EmbeddingIndexingConfigParcel otherObject = (EmbeddingIndexingConfigParcel) other;
+            return ObjectsCompat.equals(mIndexingType, otherObject.mIndexingType);
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "{indexingType: " + mIndexingType + "}";
         }
     }
 }

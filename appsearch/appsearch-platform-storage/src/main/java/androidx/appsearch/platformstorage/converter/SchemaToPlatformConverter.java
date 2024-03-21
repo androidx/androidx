@@ -169,6 +169,10 @@ public final class SchemaToPlatformConverter {
                     .setCardinality(documentProperty.getCardinality())
                     .setShouldIndexNestedProperties(documentProperty.shouldIndexNestedProperties())
                     .build();
+        } else if (jetpackProperty instanceof AppSearchSchema.EmbeddingPropertyConfig) {
+            // TODO(b/309826655): Remove this once embedding search APIs are available.
+            throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
+                    + " is not available on this AppSearch implementation.");
         } else {
             throw new IllegalArgumentException(
                     "Invalid dataType: " + jetpackProperty.getDataType());
@@ -236,6 +240,8 @@ public final class SchemaToPlatformConverter {
             // TODO(b/289150947): Add the indexable_nested_properties_list once it becomes
             //  available in platform.
         } else {
+            // TODO(b/326656531) : Add an entry for EmbeddingPropertyConfig once it becomes
+            //  available in platform.
             throw new IllegalArgumentException(
                     "Invalid property type " + platformProperty.getClass()
                             + ": " + platformProperty);

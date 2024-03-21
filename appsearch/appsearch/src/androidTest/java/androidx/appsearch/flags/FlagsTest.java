@@ -102,4 +102,10 @@ public class FlagsTest {
                         "com.android.appsearch.flags"
                                 + ".enable_get_parent_types_and_indexable_nested_properties");
     }
+
+    @Test
+    public void testFlagValue_enableSchemaEmbeddingPropertyConfig() {
+        assertThat(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+                .isEqualTo("com.android.appsearch.flags.enable_schema_embedding_property_config");
+    }
 }

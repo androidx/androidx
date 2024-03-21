@@ -38,6 +38,7 @@ import androidx.appsearch.app.VisibilityPermissionConfig;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.DocumentIndexingConfigParcel;
+import androidx.appsearch.safeparcel.PropertyConfigParcel.EmbeddingIndexingConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.IntegerIndexingConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.JoinableConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.StringIndexingConfigParcel;
@@ -95,6 +96,13 @@ public class StubCreators {
 
     /** Stub creator for {@link SchemaVisibilityConfig}. */
     public static class VisibilityConfigCreator extends AbstractCreator<SchemaVisibilityConfig> {
+    }
+
+    /**
+     * Stub creator for {@link EmbeddingIndexingConfigParcel}.
+     */
+    public static class EmbeddingIndexingConfigParcelCreator extends
+            AbstractCreator<EmbeddingIndexingConfigParcel> {
     }
 
     /** Stub creator for {@link InternalVisibilityConfig}. */
