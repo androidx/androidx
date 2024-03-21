@@ -102,8 +102,6 @@ internal class ContentInViewNode(
         private set
 
     private var isAnimationRunning = false
-    private val animationState =
-        UpdatableAnimationState(bringIntoViewSpec.scrollAnimationSpec)
 
     override fun calculateRectForParent(localRect: Rect): Rect {
         check(viewportSize != IntSize.Zero) {
@@ -176,7 +174,7 @@ internal class ContentInViewNode(
         check(!isAnimationRunning) { "launchAnimation called when previous animation was running" }
 
         if (DEBUG) println("[$TAG] launchAnimation")
-
+        val animationState = UpdatableAnimationState(bringIntoViewSpec.scrollAnimationSpec)
         coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
             var cancellationException: CancellationException? = null
             val animationJob = coroutineContext.job

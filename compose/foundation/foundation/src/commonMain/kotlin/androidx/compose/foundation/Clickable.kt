@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.foundation.gestures.ModifierLocalScrollableContainer
 import androidx.compose.foundation.gestures.PressGestureScope
+import androidx.compose.foundation.gestures.ScrollableContainerNode
 import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.HoverInteraction
@@ -41,13 +41,14 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
-import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
@@ -397,7 +398,7 @@ internal expect val TapIndicationDelay: Long
  * container, we still want to delay presses in case presses in Compose convert to a scroll outside
  * of Compose.
  *
- * Combine this with [ModifierLocalScrollableContainer], which returns whether a [Modifier] is
+ * Combine this with [hasScrollableContainer], which returns whether a [Modifier] is
  * within a scrollable Compose layout, to calculate whether this modifier is within some form of
  * scrollable container, and hence should delay presses.
  */
@@ -876,7 +877,7 @@ internal abstract class AbstractClickableNode(
     private var role: Role?,
     onClick: () -> Unit
 ) : DelegatingNode(), PointerInputModifierNode, KeyInputModifierNode, FocusEventModifierNode,
-    SemanticsModifierNode, ModifierLocalModifierNode {
+    SemanticsModifierNode, TraversableNode {
     protected var enabled = enabled
         private set
     protected var onClick = onClick
@@ -1156,7 +1157,7 @@ internal abstract class AbstractClickableNode(
     }
 
     private fun delayPressInteraction(): Boolean =
-        ModifierLocalScrollableContainer.current || isComposeRootInScrollableContainer()
+        hasScrollableContainer() || isComposeRootInScrollableContainer()
 
     private fun emitHoverEnter() {
         if (hoverInteraction == null) {
@@ -1181,6 +1182,10 @@ internal abstract class AbstractClickableNode(
             hoverInteraction = null
         }
     }
+
+    override val traverseKey: Any = TraverseKey
+
+    companion object TraverseKey
 }
 
 private class ClickableSemanticsElement(
@@ -1257,6 +1262,7 @@ private class ClickableSemanticsNode(
 
     override val shouldMergeDescendantSemantics: Boolean
         get() = true
+
     override fun SemanticsPropertyReceiver.applySemantics() {
         if (this@ClickableSemanticsNode.role != null) {
             role = this@ClickableSemanticsNode.role!!
@@ -1275,4 +1281,13 @@ private class ClickableSemanticsNode(
             disabled()
         }
     }
+}
+
+internal fun TraversableNode.hasScrollableContainer(): Boolean {
+    var hasScrollable = false
+    traverseAncestors(ScrollableContainerNode.TraverseKey) { node ->
+        hasScrollable = hasScrollable || (node as ScrollableContainerNode).enabled
+        !hasScrollable
+    }
+    return hasScrollable
 }
