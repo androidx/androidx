@@ -444,7 +444,7 @@ val Components = listOf(
     BottomSheets,
     Buttons,
     Card,
-    // Carousel, // TODO: Re-enable when ready
+    Carousel,
     Checkboxes,
     Chips,
     DatePickers,

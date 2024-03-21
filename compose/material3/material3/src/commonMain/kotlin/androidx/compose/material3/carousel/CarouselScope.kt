@@ -22,7 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
  * Receiver scope for [Carousel].
  */
 @ExperimentalMaterial3Api
-internal sealed interface CarouselScope
+sealed interface CarouselScope
 
 @ExperimentalMaterial3Api
 internal object CarouselScopeImpl : CarouselScope

@@ -39,7 +39,6 @@ import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
 import androidx.compose.material3.samples.ButtonSample
 import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
-import androidx.compose.material3.samples.CarouselSample
 import androidx.compose.material3.samples.CheckboxSample
 import androidx.compose.material3.samples.CheckboxWithTextSample
 import androidx.compose.material3.samples.ChipGroupReflowSample
@@ -79,6 +78,8 @@ import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
 import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
+import androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
+import androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
 import androidx.compose.material3.samples.IconButtonSample
 import androidx.compose.material3.samples.IconToggleButtonSample
 import androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
@@ -326,11 +327,18 @@ private const val CarouselExampleDescription = "Carousel examples"
 private const val CarouselExampleSourceUrl = "$SampleSourceUrl/CarouselSamples.kt"
 val CarouselExamples = listOf(
     Example(
-        name = ::CarouselSample.name,
+        name = ::HorizontalMultiBrowseCarouselSample.name,
         description = CarouselExampleDescription,
         sourceUrl = CarouselExampleSourceUrl
     ) {
-        CarouselSample()
+        HorizontalMultiBrowseCarouselSample()
+    },
+    Example(
+        name = ::HorizontalUncontainedCarouselSample.name,
+        description = CarouselExampleDescription,
+        sourceUrl = CarouselExampleSourceUrl
+    ) {
+        HorizontalUncontainedCarouselSample()
     }
 )
 
