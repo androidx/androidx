@@ -204,6 +204,11 @@ def collapse_consecutive_blank_lines(lines):
             prev_blank = False
     return result
 
+def remove_trailing_blank_lines(lines):
+    while len(lines) > 0 and lines[-1].strip() == "":
+        del lines[-1]
+    return lines
+
 def extract_task_name(line):
     prefix = "> Task "
     if line.startswith(prefix):
@@ -522,6 +527,7 @@ def main():
     interesting_lines = remove_by_regexes(interesting_lines, exemption_regexes, validate)
     interesting_lines = collapse_tasks_having_no_output(interesting_lines)
     interesting_lines = collapse_consecutive_blank_lines(interesting_lines)
+    interesting_lines = remove_trailing_blank_lines(interesting_lines)
 
     # process results
     if update:
