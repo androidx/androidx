@@ -33,7 +33,6 @@ import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import androidx.window.extensions.embedding.SplitInfo.Token as OEMSplitInfoToken
-import kotlin.test.Ignore
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -93,7 +92,6 @@ class EmbeddingAdapterTest {
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
 
-    @Ignore // TODO(b/329997430): activate after WM Extensions library is updated to prebuilt.
     @Test
     fun testTranslateSplitInfoWithDefaultAttrsWithApiLevel5() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(5)
@@ -169,7 +167,6 @@ class EmbeddingAdapterTest {
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
 
-    @Ignore // TODO(b/329997430): activate after WM Extensions library is updated to prebuilt.
     @Test
     fun testTranslateSplitInfoWithExpandingContainersWithApiLevel5() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(5)
@@ -274,7 +271,6 @@ class EmbeddingAdapterTest {
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
 
-    @Ignore // TODO(b/329997430): activate after WM Extensions library is updated to prebuilt.
     @Test
     fun testTranslateSplitInfoWithApiLevel5() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(5)
