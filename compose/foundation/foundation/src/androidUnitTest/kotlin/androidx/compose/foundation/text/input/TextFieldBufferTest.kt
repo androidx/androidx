@@ -568,6 +568,16 @@ class TextFieldBufferTest {
     }
 
     @Test
+    fun changeList_alwaysReturnsTheLatestChanges() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence())
+        val changeList = buffer.changes
+        buffer.insert(0, "hello")
+        assertThat(changeList.changeCount).isEqualTo(1)
+        assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(0))
+        assertThat(changeList.getRange(0)).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
     fun findCommonPrefixAndSuffix_works() {
         assertCommonPrefixAndSuffix("", "", null)
         assertCommonPrefixAndSuffix("a", "a", null)
