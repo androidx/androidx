@@ -192,8 +192,8 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @return the node with route - the node must have been created with a route from [KClass]
      */
     @OptIn(InternalSerializationApi::class)
-    internal fun <T : Any> findNode(route: KClass<T>?): NavDestination? {
-        return if (route != null) findNode(route.serializer().hashCode()) else null
+    internal inline fun <reified T> findNode(): NavDestination? {
+        return findNode(serializer<T>().hashCode())
     }
 
     /**
@@ -524,8 +524,8 @@ public inline operator fun NavGraph.get(route: String): NavDestination =
  * @throws IllegalArgumentException if no destination is found with that route.
  */
 @Suppress("NOTHING_TO_INLINE")
-internal inline operator fun <T : Any> NavGraph.get(route: KClass<T>): NavDestination =
-    findNode(route)
+internal inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): NavDestination =
+    findNode<T>()
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
 /**
@@ -545,8 +545,9 @@ public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) !=
 public operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
-internal operator fun <T : Any> NavGraph.contains(route: KClass<T>): Boolean =
-    findNode(route) != null
+@Suppress("UNUSED_PARAMETER")
+internal inline operator fun <reified T : Any> NavGraph.contains(route: KClass<T>): Boolean =
+    findNode<T>() != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 internal operator fun <T> NavGraph.contains(route: T): Boolean = findNode(route) != null
