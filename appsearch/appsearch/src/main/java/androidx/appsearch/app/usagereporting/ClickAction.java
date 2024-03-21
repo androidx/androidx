@@ -15,7 +15,7 @@
  */
 // @exportToFramework:skipFile()
 
-package androidx.appsearch.app;
+package androidx.appsearch.app.usagereporting;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +23,7 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.app.Features;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -30,29 +31,35 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * {@link TakenAction} is a built-in AppSearch document type that contains different metrics.
+ * {@link ClickAction} is a built-in AppSearch document type that contains different metrics.
  * <ul>
- *     <li>Clients can report the user's actions (e.g. click) on a {@link SearchResult} document.
+ *     <li>Clients can report the user's actions (e.g. click) on a
+ *     {@link androidx.appsearch.app.SearchResult} document.
  *     <li>Also several other types of actions can be analyzed and extracted from fields in
- *     {@link TakenAction}. For example, query abandonment will be derived from
- *     {@link TakenAction#getPreviousQueries} and {@link TakenAction#getFinalQuery}.
+ *     {@link ClickAction}. For example, query abandonment will be derived from
+ *     {@link ClickAction#getPreviousQueries} and {@link ClickAction#getFinalQuery}.
  * </ul>
  *
  * <p>In order to use this document type, the client must explicitly set this schema type via
- * {@link SetSchemaRequest.Builder#addDocumentClasses}.
+ * {@link androidx.appsearch.app.SetSchemaRequest.Builder#addDocumentClasses}.
  *
- * <p>These actions can be used as signals to boost ranking via {@link JoinSpec} API in future
- * search requests.
+ * <p>These actions can be used as signals to boost ranking via
+ * {@link androidx.appsearch.app.JoinSpec} API in future search requests.
  *
- * <p>Since {@link TakenAction} is an AppSearch document, the client can handle deletion via
- * {@link AppSearchSession#removeAsync} or document time-to-live (TTL). The default TTL is 60 days.
+ * <p>Since {@link ClickAction} is an AppSearch document, the client can handle deletion via
+ * {@link androidx.appsearch.app.AppSearchSession#removeAsync} or document time-to-live (TTL). The
+ * default TTL is 60 days.
  */
+// In ClickAction document, there is a joinable property "referencedQualifiedId" for reporting the
+// qualified id of the clicked document. The client can create personal navboost with click action
+// signals by join query with this property. Therefore, ClickAction document class requires join
+// feature.
 @RequiresFeature(
         enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
         name = Features.JOIN_SPEC_AND_QUALIFIED_ID)
-@Document(name = "builtin:TakenAction")
-public class TakenAction {
-    /** Default TTL for {@link TakenAction} document: 60 days. */
+@Document(name = "builtin:ClickAction")
+public class ClickAction implements TakenAction {
+    /** Default TTL for {@link ClickAction} document: 60 days. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final long DEFAULT_DOCUMENT_TTL_MILLIS = 60L * 24 * 60 * 60 * 1000;
 
@@ -90,7 +97,7 @@ public class TakenAction {
     @Document.LongProperty
     private final long mTimeStayOnResultMillis;
 
-    TakenAction(@NonNull String namespace, @NonNull String id,
+    ClickAction(@NonNull String namespace, @NonNull String id,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable String referencedQualifiedId, @Nullable List<String> previousQueries,
             @Nullable String finalQuery, int resultRankInBlock, int resultRankGlobal,
@@ -112,20 +119,20 @@ public class TakenAction {
         mTimeStayOnResultMillis = timeStayOnResultMillis;
     }
 
-    /** Returns the namespace of the {@link TakenAction}. */
+    /** Returns the namespace of the {@link ClickAction}. */
     @NonNull
     public String getNamespace() {
         return mNamespace;
     }
 
-    /** Returns the unique identifier of the {@link TakenAction}. */
+    /** Returns the unique identifier of the {@link ClickAction}. */
     @NonNull
     public String getId() {
         return mId;
     }
 
     /**
-     * Returns the creation timestamp of the {@link TakenAction} document, in milliseconds since
+     * Returns the creation timestamp of the {@link ClickAction} document, in milliseconds since
      * Unix epoch.
      *
      * <p>This timestamp refers to the creation time of the document, not when it is written
@@ -141,13 +148,13 @@ public class TakenAction {
     }
 
     /**
-     * Returns the time-to-live (TTL) of the {@link TakenAction} document as a duration in
+     * Returns the time-to-live (TTL) of the {@link ClickAction} document as a duration in
      * milliseconds.
      *
      * <p>The document will be automatically deleted when the TTL expires (since
      * {@link #getCreationTimestampMillis()}).
      *
-     * <p>The default TTL for {@link TakenAction} document is 60 days.
+     * <p>The default TTL for {@link ClickAction} document is 60 days.
      *
      * <p>See {@link androidx.appsearch.annotation.Document.TtlMillis} for more information on TTL.
      */
@@ -156,10 +163,10 @@ public class TakenAction {
     }
 
     /**
-     * Returns the name of the {@link TakenAction}.
+     * Returns the name of the {@link ClickAction}.
      *
      * <p>Name is an optional custom field that allows the client to tag and categorize
-     * {@link TakenAction}.
+     * {@link ClickAction}.
      */
     @Nullable
     public String getName() {
@@ -167,7 +174,8 @@ public class TakenAction {
     }
 
     /**
-     * Returns the qualified id of the {@link SearchResult} document that the user takes action on.
+     * Returns the qualified id of the {@link androidx.appsearch.app.SearchResult} document that the
+     * user takes action on.
      *
      * <p>A qualified id is a string generated by package, database, namespace, and document id. See
      * {@link androidx.appsearch.util.DocumentIdUtil#createQualifiedId(String,String,String,String)}
@@ -189,7 +197,7 @@ public class TakenAction {
 
     /**
      * Returns the final user-entered search input (without any operators or rewriting) that yielded
-     * the {@link SearchResult} on which the user took action.
+     * the {@link androidx.appsearch.app.SearchResult} on which the user took action.
      */
     @Nullable
     public String getFinalQuery() {
@@ -197,7 +205,8 @@ public class TakenAction {
     }
 
     /**
-     * Returns the rank of the {@link SearchResult} document among the user-defined block.
+     * Returns the rank of the {@link androidx.appsearch.app.SearchResult} document among the
+     * user-defined block.
      *
      * <p>The client can define its own custom definition for block, e.g. corpus name, group, etc.
      *
@@ -208,39 +217,40 @@ public class TakenAction {
      * <p>If the client is not presenting the results in multiple blocks, they should set this value
      * to match {@link #getResultRankGlobal}.
      *
-     * <p>If unset, then the block rank of the {@link SearchResult} document will be set to -1 to
-     * mark invalid.
+     * <p>If unset, then the block rank of the {@link androidx.appsearch.app.SearchResult} document
+     * will be set to -1 to mark invalid.
      */
     public int getResultRankInBlock() {
         return mResultRankInBlock;
     }
 
     /**
-     * Returns the global rank of the {@link SearchResult} document.
+     * Returns the global rank of the {@link androidx.appsearch.app.SearchResult} document.
      *
-     * <p>Global rank reflects the order of {@link SearchResult} documents returned by AppSearch.
+     * <p>Global rank reflects the order of {@link androidx.appsearch.app.SearchResult} documents
+     * returned by AppSearch.
      *
-     * <p>For example, AppSearch returns 2 pages with 10 {@link SearchResult} documents for each
-     * page. Then the global ranks of them will be 1 to 10 for the first page, and 11 to 20 for the
-     * second page.
+     * <p>For example, AppSearch returns 2 pages with 10 {@link androidx.appsearch.app.SearchResult}
+     * documents for each page. Then the global ranks of them will be 1 to 10 for the first page,
+     * and 11 to 20 for the second page.
      *
-     * <p>If unset, then the global rank of the {@link SearchResult} document will be set to -1 to
-     * mark invalid.
+     * <p>If unset, then the global rank of the {@link androidx.appsearch.app.SearchResult} document
+     * will be set to -1 to mark invalid.
      */
     public int getResultRankGlobal() {
         return mResultRankGlobal;
     }
 
     /**
-     * Returns the time in milliseconds that user stays on the {@link SearchResult} document after
-     * clicking it.
+     * Returns the time in milliseconds that user stays on the
+     * {@link androidx.appsearch.app.SearchResult} document after clicking it.
      */
     public long getTimeStayOnResultMillis() {
         return mTimeStayOnResultMillis;
     }
 
-    // TODO(b/314026345): redesign builder to enable inheritance for TakenAction.
-    /** Builder for {@link TakenAction}. */
+    // TODO(b/314026345): redesign builder to enable inheritance for ClickAction.
+    /** Builder for {@link ClickAction}. */
     @Document.BuilderProducer
     public static final class Builder {
         private final String mNamespace;
@@ -249,7 +259,7 @@ public class TakenAction {
         private long mDocumentTtlMillis;
         private String mName;
         private String mReferencedQualifiedId;
-        private List<String> mPreviousQueries = new ArrayList<>();
+        private List<String> mPreviousQueries;
         private String mFinalQuery;
         private int mResultRankInBlock;
         private int mResultRankGlobal;
@@ -257,10 +267,10 @@ public class TakenAction {
         private boolean mBuilt = false;
 
         /**
-         * Constructs {@link TakenAction.Builder} with given {@code namespace} and {@code id}.
+         * Constructs {@link ClickAction.Builder} with given {@code namespace} and {@code id}.
          *
-         * @param namespace The namespace of the {@link TakenAction} document.
-         * @param id        The id of the {@TakenAction} document.
+         * @param namespace The namespace of the {@link ClickAction} document.
+         * @param id        The id of the {@ClickAction} document.
          */
         public Builder(@NonNull String namespace, @NonNull String id) {
             mNamespace = Preconditions.checkNotNull(namespace);
@@ -271,7 +281,9 @@ public class TakenAction {
             mCreationTimestampMillis = -1;
 
             // Default for mDocumentTtlMillis.
-            mDocumentTtlMillis = TakenAction.DEFAULT_DOCUMENT_TTL_MILLIS;
+            mDocumentTtlMillis = ClickAction.DEFAULT_DOCUMENT_TTL_MILLIS;
+
+            mPreviousQueries = new ArrayList<>();
 
             // Default for unset result rank fields. Since negative number is invalid for ranking,
             // -1 is used as an unset value and AppSearch will ignore it.
@@ -284,26 +296,26 @@ public class TakenAction {
         }
 
         /**
-         * Constructs {@link TakenAction.Builder} by copying existing values from the given
-         * {@link TakenAction}.
+         * Constructs {@link ClickAction.Builder} by copying existing values from the given
+         * {@link ClickAction}.
          *
-         * @param takenAction an existing {@link TakenAction} object.
+         * @param clickAction an existing {@link ClickAction} object.
          */
-        public Builder(@NonNull TakenAction takenAction) {
-            this(takenAction.getNamespace(), takenAction.getId());
-            mCreationTimestampMillis = takenAction.getCreationTimestampMillis();
-            mDocumentTtlMillis = takenAction.getDocumentTtlMillis();
-            mName = takenAction.getName();
-            mReferencedQualifiedId = takenAction.getReferencedQualifiedId();
-            mPreviousQueries = new ArrayList<>(takenAction.getPreviousQueries());
-            mFinalQuery = takenAction.getFinalQuery();
-            mResultRankInBlock = takenAction.getResultRankInBlock();
-            mResultRankGlobal = takenAction.getResultRankGlobal();
-            mTimeStayOnResultMillis = takenAction.getTimeStayOnResultMillis();
+        public Builder(@NonNull ClickAction clickAction) {
+            this(clickAction.getNamespace(), clickAction.getId());
+            mCreationTimestampMillis = clickAction.getCreationTimestampMillis();
+            mDocumentTtlMillis = clickAction.getDocumentTtlMillis();
+            mName = clickAction.getName();
+            mReferencedQualifiedId = clickAction.getReferencedQualifiedId();
+            mPreviousQueries = new ArrayList<>(clickAction.getPreviousQueries());
+            mFinalQuery = clickAction.getFinalQuery();
+            mResultRankInBlock = clickAction.getResultRankInBlock();
+            mResultRankGlobal = clickAction.getResultRankGlobal();
+            mTimeStayOnResultMillis = clickAction.getTimeStayOnResultMillis();
         }
 
         /**
-         * Sets the creation timestamp of the {@link TakenAction} document, in milliseconds since
+         * Sets the creation timestamp of the {@link ClickAction} document, in milliseconds since
          * Unix epoch.
          *
          * <p>This timestamp refers to the creation time of the document, not when it is written
@@ -322,13 +334,13 @@ public class TakenAction {
         }
 
         /**
-         * Sets the time-to-live (TTL) of the {@link TakenAction} document as a duration in
+         * Sets the time-to-live (TTL) of the {@link ClickAction} document as a duration in
          * milliseconds.
          *
          * <p>The document will be automatically deleted when the TTL expires (since
-         * {@link TakenAction#getCreationTimestampMillis()}).
+         * {@link ClickAction#getCreationTimestampMillis()}).
          *
-         * <p>The default TTL for {@link TakenAction} document is 60 days.
+         * <p>The default TTL for {@link ClickAction} document is 60 days.
          *
          * <p>See {@link androidx.appsearch.annotation.Document.TtlMillis} for more information on
          * TTL.
@@ -341,9 +353,9 @@ public class TakenAction {
         }
 
         /**
-         * Sets the action type name of the {@link TakenAction}.
+         * Sets the action type name of the {@link ClickAction}.
          *
-         * @see TakenAction#getName
+         * @see ClickAction#getName
          */
         @NonNull
         public Builder setName(@Nullable String name) {
@@ -353,7 +365,8 @@ public class TakenAction {
         }
 
         /**
-         * Sets the qualified id of the {@link SearchResult} document that the user takes action on.
+         * Sets the qualified id of the {@link androidx.appsearch.app.SearchResult} document that
+         * the user takes action on.
          *
          * <p>A qualified id is a string generated by package, database, namespace, and document id.
          * See {@link androidx.appsearch.util.DocumentIdUtil#createQualifiedId(
@@ -393,7 +406,7 @@ public class TakenAction {
 
         /**
          * Sets the final user-entered search input (without any operators or rewriting) that
-         * yielded the {@link SearchResult} on which the user took action.
+         * yielded the {@link androidx.appsearch.app.SearchResult} on which the user took action.
          */
         @NonNull
         public Builder setFinalQuery(@Nullable String finalQuery) {
@@ -403,9 +416,10 @@ public class TakenAction {
         }
 
         /**
-         * Sets the rank of the {@link SearchResult} document among the user-defined block.
+         * Sets the rank of the {@link androidx.appsearch.app.SearchResult} document among the
+         * user-defined block.
          *
-         * @see TakenAction#getResultRankInBlock
+         * @see ClickAction#getResultRankInBlock
          */
         @NonNull
         public Builder setResultRankInBlock(int resultRankInBlock) {
@@ -415,9 +429,9 @@ public class TakenAction {
         }
 
         /**
-         * Sets the global rank of the {@link SearchResult} document.
+         * Sets the global rank of the {@link androidx.appsearch.app.SearchResult} document.
          *
-         * @see TakenAction#getResultRankGlobal
+         * @see ClickAction#getResultRankGlobal
          */
         @NonNull
         public Builder setResultRankGlobal(int resultRankGlobal) {
@@ -427,8 +441,8 @@ public class TakenAction {
         }
 
         /**
-         * Sets the time in milliseconds that user stays on the {@link SearchResult} document after
-         * clicking it.
+         * Sets the time in milliseconds that user stays on the
+         * {@link androidx.appsearch.app.SearchResult} document after clicking it.
          */
         @NonNull
         public Builder setTimeStayOnResultMillis(long timeStayOnResultMillis) {
@@ -455,11 +469,11 @@ public class TakenAction {
             }
         }
 
-        /** Builds a {@link TakenAction}. */
+        /** Builds a {@link ClickAction}. */
         @NonNull
-        public TakenAction build() {
+        public ClickAction build() {
             mBuilt = true;
-            return new TakenAction(mNamespace, mId, mCreationTimestampMillis, mDocumentTtlMillis,
+            return new ClickAction(mNamespace, mId, mCreationTimestampMillis, mDocumentTtlMillis,
                     mName, mReferencedQualifiedId, mPreviousQueries, mFinalQuery,
                     mResultRankInBlock, mResultRankGlobal, mTimeStayOnResultMillis);
         }

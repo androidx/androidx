@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.FlaggedApi;
+import androidx.appsearch.app.usagereporting.TakenAction;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
 import androidx.collection.ArraySet;
@@ -191,8 +192,8 @@ public final class PutDocumentsRequest {
         @SuppressWarnings("MissingGetterMatchingBuilder")
         @CanIgnoreReturnValue
         @NonNull
-        public Builder addTakenActions(
-                @NonNull Collection<? extends TakenAction> takenActions) throws AppSearchException {
+        public Builder addTakenActions(@NonNull Collection<? extends TakenAction> takenActions)
+                throws AppSearchException {
             Preconditions.checkNotNull(takenActions);
             resetIfBuilt();
             List<GenericDocument> genericDocuments = new ArrayList<>(takenActions.size());

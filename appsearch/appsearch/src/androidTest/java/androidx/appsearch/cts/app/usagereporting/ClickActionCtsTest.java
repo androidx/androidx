@@ -15,19 +15,19 @@
  */
 // @exportToFramework:skipFile()
 
-package androidx.appsearch.cts.app;
+package androidx.appsearch.cts.app.usagereporting;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.TakenAction;
+import androidx.appsearch.app.usagereporting.ClickAction;
 
 import org.junit.Test;
 
-public class TakenActionCtsTest {
+public class ClickActionCtsTest {
     @Test
     public void testBuilder() {
-        TakenAction takenAction = new TakenAction.Builder("namespace", "id")
+        ClickAction takenAction = new ClickAction.Builder("namespace", "id")
                 .setCreationTimestampMillis(123)
                 .setDocumentTtlMillis(456)
                 .setName("name")
@@ -59,14 +59,14 @@ public class TakenActionCtsTest {
 
     @Test
     public void testBuilder_defaultValues() {
-        TakenAction takenAction = new TakenAction.Builder("namespace", "id")
+        ClickAction takenAction = new ClickAction.Builder("namespace", "id")
                 .build();
 
         assertThat(takenAction.getNamespace()).isEqualTo("namespace");
         assertThat(takenAction.getId()).isEqualTo("id");
         assertThat(takenAction.getCreationTimestampMillis()).isEqualTo(-1);
         assertThat(takenAction.getDocumentTtlMillis())
-                .isEqualTo(TakenAction.DEFAULT_DOCUMENT_TTL_MILLIS);
+                .isEqualTo(ClickAction.DEFAULT_DOCUMENT_TTL_MILLIS);
         assertThat(takenAction.getName()).isNull();
         assertThat(takenAction.getReferencedQualifiedId()).isNull();
         assertThat(takenAction.getPreviousQueries()).isEmpty();
@@ -78,7 +78,7 @@ public class TakenActionCtsTest {
 
     @Test
     public void testBuilderCopy_allFieldsAreCopied() {
-        TakenAction takenAction1 = new TakenAction.Builder("namespace", "id")
+        ClickAction takenAction1 = new ClickAction.Builder("namespace", "id")
                 .setCreationTimestampMillis(123)
                 .setDocumentTtlMillis(456)
                 .setName("name")
@@ -90,7 +90,7 @@ public class TakenActionCtsTest {
                 .setResultRankGlobal(3)
                 .setTimeStayOnResultMillis(65536)
                 .build();
-        TakenAction takenAction2 = new TakenAction.Builder(takenAction1).build();
+        ClickAction takenAction2 = new ClickAction.Builder(takenAction1).build();
 
         // All fields should be copied correctly from takenAction1 to the builder and propagates to
         // takenAction2 after calling build().
@@ -114,7 +114,7 @@ public class TakenActionCtsTest {
 
     @Test
     public void testBuilder_copiedFieldsCanBeUpdated() {
-        TakenAction takenAction1 = new TakenAction.Builder("namespace", "id")
+        ClickAction takenAction1 = new ClickAction.Builder("namespace", "id")
                 .setCreationTimestampMillis(123)
                 .setDocumentTtlMillis(456)
                 .setName("name1")
@@ -126,7 +126,7 @@ public class TakenActionCtsTest {
                 .setResultRankGlobal(3)
                 .setTimeStayOnResultMillis(65536)
                 .build();
-        TakenAction takenAction2 = new TakenAction.Builder(takenAction1)
+        ClickAction takenAction2 = new ClickAction.Builder(takenAction1)
                 .setName("name2")
                 .setReferencedQualifiedId("pkg$db/ns#refId2")
                 .setPreviousQueries(null)
@@ -176,7 +176,7 @@ public class TakenActionCtsTest {
 
     @Test
     public void testBuilderCopy_builderReuse() {
-        TakenAction.Builder builder = new TakenAction.Builder("namespace", "id")
+        ClickAction.Builder builder = new ClickAction.Builder("namespace", "id")
                 .setCreationTimestampMillis(123)
                 .setDocumentTtlMillis(456)
                 .setName("name")
@@ -188,7 +188,7 @@ public class TakenActionCtsTest {
                 .setResultRankGlobal(3)
                 .setTimeStayOnResultMillis(65536);
 
-        TakenAction takenAction1 = builder.build();
+        ClickAction takenAction1 = builder.build();
 
         builder.setName("newName")
                 .setPreviousQueries(null)
@@ -198,7 +198,7 @@ public class TakenActionCtsTest {
                 .setResultRankGlobal(22)
                 .build();
 
-        TakenAction takenAction2 = builder.build();
+        ClickAction takenAction2 = builder.build();
 
         // Check that takenAction1 wasn't altered.
         assertThat(takenAction1.getNamespace()).isEqualTo("namespace");
@@ -236,7 +236,7 @@ public class TakenActionCtsTest {
 
     @Test
     public void testToGenericDocument() throws Exception {
-        TakenAction takenAction = new TakenAction.Builder("namespace", "id")
+        ClickAction takenAction = new ClickAction.Builder("namespace", "id")
                 .setCreationTimestampMillis(123)
                 .setDocumentTtlMillis(456)
                 .setName("name")
