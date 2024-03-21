@@ -330,6 +330,18 @@ public interface CameraInfo {
     }
 
     /**
+     * Returns if logical multi camera is supported on the device.
+     *
+     * @return true if supported, otherwise false.
+     * @see android.hardware.camera2.CameraMetadata
+     * #REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default boolean isLogicalMultiCameraSupported() {
+        return false;
+    }
+
+    /**
      * Returns if {@link ImageFormat#PRIVATE} reprocessing is supported on the device.
      *
      * @return true if supported, otherwise false.

@@ -130,6 +130,11 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
         return mCameraInfoInternal.isPrivateReprocessingSupported();
     }
 
+    @Override
+    public boolean isLogicalMultiCameraSupported() {
+        return mCameraInfoInternal.isLogicalMultiCameraSupported();
+    }
+
     @NonNull
     @Override
     public String getCameraId() {
