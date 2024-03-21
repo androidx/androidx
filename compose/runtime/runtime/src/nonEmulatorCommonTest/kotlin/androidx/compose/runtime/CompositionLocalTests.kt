@@ -702,6 +702,18 @@ class CompositionLocalTests {
 
         revalidate()
     }
+
+    @Test // Regression test for: b/330036209
+    fun testSingleProvideDefaultValue() = compositionTest {
+        val local = compositionLocalOf { 0 }
+        compose {
+            CompositionLocalProvider(local provides 1) {
+                CompositionLocalProvider(local providesDefault 2) {
+                    assertEquals(1, local.current)
+                }
+            }
+        }
+    }
 }
 
 val cacheLocal = staticCompositionLocalOf { "Unset" }

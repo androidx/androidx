@@ -2219,7 +2219,9 @@ internal class ComposerImpl(
         val providers: PersistentCompositionLocalMap
         val invalid: Boolean
         if (inserting) {
-            providers = parentScope.putValue(local, state)
+            providers = if (value.canOverride || !parentScope.contains(local)) {
+                parentScope.putValue(local, state)
+            } else { parentScope }
             invalid = false
             writerHasAProvider = true
         } else {
