@@ -64,7 +64,6 @@ if ! impl/check_translations.sh; then
 else
     # Run Gradle
     if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs exportSboms \
-        --profile \
         "$@"; then
     echo build succeeded
     EXIT_VALUE=0
@@ -73,7 +72,7 @@ else
     EXIT_VALUE=1
     fi
 
-    # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
+    # Parse performance profile reports (generated with the --profile option) and re-export the metrics in an easily machine-readable format for tracking
     impl/parse_profile_data.sh
 fi
 
