@@ -411,7 +411,7 @@ class LazyListState @ExperimentalFoundationApi constructor(
         }
     }
 
-    fun notifyPrefetchOnScroll(delta: Float, layoutInfo: LazyListLayoutInfo) {
+    private fun notifyPrefetchOnScroll(delta: Float, layoutInfo: LazyListLayoutInfo) {
         if (prefetchingEnabled) {
             with(prefetchStrategy) {
                 prefetchScope.onScroll(
