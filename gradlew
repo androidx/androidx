@@ -243,11 +243,6 @@ else
   disableCi=false
 fi
 
-# workaround for https://github.com/gradle/gradle/issues/18386
-if [[ " ${@} " =~ " --profile " ]]; then
-  mkdir -p reports
-fi
-
 # Expand some arguments
 for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   expanded=""
@@ -259,7 +254,8 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
        -Pandroidx.enableAffectedModuleDetection\
        -Pandroidx.printTimestamps\
        --no-watch-fs\
-       -Pandroidx.highMemory"
+       -Pandroidx.highMemory\
+       --profile"
     fi
   fi
   if [ "$compact" == "--strict" ]; then
@@ -301,6 +297,11 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
     done
   fi
 done
+
+# workaround for https://github.com/gradle/gradle/issues/18386
+if [[ " ${@} " =~ " --profile " ]]; then
+  mkdir -p reports
+fi
 
 raiseMemory=false
 if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
