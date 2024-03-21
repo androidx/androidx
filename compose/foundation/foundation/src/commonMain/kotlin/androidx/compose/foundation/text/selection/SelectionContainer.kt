@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.ContextMenuArea
 import androidx.compose.foundation.text.detectDownAndDragGesturesWithObserver
+import androidx.compose.foundation.text.rememberClipboardEventsHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -94,6 +95,11 @@ internal fun SelectionContainer(
     manager.textToolbar = LocalTextToolbar.current
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
+
+    rememberClipboardEventsHandler(
+        onCopy = { manager.getSelectedText()?.text },
+        isEnabled = manager.isNonEmptySelection()
+    )
 
     ContextMenuArea(manager) {
         CompositionLocalProvider(LocalSelectionRegistrar provides registrarImpl) {

@@ -36,7 +36,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
@@ -600,6 +599,22 @@ internal class TextFieldSelectionManager(
         setHandleState(HandleState.None)
     }
 
+    internal fun onCopyWithResult(cancelSelection: Boolean = true): String? {
+        if (value.selection.collapsed) return null
+        val selectedText = value.getSelectedText().text
+
+        if (!cancelSelection) return selectedText
+
+        val newCursorOffset = value.selection.max
+        val newValue = createTextFieldValue(
+            annotatedString = value.annotatedString,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        return selectedText
+    }
+
     /**
      * The method for pasting text.
      *
@@ -612,6 +627,21 @@ internal class TextFieldSelectionManager(
     internal fun paste() {
         val text = clipboardManager?.getText() ?: return
 
+        val newText = value.getTextBeforeSelection(value.text.length) +
+            text +
+            value.getTextAfterSelection(value.text.length)
+        val newCursorOffset = value.selection.min + text.length
+
+        val newValue = createTextFieldValue(
+            annotatedString = newText,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        undoManager?.forceNextSnapshot()
+    }
+
+    internal fun paste(text: AnnotatedString) {
         val newText = value.getTextBeforeSelection(value.text.length) +
             text +
             value.getTextAfterSelection(value.text.length)
@@ -652,6 +682,25 @@ internal class TextFieldSelectionManager(
         onValueChange(newValue)
         setHandleState(HandleState.None)
         undoManager?.forceNextSnapshot()
+    }
+
+    internal fun onCutWithResult(): String? {
+        if (value.selection.collapsed) return null
+        val selectedText = value.getSelectedText().text
+
+        val newText = value.getTextBeforeSelection(value.text.length) +
+            value.getTextAfterSelection(value.text.length)
+        val newCursorOffset = value.selection.min
+
+        val newValue = createTextFieldValue(
+            annotatedString = newText,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        undoManager?.forceNextSnapshot()
+
+        return selectedText
     }
 
     /*@VisibleForTesting*/

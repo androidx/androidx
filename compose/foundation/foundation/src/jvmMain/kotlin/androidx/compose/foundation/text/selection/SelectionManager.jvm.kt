@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text
+package androidx.compose.foundation.text.selection
 
-import org.jetbrains.skiko.OS
-import org.jetbrains.skiko.hostOs
-
-internal actual val platformDefaultKeyMapping: KeyMapping = createPlatformDefaultKeyMapping(hostOs)
-
-internal fun createPlatformDefaultKeyMapping(platform: OS): KeyMapping {
-    return when (platform) {
-        OS.MacOS -> createMacosDefaultKeyMapping()
-        else -> defaultKeyMapping
-    }
-}
+internal actual val SelectionManager.skipCopyKeyEvent: Boolean
+    get() = false

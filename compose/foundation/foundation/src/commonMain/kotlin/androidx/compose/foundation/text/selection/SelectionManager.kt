@@ -162,7 +162,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             .focusable()
             .updateSelectionTouchMode { isInTouchMode = it }
             .onKeyEvent {
-                if (isCopyKeyEvent(it)) {
+                if (!skipCopyKeyEvent && isCopyKeyEvent(it)) {
                     copy()
                     true
                 } else {
@@ -1028,3 +1028,7 @@ private suspend fun AwaitPointerEventScope.awaitPointerEventWhereAllChanges(
     pass: PointerEventPass = PointerEventPass.Main,
     predicate: (PointerInputChange) -> Boolean,
 ) = awaitPointerEvent(pass).takeIf { it.changes.fastAll(predicate) }
+
+
+// We skip `isCopyKeyEvent(it)` on web, because should handle browser 'copy' event
+internal expect val SelectionManager.skipCopyKeyEvent: Boolean

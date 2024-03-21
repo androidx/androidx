@@ -41,3 +41,6 @@ internal actual fun isCopyKeyEvent(keyEvent: KeyEvent): Boolean {
  */
 internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modifier =
     TODO("implement js selectionMagnifier")
+
+internal actual val SelectionManager.skipCopyKeyEvent: Boolean
+    get() = true
