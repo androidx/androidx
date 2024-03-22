@@ -305,7 +305,6 @@ private class ComposeWindow(
 
 private const val defaultCanvasElementId = "ComposeTarget"
 
-@ExperimentalComposeUiApi
 /**
  * EXPERIMENTAL! Might be deleted or changed in the future!
  *
@@ -317,6 +316,7 @@ private const val defaultCanvasElementId = "ComposeTarget"
  * By default, styles will be applied to use the entire inner window, disabling scrollbars.
  * This can be turned off by setting [applyDefaultStyles] to false.
  */
+@ExperimentalComposeUiApi
 fun CanvasBasedWindow(
     title: String? = null,
     canvasElementId: String = defaultCanvasElementId,
@@ -360,6 +360,7 @@ fun CanvasBasedWindow(
  * Creates the composition in HTML canvas created in parent container identified by [viewportContainer] id.
  * This size of canvas is adjusted with the size of the container
  */
+@ExperimentalComposeUiApi
 fun ComposeViewport(
     viewportContainer: String,
     content: @Composable () -> Unit = { }
@@ -373,6 +374,7 @@ fun ComposeViewport(
  * Creates the composition in HTML canvas created in parent container identified by [viewportContainer] Element.
  * This size of canvas is adjusted with the size of the container
  */
+@ExperimentalComposeUiApi
 fun ComposeViewport(
     viewportContainer: Element,
     content: @Composable () -> Unit = { }
