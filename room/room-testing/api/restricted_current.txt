@@ -12,7 +12,7 @@ package androidx.room.testing {
     method public void closeWhenFinished(androidx.sqlite.db.SupportSQLiteDatabase db);
     method public final androidx.sqlite.SQLiteConnection createDatabase(int version);
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public androidx.sqlite.db.SupportSQLiteDatabase createDatabase(String name, int version) throws java.io.IOException;
-    method public final androidx.sqlite.SQLiteConnection runMigrationsAndValidate(int version, optional java.util.List<? extends androidx.room.migration.Migration> migrations);
+    method public final androidx.sqlite.SQLiteConnection runMigrationsAndValidate(int version, java.util.List<? extends androidx.room.migration.Migration> migrations);
     method public androidx.sqlite.db.SupportSQLiteDatabase runMigrationsAndValidate(String name, int version, boolean validateDroppedTables, androidx.room.migration.Migration... migrations);
   }
 

@@ -250,7 +250,9 @@ fun generateApi(
     generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
         generateApi(
             metalavaClasspath,
-            files,
+            files.bootClasspath,
+            files.dependencyClasspath,
+            files.sourcePaths.files,
             apiLocation,
             generateApiMode,
             apiLintMode,
@@ -269,7 +271,9 @@ fun generateApi(
  */
 private fun generateApi(
     metalavaClasspath: FileCollection,
-    files: JavaCompileInputs,
+    bootClasspath: FileCollection,
+    dependencyClasspath: FileCollection,
+    sourcePaths: Collection<File>,
     outputLocation: ApiLocation,
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
@@ -281,10 +285,9 @@ private fun generateApi(
 ) {
     val args =
         getGenerateApiArgs(
-            files.bootClasspath,
-            files.dependencyClasspath,
-            files.sourcePaths.files,
-            files.commonModuleSourcePaths.files,
+            bootClasspath,
+            dependencyClasspath,
+            sourcePaths,
             outputLocation,
             generateApiMode,
             apiLintMode,
@@ -302,7 +305,6 @@ fun getGenerateApiArgs(
     bootClasspath: FileCollection,
     dependencyClasspath: FileCollection,
     sourcePaths: Collection<File>,
-    commonModuleSourcePaths: Collection<File>,
     outputLocation: ApiLocation?,
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
@@ -316,15 +318,9 @@ fun getGenerateApiArgs(
             (bootClasspath.files + dependencyClasspath.files).joinToString(File.pathSeparator),
             "--source-path",
             sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
+            "--format=v4",
+            "--warnings-as-errors"
         )
-
-    if (commonModuleSourcePaths.isNotEmpty()) {
-        args += listOf("--common-source-path", commonModuleSourcePaths.joinToString(":"))
-    }
-    args += listOf(
-        "--format=v4",
-        "--warnings-as-errors"
-    )
 
     pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
 
