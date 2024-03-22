@@ -82,6 +82,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -453,16 +454,6 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @MainThread
     @NonNull
     public ConcurrentCamera bindToLifecycle(@NonNull List<SingleCameraConfig> singleCameraConfigs) {
-        if (!mContext.getPackageManager().hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
-            throw new UnsupportedOperationException("Concurrent camera is not supported on the "
-                    + "device");
-        }
-
-        if (getCameraOperatingMode() == CAMERA_OPERATING_MODE_SINGLE) {
-            throw new UnsupportedOperationException("Camera is already running, call "
-                    + "unbindAll() before binding more cameras");
-        }
-
         if (singleCameraConfigs.size() < 2) {
             throw new IllegalArgumentException("Concurrent camera needs two camera configs");
         }
@@ -472,37 +463,81 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                     + "cameras at maximum.");
         }
 
-        List<CameraInfo> cameraInfosToBind = new ArrayList<>();
-        CameraInfo firstCameraInfo;
-        CameraInfo secondCameraInfo;
-        try {
-            firstCameraInfo = getCameraInfo(
-                    singleCameraConfigs.get(0).getCameraSelector());
-            secondCameraInfo = getCameraInfo(
-                    singleCameraConfigs.get(1).getCameraSelector());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid camera selectors in camera configs");
-        }
-        cameraInfosToBind.add(firstCameraInfo);
-        cameraInfosToBind.add(secondCameraInfo);
-        if (!getActiveConcurrentCameraInfos().isEmpty()
-                && !cameraInfosToBind.equals(getActiveConcurrentCameraInfos())) {
-            throw new UnsupportedOperationException("Cameras are already running, call "
-                    + "unbindAll() before binding more cameras");
-        }
-
-        setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
         List<Camera> cameras = new ArrayList<>();
-        for (SingleCameraConfig config : singleCameraConfigs) {
-            Camera camera = bindToLifecycle(
-                    config.getLifecycleOwner(),
-                    config.getCameraSelector(),
-                    config.getUseCaseGroup().getViewPort(),
-                    config.getUseCaseGroup().getEffects(),
-                    config.getUseCaseGroup().getUseCases().toArray(new UseCase[0]));
+        if (Objects.equals(singleCameraConfigs.get(0).getCameraSelector().getLensFacing(),
+                singleCameraConfigs.get(1).getCameraSelector().getLensFacing())) {
+            if (getCameraOperatingMode() == CAMERA_OPERATING_MODE_CONCURRENT) {
+                throw new UnsupportedOperationException("Camera is already running, call "
+                        + "unbindAll() before binding more cameras");
+            }
+            if (!Objects.equals(singleCameraConfigs.get(0).getLifecycleOwner(),
+                    singleCameraConfigs.get(1).getLifecycleOwner())
+                    || !Objects.equals(singleCameraConfigs.get(0).getUseCaseGroup().getViewPort(),
+                    singleCameraConfigs.get(1).getUseCaseGroup().getViewPort())
+                    || !Objects.equals(singleCameraConfigs.get(0).getUseCaseGroup().getEffects(),
+                    singleCameraConfigs.get(1).getUseCaseGroup().getEffects())) {
+                throw new IllegalArgumentException("Two camera configs need to have the same "
+                        + "lifecycle owner, view port and effects");
+            }
+            LifecycleOwner lifecycleOwner = singleCameraConfigs.get(0).getLifecycleOwner();
+            CameraSelector cameraSelector = singleCameraConfigs.get(0).getCameraSelector();
+            ViewPort viewPort = singleCameraConfigs.get(0).getUseCaseGroup().getViewPort();
+            List<CameraEffect> effects = singleCameraConfigs.get(0).getUseCaseGroup().getEffects();
+            List<UseCase> useCases = new ArrayList<>();
+            for (SingleCameraConfig config : singleCameraConfigs) {
+                // Connect physical camera id with use case
+                for (UseCase useCase : config.getUseCaseGroup().getUseCases()) {
+                    useCase.setPhysicalCameraId(config.getCameraSelector().getPhysicalCameraId());
+                }
+                useCases.addAll(config.getUseCaseGroup().getUseCases());
+            }
+
+            setCameraOperatingMode(CAMERA_OPERATING_MODE_SINGLE);
+            Camera camera = bindToLifecycle(lifecycleOwner, cameraSelector, viewPort,
+                    effects, useCases.toArray(new UseCase[0]));
             cameras.add(camera);
+        } else {
+            if (!mContext.getPackageManager().hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
+                throw new UnsupportedOperationException("Concurrent camera is not supported on the "
+                        + "device");
+            }
+
+            if (getCameraOperatingMode() == CAMERA_OPERATING_MODE_SINGLE) {
+                throw new UnsupportedOperationException("Camera is already running, call "
+                        + "unbindAll() before binding more cameras");
+            }
+
+            List<CameraInfo> cameraInfosToBind = new ArrayList<>();
+            CameraInfo firstCameraInfo;
+            CameraInfo secondCameraInfo;
+            try {
+                firstCameraInfo = getCameraInfo(
+                        singleCameraConfigs.get(0).getCameraSelector());
+                secondCameraInfo = getCameraInfo(
+                        singleCameraConfigs.get(1).getCameraSelector());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid camera selectors in camera configs");
+            }
+            cameraInfosToBind.add(firstCameraInfo);
+            cameraInfosToBind.add(secondCameraInfo);
+            if (!getActiveConcurrentCameraInfos().isEmpty()
+                    && !cameraInfosToBind.equals(getActiveConcurrentCameraInfos())) {
+                throw new UnsupportedOperationException("Cameras are already running, call "
+                        + "unbindAll() before binding more cameras");
+            }
+
+            setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
+            for (SingleCameraConfig config : singleCameraConfigs) {
+                Camera camera = bindToLifecycle(
+                        config.getLifecycleOwner(),
+                        config.getCameraSelector(),
+                        config.getUseCaseGroup().getViewPort(),
+                        config.getUseCaseGroup().getEffects(),
+                        config.getUseCaseGroup().getUseCases().toArray(new UseCase[0]));
+                cameras.add(camera);
+            }
+            setActiveConcurrentCameraInfos(cameraInfosToBind);
         }
-        setActiveConcurrentCameraInfos(cameraInfosToBind);
         return new ConcurrentCamera(cameras);
     }
 
