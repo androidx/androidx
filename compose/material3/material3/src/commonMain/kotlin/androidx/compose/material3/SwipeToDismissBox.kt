@@ -37,7 +37,6 @@ import kotlinx.coroutines.CancellationException
 /**
  * The directions in which a [SwipeToDismissBox] can be dismissed.
  */
-@ExperimentalMaterial3Api
 enum class SwipeToDismissBoxValue {
     /**
      * Can be dismissed by swiping in the reading direction.
@@ -66,7 +65,6 @@ enum class SwipeToDismissBoxValue {
  * the start of a transition. It will be, depending on the direction of the interaction, added or
  * subtracted from/to the origin offset. It should always be a positive value.
  */
-@ExperimentalMaterial3Api
 class SwipeToDismissBoxState(
     initialValue: SwipeToDismissBoxValue,
     internal val density: Density,
@@ -182,7 +180,6 @@ class SwipeToDismissBoxState(
  * subtracted from/to the origin offset. It should always be a positive value.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun rememberSwipeToDismissBoxState(
     initialValue: SwipeToDismissBoxValue = SwipeToDismissBoxValue.Settled,
     confirmValueChange: (SwipeToDismissBoxValue) -> Boolean = { true },
@@ -216,7 +213,6 @@ fun rememberSwipeToDismissBoxState(
  * @param content The content that can be dismissed.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     backgroundContent: @Composable RowScope.() -> Unit,
@@ -263,7 +259,6 @@ fun SwipeToDismissBox(
 }
 
 /** Contains default values for [SwipeToDismissBox] and [SwipeToDismissBoxState]. */
-@ExperimentalMaterial3Api
 object SwipeToDismissBoxDefaults {
     /** Default positional threshold of 56.dp for [SwipeToDismissBoxState]. */
     val positionalThreshold: (totalDistance: Float) -> Float

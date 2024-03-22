@@ -28,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SwipeToDismissBox
@@ -70,7 +69,6 @@ private val items = listOf(
 )
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun SwipeToDismissDemo() {
     // This is an example of a list of dismissible items, similar to what you would see in an
     // email app. Swiping left reveals a 'delete' icon and swiping right reveals a 'done' icon.
