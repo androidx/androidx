@@ -122,25 +122,6 @@ class SwipeToDismissBoxState(
         }
 
     /**
-     * Whether the component has been dismissed in the given [direction].
-     *
-     * @param direction The dismiss direction.
-     */
-    @Deprecated(
-        message = "DismissDirection is no longer used by SwipeToDismissBoxState. Please compare " +
-            "currentValue against SwipeToDismissValue instead.",
-        level = DeprecationLevel.HIDDEN
-    )
-    @Suppress("DEPRECATION")
-    fun isDismissed(direction: DismissDirection): Boolean {
-        val directionalDismissValue = when (direction) {
-            DismissDirection.StartToEnd -> SwipeToDismissBoxValue.StartToEnd
-            DismissDirection.EndToStart -> SwipeToDismissBoxValue.EndToStart
-        }
-        return currentValue == directionalDismissValue
-    }
-
-    /**
      * Set the state without any animation and suspend until it's set
      *
      * @param targetValue The new target value
@@ -226,47 +207,6 @@ fun rememberSwipeToDismissBoxState(
  * @sample androidx.compose.material3.samples.SwipeToDismissListItems
  *
  * @param state The state of this component.
- * @param background A composable that is stacked behind the content and is exposed when the
- * content is swiped. You can/should use the [state] to have different backgrounds on each side.
- * @param dismissContent The content that can be dismissed.
- * @param modifier Optional [Modifier] for this component.
- * @param directions The set of directions in which the component can be dismissed.
- */
-@Composable
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "Use SwipeToDismissBox instead",
-    replaceWith =
-    ReplaceWith(
-        "SwipeToDismissBox(state, background, modifier, " +
-            "enableDismissFromStartToEnd, enableDismissFromEndToStart, dismissContent)"
-    )
-)
-@ExperimentalMaterial3Api
-fun SwipeToDismiss(
-    state: SwipeToDismissBoxState,
-    background: @Composable RowScope.() -> Unit,
-    dismissContent: @Composable RowScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    directions: Set<SwipeToDismissBoxValue> = setOf(
-        SwipeToDismissBoxValue.EndToStart,
-        SwipeToDismissBoxValue.StartToEnd
-    ),
-) = SwipeToDismissBox(
-    state = state,
-    backgroundContent = background,
-    modifier = modifier,
-    enableDismissFromStartToEnd = SwipeToDismissBoxValue.StartToEnd in directions,
-    enableDismissFromEndToStart = SwipeToDismissBoxValue.EndToStart in directions,
-    content = dismissContent
-)
-
-/**
- * A composable that can be dismissed by swiping left or right.
- *
- * @sample androidx.compose.material3.samples.SwipeToDismissListItems
- *
- * @param state The state of this component.
  * @param backgroundContent A composable that is stacked behind the [content] and is exposed when
  * the content is swiped. You can/should use the [state] to have different backgrounds on each side.
  * @param modifier Optional [Modifier] for this component.
@@ -330,53 +270,6 @@ object SwipeToDismissBoxDefaults {
         @Composable get() = with(LocalDensity.current) {
             { 56.dp.toPx() }
         }
-}
-
-/**
- * The directions in which a [SwipeToDismissBox] can be dismissed.
- */
-@ExperimentalMaterial3Api
-@Deprecated(
-    message = "Dismiss direction is no longer used by SwipeToDismissBoxState. Please use " +
-        "SwipeToDismissBoxValue instead.",
-    level = DeprecationLevel.WARNING
-)
-enum class DismissDirection {
-    /**
-     * Can be dismissed by swiping in the reading direction.
-     */
-    StartToEnd,
-
-    /**
-     * Can be dismissed by swiping in the reverse of the reading direction.
-     */
-    EndToStart,
-}
-
-/**
- * Possible values of [SwipeToDismissBoxState].
- */
-@ExperimentalMaterial3Api
-@Deprecated(
-    message = "DismissValue is no longer used by SwipeToDismissBoxState. Please use " +
-        "SwipeToDismissBoxValue instead.",
-    level = DeprecationLevel.WARNING
-)
-enum class DismissValue {
-    /**
-     * Indicates the component has not been dismissed yet.
-     */
-    Default,
-
-    /**
-     * Indicates the component has been dismissed in the reading direction.
-     */
-    DismissedToEnd,
-
-    /**
-     * Indicates the component has been dismissed in the reverse of the reading direction.
-     */
-    DismissedToStart
 }
 
 private val DismissVelocityThreshold = 125.dp
