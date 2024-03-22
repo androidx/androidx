@@ -647,6 +647,195 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObject() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        navController.navigate(TestClass())
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectPathArg() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClassPathArg::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        navController.navigate(TestClassPathArg(0))
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+            .isEqualTo(0)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectQueryArg() {
+        @Serializable
+        class TestClass(val arg: IntArray)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        navController.navigate(TestClass(intArrayOf(0, 1, 2)))
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "androidx.navigation.NavControllerRouteTest." +
+                "testNavigateWithObjectQueryArg.TestClass?arg={arg}"
+        )
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.arguments?.getIntArray("arg"))
+            .isEqualTo(intArrayOf(0, 1, 2))
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectPathQueryArg() {
+        @Serializable
+        class TestClass(val arg: IntArray, val arg2: Boolean)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        navController.navigate(TestClass(intArrayOf(0, 1, 2), true))
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "androidx.navigation.NavControllerRouteTest." +
+                "testNavigateWithObjectPathQueryArg.TestClass/{arg2}?arg={arg}"
+        )
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.arguments?.getIntArray("arg"))
+            .isEqualTo(intArrayOf(0, 1, 2))
+        assertThat(navController.currentBackStackEntry?.arguments?.getBoolean("arg2"))
+            .isEqualTo(true)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectInvalidObject() {
+        @Serializable
+        class WrongTestClass
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        assertFailsWith<IllegalArgumentException> {
+            navController.navigate(WrongTestClass())
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectWithPopUpTo() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        navController.navigate(TestClass(), navOptions {
+            popUpTo("start") { inclusive = true }
+        })
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectArgsSavedAndRestored() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClassPathArg::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        // first nav
+        val dest = TestClassPathArg(0)
+        navController.navigate(dest)
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
+        assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+            .isEqualTo(0)
+
+        // pop + save
+        val popped = navController.popBackStack(dest, true, true)
+        assertThat(popped).isTrue()
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        // second nav with restore
+        val dest2 = TestClassPathArg(1)
+        navController.navigate(dest2, navOptions { restoreState = true })
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
+        assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+            .isEqualTo(0)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectArgsSavedNotRestored() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClassPathArg::class)
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        // first nav
+        val dest = TestClassPathArg(0)
+        navController.navigate(dest)
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
+        assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+            .isEqualTo(0)
+
+        // pop + save
+        val popped = navController.popBackStack(dest, true, true)
+        assertThat(popped).isTrue()
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        // second nav without restore
+        val dest2 = TestClassPathArg(1)
+        navController.navigate(dest2, navOptions { restoreState = false })
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
+        assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+            .isEqualTo(1)
+
+        // now we restore
+        navController.navigate(dest2, navOptions { restoreState = true })
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
+        assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+            .isEqualTo(0)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithPopUpToFurthestRoute() {
         val navController = createNavController()
         navController.graph = nav_singleArg_graph
