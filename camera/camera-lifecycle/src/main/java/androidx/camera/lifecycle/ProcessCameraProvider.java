@@ -29,6 +29,7 @@ import static java.util.Objects.requireNonNull;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.os.Handler;
 
 import androidx.annotation.GuardedBy;
@@ -431,15 +432,44 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * <p>The concurrent camera is only supporting two cameras currently. If the input
      * list of {@link SingleCameraConfig}s have less or more than two {@link SingleCameraConfig}s,
-     * {@link IllegalArgumentException} will be thrown. If the device is not supporting
-     * {@link PackageManager#FEATURE_CAMERA_CONCURRENT} or cameras are already used by other
+     * {@link IllegalArgumentException} will be thrown. If cameras are already used by other
      * {@link UseCase}s, {@link UnsupportedOperationException} will be thrown.
      *
-     * <p>To set up concurrent camera, call {@link #getAvailableConcurrentCameraInfos()} to get
-     * the list of available combinations of concurrent cameras. Each sub-list contains the
+     * <p>A logical camera is a grouping of two or more of those physical cameras.
+     * See <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>
+     *
+     * <p>If we want to open concurrent logical cameras, which are one front camera and one
+     * back camera, the device needs to support {@link PackageManager#FEATURE_CAMERA_CONCURRENT}.
+     * To set up concurrent logical camera, call {@link #getAvailableConcurrentCameraInfos()} to
+     * get the list of available combinations of concurrent cameras. Each sub-list contains the
      * {@link CameraInfo}s for a combination of cameras that can be operated concurrently.
-     * Each camera can have its own {@link UseCase}s and {@link LifecycleOwner}. See
-     * <a href="{@docRoot}training/camerax/architecture#lifecycles">CameraX lifecycles</a>
+     * Each logical camera can have its own {@link UseCase}s and {@link LifecycleOwner}.
+     * See <a href="{@docRoot}training/camerax/architecture#lifecycles">CameraX lifecycles</a>
+     *
+     * <p>If we want to open concurrent physical cameras, which are two front cameras or two back
+     * cameras, the device needs to support physical cameras and the capability could be checked via
+     * {@link CameraInfo#isLogicalMultiCameraSupported()}. Each physical cameras can have its own
+     * {@link UseCase}s but needs to have the same {@link LifecycleOwner}, otherwise
+     * {@link IllegalArgumentException} will be thrown.
+     *
+     * <p> If we want to open one physical camera, for example ultra wide, we just need to set
+     * physical camera id in {@link CameraSelector} and bind to lifecycle. All CameraX features
+     * will work normally when only a single physical camera is used.
+     *
+     * <p>If we want to open multiple physical cameras, we need to have multiple
+     * {@link CameraSelector}s, each in one {@link SingleCameraConfig} and set physical camera id,
+     * then bind to lifecycle with the {@link SingleCameraConfig}s. Internally each physical camera
+     * id will be set on {@link UseCase}, for example, {@link Preview} and call
+     * {@link android.hardware.camera2.params.OutputConfiguration#setPhysicalCameraId(String)}.
+     *
+     * <p>Currently only two physical cameras for the same logical camera id are allowed
+     * and the device needs to support physical cameras by checking
+     * {@link CameraInfo#isLogicalMultiCameraSupported()}. In addition, there is no guarantee
+     * or API to query whether the device supports multiple physical camera opening or not.
+     * Internally the library checks
+     * {@link android.hardware.camera2.CameraDevice#isSessionConfigurationSupported(SessionConfiguration)},
+     * if the device does not support the multiple physical camera configuration,
+     * {@link IllegalArgumentException} will be thrown.
      *
      * @param singleCameraConfigs input list of {@link SingleCameraConfig}s.
      * @return output {@link ConcurrentCamera} instance.
@@ -450,6 +480,8 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * @see ConcurrentCamera
      * @see #getAvailableConcurrentCameraInfos()
+     * @see CameraInfo#isLogicalMultiCameraSupported()
+     * @see CameraInfo#getPhysicalCameraInfos()
      */
     @MainThread
     @NonNull
