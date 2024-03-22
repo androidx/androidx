@@ -205,7 +205,7 @@ class NavGraphTest {
             addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
         }
 
-        val dest = graph.findNode(TestClass::class)
+        val dest = graph.findNode<TestClass>()
         assertThat(dest).isNotNull()
     }
 
