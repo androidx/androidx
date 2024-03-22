@@ -344,6 +344,7 @@ public actual open class ViewModelProvider private constructor(
 
     public actual companion object {
         @JvmStatic
+        @Suppress("MissingJvmstatic")
         public actual fun create(
             owner: ViewModelStoreOwner,
             factory: Factory,
@@ -351,6 +352,7 @@ public actual open class ViewModelProvider private constructor(
         ): ViewModelProvider = ViewModelProvider(owner.viewModelStore, factory, extras)
 
         @JvmStatic
+        @Suppress("MissingJvmstatic")
         public actual fun create(
             store: ViewModelStore,
             factory: Factory,
