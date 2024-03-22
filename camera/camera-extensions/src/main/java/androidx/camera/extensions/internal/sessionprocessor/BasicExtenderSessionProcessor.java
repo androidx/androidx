@@ -290,6 +290,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         }
 
         if (mPreviewProcessor != null) {
+            mPreviewProcessor.resume();
             setImageProcessor(mPreviewOutputConfig.getId(),
                     new ImageProcessor() {
                         @Override
@@ -357,6 +358,9 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @Override
     public void onCaptureSessionEnd() {
         mOnEnableDisableSessionDurationCheck.onDisableSessionInvoked();
+        if (mPreviewProcessor != null) {
+            mPreviewProcessor.pause();
+        }
         List<CaptureStageImpl> captureStages = new ArrayList<>();
         CaptureStageImpl captureStage1 = mPreviewExtenderImpl.onDisableSession();
         Logger.d(TAG, "preview onDisableSession: " + captureStage1);
