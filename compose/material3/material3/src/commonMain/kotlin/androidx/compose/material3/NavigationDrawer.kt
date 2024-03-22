@@ -111,7 +111,6 @@ enum class DrawerValue {
  */
 @Suppress("NotCloseable")
 @Stable
-@OptIn(ExperimentalMaterial3Api::class)
 class DrawerState(
     initialValue: DrawerValue,
     confirmStateChange: (DrawerValue) -> Boolean = { true }
@@ -308,7 +307,6 @@ fun rememberDrawerState(
  * @param scrimColor color of the scrim that obscures content when the drawer is open
  * @param content content of the rest of the UI
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModalNavigationDrawer(
     drawerContent: @Composable () -> Unit,
@@ -411,7 +409,6 @@ fun ModalNavigationDrawer(
  * @param gesturesEnabled whether or not the drawer can be interacted by gestures
  * @param content content of the rest of the UI
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DismissibleNavigationDrawer(
     drawerContent: @Composable () -> Unit,
