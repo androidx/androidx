@@ -409,12 +409,12 @@ public actual open class NavGraph actual constructor(
      */
     @OptIn(InternalSerializationApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun <T : Any> setStartDestination(startObject: T) {
-        setStartDestination(startObject::class.serializer()) { startDestination ->
+    public fun <T : Any> setStartDestination(startDestRoute: T) {
+        setStartDestination(startDestRoute::class.serializer()) { startDestination ->
             val args = startDestination.arguments.mapValues {
                 it.value.type
             }
-            startObject.generateRouteWithArgs(args)
+            startDestRoute.generateRouteWithArgs(args)
         }
     }
 
