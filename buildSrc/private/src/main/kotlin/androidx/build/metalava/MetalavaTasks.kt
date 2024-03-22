@@ -210,6 +210,7 @@ object MetalavaTasks {
 
     private fun applyInputs(inputs: JavaCompileInputs, task: MetalavaTask) {
         task.sourcePaths = inputs.sourcePaths
+        task.commonModuleSourcePaths = inputs.commonModuleSourcePaths
         task.dependsOn(inputs.sourcePaths)
         task.dependencyClasspath = inputs.dependencyClasspath
         task.bootClasspath = inputs.bootClasspath

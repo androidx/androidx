@@ -92,7 +92,12 @@ abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecuto
         check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
         check(sourcePaths.files.isNotEmpty()) { "Source paths not set." }
 
-        val inputs = JavaCompileInputs(sourcePaths, dependencyClasspath, bootClasspath)
+        val inputs = JavaCompileInputs(
+            sourcePaths = sourcePaths,
+            commonModuleSourcePaths = commonModuleSourcePaths,
+            dependencyClasspath = dependencyClasspath,
+            bootClasspath = bootClasspath
+        )
 
         val levelsArgs =
             getGenerateApiLevelsArgs(
