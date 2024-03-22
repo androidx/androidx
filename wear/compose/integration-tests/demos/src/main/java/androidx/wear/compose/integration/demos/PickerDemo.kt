@@ -817,6 +817,7 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
     Spacer(Modifier.width(width))
 }
 
+@Suppress("DEPRECATION")
 @Composable
 fun pickerGroupItemWithRSB(
     pickerState: PickerState,
