@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.demos
 
+import androidx.compose.foundation.demos.contextmenu.ContextMenuDemos
 import androidx.compose.foundation.demos.draganddrop.DragAndDropMultiAppDemo
 import androidx.compose.foundation.demos.draganddrop.DragAndDropNestedDemo
 import androidx.compose.foundation.demos.focus.FocusGroupDemo
@@ -93,5 +94,6 @@ val FoundationDemos = DemoCategory(
         ComposableDemo("Marquee") { BasicMarqueeDemo() },
         DemoCategory("Pointer Icon", PointerIconDemos),
         DemoCategory("Long screenshots", ScrollingScreenshotsDemos),
+        DemoCategory("Context Menu", ContextMenuDemos),
     )
 )
