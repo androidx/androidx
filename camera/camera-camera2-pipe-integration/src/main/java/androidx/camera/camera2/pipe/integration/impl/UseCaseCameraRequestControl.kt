@@ -132,6 +132,7 @@ interface UseCaseCameraRequestControl {
 
     // 3A
     suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
+
     suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
@@ -152,6 +153,20 @@ interface UseCaseCameraRequestControl {
         @ImageCapture.FlashType flashType: Int,
         @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>>
+
+    /**
+     * Updates the 3A regions and applies to the repeating request.
+     *
+     * Note that camera-pipe may invalidate the CameraGraph and update the repeating request
+     * parameters for this operations.
+     *
+     * @see [CameraGraph.Session.update3A]
+     */
+    suspend fun update3aRegions(
+        aeRegions: List<MeteringRectangle>? = null,
+        afRegions: List<MeteringRectangle>? = null,
+        awbRegions: List<MeteringRectangle>? = null,
+    ): Deferred<Result3A>
 
     fun close()
 }
@@ -300,6 +315,20 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             )
         }
     } ?: failedResults(captureSequence.size, "Capture request is cancelled on closed CameraGraph")
+
+    override suspend fun update3aRegions(
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?
+    ) = runIfNotClosed {
+        useGraphSessionOrFailed {
+            it.update3A(
+                aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                afRegions = METERING_REGIONS_DEFAULT.asList(),
+                awbRegions = METERING_REGIONS_DEFAULT.asList()
+            )
+        }
+    } ?: submitFailedResult
 
     override fun close() {
         closed = true
