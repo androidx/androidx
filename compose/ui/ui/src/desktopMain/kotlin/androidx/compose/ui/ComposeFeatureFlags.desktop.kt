@@ -22,6 +22,13 @@ import androidx.compose.ui.window.Popup
 internal enum class LayerType {
     OnSameCanvas,
     OnComponent,
+
+    /**
+     * TODO known issues:
+     *  - [Rendering issues on Linux](https://github.com/JetBrains/compose-multiplatform/issues/4437)
+     *  - [Blinking when showing](https://github.com/JetBrains/compose-multiplatform/issues/4475)
+     *  - [Resizing the parent window clips the dialog](https://github.com/JetBrains/compose-multiplatform/issues/4484)
+     */
     OnWindow;
 
     companion object {

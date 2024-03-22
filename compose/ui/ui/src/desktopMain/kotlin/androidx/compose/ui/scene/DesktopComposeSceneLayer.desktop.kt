@@ -24,14 +24,21 @@ import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.awt.toAwtRectangle
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.skiko.RecordDrawRectSkikoViewDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEachReversed
+import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import javax.swing.SwingUtilities
+import kotlin.math.max
+import kotlin.math.min
 import org.jetbrains.skia.Canvas
+import org.jetbrains.skiko.SkikoView
 
 /**
  * Represents an abstract class for a desktop Compose scene layer.
@@ -49,10 +56,24 @@ internal abstract class DesktopComposeSceneLayer(
     protected val eventListener get() = AwtEventListeners(
         OnlyValidPrimaryMouseButtonFilter,
         DetectEventOutsideLayer(),
+        boundsEventFilter,
         FocusableLayerEventFilter()
+    )
+    private val boundsEventFilter = BoundsEventFilter(
+        bounds = Rectangle(windowContainer.size)
     )
 
     protected abstract val mediator: ComposeSceneMediator?
+
+    /**
+     * Bounds of real drawings based on previous renders.
+     */
+    protected var drawBounds = IntRect.Zero
+
+    /**
+     * The maximum amount to inflate the [drawBounds] comparing to [boundsInWindow].
+     */
+    private var maxDrawInflate = IntRect.Zero
 
     private var outsidePointerCallback: ((eventType: PointerEventType) -> Unit)? = null
     private var isClosed = false
@@ -67,6 +88,13 @@ internal abstract class DesktopComposeSceneLayer(
         set(value) {
             field = value
             mediator?.onChangeLayoutDirection(value)
+        }
+
+    // It shouldn't be used for setting canvas size - it will crop drawings outside
+    override var boundsInWindow: IntRect = IntRect.Zero
+        set(value) {
+            field = value
+            boundsEventFilter.bounds = value.toAwtRectangle(density)
         }
 
     final override var compositionLocalContext: CompositionLocalContext?
@@ -101,6 +129,20 @@ internal abstract class DesktopComposeSceneLayer(
     override fun calculateLocalPosition(positionInWindow: IntOffset) =
         positionInWindow // [ComposeScene] is equal to [windowContainer] for the layer.
 
+    protected fun recordDrawBounds(skikoView: SkikoView) =
+        RecordDrawRectSkikoViewDecorator(skikoView) { canvasBoundsInPx ->
+            val currentCanvasOffset = drawBounds.topLeft
+            val drawBoundsInWindow = canvasBoundsInPx.roundToIntRect().translate(currentCanvasOffset)
+            maxDrawInflate = maxInflate(boundsInWindow, drawBoundsInWindow, maxDrawInflate)
+            drawBounds = IntRect(
+                left = boundsInWindow.left - maxDrawInflate.left,
+                top = boundsInWindow.top - maxDrawInflate.top,
+                right = boundsInWindow.right + maxDrawInflate.right,
+                bottom = boundsInWindow.bottom + maxDrawInflate.bottom
+            )
+            onUpdateBounds()
+        }
+
     /**
      * Called when the focus of the window containing main Compose view has changed.
      */
@@ -123,6 +165,12 @@ internal abstract class DesktopComposeSceneLayer(
      * Called when the layers in [composeContainer] have changed.
      */
     open fun onLayersChange() {
+    }
+
+    /**
+     * Called when bounds of the layer has been updated.
+     */
+    open fun onUpdateBounds() {
     }
 
     /**
@@ -185,7 +233,44 @@ internal abstract class DesktopComposeSceneLayer(
         override fun onMouseEvent(event: MouseEvent): Boolean = !noFocusableLayersAbove
         override fun onKeyEvent(event: KeyEvent): Boolean = !focusable || !noFocusableLayersAbove
     }
+
+    private inner class BoundsEventFilter(
+        var bounds: Rectangle,
+    ) : AwtEventListener {
+        private val MouseEvent.isInBounds: Boolean
+            get() {
+                val localPoint = if (component != windowContainer) {
+                    SwingUtilities.convertPoint(component, point, windowContainer)
+                } else {
+                    point
+                }
+                return bounds.contains(localPoint)
+            }
+
+        override fun onMouseEvent(event: MouseEvent): Boolean {
+            when (event.id) {
+                // Do not filter motion events
+                MouseEvent.MOUSE_MOVED,
+                MouseEvent.MOUSE_ENTERED,
+                MouseEvent.MOUSE_EXITED,
+                MouseEvent.MOUSE_DRAGGED -> return false
+            }
+            return if (event.isInBounds) {
+                false
+            } else {
+                onMouseEventOutside(event)
+                true
+            }
+        }
+    }
 }
 
 private fun MouseEvent.isMainAction() =
     button == MouseEvent.BUTTON1
+
+private fun maxInflate(baseBounds: IntRect, currentBounds: IntRect, maxInflate: IntRect) = IntRect(
+    left = max(baseBounds.left - currentBounds.left, maxInflate.left),
+    top = max(baseBounds.top - currentBounds.top, maxInflate.top),
+    right = max(currentBounds.right - baseBounds.right, maxInflate.right),
+    bottom = max(currentBounds.bottom - baseBounds.bottom, maxInflate.bottom)
+)

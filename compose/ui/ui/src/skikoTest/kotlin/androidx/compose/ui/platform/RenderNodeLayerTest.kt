@@ -466,6 +466,7 @@ class RenderNodeLayerTest {
 
     private fun TestRenderNodeLayer() = RenderNodeLayer(
         Density(1f, 1f),
+        measureDrawBounds = false,
         invalidateParentLayer = {},
         drawBlock = {}
     )

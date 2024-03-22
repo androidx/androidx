@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
 import androidx.compose.ui.interop.LocalUIViewController
+import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -287,8 +288,8 @@ internal class ComposeContainer(
         ComposeSceneContextImpl(platformContext)
 
     @OptIn(ExperimentalComposeApi::class)
-    private fun createSkikoUIView(renderRelegate: RenderingUIView.Delegate): RenderingUIView =
-        RenderingUIView(renderDelegate = renderRelegate).apply {
+    private fun createSkikoUIView(interopContext: UIKitInteropContext, renderRelegate: SkikoRenderDelegate): RenderingUIView =
+        RenderingUIView(interopContext, renderRelegate).apply {
             opaque = configuration.opaque
         }
 

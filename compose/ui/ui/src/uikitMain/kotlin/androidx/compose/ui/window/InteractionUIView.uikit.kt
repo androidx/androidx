@@ -44,7 +44,7 @@ internal class InteractionUIView(
     private var keyboardEventHandler: KeyboardEventHandler,
     private var touchesDelegate: Delegate,
     private var updateTouchesCount: (count: Int) -> Unit,
-    private var checkBounds: (point: DpOffset) -> Boolean,
+    private var inBounds: (CValue<CGPoint>) -> Boolean,
 ) : UIView(CGRectZero.readValue()) {
 
     interface Delegate {
@@ -83,8 +83,7 @@ internal class InteractionUIView(
      * https://developer.apple.com/documentation/uikit/uiview/1622533-point
      */
     override fun pointInside(point: CValue<CGPoint>, withEvent: UIEvent?): Boolean {
-        val pointOffset = point.useContents { this.asDpOffset() }
-        return checkBounds(pointOffset) && touchesDelegate.pointInside(point, withEvent)
+        return inBounds(point) && touchesDelegate.pointInside(point, withEvent)
     }
 
     override fun touchesBegan(touches: Set<*>, withEvent: UIEvent?) {
@@ -135,7 +134,7 @@ internal class InteractionUIView(
             override fun onTouchesEvent(view: UIView, event: UIEvent, phase: UITouchesEventPhase) {}
         }
         updateTouchesCount = {}
-        checkBounds = { false }
+        inBounds = { false }
         keyboardEventHandler = object: KeyboardEventHandler {
             override fun onKeyboardEvent(event: SkikoKeyboardEvent) {}
         }

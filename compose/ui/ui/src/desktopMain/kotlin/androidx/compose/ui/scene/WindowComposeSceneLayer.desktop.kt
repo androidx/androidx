@@ -30,8 +30,8 @@ import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
 import androidx.compose.ui.skiko.OverlaySkikoViewDecorator
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.getDialogScrimBlendMode
@@ -97,15 +97,11 @@ internal class WindowComposeSceneLayer(
             dialog.isFocusable = value
         }
 
-    override var boundsInWindow: IntRect = IntRect.Zero
-        set(value) {
-            field = value
-            setDialogBounds(value)
-        }
-
     override var scrimColor: Color? = null
 
     init {
+        val boundsInPx = windowContainer.sizeInPx.toRect()
+        drawBounds = boundsInPx.roundToIntRect()
         mediator = ComposeSceneMediator(
             container = container,
             windowContext = windowContext,
@@ -113,16 +109,17 @@ internal class WindowComposeSceneLayer(
                 composeContainer.exceptionHandler?.onException(it) ?: throw it
             },
             eventListener = eventListener,
+            measureDrawLayerBounds = true,
             coroutineContext = compositionContext.effectCoroutineContext,
             skiaLayerComponentFactory = ::createSkiaLayerComponent,
             composeSceneFactory = ::createComposeScene,
         ).also {
             it.onChangeWindowTransparency(true)
-            it.sceneBoundsInPx = windowContainer.sizeInPx.toRect()
+            it.sceneBoundsInPx = boundsInPx
             it.contentComponent.size = windowContainer.size
         }
-        dialog.location = getDialogLocation(0, 0)
-        dialog.size = windowContainer.size
+        onUpdateBounds()
+
         dialog.isVisible = true
 
         // Track window position in addition to [onChangeWindowPosition] because [windowContainer]
@@ -144,8 +141,8 @@ internal class WindowComposeSceneLayer(
     }
 
     override fun onChangeWindowPosition() {
-        val scaledRectangle = boundsInWindow.toAwtRectangle(density)
-        dialog.location = getDialogLocation(scaledRectangle.x, scaledRectangle.y)
+        val scaledRectangle = drawBounds.toAwtRectangle(density)
+        setDialogLocation(scaledRectangle.x, scaledRectangle.y)
     }
 
     override fun onChangeWindowSize() {
@@ -153,7 +150,7 @@ internal class WindowComposeSceneLayer(
 
         // Update compose constrains based on main window size
         mediator?.sceneBoundsInPx = Rect(
-            offset = -boundsInWindow.topLeft.toOffset(),
+            offset = -drawBounds.topLeft.toOffset(),
             size = windowContainer.sizeInPx
         )
     }
@@ -162,6 +159,17 @@ internal class WindowComposeSceneLayer(
         // Force redraw because rendering depends on other layers
         // see [onRenderOverlay]
         dialog.repaint()
+    }
+
+    override fun onUpdateBounds() {
+        val scaledRectangle = drawBounds.toAwtRectangle(density)
+        setDialogLocation(scaledRectangle.x, scaledRectangle.y)
+        dialog.setSize(scaledRectangle.width, scaledRectangle.height)
+        mediator?.contentComponent?.setSize(scaledRectangle.width, scaledRectangle.height)
+        mediator?.sceneBoundsInPx = Rect(
+            offset = -drawBounds.topLeft.toOffset(),
+            size = windowContainer.sizeInPx
+        )
     }
 
     override fun onRenderOverlay(canvas: Canvas, width: Int, height: Int, transparent: Boolean) {
@@ -174,7 +182,9 @@ internal class WindowComposeSceneLayer(
     }
 
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
-        val skikoView = OverlaySkikoViewDecorator(mediator) { canvas, width, height ->
+        val skikoView = OverlaySkikoViewDecorator(
+            recordDrawBounds(mediator)
+        ) { canvas, width, height ->
             composeContainer.layersAbove(this).forEach {
                 it.onRenderOverlay(canvas, width, height, transparent)
             }
@@ -201,22 +211,14 @@ internal class WindowComposeSceneLayer(
         )
     }
 
-    private fun getDialogLocation(x: Int, y: Int): Point {
+    private fun setDialogLocation(x: Int, y: Int) {
+        if (!windowContainer.isShowing) {
+            return
+        }
         val locationOnScreen = windowContainer.locationOnScreen
-        return Point(
+        dialog.location = Point(
             locationOnScreen.x + x,
             locationOnScreen.y + y
-        )
-    }
-
-    private fun setDialogBounds(bounds: IntRect) {
-        val scaledRectangle = bounds.toAwtRectangle(density)
-        dialog.location = getDialogLocation(scaledRectangle.x, scaledRectangle.y)
-        dialog.setSize(scaledRectangle.width, scaledRectangle.height)
-        mediator?.contentComponent?.setSize(scaledRectangle.width, scaledRectangle.height)
-        mediator?.sceneBoundsInPx = Rect(
-            offset = -bounds.topLeft.toOffset(),
-            size = windowContainer.sizeInPx
         )
     }
 }

@@ -22,8 +22,10 @@ import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
+import androidx.compose.ui.skiko.RecordDrawRectSkikoViewDecorator
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.toUIColor
 import androidx.compose.ui.unit.Density
@@ -32,12 +34,16 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.ComposeContainer
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.ProvideContainerCompositionLocals
 import androidx.compose.ui.window.RenderingUIView
+import androidx.compose.ui.window.SkikoRenderDelegate
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
@@ -66,7 +72,6 @@ internal class UIViewComposeSceneLayer(
     private val backgroundView: UIView = object : UIView(
         frame = CGRectZero.readValue()
     ) {
-
         private var previousSuccessHitTestTimestamp: Double? = null
 
         private fun touchStartedOutside(withEvent: UIEvent?) {
@@ -94,10 +99,10 @@ internal class UIViewComposeSceneLayer(
         }
 
         override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
-            if (
-                mediator.hitTestInteractionView(point, withEvent) == null &&
-                super.hitTest(point, withEvent) == this
-            ) {
+            val positionInWindow = point.useContents { asDpOffset().toOffset(density).round() }
+            val inBounds = mediator.hitTestInteractionView(point, withEvent) != null &&
+                boundsInWindow.contains(positionInWindow) // canvas might be bigger than logical bounds
+            if (!inBounds && super.hitTest(point, withEvent) == this) {
                 touchStartedOutside(withEvent)
                 if (focusable) {
                     // Focusable layers don't pass touches through, even if it's out of bounds.
@@ -114,11 +119,22 @@ internal class UIViewComposeSceneLayer(
             configuration = configuration,
             focusStack = focusStack,
             windowContext = windowContext,
+            measureDrawLayerBounds = true,
             coroutineContext = compositionContext.effectCoroutineContext,
             renderingUIViewFactory = ::createSkikoUIView,
             composeSceneFactory = ::createComposeScene
         )
     }
+
+    /**
+     * Bounds of real drawings based on previous renders.
+     */
+    private var drawBounds = IntRect.Zero
+
+    /**
+     * The maximum amount to inflate the [drawBounds] comparing to [boundsInWindow].
+     */
+    private var maxDrawInflate = IntRect.Zero
 
     init {
         backgroundView.translatesAutoresizingMaskIntoConstraints = false
@@ -129,8 +145,11 @@ internal class UIViewComposeSceneLayer(
         composeContainer.attachLayer(this)
     }
 
-    private fun createSkikoUIView(renderDelegate: RenderingUIView.Delegate): RenderingUIView =
-        RenderingUIView(renderDelegate = renderDelegate).apply {
+    private fun createSkikoUIView(interopContext: UIKitInteropContext, renderDelegate: SkikoRenderDelegate): RenderingUIView =
+        RenderingUIView(
+            interopContext = interopContext,
+            renderDelegate = recordDrawBounds(renderDelegate)
+        ).apply {
             opaque = false
         }
 
@@ -149,19 +168,14 @@ internal class UIViewComposeSceneLayer(
 
     override var density by mediator::density
     override var layoutDirection by mediator::layoutDirection
-
-    override var boundsInWindow: IntRect
-        get() = mediator.getBoundsInPx()
+    override var boundsInWindow: IntRect = IntRect.Zero
         set(value) {
-            mediator.setLayout(
-                SceneLayout.Bounds(rect = value)
-            )
+            field = value
+            updateBounds()
         }
-
     override var compositionLocalContext: CompositionLocalContext? by mediator::compositionLocalContext
 
     override var scrimColor: Color? = null
-        get() = field
         set(value) {
             field = value
             backgroundView.setBackgroundColor(value?.toUIColor())
@@ -198,6 +212,29 @@ internal class UIViewComposeSceneLayer(
         return positionInWindow
     }
 
+    private fun recordDrawBounds(renderDelegate: SkikoRenderDelegate) =
+        RecordDrawRectSkikoViewDecorator(renderDelegate) { canvasBoundsInPx ->
+            val currentCanvasOffset = drawBounds.topLeft
+            val drawBoundsInWindow = canvasBoundsInPx.roundToIntRect().translate(currentCanvasOffset)
+            maxDrawInflate = maxInflate(boundsInWindow, drawBoundsInWindow, maxDrawInflate)
+            drawBounds = IntRect(
+                left = boundsInWindow.left - maxDrawInflate.left,
+                top = boundsInWindow.top - maxDrawInflate.top,
+                right = boundsInWindow.right + maxDrawInflate.right,
+                bottom = boundsInWindow.bottom + maxDrawInflate.bottom
+            )
+            updateBounds()
+        }
+
+    private fun updateBounds() {
+        mediator.setLayout(
+            SceneLayout.Bounds(
+                renderBounds = drawBounds,
+                interactionBounds = boundsInWindow
+            )
+        )
+    }
+
     fun viewDidAppear(animated: Boolean) {
         mediator.viewDidAppear(animated)
     }
@@ -220,5 +257,11 @@ internal class UIViewComposeSceneLayer(
     ) {
         mediator.viewWillTransitionToSize(targetSize, coordinator)
     }
-
 }
+
+private fun maxInflate(baseBounds: IntRect, currentBounds: IntRect, maxInflate: IntRect) = IntRect(
+    left = max(baseBounds.left - currentBounds.left, maxInflate.left),
+    top = max(baseBounds.top - currentBounds.top, maxInflate.top),
+    right = max(currentBounds.right - baseBounds.right, maxInflate.right),
+    bottom = max(currentBounds.bottom - baseBounds.bottom, maxInflate.bottom)
+)

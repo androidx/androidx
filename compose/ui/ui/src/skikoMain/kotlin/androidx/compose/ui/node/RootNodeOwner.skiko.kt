@@ -364,12 +364,13 @@ internal class RootNodeOwner(
             drawBlock: (Canvas) -> Unit,
             invalidateParentLayer: () -> Unit
         ) = RenderNodeLayer(
-            Snapshot.withoutReadObservation {
+            density = Snapshot.withoutReadObservation {
                 // density is a mutable state that is observed whenever layer is created. the layer
                 // is updated manually on draw, so not observing the density changes here helps with
                 // performance in layout.
                 density
             },
+            measureDrawBounds = platformContext.measureDrawLayerBounds,
             invalidateParentLayer = {
                 invalidateParentLayer()
                 snapshotInvalidationTracker.requestDraw()

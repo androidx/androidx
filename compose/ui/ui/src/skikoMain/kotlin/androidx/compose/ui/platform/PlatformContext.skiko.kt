@@ -28,6 +28,7 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.scene.ComposeScene
@@ -75,6 +76,14 @@ interface PlatformContext {
      */
     fun calculateLocalPosition(positionInWindow: Offset): Offset =
         positionInWindow
+
+    /**
+     * Determines if [OwnedLayer] should measure bounds for all drawings.
+     * It's required to determine bounds of any graphics even if it was drawn out of measured
+     * layout bounds (for example shadows). It might be used to resize platform views based on
+     * such bounds.
+     */
+    val measureDrawLayerBounds: Boolean get() = false
 
     val viewConfiguration: ViewConfiguration get() = EmptyViewConfiguration
     val inputModeManager: InputModeManager

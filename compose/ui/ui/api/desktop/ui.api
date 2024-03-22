@@ -3134,6 +3134,7 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext {
 	public fun calculateLocalPosition-MK-Hz9U (J)J
 	public fun calculatePositionInWindow-MK-Hz9U (J)J
 	public abstract fun getInputModeManager ()Landroidx/compose/ui/input/InputModeManager;
+	public fun getMeasureDrawLayerBounds ()Z
 	public fun getParentFocusManager ()Landroidx/compose/ui/focus/FocusManager;
 	public fun getRootForTestListener ()Landroidx/compose/ui/platform/PlatformContext$RootForTestListener;
 	public fun getSemanticsOwnerListener ()Landroidx/compose/ui/platform/PlatformContext$SemanticsOwnerListener;
