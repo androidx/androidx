@@ -31,7 +31,6 @@ import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
-import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
@@ -55,8 +54,10 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 internal class LocalSdkProviderTest(
+    @Suppress("unused") private val label: String, // Added to test names by JUnit
     private val sdkName: String,
-    private val sdkVersion: Int
+    private val originalSdkVersion: Int,
+    private val forcedSdkVersion: Int,
 ) {
 
     private lateinit var controller: TestStubController
@@ -67,9 +68,15 @@ internal class LocalSdkProviderTest(
         val sdkConfig = TestSdkConfigs.forSdkName(sdkName)
 
         controller = TestStubController()
-        loadedSdk = loadTestSdkFromAssets(sdkConfig, controller)
+
+        val overrideVersionHandshake = if (originalSdkVersion != forcedSdkVersion) {
+            VersionHandshake(forcedSdkVersion)
+        } else {
+            null
+        }
+        loadedSdk = loadTestSdkFromAssets(sdkConfig, controller, overrideVersionHandshake)
         assertThat(loadedSdk.extractApiVersion())
-            .isEqualTo(sdkVersion)
+            .isEqualTo(originalSdkVersion)
     }
 
     @Test
@@ -295,19 +302,19 @@ internal class LocalSdkProviderTest(
     private fun assumeFeatureAvailable(clientFeature: ClientFeature) {
         assumeTrue(
             "Requires $clientFeature available (API >= ${clientFeature.availableFrom})",
-            clientFeature.isAvailable(sdkVersion)
+            clientFeature.isAvailable(forcedSdkVersion)
         )
     }
 
     companion object {
 
         /**
-         * Create test params for each supported [ClientApiVersion] + current one.
+         * Create test params for each supported [ClientApiVersion] + current and future.
          * Each released version must have test-sdk named as "vX" (where X is version to test).
          * These TestSDKs should be registered in RuntimeEnabledSdkTable.xml and be compatible with
          * [TestSdkWrapper].
          */
-        @Parameterized.Parameters(name = "sdk: {0}, version: {1}")
+        @Parameterized.Parameters(name = "{0}")
         @JvmStatic
         fun params(): List<Array<Any>> = buildList {
             ClientApiVersion.values().forEach { version ->
@@ -316,6 +323,8 @@ internal class LocalSdkProviderTest(
                     add(
                         arrayOf(
                             "v${version.apiLevel}",
+                            "v${version.apiLevel}",
+                            version.apiLevel,
                             version.apiLevel,
                         )
                     )
@@ -324,15 +333,27 @@ internal class LocalSdkProviderTest(
 
             add(
                 arrayOf(
+                    "current_version",
                     "current",
-                    Versions.API_VERSION
+                    ClientApiVersion.CURRENT_VERSION.apiLevel,
+                    ClientApiVersion.CURRENT_VERSION.apiLevel
+                )
+            )
+
+            add(
+                arrayOf(
+                    "future_version",
+                    "current",
+                    ClientApiVersion.CURRENT_VERSION.apiLevel,
+                    ClientApiVersion.FUTURE_VERSION.apiLevel
                 )
             )
         }
 
         private fun loadTestSdkFromAssets(
             sdkConfig: LocalSdkConfig,
-            controller: TestStubController
+            controller: TestStubController,
+            overrideVersionHandshake: VersionHandshake?
         ): LocalSdkProvider {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val testStorage = TestLocalSdkStorage(
@@ -346,7 +367,7 @@ internal class LocalSdkProviderTest(
                     override fun createControllerFor(sdkConfig: LocalSdkConfig) = controller
                 }
             )
-            return sdkLoader.loadSdk(sdkConfig)
+            return sdkLoader.loadSdk(sdkConfig, overrideVersionHandshake)
         }
     }
 

@@ -65,6 +65,17 @@ class SdkLoaderTest {
     }
 
     @Test
+    fun loadSdk_withCustomVersionHandshake_performsCustomHandShake() {
+        val customVersionHandshake = VersionHandshake(
+            overrideApiVersion = Int.MAX_VALUE
+        )
+        val loadedSdk = sdkLoader.loadSdk(testSdkConfig, customVersionHandshake)
+
+        assertThat(loadedSdk.extractClientVersion())
+            .isEqualTo(Int.MAX_VALUE)
+    }
+
+    @Test
     fun testContextClassloader() {
         val loadedSdk = sdkLoader.loadSdk(testSdkConfig)
 
