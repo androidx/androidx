@@ -136,7 +136,11 @@ public class UiObject2 implements Searchable {
 
     @Override
     public int hashCode() {
-        return getAccessibilityNodeInfo().hashCode();
+        try {
+            return getAccessibilityNodeInfo().hashCode();
+        } catch (StaleObjectException e) {
+            return mCachedNode.hashCode();
+        }
     }
 
     /** Recycle this object. */
