@@ -97,8 +97,10 @@ package androidx.navigation {
     method @SuppressCompatibility @MainThread @androidx.navigation.ExperimentalSafeArgsApi public final <T> boolean clearBackStack(T route);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
     method @SuppressCompatibility @androidx.navigation.NavDeepLinkSaveStateControl public static final void enableDeepLinkSaveState(boolean saveState);
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public inline <reified T> androidx.navigation.NavBackStackEntry getBackStackEntry();
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);
     method public final androidx.navigation.NavBackStackEntry getBackStackEntry(String route);
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public final <T> androidx.navigation.NavBackStackEntry getBackStackEntry(T route);
     method public androidx.navigation.NavBackStackEntry? getCurrentBackStackEntry();
     method public final kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> getCurrentBackStackEntryFlow();
     method public androidx.navigation.NavDestination? getCurrentDestination();
