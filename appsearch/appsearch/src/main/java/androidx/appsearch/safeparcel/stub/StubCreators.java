@@ -17,6 +17,7 @@ package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
@@ -188,5 +189,10 @@ public class StubCreators {
     /** Stub creator for {@link androidx.appsearch.app.GetByDocumentIdRequest}. */
     public static class GetByDocumentIdRequestCreator extends
             AbstractCreator<GetByDocumentIdRequest> {
+    }
+
+    /** Stub creator for {@link EmbeddingVector}. */
+    public static class EmbeddingVectorCreator extends
+            AbstractCreator<EmbeddingVector> {
     }
 }

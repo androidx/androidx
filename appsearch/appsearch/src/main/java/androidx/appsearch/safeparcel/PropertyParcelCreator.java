@@ -22,6 +22,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.EmbeddingVector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,9 @@ public class PropertyParcelCreator implements Parcelable.Creator<PropertyParcel>
     // 2d
     private static final String BYTES_ARRAY_FIELD = "bytesArray";
     private static final String DOC_ARRAY_FIELD = "docArray";
+    private static final String EMBEDDING_VALUE_FIELD = "embeddingValue";
+    private static final String EMBEDDING_MODEL_SIGNATURE_FIELD = "embeddingModelSignature";
+    private static final String EMBEDDING_ARRAY_FIELD = "embeddingArray";
 
     public PropertyParcelCreator() {
     }
@@ -81,6 +85,12 @@ public class PropertyParcelCreator implements Parcelable.Creator<PropertyParcel>
         @SuppressWarnings("deprecation")
         Parcelable[] tmpParcel = propertyParcelBundle.getParcelableArray(DOC_ARRAY_FIELD);
         docValues = tmpParcel;
+
+        // SuppressWarnings can be applied on a local variable, but not any single line of
+        // code.
+        @SuppressWarnings("deprecation")
+        List<Bundle> embeddingArray = propertyParcelBundle.getParcelableArrayList(
+                EMBEDDING_ARRAY_FIELD);
 
         // Only one of those values will be set.
         boolean valueSet = false;
@@ -117,6 +127,22 @@ public class PropertyParcelCreator implements Parcelable.Creator<PropertyParcel>
             System.arraycopy(docValues, 0, documentParcels, 0, docValues.length);
             builder.setDocumentValues(documentParcels);
             valueSet = true;
+        } else if (embeddingArray != null) {
+            EmbeddingVector[] embeddings = new EmbeddingVector[embeddingArray.size()];
+            for (int i = 0; i < embeddingArray.size(); i++) {
+                Bundle embeddingBundle = embeddingArray.get(i);
+                if (embeddingBundle == null) {
+                    continue;
+                }
+                float[] values = embeddingBundle.getFloatArray(EMBEDDING_VALUE_FIELD);
+                String modelSignature = embeddingBundle.getString(EMBEDDING_MODEL_SIGNATURE_FIELD);
+                if (values == null || modelSignature == null) {
+                    continue;
+                }
+                embeddings[i] = new EmbeddingVector(values, modelSignature);
+            }
+            builder.setEmbeddingValues(embeddings);
+            valueSet = true;
         }
 
         if (!valueSet) {
@@ -142,6 +168,7 @@ public class PropertyParcelCreator implements Parcelable.Creator<PropertyParcel>
         boolean[] booleanValues = propertyParcel.getBooleanValues();
         byte[][] bytesArray = propertyParcel.getBytesValues();
         GenericDocumentParcel[] docArray = propertyParcel.getDocumentValues();
+        EmbeddingVector[] embeddingArray = propertyParcel.getEmbeddingValues();
 
         if (stringValues != null) {
             propertyParcelBundle.putStringArray(STRING_ARRAY_FIELD, stringValues);
@@ -161,6 +188,16 @@ public class PropertyParcelCreator implements Parcelable.Creator<PropertyParcel>
             propertyParcelBundle.putParcelableArrayList(BYTES_ARRAY_FIELD, bundles);
         } else if (docArray != null) {
             propertyParcelBundle.putParcelableArray(DOC_ARRAY_FIELD, docArray);
+        } else if (embeddingArray != null) {
+            ArrayList<Bundle> bundles = new ArrayList<>(embeddingArray.length);
+            for (int i = 0; i < embeddingArray.length; i++) {
+                Bundle embedding = new Bundle();
+                embedding.putFloatArray(EMBEDDING_VALUE_FIELD, embeddingArray[i].getValues());
+                embedding.putString(EMBEDDING_MODEL_SIGNATURE_FIELD,
+                        embeddingArray[i].getModelSignature());
+                bundles.add(embedding);
+            }
+            propertyParcelBundle.putParcelableArrayList(EMBEDDING_ARRAY_FIELD, bundles);
         }
 
         return propertyParcelBundle;
