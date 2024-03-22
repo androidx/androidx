@@ -70,6 +70,7 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.JavaVersion
 import org.gradle.api.JavaVersion.VERSION_11
 import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.JavaVersion.VERSION_1_8
@@ -97,13 +98,13 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withModule
+import org.gradle.kotlin.dsl.withType
 import org.gradle.plugin.devel.plugins.JavaGradlePluginPlugin
 import org.gradle.plugin.devel.tasks.ValidatePlugins
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -112,8 +113,11 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 /**
  * A plugin which enables all of the Gradle customizations for AndroidX. This plugin reacts to other
@@ -443,18 +447,57 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureKtfmt()
 
         project.afterEvaluate {
-            project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
-                if (androidXExtension.type == LibraryType.COMPILER_PLUGIN) {
-                    task.kotlinOptions.jvmTarget = "11"
-                } else if (
-                    androidXExtension.type.compilationTarget == CompilationTarget.HOST &&
-                    androidXExtension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
-                ) {
-                    task.kotlinOptions.jvmTarget = "17"
-                } else {
-                    task.kotlinOptions.jvmTarget = "1.8"
+            val targetsAndroid =
+                project.plugins.hasPlugin(LibraryPlugin::class.java) ||
+                    project.plugins.hasPlugin(AppPlugin::class.java) ||
+                    project.plugins.hasPlugin(TestPlugin::class.java) ||
+                    @Suppress("UnstableApiUsage")
+                    project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
+            val defaultJavaTargetVersion =
+                getDefaultTargetJavaVersion(androidXExtension.type).toString()
+            if (plugin is KotlinMultiplatformPluginWrapper) {
+                project.extensions.getByType<KotlinMultiplatformExtension>().apply {
+                    targets.withType<KotlinAndroidTarget> {
+                        compilations.configureEach {
+                            it.kotlinOptions.jvmTarget = defaultJavaTargetVersion
+                        }
+                    }
+                    targets.withType<KotlinJvmTarget> {
+                        val defaultJavaTargetVersionForNonAndroidTargets =
+                            getDefaultTargetJavaVersion(
+                                libraryType = androidXExtension.type,
+                                projectName = project.name,
+                                targetName = name
+                            ).toString()
+                        compilations.configureEach {
+                            it.compileJavaTaskProvider?.configure { javaCompile ->
+                                javaCompile.targetCompatibility =
+                                    defaultJavaTargetVersionForNonAndroidTargets
+                                javaCompile.sourceCompatibility =
+                                    defaultJavaTargetVersionForNonAndroidTargets
+                            }
+                            it.kotlinOptions {
+                                jvmTarget = defaultJavaTargetVersionForNonAndroidTargets
+                                // Set jdk-release version for non-Android KMP targets
+                                freeCompilerArgs += listOf(
+                                    "-Xjdk-release=$defaultJavaTargetVersionForNonAndroidTargets",
+                                )
+                            }
+                        }
+                    }
                 }
-
+            } else {
+                project.tasks.withType(KotlinJvmCompile::class.java).configureEach { task ->
+                    task.kotlinOptions.jvmTarget = defaultJavaTargetVersion
+                    if (!targetsAndroid) {
+                        // Set jdk-release version for non-Android JVM projects
+                        task.kotlinOptions.freeCompilerArgs += listOf(
+                            "-Xjdk-release=$defaultJavaTargetVersion",
+                        )
+                    }
+                }
+            }
+            project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
                 val kotlinCompilerArgs =
                     mutableListOf(
                         "-Xskip-metadata-version-check",
@@ -483,13 +526,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 logScriptSources(task, project)
             }
 
-            val isAndroidProject =
-                project.plugins.hasPlugin(LibraryPlugin::class.java) ||
-                    project.plugins.hasPlugin(AppPlugin::class.java) ||
-                    project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
             // Explicit API mode is broken for Android projects
             // https://youtrack.jetbrains.com/issue/KT-37652
-            if (androidXExtension.shouldEnforceKotlinStrictApiMode() && !isAndroidProject) {
+            if (androidXExtension.shouldEnforceKotlinStrictApiMode() && !targetsAndroid) {
                 project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
                     // Workaround for https://youtrack.jetbrains.com/issue/KT-37652
                     if (task.name.endsWith("TestKotlin")) return@configureEach
@@ -853,30 +892,30 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         SdkResourceGenerator.generateForHostTest(project)
     }
 
+    private fun getDefaultTargetJavaVersion(
+        libraryType: LibraryType,
+        projectName: String? = null,
+        targetName: String? = null
+    ): JavaVersion {
+        return when {
+            projectName != null && projectName.contains("desktop") -> VERSION_17
+            targetName != null && targetName == "desktop" -> VERSION_17
+            libraryType == LibraryType.COMPILER_PLUGIN -> VERSION_11
+            libraryType.compilationTarget == CompilationTarget.HOST -> VERSION_17
+            else -> VERSION_1_8
+        }
+    }
+
     private fun configureWithJavaPlugin(project: Project, androidXExtension: AndroidXExtension) {
         project.configureErrorProneForJava()
 
         // Force Java 1.8 source- and target-compatibility for all Java libraries.
         val javaExtension = project.extensions.getByType<JavaPluginExtension>()
         project.afterEvaluate {
-            if (androidXExtension.type == LibraryType.COMPILER_PLUGIN) {
-                javaExtension.apply {
-                    sourceCompatibility = VERSION_11
-                    targetCompatibility = VERSION_11
-                }
-            } else if (
-                androidXExtension.type.compilationTarget == CompilationTarget.HOST &&
-                androidXExtension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
-            ) {
-                javaExtension.apply {
-                    sourceCompatibility = VERSION_17
-                    targetCompatibility = VERSION_17
-                }
-            } else {
-                javaExtension.apply {
-                    sourceCompatibility = VERSION_1_8
-                    targetCompatibility = VERSION_1_8
-                }
+            javaExtension.apply {
+                val defaultTargetJavaVersion = getDefaultTargetJavaVersion(androidXExtension.type)
+                sourceCompatibility = defaultTargetJavaVersion
+                targetCompatibility = defaultTargetJavaVersion
             }
             if (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java)) {
                 project.configureSourceJarForJava()
