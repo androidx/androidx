@@ -21,6 +21,9 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
     UikitX64("UiKit"),
     UikitArm64("UiKit"),
     UikitSimArm64("UiKit"),
+    IosX64("Ios"),
+    IosArm64("Ios"),
+    IosSimulatorArm64("Ios"),
     TvosArm64("TvOs"),
     TvosX64("TvOs"),
     TvosSimulatorArm64("TvOs"),
@@ -46,7 +49,14 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
         listOf(name, *alternativeNames).any { it.equals(nameCandidate, ignoreCase = true) }
 
     companion object {
-        val ALL = EnumSet.allOf(ComposePlatforms::class.java)
+        val IOS = EnumSet.of(
+            ComposePlatforms.IosX64,
+            ComposePlatforms.IosArm64,
+            ComposePlatforms.IosSimulatorArm64,
+        )
+
+        // exclude IOS by default, because ALL includes UIKIT instead
+        val ALL = EnumSet.allOf(ComposePlatforms::class.java) - IOS
 
         val JVM_BASED = EnumSet.of(
             ComposePlatforms.Desktop,
@@ -54,7 +64,7 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
             ComposePlatforms.AndroidRelease
         )
 
-        val IOS = EnumSet.of(
+        val UIKIT = EnumSet.of(
             ComposePlatforms.UikitX64,
             ComposePlatforms.UikitArm64,
             ComposePlatforms.UikitSimArm64

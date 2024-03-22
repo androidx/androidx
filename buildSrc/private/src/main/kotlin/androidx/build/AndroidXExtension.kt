@@ -73,6 +73,16 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
             spec.parameters.useMultiplatformGroupVersions = project.provider {
                 Multiplatform.isKotlinNativeEnabled(project)
             }
+            spec.parameters.libsOverrideVersions = project.provider {
+                val allOverriddenVersions = project.properties.keys.filter {
+                    it.startsWith("jetbrains.publication.version.")
+                }.associate {  propertyName ->
+                    val tag = propertyName.replace("jetbrains.publication.version.", "")
+                    val version = project.properties[propertyName] as String
+                    tag to version
+                }
+                allOverriddenVersions
+            }
         }.get()
         AllLibraryGroups = versionService.libraryGroups.values.toList()
         LibraryVersions = versionService.libraryVersions

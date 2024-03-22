@@ -48,6 +48,7 @@ kotlin {
         browser()
     }
     wasmJs()
+    linuxArm64()
 
     sourceSets {
         commonMain {

@@ -82,7 +82,7 @@ open class JetbrainsExtensions(
         val androidCollectionVersion =
             project.findProperty("artifactRedirecting.androidx.collection.version")!!
         val androidLifecycleVersion =
-            project.findProperty("artifactRedirecting.androidx.lifecycle.version")
+            project.findProperty("artifactRedirecting.androidx.lifecycle.version")!!
         listOf(
             comp.configurations.compileDependencyConfiguration,
             comp.configurations.runtimeDependencyConfiguration,
@@ -97,12 +97,10 @@ open class JetbrainsExtensions(
                         .using(it.module("androidx.annotation:annotation:$androidAnnotationVersion"))
                     it.substitute(it.project(":collection:collection"))
                         .using(it.module("androidx.collection:collection:$androidCollectionVersion"))
-                    if (androidLifecycleVersion != null) {
-                        it.substitute(it.project(":lifecycle:lifecycle-common"))
-                            .using(it.module("androidx.lifecycle:lifecycle-common:$androidLifecycleVersion"))
-                        it.substitute(it.project(":lifecycle:lifecycle-runtime"))
-                            .using(it.module("androidx.lifecycle:lifecycle-runtime:$androidLifecycleVersion"))
-                    }
+                    it.substitute(it.project(":lifecycle:lifecycle-common"))
+                        .using(it.module("androidx.lifecycle:lifecycle-common:$androidLifecycleVersion"))
+                    it.substitute(it.project(":lifecycle:lifecycle-runtime"))
+                        .using(it.module("androidx.lifecycle:lifecycle-runtime:$androidLifecycleVersion"))
                 }
             }
         }

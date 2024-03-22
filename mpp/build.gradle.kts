@@ -24,10 +24,31 @@ open class ComposePublishingTask : AbstractComposePublishingTask() {
 
 val composeProperties = ComposeProperties(project)
 
+val PublishedLifecyclePlatforms = ComposePlatforms.ALL -
+    ComposePlatforms.NO_SKIKO -
+    ComposePlatforms.UIKIT + // the target names in Lifecycle are ios, not uikit
+    ComposePlatforms.IOS +
+    ComposePlatforms.LinuxX64 +
+    ComposePlatforms.LinuxArm64
+
 val mainComponents =
     listOf(
         ComposeComponent(":annotation:annotation", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
         ComposeComponent(":collection:collection", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
+        ComposeComponent(
+            path = ":lifecycle:lifecycle-common",
+            // No android target here - jvm artefact will be used for android apps as well
+            supportedPlatforms = PublishedLifecyclePlatforms - ComposePlatforms.ANDROID
+        ),
+        ComposeComponent(
+            path = ":lifecycle:lifecycle-runtime",
+            supportedPlatforms = PublishedLifecyclePlatforms
+        ),
+        //To be added later: (also don't forget to add gradle.properties see in lifecycle-runtime for an example)
+        //ComposeComponent(
+        //    path = ":lifecycle:lifecycle-runtime-compose",
+        //    supportedPlatforms = PublishedLifecyclePlatforms
+        //),
         ComposeComponent(":compose:animation:animation"),
         ComposeComponent(":compose:animation:animation-core"),
         ComposeComponent(":compose:animation:animation-graphics"),
@@ -59,7 +80,7 @@ val mainComponents =
         ),
         ComposeComponent(
             ":compose:ui:ui-uikit",
-            supportedPlatforms = ComposePlatforms.IOS
+            supportedPlatforms = ComposePlatforms.UIKIT
         ),
         ComposeComponent(":compose:ui:ui-unit"),
         ComposeComponent(":compose:ui:ui-util"),

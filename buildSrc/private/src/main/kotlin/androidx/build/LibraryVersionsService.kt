@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import java.io.Serializable
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
@@ -28,12 +29,14 @@ import org.tomlj.TomlTable
  * Loads Library groups and versions from a specified TOML file.
  */
 abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Parameters> {
+
     interface Parameters : BuildServiceParameters {
         var tomlFileName: String
         var tomlFileContents: Provider<String>
         var composeCustomVersion: Provider<String>
         var composeCustomGroup: Provider<String>
         var useMultiplatformGroupVersions: Provider<Boolean>
+        var libsOverrideVersions: Provider<Map<String, String>>
     }
 
     private val parsedTomlFile: TomlParseResult by lazy {
@@ -58,12 +61,17 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     // map from name of constant to Version
     val libraryVersions: Map<String, Version> by lazy {
         val versions = getTable("versions")
+        val libsGroupsAndVersions = parameters.libsOverrideVersions.get()
         versions.keySet().associateWith { versionName ->
+            val tagName = libsGroupsAndVersions.keys.firstOrNull { versionName.startsWith(it) }
+            val versionForTag = libsGroupsAndVersions[tagName]
             val versionValue =
                 if (versionName.startsWith("COMPOSE") &&
                     parameters.composeCustomVersion.isPresent
                 ) {
                     parameters.composeCustomVersion.get()
+                } else if (tagName != null && versionForTag != null) {
+                    versionForTag
                 } else {
                     versions.getString(versionName)!!
                 }
@@ -146,7 +154,9 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                 parameters.composeCustomGroup.isPresent
             ) {
                 groupName.replace("androidx.compose", parameters.composeCustomGroup.get())
-            } else groupName
+            } else {
+                groupName
+            }
 
             // get group version, if any
             val atomicGroupVersion = readGroupVersion(

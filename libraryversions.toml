@@ -235,7 +235,7 @@ KRUTH = { group = "androidx.kruth", atomicGroupVersion = "versions.KRUTH" }
 LEANBACK = { group = "androidx.leanback" }
 LEGACY = { group = "androidx.legacy" }
 LIBYUV = { group = "libyuv", atomicGroupVersion = "versions.LIBYUV" }
-LIFECYCLE = { group = "androidx.lifecycle", atomicGroupVersion = "versions.LIFECYCLE" }
+LIFECYCLE = { group = "org.jetbrains.androidx.lifecycle", atomicGroupVersion = "versions.LIFECYCLE" , overrideInclude = [ ":lifecycle:lifecycle-common", ":lifecycle:lifecycle-runtime", ":lifecycle:lifecycle-runtime-compose" ]}
 LIFECYCLE_EXTENSIONS = { group = "androidx.lifecycle", atomicGroupVersion = "versions.LIFECYCLE_EXTENSIONS", overrideInclude = [ ":lifecycle:lifecycle-extensions" ] }
 LOADER = { group = "androidx.loader", atomicGroupVersion = "versions.LOADER" }
 MEDIA = { group = "androidx.media" }
