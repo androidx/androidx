@@ -37,14 +37,13 @@ import androidx.compose.ui.semantics.SemanticsActions.ScrollByOffset
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.IntRect
 import java.util.function.Consumer
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 
 private const val DEBUG = false
 
@@ -60,8 +59,11 @@ private const val DEBUG = false
 internal class ComposeScrollCaptureCallback(
     private val node: SemanticsNode,
     private val viewportBoundsInWindow: IntRect,
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
 ) : ScrollCaptureCallback {
+    // Don't animate scrollByOffset calls.
+    private val coroutineScope = coroutineScope + DisableAnimationMotionDurationScale
+
     private val scrollTracker = RelativeScroller(
         viewportSize = viewportBoundsInWindow.height,
         scrollBy = { amount ->
@@ -94,11 +96,7 @@ internal class ComposeScrollCaptureCallback(
         captureArea: AndroidRect,
         onComplete: Consumer<AndroidRect>
     ) {
-        coroutineScope.launchWithCancellationSignal(
-            signal = signal,
-            // Don't animate scrollByOffset calls.
-            context = DisableAnimationMotionDurationScale
-        ) {
+        coroutineScope.launchWithCancellationSignal(signal) {
             val result = onScrollCaptureImageRequest(session, captureArea.toComposeIntRect())
             onComplete.accept(result.toAndroidRect())
         }
@@ -206,10 +204,9 @@ internal class ComposeScrollCaptureCallback(
 
 private fun CoroutineScope.launchWithCancellationSignal(
     signal: CancellationSignal,
-    context: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> Unit
 ): Job {
-    val job = launch(context = context, block = block)
+    val job = launch(block = block)
     job.invokeOnCompletion { cause ->
         if (cause != null) {
             signal.cancel()
