@@ -18,15 +18,42 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * Constraints are packed see [Constraints] implementation.
+ *
+ * These constants are the largest values that each slot can hold. The following pairings are the
+ * only ones allowed:
+ *
+ * (Big, Tiny), (Tiny, Big)
+ * (Medium, Small), (Small, Medium)
+ *
+ * For more information see [Constraints] implementation
+ */
+internal const val BigConstraintValue = (1 shl 18) - 1
+
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class LayoutUtilsKtTest {
+
+    @Test
+    fun finalConstraints_doesntThrowWhenLarge() {
+        // this used to throw, ensure it doesn't
+        val subject = finalConstraints(
+            /* minWidth != maxWidth */
+            Constraints(0, 500, 0, BigConstraintValue - 1),
+            true /* width matters */,
+            TextOverflow.Ellipsis,
+            (BigConstraintValue - 1).toFloat()
+        )
+        assertThat(subject).isNotNull()
+    }
 
     @Test
     fun finalConstraints_returnsTightWidth() {
@@ -99,56 +126,17 @@ class LayoutUtilsKtTest {
             while (1 shl b > 0) {
                 val height = 1 shl b
                 /* shouldn't crash */
-                val constraints = Constraints.fixedCoerceHeightAndWidthForBits(width, height)
+                val constraints = fitPrioritizingWidth(
+                    minWidth = width,
+                    maxWidth = width,
+                    minHeight = height,
+                    maxHeight = height
+                )
                 println("$width $height => $constraints")
                 b++
             }
             b = 0
             a++
         }
-    }
-
-    @Test
-    fun fixedCoerce_BigToTiny() {
-        val subject = Constraints.fixedCoerceHeightAndWidthForBits(
-            BigConstraintValue,
-            BigConstraintValue
-        )
-        assertThat(subject).isEqualTo(
-            Constraints.fixed(BigConstraintValue - 1, TinyConstraintValue - 1)
-        )
-    }
-
-    @Test
-    fun fixdCoerce_MediumToSmall() {
-        val subject = Constraints.fixedCoerceHeightAndWidthForBits(
-            MediumConstraintValue - 1,
-            BigConstraintValue
-        )
-        assertThat(subject).isEqualTo(
-            Constraints.fixed(MediumConstraintValue - 1, SmallConstraintValue - 1)
-        )
-    }
-
-    @Test
-    fun fixdCoerce_SmallToMedium() {
-        val subject = Constraints.fixedCoerceHeightAndWidthForBits(
-            SmallConstraintValue - 1,
-            BigConstraintValue
-        )
-        assertThat(subject).isEqualTo(
-            Constraints.fixed(SmallConstraintValue - 1, MediumConstraintValue - 1)
-        )
-    }
-
-    @Test
-    fun fixdCoerce_TinyToBig() {
-        val subject = Constraints.fixedCoerceHeightAndWidthForBits(
-            TinyConstraintValue - 1,
-            BigConstraintValue
-        )
-        assertThat(subject).isEqualTo(
-            Constraints.fixed(TinyConstraintValue - 1, BigConstraintValue - 1)
-        )
     }
 }
