@@ -18,27 +18,21 @@ package androidx.build.resources
 
 import androidx.build.getSupportRootFolder
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.variant.LibraryVariant
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 
-fun Project.configurePublicResourcesStub(libraryExtension: LibraryExtension) {
-    val targetRes = project.layout.buildDirectory.dir("generated/res/public-stub")
-
-    val generatePublicResourcesTask =
-        tasks.register("generatePublicResourcesStub", Copy::class.java) { task ->
-            task.from(File(project.getSupportRootFolder(), "buildSrc/res"))
-            task.into(targetRes)
-        }
-
-    libraryExtension.libraryVariants.all { variant ->
-        variant.registerGeneratedResFolders(
-            project.files(targetRes).builtBy(generatePublicResourcesTask)
-        )
-    }
+fun configurePublicResourcesStub(
+    libraryVariant: LibraryVariant,
+    copyPublicResourcesDirTask: TaskProvider<CopyPublicResourcesDirTask>
+) = libraryVariant.sources.res.also {
+    it?.addGeneratedSourceDirectory(
+        copyPublicResourcesDirTask, CopyPublicResourcesDirTask::outputFolder
+    )
 }
 
 fun Project.configurePublicResourcesStub(kmpExtension: KotlinMultiplatformExtension) {

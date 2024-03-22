@@ -28,6 +28,7 @@ import androidx.build.checkapi.configureProjectForApiTasks
 import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.setUpCheckDocsTask
 import androidx.build.gradle.isRoot
 import androidx.build.license.configureExternalDependencyLicenseCheck
+import androidx.build.resources.CopyPublicResourcesDirTask
 import androidx.build.resources.configurePublicResourcesStub
 import androidx.build.sbom.configureSbomPublishing
 import androidx.build.sbom.validateAllArchiveInputsRecognized
@@ -97,7 +98,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
@@ -785,7 +785,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        project.configurePublicResourcesStub(libraryExtension)
         project.configureSourceJarForAndroid(libraryExtension)
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
@@ -811,14 +810,22 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         val prebuiltLibraries = listOf("libtracing_perfetto.so", "libc++_shared.so")
+        val copyPublicResourcesDirTask =
+            project.tasks.register(
+                "generatePublicResourcesStub",
+                CopyPublicResourcesDirTask::class.java
+            ) { task ->
+                task.buildSrcResDir.set(File(project.getSupportRootFolder(), "buildSrc/res"))
+            }
         libraryAndroidComponentsExtension.onVariants { variant ->
-            if (variant.buildType == Release.DEFAULT_PUBLISH_CONFIG) {
+            if (variant.buildType == DEFAULT_PUBLISH_CONFIG) {
                 // Standard docs, resource API, and Metalava configuration for AndroidX projects.
                 project.configureProjectForApiTasks(
                     LibraryApiTaskConfig(libraryExtension, variant),
                     androidXExtension
                 )
             }
+            configurePublicResourcesStub(variant, copyPublicResourcesDirTask)
             val verifyELFRegionAlignmentTaskProvider = project.tasks.register(
                 variant.name + "VerifyELFRegionAlignment",
                 VerifyELFRegionAlignmentTask::class.java
