@@ -71,7 +71,7 @@ import androidx.navigation.compose.rememberNavController
 @Sampled
 @Composable
 fun ListDetailPaneScaffoldSample() {
-    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
     ListDetailPaneScaffold(
         directive = scaffoldNavigator.scaffoldDirective,
         value = scaffoldNavigator.scaffoldValue,
@@ -109,7 +109,7 @@ fun ListDetailPaneScaffoldSample() {
 @Sampled
 @Composable
 fun ListDetailPaneScaffoldSampleWithExtraPane() {
-    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
     ListDetailPaneScaffold(
         directive = scaffoldNavigator.scaffoldDirective,
         value = scaffoldNavigator.scaffoldValue,
