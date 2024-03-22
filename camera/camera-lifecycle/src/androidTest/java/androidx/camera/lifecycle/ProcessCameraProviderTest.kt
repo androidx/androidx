@@ -806,6 +806,43 @@ class ProcessCameraProviderTest {
     }
 
     @Test
+    fun bindConcurrentPhysicalCamera_isBound() {
+        ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+        runBlocking(MainScope().coroutineContext) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+
+            val singleCameraConfig0 = SingleCameraConfig(
+                CameraSelector.Builder()
+                    .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                    .build(),
+                UseCaseGroup.Builder()
+                    .addUseCase(useCase0)
+                    .build(),
+                lifecycleOwner0)
+            val singleCameraConfig1 = SingleCameraConfig(
+                CameraSelector.Builder()
+                    .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                    .build(),
+                UseCaseGroup.Builder()
+                    .addUseCase(useCase1)
+                    .build(),
+                lifecycleOwner0)
+
+            val concurrentCamera = provider.bindToLifecycle(
+                listOf(singleCameraConfig0, singleCameraConfig1))
+
+            assertThat(concurrentCamera).isNotNull()
+            assertThat(concurrentCamera.cameras.size).isEqualTo(1)
+            assertThat(provider.isBound(useCase0)).isTrue()
+            assertThat(provider.isBound(useCase1)).isTrue()
+            assertThat(provider.isConcurrentCameraModeOn).isFalse()
+        }
+    }
+
+    @Test
     fun bindConcurrentCameraTwice_isBound() {
         ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
 
@@ -882,15 +919,8 @@ class ProcessCameraProviderTest {
                     .build(),
                 lifecycleOwner0)
 
-            if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
-                assertThrows<IllegalArgumentException> {
-                    provider.bindToLifecycle(listOf(singleCameraConfig0))
-                }
-                assertThat(provider.isConcurrentCameraModeOn).isFalse()
-            } else {
-                assertThrows<UnsupportedOperationException> {
-                    provider.bindToLifecycle(listOf(singleCameraConfig0))
-                }
+            assertThrows<IllegalArgumentException> {
+                provider.bindToLifecycle(listOf(singleCameraConfig0))
             }
         }
     }
@@ -923,17 +953,9 @@ class ProcessCameraProviderTest {
                     .build(),
                 lifecycleOwner1)
 
-            if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
-                assertThrows<IllegalArgumentException> {
-                    provider.bindToLifecycle(
-                        listOf(singleCameraConfig0, singleCameraConfig1, singleCameraConfig2))
-                }
-                assertThat(provider.isConcurrentCameraModeOn).isFalse()
-            } else {
-                assertThrows<java.lang.UnsupportedOperationException> {
-                    provider.bindToLifecycle(
-                        listOf(singleCameraConfig0, singleCameraConfig1, singleCameraConfig2))
-                }
+            assertThrows<java.lang.IllegalArgumentException> {
+                provider.bindToLifecycle(
+                    listOf(singleCameraConfig0, singleCameraConfig1, singleCameraConfig2))
             }
         }
     }
