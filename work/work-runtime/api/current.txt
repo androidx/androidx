@@ -285,6 +285,7 @@ package androidx.work {
 
   public static final class OneTimeWorkRequest.Builder extends androidx.work.WorkRequest.Builder<androidx.work.OneTimeWorkRequest.Builder,androidx.work.OneTimeWorkRequest> {
     ctor public OneTimeWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass);
+    ctor public OneTimeWorkRequest.Builder(kotlin.reflect.KClass<? extends androidx.work.ListenableWorker> workerClass);
     method public androidx.work.OneTimeWorkRequest.Builder setInputMerger(Class<? extends androidx.work.InputMerger> inputMerger);
   }
 
@@ -342,6 +343,10 @@ package androidx.work {
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
     ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
     ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
+    ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(kotlin.reflect.KClass<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval);
+    ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(kotlin.reflect.KClass<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
+    ctor public PeriodicWorkRequest.Builder(kotlin.reflect.KClass<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
+    ctor public PeriodicWorkRequest.Builder(kotlin.reflect.KClass<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
     method public androidx.work.PeriodicWorkRequest.Builder clearNextScheduleTimeOverride();
     method public androidx.work.PeriodicWorkRequest.Builder setNextScheduleTimeOverride(long nextScheduleTimeOverrideMillis);
   }
