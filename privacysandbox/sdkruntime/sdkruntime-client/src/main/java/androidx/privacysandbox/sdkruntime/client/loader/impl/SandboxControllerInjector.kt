@@ -24,6 +24,7 @@ import androidx.privacysandbox.sdkruntime.client.loader.impl.injector.SandboxedS
 import androidx.privacysandbox.sdkruntime.client.loader.impl.injector.SdkActivityHandlerWrapper
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.internal.ClientFeature
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
@@ -65,20 +66,23 @@ internal object SandboxControllerInjector {
         val sandboxedSdkCompatProxyFactory =
             SandboxedSdkCompatProxyFactory.createFor(sdkClassLoader)
 
-        val sdkActivityHandlerWrapper = if (sdkVersion >= 3)
-            SdkActivityHandlerWrapper.createFor(sdkClassLoader)
-        else
-            null
+        val sdkActivityHandlerWrapper =
+            if (ClientFeature.SDK_ACTIVITY_HANDLER.isAvailable(sdkVersion))
+                SdkActivityHandlerWrapper.createFor(sdkClassLoader)
+            else
+                null
 
-        val appOwnedSdkInterfaceProxyFactory = if (sdkVersion >= 4)
-            AppOwnedSdkInterfaceProxyFactory.createFor(sdkClassLoader)
-        else
-            null
+        val appOwnedSdkInterfaceProxyFactory =
+            if (ClientFeature.APP_OWNED_INTERFACES.isAvailable(sdkVersion))
+                AppOwnedSdkInterfaceProxyFactory.createFor(sdkClassLoader)
+            else
+                null
 
-        val loadSdkCallbackWrapper = if (sdkVersion >= 5)
-            LoadSdkCallbackWrapper.createFor(sdkClassLoader)
-        else
-            null
+        val loadSdkCallbackWrapper =
+            if (ClientFeature.LOAD_SDK.isAvailable(sdkVersion))
+                LoadSdkCallbackWrapper.createFor(sdkClassLoader)
+            else
+                null
 
         val proxy = Proxy.newProxyInstance(
             sdkClassLoader,
