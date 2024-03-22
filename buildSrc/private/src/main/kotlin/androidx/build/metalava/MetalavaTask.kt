@@ -45,12 +45,16 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
     /** Android's boot classpath */
     @get:Classpath lateinit var bootClasspath: FileCollection
 
-    /** Dependencies of [sourcePaths]. */
+    /** Dependencies (compiled classes) of [sourcePaths]. */
     @get:Classpath lateinit var dependencyClasspath: FileCollection
 
     /** Source files against which API signatures will be validated. */
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     var sourcePaths: FileCollection = project.files()
+
+    /** Multiplatform source files from the module's common sourceset */
+    @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
+    var commonModuleSourcePaths: FileCollection = project.files()
 
     @get:[Optional InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val manifestPath: RegularFileProperty

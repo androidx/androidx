@@ -110,7 +110,14 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
         val jars = getJars(runnerProject, mavenId)
         val sources = getSources(runnerProject, mavenId + ":sources")
 
-        return JavaCompileInputs(sources, jars, project.getAndroidJar())
+        return JavaCompileInputs(
+            sourcePaths = sources,
+            // TODO(b/330721660) parse META-INF/kotlin-project-structure-metadata.json for
+            // common sources
+            commonModuleSourcePaths = project.files(),
+            dependencyClasspath = jars,
+            bootClasspath = project.getAndroidJar()
+        )
     }
 
     fun getJars(runnerProject: Project, mavenId: String): FileCollection {
