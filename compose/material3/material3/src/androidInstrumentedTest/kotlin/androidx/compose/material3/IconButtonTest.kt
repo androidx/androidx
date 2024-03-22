@@ -54,6 +54,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -91,7 +92,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -104,6 +105,27 @@ class IconButtonTest {
             .assertTouchHeightIsEqualTo(IconButtonSize)
     }
 
+    @Test
+    fun iconButton_sizeWithCustomMinInteractiveComponentSize() {
+        val customTouchTargetSize = 44.dp
+        rule
+            .setMaterialContentForSizeAssertions {
+                CompositionLocalProvider(
+                    LocalMinimumInteractiveComponentSize provides customTouchTargetSize
+                ) {
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(
+                            Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                }
+            }
+            .assertWidthIsEqualTo(customTouchTargetSize)
+            .assertHeightIsEqualTo(customTouchTargetSize)
+            .assertTouchWidthIsEqualTo(customTouchTargetSize)
+            .assertTouchHeightIsEqualTo(customTouchTargetSize)
+    }
     @Test
     fun iconButton_defaultSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -236,7 +258,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     IconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -367,7 +389,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     FilledIconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -489,7 +511,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     FilledIconToggleButton(
                         checked = true,
@@ -595,7 +617,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     OutlinedIconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -699,7 +721,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     OutlinedIconToggleButton(
                         checked = true,
