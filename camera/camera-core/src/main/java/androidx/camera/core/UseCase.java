@@ -648,6 +648,15 @@ public abstract class UseCase {
     }
 
     /**
+     * Retrieves the configuration set by applications.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    protected UseCaseConfig<?> getAppConfig() {
+        return mUseCaseConfig;
+    }
+
+    /**
      * Retrieves the configuration used by this use case.
      *
      * @return the configuration used by this use case.
