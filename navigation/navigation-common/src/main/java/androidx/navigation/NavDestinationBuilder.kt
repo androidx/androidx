@@ -94,8 +94,8 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
     @OptIn(InternalSerializationApi::class)
     public constructor(
         navigator: Navigator<out D>,
-        route: KClass<*>? = null,
-        typeMap: Map<KType, NavType<*>>? = null,
+        route: KClass<*>?,
+        typeMap: Map<KType, NavType<*>>?,
     ) : this(
         navigator,
         route?.serializer()?.hashCode() ?: -1,

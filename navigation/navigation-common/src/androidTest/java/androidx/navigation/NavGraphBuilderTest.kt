@@ -127,7 +127,9 @@ class NavGraphBuilderTest {
         val graph = provider.navigation(
             startDestination = route
         ) {
-            val builder = NavDestinationBuilder(provider[NoOpNavigator::class], TestClass::class)
+            val builder = NavDestinationBuilder(
+                provider[NoOpNavigator::class], TestClass::class, null
+            )
             addDestination(builder.build())
         }
         assertWithMessage("Destination route should be added to the graph")
@@ -148,7 +150,9 @@ class NavGraphBuilderTest {
         val graph = provider.navigation(
             startDestination = route
         ) {
-            val builder = NavDestinationBuilder(provider[NoOpNavigator::class], TestClass::class)
+            val builder = NavDestinationBuilder(
+                provider[NoOpNavigator::class], TestClass::class, null
+            )
             addDestination(builder.build())
         }
         assertWithMessage("Destination route should be added to the graph")
@@ -438,4 +442,4 @@ fun NavGraphBuilder.navDestination(
 fun NavGraphBuilder.navDestination(
     route: KClass<*>,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
-) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route).apply(builder))
+) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route, null).apply(builder))
