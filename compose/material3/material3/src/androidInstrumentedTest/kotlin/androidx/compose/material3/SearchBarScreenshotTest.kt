@@ -407,17 +407,21 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             )
         }
 
-        SearchBarInternal(
+        SearchBarImpl(
             animationProgress = animationProgress,
             finalBackProgress = finalBackProgress,
             firstBackEvent = firstBackEvent,
             currentBackEvent = currentBackEvent,
             modifier = Modifier.testTag(testTag),
-            query = "Query",
-            onQueryChange = {},
-            onSearch = {},
-            active = true,
-            onActiveChange = {},
+            inputField = {
+                SearchBarInputField(
+                    query = "Query",
+                    onQueryChange = {},
+                    onSearch = {},
+                    active = true,
+                    onActiveChange = {},
+                )
+            },
             content = { Text("Content") },
         )
     }
