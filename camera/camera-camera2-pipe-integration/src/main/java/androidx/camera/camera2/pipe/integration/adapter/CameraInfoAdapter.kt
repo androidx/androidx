@@ -24,12 +24,14 @@ import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATIO
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
+import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLogicalMultiCamera
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
@@ -232,13 +234,12 @@ class CameraInfoAdapter @Inject constructor(
         ?: emptySet()
 
     override fun isZslSupported(): Boolean {
-        Log.warn { "TODO: isZslSupported are not yet supported." }
-        return false
+        // TODO: b/267559511 - Migrate ZslDisablerQuirk.
+        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported
     }
 
     override fun isPrivateReprocessingSupported(): Boolean {
-        Log.warn { "TODO: isPrivateReprocessingSupported are not yet supported." }
-        return false
+        return cameraProperties.metadata.supportsPrivateReprocessing
     }
 
     override fun getSupportedDynamicRanges(): Set<DynamicRange> {

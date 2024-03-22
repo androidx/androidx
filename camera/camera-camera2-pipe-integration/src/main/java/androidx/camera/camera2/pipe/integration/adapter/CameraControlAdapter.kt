@@ -71,6 +71,7 @@ class CameraControlAdapter @Inject constructor(
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val zoomControl: ZoomControl,
+    private val zslControl: ZslControl,
     val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
     override fun getSensorRect(): Rect {
@@ -148,7 +149,7 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
-        // Override if Zero-Shutter Lag needs to add config to session config.
+        zslControl.addZslConfig(sessionConfigBuilder)
     }
 
     override fun submitStillCaptureRequests(
