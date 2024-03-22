@@ -2322,6 +2322,45 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @Test
+    fun animationWhenTryingToStayInTheStart() {
+        var list by mutableStateOf(listOf(1, 2, 3, 4))
+        val listSize = itemSize * 2.5
+        val listSizeDp = itemSizeDp * 3f
+        rule.setContent {
+            LazyGrid(cells = 1, maxSize = listSizeDp) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(0, 1, 2, 3)
+            runBlocking {
+                state.scrollToItem(0, 0)
+            }
+        }
+
+        onAnimationFrame { fraction ->
+            val expected = mutableListOf<Pair<Any, Offset>>().apply {
+                add(0 to AxisOffset(0f, 0f))
+                add(1 to AxisOffset(0f, itemSize * fraction))
+                add(2 to AxisOffset(0f, itemSize + itemSize * fraction))
+                val item3Offset = itemSize * 2 + itemSize * fraction
+                if (item3Offset < listSize) {
+                    add(3 to AxisOffset(0f, item3Offset))
+                } else {
+                    rule.onNodeWithTag("4").assertIsNotDisplayed()
+                }
+            }
+            assertPositions(
+                expected = expected.toTypedArray(),
+                fraction = fraction
+            )
+        }
+    }
+
     private fun AxisOffset(crossAxis: Float, mainAxis: Float) =
         if (isVertical) Offset(crossAxis, mainAxis) else Offset(mainAxis, crossAxis)
 
