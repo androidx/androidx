@@ -26,6 +26,7 @@ import android.view.InputEvent
 import androidx.annotation.RequiresPermission
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
+import androidx.privacysandbox.ads.adservices.internal.BackCompatManager
 
 /**
  * This class provides APIs to manage ads attribution using Privacy Sandbox.
@@ -153,7 +154,11 @@ abstract class MeasurementManager {
             return if (AdServicesInfo.adServicesVersion() >= 5) {
                 MeasurementManagerApi33Ext5Impl(context)
             } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                MeasurementManagerApi31Ext9Impl(context)
+                BackCompatManager.getBackCompatManager(context, "MeasurementManager") {
+                    MeasurementManagerApi31Ext9Impl(
+                        context
+                    )
+                }
             } else {
                 null
             }

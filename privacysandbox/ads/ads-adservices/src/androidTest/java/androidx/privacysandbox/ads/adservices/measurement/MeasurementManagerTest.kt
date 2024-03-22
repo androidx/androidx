@@ -86,7 +86,15 @@ class MeasurementManagerTest {
     fun testMeasurementOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 4", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(obtain(mContext)).isEqualTo(null)
+        assertThat(obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testMeasurementManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+
+        `when`(MeasurementManager.get(any())).thenThrow(NoClassDefFoundError())
+        assertThat(obtain(mContext)).isNull()
     }
 
     @Test

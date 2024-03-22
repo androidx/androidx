@@ -75,7 +75,17 @@ class AppSetIdManagerTest {
     fun testAppSetIdOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(AppSetIdManager.obtain(mContext)).isEqualTo(null)
+        assertThat(AppSetIdManager.obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testAppSetIdManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+
+        `when`(android.adservices.appsetid.AppSetIdManager.get(any())).thenThrow(
+            NoClassDefFoundError()
+        )
+        assertThat(AppSetIdManager.obtain(mContext)).isNull()
     }
 
     @Test
