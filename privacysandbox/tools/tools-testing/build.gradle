@@ -38,7 +38,7 @@ dependencies {
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-testing"
-    type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Testing utilities for privacysandbox tools."
 }
