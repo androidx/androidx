@@ -651,16 +651,20 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             createStatsDataType("Vertical Oscillation")
 
         /**
-         * Vertical oscillation / stride length. Divide vertical oscillation (converted to meters)
-         * by stride length (in meters) in `double` format.
+         * Vertical oscillation / stride length.
+         *
+         * For example, a vertical oscillation of 5.0cm and stride length .8m (80 cm) would have a
+         * vertical ratio of 0.625.
          */
         @JvmField
         val VERTICAL_RATIO: DeltaDataType<Double, SampleDataPoint<Double>> =
             createSampleDataType("Vertical Ratio")
 
         /**
-         * Statistics on vertical oscillation / stride length. Divide vertical oscillation
-         * (converted to meters) by stride length (in meters) in `double` format.
+         * Statistics on vertical oscillation / stride length.
+         *
+         * For example, a vertical oscillation of 5.0cm and stride length .8m (80 cm) would have a
+         * vertical ratio of 0.625.
          */
         @JvmField
         val VERTICAL_RATIO_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
