@@ -222,12 +222,12 @@ fun OutlinedTextField(
                     interactionSource = interactionSource,
                     colors = colors,
                     container = {
-                        OutlinedTextFieldDefaults.ContainerBox(
-                            enabled,
-                            isError,
-                            interactionSource,
-                            colors,
-                            shape
+                        OutlinedTextFieldDefaults.Container(
+                            enabled = enabled,
+                            isError = isError,
+                            interactionSource = interactionSource,
+                            colors = colors,
+                            shape = shape,
                         )
                     }
                 )
@@ -386,12 +386,12 @@ fun OutlinedTextField(
                     interactionSource = interactionSource,
                     colors = colors,
                     container = {
-                        OutlinedTextFieldDefaults.ContainerBox(
-                            enabled,
-                            isError,
-                            interactionSource,
-                            colors,
-                            shape
+                        OutlinedTextFieldDefaults.Container(
+                            enabled = enabled,
+                            isError = isError,
+                            interactionSource = interactionSource,
+                            colors = colors,
+                            shape = shape,
                         )
                     }
                 )

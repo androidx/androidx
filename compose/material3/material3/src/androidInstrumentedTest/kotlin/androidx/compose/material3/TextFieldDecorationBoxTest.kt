@@ -367,7 +367,7 @@ class TextFieldDecorationBoxTest {
                         interactionSource = interactionSource,
                         singleLine = singleLine,
                         container = {
-                            OutlinedTextFieldDefaults.ContainerBox(
+                            OutlinedTextFieldDefaults.Container(
                                 enabled = true,
                                 isError = false,
                                 colors = colors,

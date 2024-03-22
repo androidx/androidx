@@ -82,50 +82,69 @@ object TextFieldDefaults {
     val FocusedIndicatorThickness = 2.dp
 
     /**
-     * Composable that draws a default container for the content of [TextField], with an indicator
-     * line at the bottom. You can use it to draw a container for your custom text field based on
-     * [TextFieldDefaults.DecorationBox]. [TextField] applies it automatically.
+     * Composable that draws a default container for a [TextField] with an indicator line at the
+     * bottom. You can apply it to a [BasicTextField] using [DecorationBox] to create a custom text
+     * field based on the styling of a Material filled text field. The [TextField] component
+     * applies it automatically.
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
+     * @param interactionSource the [InteractionSource] of the text field. Used to determine if
      * the text field is in focus or not
+     * @param modifier the [Modifier] of this container
      * @param colors [TextFieldColors] used to resolve colors of the text field
-     * @param shape shape of the container
+     * @param shape the shape of this container
+     * @param focusedIndicatorLineThickness thickness of the indicator line when the text field is
+     * focused
+     * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
+     * not focused
      */
     @ExperimentalMaterial3Api
     @Composable
-    fun ContainerBox(
+    fun Container(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
-        colors: TextFieldColors,
+        modifier: Modifier = Modifier,
+        colors: TextFieldColors = colors(),
         shape: Shape = TextFieldDefaults.shape,
+        focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
+        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
     ) {
         val focused = interactionSource.collectIsFocusedAsState().value
         val containerColor = colors.containerColor(enabled, isError, focused)
         val containerColorState =
             animateColorAsState(containerColor, tween(durationMillis = AnimationDuration))
         Box(
-            Modifier
+            modifier
                 .background(containerColorState.value, shape)
-                .indicatorLine(enabled, isError, interactionSource, colors)
+                .indicatorLine(
+                    enabled = enabled,
+                    isError = isError,
+                    interactionSource = interactionSource,
+                    colors = colors,
+                    focusedIndicatorLineThickness = focusedIndicatorLineThickness,
+                    unfocusedIndicatorLineThickness = unfocusedIndicatorLineThickness,
+                )
         )
     }
 
     /**
-     * A modifier to draw a default bottom indicator line in [TextField]. You can use this modifier
-     * if you build your custom text field using [TextFieldDefaults.DecorationBox] whilst the
-     * [TextField] applies it automatically.
+     * A modifier to draw a default bottom indicator line for [TextField]. You can apply it to a
+     * [BasicTextField] or to [DecorationBox] to create a custom text field based on the styling
+     * of a Material filled text field.
+     *
+     * Consider using [Container], which automatically applies this modifier as well as other text
+     * field container styling.
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
+     * @param interactionSource the [InteractionSource] of the text field. Used to determine if
      * the text field is in focus or not
      * @param colors [TextFieldColors] used to resolve colors of the text field
-     * @param focusedIndicatorLineThickness thickness of the indicator line when text field is
+     * @param focusedIndicatorLineThickness thickness of the indicator line when the text field is
      * focused
-     * @param unfocusedIndicatorLineThickness thickness of the indicator line when text field is
+     * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      * not focused
      */
     @ExperimentalMaterial3Api
@@ -188,7 +207,6 @@ object TextFieldDefaults {
      * See [PaddingValues] for more details.
      */
     // TODO(246775477): consider making this public
-    @ExperimentalMaterial3Api
     internal fun supportingTextPadding(
         start: Dp = TextFieldPadding,
         top: Dp = SupportingTopPadding,
@@ -500,7 +518,16 @@ object TextFieldDefaults {
                 contentPaddingWithLabel()
             },
         container: @Composable () -> Unit = {
-            ContainerBox(enabled, isError, interactionSource, colors, shape)
+            Container(
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                modifier = Modifier,
+                colors = colors,
+                shape = shape,
+                focusedIndicatorLineThickness = FocusedIndicatorThickness,
+                unfocusedIndicatorLineThickness = UnfocusedIndicatorThickness,
+            )
         }
     ) {
         CommonDecorationBox(
@@ -524,6 +551,36 @@ object TextFieldDefaults {
             container = container
         )
     }
+
+    @Deprecated(
+        message = "Renamed to TextFieldDefaults.Container",
+        replaceWith = ReplaceWith("Container(\n" +
+            "    enabled = enabled,\n" +
+            "    isError = isError,\n" +
+            "    interactionSource = interactionSource,\n" +
+            "    colors = colors,\n" +
+            "    shape = shape,\n" +
+            ")"),
+        level = DeprecationLevel.WARNING
+    )
+    @ExperimentalMaterial3Api
+    @Composable
+    fun ContainerBox(
+        enabled: Boolean,
+        isError: Boolean,
+        interactionSource: InteractionSource,
+        colors: TextFieldColors,
+        shape: Shape = TextFieldDefaults.shape,
+    ) = Container(
+        enabled = enabled,
+        isError = isError,
+        interactionSource = interactionSource,
+        modifier = Modifier,
+        colors = colors,
+        shape = shape,
+        focusedIndicatorLineThickness = FocusedIndicatorThickness,
+        unfocusedIndicatorLineThickness = UnfocusedIndicatorThickness,
+    )
 
     @Deprecated(
         message = "Renamed to `OutlinedTextFieldDefaults.shape`",
@@ -656,31 +713,32 @@ object OutlinedTextFieldDefaults {
     val FocusedBorderThickness = 2.dp
 
     /**
-     * Composable that draws a default container for [OutlinedTextField] with a border stroke. You
-     * can use it to draw a border stroke in your custom text field based on
-     * [OutlinedTextFieldDefaults.DecorationBox]. The [OutlinedTextField] applies it automatically.
+     * Composable that draws a default container for an [OutlinedTextField] with a border stroke.
+     * You can apply it to a [BasicTextField] using [DecorationBox] to create a custom text field
+     * based on the styling of a Material outlined text field. The [OutlinedTextField] component
+     * applies it automatically.
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
-     * @param interactionSource the [InteractionSource] of this text field. Helps to determine if
+     * @param interactionSource the [InteractionSource] of the text field. Used to determine if
      * the text field is in focus or not
+     * @param modifier the [Modifier] of this container
      * @param colors [TextFieldColors] used to resolve colors of the text field
-     * @param shape shape of the container
-     * @param focusedBorderThickness thickness of the [OutlinedTextField]'s border when it is in
-     * focused state
-     * @param unfocusedBorderThickness thickness of the [OutlinedTextField]'s border when it is not
-     * in focused state
+     * @param shape the shape of this container
+     * @param focusedBorderThickness thickness of the border when the text field is focused
+     * @param unfocusedBorderThickness thickness of the border when the text field is not focused
      */
     @ExperimentalMaterial3Api
     @Composable
-    fun ContainerBox(
+    fun Container(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
-        colors: TextFieldColors,
-        shape: Shape = OutlinedTextFieldTokens.ContainerShape.value,
+        modifier: Modifier = Modifier,
+        colors: TextFieldColors = colors(),
+        shape: Shape = OutlinedTextFieldDefaults.shape,
         focusedBorderThickness: Dp = FocusedBorderThickness,
-        unfocusedBorderThickness: Dp = UnfocusedBorderThickness
+        unfocusedBorderThickness: Dp = UnfocusedBorderThickness,
     ) {
         val borderStroke = animateBorderStrokeAsState(
             enabled,
@@ -688,14 +746,14 @@ object OutlinedTextFieldDefaults {
             interactionSource,
             colors,
             focusedBorderThickness,
-            unfocusedBorderThickness
+            unfocusedBorderThickness,
         )
         val focused = interactionSource.collectIsFocusedAsState().value
         val containerColor = colors.containerColor(enabled, isError, focused)
         val containerColorState =
             animateColorAsState(containerColor, tween(durationMillis = AnimationDuration))
         Box(
-            Modifier
+            modifier
                 .border(borderStroke.value, shape)
                 .background(containerColorState.value, shape)
         )
@@ -1007,11 +1065,15 @@ object OutlinedTextFieldDefaults {
         colors: TextFieldColors = colors(),
         contentPadding: PaddingValues = contentPadding(),
         container: @Composable () -> Unit = {
-            ContainerBox(
-                enabled,
-                isError,
-                interactionSource,
-                colors
+            Container(
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                modifier = Modifier,
+                colors = colors,
+                shape = shape,
+                focusedBorderThickness = FocusedBorderThickness,
+                unfocusedBorderThickness = UnfocusedBorderThickness,
             )
         }
     ) {
@@ -1036,6 +1098,40 @@ object OutlinedTextFieldDefaults {
             container = container
         )
     }
+
+    @Deprecated(
+        message = "Renamed to OutlinedTextFieldDefaults.Container",
+        replaceWith = ReplaceWith("Container(\n" +
+            "    enabled = enabled,\n" +
+            "    isError = isError,\n" +
+            "    interactionSource = interactionSource,\n" +
+            "    colors = colors,\n" +
+            "    shape = shape,\n" +
+            "    focusedBorderThickness = focusedBorderThickness,\n" +
+            "    unfocusedBorderThickness = unfocusedBorderThickness,\n" +
+            ")"),
+        level = DeprecationLevel.WARNING
+    )
+    @ExperimentalMaterial3Api
+    @Composable
+    fun ContainerBox(
+        enabled: Boolean,
+        isError: Boolean,
+        interactionSource: InteractionSource,
+        colors: TextFieldColors = colors(),
+        shape: Shape = OutlinedTextFieldDefaults.shape,
+        focusedBorderThickness: Dp = FocusedBorderThickness,
+        unfocusedBorderThickness: Dp = UnfocusedBorderThickness,
+    ) = Container(
+        enabled = enabled,
+        isError = isError,
+        interactionSource = interactionSource,
+        modifier = Modifier,
+        colors = colors,
+        shape = shape,
+        focusedBorderThickness = focusedBorderThickness,
+        unfocusedBorderThickness = unfocusedBorderThickness,
+    )
 }
 
 /**
