@@ -86,6 +86,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -1087,6 +1088,7 @@ class FocusMeteringControlTest {
             // Arrange.
             // Set an incomplete CompletableDeferred
             fakeRequestControl.focusMeteringResult = CompletableDeferred()
+            fakeRequestControl.awaitFocusMetering = false // simulates async
             val autoCancelDuration: Long = 500
             val action = FocusMeteringAction.Builder(point1)
                 .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
@@ -1100,6 +1102,8 @@ class FocusMeteringControlTest {
             )
 
             // simulate UseCaseCamera timing out during auto focus
+            advanceUntilIdle() // ensures all operations are triggered already
+            delay(autoFocusTimeoutDuration)
             fakeRequestControl.focusMeteringResult.complete(
                 Result3A(status = Result3A.Status.TIME_LIMIT_REACHED)
             )
@@ -1164,7 +1168,10 @@ class FocusMeteringControlTest {
     @Test
     fun startFocusMetering_afAutoModeIsSet() = runTest {
         // Arrange.
-        val action = FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF).build()
+        val action = FocusMeteringAction
+            .Builder(point1, FocusMeteringAction.FLAG_AF)
+            .setAutoCancelDuration(8, TimeUnit.SECONDS)
+            .build()
         val state3AControl = createState3AControl(CAMERA_ID_0)
         focusMeteringControl = initFocusMeteringControl(
             cameraId = CAMERA_ID_0,
@@ -1176,13 +1183,40 @@ class FocusMeteringControlTest {
         // Act.
         focusMeteringControl.startFocusAndMeteringAndAdvanceTestScope(
             this,
-            action
+            action,
+            testScopeAdvanceTimeMillis = 6000, // not cancelled yet
         )[5, TimeUnit.SECONDS]
 
         // Assert.
         assertThat(
             state3AControl.preferredFocusMode
         ).isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+    }
+
+    @Test
+    fun startFocusMetering_afModeResetAfterAutoCancel() = runTest {
+        // Arrange.
+        val action = FocusMeteringAction
+            .Builder(point1, FocusMeteringAction.FLAG_AF)
+            .build()
+        val state3AControl = createState3AControl(CAMERA_ID_0)
+        focusMeteringControl = initFocusMeteringControl(
+            cameraId = CAMERA_ID_0,
+            useCases = setOf(createPreview(Size(1920, 1080))),
+            useCaseThreads = fakeUseCaseThreads,
+            state3AControl = state3AControl,
+        )
+
+        // Act.
+        focusMeteringControl.startFocusAndMeteringAndAdvanceTestScope(
+            this,
+            action,
+        )[5, TimeUnit.SECONDS]
+
+        // Assert.
+        assertThat(
+            state3AControl.preferredFocusMode
+        ).isNull()
     }
 
     @Test
@@ -1669,14 +1703,19 @@ class FocusMeteringControlTest {
     private fun FocusMeteringControl.startFocusAndMeteringAndAdvanceTestScope(
         testScope: TestScope,
         action: FocusMeteringAction,
-        autoFocusTimeoutMs: Long? = null
+        autoFocusTimeoutMs: Long? = null,
+        testScopeAdvanceTimeMillis: Long? = null,
     ): ListenableFuture<FocusMeteringResult> {
         val future = autoFocusTimeoutMs?.let {
             startFocusAndMetering(action, it)
         } ?: run {
             startFocusAndMetering(action)
         }
-        testScope.advanceUntilIdle()
+        if (testScopeAdvanceTimeMillis == null) {
+            testScope.advanceUntilIdle()
+        } else {
+            testScope.advanceTimeBy(testScopeAdvanceTimeMillis)
+        }
         return future
     }
 }
