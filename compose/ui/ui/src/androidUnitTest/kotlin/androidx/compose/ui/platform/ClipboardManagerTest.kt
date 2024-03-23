@@ -53,9 +53,5 @@ fun FakeClipboardManager(
 
     override fun getClip(): ClipEntry? = null
 
-    override fun getClipMetadata(): ClipMetadata? = null
-
-    override fun hasClip(): Boolean = false
-
     override fun setClip(clipEntry: ClipEntry?) = Unit
 }

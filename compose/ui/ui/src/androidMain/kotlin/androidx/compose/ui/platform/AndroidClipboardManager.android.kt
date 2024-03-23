@@ -85,10 +85,6 @@ internal class AndroidClipboardManager internal constructor(
         return clipboardManager.primaryClip?.let(::ClipEntry)
     }
 
-    override fun getClipMetadata(): ClipMetadata? {
-        return clipboardManager.primaryClipDescription?.let(::ClipMetadata)
-    }
-
     override fun setClip(clipEntry: ClipEntry?) {
         if (clipEntry == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -101,8 +97,6 @@ internal class AndroidClipboardManager internal constructor(
         }
     }
 
-    override fun hasClip(): Boolean = clipboardManager.hasPrimaryClip()
-
     override val nativeClipboard: NativeClipboard
         get() = clipboardManager
 }
@@ -112,7 +106,12 @@ internal class AndroidClipboardManager internal constructor(
  */
 // Defining this class not as a typealias but a wrapper gives us flexibility in the future to
 // add more functionality in it.
-actual class ClipEntry(val clipData: ClipData)
+actual class ClipEntry(val clipData: ClipData) {
+
+    actual fun getMetadata(): ClipMetadata {
+        return clipData.description.toClipMetadata()
+    }
+}
 
 fun ClipData.toClipEntry(): ClipEntry = ClipEntry(this)
 
