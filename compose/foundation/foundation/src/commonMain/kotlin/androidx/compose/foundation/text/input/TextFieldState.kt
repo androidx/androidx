@@ -31,6 +31,7 @@ import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.input.TextFieldValue
@@ -182,8 +183,9 @@ class TextFieldState internal constructor(
         }
     }
 
-    override fun toString(): String =
+    override fun toString(): String = Snapshot.withoutReadObservation {
         "TextFieldState(selection=$selection, text=\"$text\")"
+    }
 
     /**
      * Undo history controller for this TextFieldState.
@@ -200,7 +202,8 @@ class TextFieldState internal constructor(
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
     internal fun startEdit(): TextFieldBuffer {
-        check(!isEditing) {
+        val isEditingFreeze = Snapshot.withoutReadObservation { isEditing }
+        check(!isEditingFreeze) {
             "TextFieldState does not support concurrent or nested editing."
         }
         isEditing = true

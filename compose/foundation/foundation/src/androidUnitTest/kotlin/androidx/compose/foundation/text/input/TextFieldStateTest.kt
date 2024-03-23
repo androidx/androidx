@@ -652,6 +652,37 @@ class TextFieldStateTest {
         }
     }
 
+    @Test
+    fun toString_doesNotReadSnapshotState() {
+        val state = TextFieldState("hello")
+        var isRead = false
+        Snapshot.observe(
+            readObserver = {
+                isRead = true
+            }
+        ) {
+            state.toString()
+        }
+
+        assertThat(isRead).isFalse()
+    }
+
+    @Test
+    fun isEditing_doesNotRegisterSnapshotRead() {
+        val state = TextFieldState("hello")
+        var isRead = false
+        Snapshot.observe(
+            readObserver = {
+                // if read object is a Boolean, it might be `isEditing`.
+                isRead = it is Boolean
+            }
+        ) {
+            state.edit { append(" world") }
+        }
+
+        assertThat(isRead).isEqualTo(false)
+    }
+
     private fun runTestWithSnapshotsThenCancelChildren(testBody: suspend TestScope.() -> Unit) {
         val globalWriteObserverHandle = Snapshot.registerGlobalWriteObserver {
             // This is normally done by the compose runtime.
