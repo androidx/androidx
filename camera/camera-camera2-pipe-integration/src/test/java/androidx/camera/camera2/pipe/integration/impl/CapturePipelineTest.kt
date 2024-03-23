@@ -24,6 +24,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import android.media.Image
 import android.os.Build
 import android.os.Looper
 import android.view.Surface
@@ -39,7 +40,9 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CaptureResultAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.adapter.ZslControl
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
@@ -65,10 +68,14 @@ import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
@@ -98,6 +105,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.StreamConfigurationMapBuilder
@@ -238,8 +247,45 @@ class CapturePipelineTest {
         surfaceToStreamMap = mapOf(fakeDeferrableSurface to fakeStreamId),
         cameraStateAdapter = CameraStateAdapter(),
     )
-    private val fakeCaptureConfigAdapter =
-        CaptureConfigAdapter(fakeCameraProperties, fakeUseCaseGraphConfig, fakeUseCaseThreads)
+    private val fakeZslControl = object : ZslControl {
+        var _isZslDisabledByUseCaseConfig = false
+        var _isZslDisabledByFlashMode = false
+        var imageProxyToDequeue: ImageProxy? = null
+
+        override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
+            // Do nothing
+        }
+
+        override fun isZslSurface(
+            surface: DeferrableSurface,
+            sessionConfig: SessionConfig
+        ): Boolean {
+            return false
+        }
+
+        override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
+            _isZslDisabledByUseCaseConfig = disabled
+        }
+
+        override fun isZslDisabledByUserCaseConfig(): Boolean {
+            return _isZslDisabledByUseCaseConfig
+        }
+
+        override fun setZslDisabledByFlashMode(disabled: Boolean) {
+            _isZslDisabledByFlashMode = disabled
+        }
+
+        override fun isZslDisabledByFlashMode(): Boolean {
+            return _isZslDisabledByFlashMode
+        }
+
+        override fun dequeueImageFromBuffer(): ImageProxy? {
+            return imageProxyToDequeue
+        }
+    }
+    private val fakeCaptureConfigAdapter = CaptureConfigAdapter(
+        fakeCameraProperties, fakeUseCaseGraphConfig, fakeZslControl, fakeUseCaseThreads
+    )
     private var runningRepeatingJob: Job? = null
         set(value) {
             runningRepeatingJob?.cancel()
@@ -691,6 +737,86 @@ class CapturePipelineTest {
         assertThat(
             fakeCameraGraphSession.lock3AForCaptureSemaphore.tryAcquire(this)
         ).isFalse()
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    fun submitZslCaptureRequests_withZslTemplate_templateZeroShutterLagSent(): Unit = runTest {
+        // Arrange.
+        val requestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests ->
+            requestList.addAll(requests)
+            requests.complete()
+        }
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeDeferrableSurface)
+            it.templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+            it.build()
+        }
+        configureZslControl()
+
+        // Act.
+        capturePipeline.submitStillCaptures(
+            listOf(imageCaptureConfig),
+            RequestTemplate(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG),
+            MutableOptionsBundle.create(),
+            captureMode = ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            flashMode = ImageCapture.FLASH_MODE_OFF,
+            flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        ).awaitAllWithTimeout()
+        advanceUntilIdle()
+
+        // Assert.
+        val request = requestList.single()
+        assertThat(request.streams.single()).isEqualTo(fakeStreamId)
+        assertThat(request.template).isEqualTo(
+            RequestTemplate(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
+        )
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    fun submitZslCaptureRequests_withNoTemplate_templateStillPictureSent(): Unit = runTest {
+        // Arrange.
+        val requestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests ->
+            requestList.addAll(requests)
+            requests.complete()
+        }
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeDeferrableSurface)
+            it.build()
+        }
+        configureZslControl()
+
+        // Act.
+        capturePipeline.submitStillCaptures(
+            listOf(imageCaptureConfig),
+            RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+            MutableOptionsBundle.create(),
+            captureMode = ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            flashMode = ImageCapture.FLASH_MODE_OFF,
+            flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        ).awaitAllWithTimeout()
+
+        // Assert.
+        val request = requestList.single()
+        assertThat(request.streams.single()).isEqualTo(fakeStreamId)
+        assertThat(request.template).isEqualTo(
+            RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        )
+    }
+
+    private fun configureZslControl() {
+        val fakeImageProxy: ImageProxy = mock()
+        val fakeCaptureResult = CaptureResultAdapter(
+            FakeRequestMetadata(), FrameNumber(1), FakeFrameInfo()
+        )
+        val fakeImageInfo = CameraCaptureResultImageInfo(fakeCaptureResult)
+        val fakeImage: Image = mock()
+        whenever(fakeImageProxy.imageInfo).thenReturn(fakeImageInfo)
+        whenever(fakeImageProxy.image).thenReturn(fakeImage)
+        fakeZslControl.imageProxyToDequeue = fakeImageProxy
     }
 
     @Test

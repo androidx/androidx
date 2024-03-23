@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -441,6 +442,7 @@ class StillCaptureRequestTest {
         fakeConfigAdapter = CaptureConfigAdapter(
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             cameraProperties = fakeCameraProperties,
+            zslControl = ZslControlNoOpImpl(),
             threads = fakeUseCaseThreads,
         )
         fakeUseCaseCameraState = UseCaseCameraState(
