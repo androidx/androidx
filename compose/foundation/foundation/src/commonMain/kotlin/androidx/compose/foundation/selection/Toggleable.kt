@@ -134,7 +134,6 @@ fun Modifier.toggleable(
     role: Role? = null,
     onValueChange: (Boolean) -> Unit
 ) = clickableWithIndicationIfNeeded(
-    enabled = enabled,
     interactionSource = interactionSource,
     indication = indication
 ) { intSource, indicationNodeFactory ->
@@ -370,7 +369,6 @@ fun Modifier.triStateToggleable(
     role: Role? = null,
     onClick: () -> Unit
 ) = clickableWithIndicationIfNeeded(
-    enabled = enabled,
     interactionSource = interactionSource,
     indication = indication
 ) { intSource, indicationNodeFactory ->
