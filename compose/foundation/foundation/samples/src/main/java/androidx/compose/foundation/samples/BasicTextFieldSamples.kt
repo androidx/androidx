@@ -52,7 +52,6 @@ import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.input.then
-import androidx.compose.foundation.text.input.valueAsFlow
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -67,6 +66,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -228,7 +228,7 @@ fun BasicTextFieldStateCompleteSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            searchFieldState.valueAsFlow().collectLatest { queryText ->
+            snapshotFlow { searchFieldState.text }.collectLatest { queryText ->
                 // Start a new search every time the user types something valid. If the previous
                 // search is still being processed when the text is changed, it will be cancelled
                 // and this code will run again with the latest query text.
@@ -480,7 +480,7 @@ fun BasicTextFieldTextValuesSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            searchFieldState.valueAsFlow()
+            snapshotFlow { searchFieldState.text }
                 // Let fast typers get multiple keystrokes in before kicking off a search.
                 .debounce(500)
                 // collectLatest cancels the previous search if it's still running when there's a

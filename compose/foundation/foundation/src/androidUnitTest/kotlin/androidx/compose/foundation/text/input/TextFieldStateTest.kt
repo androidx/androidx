@@ -456,12 +456,12 @@ class TextFieldStateTest {
     }
 
     @Test
-    fun forEachValues_fires_immediately() = runTestWithSnapshotsThenCancelChildren {
+    fun snapshotFlow_fires_immediately() = runTestWithSnapshotsThenCancelChildren {
         val state = TextFieldState("hello", initialSelection = TextRange(5))
         val texts = mutableListOf<TextFieldCharSequence>()
 
         launch(Dispatchers.Unconfined) {
-            state.valueAsFlow().collectLatest { texts += it }
+            snapshotFlow { state.value }.collectLatest { texts += it }
         }
 
         assertThat(texts).hasSize(1)
@@ -471,13 +471,13 @@ class TextFieldStateTest {
     }
 
     @Test
-    fun forEachValue_fires_whenTextChanged() = runTestWithSnapshotsThenCancelChildren {
+    fun snapshotFlow_fires_whenTextChanged() = runTestWithSnapshotsThenCancelChildren {
         val state = TextFieldState(initialSelection = TextRange(0))
         val texts = mutableListOf<TextFieldCharSequence>()
         val initialSelection = state.selection
 
         launch(Dispatchers.Unconfined) {
-            state.valueAsFlow().collectLatest { texts += it }
+            snapshotFlow { state.value }.collectLatest { texts += it }
         }
 
         state.edit {
@@ -492,12 +492,12 @@ class TextFieldStateTest {
     }
 
     @Test
-    fun forEachValue_fires_whenSelectionChanged() = runTestWithSnapshotsThenCancelChildren {
+    fun snapshotFlow_fires_whenSelectionChanged() = runTestWithSnapshotsThenCancelChildren {
         val state = TextFieldState("hello", initialSelection = TextRange(0))
         val texts = mutableListOf<TextFieldCharSequence>()
 
         launch(Dispatchers.Unconfined) {
-            state.valueAsFlow().collectLatest { texts += it }
+            snapshotFlow { state.value }.collectLatest { texts += it }
         }
 
         state.edit {
@@ -511,12 +511,12 @@ class TextFieldStateTest {
     }
 
     @Test
-    fun forEachValue_firesTwice_whenEditCalledTwice() = runTestWithSnapshotsThenCancelChildren {
+    fun snapshotFlow_firesTwice_whenEditCalledTwice() = runTestWithSnapshotsThenCancelChildren {
         val state = TextFieldState()
         val texts = mutableListOf<TextFieldCharSequence>()
 
         launch(Dispatchers.Unconfined) {
-            state.valueAsFlow().collectLatest { texts += it }
+            snapshotFlow { state.value }.collectLatest { texts += it }
         }
 
         state.edit {
@@ -536,13 +536,13 @@ class TextFieldStateTest {
     }
 
     @Test
-    fun forEachValue_firesOnce_whenMultipleChangesMadeInSingleEdit() =
+    fun snapshotFlow_firesOnce_whenMultipleChangesMadeInSingleEdit() =
         runTestWithSnapshotsThenCancelChildren {
             val state = TextFieldState()
             val texts = mutableListOf<TextFieldCharSequence>()
 
             launch(Dispatchers.Unconfined) {
-                state.valueAsFlow().collectLatest { texts += it }
+                snapshotFlow { state.value }.collectLatest { texts += it }
             }
 
             state.edit {
@@ -556,13 +556,13 @@ class TextFieldStateTest {
         }
 
     @Test
-    fun forEachValue_fires_whenChangeMadeInSnapshotIsApplied() =
+    fun snapshotFlow_fires_whenChangeMadeInSnapshotIsApplied() =
         runTestWithSnapshotsThenCancelChildren {
             val state = TextFieldState()
             val texts = mutableListOf<TextFieldCharSequence>()
 
             launch(Dispatchers.Unconfined) {
-                state.valueAsFlow().collectLatest { texts += it }
+                snapshotFlow { state.value }.collectLatest { texts += it }
             }
 
             val snapshot = Snapshot.takeMutableSnapshot()
@@ -582,13 +582,13 @@ class TextFieldStateTest {
         }
 
     @Test
-    fun forEachValue_notFired_whenChangeMadeInSnapshotThenDisposed() =
+    fun snapshotFlow_notFired_whenChangeMadeInSnapshotThenDisposed() =
         runTestWithSnapshotsThenCancelChildren {
             val state = TextFieldState()
             val texts = mutableListOf<TextFieldCharSequence>()
 
             launch(Dispatchers.Unconfined) {
-                state.valueAsFlow().collectLatest { texts += it }
+                snapshotFlow { state.value }.collectLatest { texts += it }
             }
 
             val snapshot = Snapshot.takeMutableSnapshot()
@@ -606,13 +606,13 @@ class TextFieldStateTest {
         }
 
     @Test
-    fun forEachValue_cancelsPreviousHandler_whenChangeMadeWhileSuspended() =
+    fun snapshotFlow_cancelsPreviousHandler_whenChangeMadeWhileSuspended() =
         runTestWithSnapshotsThenCancelChildren {
             val state = TextFieldState()
             val texts = mutableListOf<TextFieldCharSequence>()
 
             launch(Dispatchers.Unconfined) {
-                state.valueAsFlow().collectLatest {
+                snapshotFlow { state.value }.collectLatest {
                     texts += it
                     awaitCancellation()
                 }
