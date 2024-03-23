@@ -185,9 +185,9 @@ fun ImagePlaceholder() {
 }
 
 fun ClipboardManager.hasImage(): Boolean {
-    if (!hasClip()) return false
+    val clipMetadata = getClip()?.getMetadata() ?: return false
 
-    return getClipMetadata()?.clipDescription?.hasMimeType("image/*") ?: false
+    return clipMetadata.clipDescription.hasMimeType("image/*")
 }
 
 @Suppress("ClassVerificationFailure", "DEPRECATION")

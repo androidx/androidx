@@ -1157,8 +1157,8 @@ internal class TextFieldSelectionState(
         val receiveContentConfiguration = receiveContentConfiguration?.invoke()
             ?: return pasteAsPlainText()
 
-        val clipEntry = clipboardManager?.getClip() ?: return
-        val clipMetadata = clipboardManager?.getClipMetadata() ?: return pasteAsPlainText()
+        val clipEntry = clipboardManager?.getClip() ?: return pasteAsPlainText()
+        val clipMetadata = clipEntry.getMetadata()
 
         val remaining = receiveContentConfiguration.receiveContentListener.onReceive(
             TransferableContent(
@@ -1208,7 +1208,7 @@ internal class TextFieldSelectionState(
 
         // if receive content is configured, hasClip should be enough to show the paste option
         val canPasteContent = receiveContentConfiguration?.invoke() != null &&
-            clipboardManager?.hasClip() == true
+            clipboardManager?.getClip() != null
         // if receive content is not configured, we expect at least a text item to be present
         val canPasteText = clipboardManager?.hasText() == true
         val canPaste = editable && (canPasteContent || canPasteText)

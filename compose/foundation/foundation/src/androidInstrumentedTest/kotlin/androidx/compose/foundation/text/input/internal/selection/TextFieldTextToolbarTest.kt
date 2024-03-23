@@ -48,7 +48,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.ClipMetadata
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalTextToolbar
@@ -56,7 +55,6 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.toClipEntry
-import androidx.compose.ui.platform.toClipMetadata
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -965,22 +963,6 @@ internal fun FakeClipboardManager(
     override fun getClip(): ClipEntry? {
         if (supportsClipEntry) {
             return currentClipEntry
-        } else {
-            throw NotImplementedError("This clipboard does not support clip entries")
-        }
-    }
-
-    override fun getClipMetadata(): ClipMetadata? {
-        if (supportsClipEntry) {
-            return currentClipEntry?.clipData?.description?.toClipMetadata()
-        } else {
-            throw NotImplementedError("This clipboard does not support clip entries")
-        }
-    }
-
-    override fun hasClip(): Boolean {
-        if (supportsClipEntry) {
-            return currentClipEntry != null
         } else {
             throw NotImplementedError("This clipboard does not support clip entries")
         }

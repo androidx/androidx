@@ -54,25 +54,9 @@ internal actual class PlatformClipboardManager : ClipboardManager {
         }
     }
 
-    override fun getClipMetadata(): ClipMetadata? {
-        return try {
-            systemClipboard?.getContents(this)?.let(::ClipMetadata)
-        } catch (_: IllegalStateException) {
-            null
-        }
-    }
-
     override fun setClip(clipEntry: ClipEntry?) {
         // Ignore clipDescription.
         systemClipboard?.setContents(clipEntry?.transferable, null)
-    }
-
-    override fun hasClip(): Boolean {
-        return try {
-            systemClipboard?.availableDataFlavors?.isNotEmpty() ?: false
-        } catch (_: IllegalStateException) {
-            false
-        }
     }
 
     /**
@@ -94,6 +78,10 @@ actual class ClipEntry(
     @Throws(UnsupportedFlavorException::class, IOException::class)
     fun getTransferData(flavor: DataFlavor): Any? {
         return transferable.getTransferData(flavor)
+    }
+
+    actual fun getMetadata(): ClipMetadata {
+        return ClipMetadata(transferable)
     }
 }
 
